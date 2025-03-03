@@ -1,0 +1,49 @@
+{
+  "name": "archimind-extension",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.6",
+    "@radix-ui/react-progress": "^1.1.2",
+    "@radix-ui/react-separator": "^1.1.2",
+    "@radix-ui/react-slot": "^1.1.2",
+    "autoprefixer": "^10.4.20",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.308.0",
+    "next-themes": "^0.4.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sonner": "^2.0.1",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/chrome": "^0.0.268",
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "globals": "^15.0.1",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.4.3",
+    "typescript-eslint": "^7.3.1",
+    "vite": "^5.2.0",
+    "vite-plugin-css-injected-by-js": "^3.3.1",
+    "vite-plugin-static-copy": "^1.0.5",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
