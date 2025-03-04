@@ -61,3 +61,13 @@
     console.error("❌ Error in content script:", error);
   }
 })();
+
+
+if (process.env.NODE_ENV === 'development') {
+  chrome.storage.local.onChanged.addListener((changes) => {
+    if (changes.devReloadTimestamp) {
+      console.log('🔄 Content script reloading...');
+      window.location.reload();
+    }
+  });
+}

@@ -104,6 +104,8 @@ async function emailSignIn(email, password, sendResponse) {
 function sendAuthToken(sendResponse) {
     chrome.storage.local.get(["access_token", "refresh_token", "token_expires_at"], (result) => {
         const now = Math.floor(Date.now() / 1000);
+        console.log("🔄 Current time:", now);
+        console.log("🔄 Result:", result);
 
         if (result.access_token && result.token_expires_at > now) {
             console.log("✅ Using valid auth token");
@@ -160,3 +162,19 @@ function storeAuthSession(userId, session) {
     });
     console.log("🔄 Stored new auth session.");
 }
+
+
+
+
+
+/* ==========================================
+ 🔹 DEV RELOAD
+========================================== */
+
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'local' && changes.devReloadTimestamp) {
+      // Reload all extension pages
+      chrome.runtime.reload();
+    }
+  });

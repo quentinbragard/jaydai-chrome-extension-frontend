@@ -84,6 +84,16 @@ export default defineConfig(function (_a) {
         // Improve handling of external dependencies
         optimizeDeps: {
             include: ['react', 'react-dom']
-        }
+        },
+        define: {
+            // This makes process.env.NODE_ENV available in your code
+            'process.env.NODE_ENV': JSON.stringify(mode)
+          },
+          server: {
+            hmr: {
+              // This helps with HMR when developing
+              port: 3000
+            }
+          }
     };
 });

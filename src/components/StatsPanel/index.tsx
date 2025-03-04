@@ -1,125 +1,107 @@
+// src/components/StatsPanel/index.tsx
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
-// Remove the import for getAllStats since we'll use mock data
-// import { getAllStats } from '@/utils/statsManager';
+import { statsService, Stats } from '@/services/StatsService';
 
-interface Stats {
-  totalChats: number;
-  totalMessages: number;
-  avgMessagesPerChat: number;
-  tokenUsage: {
-    total: number;
-    lastMonth: number;
-  };
+interface StatsPanelProps {
+  className?: string;
 }
 
-// Mock data for development
-const MOCK_STATS: Stats = {
-  totalChats: 57,
-  totalMessages: 843,
-  avgMessagesPerChat: 14.8,
-  tokenUsage: {
-    total: 756320,
-    lastMonth: 243950
-  }
-};
-
-export const StatsPanel: React.FC = () => {
+export const StatsPanel: React.FC<StatsPanelProps> = ({ className }) => {
   const [stats, setStats] = useState<Stats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    console.log('🔍 StatsPanel useEffect'); 
-    // Simulate API loading with a short delay
-    const timer = setTimeout(() => {
-      setStats(MOCK_STATS);
+    // Register for stats updates
+    const cleanup = statsService.onUpdate((updatedStats) => {
+      setStats(updatedStats);
       setIsLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
+    });
+    // Initial stats fetch
+    statsService.getStats();
+    return cleanup;
   }, []);
+
+  // Utility for showing progress bars when expanded
+  const createProgressBar = (value: number, max: number) => {
+    const percent = Math.min((value / max) * 100, 100);
+    return (
+      <div className="h-2 rounded-full bg-gray-700 dark:bg-gray-300">
+        <div 
+          className="h-full rounded-full bg-blue-500 dark:bg-blue-600" 
+          style={{ width: `${percent}%` }}
+        ></div>
+      </div>
+    );
+  };
 
   if (isLoading && !stats) {
     return (
-      <Card className="w-64">
-        <CardHeader>
-          <CardTitle className="text-lg">Loading stats...</CardTitle>
-        </CardHeader>
-      </Card>
+      <div className={`shadow-lg rounded-lg bg-gray-800 dark:bg-gray-100 text-gray-100 dark:text-gray-800 w-64 ${className || ''}`}>
+        <div className="p-4 text-center">
+          <p className="text-lg font-medium">Loading stats...</p>
+        </div>
+      </div>
     );
   }
 
   if (!stats) {
     return (
-      <Card className="w-64">
-        <CardHeader>
-          <CardTitle className="text-lg">Stats unavailable</CardTitle>
-        </CardHeader>
-      </Card>
+      <div className={`shadow-lg rounded-lg bg-gray-800 dark:bg-gray-100 text-gray-100 dark:text-gray-800 w-64 ${className || ''}`}>
+        <div className="p-4 text-center">
+          <p className="text-lg font-medium">Stats unavailable</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className={`shadow-lg transition-all duration-300 ${isExpanded ? 'w-80' : 'w-64'}`}>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-lg">Archimind Stats</CardTitle>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="h-6 w-6 p-0"
-          >
-            {isExpanded ? '−' : '+'}
-          </Button>
-        </div>
-      </CardHeader>
-      
-      <Separator />
-      
-      <CardContent className="pt-4">
-        <div className="space-y-4">
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Total Chats</span>
-              <span className="font-medium">{stats.totalChats}</span>
-            </div>
-            <Progress value={(stats.totalChats / 100) * 100} className="h-2" />
+    <div className={`shadow-lg rounded-lg bg-gray-800 dark:bg-gray-100 text-gray-100 dark:text-gray-800 border border-gray-700 dark:border-gray-300 transition-all duration-300 ${isExpanded ? 'w-80' : 'w-64'} ${className || ''}`}>
+      <div className="flex items-center justify-between p-4">
+        {/* Horizontal bar with 3 stats */}
+        <div className="flex flex-1 justify-around">
+          <div className="flex flex-col items-center">
+            <span className="text-sm font-medium">Chaaaaats</span>
+            <span className="text-lg font-bold">{stats.totalChats}</span>
           </div>
-          
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Messages / Chat</span>
-              <span className="font-medium">{stats.avgMessagesPerChat.toFixed(1)}</span>
-            </div>
-            <Progress value={(stats.avgMessagesPerChat / 20) * 100} className="h-2" />
+          <div className="flex flex-col items-center">
+            <span className="text-sm font-medium">Msg/Chat</span>
+            <span className="text-lg font-bold">{stats.avgMessagesPerChat.toFixed(1)}</span>
           </div>
-          
-          {isExpanded && (
-            <>
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span>Token Usage (Total)</span>
-                  <span className="font-medium">{stats.tokenUsage.total.toLocaleString()}</span>
-                </div>
-                <Progress value={(stats.tokenUsage.total / 1000000) * 100} className="h-2" />
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span>Token Usage (Month)</span>
-                  <span className="font-medium">{stats.tokenUsage.lastMonth.toLocaleString()}</span>
-                </div>
-                <Progress value={(stats.tokenUsage.lastMonth / 100000) * 100} className="h-2" />
-              </div>
-            </>
-          )}
+          <div className="flex flex-col items-center">
+            <span className="text-sm font-medium">Usage</span>
+            <span className="text-lg font-bold">{stats.tokenUsage.total.toLocaleString()}</span>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+        {/* Chevron button to toggle expand */}
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="ml-2 h-6 w-6 p-0"
+        >
+          {isExpanded ? '⌃' : '⌄'}
+        </Button>
+      </div>
+      {isExpanded && (
+        <div className="px-4 pb-4">
+          <Separator />
+          <div className="mt-2">
+            <div className="flex justify-between text-sm mb-1">
+              <span>Token Usage (Month)</span>
+              <span className="font-medium">{stats.tokenUsage.lastMonth.toLocaleString()}</span>
+            </div>
+            {createProgressBar(stats.tokenUsage.lastMonth, 100000)}
+            <div className="mt-2 text-xs text-gray-400 dark:text-gray-600 text-right">
+              <span>Updated: {new Date().toLocaleTimeString()}</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
-}; 
+};
+
+export default StatsPanel;
