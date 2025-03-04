@@ -102,3 +102,128 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Add these custom styles to your globals.css file */
+
+@keyframes float {
+  0% {
+    transform: translateY(0px) translateX(-50%);
+  }
+  50% {
+    transform: translateY(-5px) translateX(-50%);
+  }
+  100% {
+    transform: translateY(0px) translateX(-50%);
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.1), 0 0 10px rgba(59, 130, 246, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2), 0 0 20px rgba(59, 130, 246, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.1), 0 0 10px rgba(59, 130, 246, 0.1);
+  }
+}
+
+@keyframes slide-up-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-panel {
+  animation: float 6s ease-in-out infinite, pulse-glow 4s ease-in-out infinite;
+  transform: translateX(-50%);
+}
+
+.stats-panel .progress-indicator {
+  transition: width 1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.stat-card-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  transform: scale(0.5);
+  z-index: 0;
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.3s ease, transform 0.5s ease;
+}
+
+.expanded-details {
+  animation: slide-up-fade-in 0.4s ease-out forwards;
+}
+
+/* Custom progress bar styles */
+.custom-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.custom-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Dark mode adjustments */
+.dark .stats-panel {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 10px rgba(59, 130, 246, 0.1);
+}
+
+.dark .custom-progress {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Custom tooltip */
+.stats-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 100;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+
+.stats-panel:hover .stats-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
