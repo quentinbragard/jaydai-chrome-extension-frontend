@@ -1,146 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Check, Clock, Info, AlertTriangle, CheckCircle, X } from "lucide-react";
-import { formatDistanceToNow } from 'date-fns';
-
-export interface Notification {
-  id: string;
-  title: string;
-  body: string;
-  type: 'info' | 'warning' | 'success' | 'error' | string;
-  action_button?: string;
-  created_at: string;
-  read_at?: string;
-  seen_at?: string;
-  metadata?: Record<string, any>;
-}
-
-// Mock notification service for now
-const notificationService = {
-  loadNotifications: async () => {
-    return Promise.resolve([
-      {
-        id: '1',
-        title: 'Welcome to Archimind',
-        body: 'Start your AI analytics journey by sending your first message to ChatGPT.',
-        type: 'info',
-        action_button: 'Get Started',
-        created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        read_at: null
-      },
-      {
-        id: '2',
-        title: 'New Template Available',
-        body: 'Check out our new prompt template for better AI responses.',
-        type: 'success',
-        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        read_at: null
-      },
-      {
-        id: '3',
-        title: 'Usage Limit Warning',
-        body: 'You are approaching your monthly usage limit.',
-        type: 'warning',
-        action_button: 'Upgrade',
-        created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-        read_at: null
-      }
-    ]);
-  },
-  markAsRead: async (id: string) => {
-    console.log(`Marking notification ${id} as read`);
-    return Promise.resolve(true);
-  },
-  markAllAsRead: async () => {
-    console.log('Marking all notifications as read');
-    return Promise.resolve(true);
-  },
-  handleNotificationAction: async (id: string) => {
-    console.log(`Handling action for notification ${id}`);
-    return Promise.resolve(true);
-  },
-  onNotificationsUpdate: (callback: (notifications: Notification[]) => void) => {
-    // In a real implementation, this would register a callback
-    // to be called when notifications change
-    setTimeout(() => callback([]), 1000); // Simulate a notification update after 1s
-    return () => {}; // Return cleanup function
-  }
-};
-
-interface NotificationsPanelProps {
-  onClose?: () => void;
-  maxHeight?: string;
-}
+import { Bell, Check, X } from "lucide-react";
+import { useNotifications } from './useNotifications';
+import { NotificationsPanelProps } from './types';
+import NotificationItem from './NotificationItem';
 
 const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ 
   onClose, 
   maxHeight = '400px' 
 }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Register for notification updates
-    const cleanup = notificationService.onNotificationsUpdate((updatedNotifications) => {
-      setNotifications(updatedNotifications);
-      setLoading(false);
-    });
-    
-    // Load notifications
-    notificationService.loadNotifications()
-      .then((data) => {
-        setNotifications(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-    
-    return cleanup;
-  }, []);
-
-  const handleMarkAllAsRead = async () => {
-    await notificationService.markAllAsRead();
-    setNotifications(notifications.map(n => ({ ...n, read_at: new Date().toISOString() })));
-  };
-
-  const handleActionClick = async (notification: Notification) => {
-    await notificationService.handleNotificationAction(notification.id);
-  };
-
-  const handleDismiss = async (notification: Notification, e: React.MouseEvent) => {
-    e.stopPropagation();
-    await notificationService.markAsRead(notification.id);
-    setNotifications(notifications.map(n => 
-      n.id === notification.id ? { ...n, read_at: new Date().toISOString() } : n
-    ));
-  };
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'info':
-        return <Info className="h-5 w-5 text-blue-500" />;
-      case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case 'success':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'error':
-        return <AlertTriangle className="h-5 w-5 text-red-500" />;
-      default:
-        return <Bell className="h-5 w-5 text-blue-500" />;
-    }
-  };
-
-  const formatTimeAgo = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
-    } catch (error) {
-      return "some time ago";
-    }
-  };
-
-  const hasUnread = notifications.some(n => !n.read_at);
-  const unreadCount = notifications.filter(n => !n.read_at).length;
+  const {
+    notifications,
+    loading,
+    hasUnread,
+    unreadCount,
+    handleMarkAllAsRead,
+    handleActionClick,
+    handleDismiss
+  } = useNotifications();
 
   return (
     <Card className="w-80 shadow-lg">
@@ -199,51 +78,12 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
           ) : (
             <ul className="divide-y divide-border">
               {notifications.map(notification => (
-                <li 
+                <NotificationItem
                   key={notification.id}
-                  onClick={() => handleActionClick(notification)}
-                  className={`px-4 py-3 cursor-pointer transition-colors hover:bg-accent 
-                    ${notification.read_at ? 'opacity-70' : ''}`}
-                >
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 mt-1">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">{notification.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{notification.body}</p>
-                      
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-muted-foreground flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {formatTimeAgo(notification.created_at)}
-                        </span>
-                        
-                        {!notification.read_at && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={(e) => handleDismiss(notification, e)}
-                            className="h-5 text-xs px-1.5"
-                          >
-                            Dismiss
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {notification.action_button && !notification.read_at && (
-                    <div className="mt-2 flex justify-end">
-                      <Button 
-                        size="sm" 
-                        className="h-7 text-xs"
-                      >
-                        {notification.action_button}
-                      </Button>
-                    </div>
-                  )}
-                </li>
+                  notification={notification}
+                  onActionClick={handleActionClick}
+                  onDismiss={handleDismiss}
+                />
               ))}
             </ul>
           )}
