@@ -8,12 +8,12 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 import cssInjectedByJs from 'vite-plugin-css-injected-by-js';
 
 // Create __dirname equivalent for ES modules
-var __filename = fileURLToPath(import.meta.url);
-var __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig(function (_a) {
-    var mode = _a.mode;
-    var isProduction = mode === 'production';
+    const mode = _a.mode;
+    const isProduction = mode === 'production';
     return {
         plugins: [
             react(),
@@ -58,7 +58,7 @@ export default defineConfig(function (_a) {
             rollupOptions: {
                 input: {
                     content: resolve(__dirname, 'src/content/content.js'),
-                    'content-init': resolve(__dirname, 'src/core/init.ts'),
+                    'content-init': resolve(__dirname, 'src/content/init.ts'),
                     background: resolve(__dirname, 'src/background/background.js'),
                     popup: resolve(__dirname, 'src/popup/popup.js'),
                     welcome: resolve(__dirname, 'src/welcome/welcome.jsx')
