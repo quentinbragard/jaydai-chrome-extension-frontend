@@ -5,7 +5,7 @@ import { templateService } from '@/services/TemplateService';
 import { notificationService } from '@/services/NotificationService';
 import { componentInjector } from '@/utils/componentInjector';
 import { StatsPanel } from '@/components/StatsPanel';
-import { MainButton } from '@/components/MainButton';
+import MainButton  from '@/components/MainButton';
 import { getUserId } from '@/utils/auth';
 import { SettingsDialog } from '@/components/SettingsDialog';
 import React from 'react';
@@ -184,7 +184,7 @@ export class AppInitializer {
         id: 'archimind-stats-panel',
         position: {
           type: 'fixed',
-          top: '20px',
+          top: '5px',
           left: '50%',
         }
       });
@@ -197,8 +197,8 @@ export class AppInitializer {
       id: 'archimind-main-button',
       position: {
         type: 'fixed',
-        bottom: '20px',
-        right: '20px',
+        top: '50px',
+        left: '50%',
         zIndex: '9999'
       }
     });

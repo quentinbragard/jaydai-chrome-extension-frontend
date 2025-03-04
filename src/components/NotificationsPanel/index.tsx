@@ -1,18 +1,80 @@
-// src/components/NotificationsPanel/index.tsx
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Bell, Check, Clock, Info, AlertTriangle, CheckCircle, X } from "lucide-react";
-import { notificationService, Notification } from '@/services/NotificationService';
 import { formatDistanceToNow } from 'date-fns';
+
+export interface Notification {
+  id: string;
+  title: string;
+  body: string;
+  type: 'info' | 'warning' | 'success' | 'error' | string;
+  action_button?: string;
+  created_at: string;
+  read_at?: string;
+  seen_at?: string;
+  metadata?: Record<string, any>;
+}
+
+// Mock notification service for now
+const notificationService = {
+  loadNotifications: async () => {
+    return Promise.resolve([
+      {
+        id: '1',
+        title: 'Welcome to Archimind',
+        body: 'Start your AI analytics journey by sending your first message to ChatGPT.',
+        type: 'info',
+        action_button: 'Get Started',
+        created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        read_at: null
+      },
+      {
+        id: '2',
+        title: 'New Template Available',
+        body: 'Check out our new prompt template for better AI responses.',
+        type: 'success',
+        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        read_at: null
+      },
+      {
+        id: '3',
+        title: 'Usage Limit Warning',
+        body: 'You are approaching your monthly usage limit.',
+        type: 'warning',
+        action_button: 'Upgrade',
+        created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+        read_at: null
+      }
+    ]);
+  },
+  markAsRead: async (id: string) => {
+    console.log(`Marking notification ${id} as read`);
+    return Promise.resolve(true);
+  },
+  markAllAsRead: async () => {
+    console.log('Marking all notifications as read');
+    return Promise.resolve(true);
+  },
+  handleNotificationAction: async (id: string) => {
+    console.log(`Handling action for notification ${id}`);
+    return Promise.resolve(true);
+  },
+  onNotificationsUpdate: (callback: (notifications: Notification[]) => void) => {
+    // In a real implementation, this would register a callback
+    // to be called when notifications change
+    setTimeout(() => callback([]), 1000); // Simulate a notification update after 1s
+    return () => {}; // Return cleanup function
+  }
+};
 
 interface NotificationsPanelProps {
   onClose?: () => void;
   maxHeight?: string;
 }
 
-export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ 
+const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ 
   onClose, 
   maxHeight = '400px' 
 }) => {
@@ -28,23 +90,30 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
     
     // Load notifications
     notificationService.loadNotifications()
-      .then(() => setLoading(false))
+      .then((data) => {
+        setNotifications(data);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
     
     return cleanup;
   }, []);
-  
+
   const handleMarkAllAsRead = async () => {
     await notificationService.markAllAsRead();
+    setNotifications(notifications.map(n => ({ ...n, read_at: new Date().toISOString() })));
   };
-  
+
   const handleActionClick = async (notification: Notification) => {
     await notificationService.handleNotificationAction(notification.id);
   };
-  
+
   const handleDismiss = async (notification: Notification, e: React.MouseEvent) => {
     e.stopPropagation();
     await notificationService.markAsRead(notification.id);
+    setNotifications(notifications.map(n => 
+      n.id === notification.id ? { ...n, read_at: new Date().toISOString() } : n
+    ));
   };
 
   const getNotificationIcon = (type: string) => {
@@ -61,7 +130,7 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
         return <Bell className="h-5 w-5 text-blue-500" />;
     }
   };
-  
+
   const formatTimeAgo = (dateString: string) => {
     try {
       return formatDistanceToNow(new Date(dateString), { addSuffix: true });
@@ -72,7 +141,7 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
 
   const hasUnread = notifications.some(n => !n.read_at);
   const unreadCount = notifications.filter(n => !n.read_at).length;
-  
+
   return (
     <Card className="w-80 shadow-lg">
       <CardHeader className="py-3 flex flex-row items-center justify-between">

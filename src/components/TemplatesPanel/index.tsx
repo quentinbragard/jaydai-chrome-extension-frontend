@@ -1,4 +1,3 @@
-// src/components/TemplatesPanel/index.tsx
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,12 +13,6 @@ import {
   X
 } from "lucide-react";
 import { 
-  templateService, 
-  Template, 
-  TemplateFolder,
-  TemplateCollection
-} from '@/services/TemplateService';
-import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
@@ -27,12 +20,124 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
+export interface Template {
+  id: string;
+  name: string;
+  content: string;
+  description?: string;
+  folder?: string;
+  created_at: string;
+  updated_at: string;
+  usage_count: number;
+}
+
+export interface TemplateFolder {
+  path: string;
+  name: string;
+  templates: Template[];
+  subfolders: TemplateFolder[];
+}
+
+export interface TemplateCollection {
+  templates: Template[];
+  folders: TemplateFolder[];
+  rootTemplates: Template[];
+}
+
+// Mock template service for now
+const templateService = {
+  loadTemplates: async () => {
+    return Promise.resolve({
+      templates: [
+        {
+          id: '1',
+          name: 'Research Template',
+          content: 'Please help me research [TOPIC]. I need to understand the following aspects: 1. History 2. Current trends 3. Future possibilities 4. Important figures in the field',
+          description: 'Template for researching topics thoroughly',
+          folder: 'academic',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          usage_count: 5
+        },
+        {
+          id: '2',
+          name: 'Bug Fix Template',
+          content: 'I am encountering an error in my [LANGUAGE] code: ```\n[CODE]\n```\n\nThe error message is: [ERROR]\n\nCan you help me fix this issue?',
+          description: 'Template for debugging code issues',
+          folder: 'programming',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          usage_count: 12
+        },
+        {
+          id: '3',
+          name: 'Creative Writing Prompt',
+          content: 'Can you write a short story about [TOPIC] with the following elements: - Setting: [SETTING] - Main character: [CHARACTER] - Theme: [THEME] - Style: [STYLE]',
+          folder: 'creative',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          usage_count: 3
+        }
+      ],
+      folders: [
+        {
+          path: 'academic',
+          name: 'Academic',
+          templates: [],
+          subfolders: []
+        },
+        {
+          path: 'programming',
+          name: 'Programming',
+          templates: [],
+          subfolders: []
+        },
+        {
+          path: 'creative',
+          name: 'Creative',
+          templates: [],
+          subfolders: []
+        }
+      ],
+      rootTemplates: []
+    } as TemplateCollection);
+  },
+  createTemplate: async (templateData: any) => {
+    console.log('Creating template:', templateData);
+    return Promise.resolve({ success: true });
+  },
+  updateTemplate: async (id: string, templateData: any) => {
+    console.log('Updating template:', id, templateData);
+    return Promise.resolve({ success: true });
+  },
+  deleteTemplate: async (id: string) => {
+    console.log('Deleting template:', id);
+    return Promise.resolve({ success: true });
+  },
+  useTemplate: async (id: string) => {
+    console.log('Using template:', id);
+    return Promise.resolve({ success: true });
+  },
+  insertTemplateContent: (content: string) => {
+    console.log('Inserting template content:', content);
+    return true;
+  },
+  onTemplatesUpdate: (callback: (templates: TemplateCollection) => void) => {
+    // In a real implementation, this would register a callback
+    // to be called when templates change
+    setTimeout(() => {
+      templateService.loadTemplates().then(templates => callback(templates));
+    }, 1000); // Simulate a templates update after 1s
+    return () => {}; // Return cleanup function
+  }
+};
+
 interface TemplatesPanelProps {
   onClose?: () => void;
   maxHeight?: string;
 }
 
-export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({ 
+const TemplatesPanel: React.FC<TemplatesPanelProps> = ({ 
   onClose, 
   maxHeight = '400px' 
 }) => {
@@ -61,12 +166,15 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     
     // Load templates
     templateService.loadTemplates()
-      .then(() => setLoading(false))
+      .then((data) => {
+        setTemplateCollection(data);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
     
     return cleanup;
   }, []);
-  
+
   const toggleFolder = (path: string) => {
     setExpandedFolders(prev => {
       const newSet = new Set(prev);
@@ -78,7 +186,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       return newSet;
     });
   };
-  
+
   const useTemplate = async (template: Template) => {
     try {
       await templateService.useTemplate(template.id);
@@ -88,7 +196,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       console.error('Error using template:', error);
     }
   };
-  
+
   const openEditDialog = (template: Template | null) => {
     if (template) {
       setCurrentTemplate(template);
@@ -109,7 +217,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     }
     setEditDialogOpen(true);
   };
-  
+
   const handleSaveTemplate = async () => {
     try {
       if (currentTemplate) {
@@ -124,7 +232,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       console.error('Error saving template:', error);
     }
   };
-  
+
   const handleDeleteTemplate = async (template: Template, e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm(`Are you sure you want to delete "${template.name}"?`)) {
@@ -135,7 +243,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       }
     }
   };
-  
+
   const captureCurrentPromptAsTemplate = () => {
     // Find the ChatGPT input area
     const inputArea = document.querySelector('textarea[data-id="root"]') as HTMLTextAreaElement;
@@ -150,7 +258,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       content: inputArea.value.trim()
     }));
   };
-  
+
   const renderFolderTree = (folder: TemplateFolder, path: string = '') => {
     const isExpanded = expandedFolders.has(path);
     const currentPath = path ? `${path}/${folder.name}` : folder.name;
@@ -178,7 +286,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       </div>
     );
   };
-  
+
   const renderTemplateItem = (template: Template) => {
     return (
       <div 
