@@ -4,8 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Toaster } from "sonner";
 import NotificationsPanel from '../NotificationsPanel';
 import TemplatesPanel from '../TemplatesPanel';
-import { X, FileText, Bell, Settings } from "lucide-react";
-import logo from './archimind_logo.svg';
+import { X, FileText, Bell, Settings, ShieldAlert } from "lucide-react";
+
+// Use the Supabase public bucket URL for the logo
+const SUPABASE_LOGO_URL = "https://gjszbwfzgnwblvdehzcq.supabase.co/storage/v1/object/public/chrome_extension_assets/archimind-logo.png";
 
 interface MainButtonProps {
   onSettingsClick?: () => void;
@@ -18,6 +20,7 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
   const [isOpen, setIsOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<ActivePanel>('none');
   const [notificationCount, setNotificationCount] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -113,6 +116,15 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
     handleClosePanel();
   };
 
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
+  const handleImageError = () => {
+    setImageLoaded(false);
+    console.error("Failed to load logo image from Supabase");
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end">
       {/* Panel that opens above the main button */}
@@ -146,26 +158,30 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
         </div>
       )}
 
-      {/* Main Button with archimind_logo background */}
+      {/* Main Button with logo loaded from Supabase */}
       <Button 
         ref={buttonRef}
         onClick={toggleMenu}
-        className="h-16 w-16 rounded-full shadow-lg relative"
-        style={{
-          backgroundImage: `url(${logo})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
+        className="h-16 w-16 rounded-full shadow-lg relative  p-0 overflow-hidden flex items-center justify-center"
       >
+        <img 
+          src={SUPABASE_LOGO_URL} 
+          alt="Archimind Logo" 
+          className="w-full h-full object-cover"
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+        />
+        
         {/* Optional overlay icon when open */}
         {isOpen && (
-          <div className="absolute top-1 right-1 bg-white rounded-full p-1">
+          <div className="absolute top-1 right-1 bg-white rounded-full p-1 z-10">
             <X className="h-4 w-4 text-gray-800" />
           </div>
         )}
+        
         {/* Notification badge when closed */}
         {notificationCount > 0 && !isOpen && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center z-10">
             {notificationCount > 9 ? '9+' : notificationCount}
           </span>
         )}
