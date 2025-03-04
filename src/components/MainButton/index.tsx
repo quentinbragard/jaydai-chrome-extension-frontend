@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Toaster } from "sonner";
 import NotificationsPanel from '../NotificationsPanel';
 import TemplatesPanel from '../TemplatesPanel';
-import { X, FileText, Bell, Settings, ShieldAlert } from "lucide-react";
+import { X, FileText, Bell, Settings } from "lucide-react";
 
 // Use the Supabase public bucket URL for the logo
 const SUPABASE_LOGO_URL = "https://gjszbwfzgnwblvdehzcq.supabase.co/storage/v1/object/public/chrome_extension_assets/archimind-logo.png";
@@ -135,8 +135,34 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
             ref={menuRef}
             className="absolute bottom-full mb-2 right-0 animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-150"
           >
-            {activePanel === 'notifications' && <NotificationsPanel onClose={handleClosePanel} />}
-            {activePanel === 'templates' && <TemplatesPanel onClose={handleClosePanel} />}
+            {activePanel === 'notifications' && (
+              <div className="flex flex-col">
+                <div 
+                  className="flex items-center mb-1 px-2 py-1 bg-muted/30 rounded-t-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => setActivePanel('menu')}
+                >
+                  <svg className="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 19L8 12L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-xs">Back to menu</span>
+                </div>
+                <NotificationsPanel onClose={handleClosePanel} />
+              </div>
+            )}
+            {activePanel === 'templates' && (
+              <div className="flex flex-col">
+                <div 
+                  className="flex items-center mb-1 px-2 py-1 bg-muted/30 rounded-t-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => setActivePanel('menu')}
+                >
+                  <svg className="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 19L8 12L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-xs">Back to menu</span>
+                </div>
+                <TemplatesPanel onClose={handleClosePanel} />
+              </div>
+            )}
             {activePanel === 'menu' && (
               <Card className="w-48 p-1 shadow-lg">
                 <div className="flex flex-col space-y-1">
