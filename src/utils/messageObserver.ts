@@ -29,6 +29,15 @@ export class MessageObserver {
   private isInitialized: boolean = false;
   private onNewMessageCallback: ((message: ChatMessage) => void) | null = null;
   private processingInterval: number | null = null;
+  private messageSelectors = {
+    // Define selectors for ChatGPT's DOM structure
+    // These may need updates if ChatGPT changes its UI
+    container: 'main div.flex.flex-col.text-sm',
+    userMessage: '[data-message-author-role="user"]',
+    assistantMessage: '[data-message-author-role="assistant"]',
+    messageContent: '.markdown',
+    messageId: 'data-message-id',
+  };
 
   /**
    * Setup the observer to monitor DOM changes
@@ -38,6 +47,9 @@ export class MessageObserver {
 
     // Get or create chat info
     this.extractChatInfo();
+
+    // Initial scan of existing messages
+    this.scanExistingMessages();
 
     // Setup message processing interval
     this.processingInterval = window.setInterval(() => {
@@ -52,13 +64,17 @@ export class MessageObserver {
     // Start observing with a slight delay to ensure page is loaded
     setTimeout(() => {
       if (this.observer) {
-        this.observer.observe(document.body, {
-          childList: true,
-          subtree: true,
-          characterData: true,
-        });
-        console.log('✅ ChatGPT message observer started');
-        this.isInitialized = true;
+        const targetNode = document.querySelector('body');
+        if (targetNode) {
+          this.observer.observe(targetNode, {
+            childList: true,
+            subtree: true,
+          });
+          console.log('✅ ChatGPT message observer started');
+          this.isInitialized = true;
+        } else {
+          console.error('❌ Could not find target node for observer');
+        }
       }
     }, 1000);
   }
@@ -68,13 +84,14 @@ export class MessageObserver {
    */
   private extractChatInfo() {
     try {
-      // Extract chat ID from URL or DOM (implementation depends on ChatGPT's structure)
+      // Extract chat ID from URL or DOM
       const url = new URL(window.location.href);
       const chatId = url.pathname.split('/').pop() || `chat-${Date.now()}`;
       
-      // Try to find chat title (this selector needs to match ChatGPT's structure)
-      const titleElement = document.querySelector('[data-testid="conversation-title"]');
-      const chatTitle = titleElement?.textContent || 'Untitled Conversation';
+      // Try to find chat title
+      // For ChatGPT, the title might be in the nav sidebar
+      const titleElement = document.querySelector('nav h1');
+      const chatTitle = titleElement?.textContent?.trim() || 'New Conversation';
 
       this.currentChat = {
         chatId,
@@ -84,7 +101,11 @@ export class MessageObserver {
       };
 
       // Save chat info to backend
-      apiService.saveChatToBackend(this.currentChat).catch(error => {
+      apiService.saveChatToBackend({
+        chatId: this.currentChat.chatId,
+        chatTitle: this.currentChat.chatTitle,
+        providerName: this.currentChat.providerName
+      }).catch(error => {
         console.error('❌ Failed to save chat info:', error);
       });
 
@@ -102,82 +123,107 @@ export class MessageObserver {
   }
 
   /**
-   * Handle DOM mutations to detect new messages
+   * Scan existing messages on the page
    */
-  private handleMutations(mutations: MutationRecord[]) {
-    for (const mutation of mutations) {
-      // Skip if no chat info available
-      if (!this.currentChat) return;
-
-      // Look for new message containers
-      // This logic needs to be adapted to match ChatGPT's DOM structure
-      const messageNodes = this.findMessageNodes(mutation);
-      
-      for (const node of messageNodes) {
-        const message = this.extractMessageFromNode(node);
-        if (message) {
-          this.queueMessage(message);
-        }
+  private scanExistingMessages() {
+    try {
+      const container = document.querySelector(this.messageSelectors.container);
+      if (!container) {
+        console.log('⚠️ Message container not found');
+        return;
       }
+
+      // Find all messages
+      const userMessages = container.querySelectorAll(this.messageSelectors.userMessage);
+      const assistantMessages = container.querySelectorAll(this.messageSelectors.assistantMessage);
+
+      // Process user messages
+      userMessages.forEach((node, index) => {
+        const message = this.extractMessageFromNode(node as HTMLElement, 'user', index);
+        if (message) this.queueMessage(message);
+      });
+
+      // Process assistant messages
+      assistantMessages.forEach((node, index) => {
+        const message = this.extractMessageFromNode(node as HTMLElement, 'assistant', userMessages.length + index);
+        if (message) this.queueMessage(message);
+      });
+
+      console.log(`✅ Scanned ${userMessages.length + assistantMessages.length} existing messages`);
+    } catch (error) {
+      console.error('❌ Error scanning existing messages:', error);
     }
   }
 
   /**
-   * Find message nodes in a mutation record
-   * This is a placeholder - actual implementation depends on ChatGPT's DOM structure
+   * Handle DOM mutations to detect new messages
    */
-  private findMessageNodes(mutation: MutationRecord): HTMLElement[] {
-    const messageNodes: HTMLElement[] = [];
-    
-    // ChatGPT typically has a structure with user and assistant messages
-    // You'll need to identify the specific selectors for message containers
-    // Example (adjust based on actual ChatGPT DOM):
-    const potentialContainer = mutation.target as HTMLElement;
-    const messageElements = potentialContainer.querySelectorAll('[data-message-id]');
-    
-    messageElements.forEach(element => {
-      if (element instanceof HTMLElement && !element.dataset.processed) {
-        messageNodes.push(element);
-        // Mark as processed to avoid duplicate processing
-        element.dataset.processed = 'true';
-      }
+  private handleMutations(mutations: MutationRecord[]) {
+    // Look for message-related mutations
+    const relevantMutations = mutations.filter(mutation => {
+      const target = mutation.target as HTMLElement;
+      return (
+        // Look for added nodes that might be messages
+        (mutation.type === 'childList' && mutation.addedNodes.length > 0) ||
+        // Or message content changes
+        (target && (
+          target.matches?.(this.messageSelectors.userMessage) || 
+          target.matches?.(this.messageSelectors.assistantMessage) ||
+          target.closest?.(this.messageSelectors.userMessage) ||
+          target.closest?.(this.messageSelectors.assistantMessage)
+        ))
+      );
     });
-    
-    return messageNodes;
+
+    if (relevantMutations.length === 0) return;
+
+    // Re-scan all messages when relevant changes occur
+    // This is simpler than trying to determine exact changes
+    setTimeout(() => this.scanExistingMessages(), 500);
   }
 
   /**
    * Extract message data from a DOM node
-   * This is a placeholder - actual implementation depends on ChatGPT's DOM structure
    */
-  private extractMessageFromNode(node: HTMLElement): ChatMessage | null {
+  private extractMessageFromNode(
+    node: HTMLElement, 
+    defaultRole: 'user' | 'assistant' | 'system', 
+    index: number
+  ): ChatMessage | null {
     try {
-      // These selectors need to be adjusted based on ChatGPT's actual DOM structure
-      const messageId = node.dataset.messageId || `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      const messageText = node.querySelector('.message-content')?.textContent?.trim() || '';
+      // Skip if already processed
+      if (node.dataset.archiProcessed === 'true') {
+        return null;
+      }
+
+      // Get message ID
+      const messageId = node.getAttribute(this.messageSelectors.messageId) || 
+                        `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       
-      // Determine role based on classes or data attributes
-      let role: 'user' | 'assistant' | 'system' = 'user';
-      if (node.classList.contains('assistant-message') || node.dataset.role === 'assistant') {
-        role = 'assistant';
-      } else if (node.classList.contains('system-message') || node.dataset.role === 'system') {
-        role = 'system';
+      // Get message content
+      const contentEl = node.querySelector(this.messageSelectors.messageContent);
+      const messageText = contentEl?.textContent?.trim() || '';
+      
+      if (!messageText) {
+        return null; // Skip empty messages
       }
       
-      // Get current messages count for ranking
-      const rank = this.currentChat?.messages.length || 0;
+      // Determine role
+      let role = defaultRole;
+      if (node.dataset.messageAuthorRole) {
+        role = node.dataset.messageAuthorRole as 'user' | 'assistant' | 'system';
+      }
       
-      // Optional: extract model info if available
-      const model = node.dataset.model || undefined;
+      // Mark as processed
+      node.dataset.archiProcessed = 'true';
       
       // Create message object
       const message: ChatMessage = {
         messageId,
         message: messageText,
         role,
-        rank,
+        rank: index,
         providerChatId: this.currentChat?.chatId || '',
-        model,
         timestamp: Date.now(),
       };
       

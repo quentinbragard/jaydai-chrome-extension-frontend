@@ -6,6 +6,7 @@ import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import cssInjectedByJs from 'vite-plugin-css-injected-by-js';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 // Create __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -17,6 +18,7 @@ export default defineConfig(function (_a) {
     return {
         plugins: [
             react(),
+            tsconfigPaths(), // Add this to resolve path aliases correctly
             cssInjectedByJs(),
             viteStaticCopy({
                 targets: [
@@ -50,6 +52,7 @@ export default defineConfig(function (_a) {
                 ],
             },
         },
+        // Prevent code splitting for extension entry points
         build: {
             emptyOutDir: true,
             outDir: 'dist',
@@ -58,7 +61,7 @@ export default defineConfig(function (_a) {
             rollupOptions: {
                 input: {
                     content: resolve(__dirname, 'src/content/content.js'),
-                    'content-init': resolve(__dirname, 'src/content/init.ts'),
+                    'content-init': resolve(__dirname, 'src/content/initializer.ts'), // We'll create this file
                     background: resolve(__dirname, 'src/background/background.js'),
                     popup: resolve(__dirname, 'src/popup/popup.js'),
                     welcome: resolve(__dirname, 'src/welcome/welcome.jsx')
@@ -66,8 +69,10 @@ export default defineConfig(function (_a) {
                 output: {
                     entryFileNames: '[name].js',
                     chunkFileNames: 'assets/[name].[hash].js',
-                    assetFileNames: 'assets/[name].[ext]'
-                }
+                    assetFileNames: 'assets/[name].[ext]',
+                    manualChunks: undefined // Disable chunk optimization for extension entry points
+                },
+                preserveEntrySignatures: 'strict' // Helps prevent tree-shaking of exports
             }
         },
         resolve: {
@@ -75,6 +80,10 @@ export default defineConfig(function (_a) {
                 '@': resolve(__dirname, './src'),
                 '@components': resolve(__dirname, './src/components')
             }
+        },
+        // Improve handling of external dependencies
+        optimizeDeps: {
+            include: ['react', 'react-dom']
         }
     };
-}); 
+});

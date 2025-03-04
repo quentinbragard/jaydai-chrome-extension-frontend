@@ -7,6 +7,20 @@ interface ComponentInstance {
   cleanup: () => void;
 }
 
+interface InjectOptions {
+  id?: string;
+  targetSelector?: string;
+  position?: {
+    type?: 'fixed' | 'absolute' | 'relative';
+    top?: string;
+    right?: string;
+    bottom?: string;
+    left?: string;
+    zIndex?: string;
+  };
+  containerStyle?: Record<string, string>;
+}
+
 /**
  * Manages injection and cleanup of React components in the DOM
  */
@@ -21,11 +35,28 @@ class ComponentInjector {
     if (this.stylesInjected) return;
     
     try {
+      // First check if styles already exist
+      if (document.getElementById('archimind-styles')) {
+        this.stylesInjected = true;
+        return;
+      }
+      
+      // Inject stylesheet
       const style = document.createElement('link');
       style.rel = 'stylesheet';
       style.href = chrome.runtime.getURL('assets/globals.css');
       style.id = 'archimind-styles';
       document.head.appendChild(style);
+      
+      // Add an inline style to ensure shadow piercing for our components
+      const inlineStyle = document.createElement('style');
+      inlineStyle.textContent = `
+        #archimind-root, #archimind-root * {
+          z-index: 999999;
+        }
+      `;
+      inlineStyle.id = 'archimind-inline-styles';
+      document.head.appendChild(inlineStyle);
       
       this.stylesInjected = true;
       console.log('✅ Archimind styles injected');
@@ -41,6 +72,15 @@ class ComponentInjector {
     const existingContainer = document.getElementById(id);
     if (existingContainer) return existingContainer;
 
+    // Create main container if it doesn't exist
+    let rootContainer = document.getElementById('archimind-root');
+    if (!rootContainer) {
+      rootContainer = document.createElement('div');
+      rootContainer.id = 'archimind-root';
+      document.body.appendChild(rootContainer);
+    }
+
+    // Create component container
     const container = document.createElement('div');
     container.id = id;
     
@@ -48,7 +88,7 @@ class ComponentInjector {
     if (options.position) {
       Object.assign(container.style, {
         position: options.position.type || 'fixed',
-        zIndex: '999999',
+        zIndex: options.position.zIndex || '999999',
         ...options.position
       });
     }
@@ -58,14 +98,14 @@ class ComponentInjector {
       Object.assign(container.style, options.containerStyle);
     }
     
-    // Append to target element or body
+    // Append to target element or root container
     const targetElement = options.targetSelector 
       ? document.querySelector(options.targetSelector) 
-      : document.body;
+      : rootContainer;
       
     if (!targetElement) {
       console.warn(`Target element not found: ${options.targetSelector}`);
-      document.body.appendChild(container);
+      rootContainer.appendChild(container);
     } else {
       targetElement.appendChild(container);
     }
@@ -90,26 +130,32 @@ class ComponentInjector {
     // Create or get container
     const container = this.createContainer(containerId, options);
     
-    // Create React root and render component
-    const root = createRoot(container);
-    root.render(<Component {...props} />);
-    
-    // Store instance for later cleanup
-    const cleanup = () => {
-      try {
-        root.unmount();
-        container.remove();
-        this.instances.delete(id);
-        console.log(`✅ Cleaned up component: ${id}`);
-      } catch (error) {
-        console.error(`❌ Error cleaning up component ${id}:`, error);
-      }
-    };
-    
-    this.instances.set(id, { root, containerId, cleanup });
-    console.log(`✅ Injected component: ${id}`);
-    
-    return id;
+    try {
+      // Create React root and render component
+      const root = createRoot(container);
+      root.render(<Component {...props} />);
+      
+      // Store instance for later cleanup
+      const cleanup = () => {
+        try {
+          root.unmount();
+          container.remove();
+          this.instances.delete(id);
+          console.log(`✅ Cleaned up component: ${id}`);
+        } catch (error) {
+          console.error(`❌ Error cleaning up component ${id}:`, error);
+        }
+      };
+      
+      this.instances.set(id, { root, containerId, cleanup });
+      console.log(`✅ Injected component: ${id}`);
+      
+      return id;
+    } catch (error) {
+      console.error(`❌ Error injecting component: ${error}`);
+      container.remove();
+      return '';
+    }
   }
 
   /**
@@ -136,25 +182,21 @@ class ComponentInjector {
     if (this.stylesInjected) {
       const styleElement = document.getElementById('archimind-styles');
       if (styleElement) styleElement.remove();
+      
+      const inlineStyles = document.getElementById('archimind-inline-styles');
+      if (inlineStyles) inlineStyles.remove();
+      
       this.stylesInjected = false;
     }
+    
+    // Remove root container if it exists
+    const rootContainer = document.getElementById('archimind-root');
+    if (rootContainer) rootContainer.remove();
     
     console.log('✅ All components removed');
   }
 }
 
-export interface InjectOptions {
-  id?: string;
-  targetSelector?: string;
-  position?: {
-    type?: 'fixed' | 'absolute' | 'relative';
-    top?: string;
-    right?: string;
-    bottom?: string;
-    left?: string;
-  };
-  containerStyle?: Record<string, string>;
-}
-
 // Export singleton instance
 export const componentInjector = new ComponentInjector();
+export type { InjectOptions };
