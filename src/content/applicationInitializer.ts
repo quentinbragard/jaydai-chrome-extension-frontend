@@ -19,6 +19,7 @@ export class AppInitializer {
   private isInitialized: boolean = false;
   private isAuthenticating: boolean = false;
   private settingsOpen: boolean = false;
+  private resizeHandler: (() => void) | null = null;
   
   private constructor() {}
   
@@ -91,6 +92,12 @@ export class AppInitializer {
     
     // Remove UI components
     componentInjector.removeAll();
+    
+    // Remove event listeners
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+      this.resizeHandler = null;
+    }
     
     this.isInitialized = false;
     console.log('✅ Archimind application cleaned up');
@@ -179,15 +186,19 @@ export class AppInitializer {
   private injectUIComponents(): void {
     console.log('🖼️ Injecting UI components...');
     
-    // Inject the Stats Panel in the top-right corner
+    // Inject the Stats Panel centered above the composer
     componentInjector.inject(StatsPanel, {}, {
-        id: 'archimind-stats-panel',
-        position: {
-          type: 'fixed',
-          top: '5px',
-          left: '50%',
-        }
-      });
+      id: 'archimind-stats-panel',
+      position: {
+        type: 'fixed',
+        top: '5px',
+        left: '50%', // Will be updated by updateStatsPanelPosition
+        zIndex: '10000'
+      },
+      containerStyle: {
+        transform: 'translateX(-50%)' // Center horizontally
+      }
+    });
     
     // Inject the Main Button in the bottom-right corner
     componentInjector.inject(MainButton, {
@@ -197,13 +208,67 @@ export class AppInitializer {
       id: 'archimind-main-button',
       position: {
         type: 'fixed',
-        top: '50px',
-        left: '50%',
+        bottom: '10px',
+        right: '75px',
         zIndex: '9999'
       }
     });
     
+    // Initial position update
+    this.updateStatsPanelPosition();
+    
+    // Set up resize listener for responsive positioning
+    this.resizeHandler = this.updateStatsPanelPosition.bind(this);
+    window.addEventListener('resize', this.resizeHandler);
+    
+    // Also set up a MutationObserver to watch for DOM changes that might affect the composer div
+    this.setupComposerObserver();
+    
     console.log('✅ UI components injected');
+  }
+  
+  /**
+   * Update the position of the stats panel to stay centered on the composer div
+   */
+  private updateStatsPanelPosition(): void {
+    // Find the composer parent element
+    const composerDiv = document.querySelector('div[role="presentation"].composer-parent');
+    if (!composerDiv) return;
+    
+    // Get the center position of the composer div
+    const composerRect = composerDiv.getBoundingClientRect();
+    const centerX = composerRect.x + (composerRect.width / 2);
+    
+    // Get the stats panel container
+    const statsPanel = document.getElementById('archimind-stats-panel-container');
+    if (!statsPanel) return;
+    
+    // Update the left position to keep it centered
+    statsPanel.style.left = `${centerX}px`;
+    
+    console.log('📏 Updated StatsPanel position to match composer center:', centerX);
+  }
+  
+  /**
+   * Setup MutationObserver to detect changes to the composer div or its parent
+   */
+  private setupComposerObserver(): void {
+    // Monitor for changes that may affect layout
+    const observer = new MutationObserver((mutations) => {
+      // Update position when changes occur
+      this.updateStatsPanelPosition();
+    });
+    
+    // Start observing the document body for DOM changes
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style', 'width']
+    });
+    
+    // Also set up a periodic check just to be safe (some dynamic changes may not trigger mutations)
+    setInterval(() => this.updateStatsPanelPosition(), 2000);
   }
   
   /**
