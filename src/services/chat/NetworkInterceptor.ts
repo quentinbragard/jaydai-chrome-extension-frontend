@@ -69,6 +69,8 @@ export interface InterceptorConfig {
       window.fetch = async function(input, init) {
         // Get URL and request data
         const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+
+        console.log("🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄 Fetch URL:", url);
         
         // Clone request body if it exists
         let requestBody = null;
@@ -142,6 +144,7 @@ export interface InterceptorConfig {
         // Intercept open method to capture URL
         xhr.open = function() {
           requestUrl = arguments[1] || '';
+          console.log("🔄🔄🔄🔄🔄🔄🔄🔄🔄🔄 XHR URL:", requestUrl);
           return originalOpen.apply(this, arguments as any);
         };
         
