@@ -85,6 +85,7 @@ export class ConversationHandler {
    * Process conversation list data from API
    */
   public processConversationList(data: any): void {
+    console.log(' conversationList Processing conversation list', JSON.stringify(data, null, 2));
     try {
       if (!data || !Array.isArray(data.items)) {
         return;

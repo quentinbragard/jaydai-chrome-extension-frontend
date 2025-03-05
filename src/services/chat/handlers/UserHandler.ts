@@ -13,6 +13,7 @@ export class UserHandler {
    * Process user information from API
    */
   public processUserInfo(data: any): void {
+    console.log('👤 Processing user info:', data);
     try {
       if (!data || !data.id || !data.email) {
         console.warn('⚠️ Incomplete user data received');

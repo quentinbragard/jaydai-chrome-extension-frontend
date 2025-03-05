@@ -3,6 +3,7 @@ import { chatInterceptor } from '@/services/chat';
 import { statsService } from '@/services/StatsService';
 import { templateService } from '@/services/TemplateService';
 import { notificationService } from '@/services/NotificationService';
+import { userInfoService } from '@/services/UserInfoService'; 
 import { componentInjector } from '@/utils/componentInjector';
 import { StatsPanel } from '@/components/StatsPanel';
 import MainButton  from '@/components/MainButton';
@@ -176,6 +177,9 @@ export class AppInitializer {
     
     // Initialize notification service
     await notificationService.initialize();
+    
+    // NEW: Initialize user info service
+    userInfoService.initialize();
     
     console.log('✅ Services initialized');
   }

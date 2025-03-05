@@ -64,7 +64,8 @@ export default defineConfig(function (_a) {
                     'content-init': resolve(__dirname, 'src/content/initializer.ts'), // We'll create this file
                     background: resolve(__dirname, 'src/background/background.js'),
                     popup: resolve(__dirname, 'src/popup/popup.jsx'),
-                    welcome: resolve(__dirname, 'src/welcome/welcome.jsx')
+                    welcome: resolve(__dirname, 'src/welcome/welcome.jsx'),
+                    'injectedInterceptor': resolve(__dirname, 'src/content/injectedInterceptor.js')
                 },
                 output: {
                     entryFileNames: '[name].js',

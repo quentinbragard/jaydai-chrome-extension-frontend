@@ -1,10 +1,10 @@
 // src/services/chat/ChatInterceptorService.ts
-// Main service that coordinates all chat interception functionality
+// Modified to use the page-context injection approach
 import { messageObserver } from '@/utils/messageObserver';
-import { NetworkInterceptor } from './NetworkInterceptor';
 import { StreamProcessor } from './StreamProcessor';
 import { UrlChangeListener } from './UrlChangeListener';
 import { MessageEvent } from './types';
+import { injectNetworkInterceptor } from '@/content/injectInterceptor';
 
 // Import handlers
 import { conversationHandler } from './handlers/ConversationHandler';
@@ -17,17 +17,10 @@ import { userHandler } from './handlers/UserHandler';
 export class ChatInterceptorService {
   private static instance: ChatInterceptorService;
   private isInitialized: boolean = false;
-  private networkInterceptor: NetworkInterceptor;
   private urlListener: UrlChangeListener;
   
   private constructor() {
-    // Initialize sub-components
-    this.networkInterceptor = new NetworkInterceptor({
-      onConversationList: (data) => conversationHandler.processConversationList(data),
-      onUserInfo: (data) => userHandler.processUserInfo(data),
-      onChatCompletion: this.handleChatCompletion.bind(this)
-    });
-    
+    // Initialize URL listener
     this.urlListener = new UrlChangeListener({
       onUrlChange: (newUrl) => this.handleUrlChange(newUrl)
     });
@@ -70,8 +63,8 @@ export class ChatInterceptorService {
       });
     });
     
-    // Start network interception
-    this.networkInterceptor.startIntercepting();
+    // MODIFIED: Inject network interceptor into page context
+    injectNetworkInterceptor();
     
     // Start URL change listener
     this.urlListener.startListening();
@@ -96,14 +89,15 @@ export class ChatInterceptorService {
     // Stop URL listener
     this.urlListener.stopListening();
     
-    // Stop network interception
-    this.networkInterceptor.stopIntercepting();
-    
     // Clean up message observer
     messageObserver.cleanup();
     
     // Clear processed messages
     messageHandler.clearProcessedMessages();
+    
+    // Note: We can't remove the injected script easily,
+    // but we can signal it to stop intercepting if needed.
+    // For now, we'll just leave it running.
     
     this.isInitialized = false;
     console.log('✅ ChatGPT interception cleaned up');
@@ -153,68 +147,6 @@ export class ChatInterceptorService {
     // If we have a valid chat ID, save it to the backend
     if (chatId) {
       conversationHandler.saveCurrentChatToBackend();
-    }
-  }
-  
-  /**
-   * Handle chat completion response
-   */
-  private async handleChatCompletion(
-    response: Response, 
-    requestBody: any, 
-    url: string, 
-    isStreaming: boolean
-  ): Promise<void> {
-    try {
-      // Process user message from request body
-      if (requestBody && requestBody.messages && requestBody.messages.length > 0) {
-        const userMessage = StreamProcessor.extractUserMessage(requestBody);
-        if (userMessage) {
-          messageHandler.processMessage({
-            type: 'user',
-            messageId: userMessage.id,
-            content: userMessage.content,
-            timestamp: Date.now(),
-            conversationId: requestBody.conversation_id || null,
-            model: userMessage.model
-          });
-        }
-      }
-      
-      // Process assistant response
-      if (isStreaming) {
-        // Process streaming response
-        const assistantMessage = await StreamProcessor.processStream(response, requestBody);
-        if (assistantMessage) {
-          messageHandler.processMessage({
-            type: 'assistant',
-            messageId: assistantMessage.id,
-            content: assistantMessage.content,
-            timestamp: Date.now(),
-            conversationId: assistantMessage.conversationId,
-            model: assistantMessage.model
-          });
-        }
-      } else {
-        // Process regular JSON response
-        const data = await response.json();
-        
-        if (data.message) {
-          const messageContent = data.message.content?.parts?.join('\n') || 
-                               data.message.content || '';
-          
-          messageHandler.processMessage({
-            type: 'assistant',
-            messageId: data.message.id || `assistant-${Date.now()}`,
-            content: messageContent,
-            timestamp: Date.now(),
-            conversationId: data.conversation_id || null,
-            model: data.message.metadata?.model_slug || null
-          });
-        }
-      }
-    } catch (error) {
-      console.error('❌ Error handling chat completion:', error);
     }
   }
 }

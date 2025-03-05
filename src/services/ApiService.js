@@ -219,7 +219,12 @@ export class ApiService {
     console.log("🔄🔄🔄🔄🔄 Saving user metadata:", userData);
     return this.request('/save/user_metadata', {
       method: 'POST',
-      body: JSON.stringify(userData)
+      body: JSON.stringify({
+        email: userData.email,
+        name: userData.name,
+        phone_number: userData.phone_number,
+        org_name: userData.org_name
+      })
     });
   }
   
