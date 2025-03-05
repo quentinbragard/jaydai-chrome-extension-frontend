@@ -1,5 +1,5 @@
 // src/content/applicationInitializer.ts
-import { chatInterceptor } from '@/services/ChatInterceptorService';
+import { chatInterceptor } from '@/services/chat';
 import { statsService } from '@/services/StatsService';
 import { templateService } from '@/services/TemplateService';
 import { notificationService } from '@/services/NotificationService';

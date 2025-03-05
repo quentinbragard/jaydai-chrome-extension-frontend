@@ -1,6 +1,6 @@
 // src/services/StatsService.ts
 import { apiService } from './ApiService';
-import { chatInterceptor } from './ChatInterceptorService';
+import { chatInterceptor } from './chat';
 
 export interface Stats {
   totalChats: number;
@@ -46,6 +46,9 @@ export class StatsService {
   };
   private updateInterval: number | null = null;
   private updateCallbacks: ((stats: Stats) => void)[] = [];
+  private lastLoadTime: number = 0;
+  private retryCount: number = 0;
+  private isLoading: boolean = false;
   
   private constructor() {}
   
@@ -65,8 +68,10 @@ export class StatsService {
   public initialize(): void {
     console.log('📊 Initializing stats service...');
     
-    // Load initial stats
-    this.loadStats();
+    // Load initial stats with a small delay to ensure auth is ready
+    setTimeout(() => {
+      this.loadStats();
+    }, 2000);
     
     // Listen for new messages
     chatInterceptor.onMessage((event) => {
@@ -88,8 +93,12 @@ export class StatsService {
     
     // Set up regular refresh from backend
     this.updateInterval = window.setInterval(() => {
-      this.loadStats();
-    }, 60000); // Refresh every minute
+      // Only refresh if it's been at least 1 minute since the last load
+      const now = Date.now();
+      if (now - this.lastLoadTime >= 60000) {
+        this.loadStats();
+      }
+    }, 60000); // Check every minute
     
     console.log('✅ Stats service initialized');
   }
@@ -131,10 +140,18 @@ export class StatsService {
   }
   
   /**
-   * Load stats from backend
+   * Load stats from backend with improved error handling
    */
   private async loadStats(): Promise<void> {
+    // Prevent concurrent loads
+    if (this.isLoading) {
+      return;
+    }
+    
+    this.isLoading = true;
+    
     try {
+      console.log('📊 Loading stats from backend...');
       const data = await apiService.getUserStats();
       
       if (data) {
@@ -166,10 +183,45 @@ export class StatsService {
         }
         
         console.log('📊 Stats updated from backend');
+        this.lastLoadTime = Date.now();
+        this.retryCount = 0; // Reset retry count on success
         this.notifyUpdateListeners();
       }
     } catch (error) {
       console.error('❌ Error loading stats:', error);
+      
+      // Implement retry with exponential backoff
+      if (this.retryCount < 3) {
+        this.retryCount++;
+        const delay = Math.pow(2, this.retryCount) * 1000; // 2s, 4s, 8s
+        console.log(`⏱️ Will retry loading stats in ${delay/1000}s (attempt ${this.retryCount}/3)`);
+        
+        setTimeout(() => {
+          this.isLoading = false;
+          this.loadStats();
+        }, delay);
+      } else {
+        // Use fallback data for initial display if all retries fail
+        if (this.lastLoadTime === 0) {
+          console.log('⚠️ Using fallback stats data after multiple failed attempts');
+          
+          // Update with at least some minimal info if we have it
+          if (this.stats.totalMessages === 0) {
+            const today = new Date().toISOString().split('T')[0];
+            this.stats.messagesPerDay[today] = this.stats.messagesPerDay[today] || 0;
+            
+            this.notifyUpdateListeners();
+          }
+        }
+        
+        // Reset retry count for next attempt
+        this.retryCount = 0;
+      }
+    } finally {
+      // If we're not planning a retry, mark as not loading
+      if (this.retryCount === 0) {
+        this.isLoading = false;
+      }
     }
   }
   

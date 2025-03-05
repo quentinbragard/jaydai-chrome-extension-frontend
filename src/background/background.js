@@ -61,7 +61,8 @@ function googleSignIn(sendResponse) {
             const data = await response.json();
             if (response.ok) {
                 console.log("✅ User authenticated:", data);
-                storeAuthSession(data.user.id, data.session);
+                storeAuthSession(data.session);
+                storeUserId(data.user.id);
                 sendResponse({ success: true, user: data.user, access_token: data.session.access_token });
             } else {
                 sendResponse({ success: false, error: data.error });
@@ -87,7 +88,8 @@ async function emailSignIn(email, password, sendResponse) {
         const data = await response.json();
         if (response.ok) {
             console.log("✅ Email Sign-In successful:", data);
-            storeAuthSession(data.user.id, data.session);
+            storeAuthSession(data.session);
+            storeUserId(data.user.id);
             sendResponse({ success: true, user: data.user, access_token: data.session.access_token });
         } else {
             sendResponse({ success: false, error: data.error });
@@ -105,6 +107,7 @@ function sendAuthToken(sendResponse) {
     chrome.storage.local.get(["access_token", "refresh_token", "token_expires_at"], (result) => {
         const now = Math.floor(Date.now() / 1000);
         console.log("🔄 Current time:", now);
+        console.log("🔄 Token expires at:", result.token_expires_at);
         console.log("🔄 Result:", result);
 
         if (result.access_token && result.token_expires_at > now) {
@@ -138,7 +141,8 @@ function refreshAndSendToken(sendResponse) {
             }
 
             const data = await response.json();
-            storeAuthSession(data.user.id, data.session);
+            console.log("🔄 Token refreshed:", data);
+            storeAuthSession(data.session);
             sendResponse({ success: true, token: data.session.access_token });
         } catch (error) {
             console.error("❌ Error refreshing access token:", error);
@@ -151,17 +155,27 @@ function refreshAndSendToken(sendResponse) {
 /**
  * Stores authentication session.
  */
-function storeAuthSession(userId, session) {
+function storeAuthSession(session) {
     if (!session) return;
+
+    console.log("🔄 Storing auth session:", session.expires_at);
     
     chrome.storage.local.set({
-        userId: userId,
         access_token: session.access_token,
         refresh_token: session.refresh_token,
         token_expires_at: session.expires_at,
     });
     console.log("🔄 Stored new auth session.");
 }
+
+function storeUserId(userId) {
+    if (!userId) return;
+
+    chrome.storage.local.set({ userId: userId });
+    console.log("🔄 Stored user ID:", userId);
+}
+
+
 
 
 

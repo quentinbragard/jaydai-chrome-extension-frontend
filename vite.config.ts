@@ -63,7 +63,7 @@ export default defineConfig(function (_a) {
                     content: resolve(__dirname, 'src/content/content.js'),
                     'content-init': resolve(__dirname, 'src/content/initializer.ts'), // We'll create this file
                     background: resolve(__dirname, 'src/background/background.js'),
-                    popup: resolve(__dirname, 'src/popup/popup.js'),
+                    popup: resolve(__dirname, 'src/popup/popup.jsx'),
                     welcome: resolve(__dirname, 'src/welcome/welcome.jsx')
                 },
                 output: {
