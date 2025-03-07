@@ -1,14 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ActivePanel, NotificationService } from './types';
-
-// Mock notification service - could be moved to a separate service file later
-const notificationService: NotificationService = {
-  getUnreadCount: () => 3,
-  onNotificationsUpdate: (callback: () => void) => {
-    setTimeout(callback, 1000);
-    return () => {};
-  }
-};
+import { apiService } from '@/services/ApiService';
 
 export function useMainButtonLogic() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,14 +10,39 @@ export function useMainButtonLogic() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Fetch initial notification count on component mount
   useEffect(() => {
-    const updateNotificationCount = () => {
-      setNotificationCount(notificationService.getUnreadCount());
+    const fetchNotificationCount = async () => {
+      try {
+        const counts = await apiService.getNotificationCounts();
+        setNotificationCount(counts.unread || 0);
+      } catch (error) {
+        console.error('Failed to fetch notification count:', error);
+        setNotificationCount(0);
+      }
     };
 
-    updateNotificationCount();
-    const cleanupNotifications = notificationService.onNotificationsUpdate(updateNotificationCount);
+    fetchNotificationCount();
 
+    // Set up listener for notification count updates
+    const handleNotificationCountChange = (event: CustomEvent) => {
+      const { unreadCount } = event.detail;
+      setNotificationCount(unreadCount);
+    };
+
+    // Add event listener for notification count changes
+    document.addEventListener('archimind:notification-count-changed', 
+      handleNotificationCountChange as EventListener
+    );
+
+    return () => {
+      document.removeEventListener('archimind:notification-count-changed', 
+        handleNotificationCountChange as EventListener
+      );
+    };
+  }, []);
+
+  useEffect(() => {
     const handleOpenNotifications = () => {
       setIsOpen(true);
       setActivePanel('notifications');
@@ -64,7 +81,6 @@ export function useMainButtonLogic() {
     document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
-      cleanupNotifications();
       document.removeEventListener('archimind:open-notifications', handleOpenNotifications);
       document.removeEventListener('archimind:update-badge', handleUpdateBadge as EventListener);
       document.removeEventListener('archimind:show-toast', handleShowToast as EventListener);
@@ -113,4 +129,4 @@ export function useMainButtonLogic() {
     handleImageLoad,
     handleImageError,
   };
-} 
+}

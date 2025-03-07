@@ -140,9 +140,9 @@ export class ApiService {
     return this.request('/stats/user');
   }
   
-  // Templates
-  async getUserTemplates() {
-    return this.request('/prompt-templates/templates');
+   // Prompt templates methods
+   async getUserTemplates() {
+    return this.request('/prompt-templates/user-templates');
   }
   
   async getOfficialTemplates() {
@@ -169,12 +169,12 @@ export class ApiService {
     });
   }
   
-  async trackTemplateUsage(templateId) {
+  async useTemplate(templateId) {
     return this.request(`/prompt-templates/use-template/${templateId}`, {
       method: 'POST'
     });
   }
-  
+
   // Messages
   async saveChatToBackend(chatData) {
     return this.request('/save/chat', {
@@ -215,39 +215,37 @@ export class ApiService {
     });
   }
   
-  // Notifications
+  /// Notifications methods
   async fetchNotifications() {
     return this.request('/notifications/');
   }
-  
-  async fetchUnreadNotifications() {
-    return this.request('/notifications/unread');
+
+  async getNotification(notificationId) {
+    try {
+      const notifications = await this.fetchNotifications();
+      return notifications.find(n => n.id === notificationId);
+    } catch (error) {
+      console.error('Error fetching specific notification:', error);
+      return null;
+    }
   }
-  
-  async getNotificationCounts() {
-    return this.request('/notifications/count');
-  }
-  
+
   async markNotificationRead(notificationId) {
     return this.request(`/notifications/${notificationId}/read`, {
       method: 'POST'
     });
   }
-  
+
   async markAllNotificationsRead() {
     return this.request('/notifications/read-all', {
       method: 'POST'
     });
   }
-  
-  // Prompt enhancement
-  async enhancePrompt(promptData) {
-    return this.request('/prompt-generator/enhance', {
-      method: 'POST',
-      body: JSON.stringify(promptData)
-    });
+
+  async getNotificationCounts() {
+    return this.request('/notifications/count');
   }
 }
 
-// Create singleton instance
+// Export a singleton instance
 export const apiService = new ApiService();

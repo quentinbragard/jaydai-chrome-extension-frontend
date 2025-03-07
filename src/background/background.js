@@ -3,25 +3,54 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.tabs.create({ url: 'welcome.html' });
 });
 
+// Track active monitoring tabs (if still needed)
+const monitoredTabs = new Set();
+
+// Main message listener
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const actions = {
+        // Auth actions
         googleSignIn: () => googleSignIn(sendResponse),
         emailSignIn: () => emailSignIn(request.email, request.password, sendResponse),
         getAuthToken: () => sendAuthToken(sendResponse),
         refreshAuthToken: () => refreshAndSendToken(sendResponse),
+        
+        // Network monitoring actions - simplified
+        'start-network-monitoring': () => {
+            console.log('🔍 Starting network monitoring (simplified version)...');
+            // Just return success since the injected interceptor will handle actual monitoring
+            sendResponse({ success: true });
+            return false;
+        },
+        'stop-network-monitoring': () => {
+            console.log('🔍 Stopping network monitoring (simplified version)...');
+            // Just return success
+            sendResponse({ success: true }); 
+            return false;
+        },
+        'network-request-captured': () => {
+            // Pass through the captured request to content script if needed
+            if (sender.tab?.id) {
+                chrome.tabs.sendMessage(sender.tab.id, {
+                    action: 'network-request-captured',
+                    data: request.data
+                });
+            }
+            sendResponse({ success: true });
+            return false;
+        }
     };
 
     if (actions[request.action]) {
-        actions[request.action]();
+        if (typeof actions[request.action] === 'function') {
+            return actions[request.action]();
+        }
         return true; // Ensures async sendResponse will be used
     } else {
         sendResponse({ success: false, error: "Invalid action" });
         return false; // Ensures message channel is closed
     }
 });
-
-
-
 
 /* ==========================================
  🔹 GOOGLE SIGN-IN FLOW
@@ -72,6 +101,8 @@ function googleSignIn(sendResponse) {
             sendResponse({ success: false, error: error.message });
         }
     });
+    
+    return true; // Keep channel open for async response
 }
 
 /* ==========================================
@@ -98,6 +129,8 @@ async function emailSignIn(email, password, sendResponse) {
         console.error("❌ Error in email sign-in:", error);
         sendResponse({ success: false, error: error.message });
     }
+    
+    return true; // Keep channel open for async response
 }
 
 /* ==========================================
@@ -108,7 +141,6 @@ function sendAuthToken(sendResponse) {
         const now = Math.floor(Date.now() / 1000);
         console.log("🔄 Current time:", now);
         console.log("🔄 Token expires at:", result.token_expires_at);
-        console.log("🔄 Result:", result);
 
         if (result.access_token && result.token_expires_at > now) {
             console.log("✅ Using valid auth token");
@@ -118,7 +150,7 @@ function sendAuthToken(sendResponse) {
             refreshAndSendToken(sendResponse);
         }
     });
-    return true;
+    return true; // Keep channel open for async response
 }
 
 function refreshAndSendToken(sendResponse) {
@@ -127,13 +159,14 @@ function refreshAndSendToken(sendResponse) {
             sendResponse({ success: false, error: "No refresh token available" });
             return;
         }
+        
         try {
-          
             const response = await fetch("http://127.0.0.1:8000/auth/refresh_token", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ refresh_token: result.refresh_token }),
             });
+            
             if (!response.ok) {
                 console.error("❌ Token refresh failed:", await response.text());
                 return sendResponse({ success: false, error: "Failed to refresh token" });
@@ -148,7 +181,7 @@ function refreshAndSendToken(sendResponse) {
             sendResponse({ success: false, error: error.message });
         }
     });
-    return true;
+    return true; // Keep channel open for async response
 }
 
 /**
@@ -174,21 +207,13 @@ function storeUserId(userId) {
     console.log("🔄 Stored user ID:", userId);
 }
 
-
-
-
-
-
-
 /* ==========================================
  🔹 DEV RELOAD
 ========================================== */
 
-
 chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'local' && changes.devReloadTimestamp) {
-      // Reload all extension pages
-      chrome.runtime.reload();
+        // Reload all extension pages
+        chrome.runtime.reload();
     }
-  });
-
+});

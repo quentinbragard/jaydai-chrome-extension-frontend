@@ -31,8 +31,8 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
 
   return (
     <div className="fixed bottom-6 right-6 z-[9999]">
-      {/* Wrap the button and panel in a relative container */}
-      <div className="relative">
+      {/* Expand container to allow badge overflow */}
+      <div className="relative w-24 h-24 flex items-center justify-center">
         {/* Panel that appears above the main button */}
         <MenuPanel
           isOpen={isOpen}

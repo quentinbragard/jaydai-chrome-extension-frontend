@@ -1,18 +1,26 @@
 import { useState, useEffect } from 'react';
-import { Template, TemplateCollection, TemplateFormData } from './types';
-import templateService from './templateService';
+import { Template, TemplateCollection } from './types';
+import { templateService } from '@/services/TemplateService';
+
+// Default empty template collection structure
+const DEFAULT_TEMPLATE_COLLECTION: TemplateCollection = {
+  officialTemplates: { 
+    templates: [], 
+    folders: [] 
+  },
+  userTemplates: { 
+    templates: [], 
+    folders: [] 
+  }
+};
 
 export function useTemplates() {
-  const [templateCollection, setTemplateCollection] = useState<TemplateCollection>({
-    templates: [],
-    folders: [],
-    rootTemplates: []
-  });
+  const [templateCollection, setTemplateCollection] = useState<TemplateCollection>(DEFAULT_TEMPLATE_COLLECTION);
   const [loading, setLoading] = useState(true);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set([''])); // Root folder starts expanded
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentTemplate, setCurrentTemplate] = useState<Template | null>(null);
-  const [templateFormData, setTemplateFormData] = useState<TemplateFormData>({
+  const [templateFormData, setTemplateFormData] = useState({
     name: '',
     content: '',
     description: '',
@@ -21,18 +29,23 @@ export function useTemplates() {
 
   useEffect(() => {
     // Register for template updates
-    const cleanup = templateService.onTemplatesUpdate((templates) => {
-      setTemplateCollection(templates);
+    const cleanup = templateService.onTemplatesUpdate((collection) => {
+      // Ensure a default structure even if collection is incomplete
+      setTemplateCollection({
+        officialTemplates: collection.officialTemplates || { templates: [], folders: [] },
+        userTemplates: collection.userTemplates || { templates: [], folders: [] }
+      });
       setLoading(false);
     });
     
     // Load templates
     templateService.loadTemplates()
-      .then((data) => {
-        setTemplateCollection(data);
+      .then(() => setLoading(false))
+      .catch(() => {
+        // Ensure we exit loading state even if load fails
+        setTemplateCollection(DEFAULT_TEMPLATE_COLLECTION);
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      });
     
     return cleanup;
   }, []);
@@ -52,7 +65,14 @@ export function useTemplates() {
   const handleUseTemplate = async (template: Template, onClose?: () => void) => {
     try {
       await templateService.useTemplate(template.id);
-      templateService.insertTemplateContent(template.content);
+      
+      // Insert template content into ChatGPT input
+      const inputArea = document.querySelector('textarea[data-id="root"]') as HTMLTextAreaElement;
+      if (inputArea) {
+        inputArea.value = template.content;
+        inputArea.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      
       if (onClose) onClose();
     } catch (error) {
       console.error('Error using template:', error);
@@ -63,7 +83,7 @@ export function useTemplates() {
     if (template) {
       setCurrentTemplate(template);
       setTemplateFormData({
-        name: template.name,
+        name: template.title || '',
         content: template.content,
         description: template.description || '',
         folder: template.folder || ''
@@ -82,12 +102,19 @@ export function useTemplates() {
 
   const handleSaveTemplate = async () => {
     try {
+      const templateData = {
+        title: templateFormData.name,
+        content: templateFormData.content,
+        description: templateFormData.description,
+        folder: templateFormData.folder
+      };
+
       if (currentTemplate) {
         // Update existing template
-        await templateService.updateTemplate(currentTemplate.id, templateFormData);
+        await templateService.updateTemplate(currentTemplate.id, templateData);
       } else {
         // Create new template
-        await templateService.createTemplate(templateFormData);
+        await templateService.createTemplate(templateData);
       }
       setEditDialogOpen(false);
     } catch (error) {
@@ -97,7 +124,7 @@ export function useTemplates() {
 
   const handleDeleteTemplate = async (template: Template, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(`Are you sure you want to delete "${template.name}"?`)) {
+    if (window.confirm(`Are you sure you want to delete "${template.title}"?`)) {
       try {
         await templateService.deleteTemplate(template.id);
       } catch (error) {
@@ -137,4 +164,4 @@ export function useTemplates() {
     handleDeleteTemplate,
     captureCurrentPromptAsTemplate
   };
-} 
+}

@@ -66,6 +66,7 @@ export default defineConfig(function (_a) {
                     popup: resolve(__dirname, 'src/popup/popup.jsx'),
                     welcome: resolve(__dirname, 'src/welcome/welcome.jsx'),
                     'injectedInterceptor': resolve(__dirname, 'src/content/injectedInterceptor.js'),
+                    'applicationInitializer': resolve(__dirname, 'src/content/applicationInitializer.ts'),
                     'popup-styles': resolve(__dirname, 'src/popup/popup.css'),
                     'welcome-styles': resolve(__dirname, 'src/welcome/welcome.css'),
                     'content-styles': resolve(__dirname, 'src/content/content.css')

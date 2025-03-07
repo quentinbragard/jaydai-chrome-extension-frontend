@@ -1,9 +1,4 @@
 // src/utils/NetworkRequestMonitor.ts
-/**
- * Utility to monitor and intercept network requests made by the page itself
- * Uses the browser's devtools protocol to capture network traffic
- */
-
 export class NetworkRequestMonitor {
   private static instance: NetworkRequestMonitor;
   private isInitialized: boolean = false;
@@ -23,45 +18,44 @@ export class NetworkRequestMonitor {
   }
   
   /**
-   * Initialize the monitor and set up message passing to background script
+   * Initialize the monitor - simplified
    */
   public initialize(): boolean {
     if (this.isInitialized) return true;
     
     try {
-      // Set up listener for messages from the background script
-      chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        if (message.action === 'network-request-captured') {
-          this.handleCapturedRequest(message.data);
-          sendResponse({ success: true });
+      console.log('🔍 Initializing simplified network request monitor');
+      
+      // Notify background script that we're starting monitoring
+      chrome.runtime.sendMessage({ action: 'start-network-monitoring' }, (response) => {
+        // Just log the response, but we don't need to rely on it
+        if (response && response.success) {
+          console.log('✅ Background acknowledged network monitoring');
+        } else {
+          console.log('⚠️ Using fallback monitor approach');
         }
       });
       
-      // Request the background script to start monitoring
-      chrome.runtime.sendMessage(
-        { action: 'start-network-monitoring' },
-        (response) => {
-          if (response && response.success) {
-            this.isInitialized = true;
-          } else {
-            console.error('Failed to start network monitoring:', response?.error || 'Unknown error');
-          }
+      // Listen for network interception events from injected script
+      document.addEventListener('archimind-network-intercept', (event: any) => {
+        if (event.detail && event.detail.data) {
+          this.handleCapturedRequest(event.detail.data);
         }
-      );
+      });
       
       this.isInitialized = true;
+      console.log('✅ Network request monitor initialized');
       return true;
     } catch (error) {
-      console.error('Error initializing network monitor:', error);
+      console.error('❌ Error initializing network monitor:', error);
       return false;
     }
   }
   
   /**
-   * Handle a request captured by the background script
+   * Handle a captured request
    */
   private handleCapturedRequest(data: any): void {
-    console.log('======================handleCapturedRequest', data);
     if (!data || !data.url) return;
     
     // Check against registered URL patterns
@@ -72,7 +66,7 @@ export class NetworkRequestMonitor {
           try {
             listener(data);
           } catch (error) {
-            console.error(`Error in listener for ${pattern}:`, error);
+            console.error(`❌ Error in listener for ${pattern}:`, error);
           }
         }
       }
@@ -107,16 +101,18 @@ export class NetworkRequestMonitor {
    * Clean up resources
    */
   public cleanup(): void {
-    if (!this.isInitialized) return;
-    
     // Tell background script to stop monitoring
     chrome.runtime.sendMessage({ action: 'stop-network-monitoring' });
+    
+    // Remove event listener
+    document.removeEventListener('archimind-network-intercept', this.handleCapturedRequest as EventListener);
     
     // Clear all listeners
     this.listeners.clear();
     this.urlPatterns = [];
     
     this.isInitialized = false;
+    console.log('✅ Network request monitor cleaned up');
   }
 }
 

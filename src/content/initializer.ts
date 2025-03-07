@@ -27,7 +27,12 @@ async function initializeInternal() {
     console.log('🔹 Archimind initializing...');
     
     // Dynamically import the app initializer to avoid bundling issues
-    const { appInitializer } = await import('./applicationInitializer');
+     // Use chrome.runtime.getURL to get the correct path to applicationInitializer
+     const applicationInitializerUrl = chrome.runtime.getURL('applicationInitializer.js');
+     console.log('🔹 Application initializer URL:', applicationInitializerUrl);
+    
+     // Dynamically import the app initializer using the correct URL
+     const { appInitializer } = await import(applicationInitializerUrl);
 
     console.log('🔹 App initializer imported:', appInitializer);  
     

@@ -1,12 +1,13 @@
 export interface Template {
   id: string;
-  name: string;
+  title: string;
   content: string;
   description?: string;
   folder?: string;
-  created_at: string;
-  updated_at: string;
-  usage_count: number;
+  category?: string;
+  created_at?: string;
+  usage_count?: number;
+  based_on_official_id?: string | null;
 }
 
 export interface TemplateFolder {
@@ -17,9 +18,14 @@ export interface TemplateFolder {
 }
 
 export interface TemplateCollection {
-  templates: Template[];
-  folders: TemplateFolder[];
-  rootTemplates: Template[];
+  officialTemplates: {
+    templates: Template[];
+    folders: TemplateFolder[];
+  };
+  userTemplates: {
+    templates: Template[];
+    folders: TemplateFolder[];
+  };
 }
 
 export interface TemplateFormData {
@@ -32,4 +38,4 @@ export interface TemplateFormData {
 export interface TemplatesPanelProps {
   onClose?: () => void;
   maxHeight?: string;
-} 
+}

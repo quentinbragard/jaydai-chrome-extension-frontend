@@ -40,7 +40,8 @@
         "popup.js",
         "assets/*",
         "content-init.js",
-        "injectedInterceptor.js"
+        "injectedInterceptor.js",
+        "applicationInitializer.js"
       ],
       "matches": ["<all_urls>"]
     }
