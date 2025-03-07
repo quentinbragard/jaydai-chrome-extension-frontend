@@ -8,9 +8,6 @@ import { networkRequestMonitor } from '@/utils/NetworkRequestMonitor';
 export class UserInfoService {
   private static instance: UserInfoService;
   private fetchedUserInfo: boolean = false;
-  private fetchAttempts: number = 0;
-  private maxAttempts: number = 5;
-  private retryDelay: number = 2000;
   private storageKey: string = 'archimind_user_info';
   private cleanupListeners: (() => void)[] = [];
   
@@ -30,12 +27,16 @@ export class UserInfoService {
    * Initialize the service - fetch user info
    */
   public initialize(): void {
-    console.log('👤 Initializing user info service...');
-    
     // First try to get from storage
     this.getUserInfoFromStorage().then(data => {
       if (data) {
-        console.log('✅ Using cached user info from storage');
+        console.log("=============================")
+        console.log("=============================")
+        console.log("=============================")
+        console.log("=============================")
+        console.log("=============================")
+        console.log("=============================")
+        console.log("=============================, ", data)
         userHandler.processUserInfo(data);
         this.fetchedUserInfo = true;
       }
@@ -58,17 +59,10 @@ export class UserInfoService {
     );
     this.cleanupListeners.push(removeConversationsListener);
     
-    // Try standard fetch as well (might get partial data)
-    setTimeout(() => {
-      if (!this.fetchedUserInfo) {
-        this.fetchUserInfo();
-      }
-    }, 2000);
+
     
     // Add event listener for user data from injected script
     document.addEventListener('archimind-network-intercept', this.handleInterceptEvent.bind(this));
-    
-    console.log('👤 User info service initialized, waiting for data...');
   }
   
   /**
@@ -76,19 +70,16 @@ export class UserInfoService {
    */
   private handleUserInfoCapture(data: any): void {
     if (!data || !data.responseBody) return;
-    
-    console.log('🔍 Captured /backend-api/me response:', data);
-    
+
     const userData = data.responseBody;
+
     
     // Verify this is complete user data with email
     if (userData && userData.email && userData.email !== '') {
-      console.log('✅ Successfully captured complete user info from network');
       userHandler.processUserInfo(userData);
       this.fetchedUserInfo = true;
+      console.log("1111111111111111111", userData)
       this.saveUserInfoToStorage(userData);
-    } else {
-      console.log('⚠️ Captured user info is incomplete, waiting for complete data');
     }
   }
   
@@ -105,13 +96,13 @@ export class UserInfoService {
       const userData = responseData.user || responseData.viewer || responseData.current_user;
       
       if (userData && userData.id && userData.email && userData.email !== '') {
-        console.log('✅ Found user data in conversations response');
         userHandler.processUserInfo(userData);
         this.fetchedUserInfo = true;
+        console.log("2222222222222222222", userData)
         this.saveUserInfoToStorage(userData);
       }
     } catch (error) {
-      console.error('❌ Error processing conversations data:', error);
+      console.error('Error processing conversations data:', error);
     }
   }
   
@@ -126,15 +117,13 @@ export class UserInfoService {
     const data = event.detail.data;
     if (!data.responseBody) return;
     
-    console.log('🔍 Received intercepted user info event:', data);
-    
     const userData = data.responseBody;
     
     // Check if this is complete user info
     if (userData && userData.email && userData.email !== '') {
-      console.log('✅ Received complete user info from interceptor');
       userHandler.processUserInfo(userData);
       this.fetchedUserInfo = true;
+      console.log("3333333333333333333", userData)
       this.saveUserInfoToStorage(userData);
     }
   }
@@ -145,11 +134,9 @@ export class UserInfoService {
   private saveUserInfoToStorage(userData: any): void {
     try {
       // Save to chrome.storage
-      chrome.storage.local.set({ [this.storageKey]: userData }, () => {
-        console.log('✅ Saved user info to extension storage');
-      });
+      chrome.storage.local.set({ [this.storageKey]: userData });
     } catch (error) {
-      console.error('❌ Error saving user info to storage:', error);
+      console.error('Error saving user info to storage:', error);
     }
   }
   
@@ -157,11 +144,11 @@ export class UserInfoService {
    * Get user info from storage
    */
   private async getUserInfoFromStorage(): Promise<any> {
+    console.log("******************")
     try {
       return new Promise((resolve) => {
         chrome.storage.local.get([this.storageKey], (result) => {
           if (result && result[this.storageKey]) {
-            console.log('✅ Found user info in extension storage');
             resolve(result[this.storageKey]);
           } else {
             resolve(null);
@@ -169,67 +156,12 @@ export class UserInfoService {
         });
       });
     } catch (error) {
-      console.error('❌ Error getting user info from storage:', error);
+      console.error('Error getting user info from storage:', error);
       return null;
     }
   }
   
-  /**
-   * Fetch user info using standard fetch (might get partial data)
-   */
-  private async fetchUserInfo(): Promise<void> {
-    if (this.fetchedUserInfo || this.fetchAttempts >= this.maxAttempts) {
-      return;
-    }
-    
-    this.fetchAttempts++;
-    console.log(`👤 Trying standard fetch for user info (attempt ${this.fetchAttempts}/${this.maxAttempts})...`);
-    
-    try {
-      const response = await fetch('/backend-api/me', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      
-      console.log(`Response status: ${response.status} ${response.statusText}`);
-      
-      if (!response.ok) {
-        throw new Error(`API returned ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      console.log('Standard fetch response:', data);
-      
-      // If we got a valid user object with real data (not empty fields)
-      if (data && data.id && data.email && data.email !== '') {
-        console.log('✅ Successfully fetched complete user info with standard fetch');
-        userHandler.processUserInfo(data);
-        this.fetchedUserInfo = true;
-        this.saveUserInfoToStorage(data);
-        return;
-      }
-      
-      console.log('⚠️ Standard fetch returned incomplete user data');
-      
-      // Try again after delay
-      if (this.fetchAttempts < this.maxAttempts) {
-        const delay = this.retryDelay * Math.pow(1.5, this.fetchAttempts - 1);
-        setTimeout(() => this.fetchUserInfo(), delay);
-      }
-    } catch (error) {
-      console.error('❌ Error in standard fetch:', error);
-      
-      // Try again after delay
-      if (this.fetchAttempts < this.maxAttempts) {
-        const delay = this.retryDelay * Math.pow(1.5, this.fetchAttempts - 1);
-        setTimeout(() => this.fetchUserInfo(), delay);
-      }
-    }
-  }
-  
+
   /**
    * Force a refresh of the user info
    */
@@ -238,10 +170,9 @@ export class UserInfoService {
     this.fetchedUserInfo = false;
     
     // Clear from storage
+    console.log("4444444444444444444")
     chrome.storage.local.remove([this.storageKey]);
     
-    // Try standard fetch
-    this.fetchUserInfo();
   }
   
   /**

@@ -1,5 +1,4 @@
 // src/content/injectInterceptor.ts
-import { apiService } from '@/services/ApiService';
 import { conversationHandler } from '@/services/chat/handlers/ConversationHandler';
 import { messageHandler } from '@/services/chat/handlers/MessageHandler';
 import { userHandler } from '@/services/chat/handlers/UserHandler';
@@ -10,11 +9,8 @@ import { StreamProcessor } from '@/services/chat/StreamProcessor';
  */
 export function injectNetworkInterceptor(): void {
   try {
-    console.log('🚀 Injecting network interceptor into page context...');
-    
     // Check if already injected
     if (document.querySelector('#archimind-network-interceptor')) {
-      console.log('⚠️ Network interceptor already injected');
       return;
     }
     
@@ -27,16 +23,11 @@ export function injectNetworkInterceptor(): void {
     
     // Add to page and set up removal after load
     (document.head || document.documentElement).appendChild(script);
-    script.onload = function() {
-      console.log('✅ Network interceptor script loaded');
-      // Optional: Remove the script element after loading
-      // script.remove();
-    };
     
     // Set up listener for intercepted network data
     setupInterceptListener();
   } catch (error) {
-    console.error('❌ Failed to inject network interceptor:', error);
+    console.error('Failed to inject network interceptor:', error);
   }
 }
 
@@ -48,12 +39,8 @@ function setupInterceptListener(): void {
     const { type, data } = event.detail;
     
     try {
-      console.log('🔄🔄🔄🔄🔄🔄🔄🔄 Received intercepted data:', JSON.stringify(data, null, 2));
-      console.log(' ❌❌❌❌❌❌❌Received intercepted type:', type);
-      
       switch (type) {
         case 'userInfo':
-          console.log("OOOOOOKKKKKKKKKKKKKK")
           handleUserInfo(data);
           break;
           
@@ -66,31 +53,32 @@ function setupInterceptListener(): void {
           break;
           
         case 'injectionComplete':
-          console.log('✅ Interceptor injection completed successfully');
+          // Interceptor injection completed
           break;
-          
-        default:
-          console.log(`⚠️ Unknown intercept type: ${type}`);
       }
     } catch (error) {
-      console.error('❌ Error handling intercepted data:', error);
+      console.error('Error handling intercepted data:', error);
     }
   });
-  
-  console.log('👂 Set up listener for intercepted network data');
 }
 
 /**
  * Handle intercepted user info data
  */
 function handleUserInfo(data: any): void {
+  console.log("******************")
+  console.log("******************")
+  console.log("******************")
+  console.log("******************")
+  console.log("******************")
+  console.log("******************")
+  console.log("******************")
   try {
     if (data && data.responseBody) {
-      console.log('👤 Processing intercepted user info', JSON.stringify(data, null, 2));
       userHandler.processUserInfo(data.responseBody);
     }
   } catch (error) {
-    console.error('❌ Error processing user info:', error);
+    console.error('Error processing user info:', error);
   }
 }
 
@@ -98,14 +86,12 @@ function handleUserInfo(data: any): void {
  * Handle intercepted conversation list data
  */
 function handleConversationList(data: any): void {
-  console.log('👤👤👤👤👤👤👤👤👤👤👤👤👤👤👤👤👤👤 Processing intercepted conversation list', JSON.stringify(data, null, 2));
   try {
     if (data && data.responseBody) {
-      console.log('📋 Processing intercepted conversation list');
       conversationHandler.processConversationList(data.responseBody);
     }
   } catch (error) {
-    console.error('❌ Error processing conversation list:', error);
+    console.error('Error processing conversation list:', error);
   }
 }
 
@@ -119,7 +105,6 @@ async function handleChatCompletion(data: any): Promise<void> {
     // Process user message from request body if present
     if (requestBody && requestBody.messages && requestBody.messages.length > 0) {
       const userMessage = StreamProcessor.extractUserMessage(requestBody);
-      console.log('👤👤👤👤👤👤👤👤👤👤👤👤👤👤👤👤👤👤 Processing intercepted user message', JSON.stringify(userMessage, null, 2));
       if (userMessage) {
         messageHandler.processMessage({
           type: 'user',
@@ -148,10 +133,7 @@ async function handleChatCompletion(data: any): Promise<void> {
         });
       }
     }
-    
-    // For streaming responses, we don't have the full content here
-    // The content script will still see these via the message observer
   } catch (error) {
-    console.error('❌ Error processing chat completion:', error);
+    console.error('Error processing chat completion:', error);
   }
 }

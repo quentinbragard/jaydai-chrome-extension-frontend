@@ -2,8 +2,6 @@
 // This script will be injected into the page context to intercept network requests
 
 (function() {
-  console.log('🔌 ChatGPT Network Interceptor injected into page context');
-  
   // Track if we've already processed the user info
   let userInfoProcessed = false;
   
@@ -26,8 +24,6 @@
    * Send intercepted data back to the extension
    */
   function sendToExtension(type, data) {
-    console.log(`🚀 Sending ${type} data to extension`);
-    
     // Create and dispatch a custom event
     const event = new CustomEvent('archimind-network-intercept', {
       detail: {
@@ -60,11 +56,8 @@
       pathname = url;
     }
     
-    // More precise endpoint matching
-    
     // Check for user info endpoint - exact match for /backend-api/me
     if (pathname === ENDPOINTS.USER_INFO) {
-      console.log('🎯 Exact match for user info endpoint:', url);
       return 'userInfo';
     }
     
@@ -88,13 +81,8 @@
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
     const requestId = `${url}-${Date.now()}`;
     
-    // Get the endpoint type FIRST to ensure pathname is properly defined
+    // Get the endpoint type
     const endpointType = getEndpointType(url);
-    
-    // Debug log for important endpoints
-    if (url.includes('/backend-api/me')) {
-      console.log('🔍 Fetch request to ME endpoint detected:', url);
-    }
     
     let requestBody = null;
     
@@ -126,8 +114,6 @@
         oldestEntries.forEach(entry => processedRequests.delete(entry));
       }
       
-      console.log(`🔔 Processing ${endpointType} endpoint: ${url}`);
-      
       // Clone the response to avoid consuming it
       const clonedResponse = response.clone();
       
@@ -141,9 +127,8 @@
             // Special handling for user info endpoint
             if (endpointType === 'userInfo') {
               userInfoProcessed = true;
-              console.log('✅ Successfully intercepted user info from network request:', data, endpointType);
             }
-            
+            console.log("7777777777777777777", data)
             sendToExtension(endpointType, {
               url,
               requestBody,
@@ -152,10 +137,11 @@
               isStreaming: false
             });
           }).catch(e => {
-            console.error('Error parsing response JSON:', e);
+            // Error parsing response JSON
           });
         } else if (endpointType === 'chatCompletion') {
           // For streaming responses, we need special handling
+          console.log("8888888888888888888", data)
           sendToExtension(endpointType, {
             url,
             requestBody,
@@ -170,7 +156,7 @@
           });
         }
       } catch (error) {
-        console.error('Error processing intercepted fetch:', error);
+        // Error processing intercepted fetch
       }
     }
     
@@ -184,11 +170,6 @@
   XMLHttpRequest.prototype.open = function(method, url) {
     this._url = url;
     this._method = method;
-    
-    // Debug log for important endpoints
-    if (url.includes('/backend-api/me')) {
-      console.log('🔍 XHR request to ME endpoint detected:', url);
-    }
     
     return originalXHROpen.apply(this, arguments);
   };
@@ -216,8 +197,6 @@
     if (endpointType && !processedRequests.has(requestId)) {
       processedRequests.add(requestId);
       
-      console.log(`🔔 Processing XHR ${endpointType} endpoint: ${url}`);
-      
       // Add load event listener
       this.addEventListener('load', function() {
         if (this.status >= 200 && this.status < 300) {
@@ -234,9 +213,8 @@
               // Special handling for user info endpoint
               if (endpointType === 'userInfo') {
                 userInfoProcessed = true;
-                console.log('✅ Successfully intercepted user info from XHR:', responseData);
               }
-              
+              console.log("9999999999999999999", responseData)
               sendToExtension(endpointType, {
                 url,
                 requestBody,
@@ -246,7 +224,7 @@
               });
             }
           } catch (error) {
-            console.error('Error processing XHR response:', error);
+            // Error processing XHR response
           }
         }
       });
@@ -259,14 +237,18 @@
   // FALLBACK: If we missed the initial /backend-api/me request, fetch it manually after a delay
   setTimeout(() => {
     if (!userInfoProcessed) {
-      console.log('⚠️ User info not intercepted yet, fetching manually...');
-      
+      console.log("******************")
+      console.log("******************")
+      console.log("******************")
+      console.log("******************")
+      console.log("******************")
+      console.log("******************")
       // Make a manual request to get user info
       fetch('/backend-api/me')
         .then(response => response.json())
         .then(data => {
-          console.log('✅ Manually fetched user info:', data);
           userInfoProcessed = true;
+          console.log("6666666666666666666", data)
           
           sendToExtension('userInfo', {
             url: '/backend-api/me',
@@ -276,8 +258,8 @@
             isStreaming: false
           });
         })
-        .catch(error => {
-          console.error('❌ Error fetching user info:', error);
+        .catch(() => {
+          // Error fetching user info
         });
     }
   }, 2000); // Wait 2 seconds after injection to check

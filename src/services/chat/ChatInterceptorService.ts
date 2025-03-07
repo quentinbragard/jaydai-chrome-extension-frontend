@@ -1,7 +1,5 @@
 // src/services/chat/ChatInterceptorService.ts
-// Modified to use the page-context injection approach
 import { messageObserver } from '@/utils/messageObserver';
-import { StreamProcessor } from './StreamProcessor';
 import { UrlChangeListener } from './UrlChangeListener';
 import { MessageEvent } from './types';
 import { injectNetworkInterceptor } from '@/content/injectInterceptor';
@@ -9,7 +7,6 @@ import { injectNetworkInterceptor } from '@/content/injectInterceptor';
 // Import handlers
 import { conversationHandler } from './handlers/ConversationHandler';
 import { messageHandler } from './handlers/MessageHandler';
-import { userHandler } from './handlers/UserHandler';
 
 /**
  * Main service to coordinate ChatGPT interception
@@ -42,8 +39,6 @@ export class ChatInterceptorService {
   public initialize(): void {
     if (this.isInitialized) return;
     
-    console.log('🚀 Initializing ChatGPT interception...');
-    
     // Get initial chat ID from URL
     const chatId = UrlChangeListener.extractChatIdFromUrl(window.location.href);
     conversationHandler.setCurrentChatId(chatId);
@@ -63,7 +58,7 @@ export class ChatInterceptorService {
       });
     });
     
-    // MODIFIED: Inject network interceptor into page context
+    // Inject network interceptor into page context
     injectNetworkInterceptor();
     
     // Start URL change listener
@@ -75,7 +70,6 @@ export class ChatInterceptorService {
     }
     
     this.isInitialized = true;
-    console.log('✅ ChatGPT interception initialized');
   }
   
   /**
@@ -83,8 +77,6 @@ export class ChatInterceptorService {
    */
   public cleanup(): void {
     if (!this.isInitialized) return;
-    
-    console.log('🧹 Cleaning up ChatGPT interception...');
     
     // Stop URL listener
     this.urlListener.stopListening();
@@ -95,12 +87,7 @@ export class ChatInterceptorService {
     // Clear processed messages
     messageHandler.clearProcessedMessages();
     
-    // Note: We can't remove the injected script easily,
-    // but we can signal it to stop intercepting if needed.
-    // For now, we'll just leave it running.
-    
     this.isInitialized = false;
-    console.log('✅ ChatGPT interception cleaned up');
   }
   
   /**

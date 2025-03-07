@@ -13,14 +13,10 @@ export class UserHandler {
    * Process user information from API
    */
   public processUserInfo(data: any): void {
-    console.log('👤 Processing user info:', data);
     try {
       if (!data || !data.id || !data.email) {
-        console.warn('⚠️ Incomplete user data received');
         return;
       }
-      
-      console.log(`👤 Processing user info: ${data.email}`);
       
       // Extract org name if available
       let orgName = null;
@@ -41,7 +37,7 @@ export class UserHandler {
       // Save to backend
       this.saveUserMetadataToBackend();
     } catch (error) {
-      console.error('❌ Error processing user info:', error);
+      console.error('Error processing user info:', error);
     }
   }
   
@@ -62,9 +58,9 @@ export class UserHandler {
       method: 'POST',
       body: JSON.stringify(this.userInfo)
     }).then(() => {
-      console.log('✅ User metadata saved to backend');
+      // Successfully saved user metadata
     }).catch(error => {
-      console.error('❌ Error saving user metadata:', error);
+      console.error('Error saving user metadata:', error);
     });
   }
 }

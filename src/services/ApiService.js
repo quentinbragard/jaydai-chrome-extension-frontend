@@ -18,7 +18,6 @@ export class ApiService {
         return await this.pendingRequests.get(requestKey);
       } catch (error) {
         // If the pending request fails, we'll try again
-        console.log(`🔄 Previous request failed, retrying: ${endpoint}`);
       }
     }
     
@@ -43,11 +42,8 @@ export class ApiService {
       try {
         token = await this.tokenProvider();
       } catch (tokenError) {
-        console.warn(`⚠️ Token retrieval failed: ${tokenError.message}`);
-        
         // Try using a default or anonymous mode if authentication isn't critical for this endpoint
         if (endpoint.startsWith('/public/') || options.allowAnonymous) {
-          console.log(`🔒 Proceeding with anonymous request for ${endpoint}`);
           token = null;
         } else {
           // For most endpoints, auth is required so we'll rethrow
@@ -74,14 +70,10 @@ export class ApiService {
       };
       
       // Make request
-      console.log(`🔄 Making request to ${endpoint}`, 
-                 { method: fetchOptions.method || 'GET' });
       const response = await fetch(`${this.baseUrl}${endpoint}`, fetchOptions);
       
       // Handle unauthorized (token expired)
       if (response.status === 403 || response.status === 401) {
-        console.log('🔄 Token expired or unauthorized, refreshing...');
-        
         // Only retry once to avoid infinite loops
         if (retryCount < 1) {
           try {
@@ -99,7 +91,6 @@ export class ApiService {
             // Retry request with new token
             return this._executeRequest(endpoint, newOptions, retryCount + 1);
           } catch (refreshError) {
-            console.error('❌ Token refresh failed:', refreshError);
             throw new Error('Authentication failed after token refresh attempt');
           }
         } else {
@@ -125,11 +116,10 @@ export class ApiService {
         const data = await response.json();
         return data;
       } catch (jsonError) {
-        console.warn(`⚠️ Error parsing JSON response from ${endpoint}:`, jsonError);
         return { success: true, message: 'Request successful but response was not JSON' };
       }
     } catch (error) {
-      console.error(`❌ API request failed (${endpoint}):`, error);
+      console.error(`API request failed (${endpoint}):`, error);
       
       // Implement basic retry for network errors
       if (
@@ -137,7 +127,6 @@ export class ApiService {
         retryCount < 2 && 
         !options.method || options.method === 'GET'  // Only retry GETs automatically
       ) {
-        console.log(`🔄 Network error, retrying (${retryCount + 1}/2)...`);
         await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
         return this._executeRequest(endpoint, options, retryCount + 1);
       }
@@ -146,8 +135,7 @@ export class ApiService {
     }
   }
   
-  // All the other methods remain the same
-  // User authentication
+  // User stats
   async getUserStats() {
     return this.request('/stats/user');
   }
@@ -216,7 +204,6 @@ export class ApiService {
   
   // Save user metadata
   async saveUserMetadata(userData) {
-    console.log("🔄🔄🔄🔄🔄 Saving user metadata:", userData);
     return this.request('/save/user_metadata', {
       method: 'POST',
       body: JSON.stringify({
