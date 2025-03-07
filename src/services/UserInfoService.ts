@@ -30,13 +30,6 @@ export class UserInfoService {
     // First try to get from storage
     this.getUserInfoFromStorage().then(data => {
       if (data) {
-        console.log("=============================")
-        console.log("=============================")
-        console.log("=============================")
-        console.log("=============================")
-        console.log("=============================")
-        console.log("=============================")
-        console.log("=============================, ", data)
         userHandler.processUserInfo(data);
         this.fetchedUserInfo = true;
       }
@@ -59,8 +52,6 @@ export class UserInfoService {
     );
     this.cleanupListeners.push(removeConversationsListener);
     
-
-    
     // Add event listener for user data from injected script
     document.addEventListener('archimind-network-intercept', this.handleInterceptEvent.bind(this));
   }
@@ -72,13 +63,11 @@ export class UserInfoService {
     if (!data || !data.responseBody) return;
 
     const userData = data.responseBody;
-
     
     // Verify this is complete user data with email
     if (userData && userData.email && userData.email !== '') {
       userHandler.processUserInfo(userData);
       this.fetchedUserInfo = true;
-      console.log("1111111111111111111", userData)
       this.saveUserInfoToStorage(userData);
     }
   }
@@ -98,7 +87,6 @@ export class UserInfoService {
       if (userData && userData.id && userData.email && userData.email !== '') {
         userHandler.processUserInfo(userData);
         this.fetchedUserInfo = true;
-        console.log("2222222222222222222", userData)
         this.saveUserInfoToStorage(userData);
       }
     } catch (error) {
@@ -123,7 +111,6 @@ export class UserInfoService {
     if (userData && userData.email && userData.email !== '') {
       userHandler.processUserInfo(userData);
       this.fetchedUserInfo = true;
-      console.log("3333333333333333333", userData)
       this.saveUserInfoToStorage(userData);
     }
   }
@@ -144,7 +131,6 @@ export class UserInfoService {
    * Get user info from storage
    */
   private async getUserInfoFromStorage(): Promise<any> {
-    console.log("******************")
     try {
       return new Promise((resolve) => {
         chrome.storage.local.get([this.storageKey], (result) => {
@@ -161,18 +147,14 @@ export class UserInfoService {
     }
   }
   
-
   /**
    * Force a refresh of the user info
    */
   public refreshUserInfo(): void {
-    this.fetchAttempts = 0;
     this.fetchedUserInfo = false;
     
     // Clear from storage
-    console.log("4444444444444444444")
     chrome.storage.local.remove([this.storageKey]);
-    
   }
   
   /**
@@ -185,6 +167,9 @@ export class UserInfoService {
     
     // Clean up network monitor
     networkRequestMonitor.cleanup();
+    
+    // Remove event listener
+    document.removeEventListener('archimind-network-intercept', this.handleInterceptEvent.bind(this));
   }
 }
 

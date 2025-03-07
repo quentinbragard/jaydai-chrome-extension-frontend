@@ -1,5 +1,4 @@
 // src/services/chat/handlers/UserHandler.ts
-// Handles user metadata from ChatGPT API
 import { apiService } from '@/services/ApiService';
 import { UserMetadata } from '../types';
 
@@ -57,8 +56,6 @@ export class UserHandler {
     apiService.request('/save/user_metadata', {
       method: 'POST',
       body: JSON.stringify(this.userInfo)
-    }).then(() => {
-      // Successfully saved user metadata
     }).catch(error => {
       console.error('Error saving user metadata:', error);
     });

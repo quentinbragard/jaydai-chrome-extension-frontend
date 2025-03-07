@@ -2,9 +2,6 @@
 // This script will be injected into the page context to intercept network requests
 
 (function() {
-  // Track if we've already processed the user info
-  let userInfoProcessed = false;
-  
   // Store original methods before overriding
   const originalFetch = window.fetch;
   const originalXHROpen = XMLHttpRequest.prototype.open;
@@ -124,11 +121,6 @@
         if (!isStreaming) {
           // For normal JSON responses
           clonedResponse.json().then(data => {
-            // Special handling for user info endpoint
-            if (endpointType === 'userInfo') {
-              userInfoProcessed = true;
-            }
-            console.log("7777777777777777777", data)
             sendToExtension(endpointType, {
               url,
               requestBody,
@@ -141,7 +133,6 @@
           });
         } else if (endpointType === 'chatCompletion') {
           // For streaming responses, we need special handling
-          console.log("8888888888888888888", data)
           sendToExtension(endpointType, {
             url,
             requestBody,
@@ -210,11 +201,6 @@
                 responseData = { rawText: responseText.substring(0, 1000) };
               }
               
-              // Special handling for user info endpoint
-              if (endpointType === 'userInfo') {
-                userInfoProcessed = true;
-              }
-              console.log("9999999999999999999", responseData)
               sendToExtension(endpointType, {
                 url,
                 requestBody,
@@ -233,36 +219,6 @@
     // Call original send
     return originalXHRSend.apply(this, arguments);
   };
-  
-  // FALLBACK: If we missed the initial /backend-api/me request, fetch it manually after a delay
-  setTimeout(() => {
-    if (!userInfoProcessed) {
-      console.log("******************")
-      console.log("******************")
-      console.log("******************")
-      console.log("******************")
-      console.log("******************")
-      console.log("******************")
-      // Make a manual request to get user info
-      fetch('/backend-api/me')
-        .then(response => response.json())
-        .then(data => {
-          userInfoProcessed = true;
-          console.log("6666666666666666666", data)
-          
-          sendToExtension('userInfo', {
-            url: '/backend-api/me',
-            requestBody: null,
-            responseBody: data,
-            method: 'GET',
-            isStreaming: false
-          });
-        })
-        .catch(() => {
-          // Error fetching user info
-        });
-    }
-  }, 2000); // Wait 2 seconds after injection to check
   
   // Notify that injection is complete
   sendToExtension('injectionComplete', { status: 'success' });

@@ -105,6 +105,7 @@ async function handleChatCompletion(data: any): Promise<void> {
     // Process user message from request body if present
     if (requestBody && requestBody.messages && requestBody.messages.length > 0) {
       const userMessage = StreamProcessor.extractUserMessage(requestBody);
+      console.log("===========================userMessage", userMessage)
       if (userMessage) {
         messageHandler.processMessage({
           type: 'user',
@@ -119,6 +120,7 @@ async function handleChatCompletion(data: any): Promise<void> {
     
     // Handle non-streaming responses
     if (!isStreaming && responseBody) {
+      console.log("===========================responseBody", responseBody)
       if (responseBody.message) {
         const messageContent = responseBody.message.content?.parts?.join('\n') || 
                               responseBody.message.content || '';
