@@ -4,11 +4,11 @@ import { templateService } from '@/services/TemplateService';
 
 // Default empty template collection structure
 const DEFAULT_TEMPLATE_COLLECTION: TemplateCollection = {
-  officialTemplates: { 
+  userTemplates: { 
     templates: [], 
     folders: [] 
   },
-  userTemplates: { 
+  officialTemplates: { 
     templates: [], 
     folders: [] 
   }
@@ -28,26 +28,36 @@ export function useTemplates() {
   });
 
   useEffect(() => {
-    // Register for template updates
-    const cleanup = templateService.onTemplatesUpdate((collection) => {
-      // Ensure a default structure even if collection is incomplete
-      setTemplateCollection({
-        officialTemplates: collection.officialTemplates || { templates: [], folders: [] },
-        userTemplates: collection.userTemplates || { templates: [], folders: [] }
-      });
-      setLoading(false);
-    });
-    
     // Load templates
-    templateService.loadTemplates()
-      .then(() => setLoading(false))
-      .catch(() => {
-        // Ensure we exit loading state even if load fails
+    const loadTemplates = async () => {
+      try {
+        setLoading(true);
+        
+        // Directly get the templates from the service
+        const collection = await templateService.loadTemplates();
+        
+        console.log('Loaded Template Collection:', JSON.stringify(collection, null, 2));
+        
+        // Explicitly set the template collection
+        setTemplateCollection({
+          userTemplates: {
+            templates: collection.userTemplates?.templates || [],
+            folders: collection.userTemplates?.folders || []
+          },
+          officialTemplates: {
+            templates: collection.officialTemplates?.templates || [],
+            folders: collection.officialTemplates?.folders || []
+          }
+        });
+      } catch (error) {
+        console.error('Error loading templates:', error);
         setTemplateCollection(DEFAULT_TEMPLATE_COLLECTION);
+      } finally {
         setLoading(false);
-      });
-    
-    return cleanup;
+      }
+    };
+
+    loadTemplates();
   }, []);
 
   const toggleFolder = (path: string) => {
@@ -64,6 +74,7 @@ export function useTemplates() {
 
   const handleUseTemplate = async (template: Template, onClose?: () => void) => {
     try {
+      // Track template usage
       await templateService.useTemplate(template.id);
       
       // Insert template content into ChatGPT input
@@ -83,7 +94,7 @@ export function useTemplates() {
     if (template) {
       setCurrentTemplate(template);
       setTemplateFormData({
-        name: template.title || '',
+        name: template.title || template.name || '',
         content: template.content,
         description: template.description || '',
         folder: template.folder || ''
@@ -103,7 +114,7 @@ export function useTemplates() {
   const handleSaveTemplate = async () => {
     try {
       const templateData = {
-        title: templateFormData.name,
+        name: templateFormData.name,
         content: templateFormData.content,
         description: templateFormData.description,
         folder: templateFormData.folder
@@ -117,6 +128,10 @@ export function useTemplates() {
         await templateService.createTemplate(templateData);
       }
       setEditDialogOpen(false);
+      
+      // Reload templates to reflect changes
+      const updatedCollection = await templateService.loadTemplates();
+      setTemplateCollection(updatedCollection);
     } catch (error) {
       console.error('Error saving template:', error);
     }
@@ -124,9 +139,13 @@ export function useTemplates() {
 
   const handleDeleteTemplate = async (template: Template, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm(`Are you sure you want to delete "${template.title}"?`)) {
+    if (window.confirm(`Are you sure you want to delete "${template.title || template.name}"?`)) {
       try {
         await templateService.deleteTemplate(template.id);
+        
+        // Reload templates to reflect changes
+        const updatedCollection = await templateService.loadTemplates();
+        setTemplateCollection(updatedCollection);
       } catch (error) {
         console.error('Error deleting template:', error);
       }
@@ -148,6 +167,9 @@ export function useTemplates() {
     }));
   };
 
+  // Remove the previous console.log statements and replace with this
+  console.log("Template Collection:", JSON.stringify(templateCollection, null, 2));
+  
   return {
     templateCollection,
     loading,

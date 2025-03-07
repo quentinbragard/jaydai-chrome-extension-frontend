@@ -52,8 +52,8 @@ export class TemplateService {
    * Initialize the template service
    */
   public async initialize(): Promise<void> {
-    console.log('📝 Initializing template service...');
-    console.log('Loading templates...........................................................');  
+    console.log('📝 Initializing template service...........................................................');
+
 
     
     // Load templates immediately
@@ -142,6 +142,8 @@ export class TemplateService {
           folders: this.organizeFolders(userResponse.templates)
         };
       }
+
+      console.log("this.templateCollection-------------------=", this.templateCollection);
       
       // Notify listeners
       this.notifyUpdateListeners();

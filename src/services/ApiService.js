@@ -148,6 +148,35 @@ export class ApiService {
   async getOfficialTemplates() {
     return this.request('/prompt-templates/official-templates');
   }
+
+  async getAllTemplates() {
+    try {
+      console.log('🔍 Fetching all templates');
+      
+      const response = await this.request('/prompt-templates/all-templates', {
+        method: 'GET',
+        allowAnonymous: false  // Ensure authentication is required
+      });
+      
+      console.log('📦 All Templates Response:', JSON.stringify(response, null, 2));
+      
+      return response;
+    } catch (error) {
+      console.error('❌ Error fetching all templates:', error);
+      
+      // Log more detailed error information
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      
+      throw error;
+    }
+  }
+
+
+  
   
   async createTemplate(templateData) {
     return this.request('/prompt-templates/template', {

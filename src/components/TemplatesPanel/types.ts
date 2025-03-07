@@ -1,6 +1,7 @@
 export interface Template {
   id: string;
-  title: string;
+  name?: string;
+  title?: string;
   content: string;
   description?: string;
   folder?: string;
@@ -18,11 +19,11 @@ export interface TemplateFolder {
 }
 
 export interface TemplateCollection {
-  officialTemplates: {
+  userTemplates: {
     templates: Template[];
     folders: TemplateFolder[];
   };
-  userTemplates: {
+  officialTemplates: {
     templates: Template[];
     folders: TemplateFolder[];
   };

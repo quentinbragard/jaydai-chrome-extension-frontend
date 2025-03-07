@@ -30,6 +30,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     captureCurrentPromptAsTemplate
   } = useTemplates();
 
+  console.log("templateCollection============", templateCollection);
+
   // Safely get templates with fallback
   const officialTemplates = templateCollection?.officialTemplates?.templates || [];
   const officialFolders = templateCollection?.officialTemplates?.folders || [];
@@ -102,7 +104,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                           key={template.id}
                           template={{
                             ...template,
-                            title: template.title || template.id
+                            title: template.title || template.name
                           }}
                           onUseTemplate={onTemplateClick}
                           onEditTemplate={openEditDialog}
@@ -118,7 +120,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                           ...folder,
                           templates: folder.templates.map(t => ({
                             ...t,
-                            title: t.title || t.id
+                            title: t.title || t.name
                           }))
                         }}
                         expandedFolders={expandedFolders}
@@ -146,7 +148,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                           key={template.id}
                           template={{
                             ...template,
-                            title: template.title || template.id
+                            title: template.title || template.name
                           }}
                           onUseTemplate={onTemplateClick}
                           onEditTemplate={openEditDialog}
@@ -162,7 +164,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                           ...folder,
                           templates: folder.templates.map(t => ({
                             ...t,
-                            title: t.title || t.id
+                            title: t.title || t.name
                           }))
                         }}
                         expandedFolders={expandedFolders}
