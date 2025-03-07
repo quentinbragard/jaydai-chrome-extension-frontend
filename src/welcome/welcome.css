@@ -1,0 +1,12 @@
+/* src/popup/welcome.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add welcome-specific styles here */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}

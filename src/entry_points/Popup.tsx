@@ -53,8 +53,8 @@ const Popup: React.FC = () => {
     <div className="w-80 bg-background">
       <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-center">
-            AI Tool Launcher
+          <CardTitle className=" text-yellow-500 text-center">
+            AI Tool Launcher...
           </CardTitle>
         </CardHeader>
         <Separator />

@@ -19,7 +19,7 @@ import {
   Activity, 
   Target 
 } from 'lucide-react';
-import "@/styles/globals.css";
+import "@/welcome/welcome.css";
 
 const WelcomePage: React.FC = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);

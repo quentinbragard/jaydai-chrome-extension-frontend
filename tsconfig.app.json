@@ -26,8 +26,7 @@
       "baseUrl": ".",
       "paths": {
         "@/*": ["./src/*"],
-        "@components/*": ["./src/components/*"],
-        "@styles/*": ["./src/styles/*"]
+        "@components/*": ["./src/components/*"]
       },
       "allowJs": true,
       "checkJs": false

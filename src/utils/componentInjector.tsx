@@ -44,7 +44,7 @@ class ComponentInjector {
       // Inject stylesheet
       const style = document.createElement('link');
       style.rel = 'stylesheet';
-      style.href = chrome.runtime.getURL('assets/globals.css');
+      style.href = chrome.runtime.getURL('assets/content.css');
       style.id = 'archimind-styles';
       document.head.appendChild(style);
       

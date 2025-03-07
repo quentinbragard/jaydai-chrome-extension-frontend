@@ -31,7 +31,7 @@ export const StatsPanel = () => {
   // Animation classes
   const containerClasses = `
     stats-panel 
-    bg-card 
+    bg-black 
     shadow-md
     rounded-lg 
     border 
