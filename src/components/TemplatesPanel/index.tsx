@@ -30,13 +30,17 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     captureCurrentPromptAsTemplate
   } = useTemplates();
 
-  console.log("templateCollection============", templateCollection);
+  // Add debug logging to see what's actually in the template collection
+  console.log("🔍 TemplatesPanel render with templateCollection:", JSON.stringify(templateCollection, null, 2));
 
-  // Safely get templates with fallback
+  // Safely access template collections with fallbacks
   const officialTemplates = templateCollection?.officialTemplates?.templates || [];
   const officialFolders = templateCollection?.officialTemplates?.folders || [];
   const userTemplates = templateCollection?.userTemplates?.templates || [];
   const userFolders = templateCollection?.userTemplates?.folders || [];
+
+  // Log the extracted template arrays
+  console.log(`🔢 Template counts - Official: ${officialTemplates.length}, User: ${userTemplates.length}`);
 
   // Function to call handleUseTemplate with onClose callback
   const onTemplateClick = (template) => {

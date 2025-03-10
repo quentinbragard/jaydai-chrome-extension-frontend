@@ -1,15 +1,15 @@
+// src/services/TemplateService.ts
 import { apiService } from './ApiService';
 
 export interface Template {
   id: string;
-  title: string;
+  name: string;
   content: string;
   description?: string;
   folder?: string;
-  category?: string;
   created_at: string;
+  updated_at?: string;
   usage_count?: number;
-  based_on_official_id?: string | null;
 }
 
 export interface TemplateFolder {
@@ -20,16 +20,19 @@ export interface TemplateFolder {
 }
 
 export interface TemplateCollection {
-  officialTemplates: {
+  userTemplates: {
     templates: Template[];
     folders: TemplateFolder[];
   };
-  userTemplates: {
+  officialTemplates: {
     templates: Template[];
     folders: TemplateFolder[];
   };
 }
 
+/**
+ * Service to manage prompt templates
+ */
 export class TemplateService {
   private static instance: TemplateService;
   private templateCollection: TemplateCollection = {
@@ -37,33 +40,279 @@ export class TemplateService {
     userTemplates: { templates: [], folders: [] }
   };
   private isLoading: boolean = false;
-  private updateCallbacks: ((collection: TemplateCollection) => void)[] = [];
-
+  private lastLoadTime: number = 0;
+  private updateCallbacks: ((templates: TemplateCollection) => void)[] = [];
+  
   private constructor() {}
-
+  
+  /**
+   * Get the singleton instance
+   */
   public static getInstance(): TemplateService {
     if (!TemplateService.instance) {
       TemplateService.instance = new TemplateService();
     }
     return TemplateService.instance;
   }
-
+  
   /**
    * Initialize the template service
    */
   public async initialize(): Promise<void> {
-    console.log('📝 Initializing template service...........................................................');
-
-
+    console.log('📝 Initializing template service...');
     
     // Load templates immediately
     await this.loadTemplates();
     
     console.log('✅ Template service initialized');
   }
-
+  
   /**
-   * Organize templates into folder structure
+   * Load templates from backend
+   * @param forceRefresh - Force refresh even if recently loaded
+   */
+  public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
+    // Skip if we've loaded recently (within 1 minute) and not forcing refresh
+    const now = Date.now();
+    if (!forceRefresh && this.lastLoadTime > 0 && now - this.lastLoadTime < 60000) {
+      console.log('🔄 Using cached templates');
+      return this.getTemplateCollection();
+    }
+    
+    // Skip if already loading
+    if (this.isLoading) {
+      console.log('⏳ Templates already loading');
+      return this.getTemplateCollection();
+    }
+    
+    this.isLoading = true;
+    
+    try {
+      console.log('📝 Loading templates from API...');
+      
+      // Call API to get templates
+      const response = await apiService.getAllTemplates();
+      
+      console.log('📦 API Response:', JSON.stringify(response, null, 2));
+      
+      if (response && response.success) {
+        // Here's the fix - properly handle the separate userTemplates and officialTemplates
+        this.templateCollection = {
+          userTemplates: {
+            templates: response.userTemplates || ["coucouc"],
+            folders: this.organizeFolders(response.userTemplates || [])
+          },
+          officialTemplates: {
+            templates: response.officialTemplates || [],
+            folders: this.organizeFolders(response.officialTemplates || [])
+          }
+        };
+        
+        this.lastLoadTime = now;
+        console.log(`✅ Loaded templates - User: ${this.templateCollection.userTemplates.templates.length}, Official: ${this.templateCollection.officialTemplates.templates.length}`);
+        
+        // Notify update listeners
+        this.notifyUpdateListeners();
+      } else {
+        console.warn('⚠️ Template fetch returned no data or unsuccessful response');
+      }
+    } catch (error) {
+      console.error('❌ Error loading templates:', error);
+      
+      // Log more detailed error information
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+    } finally {
+      this.isLoading = false;
+    }
+    
+    return this.getTemplateCollection();
+  }
+  
+  /**
+   * Get the current template collection
+   */
+  public getTemplateCollection(): TemplateCollection {
+    return { ...this.templateCollection };
+  }
+  
+  /**
+   * Get a template by ID
+   */
+  public getTemplate(id: string): Template | undefined {
+    // Look in user templates first, then official templates
+    const userTemplate = this.templateCollection.userTemplates.templates.find(t => t.id === id);
+    if (userTemplate) return userTemplate;
+    
+    return this.templateCollection.officialTemplates.templates.find(t => t.id === id);
+  }
+  
+  /**
+   * Create a new template
+   */
+  public async createTemplate(template: Omit<Template, 'id' | 'created_at' | 'updated_at' | 'usage_count'>): Promise<Template> {
+    try {
+      const response = await apiService.createTemplate(template);
+      
+      if (response && response.success && response.template) {
+        // Add to local collection
+        this.templateCollection.userTemplates.templates.push(response.template);
+        
+        // Rebuild folder structure
+        this.templateCollection.userTemplates.folders = this.organizeFolders(
+          this.templateCollection.userTemplates.templates
+        );
+        
+        // Notify update listeners
+        this.notifyUpdateListeners();
+        
+        return response.template;
+      } else {
+        throw new Error('Failed to create template');
+      }
+    } catch (error) {
+      console.error('❌ Error creating template:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Update an existing template
+   */
+  public async updateTemplate(id: string, template: Partial<Template>): Promise<Template> {
+    try {
+      const response = await apiService.updateTemplate(id, template);
+      
+      if (response && response.success && response.template) {
+        // Update in local collection
+        const index = this.templateCollection.userTemplates.templates
+          .findIndex(t => t.id === id);
+          
+        if (index >= 0) {
+          this.templateCollection.userTemplates.templates[index] = response.template;
+        }
+        
+        // Rebuild folder structure
+        this.templateCollection.userTemplates.folders = this.organizeFolders(
+          this.templateCollection.userTemplates.templates
+        );
+        
+        // Notify update listeners
+        this.notifyUpdateListeners();
+        
+        return response.template;
+      } else {
+        throw new Error('Failed to update template');
+      }
+    } catch (error) {
+      console.error('❌ Error updating template:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Delete a template
+   */
+  public async deleteTemplate(id: string): Promise<boolean> {
+    try {
+      const response = await apiService.deleteTemplate(id);
+      
+      if (response && response.success) {
+        // Remove from local collection
+        this.templateCollection.userTemplates.templates = 
+          this.templateCollection.userTemplates.templates.filter(t => t.id !== id);
+        
+        // Rebuild folder structure
+        this.templateCollection.userTemplates.folders = this.organizeFolders(
+          this.templateCollection.userTemplates.templates
+        );
+        
+        // Notify update listeners
+        this.notifyUpdateListeners();
+        
+        return true;
+      } else {
+        throw new Error('Failed to delete template');
+      }
+    } catch (error) {
+      console.error('❌ Error deleting template:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Use a template and track usage
+   */
+  public async useTemplate(id: string): Promise<Template> {
+    try {
+      // Find template in cache
+      const template = this.getTemplate(id);
+      if (!template) {
+        throw new Error('Template not found');
+      }
+      
+      // Track usage
+      await apiService.useTemplate(id);
+      
+      // Update local usage count
+      template.usage_count = (template.usage_count || 0) + 1;
+      
+      return template;
+    } catch (error) {
+      console.error('❌ Error using template:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Insert a template's content into the ChatGPT input area
+   */
+  public insertTemplateContent(content: string): boolean {
+    try {
+      // Find the ChatGPT input area
+      const inputArea = document.querySelector('textarea[data-id="root"]') as HTMLTextAreaElement;
+      if (!inputArea) {
+        console.error('❌ ChatGPT input area not found');
+        return false;
+      }
+      
+      // Insert content
+      inputArea.value = content;
+      
+      // Trigger input event to ensure ChatGPT detects the change
+      inputArea.dispatchEvent(new Event('input', { bubbles: true }));
+      
+      // Focus the input area
+      inputArea.focus();
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Error inserting template content:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Register for template updates
+   * @returns Cleanup function
+   */
+  public onTemplatesUpdate(callback: (templates: TemplateCollection) => void): () => void {
+    this.updateCallbacks.push(callback);
+    
+    // Call immediately with current data
+    callback(this.getTemplateCollection());
+    
+    // Return cleanup function
+    return () => {
+      this.updateCallbacks = this.updateCallbacks.filter(cb => cb !== callback);
+    };
+  }
+  
+  /**
+   * Build folder structure from flat template list
    */
   private organizeFolders(templates: Template[]): TemplateFolder[] {
     const folderMap: Record<string, TemplateFolder> = {};
@@ -79,12 +328,18 @@ export class TemplateService {
     // Process each template
     templates.forEach(template => {
       const folderPath = template.folder || '';
+      
+      if (!folderPath) {
+        // Root level template (skip adding to folderMap[''].templates)
+        return;
+      }
+      
       const folderParts = folderPath.split('/');
       
       // Ensure all parent folders exist
       let currentPath = '';
       folderParts.forEach((part, index) => {
-        currentPath += (currentPath ? '/' : '') + part;
+        currentPath += (index > 0 ? '/' : '') + part;
         
         if (!folderMap[currentPath]) {
           folderMap[currentPath] = {
@@ -109,153 +364,19 @@ export class TemplateService {
       folderMap[folderPath].templates.push(template);
     });
     
-    // Return root's subfolders (excluding root itself)
+    // Return root's subfolders
     return folderMap[''].subfolders;
   }
-
+  
   /**
-   * Load templates from backend
-   */
-  public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
-    // Prevent concurrent loads
-    if (this.isLoading && !forceRefresh) {
-      return this.templateCollection;
-    }
-    
-    this.isLoading = true;
-    
-    try {
-      // Fetch official templates
-      const officialResponse = await apiService.request('/prompt-templates/official-templates');
-      if (officialResponse.success && officialResponse.templates) {
-        this.templateCollection.officialTemplates = {
-          templates: officialResponse.templates,
-          folders: this.organizeFolders(officialResponse.templates)
-        };
-      }
-      
-      // Fetch user templates
-      const userResponse = await apiService.request('/prompt-templates/user-templates');
-      if (userResponse.success && userResponse.templates) {
-        this.templateCollection.userTemplates = {
-          templates: userResponse.templates,
-          folders: this.organizeFolders(userResponse.templates)
-        };
-      }
-
-      console.log("this.templateCollection-------------------=", this.templateCollection);
-      
-      // Notify listeners
-      this.notifyUpdateListeners();
-      
-      return this.templateCollection;
-    } catch (error) {
-      console.error('❌ Error loading templates:', error);
-      return this.templateCollection;
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  /**
-   * Get the current template collection
-   */
-  public getTemplateCollection(): TemplateCollection {
-    return { ...this.templateCollection };
-  }
-
-  /**
-   * Create a new template
-   */
-  public async createTemplate(templateData: Partial<Template>): Promise<Template | null> {
-    try {
-      const response = await apiService.request('/prompt-templates/template', {
-        method: 'POST',
-        body: JSON.stringify(templateData)
-      });
-      
-      if (response.success && response.template) {
-        // Reload templates to update collection
-        await this.loadTemplates(true);
-        return response.template;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('❌ Error creating template:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Update an existing template
-   */
-  public async updateTemplate(templateId: string, templateData: Partial<Template>): Promise<Template | null> {
-    try {
-      const response = await apiService.request(`/prompt-templates/template/${templateId}`, {
-        method: 'PUT',
-        body: JSON.stringify(templateData)
-      });
-      
-      if (response.success && response.template) {
-        // Reload templates to update collection
-        await this.loadTemplates(true);
-        return response.template;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('❌ Error updating template:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Delete a template
-   */
-  public async deleteTemplate(templateId: string): Promise<boolean> {
-    try {
-      const response = await apiService.request(`/prompt-templates/template/${templateId}`, {
-        method: 'DELETE'
-      });
-      
-      if (response.success) {
-        // Reload templates to update collection
-        await this.loadTemplates(true);
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      console.error('❌ Error deleting template:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Register for template updates
-   */
-  public onTemplatesUpdate(callback: (collection: TemplateCollection) => void): () => void {
-    this.updateCallbacks.push(callback);
-    
-    // Call immediately with current data
-    callback(this.getTemplateCollection());
-    
-    // Return cleanup function
-    return () => {
-      this.updateCallbacks = this.updateCallbacks.filter(cb => cb !== callback);
-    };
-  }
-
-  /**
-   * Notify update listeners
+   * Notify all update listeners
    */
   private notifyUpdateListeners(): void {
-    const collection = this.getTemplateCollection();
+    const templateCollection = this.getTemplateCollection();
     
     this.updateCallbacks.forEach(callback => {
       try {
-        callback(collection);
+        callback(templateCollection);
       } catch (error) {
         console.error('❌ Error in template update callback:', error);
       }

@@ -1,5 +1,5 @@
 export interface Template {
-  id: string;
+  id: string | number;  // Allow either string or number IDs
   name?: string;
   title?: string;
   content: string;
@@ -8,7 +8,7 @@ export interface Template {
   category?: string;
   created_at?: string;
   usage_count?: number;
-  based_on_official_id?: string | null;
+  based_on_official_id?: string | number | null;
 }
 
 export interface TemplateFolder {

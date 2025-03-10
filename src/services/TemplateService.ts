@@ -61,62 +61,82 @@ export class TemplateService {
   }
   
   /**
-   * Load templates from backend
-   * @param forceRefresh - Force refresh even if recently loaded
-   */
-  public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
-    // Skip if we've loaded recently (within 1 minute) and not forcing refresh
-    const now = Date.now();
-    if (!forceRefresh && this.lastLoadTime > 0 && now - this.lastLoadTime < 60000) {
-      console.log('🔄 Using cached templates');
-      return this.getTemplateCollection();
-    }
-    
-    // Skip if already loading
-    if (this.isLoading) {
-      console.log('⏳ Templates already loading');
-      return this.getTemplateCollection();
-    }
-    
-    this.isLoading = true;
-    
-    try {
-      console.log('📝 Loading templates from API...');
-      
-      // Call API to get templates
-      const response = await apiService.getAllTemplates();
-      
-      console.log('📦 API Response:', JSON.stringify(response, null, 2));
-      
-      if (response && response.success) {
-        this.templates = response.templates || [];
-        
-        // Build folder structure
-        this.buildFolderStructure();
-        
-        this.lastLoadTime = now;
-        console.log(`✅ Loaded ${this.templates.length} templates`);
-        
-        // Notify update listeners
-        this.notifyUpdateListeners();
-      } else {
-        console.warn('⚠️ Template fetch returned no data or unsuccessful response');
-      }
-    } catch (error) {
-      console.error('❌ Error loading templates:', error);
-      
-      // Log more detailed error information
-      if (error instanceof Error) {
-        console.error('Error name:', error.name);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-      }
-    } finally {
-      this.isLoading = false;
-    }
-    
+/**
+ * Load templates from backend
+ * @param forceRefresh - Force refresh even if recently loaded
+ */
+public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
+  // Skip if we've loaded recently (within 1 minute) and not forcing refresh
+  const now = Date.now();
+  if (!forceRefresh && this.lastLoadTime > 0 && now - this.lastLoadTime < 60000) {
+    console.log('🔄 Using cached templates');
     return this.getTemplateCollection();
   }
+  
+  // Skip if already loading
+  if (this.isLoading) {
+    console.log('⏳ Templates already loading');
+    return this.getTemplateCollection();
+  }
+  
+  this.isLoading = true;
+  
+  try {
+    console.log('📝 Loading templates from API...');
+    
+    // Call API to get templates
+    const response = await apiService.getAllTemplates();
+    
+    console.log('📦 API Response from loadTemplates():', response);
+    
+    if (response && response.success) {
+      // Direct assignment of user templates
+      const userTemplates = response.userTemplates || [];
+      // Direct assignment of official templates  
+      const officialTemplates = response.officialTemplates || [];
+      
+      console.log(`📊 Template counts from API - User: ${userTemplates.length}, Official: ${officialTemplates.length}`);
+      
+      // Ensure templates are processed as arrays
+      this.templateCollection = {
+        userTemplates: {
+          templates: Array.isArray(userTemplates) ? userTemplates : [],
+          folders: this.organizeFolders(Array.isArray(userTemplates) ? userTemplates : [])
+        },
+        officialTemplates: {
+          templates: Array.isArray(officialTemplates) ? officialTemplates : [],
+          folders: this.organizeFolders(Array.isArray(officialTemplates) ? officialTemplates : [])
+        }
+      };
+      
+      this.lastLoadTime = now;
+      
+      const totalTemplates = 
+        this.templateCollection.userTemplates.templates.length + 
+        this.templateCollection.officialTemplates.templates.length;
+        
+      console.log(`✅ Loaded ${totalTemplates} templates - User: ${this.templateCollection.userTemplates.templates.length}, Official: ${this.templateCollection.officialTemplates.templates.length}`);
+      
+      // Notify update listeners
+      this.notifyUpdateListeners();
+    } else {
+      console.warn('⚠️ Template fetch returned no data or unsuccessful response');
+    }
+  } catch (error) {
+    console.error('❌ Error loading templates:', error);
+    
+    // Log more detailed error information
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+  } finally {
+    this.isLoading = false;
+  }
+  
+  return this.getTemplateCollection();
+}
   
   /**
    * Get the current template collection

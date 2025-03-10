@@ -42,6 +42,7 @@ export class ApiService {
       try {
         token = await this.tokenProvider();
       } catch (tokenError) {
+        console.error('❌ Token error:', tokenError);
         // Try using a default or anonymous mode if authentication isn't critical for this endpoint
         if (endpoint.startsWith('/public/') || options.allowAnonymous) {
           token = null;
@@ -69,11 +70,16 @@ export class ApiService {
         }
       };
       
+      console.log(`🔄 API Request: ${this.baseUrl}${endpoint}`);
+      
       // Make request
       const response = await fetch(`${this.baseUrl}${endpoint}`, fetchOptions);
       
+      console.log(`📝 API Response status: ${response.status}`);
+      
       // Handle unauthorized (token expired)
       if (response.status === 403 || response.status === 401) {
+        console.log('🔄 Token expired, attempting to refresh...');
         // Only retry once to avoid infinite loops
         if (retryCount < 1) {
           try {
@@ -91,6 +97,7 @@ export class ApiService {
             // Retry request with new token
             return this._executeRequest(endpoint, newOptions, retryCount + 1);
           } catch (refreshError) {
+            console.error('❌ Token refresh failed:', refreshError);
             throw new Error('Authentication failed after token refresh attempt');
           }
         } else {
@@ -108,18 +115,25 @@ export class ApiService {
           errorData = { detail: errorText };
         }
         
+        console.error(`❌ API error (${response.status}):`, errorData);
         throw new Error(errorData?.detail || `API error: ${response.status}`);
       }
       
       // Parse response as JSON, handling errors
       try {
         const data = await response.json();
+        console.log(`✅ API Success:`, {
+          endpoint,
+          success: data.success,
+          dataKeys: Object.keys(data)
+        });
         return data;
       } catch (jsonError) {
+        console.error('❌ JSON parse error:', jsonError);
         return { success: true, message: 'Request successful but response was not JSON' };
       }
     } catch (error) {
-      console.error(`API request failed (${endpoint}):`, error);
+      console.error(`❌ API request failed (${endpoint}):`, error);
       
       // Implement basic retry for network errors
       if (
@@ -140,8 +154,8 @@ export class ApiService {
     return this.request('/stats/user');
   }
   
-   // Prompt templates methods
-   async getUserTemplates() {
+  // Prompt templates methods
+  async getUserTemplates() {
     return this.request('/prompt-templates/user-templates');
   }
   
@@ -153,14 +167,42 @@ export class ApiService {
     try {
       console.log('🔍 Fetching all templates');
       
-      const response = await this.request('/prompt-templates/all-templates', {
-        method: 'GET',
-        allowAnonymous: false  // Ensure authentication is required
-      });
+      // First try with a direct call to all-templates
+      try {
+        const response = await this.request('/prompt-templates/all-templates', {
+          method: 'GET',
+        });
+        
+        if (response && response.success) {
+          console.log('📦 All Templates Response (all-templates):', Object.keys(response));
+          // Ensure we have the expected format
+          if (response.userTemplates && response.officialTemplates) {
+            return response;
+          }
+        }
+      } catch (error) {
+        console.log('⚠️ Error with all-templates, will try individual endpoints:', error.message);
+      }
       
-      console.log('📦 All Templates Response:', JSON.stringify(response, null, 2));
+      // Fallback to fetching user and official templates separately
+      console.log('🔄 Falling back to separate template requests');
       
-      return response;
+      const [userTemplatesResponse, officialTemplatesResponse] = await Promise.all([
+        this.getUserTemplates(),
+        this.getOfficialTemplates()
+      ]);
+      
+      // Extract template arrays from each response
+      const userTemplates = userTemplatesResponse?.templates || [];
+      const officialTemplates = officialTemplatesResponse?.templates || [];
+      
+      console.log(`📦 Separate templates fetched - User: ${userTemplates.length}, Official: ${officialTemplates.length}`);
+      
+      return {
+        success: true,
+        userTemplates: userTemplates,
+        officialTemplates: officialTemplates
+      };
     } catch (error) {
       console.error('❌ Error fetching all templates:', error);
       
@@ -171,12 +213,15 @@ export class ApiService {
         console.error('Error stack:', error.stack);
       }
       
-      throw error;
+      // Return empty templates rather than throwing
+      return {
+        success: false,
+        userTemplates: [],
+        officialTemplates: [],
+        error: error.message
+      };
     }
   }
-
-
-  
   
   async createTemplate(templateData) {
     return this.request('/prompt-templates/template', {
@@ -202,6 +247,19 @@ export class ApiService {
     return this.request(`/prompt-templates/use-template/${templateId}`, {
       method: 'POST'
     });
+  }
+
+  // Track template usage
+  async trackTemplateUsage(templateId) {
+    try {
+      return await this.request(`/prompt-templates/use-template/${templateId}`, {
+        method: 'POST'
+      });
+    } catch (error) {
+      console.error('❌ Error tracking template usage:', error);
+      // Don't throw, just return error info
+      return { success: false, error: error.message };
+    }
   }
 
   // Messages

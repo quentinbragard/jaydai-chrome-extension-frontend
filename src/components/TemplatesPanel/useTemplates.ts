@@ -30,25 +30,18 @@ export function useTemplates() {
   useEffect(() => {
     // Load templates
     const loadTemplates = async () => {
+
+      console.log('Loading templates..........................................');
       try {
         setLoading(true);
         
         // Directly get the templates from the service
-        const collection = await templateService.loadTemplates();
-        
-        console.log('Loaded Template Collection:', JSON.stringify(collection, null, 2));
+        const collection = await templateService.loadTemplates(true); // Force refresh
+
+        console.log('collection', collection);
         
         // Explicitly set the template collection
-        setTemplateCollection({
-          userTemplates: {
-            templates: collection.userTemplates?.templates || [],
-            folders: collection.userTemplates?.folders || []
-          },
-          officialTemplates: {
-            templates: collection.officialTemplates?.templates || [],
-            folders: collection.officialTemplates?.folders || []
-          }
-        });
+        setTemplateCollection(collection);
       } catch (error) {
         console.error('Error loading templates:', error);
         setTemplateCollection(DEFAULT_TEMPLATE_COLLECTION);
@@ -58,6 +51,17 @@ export function useTemplates() {
     };
 
     loadTemplates();
+    
+    // Set up a listener for template updates
+    const unsubscribe = templateService.onTemplatesUpdate((updatedCollection) => {
+      console.log('Template update received:', updatedCollection);
+      setTemplateCollection(updatedCollection);
+    });
+    
+    // Clean up listener on unmount
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const toggleFolder = (path: string) => {
@@ -130,7 +134,7 @@ export function useTemplates() {
       setEditDialogOpen(false);
       
       // Reload templates to reflect changes
-      const updatedCollection = await templateService.loadTemplates();
+      const updatedCollection = await templateService.loadTemplates(true);
       setTemplateCollection(updatedCollection);
     } catch (error) {
       console.error('Error saving template:', error);
@@ -144,7 +148,7 @@ export function useTemplates() {
         await templateService.deleteTemplate(template.id);
         
         // Reload templates to reflect changes
-        const updatedCollection = await templateService.loadTemplates();
+        const updatedCollection = await templateService.loadTemplates(true);
         setTemplateCollection(updatedCollection);
       } catch (error) {
         console.error('Error deleting template:', error);
@@ -167,7 +171,7 @@ export function useTemplates() {
     }));
   };
 
-  // Remove the previous console.log statements and replace with this
+  // Log the current template collection structure
   console.log("Template Collection:", JSON.stringify(templateCollection, null, 2));
   
   return {

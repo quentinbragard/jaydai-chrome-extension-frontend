@@ -16,6 +16,10 @@ const TemplateItem: React.FC<TemplateItemProps> = ({
   onEditTemplate,
   onDeleteTemplate
 }) => {
+  console.log("🔄 Rendering template item:", template.id, template.title || template.name);
+  
+  const displayName = template.title || template.name || "Untitled Template";
+  
   return (
     <div 
       key={template.id} 
@@ -24,7 +28,7 @@ const TemplateItem: React.FC<TemplateItemProps> = ({
     >
       <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
       <div className="flex-1 min-w-0">
-        <div className="text-sm truncate">{template.name}</div>
+        <div className="text-sm truncate">{displayName}</div>
         {template.description && (
           <div className="text-xs text-muted-foreground truncate">{template.description}</div>
         )}
@@ -54,4 +58,4 @@ const TemplateItem: React.FC<TemplateItemProps> = ({
   );
 };
 
-export default TemplateItem; 
+export default TemplateItem;
