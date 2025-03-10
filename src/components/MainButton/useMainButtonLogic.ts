@@ -78,13 +78,13 @@ export function useMainButtonLogic() {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    //document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
       document.removeEventListener('archimind:open-notifications', handleOpenNotifications);
       document.removeEventListener('archimind:update-badge', handleUpdateBadge as EventListener);
       document.removeEventListener('archimind:show-toast', handleShowToast as EventListener);
-      document.removeEventListener('mousedown', handleClickOutside);
+      //document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
 
