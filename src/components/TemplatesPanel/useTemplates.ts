@@ -19,7 +19,8 @@ const DEFAULT_TEMPLATE_COLLECTION: TemplateCollection = {
 export function useTemplates() {
   const [templateCollection, setTemplateCollection] = useState<TemplateCollection>(DEFAULT_TEMPLATE_COLLECTION);
   const [loading, setLoading] = useState(true);
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set([''])); // Root folder starts expanded
+  // Initialize with empty Set - no folders expanded initially
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set()); 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentTemplate, setCurrentTemplate] = useState<Template | null>(null);
   const [templateFormData, setTemplateFormData] = useState({
@@ -78,15 +79,133 @@ export function useTemplates() {
   };
 
   const handleUseTemplate = async (template: Template, onClose?: () => void) => {
+    console.log('===========================================================handleUseTemplate', template);
     try {
-      // Track template usage
-      await templateService.useTemplate(template.id);
+
       
-      // Insert template content into ChatGPT input
-      const inputArea = document.querySelector('textarea[data-id="root"]') as HTMLTextAreaElement;
-      if (inputArea) {
-        inputArea.value = template.content;
-        inputArea.dispatchEvent(new Event('input', { bubbles: true }));
+      // Method 1: Try clipboard approach
+      const insertViaClipboard = () => {
+        // Get the editor element
+        const editorDiv = document.querySelector('div.ProseMirror[id="prompt-textarea"]');
+        
+        if (editorDiv) {
+          // Focus the editor
+          editorDiv.focus();
+          
+          // Use the Clipboard API to insert text
+          const originalClipboard = async () => {
+            try {
+              return await navigator.clipboard.readText();
+            } catch (e) {
+              return '';
+            }
+          };
+          
+          // Save original clipboard content
+          originalClipboard().then(originalText => {
+            // Write template content to clipboard
+            navigator.clipboard.writeText(template.content).then(() => {
+              // Execute paste command
+              document.execCommand('paste');
+              
+              // Restore original clipboard content
+              setTimeout(() => {
+                navigator.clipboard.writeText(originalText).catch(e => {
+                  console.error('Error restoring clipboard:', e);
+                });
+              }, 100);
+            }).catch(error => {
+              console.error('Error writing to clipboard:', error);
+              fallbackMethod();
+            });
+          });
+          
+          return true;
+        }
+        return false;
+      };
+      
+      // Method 2: Try programmatic input event
+      const fallbackMethod = () => {
+        console.log('Using fallback method to insert template content');
+        
+        // Find the editor element
+        const editorDiv = document.querySelector('div.ProseMirror[id="prompt-textarea"]') as HTMLDivElement;
+        
+        if (editorDiv) {
+          // Clear current content if it's a placeholder
+          if (editorDiv.querySelector('p.placeholder')) {
+            editorDiv.innerHTML = '';
+          }
+          
+          // Create paragraph with template content
+          const p = document.createElement('p');
+          p.textContent = template.content;
+          editorDiv.appendChild(p);
+          
+          // Focus and position cursor at the end
+          editorDiv.focus();
+          
+          // Try to position cursor at the end
+          const selection = window.getSelection();
+          const range = document.createRange();
+          
+          if (selection) {
+            // Find the last text node
+            const lastChild = editorDiv.lastChild;
+            if (lastChild) {
+              range.selectNodeContents(lastChild);
+              range.collapse(false); // Collapse to end
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+          
+          // Dispatch input event to notify the application of the change
+          editorDiv.dispatchEvent(new InputEvent('input', {
+            bubbles: true,
+            cancelable: true,
+            data: template.content
+          }));
+          
+          return true;
+        }
+        
+        return false;
+      };
+      
+      // Method 3: Try modifying the internal textarea
+      const inputFieldMethod = () => {
+        console.log('Using input field method to insert template content');
+        
+        // Check for any textareas in the vicinity of the editor
+        const textAreas = document.querySelectorAll('textarea');
+        for (const textarea of textAreas) {
+          textarea.value = template.content;
+          textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        
+        // Also try to find the composer area and insert text directly
+        const composerArea = document.querySelector('#composer-background');
+        if (composerArea) {
+          const editorDiv = composerArea.querySelector('[contenteditable="true"]') as HTMLDivElement;
+          if (editorDiv) {
+            // Insert text
+            editorDiv.innerHTML = `<p>${template.content}</p>`;
+            editorDiv.focus();
+            editorDiv.dispatchEvent(new Event('input', { bubbles: true }));
+            return true;
+          }
+        }
+        
+        return false;
+      };
+      
+      // Try methods in sequence until one works
+      if (!insertViaClipboard()) {
+        if (!fallbackMethod()) {
+          inputFieldMethod();
+        }
       }
       
       if (onClose) onClose();
@@ -172,9 +291,6 @@ export function useTemplates() {
     }));
   };
 
-  // Log the current template collection structure
-  console.log("Template Collection:", JSON.stringify(templateCollection, null, 2));
-  
   return {
     templateCollection,
     loading,

@@ -23,11 +23,11 @@ const ButtonIcon: React.FC<ButtonIconProps> = ({
   handleImageError
 }) => {
   return (
-    <div className="relative w-16 h-16">
+    <div className="relative w-16 h-16 ">
       <Button 
         ref={buttonRef}
         onClick={toggleMenu}
-        className="w-full h-full rounded-full shadow-lg bg-white p-0 overflow-hidden flex items-center justify-center"
+        className=" bg-transparent w-full h-full rounded-full shadow-lg p-0 overflow-hidden flex items-center justify-center"
       >
         <img 
           src={SUPABASE_LOGO_URL} 

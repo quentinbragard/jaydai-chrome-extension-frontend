@@ -95,92 +95,91 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <div>
                 {/* Official Templates Section */}
                 {officialTemplates.length > 0 && (
-                  <div className="p-2">
-                    <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
-                      <BookTemplate className="mr-2 h-4 w-4" />
-                      Official Templates
-                    </div>
-                    {/* Root-level official templates */}
-                    {officialTemplates
-                      .filter(t => !t.folder)
-                      .map(template => (
-                        <TemplateItem
-                          key={template.id}
-                          template={{
-                            ...template,
-                            title: template.title || template.name
-                          }}
-                          onUseTemplate={onTemplateClick}
-                          onEditTemplate={openEditDialog}
-                          onDeleteTemplate={handleDeleteTemplate}
-                        />
-                      ))}
-                    
-                    {/* Official Template Folders */}
-                    {officialFolders.map(folder => (
-                      <FolderTree
-                        key={folder.path}
-                        folder={{
-                          ...folder,
-                          templates: folder.templates.map(t => ({
-                            ...t,
-                            title: t.title || t.name
-                          }))
+                <div className="p-2">
+                  <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
+                    <BookTemplate className="mr-2 h-4 w-4" />
+                    Official Templates
+                  </div>
+                  {/* Root-level official templates */}
+                  {officialTemplates
+                    .filter(t => !t.folder)
+                    .map(template => (
+                      <TemplateItem
+                        key={`official-${template.id}`}
+                        template={{
+                          ...template,
+                          title: template.title || template.name
                         }}
-                        expandedFolders={expandedFolders}
-                        onToggleFolder={toggleFolder}
                         onUseTemplate={onTemplateClick}
                         onEditTemplate={openEditDialog}
                         onDeleteTemplate={handleDeleteTemplate}
                       />
                     ))}
-                  </div>
-                )}
+                  
+                  {/* Official Template Folders */}
+                  {officialFolders.map(folder => (
+                    <FolderTree
+                      key={`official-folder-${folder.path}`}
+                      folder={{
+                        ...folder,
+                        templates: folder.templates.map(t => ({
+                          ...t,
+                          title: t.title || t.name
+                        }))
+                      }}
+                      expandedFolders={expandedFolders}
+                      onToggleFolder={toggleFolder}
+                      onUseTemplate={onTemplateClick}
+                      onEditTemplate={openEditDialog}
+                      onDeleteTemplate={handleDeleteTemplate}
+                    />
+                  ))}
+                </div>
+              )}
 
-                {/* User Templates Section */}
-                {userTemplates.length > 0 && (
-                  <div className="p-2 border-t">
-                    <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
-                      <Folder className="mr-2 h-4 w-4" />
-                      My Templates
-                    </div>
-                    {/* Root-level user templates */}
-                    {userTemplates
-                      .filter(t => !t.folder)
-                      .map(template => (
-                        <TemplateItem
-                          key={template.id}
-                          template={{
-                            ...template,
-                            title: template.title || template.name
-                          }}
-                          onUseTemplate={onTemplateClick}
-                          onEditTemplate={openEditDialog}
-                          onDeleteTemplate={handleDeleteTemplate}
-                        />
-                      ))}
-                    
-                    {/* User Template Folders */}
-                    {userFolders.map(folder => (
-                      <FolderTree
-                        key={folder.path}
-                        folder={{
-                          ...folder,
-                          templates: folder.templates.map(t => ({
-                            ...t,
-                            title: t.title || t.name
-                          }))
+              {/* User Templates Section */}
+              {userTemplates.length > 0 && (
+                <div className="p-2 border-t">
+                  <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
+                    <Folder className="mr-2 h-4 w-4" />
+                    My Templates
+                  </div>
+                  {/* Root-level user templates */}
+                  {userTemplates
+                    .filter(t => !t.folder)
+                    .map(template => (
+                      <TemplateItem
+                        key={`user-${template.id}`}
+                        template={{
+                          ...template,
+                          title: template.title || template.name
                         }}
-                        expandedFolders={expandedFolders}
-                        onToggleFolder={toggleFolder}
                         onUseTemplate={onTemplateClick}
                         onEditTemplate={openEditDialog}
                         onDeleteTemplate={handleDeleteTemplate}
                       />
                     ))}
-                  </div>
-                )}
-
+                  
+                  {/* User Template Folders */}
+                  {userFolders.map(folder => (
+                    <FolderTree
+                      key={`user-folder-${folder.path}`}
+                      folder={{
+                        ...folder,
+                        templates: folder.templates.map(t => ({
+                          ...t,
+                          title: t.title || t.name
+                        }))
+                      }}
+                      expandedFolders={expandedFolders}
+                      onToggleFolder={toggleFolder}
+                      onUseTemplate={onTemplateClick}
+                      onEditTemplate={openEditDialog}
+                      onDeleteTemplate={handleDeleteTemplate}
+                    />
+                  ))}
+                </div>
+              )}
                 {/* Empty state */}
                 {officialTemplates.length === 0 && 
                  userTemplates.length === 0 && (

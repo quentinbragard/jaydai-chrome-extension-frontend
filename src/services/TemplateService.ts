@@ -311,63 +311,71 @@ export class TemplateService {
     };
   }
   
-  /**
-   * Build folder structure from flat template list
-   * This was the missing method!
-   */
-  private organizeFolders(templates: Template[]): TemplateFolder[] {
-    const folderMap: Record<string, TemplateFolder> = {};
+ /**
+ * Build folder structure from flat template list
+ */
+private organizeFolders(templates: Template[]): TemplateFolder[] {
+  const folderMap: Record<string, TemplateFolder> = {};
+  
+  // Create root folder
+  folderMap[''] = {
+    path: '',
+    name: 'Root',
+    templates: [],
+    subfolders: []
+  };
+  
+  // First, collect all templates with no folder to the root
+  templates.forEach(template => {
+    if (!template.folder) {
+      folderMap[''].templates.push(template);
+    }
+  });
+  
+  // Then process the templates with folders
+  templates.forEach(template => {
+    const folderPath = template.folder || '';
     
-    // Create root folder
-    folderMap[''] = {
-      path: '',
-      name: 'Root',
-      templates: [],
-      subfolders: []
-    };
+    if (!folderPath) {
+      // Skip root templates as they're already added
+      return;
+    }
     
-    // Process each template
-    templates.forEach(template => {
-      const folderPath = template.folder || '';
+    const folderParts = folderPath.split('/');
+    
+    // Ensure all parent folders exist
+    let currentPath = '';
+    folderParts.forEach((part, index) => {
+      currentPath += (index > 0 ? '/' : '') + part;
       
-      if (!folderPath) {
-        // Root level template (skip adding to folderMap[''].templates)
-        return;
-      }
-      
-      const folderParts = folderPath.split('/');
-      
-      // Ensure all parent folders exist
-      let currentPath = '';
-      folderParts.forEach((part, index) => {
-        currentPath += (index > 0 ? '/' : '') + part;
+      if (!folderMap[currentPath]) {
+        folderMap[currentPath] = {
+          path: currentPath,
+          name: part,
+          templates: [],
+          subfolders: []
+        };
         
-        if (!folderMap[currentPath]) {
-          folderMap[currentPath] = {
-            path: currentPath,
-            name: part,
-            templates: [],
-            subfolders: []
-          };
-          
-          // Add to parent folder's subfolders
-          if (index > 0) {
-            const parentPath = folderParts.slice(0, index).join('/');
+        // Add to parent folder's subfolders
+        if (index > 0) {
+          const parentPath = folderParts.slice(0, index).join('/');
+          if (folderMap[parentPath]) {
             folderMap[parentPath].subfolders.push(folderMap[currentPath]);
-          } else {
-            // Root-level folders go into root's subfolders
-            folderMap[''].subfolders.push(folderMap[currentPath]);
           }
+        } else {
+          // Root-level folders go into root's subfolders
+          folderMap[''].subfolders.push(folderMap[currentPath]);
         }
-      });
-      
-      // Add template to its folder
-      folderMap[folderPath].templates.push(template);
+      }
     });
     
-    // Return root's subfolders
-    return folderMap[''].subfolders;
-  }
+    // Add template to its folder
+    folderMap[folderPath].templates.push(template);
+  });
+  
+  // Return root's subfolders
+  return folderMap[''].subfolders;
+}
   
   /**
    * Notify all update listeners

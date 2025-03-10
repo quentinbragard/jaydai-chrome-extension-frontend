@@ -30,7 +30,7 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999]">
+    <div className="fixed bottom-6 right-2 z-[9999]">
       {/* Expand container to allow badge overflow */}
       <div className="relative w-24 h-24 flex items-center justify-center">
         {/* Panel that appears above the main button */}

@@ -23,8 +23,19 @@ const FolderTree: React.FC<FolderTreeProps> = ({
   onEditTemplate,
   onDeleteTemplate
 }) => {
-  const isExpanded = expandedFolders.has(path);
   const currentPath = path ? `${path}/${folder.name}` : folder.name;
+  const isExpanded = expandedFolders.has(currentPath);
+  
+  // Calculate total templates count including subfolders
+  const getTotalTemplatesCount = (folder: TemplateFolder): number => {
+    let count = folder.templates.length;
+    folder.subfolders.forEach(subfolder => {
+      count += getTotalTemplatesCount(subfolder);
+    });
+    return count;
+  };
+  
+  const totalTemplatesCount = getTotalTemplatesCount(folder);
   
   return (
     <div key={currentPath} className="folder-container">
@@ -37,7 +48,7 @@ const FolderTree: React.FC<FolderTreeProps> = ({
           <ChevronRight className="h-4 w-4 mr-1" />}
         <FolderOpen className="h-4 w-4 mr-2 text-amber-500" />
         <span className="text-sm">{folder.name}</span>
-        <span className="ml-auto text-xs text-muted-foreground">{folder.templates.length}</span>
+        <span className="ml-auto text-xs text-muted-foreground">{totalTemplatesCount}</span>
       </div>
       
       {isExpanded && (
@@ -69,4 +80,4 @@ const FolderTree: React.FC<FolderTreeProps> = ({
   );
 };
 
-export default FolderTree; 
+export default FolderTree;
