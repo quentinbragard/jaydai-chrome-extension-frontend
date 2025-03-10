@@ -1,6 +1,6 @@
 // src/components/TemplatesPanel/useTemplates.ts
 import { useState, useEffect } from 'react';
-import { Template, TemplateCollection } from './types';
+import { Template, TemplateCollection, TemplateFolder } from './types';
 // Import the correct templateService from services directory
 import { templateService } from '@/services/TemplateService';
 
@@ -29,6 +29,8 @@ export function useTemplates() {
     description: '',
     folder: ''
   });
+  const [placeholderEditorOpen, setPlaceholderEditorOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
 
   useEffect(() => {
     // Load templates
@@ -42,8 +44,20 @@ export function useTemplates() {
 
         console.log('Templates loaded successfully:', collection);
         
+        // Process templates to properly organize folders
+        const processedCollection = {
+          userTemplates: {
+            templates: collection.userTemplates.templates || [],
+            folders: organizeTemplateFolders(collection.userTemplates.templates || [])
+          },
+          officialTemplates: {
+            templates: collection.officialTemplates.templates || [],
+            folders: organizeTemplateFolders(collection.officialTemplates.templates || [])
+          }
+        };
+        
         // Explicitly set the template collection
-        setTemplateCollection(collection);
+        setTemplateCollection(processedCollection);
       } catch (error) {
         console.error('Error loading templates:', error);
         setTemplateCollection(DEFAULT_TEMPLATE_COLLECTION);
@@ -57,7 +71,20 @@ export function useTemplates() {
     // Set up a listener for template updates
     const unsubscribe = templateService.onTemplatesUpdate((updatedCollection) => {
       console.log('Template update received:', updatedCollection);
-      setTemplateCollection(updatedCollection);
+      
+      // Process templates for proper folder organization
+      const processedCollection = {
+        userTemplates: {
+          templates: updatedCollection.userTemplates.templates || [],
+          folders: organizeTemplateFolders(updatedCollection.userTemplates.templates || [])
+        },
+        officialTemplates: {
+          templates: updatedCollection.officialTemplates.templates || [],
+          folders: organizeTemplateFolders(updatedCollection.officialTemplates.templates || [])
+        }
+      };
+      
+      setTemplateCollection(processedCollection);
     });
     
     // Clean up listener on unmount
@@ -65,6 +92,65 @@ export function useTemplates() {
       unsubscribe();
     };
   }, []);
+
+  // Properly organize templates into folder structures
+  const organizeTemplateFolders = (templates: Template[]): TemplateFolder[] => {
+    // Map to store folders by their path
+    const folderMap: Record<string, TemplateFolder> = {};
+    
+    // Create root-level folders first
+    templates.forEach(template => {
+      // Skip templates with no folder
+      if (!template.folder) return;
+      
+      const folderParts = template.folder.split('/');
+      let currentPath = '';
+      
+      // Create each folder in the path
+      folderParts.forEach((part, index) => {
+        // Build current path
+        if (index > 0) {
+          currentPath += '/';
+        }
+        currentPath += part;
+        
+        // If folder doesn't exist yet, create it
+        if (!folderMap[currentPath]) {
+          folderMap[currentPath] = {
+            path: currentPath,
+            name: part,
+            templates: [],
+            subfolders: []
+          };
+        }
+      });
+    });
+    
+    // Add templates to their appropriate folders
+    templates.forEach(template => {
+      if (template.folder && folderMap[template.folder]) {
+        folderMap[template.folder].templates.push(template);
+      }
+    });
+    
+    // Build the folder hierarchy (parent-child relationships)
+    Object.keys(folderMap).forEach(path => {
+      const lastSlashIndex = path.lastIndexOf('/');
+      if (lastSlashIndex > 0) {
+        // This folder has a parent
+        const parentPath = path.substring(0, lastSlashIndex);
+        if (folderMap[parentPath]) {
+          // Add this folder as a subfolder of its parent
+          folderMap[parentPath].subfolders.push(folderMap[path]);
+        }
+      }
+    });
+    
+    // Return only root level folders (those without parents)
+    return Object.values(folderMap).filter(folder => {
+      return !folder.path.includes('/') || folder.path.indexOf('/') === folder.path.lastIndexOf('/');
+    });
+  };
 
   const toggleFolder = (path: string) => {
     setExpandedFolders(prev => {
@@ -79,9 +165,17 @@ export function useTemplates() {
   };
 
   const handleUseTemplate = async (template: Template, onClose?: () => void) => {
-    console.log('===========================================================handleUseTemplate', template);
+    // Set the selected template and open the placeholder editor
+    setSelectedTemplate(template);
+    setPlaceholderEditorOpen(true);
+    
+    // Close the templates panel when opening the placeholder editor
+    // The actual template insertion will happen after placeholder replacement
+  };
+  
+  const handleFinalizeTemplate = async (finalContent: string) => {
     try {
-
+      console.log('Inserting final template content:', finalContent);
       
       // Method 1: Try clipboard approach
       const insertViaClipboard = () => {
@@ -104,7 +198,7 @@ export function useTemplates() {
           // Save original clipboard content
           originalClipboard().then(originalText => {
             // Write template content to clipboard
-            navigator.clipboard.writeText(template.content).then(() => {
+            navigator.clipboard.writeText(finalContent).then(() => {
               // Execute paste command
               document.execCommand('paste');
               
@@ -140,7 +234,7 @@ export function useTemplates() {
           
           // Create paragraph with template content
           const p = document.createElement('p');
-          p.textContent = template.content;
+          p.textContent = finalContent;
           editorDiv.appendChild(p);
           
           // Focus and position cursor at the end
@@ -165,7 +259,7 @@ export function useTemplates() {
           editorDiv.dispatchEvent(new InputEvent('input', {
             bubbles: true,
             cancelable: true,
-            data: template.content
+            data: finalContent
           }));
           
           return true;
@@ -181,7 +275,7 @@ export function useTemplates() {
         // Check for any textareas in the vicinity of the editor
         const textAreas = document.querySelectorAll('textarea');
         for (const textarea of textAreas) {
-          textarea.value = template.content;
+          textarea.value = finalContent;
           textarea.dispatchEvent(new Event('input', { bubbles: true }));
         }
         
@@ -191,7 +285,7 @@ export function useTemplates() {
           const editorDiv = composerArea.querySelector('[contenteditable="true"]') as HTMLDivElement;
           if (editorDiv) {
             // Insert text
-            editorDiv.innerHTML = `<p>${template.content}</p>`;
+            editorDiv.innerHTML = `<p>${finalContent}</p>`;
             editorDiv.focus();
             editorDiv.dispatchEvent(new Event('input', { bubbles: true }));
             return true;
@@ -208,7 +302,8 @@ export function useTemplates() {
         }
       }
       
-      if (onClose) onClose();
+      // Close the template panel if needed
+      if (selectedTemplate && onClose) onClose();
     } catch (error) {
       console.error('Error using template:', error);
     }
@@ -255,7 +350,20 @@ export function useTemplates() {
       
       // Reload templates to reflect changes
       const updatedCollection = await templateService.loadTemplates(true);
-      setTemplateCollection(updatedCollection);
+      
+      // Process templates for proper folder organization
+      const processedCollection = {
+        userTemplates: {
+          templates: updatedCollection.userTemplates.templates || [],
+          folders: organizeTemplateFolders(updatedCollection.userTemplates.templates || [])
+        },
+        officialTemplates: {
+          templates: updatedCollection.officialTemplates.templates || [],
+          folders: organizeTemplateFolders(updatedCollection.officialTemplates.templates || [])
+        }
+      };
+      
+      setTemplateCollection(processedCollection);
     } catch (error) {
       console.error('Error saving template:', error);
     }
@@ -269,7 +377,20 @@ export function useTemplates() {
         
         // Reload templates to reflect changes
         const updatedCollection = await templateService.loadTemplates(true);
-        setTemplateCollection(updatedCollection);
+        
+        // Process templates for proper folder organization
+        const processedCollection = {
+          userTemplates: {
+            templates: updatedCollection.userTemplates.templates || [],
+            folders: organizeTemplateFolders(updatedCollection.userTemplates.templates || [])
+          },
+          officialTemplates: {
+            templates: updatedCollection.officialTemplates.templates || [],
+            folders: organizeTemplateFolders(updatedCollection.officialTemplates.templates || [])
+          }
+        };
+        
+        setTemplateCollection(processedCollection);
       } catch (error) {
         console.error('Error deleting template:', error);
       }
@@ -300,8 +421,12 @@ export function useTemplates() {
     currentTemplate,
     templateFormData,
     setTemplateFormData,
+    placeholderEditorOpen,
+    setPlaceholderEditorOpen,
+    selectedTemplate,
     toggleFolder,
     handleUseTemplate,
+    handleFinalizeTemplate,
     openEditDialog,
     handleSaveTemplate,
     handleDeleteTemplate,

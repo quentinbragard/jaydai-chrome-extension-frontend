@@ -37,6 +37,10 @@ const FolderTree: React.FC<FolderTreeProps> = ({
   
   const totalTemplatesCount = getTotalTemplatesCount(folder);
   
+  if (totalTemplatesCount === 0) {
+    return null; // Don't render empty folders
+  }
+  
   return (
     <div key={currentPath} className="folder-container">
       <div 

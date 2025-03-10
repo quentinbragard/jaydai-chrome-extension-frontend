@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -8,6 +8,8 @@ import { TemplatesPanelProps } from './types';
 import TemplateItem from './TemplateItem';
 import FolderTree from './FolderTree';
 import TemplateDialog from './TemplateDialog';
+import PlaceholderEditor from './PlaceholderEditor';
+import { cn } from "@/lib/utils"; // Make sure you have this utility function
 
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({ 
   onClose, 
@@ -22,16 +24,17 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     currentTemplate,
     templateFormData,
     setTemplateFormData,
+    placeholderEditorOpen,
+    setPlaceholderEditorOpen,
+    selectedTemplate,
     toggleFolder,
     handleUseTemplate,
+    handleFinalizeTemplate,
     openEditDialog,
     handleSaveTemplate,
     handleDeleteTemplate,
     captureCurrentPromptAsTemplate
   } = useTemplates();
-
-  // Add debug logging to see what's actually in the template collection
-  console.log("🔍 TemplatesPanel render with templateCollection:", JSON.stringify(templateCollection, null, 2));
 
   // Safely access template collections with fallbacks
   const officialTemplates = templateCollection?.officialTemplates?.templates || [];
@@ -39,17 +42,24 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const userTemplates = templateCollection?.userTemplates?.templates || [];
   const userFolders = templateCollection?.userTemplates?.folders || [];
 
-  // Log the extracted template arrays
+  // Log the extracted template arrays for debugging
   console.log(`🔢 Template counts - Official: ${officialTemplates.length}, User: ${userTemplates.length}`);
+  console.log(`📂 Folder counts - Official folders: ${officialFolders.length}, User folders: ${userFolders.length}`);
 
   // Function to call handleUseTemplate with onClose callback
   const onTemplateClick = (template) => {
     handleUseTemplate(template, onClose);
   };
 
+  // Add a class when the placeholder editor is open to help with styles
+  const templatesPanelClass = cn(
+    "w-96 shadow-lg transition-all duration-300", 
+    placeholderEditorOpen ? "editor-active opacity-30" : "opacity-100"
+  );
+
   return (
     <>
-      <Card className="w-96 shadow-lg">
+      <Card className={templatesPanelClass}>
         <CardHeader className="py-3 flex flex-row items-center justify-between">
           <CardTitle className="text-base font-medium flex items-center">
             <FileText className="mr-2 h-4 w-4" />
@@ -203,6 +213,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         </CardContent>
       </Card>
       
+      {/* Template Edit Dialog */}
       <TemplateDialog
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
@@ -211,6 +222,23 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         onFormChange={setTemplateFormData}
         onSaveTemplate={handleSaveTemplate}
       />
+      
+      {/* Placeholder Editor Dialog - Rendered outside the card for better z-index handling */}
+      {selectedTemplate && (
+        <PlaceholderEditor
+          open={placeholderEditorOpen}
+          onOpenChange={(open) => {
+            setPlaceholderEditorOpen(open);
+            // If dialog is closing and we have an onClose callback, call it
+            if (!open && onClose) {
+              setTimeout(() => onClose(), 300); // Slight delay to allow animation to finish
+            }
+          }}
+          templateContent={selectedTemplate.content}
+          templateTitle={selectedTemplate.title || selectedTemplate.name}
+          onComplete={handleFinalizeTemplate}
+        />
+      )}
     </>
   );
 };
