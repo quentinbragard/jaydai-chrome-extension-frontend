@@ -1,5 +1,7 @@
+// src/components/TemplatesPanel/useTemplates.ts
 import { useState, useEffect } from 'react';
 import { Template, TemplateCollection } from './types';
+// Import the correct templateService from services directory
 import { templateService } from '@/services/TemplateService';
 
 // Default empty template collection structure
@@ -30,15 +32,14 @@ export function useTemplates() {
   useEffect(() => {
     // Load templates
     const loadTemplates = async () => {
-
-      console.log('Loading templates..........................................');
+      console.log('Loading templates...');
       try {
         setLoading(true);
         
         // Directly get the templates from the service
         const collection = await templateService.loadTemplates(true); // Force refresh
 
-        console.log('collection', collection);
+        console.log('Templates loaded successfully:', collection);
         
         // Explicitly set the template collection
         setTemplateCollection(collection);

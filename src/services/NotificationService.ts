@@ -6,16 +6,18 @@ export interface Notification {
   id: string;
   title: string;
   body: string;
-  type: 'info' | 'warning' | 'success' | 'error' | string;
+  type: 'info' | 'warning' | 'success' | 'error' | 'welcome_first_conversation' | 
+         'insight_prompt_length' | 'insight_response_time' | 'insight_conversation_quality' | string;
   action_button?: string;
   created_at: string;
-  read_at?: string;
-  seen_at?: string;
+  read_at?: string | null;
+  seen_at?: string | null;
   metadata?: Record<string, any>;
 }
 
 /**
  * Service to manage notifications
+ * Single instance to be used throughout the extension
  */
 export class NotificationService {
   private static instance: NotificationService;
@@ -254,6 +256,45 @@ export class NotificationService {
   }
   
   /**
+   * Create and show a new notification (client-side only)
+   * This is useful for transient notifications that don't need to be persisted
+   */
+  public showLocalNotification(notification: {
+    title: string;
+    body: string;
+    type: 'info' | 'warning' | 'success' | 'error';
+    action?: { label: string; onClick: () => void };
+  }): void {
+    // Use toast for local notifications
+    switch(notification.type) {
+      case 'info':
+        toast.info(notification.title, {
+          description: notification.body,
+          action: notification.action
+        });
+        break;
+      case 'warning':
+        toast.warning(notification.title, {
+          description: notification.body,
+          action: notification.action
+        });
+        break;
+      case 'success':
+        toast.success(notification.title, {
+          description: notification.body,
+          action: notification.action
+        });
+        break;
+      case 'error':
+        toast.error(notification.title, {
+          description: notification.body,
+          action: notification.action
+        });
+        break;
+    }
+  }
+  
+  /**
    * Start polling for new notifications
    */
   private startPolling(): void {
@@ -291,7 +332,6 @@ export class NotificationService {
   
   /**
    * Update notification badge on main button
-   * This is a placeholder that should be connected to the UI
    */
   private updateBadge(): void {
     const unreadCount = this.getUnreadCount();

@@ -1,6 +1,8 @@
+// src/components/NotificationsPanel/useNotifications.ts
 import { useState, useEffect } from 'react';
 import { Notification } from './types';
-import notificationService from './notificationService';
+// Import the consolidated notification service
+import { notificationService } from '@/services/NotificationService';
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -26,7 +28,7 @@ export function useNotifications() {
 
   const handleMarkAllAsRead = async () => {
     await notificationService.markAllAsRead();
-    setNotifications(notifications.map(n => ({ ...n, read_at: new Date().toISOString() })));
+    // The UI will update automatically through the onNotificationsUpdate listener
   };
 
   const handleActionClick = async (notification: Notification) => {
@@ -36,9 +38,7 @@ export function useNotifications() {
   const handleDismiss = async (notification: Notification, e: React.MouseEvent) => {
     e.stopPropagation();
     await notificationService.markAsRead(notification.id);
-    setNotifications(notifications.map(n => 
-      n.id === notification.id ? { ...n, read_at: new Date().toISOString() } : n
-    ));
+    // The UI will update automatically through the onNotificationsUpdate listener
   };
 
   const hasUnread = notifications.some(n => !n.read_at);
@@ -53,4 +53,4 @@ export function useNotifications() {
     handleActionClick,
     handleDismiss
   };
-} 
+}

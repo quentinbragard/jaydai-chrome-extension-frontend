@@ -8,8 +8,8 @@ export interface Template {
   description?: string;
   folder?: string;
   created_at: string;
-  updated_at: string;
-  usage_count: number;
+  updated_at?: string;
+  usage_count?: number;
 }
 
 export interface TemplateFolder {
@@ -20,9 +20,14 @@ export interface TemplateFolder {
 }
 
 export interface TemplateCollection {
-  templates: Template[];
-  folders: TemplateFolder[];
-  rootTemplates: Template[];
+  userTemplates: {
+    templates: Template[];
+    folders: TemplateFolder[];
+  };
+  officialTemplates: {
+    templates: Template[];
+    folders: TemplateFolder[];
+  };
 }
 
 /**
@@ -30,8 +35,10 @@ export interface TemplateCollection {
  */
 export class TemplateService {
   private static instance: TemplateService;
-  private templates: Template[] = [];
-  private folderStructure: TemplateFolder[] = [];
+  private templateCollection: TemplateCollection = {
+    officialTemplates: { templates: [], folders: [] },
+    userTemplates: { templates: [], folders: [] }
+  };
   private isLoading: boolean = false;
   private lastLoadTime: number = 0;
   private updateCallbacks: ((templates: TemplateCollection) => void)[] = [];
@@ -61,99 +68,86 @@ export class TemplateService {
   }
   
   /**
-/**
- * Load templates from backend
- * @param forceRefresh - Force refresh even if recently loaded
- */
-public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
-  // Skip if we've loaded recently (within 1 minute) and not forcing refresh
-  const now = Date.now();
-  if (!forceRefresh && this.lastLoadTime > 0 && now - this.lastLoadTime < 60000) {
-    console.log('🔄 Using cached templates');
-    return this.getTemplateCollection();
-  }
-  
-  // Skip if already loading
-  if (this.isLoading) {
-    console.log('⏳ Templates already loading');
-    return this.getTemplateCollection();
-  }
-  
-  this.isLoading = true;
-  
-  try {
-    console.log('📝 Loading templates from API...');
+   * Load templates from backend
+   * @param forceRefresh - Force refresh even if recently loaded
+   */
+  public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
+    // Skip if we've loaded recently (within 1 minute) and not forcing refresh
+    const now = Date.now();
+    if (!forceRefresh && this.lastLoadTime > 0 && now - this.lastLoadTime < 60000) {
+      console.log('🔄 Using cached templates');
+      return this.getTemplateCollection();
+    }
     
-    // Call API to get templates
-    const response = await apiService.getAllTemplates();
+    // Skip if already loading
+    if (this.isLoading) {
+      console.log('⏳ Templates already loading');
+      return this.getTemplateCollection();
+    }
     
-    console.log('📦 API Response from loadTemplates():', response);
+    this.isLoading = true;
     
-    if (response && response.success) {
-      // Direct assignment of user templates
-      const userTemplates = response.userTemplates || [];
-      // Direct assignment of official templates  
-      const officialTemplates = response.officialTemplates || [];
+    try {
+      console.log('📝 Loading templates from API...');
       
-      console.log(`📊 Template counts from API - User: ${userTemplates.length}, Official: ${officialTemplates.length}`);
+      // Call API to get templates
+      const response = await apiService.getAllTemplates();
       
-      // Ensure templates are processed as arrays
-      this.templateCollection = {
-        userTemplates: {
-          templates: Array.isArray(userTemplates) ? userTemplates : [],
-          folders: this.organizeFolders(Array.isArray(userTemplates) ? userTemplates : [])
-        },
-        officialTemplates: {
-          templates: Array.isArray(officialTemplates) ? officialTemplates : [],
-          folders: this.organizeFolders(Array.isArray(officialTemplates) ? officialTemplates : [])
-        }
-      };
+      console.log('📦 API Response:', JSON.stringify(response, null, 2));
       
-      this.lastLoadTime = now;
-      
-      const totalTemplates = 
-        this.templateCollection.userTemplates.templates.length + 
-        this.templateCollection.officialTemplates.templates.length;
+      if (response && response.success) {
+        // Here's the fix - properly handle the separate userTemplates and officialTemplates
+        this.templateCollection = {
+          userTemplates: {
+            templates: response.userTemplates || [],
+            folders: this.organizeFolders(response.userTemplates || [])
+          },
+          officialTemplates: {
+            templates: response.officialTemplates || [],
+            folders: this.organizeFolders(response.officialTemplates || [])
+          }
+        };
         
-      console.log(`✅ Loaded ${totalTemplates} templates - User: ${this.templateCollection.userTemplates.templates.length}, Official: ${this.templateCollection.officialTemplates.templates.length}`);
+        this.lastLoadTime = now;
+        console.log(`✅ Loaded templates - User: ${this.templateCollection.userTemplates.templates.length}, Official: ${this.templateCollection.officialTemplates.templates.length}`);
+        
+        // Notify update listeners
+        this.notifyUpdateListeners();
+      } else {
+        console.warn('⚠️ Template fetch returned no data or unsuccessful response');
+      }
+    } catch (error) {
+      console.error('❌ Error loading templates:', error);
       
-      // Notify update listeners
-      this.notifyUpdateListeners();
-    } else {
-      console.warn('⚠️ Template fetch returned no data or unsuccessful response');
+      // Log more detailed error information
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+    } finally {
+      this.isLoading = false;
     }
-  } catch (error) {
-    console.error('❌ Error loading templates:', error);
     
-    // Log more detailed error information
-    if (error instanceof Error) {
-      console.error('Error name:', error.name);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-    }
-  } finally {
-    this.isLoading = false;
+    return this.getTemplateCollection();
   }
-  
-  return this.getTemplateCollection();
-}
   
   /**
    * Get the current template collection
    */
   public getTemplateCollection(): TemplateCollection {
-    return {
-      templates: [...this.templates],
-      folders: [...this.folderStructure],
-      rootTemplates: this.templates.filter(t => !t.folder)
-    };
+    return { ...this.templateCollection };
   }
   
   /**
    * Get a template by ID
    */
   public getTemplate(id: string): Template | undefined {
-    return this.templates.find(t => t.id === id);
+    // Look in user templates first, then official templates
+    const userTemplate = this.templateCollection.userTemplates.templates.find(t => t.id === id);
+    if (userTemplate) return userTemplate;
+    
+    return this.templateCollection.officialTemplates.templates.find(t => t.id === id);
   }
   
   /**
@@ -164,11 +158,13 @@ public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
       const response = await apiService.createTemplate(template);
       
       if (response && response.success && response.template) {
-        // Add to local cache
-        this.templates.push(response.template);
+        // Add to local collection
+        this.templateCollection.userTemplates.templates.push(response.template);
         
         // Rebuild folder structure
-        this.buildFolderStructure();
+        this.templateCollection.userTemplates.folders = this.organizeFolders(
+          this.templateCollection.userTemplates.templates
+        );
         
         // Notify update listeners
         this.notifyUpdateListeners();
@@ -191,14 +187,18 @@ public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
       const response = await apiService.updateTemplate(id, template);
       
       if (response && response.success && response.template) {
-        // Update in local cache
-        const index = this.templates.findIndex(t => t.id === id);
+        // Update in local collection
+        const index = this.templateCollection.userTemplates.templates
+          .findIndex(t => t.id === id);
+          
         if (index >= 0) {
-          this.templates[index] = response.template;
+          this.templateCollection.userTemplates.templates[index] = response.template;
         }
         
         // Rebuild folder structure
-        this.buildFolderStructure();
+        this.templateCollection.userTemplates.folders = this.organizeFolders(
+          this.templateCollection.userTemplates.templates
+        );
         
         // Notify update listeners
         this.notifyUpdateListeners();
@@ -221,11 +221,14 @@ public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
       const response = await apiService.deleteTemplate(id);
       
       if (response && response.success) {
-        // Remove from local cache
-        this.templates = this.templates.filter(t => t.id !== id);
+        // Remove from local collection
+        this.templateCollection.userTemplates.templates = 
+          this.templateCollection.userTemplates.templates.filter(t => t.id !== id);
         
         // Rebuild folder structure
-        this.buildFolderStructure();
+        this.templateCollection.userTemplates.folders = this.organizeFolders(
+          this.templateCollection.userTemplates.templates
+        );
         
         // Notify update listeners
         this.notifyUpdateListeners();
@@ -246,13 +249,13 @@ public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
   public async useTemplate(id: string): Promise<Template> {
     try {
       // Find template in cache
-      const template = this.templates.find(t => t.id === id);
+      const template = this.getTemplate(id);
       if (!template) {
         throw new Error('Template not found');
       }
       
       // Track usage
-      await apiService.trackTemplateUsage(id);
+      await apiService.useTemplate(id);
       
       // Update local usage count
       template.usage_count = (template.usage_count || 0) + 1;
@@ -310,29 +313,12 @@ public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
   
   /**
    * Build folder structure from flat template list
+   * This was the missing method!
    */
-  private buildFolderStructure(): void {
-    // Reset folder structure
-    this.folderStructure = [];
-    
-    // Get all unique folder paths
-    const folderPaths = new Set<string>();
-    this.templates.forEach(template => {
-      if (template.folder) {
-        folderPaths.add(template.folder);
-        
-        // Add parent folders too
-        const parts = template.folder.split('/');
-        for (let i = 1; i < parts.length; i++) {
-          folderPaths.add(parts.slice(0, i).join('/'));
-        }
-      }
-    });
-    
-    // Create map of folder objects
+  private organizeFolders(templates: Template[]): TemplateFolder[] {
     const folderMap: Record<string, TemplateFolder> = {};
     
-    // Add root level
+    // Create root folder
     folderMap[''] = {
       path: '',
       name: 'Root',
@@ -340,50 +326,47 @@ public async loadTemplates(forceRefresh = false): Promise<TemplateCollection> {
       subfolders: []
     };
     
-    // Create folder objects
-    Array.from(folderPaths).sort().forEach(path => {
-      const parts = path.split('/');
-      const name = parts[parts.length - 1];
+    // Process each template
+    templates.forEach(template => {
+      const folderPath = template.folder || '';
       
-      folderMap[path] = {
-        path,
-        name,
-        templates: [],
-        subfolders: []
-      };
-    });
-    
-    // Build hierarchy
-    Array.from(folderPaths).sort().forEach(path => {
-      const parts = path.split('/');
-      if (parts.length > 1) {
-        const parentPath = parts.slice(0, parts.length - 1).join('/');
-        const parent = folderMap[parentPath] || folderMap[''];
-        parent.subfolders.push(folderMap[path]);
-      } else {
-        folderMap[''].subfolders.push(folderMap[path]);
+      if (!folderPath) {
+        // Root level template (skip adding to folderMap[''].templates)
+        return;
       }
-    });
-    
-    // Add templates to folders
-    this.templates.forEach(template => {
-      if (template.folder) {
-        const folder = folderMap[template.folder];
-        if (folder) {
-          folder.templates.push(template);
-        } else {
-          // If folder doesn't exist (which shouldn't happen but just in case),
-          // add to root
-          folderMap[''].templates.push(template);
+      
+      const folderParts = folderPath.split('/');
+      
+      // Ensure all parent folders exist
+      let currentPath = '';
+      folderParts.forEach((part, index) => {
+        currentPath += (index > 0 ? '/' : '') + part;
+        
+        if (!folderMap[currentPath]) {
+          folderMap[currentPath] = {
+            path: currentPath,
+            name: part,
+            templates: [],
+            subfolders: []
+          };
+          
+          // Add to parent folder's subfolders
+          if (index > 0) {
+            const parentPath = folderParts.slice(0, index).join('/');
+            folderMap[parentPath].subfolders.push(folderMap[currentPath]);
+          } else {
+            // Root-level folders go into root's subfolders
+            folderMap[''].subfolders.push(folderMap[currentPath]);
+          }
         }
-      } else {
-        // No folder specified, add to root
-        folderMap[''].templates.push(template);
-      }
+      });
+      
+      // Add template to its folder
+      folderMap[folderPath].templates.push(template);
     });
     
-    // Set folder structure for the service
-    this.folderStructure = folderMap[''].subfolders;
+    // Return root's subfolders
+    return folderMap[''].subfolders;
   }
   
   /**
