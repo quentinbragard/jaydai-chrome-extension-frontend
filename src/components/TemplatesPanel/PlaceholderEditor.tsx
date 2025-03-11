@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogOverlay } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,74 +17,96 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
   onOpenChange,
   templateContent,
   onComplete,
-  templateTitle = "Template"
+  templateTitle = "Template",
 }) => {
   const [placeholders, setPlaceholders] = useState<{ key: string; value: string }[]>([]);
   const [modifiedContent, setModifiedContent] = useState(templateContent);
-  const editableRef = useRef<HTMLDivElement>(null);
+  const [contentMounted, setContentMounted] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   // Extract placeholders from template content
-  useEffect(() => {
-    if (open && templateContent) {
-      const placeholderRegex = /\[([A-Z0-9_/ ]+)\]/g;
-      const matches = [...templateContent.matchAll(placeholderRegex)];
-      
-      // Get unique placeholders
-      const uniquePlaceholders = Array.from(new Set(
-        matches.map(match => match[0])
-      )).map(placeholder => ({
+  const extractPlaceholders = (content: string) => {
+    const placeholderRegex = /\[([A-Z0-9_/ ]+)\]/g;
+    const matches = [...content.matchAll(placeholderRegex)];
+
+    const uniqueKeys = new Set();
+    const uniquePlaceholders = [];
+
+    for (const match of matches) {
+      const placeholder = match[0];
+
+      if (uniqueKeys.has(placeholder)) continue;
+      uniqueKeys.add(placeholder);
+
+      const existingPlaceholder = placeholders.find((p) => p.key === placeholder);
+
+      uniquePlaceholders.push({
         key: placeholder,
-        value: ''
-      }));
-      
-      setPlaceholders(uniquePlaceholders);
+        value: existingPlaceholder ? existingPlaceholder.value : "",
+      });
+    }
+
+    return uniquePlaceholders;
+  };
+
+  // Function to highlight placeholders inside the content
+  const highlightPlaceholders = (content: string) => {
+    return content.replace(
+      /\[([A-Z0-9_/ ]+)\]/g,
+      `<span class="bg-yellow-300 text-yellow-900 font-bold px-1 rounded">${"$&"}</span>`
+    );
+  };
+
+  // Ensure initial content is rendered in contentEditable div
+  useEffect(() => {
+    if (open) {
       setModifiedContent(templateContent);
+      setPlaceholders(extractPlaceholders(templateContent));
+
+      setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.innerHTML = highlightPlaceholders(templateContent);
+          setContentMounted(true);
+        }
+      }, 0);
     }
   }, [open, templateContent]);
 
-  // Update content when placeholder values change
+  // Handle changes inside contentEditable div
+  useEffect(() => {
+    if (!contentMounted || !editorRef.current) return;
+
+    const observer = new MutationObserver(() => {
+      setModifiedContent(editorRef.current?.innerText || "");
+    });
+
+    observer.observe(editorRef.current, { childList: true, subtree: true, characterData: true });
+
+    return () => observer.disconnect();
+  }, [contentMounted]);
+
+  // Update placeholder values
   const updatePlaceholder = (index: number, value: string) => {
     const updatedPlaceholders = [...placeholders];
     updatedPlaceholders[index].value = value;
     setPlaceholders(updatedPlaceholders);
-    
-    // Apply all placeholders to the content
+
     let newContent = templateContent;
-    updatedPlaceholders.forEach(ph => {
-      if (ph.value) {
-        // Use global regex to replace all instances
-        const regex = new RegExp(escapeRegExp(ph.key), 'g');
-        newContent = newContent.replace(regex, ph.value);
-      }
+    updatedPlaceholders.forEach(({ key, value }) => {
+      const regex = new RegExp(escapeRegExp(key), "g");
+      newContent = newContent.replace(regex, value || key);
     });
-    
+
     setModifiedContent(newContent);
+
+    if (editorRef.current) {
+      editorRef.current.innerHTML = highlightPlaceholders(newContent);
+    }
   };
 
-  // Helper to escape regex special characters
+  // Helper function to escape regex characters
   const escapeRegExp = (string: string) => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  };
-
-  // Custom render function to highlight unresolved placeholders
-  const renderContent = useMemo(() => {
-    let content = modifiedContent;
-    
-    // Find unresolved placeholders and highlight them
-    const unresolvedPlaceholders = placeholders.filter(p => !p.value);
-    
-    unresolvedPlaceholders.forEach(ph => {
-      const regex = new RegExp(`(${escapeRegExp(ph.key)})`, 'g');
-      content = content.replace(regex, `<mark class="bg-yellow-200 dark:bg-yellow-600">${ph.key}</mark>`);
-    });
-    
-    return content;
-  }, [modifiedContent, placeholders]);
-
-  // Handle input to maintain cursor position
-  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLDivElement;
-    setModifiedContent(target.innerText);
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   };
 
   const handleComplete = () => {
@@ -103,23 +125,23 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
         <DialogHeader>
           <DialogTitle>Customize Template: {templateTitle}</DialogTitle>
         </DialogHeader>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4 flex-grow overflow-hidden">
           {/* Placeholders Section */}
           <div className="space-y-4 overflow-auto">
             <h3 className="text-sm font-medium">Replace Placeholders</h3>
-            
+
             {placeholders.length > 0 ? (
               <ScrollArea className="h-[50vh]">
                 <div className="space-y-4 pr-4">
                   {placeholders.map((placeholder, idx) => (
-                    <div key={idx} className="space-y-1">
+                    <div key={placeholder.key + idx} className="space-y-1">
                       <label className="text-sm font-medium flex items-center">
                         <span className="bg-primary/10 px-2 py-1 rounded">{placeholder.key}</span>
                       </label>
                       <Input
                         value={placeholder.value}
-                        onChange={e => updatePlaceholder(idx, e.target.value)}
+                        onChange={(e) => updatePlaceholder(idx, e.target.value)}
                         placeholder={`Enter value for ${placeholder.key}`}
                         className="w-full"
                       />
@@ -128,42 +150,27 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
                 </div>
               </ScrollArea>
             ) : (
-              <div className="text-muted-foreground text-center py-8">
-                No placeholders found in this template
-              </div>
+              <div className="text-muted-foreground text-center py-8">No placeholders found in this template</div>
             )}
           </div>
-          
-          {/* Preview Section */}
+
+          {/* Rich Text Editable Section */}
           <div className="border rounded-md p-4 overflow-hidden flex flex-col">
-            <h3 className="text-sm font-medium mb-2">Preview (Editable)</h3>
-            <div className="flex-grow">
-              <div 
-                ref={editableRef}
-                contentEditable 
-                suppressContentEditableWarning
-                onInput={handleInput}
-                dangerouslySetInnerHTML={{ __html: renderContent }}
-                className="border rounded p-2 h-[50vh] overflow-auto text-sm"
-              />
-            </div>
-            {placeholders.some(p => !p.value && modifiedContent.includes(p.key)) && (
-              <div className="text-yellow-600 text-xs mt-2">
-                Some placeholders are not replaced
-              </div>
-            )}
+            <h3 className="text-sm font-medium mb-2">Edit Template</h3>
+            <div
+              ref={editorRef}
+              contentEditable
+              suppressContentEditableWarning
+              className="flex-grow h-[50vh] resize-none border rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-primary overflow-auto"
+            ></div>
           </div>
         </div>
-        
+
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={handleComplete}>
-            {placeholders.some(p => !p.value && modifiedContent.includes(p.key)) 
-              ? "Use With Placeholders" 
-              : "Use Template"}
-          </Button>
+          <Button onClick={handleComplete}>Use Template</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
