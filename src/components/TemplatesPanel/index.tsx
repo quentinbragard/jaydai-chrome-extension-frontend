@@ -238,7 +238,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           }}
           templateContent={selectedTemplate.content}
           templateTitle={selectedTemplate.title || selectedTemplate.name}
-          onComplete={handleFinalizeTemplate}
+          onComplete={(finalContent) => handleFinalizeTemplate(finalContent, onClose)}
         />
       )}
     </>
