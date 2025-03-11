@@ -3,8 +3,6 @@ import { messageObserver } from '@/utils/messageObserver';
 import { UrlChangeListener } from './UrlChangeListener';
 import { MessageEvent } from './types';
 import { injectNetworkInterceptor } from '@/content/injectInterceptor';
-
-// Import handlers
 import { conversationHandler } from './handlers/ConversationHandler';
 import { messageHandler } from './handlers/MessageHandler';
 
@@ -15,9 +13,10 @@ export class ChatInterceptorService {
   private static instance: ChatInterceptorService;
   private isInitialized: boolean = false;
   private urlListener: UrlChangeListener;
+  private cleanupListeners: (() => void)[] = [];
   
   private constructor() {
-    // Initialize URL listener
+    // Initialize URL listener with our URL change handler
     this.urlListener = new UrlChangeListener({
       onUrlChange: (newUrl) => this.handleUrlChange(newUrl)
     });
@@ -39,32 +38,33 @@ export class ChatInterceptorService {
   public initialize(): void {
     if (this.isInitialized) return;
     
-    // Get initial chat ID from URL
+    // Get initial chat ID from URL and update conversation handler
     const chatId = UrlChangeListener.extractChatIdFromUrl(window.location.href);
     conversationHandler.setCurrentChatId(chatId);
-    
-    // Try to get the title from the DOM
     conversationHandler.updateChatTitleFromDOM();
     
-    // Start message observer
+    // Initialize message observer and store its cleanup function
     messageObserver.initialize();
-    messageObserver.onNewMessage((message) => {
+    const removeMessageListener = messageObserver.onNewMessage((message) => {
       messageHandler.processMessage({
         type: message.role as 'user' | 'assistant',
         messageId: message.messageId,
         content: message.message,
         timestamp: message.timestamp,
-        conversationId: message.providerChatId
+        conversationId: message.providerChatId,
+        model: message.model || ''
       });
     });
+    this.cleanupListeners.push(removeMessageListener);
     
-    // Inject network interceptor into page context
+    // Inject network interceptor into the page context
     injectNetworkInterceptor();
     
-    // Start URL change listener
+    // Start URL listener and store a cleanup function
     this.urlListener.startListening();
+    this.cleanupListeners.push(() => this.urlListener.stopListening());
     
-    // If we have a valid chat ID, save it to the backend
+    // Save the current chat to the backend if a chatId exists
     if (chatId) {
       conversationHandler.saveCurrentChatToBackend();
     }
@@ -73,18 +73,17 @@ export class ChatInterceptorService {
   }
   
   /**
-   * Clean up all resources
+   * Clean up all resources and event listeners
    */
   public cleanup(): void {
     if (!this.isInitialized) return;
     
-    // Stop URL listener
-    this.urlListener.stopListening();
+    // Call all stored cleanup functions
+    this.cleanupListeners.forEach(cleanup => cleanup());
+    this.cleanupListeners = [];
     
-    // Clean up message observer
+    // Also clean up the message observer and clear processed messages
     messageObserver.cleanup();
-    
-    // Clear processed messages
     messageHandler.clearProcessedMessages();
     
     this.isInitialized = false;
@@ -99,7 +98,7 @@ export class ChatInterceptorService {
   }
   
   /**
-   * Get the current chat ID
+   * Get the current active chat ID
    */
   public getCurrentChatId(): string | null {
     return conversationHandler.getCurrentChatId();
@@ -113,25 +112,19 @@ export class ChatInterceptorService {
   }
   
   /**
-   * Handle URL changes
+   * Handle URL changes by updating the conversation handler
    */
   private handleUrlChange(newUrl: string): void {
-    // Extract chat ID from URL
     const chatId = UrlChangeListener.extractChatIdFromUrl(newUrl);
-    
-    // Update current chat ID
     conversationHandler.setCurrentChatId(chatId);
-    
-    // Try to get the title from the DOM
     conversationHandler.updateChatTitleFromDOM();
     
-    // If we have a new chat ID, reset the message observer
+    // Reset the message observer if necessary
     if (chatId !== conversationHandler.getCurrentChatId()) {
       messageObserver.cleanup();
       messageObserver.initialize();
     }
     
-    // If we have a valid chat ID, save it to the backend
     if (chatId) {
       conversationHandler.saveCurrentChatToBackend();
     }

@@ -1,4 +1,4 @@
-// injectedInterceptor.js
+// src/content/injectedInterceptor.js
 // This script will be injected into the page context to intercept network requests
 
 (function() {
@@ -7,11 +7,12 @@
   const originalXHROpen = XMLHttpRequest.prototype.open;
   const originalXHRSend = XMLHttpRequest.prototype.send;
   
-  // Define endpoints we're interested in
+  // Define endpoints we're interested in - EXPANDED to include specific conversation endpoints
   const ENDPOINTS = {
     USER_INFO: '/backend-api/me',
-    CONVERSATIONS: '/backend-api/conversations',
-    CHAT_COMPLETION: '/backend-api/conversation'
+    CONVERSATIONS_LIST: '/backend-api/conversations',
+    CHAT_COMPLETION: '/backend-api/conversation',
+    SPECIFIC_CONVERSATION: new RegExp('/backend-api/conversation/[a-z0-9-]+$')
   };
   
   // Track processed requests to avoid duplicates
@@ -52,14 +53,21 @@
       // If URL parsing fails, use the original URL
       pathname = url;
     }
+
+    console.log("pathname", pathname)
     
     // Check for user info endpoint - exact match for /backend-api/me
     if (pathname === ENDPOINTS.USER_INFO) {
       return 'userInfo';
     }
     
-    // Check for conversations endpoint
-    if (pathname.startsWith(ENDPOINTS.CONVERSATIONS) && url.includes('limit=')) {
+    // Check for specific conversation detail endpoint
+    if (ENDPOINTS.SPECIFIC_CONVERSATION.test(pathname)) {
+      return 'specificConversation';
+    }
+    
+    // Check for conversations list endpoint
+    if (pathname.startsWith(ENDPOINTS.CONVERSATIONS_LIST)) {
       return 'conversationList';
     }
     
@@ -80,6 +88,11 @@
     
     // Get the endpoint type
     const endpointType = getEndpointType(url);
+    if (endpointType) {
+      console.log("=====================================================")
+      console.log("endpointType", endpointType)
+      console.log("url", url) 
+    }
     
     let requestBody = null;
     
@@ -97,9 +110,13 @@
         // Silently fail if we can't parse
       }
     }
+    console.log("requestBody", requestBody)
+
     
     // Call original fetch
     const response = await originalFetch.apply(this, arguments);
+    console.log("response", response)
+    console.log("=====================================================")
     
     // Only process if it's an endpoint we care about
     if (endpointType && !processedRequests.has(requestId)) {
@@ -130,6 +147,7 @@
             });
           }).catch(e => {
             // Error parsing response JSON
+            console.error('Error parsing JSON from response:', e);
           });
         } else if (endpointType === 'chatCompletion') {
           // For streaming responses, we need special handling
@@ -148,6 +166,7 @@
         }
       } catch (error) {
         // Error processing intercepted fetch
+        console.error('Error processing intercepted fetch:', error);
       }
     }
     
@@ -211,6 +230,7 @@
             }
           } catch (error) {
             // Error processing XHR response
+            console.error('Error processing XHR response:', error);
           }
         }
       });
@@ -222,4 +242,5 @@
   
   // Notify that injection is complete
   sendToExtension('injectionComplete', { status: 'success' });
+  console.log('ChatGPT Network Interceptor injected successfully');
 })();

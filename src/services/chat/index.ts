@@ -8,6 +8,7 @@ export { chatInterceptor } from './ChatInterceptorService';
 export { conversationHandler } from './handlers/ConversationHandler';
 export { messageHandler } from './handlers/MessageHandler';
 export { userHandler } from './handlers/UserHandler';
+export { specificConversationHandler } from './handlers/SpecificConversationHandler';
 
 // Export types
 export * from './types';

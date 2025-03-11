@@ -89,7 +89,7 @@ export class AppInitializer {
     // Clean up services
     chatInterceptor.cleanup();
     statsService.cleanup();
-    NotificationService.cleanup();
+    notificationService.cleanup();
     
     // Remove UI components
     componentInjector.removeAll();

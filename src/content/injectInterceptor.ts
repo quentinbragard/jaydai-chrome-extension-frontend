@@ -2,6 +2,7 @@
 import { conversationHandler } from '@/services/chat/handlers/ConversationHandler';
 import { messageHandler } from '@/services/chat/handlers/MessageHandler';
 import { userHandler } from '@/services/chat/handlers/UserHandler';
+import { specificConversationHandler } from '@/services/chat/handlers/SpecificConversationHandler';
 import { StreamProcessor } from '@/services/chat/StreamProcessor';
 
 /**
@@ -26,6 +27,8 @@ export function injectNetworkInterceptor(): void {
     
     // Set up listener for intercepted network data
     setupInterceptListener();
+    
+    console.log('✅ Network interceptor script injected');
   } catch (error) {
     console.error('Failed to inject network interceptor:', error);
   }
@@ -37,6 +40,9 @@ export function injectNetworkInterceptor(): void {
 function setupInterceptListener(): void {
   document.addEventListener('archimind-network-intercept', async (event: CustomEvent) => {
     const { type, data } = event.detail;
+
+
+    
     
     try {
       switch (type) {
@@ -48,12 +54,16 @@ function setupInterceptListener(): void {
           handleConversationList(data);
           break;
           
+        case 'specificConversation':
+          handleSpecificConversation(data);
+          break;
+          
         case 'chatCompletion':
           await handleChatCompletion(data);
           break;
           
         case 'injectionComplete':
-          // Interceptor injection completed
+          console.log('✅ Interceptor injection completed');
           break;
       }
     } catch (error) {
@@ -66,13 +76,7 @@ function setupInterceptListener(): void {
  * Handle intercepted user info data
  */
 function handleUserInfo(data: any): void {
-  console.log("******************")
-  console.log("******************")
-  console.log("******************")
-  console.log("******************")
-  console.log("******************")
-  console.log("******************")
-  console.log("******************")
+
   try {
     if (data && data.responseBody) {
       userHandler.processUserInfo(data.responseBody);
@@ -86,12 +90,25 @@ function handleUserInfo(data: any): void {
  * Handle intercepted conversation list data
  */
 function handleConversationList(data: any): void {
+
   try {
     if (data && data.responseBody) {
       conversationHandler.processConversationList(data.responseBody);
     }
   } catch (error) {
     console.error('Error processing conversation list:', error);
+  }
+}
+
+/**
+ * Handle intercepted specific conversation data
+ * This contains the complete conversation with all messages
+ */
+function handleSpecificConversation(data: any): void {
+  try {
+    specificConversationHandler.processSpecificConversation(data);
+  } catch (error) {
+    console.error('Error processing specific conversation:', error);
   }
 }
 
@@ -105,7 +122,6 @@ async function handleChatCompletion(data: any): Promise<void> {
     // Process user message from request body if present
     if (requestBody && requestBody.messages && requestBody.messages.length > 0) {
       const userMessage = StreamProcessor.extractUserMessage(requestBody);
-      console.log("===========================userMessage", userMessage)
       if (userMessage) {
         messageHandler.processMessage({
           type: 'user',
@@ -113,17 +129,21 @@ async function handleChatCompletion(data: any): Promise<void> {
           content: userMessage.content,
           timestamp: Date.now(),
           conversationId: requestBody.conversation_id || null,
-          model: userMessage.model
+          model: requestBody.model || userMessage.model
         });
       }
     }
     
     // Handle non-streaming responses
     if (!isStreaming && responseBody) {
-      console.log("===========================responseBody", responseBody)
       if (responseBody.message) {
         const messageContent = responseBody.message.content?.parts?.join('\n') || 
                               responseBody.message.content || '';
+        
+        // Extract model information
+        const model = responseBody.message.metadata?.model_slug || 
+                     responseBody.model || 
+                     'unknown';
         
         messageHandler.processMessage({
           type: 'assistant',
@@ -131,7 +151,7 @@ async function handleChatCompletion(data: any): Promise<void> {
           content: messageContent,
           timestamp: Date.now(),
           conversationId: responseBody.conversation_id || null,
-          model: responseBody.message.metadata?.model_slug || null
+          model: model
         });
       }
     }

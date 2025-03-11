@@ -2,13 +2,15 @@
 // Handles conversation data from ChatGPT API
 import { apiService } from '@/services/ApiService';
 import { ChatInfo } from '../types';
+import { specificConversationHandler } from './SpecificConversationHandler';
 
 /**
  * Service to handle conversation data from ChatGPT
  */
 export class ConversationHandler {
   private currentChatId: string | null = null;
-  private currentChatTitle: string = 'New Conversation';
+  private currentChatTitle: string = 'No title';
+  private fetchInProgress: boolean = false;
   
   /**
    * Set the active conversation ID (e.g., from URL)
@@ -17,7 +19,15 @@ export class ConversationHandler {
     if (this.currentChatId !== chatId) {
       console.log(`📝 Chat ID changed: ${this.currentChatId} -> ${chatId}`);
       this.currentChatId = chatId;
-      this.currentChatTitle = 'New Conversation';
+      const currentChatTitleElement = document.querySelector(`a[href="/c/${chatId}"]`);
+      console.log(`📝 Current chat title element: ${currentChatTitleElement}`);
+      this.currentChatTitle = currentChatTitleElement?.textContent || 'No title';
+      console.log(`📝 Chat title: ${this.currentChatTitle}`);
+      
+      // Proactively fetch conversation data if we have a valid chat ID
+      //if (chatId) {
+      //  this.fetchConversationData(chatId);
+      //}
     }
   }
   
@@ -33,6 +43,59 @@ export class ConversationHandler {
    */
   public getCurrentChatTitle(): string {
     return this.currentChatTitle;
+  }
+  
+  /**
+   * Proactively fetch conversation data using the chatId
+   */
+  public async fetchConversationData(chatId: string): Promise<void> {
+    if (this.fetchInProgress) {
+      console.log(`🔄 Fetch already in progress for chat: ${chatId}`);
+      return;
+    }
+    
+    this.fetchInProgress = true;
+    console.log(`🔍 Proactively fetching conversation data for chat: ${chatId}`);
+    
+    try {
+      // Use the fetch API directly with the current user's credentials
+      const conversationUrl = `https://chatgpt.com/backend-api/conversation/${chatId}`;
+      console.log(`📡 Requesting: ${conversationUrl}`);
+      
+      const response = await fetch(conversationUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // This ensures we use the browser's cookies/authentication
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(`✅ Successfully fetched conversation data for: ${chatId}`);
+      console.log(`📊 Response structure:`, Object.keys(data));
+      console.log(`📄 Title: ${data.title || 'No title'}`);
+      console.log(`📄 Message count: ${Object.keys(data.mapping || {}).length}`);
+      
+      // Update the conversation title
+      if (data.title) {
+        this.updateChatTitle(data.title);
+      }
+      
+      // Process the fetched conversation data using our handler
+      specificConversationHandler.processSpecificConversation({
+        responseBody: data
+      });
+      
+    } catch (error) {
+      console.error(`❌ Error fetching conversation: ${error}`);
+    } finally {
+      this.fetchInProgress = false;
+    }
   }
   
   /**
@@ -85,13 +148,14 @@ export class ConversationHandler {
    * Process conversation list data from API
    */
   public processConversationList(data: any): void {
-    console.log(' conversationList Processing conversation list', JSON.stringify(data, null, 2));
+    console.log('📋 Processing conversation list data');
     try {
       if (!data || !Array.isArray(data.items)) {
+        console.log('⚠️ Invalid conversation list data format', data);
         return;
       }
       
-      console.log(`📋 Processing conversation list: ${data.items.length} conversations`);
+      console.log(`📋 Processing ${data.items.length} conversations`);
       
       // Process each conversation
       for (const chat of data.items) {
@@ -102,6 +166,10 @@ export class ConversationHandler {
             create_time: chat.create_time,
             update_time: chat.update_time
           });
+          
+          // Also fetch detailed data for each conversation
+          // Commenting this out for now as it could create too many simultaneous requests
+          // this.fetchConversationData(chat.id);
         }
       }
     } catch (error) {

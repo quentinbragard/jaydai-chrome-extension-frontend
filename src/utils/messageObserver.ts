@@ -46,7 +46,7 @@ export class MessageObserver {
     if (this.isInitialized) return;
 
     // Get or create chat info
-    this.extractChatInfo();
+    //this.extractChatInfo();
 
     // Initial scan of existing messages
     this.scanExistingMessages();
