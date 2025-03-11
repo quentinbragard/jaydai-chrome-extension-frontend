@@ -53,17 +53,15 @@
       // If URL parsing fails, use the original URL
       pathname = url;
     }
-
-    console.log("pathname", pathname)
+    
+    // Check for specific conversation detail endpoint (check this first since it's more specific)
+    if (ENDPOINTS.SPECIFIC_CONVERSATION.test(pathname)) {
+      return 'specificConversation';
+    }
     
     // Check for user info endpoint - exact match for /backend-api/me
     if (pathname === ENDPOINTS.USER_INFO) {
       return 'userInfo';
-    }
-    
-    // Check for specific conversation detail endpoint
-    if (ENDPOINTS.SPECIFIC_CONVERSATION.test(pathname)) {
-      return 'specificConversation';
     }
     
     // Check for conversations list endpoint
@@ -78,7 +76,107 @@
     
     return null;
   }
+
+  /**
+ * Process a streaming response and send delta events to the extension
+ */
+function processStreamingResponse(response, url, requestBody) {
+  console.log('🔄 Processing streaming response for:', url);
   
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  
+  // Read the stream
+  reader.read().then(function processChunk({ done, value }) {
+    if (done) {
+      console.log('✅ Stream processing complete for:', url);
+      // Send final completion event
+      sendToExtension('streamingComplete', {
+        url,
+        conversationId: requestBody?.conversation_id || null
+      });
+      return;
+    }
+    
+    // Decode and add to buffer
+    buffer += decoder.decode(value, { stream: true });
+    
+    // Process complete events in the buffer
+    const events = buffer.split('\n\n');
+    buffer = events.pop() || ''; // Keep the last incomplete chunk in the buffer
+    
+    for (const event of events) {
+      if (!event.trim()) continue;
+      
+      // Extract event type and data
+      const eventMatch = event.match(/^event: ([^\n]+)/);
+      const dataMatch = event.match(/data: (.+)$/m);
+      
+      if (!dataMatch) continue;
+      
+      const eventType = eventMatch ? eventMatch[1] : 'unknown';
+      
+      try {
+        // Skip [DONE] marker
+        if (dataMatch[1].trim() === '[DONE]') {
+          sendToExtension('streamingComplete', {
+            url,
+            conversationId: requestBody?.conversation_id
+          });
+          continue;
+        }
+        
+        let deltaData;
+        try {
+          deltaData = JSON.parse(dataMatch[1]);
+        } catch (e) {
+          console.error('Failed to parse delta data:', e);
+          continue;
+        }
+        
+        // Extract conversation ID from various possible locations
+        const conversationId = 
+          requestBody?.conversation_id || 
+          deltaData.conversation_id || 
+          (deltaData.v && deltaData.v.conversation_id) || 
+          null;
+        
+        // Send delta to extension
+        sendToExtension('streamingDelta', {
+          url,
+          eventType,
+          delta: deltaData,
+          conversationId
+        });
+        
+        // Check for stream completion messages
+        if (deltaData.type === 'message_stream_complete' || 
+            (deltaData.message && deltaData.message.end_turn === true)) {
+          sendToExtension('streamingComplete', {
+            url,
+            conversationId
+          });
+        }
+      } catch (e) {
+        // Skip unparseable data
+        console.error('Error processing event data:', e);
+      }
+    }
+    
+    // Continue reading
+    return reader.read().then(processChunk);
+  }).catch(error => {
+    console.error('Error reading stream:', error);
+    // Notify about error
+    sendToExtension('streamingError', {
+      url,
+      error: error.message,
+      conversationId: requestBody?.conversation_id
+    });
+  });
+}
+
   /**
    * Override fetch API to intercept requests
    */
@@ -128,16 +226,49 @@
         oldestEntries.forEach(entry => processedRequests.delete(entry));
       }
       
-      // Clone the response to avoid consuming it
-      const clonedResponse = response.clone();
-      
       // Process response based on type
       try {
-        const isStreaming = clonedResponse.headers.get('content-type')?.includes('text/event-stream') || false;
+        // Check if response is streaming (text/event-stream)
+        const isStreaming = response.headers.get('content-type')?.includes('text/event-stream') || false;
         
-        if (!isStreaming) {
-          // For normal JSON responses
-          clonedResponse.json().then(data => {
+        if (endpointType === 'chatCompletion') {
+          // For streaming responses
+          if (isStreaming) {
+            // Clone the response to avoid consuming it
+            const streamClone = response.clone();
+            
+            // Send basic metadata to extension
+            sendToExtension(endpointType, {
+              url,
+              requestBody,
+              method: init?.method || 'GET',
+              isStreaming: true,
+              metadata: {
+                url,
+                headers: Object.fromEntries(response.headers.entries()),
+                status: response.status
+              }
+            });
+            
+            // Process the stream
+            processStreamingResponse(streamClone, url, requestBody);
+          } else {
+            // Handle non-streaming responses
+            response.clone().json().then(data => {
+              sendToExtension(endpointType, {
+                url,
+                requestBody,
+                responseBody: data,
+                method: init?.method || 'GET',
+                isStreaming: false
+              });
+            }).catch(e => {
+              console.error('Error parsing JSON from response:', e);
+            });
+          }
+        } else if (!isStreaming) {
+          // For other non-streaming endpoint types (userInfo, conversationList, specificConversation)
+          response.clone().json().then(data => {
             sendToExtension(endpointType, {
               url,
               requestBody,
@@ -146,22 +277,7 @@
               isStreaming: false
             });
           }).catch(e => {
-            // Error parsing response JSON
-            console.error('Error parsing JSON from response:', e);
-          });
-        } else if (endpointType === 'chatCompletion') {
-          // For streaming responses, we need special handling
-          sendToExtension(endpointType, {
-            url,
-            requestBody,
-            method: init?.method || 'GET',
-            isStreaming: true,
-            // We can't send the actual stream, just metadata
-            metadata: {
-              url,
-              headers: Object.fromEntries(clonedResponse.headers.entries()),
-              status: clonedResponse.status
-            }
+            console.error(`Error parsing JSON for ${endpointType}:`, e);
           });
         }
       } catch (error) {

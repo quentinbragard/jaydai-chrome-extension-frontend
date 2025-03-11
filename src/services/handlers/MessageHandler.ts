@@ -1,7 +1,7 @@
 // src/services/chat/handlers/MessageHandler.ts
 // Handles message processing for user and assistant messages
 import { apiService } from '@/services/ApiService';
-import { MessageEvent, MessageListener, SaveMessageParams } from '../types';
+import { MessageEvent, MessageListener, SaveMessageParams } from '../chat/types';
 import { conversationHandler } from './ConversationHandler';
 
 /**

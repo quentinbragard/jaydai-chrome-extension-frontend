@@ -1,7 +1,7 @@
 // src/services/chat/handlers/ConversationHandler.ts
 // Handles conversation data from ChatGPT API
 import { apiService } from '@/services/ApiService';
-import { ChatInfo } from '../types';
+import { ChatInfo } from '../chat/types';
 import { specificConversationHandler } from './SpecificConversationHandler';
 
 /**

@@ -1,5 +1,5 @@
 // src/services/UserInfoService.ts
-import { userHandler } from '@/services/chat/handlers/UserHandler';
+import { userHandler } from '@/services/handlers/UserHandler';
 import { networkRequestMonitor } from '@/utils/NetworkRequestMonitor';
 
 /**

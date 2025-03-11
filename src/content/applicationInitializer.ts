@@ -1,5 +1,5 @@
 // src/content/applicationInitializer.ts
-import { chatInterceptor } from '@/services/chat';
+import { UrlChangeListener } from '@/services/UrlChangeListener';
 import { statsService } from '@/services/StatsService';
 import { templateService } from '@/services/TemplateService';
 import { notificationService } from '@/services/NotificationService';
@@ -10,6 +10,9 @@ import MainButton  from '@/components/MainButton';
 import { getUserId } from '@/utils/auth';
 import { SettingsDialog } from '@/components/SettingsDialog';
 import React from 'react';
+import { networkRequestMonitor } from '@/utils/NetworkRequestMonitor';
+import { conversationListService } from '@/services/ConversationListService';
+import { messageService } from '@/services/MessageService';
 
 /**
  * Main application initializer
@@ -87,7 +90,6 @@ export class AppInitializer {
     console.log('🧹 Cleaning up Archimind application...');
     
     // Clean up services
-    chatInterceptor.cleanup();
     statsService.cleanup();
     notificationService.cleanup();
     
@@ -166,8 +168,13 @@ export class AppInitializer {
   private async initializeServices(): Promise<void> {
     console.log('🔧 Initializing services...');
     
-    // Initialize chat interception
-    chatInterceptor.initialize();
+    // Initialize network monitoring first since other services depend on it
+    networkRequestMonitor.initialize();
+    
+    
+    // Initialize our new services
+    conversationListService.initialize();
+    messageService.initialize();
     
     // Initialize statistics service
     statsService.initialize();
@@ -178,7 +185,7 @@ export class AppInitializer {
     // Initialize notification service
     await notificationService.initialize();
     
-    // NEW: Initialize user info service
+    // Initialize user info service  
     userInfoService.initialize();
     
     console.log('✅ Services initialized');
@@ -305,7 +312,7 @@ export class AppInitializer {
    * Save current conversation
    */
   private saveCurrentConversation(): void {
-    const chatId = chatInterceptor.getCurrentChatId();
+    const chatId = UrlChangeListener.extractChatIdFromUrl(window.location.href);
     if (!chatId) {
       console.log('⚠️ No active conversation to save');
       return;

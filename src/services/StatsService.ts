@@ -1,6 +1,5 @@
 // src/services/StatsService.ts
 import { apiService } from './ApiService';
-import { chatInterceptor } from './chat';
 
 export interface Stats {
   totalChats: number;
@@ -74,22 +73,22 @@ export class StatsService {
     }, 2000);
     
     // Listen for new messages
-    chatInterceptor.onMessage((event) => {
+    //chatInterceptor.onMessage((event) => {
       // Update local counters immediately for responsive UI
-      this.stats.totalMessages++;
+      //this.stats.totalMessages++;
       
       // Track by day
-      const today = new Date().toISOString().split('T')[0];
-      this.stats.messagesPerDay[today] = (this.stats.messagesPerDay[today] || 0) + 1;
+      //const today = new Date().toISOString().split('T')[0];
+      //this.stats.messagesPerDay[today] = (this.stats.messagesPerDay[today] || 0) + 1;
       
       // Update average
-      if (this.stats.totalChats > 0) {
-        this.stats.avgMessagesPerChat = this.stats.totalMessages / this.stats.totalChats;
-      }
+      //if (this.stats.totalChats > 0) {
+      //  this.stats.avgMessagesPerChat = this.stats.totalMessages / this.stats.totalChats;
+      //}
       
       // Notify subscribers of the update
-      this.notifyUpdateListeners();
-    });
+      //this.notifyUpdateListeners();
+    //});
     
     // Set up regular refresh from backend
     this.updateInterval = window.setInterval(() => {

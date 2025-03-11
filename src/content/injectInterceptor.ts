@@ -1,8 +1,8 @@
 // src/content/injectInterceptor.ts
-import { conversationHandler } from '@/services/chat/handlers/ConversationHandler';
-import { messageHandler } from '@/services/chat/handlers/MessageHandler';
-import { userHandler } from '@/services/chat/handlers/UserHandler';
-import { specificConversationHandler } from '@/services/chat/handlers/SpecificConversationHandler';
+import { conversationHandler } from '@/services/handlers/ConversationHandler';
+import { messageHandler } from '@/services/handlers/MessageHandler';
+import { userHandler } from '@/services/handlers/UserHandler';
+import { specificConversationHandler } from '@/services/handlers/SpecificConversationHandler';
 import { StreamProcessor } from '@/services/chat/StreamProcessor';
 
 /**

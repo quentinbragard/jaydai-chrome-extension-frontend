@@ -1,6 +1,6 @@
 // src/services/chat/handlers/UserHandler.ts
 import { apiService } from '@/services/ApiService';
-import { UserMetadata } from '../types';
+import { UserMetadata } from '../chat/types';
 
 /**
  * Service to handle user metadata from ChatGPT API
