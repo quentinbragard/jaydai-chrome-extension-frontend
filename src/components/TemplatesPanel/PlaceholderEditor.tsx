@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogOverlay } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
 }) => {
   const [placeholders, setPlaceholders] = useState<{ key: string; value: string }[]>([]);
   const [modifiedContent, setModifiedContent] = useState(templateContent);
+  const editableRef = useRef<HTMLDivElement>(null);
 
   // Extract placeholders from template content
   useEffect(() => {
@@ -65,6 +66,27 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   };
 
+  // Custom render function to highlight unresolved placeholders
+  const renderContent = useMemo(() => {
+    let content = modifiedContent;
+    
+    // Find unresolved placeholders and highlight them
+    const unresolvedPlaceholders = placeholders.filter(p => !p.value);
+    
+    unresolvedPlaceholders.forEach(ph => {
+      const regex = new RegExp(`(${escapeRegExp(ph.key)})`, 'g');
+      content = content.replace(regex, `<mark class="bg-yellow-200 dark:bg-yellow-600">${ph.key}</mark>`);
+    });
+    
+    return content;
+  }, [modifiedContent, placeholders]);
+
+  // Handle input to maintain cursor position
+  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    setModifiedContent(target.innerText);
+  };
+
   const handleComplete = () => {
     onComplete(modifiedContent);
     onOpenChange(false);
@@ -72,20 +94,6 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
 
   const handleCancel = () => {
     onOpenChange(false);
-  };
-
-  // Preview with highlighted placeholders
-  const renderPreview = () => {
-    let preview = modifiedContent;
-    // Highlight remaining placeholders
-    placeholders.forEach(ph => {
-      if (!ph.value && preview.includes(ph.key)) {
-        const regex = new RegExp(escapeRegExp(ph.key), 'g');
-        preview = preview.replace(regex, `<span class="bg-yellow-200 dark:bg-yellow-800">${ph.key}</span>`);
-      }
-    });
-    
-    return <div dangerouslySetInnerHTML={{ __html: preview }} />;
   };
 
   return (
@@ -128,12 +136,22 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
           
           {/* Preview Section */}
           <div className="border rounded-md p-4 overflow-hidden flex flex-col">
-            <h3 className="text-sm font-medium mb-2">Preview</h3>
-            <ScrollArea className="flex-grow h-[50vh]">
-              <div className="text-sm whitespace-pre-wrap">
-                {renderPreview()}
+            <h3 className="text-sm font-medium mb-2">Preview (Editable)</h3>
+            <div className="flex-grow">
+              <div 
+                ref={editableRef}
+                contentEditable 
+                suppressContentEditableWarning
+                onInput={handleInput}
+                dangerouslySetInnerHTML={{ __html: renderContent }}
+                className="border rounded p-2 h-[50vh] overflow-auto text-sm"
+              />
+            </div>
+            {placeholders.some(p => !p.value && modifiedContent.includes(p.key)) && (
+              <div className="text-yellow-600 text-xs mt-2">
+                Some placeholders are not replaced
               </div>
-            </ScrollArea>
+            )}
           </div>
         </div>
         
