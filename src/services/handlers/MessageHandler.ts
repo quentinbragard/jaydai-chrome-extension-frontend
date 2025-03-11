@@ -28,7 +28,7 @@ export class MessageHandler {
    * Process a new message from any source
    */
   public processMessage(message: MessageEvent): void {
-    // Get the conversation ID from the message or current active chat
+    // Skip if we don't have a valid conversation ID
     const conversationId = message.conversationId || conversationHandler.getCurrentChatId();
     
     // Skip if we don't have a valid conversation ID
@@ -39,27 +39,50 @@ export class MessageHandler {
     
     // Skip if already processed this message
     if (this.processedMessages.has(message.messageId)) {
+      console.warn(`⚠️ Skipping message ${message.messageId} - already processed`);
       return;
     }
     
     this.processedMessages.add(message.messageId);
     
+    console.log(`🔍 PROCESSING MESSAGE TO SAVE:`, {
+      type: message.type,
+      messageId: message.messageId, 
+      conversationId,
+      contentLength: message.content.length,
+      contentPreview: message.content.substring(0, 50) + (message.content.length > 50 ? '...' : ''),
+      timestamp: new Date(message.timestamp).toISOString()
+    });
+    
     try {
       // Save to backend
-      this.saveMessageToBackend({
+      console.log(`📤 Saving message ${message.messageId} to Supabase...`);
+      
+      // This is where we send to Supabase
+      const saveParams = {
         messageId: message.messageId,
         message: message.content,
         role: message.type,
         rank: 0, // We don't have rank info here, could be improved
         providerChatId: conversationId,
         model: message.model || '',
-        thinkingTime: 0 // We don't track thinking time yet, could be added
-      });
+        thinkingTime: message.thinkingTime || 0
+      };
+      
+      console.log(`📦 Save params:`, saveParams);
+      
+      apiService.saveMessageToBackend(saveParams)
+        .then(response => {
+          console.log(`✅ Successfully saved message ${message.messageId} to Supabase:`, response);
+        })
+        .catch(error => {
+          console.error(`❌ Error saving message ${message.messageId} to Supabase:`, error);
+        });
       
       // Notify all listeners
       this.notifyListeners(message);
       
-      console.log(`✅ Processed ${message.type} message: ${message.messageId.substring(0, 8)}...`);
+      console.log(`✅ Processed ${message.type} message: ${message.messageId}`);
     } catch (error) {
       console.error('❌ Error processing message:', error);
     }

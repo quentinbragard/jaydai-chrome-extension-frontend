@@ -116,6 +116,7 @@ function handleSpecificConversation(data: any): void {
  * Handle intercepted chat completion data
  */
 async function handleChatCompletion(data: any): Promise<void> {
+  console.log('💬💬💬💬💬hgerughekrufbhufhkufhekrujq💬💬💬💬💬💬 Handling chat completion:', data);
   try {
     const { url, requestBody, responseBody, isStreaming } = data;
     

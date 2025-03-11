@@ -125,67 +125,30 @@ export class StreamingHandler {
       }
       
       // Handle content appending
-      if (data.o === 'append' && data.p?.includes('/message/content/parts/') && data.v) {
-        // Extract the message ID from the path
-        const pathParts = data.p.split('/');
-        // Since we don't have the message ID in the path, use the last message
-        // This is a simplification - in a real implementation, we'd need to track which message is being updated
-        
-        // Find the message being updated based on counter or most recent
-        let messageId: string | null = null;
-        
-        if (data.c !== undefined) {
-          // If we have a counter/index, use it to find the correct message
-          const entries = Array.from(messages.entries());
-          if (entries.length > data.c) {
-            messageId = entries[data.c][0];
-          }
-        } else if (messages.size > 0) {
-          // Otherwise use the most recently added message
-          messageId = Array.from(messages.keys()).pop() || null;
-        }
+      if (data.o === 'append' && data.v) {
+        let messageId = this.findMessageId(data, messages);
         
         if (messageId && messageContents.has(messageId)) {
           messageContents.set(messageId, messageContents.get(messageId) + data.v);
         }
       }
       
-      // Handle append to a specific path
-      if (data.p?.includes('/message/content/parts/0') && data.o === 'append' && data.v) {
-        // Similar issue - we need to determine which message this applies to
-        let messageId: string | null = null;
+      // Handle truncate operations
+      if (data.o === 'truncate' && typeof data.v === 'number') {
+        let messageId = this.findMessageId(data, messages);
         
-        if (data.c !== undefined) {
-          const entries = Array.from(messages.entries());
-          if (entries.length > data.c) {
-            messageId = entries[data.c][0];
-          }
-        } else if (messages.size > 0) {
-          messageId = Array.from(messages.keys()).pop() || null;
-        }
-        
-        if (messageId && messageContents.has(messageId)) {
-          messageContents.set(messageId, messageContents.get(messageId) + data.v);
+        if (messageId && messageContents.has(messageId) && data.v === 0) {
+          messageContents.set(messageId, ''); // Reset content
         }
       }
       
-      // Handle composite patches
+      // Handle patch operations
       if (data.o === 'patch' && Array.isArray(data.v)) {
-        for (const patch of data.v) {
-          if (patch.o === 'append' && patch.p?.includes('/message/content/parts/') && patch.v) {
-            // Same issue - determine which message
-            let messageId: string | null = null;
-            
-            if (data.c !== undefined) {
-              const entries = Array.from(messages.entries());
-              if (entries.length > data.c) {
-                messageId = entries[data.c][0];
-              }
-            } else if (messages.size > 0) {
-              messageId = Array.from(messages.keys()).pop() || null;
-            }
-            
-            if (messageId && messageContents.has(messageId)) {
+        let messageId = this.findMessageId(data, messages);
+        
+        if (messageId && messageContents.has(messageId)) {
+          for (const patch of data.v) {
+            if (patch.o === 'append' && patch.v) {
               messageContents.set(messageId, messageContents.get(messageId) + patch.v);
             }
           }
@@ -194,6 +157,34 @@ export class StreamingHandler {
     } catch (error) {
       console.error('❌ Error processing delta:', error);
     }
+  }
+  
+  /**
+   * Find which message a delta applies to
+   */
+  private static findMessageId(data: any, messages: Map<string, any>): string | null {
+    // Try to use counter value if present
+    if (data.c !== undefined) {
+      const entries = Array.from(messages.entries());
+      if (entries.length > data.c) {
+        return entries[data.c][0];
+      }
+    }
+    
+    // Try to extract message ID from path
+    if (data.p) {
+      const match = data.p.match(/\/message\/id\/([a-f0-9-]+)/);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    
+    // Default to most recent message
+    if (messages.size > 0) {
+      return Array.from(messages.keys()).pop() || null;
+    }
+    
+    return null;
   }
   
   /**
@@ -211,15 +202,27 @@ export class StreamingHandler {
       return null;
     }
     
-    const message = requestBody.messages[0];
+    // Find the user message
+    const message = requestBody.messages.find((m: any) => 
+      m.author?.role === 'user' || 
+      m.role === 'user'
+    );
     
-    if (!message || !message.author || message.author.role !== 'user') {
+    if (!message) {
       return null;
+    }
+    
+    // Extract content
+    let content = '';
+    if (message.content?.parts && Array.isArray(message.content.parts)) {
+      content = message.content.parts.join('\n');
+    } else if (typeof message.content === 'string') {
+      content = message.content;
     }
     
     return {
       id: message.id || `user-${Date.now()}`,
-      content: message.content?.parts?.join('\n') || message.content || '',
+      content: content,
       model: requestBody.model
     };
   }

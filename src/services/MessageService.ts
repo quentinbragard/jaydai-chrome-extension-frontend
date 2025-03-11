@@ -1,11 +1,10 @@
-// src/services/MessageService.ts - Fixed with proper streaming delta support
+// src/services/MessageService.ts
 import { networkRequestMonitor } from '@/utils/NetworkRequestMonitor';
 import { messageHandler } from '@/services/handlers/MessageHandler';
-import { StreamingHandler } from '@/services/handlers/StreamingHandler';
 import { MessageEvent } from './chat/types';
 
 /**
- * Service to intercept and process chat messages
+ * Service to intercept and process chat messages from ChatGPT
  */
 export class MessageService {
   private static instance: MessageService;
@@ -13,13 +12,17 @@ export class MessageService {
   private processedMessageIds: Set<string> = new Set();
   private storageKey: string = 'archimind_recent_messages';
   
+  // Configuration option for saving thinking steps
+  private saveThinkinSteps: boolean = false;
+  
   // Track messages being built through delta updates
   private messageBuilders: Map<string, {
     id: string, 
     role: string,
     content: string,
     conversationId: string,
-    model: string
+    model: string,
+    finished: boolean
   }> = new Map();
   
   private constructor() {}
@@ -66,20 +69,17 @@ export class MessageService {
     if (!data) return;
     
     try {
-      const { requestBody, responseBody, isStreaming, url, response } = data;
+      const { requestBody, responseBody, isStreaming } = data;
+      
+      console.log('💬 Chat completion captured:', { 
+        isStreaming, 
+        hasResponseBody: !!responseBody
+      });
       
       // Process user message from request body if present
       this.processUserMessage(requestBody);
       
-      // Handle streaming responses - requires the original response object
-      if (isStreaming && response) {
-        console.log('💬 Processing streaming response for chat completion');
-        this.handleStreamingResponse(response, requestBody);
-        return;
-      }
-      
-      // For streaming responses where we can't get the original response
-      // We need to rely on the injectedInterceptor to send us deltas
+      // For streaming responses, we'll rely on delta events coming from the interceptor
       if (isStreaming) {
         console.log('💬 Streaming response detected, will process via deltas');
         return;
@@ -87,6 +87,7 @@ export class MessageService {
       
       // Handle non-streaming responses
       if (!isStreaming && responseBody) {
+        console.log('💬 Processing non-streaming response');
         this.processAssistantMessage(responseBody);
       }
       
@@ -104,21 +105,41 @@ export class MessageService {
     if (!requestBody || !requestBody.messages || !requestBody.messages.length) return;
     
     try {
-      const userMessage = StreamingHandler.extractUserMessage(requestBody);
-      if (userMessage && !this.processedMessageIds.has(userMessage.id)) {
-        console.log('💬 Processing user message from request:', userMessage.id);
-        
-        messageHandler.processMessage({
-          type: 'user',
-          messageId: userMessage.id,
-          content: userMessage.content,
-          timestamp: Date.now(),
-          conversationId: requestBody.conversation_id || null,
-          model: requestBody.model || userMessage.model
-        });
-        
-        this.processedMessageIds.add(userMessage.id);
+      // Look for the user message in the request body
+      const userMessage = requestBody.messages.find((m: any) => 
+        m.author?.role === 'user' || 
+        m.role === 'user'
+      );
+      
+      if (!userMessage) return;
+      
+      const messageId = userMessage.id || `user-${Date.now()}`;
+      
+      // Skip if already processed
+      if (this.processedMessageIds.has(messageId)) return;
+      
+      console.log('💬 Processing user message from request:', messageId);
+      
+      // Extract content
+      let content = '';
+      if (userMessage.content?.parts && Array.isArray(userMessage.content.parts)) {
+        content = userMessage.content.parts.join('\n');
+      } else if (typeof userMessage.content === 'string') {
+        content = userMessage.content;
       }
+      
+      if (!content) return;
+      
+      messageHandler.processMessage({
+        type: 'user',
+        messageId: messageId,
+        content: content,
+        timestamp: userMessage.create_time || Date.now(),
+        conversationId: requestBody.conversation_id || null,
+        model: requestBody.model || 'unknown'
+      });
+      
+      this.processedMessageIds.add(messageId);
     } catch (error) {
       console.error('❌ Error processing user message:', error);
     }
@@ -138,8 +159,18 @@ export class MessageService {
       
       console.log('💬 Processing assistant message from response:', messageId);
       
-      const messageContent = message.content?.parts?.join('\n') || 
-                            message.content || '';
+      // Extract content
+      let messageContent = '';
+      if (message.content?.parts && Array.isArray(message.content.parts)) {
+        messageContent = message.content.parts.join('\n');
+      } else if (typeof message.content === 'string') {
+        messageContent = message.content;
+      } else if (message.content?.text) {
+        messageContent = message.content.text;
+      }
+      
+      // Extract role
+      const role = message.author?.role || 'assistant';
       
       // Extract model information
       const model = message.metadata?.model_slug || 
@@ -147,10 +178,10 @@ export class MessageService {
                    'unknown';
       
       messageHandler.processMessage({
-        type: message.author?.role || 'assistant',
+        type: role,
         messageId: messageId,
         content: messageContent,
-        timestamp: Date.now(),
+        timestamp: message.create_time || Date.now(),
         conversationId: responseBody.conversation_id || null,
         model: model
       });
@@ -162,190 +193,246 @@ export class MessageService {
   }
   
   /**
-   * Handle streaming response using the StreamingHandler
+   * Process streaming deltas specifically for the ChatGPT pattern
    */
-  private async handleStreamingResponse(response: Response, requestBody: any): Promise<void> {
-    try {
-      // Create a clone of the response to process
-      const clonedResponse = response.clone();
-      
-      // Process the stream
-      const messages = await StreamingHandler.processStream(clonedResponse, requestBody);
-      
-      if (!messages || messages.length === 0) {
-        console.warn('⚠️ No messages extracted from stream');
-        return;
-      }
-      
-      // Process each message
-      for (const message of messages) {
-        if (this.processedMessageIds.has(message.id)) continue;
-        
-        console.log(`💬 Processing ${message.role} message from stream:`, message.id);
-        
-        messageHandler.processMessage({
-          type: message.role as 'user' | 'assistant' | 'system' | 'tool',
-          messageId: message.id,
-          content: message.content,
-          timestamp: Date.now(),
-          conversationId: message.conversationId,
-          model: message.model
+    /**
+     * Process streaming deltas specifically for the ChatGPT pattern
+     * Enhanced to handle the simplified delta format you're seeing
+     */
+    public processStreamingDelta(delta: any, eventType: string, conversationId: string): void {
+        try {
+        // Log the delta with a more readable preview
+        const valuePreview = delta.v && typeof delta.v === 'string' 
+            ? `"${delta.v.substring(0, 30)}${delta.v.length > 30 ? '...' : ''}"` 
+            : (delta.v ? typeof delta.v : null);
+            
+        console.log(`🔄 Delta: ${delta.o || 'unknown'}`, { 
+            path: delta.p,
+            valuePreview,
+            counter: delta.c
         });
-        
-        this.processedMessageIds.add(message.id);
-      }
-    } catch (error) {
-      console.error('❌ Error handling streaming response:', error);
-    }
-  }
-  
-  /**
-   * Process a streaming delta event
-   */
-  public processStreamingDelta(delta: any, eventType: string, conversationId: string): void {
-    try {
-      // Handle different types of delta updates
-      if (eventType === 'delta' || eventType === 'unknown') {
-        if (delta.o === 'add' && delta.v && delta.v.message) {
-          // New message being created
-          const message = delta.v.message;
-          const messageId = message.id;
-          
-          // Skip if we've already processed this message
-          if (this.processedMessageIds.has(messageId)) return;
-          
-          // Extract role and model from the message metadata
-          const role = message.author?.role || 'assistant';
-          const model = message.metadata?.model_slug || 'unknown';
-          
-          // Initialize content for this message ID
-          this.messageBuilders.set(messageId, {
+    
+        // CASE 1: Initial message creation (tool or assistant)
+        if (delta.o === 'add' && delta.v?.message) {
+            const message = delta.v.message;
+            const messageId = message.id;
+            const role = message.author?.role || 'assistant';
+            const model = message.metadata?.model_slug || 'unknown';
+    
+            console.log(`💬 New message created: ${messageId} (${role})`);
+            
+            if (this.processedMessageIds.has(messageId)) {
+            console.log(`⚠️ Already processed message: ${messageId}`);
+            return;
+            }
+    
+            this.messageBuilders.set(messageId, {
             id: messageId,
             role,
             content: '',
             conversationId,
-            model
-          });
-          
-          console.log(`💬 New message initialized in stream: ${messageId} (${role})`);
-        } 
-        else if (delta.p?.includes('/message/content/parts/0') && delta.o === 'append' && delta.v) {
-          // Content being appended to an existing message
-          // Determine which message this applies to using the counter
-          let messageId: string | null = null;
-          
-          // If we have a counter value, use it to find the message
-          if (delta.c !== undefined) {
-            const messages = Array.from(this.messageBuilders.values());
-            if (messages.length > delta.c) {
-              messageId = messages[delta.c].id;
-            }
-          } 
-          // Otherwise, use the most recent message
-          else if (this.messageBuilders.size > 0) {
-            const messages = Array.from(this.messageBuilders.values());
-            messageId = messages[messages.length - 1].id;
-          }
-          
-          // Append content if we found a message
-          if (messageId && this.messageBuilders.has(messageId)) {
-            const builder = this.messageBuilders.get(messageId)!;
+            model,
+            finished: false
+            });
+        }
+    
+        // CASE 2: Content appending - including simplified format without 'o' and 'p'
+        else if ((delta.o === 'append' && delta.v) || 
+                // Handle the simplified delta format with just "v" property
+                (delta.v && typeof delta.v === 'string' && !delta.o)) {
+            
+            // Find the message to append to
+            let messageId = this.findMessageId(delta);
+            
+            if (messageId && this.messageBuilders.has(messageId)) {
+            const builder = this.messageBuilders.get(messageId);
             builder.content += delta.v;
-            this.messageBuilders.set(messageId, builder);
-          }
+            console.log(`📝 Appended: "${delta.v.substring(0, 30)}${delta.v.length > 30 ? '...' : ''}" to ${messageId}`);
+            console.log(`📊 Current content length: ${builder.content.length} chars`);
+            } else {
+            console.log(`⚠️ No message found to append content to`);
+            }
         }
+    
+        // CASE 3: Patch operation with completion signal
         else if (delta.o === 'patch' && Array.isArray(delta.v)) {
-          // Complex patch operation
-          for (const patch of delta.v) {
-            if (patch.p?.includes('/message/content/parts/0') && patch.o === 'append' && patch.v) {
-              // Similar to the append case above
-              let messageId: string | null = null;
-              
-              if (delta.c !== undefined) {
-                const messages = Array.from(this.messageBuilders.values());
-                if (messages.length > delta.c) {
-                  messageId = messages[delta.c].id;
-                }
-              } else if (this.messageBuilders.size > 0) {
-                const messages = Array.from(this.messageBuilders.values());
-                messageId = messages[messages.length - 1].id;
-              }
-              
-              if (messageId && this.messageBuilders.has(messageId)) {
-                const builder = this.messageBuilders.get(messageId)!;
-                builder.content += patch.v;
-                this.messageBuilders.set(messageId, builder);
-              }
-            }
+            // Find the message being updated
+            let messageId = this.findMessageId(delta);
             
-            // Check for message completion
-            if (patch.p?.includes('/message/status') && patch.o === 'replace' && patch.v === 'finished_successfully') {
-              // Find which message was completed
-              let messageId: string | null = null;
-              
-              if (delta.c !== undefined) {
-                const messages = Array.from(this.messageBuilders.values());
-                if (messages.length > delta.c) {
-                  messageId = messages[delta.c].id;
-                }
-              } else if (this.messageBuilders.size > 0) {
-                const messages = Array.from(this.messageBuilders.values());
-                messageId = messages[messages.length - 1].id;
-              }
-              
-              // Process the completed message
-              if (messageId && this.messageBuilders.has(messageId)) {
-                const builder = this.messageBuilders.get(messageId)!;
-                
-                // Only process if we have meaningful content and haven't processed this message yet
-                if (builder.content && !this.processedMessageIds.has(builder.id)) {
-                  console.log(`💬 Processing completed stream message: ${builder.id}`);
-                  
-                  messageHandler.processMessage({
-                    type: builder.role as 'user' | 'assistant' | 'system' | 'tool',
-                    messageId: builder.id,
-                    content: builder.content,
-                    timestamp: Date.now(),
-                    conversationId: builder.conversationId,
-                    model: builder.model
-                  });
-                  
-                  this.processedMessageIds.add(builder.id);
-                }
-                
-                // Remove from builders map to free up memory
-                this.messageBuilders.delete(messageId);
-              }
+            if (!messageId || !this.messageBuilders.has(messageId)) {
+            console.log(`⚠️ No message found for patch operation`);
+            return;
             }
-          }
-        }
-      } 
-      else if (eventType === 'message_stream_complete' || delta.type === 'message_stream_complete') {
-        // Stream is complete - process any remaining messages
-        for (const [messageId, builder] of this.messageBuilders.entries()) {
-          if (builder.content && !this.processedMessageIds.has(builder.id)) {
-            console.log(`💬 Processing final stream message: ${builder.id}`);
-            
-            messageHandler.processMessage({
-              type: builder.role as 'user' | 'assistant' | 'system' | 'tool',
-              messageId: builder.id,
-              content: builder.content,
-              timestamp: Date.now(),
-              conversationId: builder.conversationId,
-              model: builder.model
+    
+            let isFinished = false;
+            let addedContent = '';
+    
+            // Process each patch operation
+            for (const patch of delta.v) {
+            // Log each patch operation
+            console.log(`🔹 Patch: ${patch.o || 'unknown'}`, {
+                path: patch.p,
+                value: patch.v && typeof patch.v === 'string' 
+                ? `"${patch.v.substring(0, 20)}${patch.v.length > 20 ? '...' : ''}"` 
+                : (patch.v ? typeof patch.v : null)
             });
             
-            this.processedMessageIds.add(builder.id);
-          }
+            // Handle content appends
+            if ((patch.o === 'append' && patch.p?.includes('/message/content/parts/')) && patch.v) {
+                addedContent += patch.v;
+                const builder = this.messageBuilders.get(messageId);
+                builder.content += patch.v;
+            }
+    
+            // Check for completion status
+            if (patch.p?.includes('/message/status') && patch.o === 'replace' && patch.v === 'finished_successfully') {
+                isFinished = true;
+            }
+            }
+    
+            if (addedContent) {
+            console.log(`📝 Patched with: "${addedContent}"`);
+            }
+    
+            // If message is finished, mark it and process it
+            if (isFinished) {
+            console.log(`✅ Message ${messageId} marked as finished`);
+            const builder = this.messageBuilders.get(messageId);
+            builder.finished = true;
+            
+            this.finalizeMessage(messageId);
+            }
+        }
+    
+        // CASE 4: Message stream complete event
+        if (eventType === 'message_stream_complete' || delta.type === 'message_stream_complete') {
+            console.log(`🏁 Stream complete for conversation: ${conversationId}`);
+            this.finalizeAllMessages(conversationId);
+        }
+        } catch (error) {
+        console.error('❌ Error processing delta:', error);
+        }
+    }
+    
+    /**
+     * Find the message ID that this delta applies to
+     */
+    private findMessageId(delta: any): string | null {
+        // If we have a counter, use it to find the message
+        if (delta.c !== undefined) {
+        const messages = Array.from(this.messageBuilders.entries());
+        if (messages.length > delta.c) {
+            const messageId = messages[delta.c][0];
+            console.log(`📌 Found message by counter: ${messageId} (${delta.c})`);
+            return messageId;
+        }
         }
         
-        // Clear the builders map
-        this.messageBuilders.clear();
-      }
-    } catch (error) {
-      console.error('❌ Error processing streaming delta:', error);
+        // Try to extract message ID from the path
+        if (delta.p) {
+        // Different path patterns to try
+        const patterns = [
+            /\/message\/([a-f0-9-]+)\/content/,
+            /\/message\/([a-f0-9-]+)\//,
+            /\/messages\/([a-f0-9-]+)\//
+        ];
+        
+        for (const pattern of patterns) {
+            const match = delta.p.match(pattern);
+            if (match && match[1]) {
+            console.log(`📌 Found message by path: ${match[1]}`);
+            return match[1];
+            }
+        }
+        }
+        
+        // If we can't find by counter or path, use the most recent message
+        if (this.messageBuilders.size > 0) {
+        const messageId = Array.from(this.messageBuilders.keys()).pop();
+        console.log(`📌 Using most recent message: ${messageId}`);
+        return messageId;
+        }
+        
+        console.log(`⚠️ Could not find message ID for delta`);
+        return null;
     }
-  }
+    
+    /**
+     * Finalize a message - process it and mark as complete
+     */
+    private finalizeMessage(messageId: string): void {
+        const builder = this.messageBuilders.get(messageId);
+        if (!builder || this.processedMessageIds.has(messageId)) {
+        console.log(`⚠️ Cannot finalize message: already processed or not found`);
+        return;
+        }
+    
+        // Skip empty messages or thinking steps if configured
+        const isTool = builder.role === 'tool';
+        const isEmpty = !builder.content.trim();
+        
+        if (isEmpty) {
+        console.log(`⚠️ Skipping empty message: ${messageId}`);
+        this.messageBuilders.delete(messageId);
+        return;
+        }
+        
+        if (isTool && !this.saveThinkinSteps) {
+        console.log(`⚠️ Skipping thinking step: ${messageId}`);
+        this.messageBuilders.delete(messageId);
+        return;
+        }
+    
+        console.log(`💾 FINALIZING MESSAGE ${messageId} (${builder.role})`);
+        console.log(`📄 Content: "${builder.content.substring(0, 100)}${builder.content.length > 100 ? '...' : ''}"`);
+        console.log(`📊 Length: ${builder.content.length} chars`);
+        
+        try {
+        // Process the message - THIS IS WHERE THE MESSAGE GETS SAVED
+        messageHandler.processMessage({
+            type: builder.role as any,
+            messageId: builder.id,
+            content: builder.content,
+            timestamp: Date.now(),
+            conversationId: builder.conversationId,
+            model: builder.model
+        });
+        
+        console.log(`✅ Successfully processed message: ${messageId}`);
+        
+        // Mark as processed
+        this.processedMessageIds.add(messageId);
+        
+        // Remove from builders map
+        this.messageBuilders.delete(messageId);
+        } catch (error) {
+        console.error(`❌ Error finalizing message ${messageId}:`, error);
+        }
+    }
+    
+    /**
+     * Finalize all pending messages for a conversation
+     */
+    private finalizeAllMessages(conversationId: string): void {
+        console.log(`📋 Finalizing all messages for conversation: ${conversationId}`);
+        
+        try {
+        // Find all messages for this conversation
+        const pendingMessages = Array.from(this.messageBuilders.entries())
+            .filter(([_, builder]) => builder.conversationId === conversationId);
+        
+        console.log(`📊 Found ${pendingMessages.length} pending messages`);
+        
+        // Process each pending message
+        for (const [messageId, _] of pendingMessages) {
+            this.finalizeMessage(messageId);
+        }
+        
+        console.log(`✅ Finalized all pending messages for conversation: ${conversationId}`);
+        } catch (error) {
+        console.error(`❌ Error finalizing messages for conversation ${conversationId}:`, error);
+        }
+    }
   
   /**
    * Handle events from the network interceptor
@@ -353,42 +440,28 @@ export class MessageService {
   private handleInterceptEvent(event: any): void {
     if (!event.detail) return;
     
+    const detail = event.detail;
+    
     // Handle chat completion events
-    if (event.detail.type === 'chatCompletion' && event.detail.data) {
-      this.handleChatCompletionCapture(event.detail.data);
+    if (detail.type === 'chatCompletion' && detail.data) {
+      this.handleChatCompletionCapture(detail.data);
     }
     
     // For streaming message completions, handle deltas if available
-    if (event.detail.type === 'streamingDelta' && event.detail.delta) {
+    if (detail.type === 'streamingDelta' && detail.delta) {
+      const conversationId = detail.conversationId || 'unknown';
+      const eventType = detail.eventType || 'unknown';
+      
       this.processStreamingDelta(
-        event.detail.delta, 
-        event.detail.eventType || 'unknown', 
-        event.detail.conversationId || 'unknown'
+        detail.delta, 
+        eventType,
+        conversationId
       );
     }
     
     // Handle streaming completion notification
-    if (event.detail.type === 'streamingComplete' && event.detail.conversationId) {
-      // Process any pending messages that weren't marked as finished
-      for (const [messageId, builder] of this.messageBuilders.entries()) {
-        if (builder.content && !this.processedMessageIds.has(builder.id)) {
-          console.log(`💬 Processing remaining message at stream completion: ${builder.id}`);
-          
-          messageHandler.processMessage({
-            type: builder.role as 'user' | 'assistant' | 'system' | 'tool',
-            messageId: builder.id,
-            content: builder.content,
-            timestamp: Date.now(),
-            conversationId: builder.conversationId,
-            model: builder.model
-          });
-          
-          this.processedMessageIds.add(builder.id);
-        }
-      }
-      
-      // Clear the builders for this conversation
-      this.messageBuilders.clear();
+    if (detail.type === 'streamingComplete' && detail.conversationId) {
+      this.finalizeAllMessages(detail.conversationId);
     }
   }
   

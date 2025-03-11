@@ -22,15 +22,31 @@
    * Send intercepted data back to the extension
    */
   function sendToExtension(type, data) {
-    // Create and dispatch a custom event
-    const event = new CustomEvent('archimind-network-intercept', {
-      detail: {
-        type,
-        data,
-        timestamp: Date.now()
-      }
+    // Log the event being dispatched
+    console.log(`📡 Dispatching event: ${type}`, {
+      dataType: data ? typeof data : null,
+      hasData: !!data,
+      timestamp: new Date().toISOString()
     });
-    document.dispatchEvent(event);
+    
+    try {
+      // Create and dispatch a custom event
+      const event = new CustomEvent('archimind-network-intercept', {
+        detail: {
+          type,
+          data,
+          timestamp: Date.now()
+        }
+      });
+      
+      // Dispatch the event
+      document.dispatchEvent(event);
+      
+      // Verify event was dispatched
+      console.log(`✅ Event ${type} dispatched`);
+    } catch (error) {
+      console.error(`❌ Error dispatching ${type} event:`, error);
+    }
   }
   
   /**
@@ -77,8 +93,9 @@
     return null;
   }
 
-  /**
+/**
  * Process a streaming response and send delta events to the extension
+ * This version adds better debugging and handling of the delta events
  */
 function processStreamingResponse(response, url, requestBody) {
   console.log('🔄 Processing streaming response for:', url);
@@ -86,40 +103,81 @@ function processStreamingResponse(response, url, requestBody) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
+  let assistantAnswer = '';
+  
+  // Count for tracking progress
+  let eventCount = 0;
   
   // Read the stream
   reader.read().then(function processChunk({ done, value }) {
     if (done) {
-      console.log('✅ Stream processing complete for:', url);
+      console.log(`✅ Stream processing complete for: ${url} (processed ${eventCount} events)`);
       // Send final completion event
       sendToExtension('streamingComplete', {
         url,
-        conversationId: requestBody?.conversation_id || null
+        conversationId: requestBody?.conversation_id || null,
+        assistantAnswer: assistantAnswer
       });
       return;
     }
     
     // Decode and add to buffer
-    buffer += decoder.decode(value, { stream: true });
+    const chunk = decoder.decode(value, { stream: true });
+    buffer += chunk;
+    
     
     // Process complete events in the buffer
     const events = buffer.split('\n\n');
     buffer = events.pop() || ''; // Keep the last incomplete chunk in the buffer
     
     for (const event of events) {
+      console.log("---------------------------------------------event",  event, '\n\n')
       if (!event.trim()) continue;
       
       // Extract event type and data
       const eventMatch = event.match(/^event: ([^\n]+)/);
       const dataMatch = event.match(/data: (.+)$/m);
+      console.log("---------------------------------------------eventMatch", eventMatch)
+      console.log("---------------------------------------------dataMatch", dataMatch)
+
+      if (eventMatch === 'delta') {
+        delta_dict = JSON.parse(dataMatch[1])
+        if ('v' in delta_dict) {
+          if (typeof delta_dict.v === 'string') {
+            assistantAnswer += delta_dict.v
+          }
+          else if ("message" in delta_dict && "id" in delta_dict.message) {
+            message_id = delta_dict.message.id
+            model_id = delta_dict.message.model_slug
+          }
+          else if (Array.isArray(delta_dict.v) && delta_dict.v.length > 0) {
+            for (let elem of delta_dict.v) {
+              if (elem.v === "finished_successfully") {
+                console.log("---------------------------------------------finished_successfully", assistantAnswer)
+                done = true
+              }
+            }
+          }
+        }
+      }
+      
+      
+      console.log("---------------------------------------------eventMatch", eventMatch[1])
+      console.log("---------------------------------------------dataMatch", JSON.parse(dataMatch[1]))
+
+      
+
+
       
       if (!dataMatch) continue;
       
       const eventType = eventMatch ? eventMatch[1] : 'unknown';
+      eventCount++;
       
       try {
         // Skip [DONE] marker
         if (dataMatch[1].trim() === '[DONE]') {
+
           sendToExtension('streamingComplete', {
             url,
             conversationId: requestBody?.conversation_id
@@ -131,7 +189,7 @@ function processStreamingResponse(response, url, requestBody) {
         try {
           deltaData = JSON.parse(dataMatch[1]);
         } catch (e) {
-          console.error('Failed to parse delta data:', e);
+          console.error('Failed to parse delta data:', e, dataMatch[1]);
           continue;
         }
         
@@ -142,7 +200,7 @@ function processStreamingResponse(response, url, requestBody) {
           (deltaData.v && deltaData.v.conversation_id) || 
           null;
         
-        // Send delta to extension
+        // Send delta to extension - ENSURE THIS EVENT IS BEING DISPATCHED
         sendToExtension('streamingDelta', {
           url,
           eventType,
@@ -151,8 +209,17 @@ function processStreamingResponse(response, url, requestBody) {
         });
         
         // Check for stream completion messages
-        if (deltaData.type === 'message_stream_complete' || 
-            (deltaData.message && deltaData.message.end_turn === true)) {
+        if (
+          deltaData.type === 'message_stream_complete' || 
+          (deltaData.message && deltaData.message.end_turn === true) ||
+          (deltaData.o === 'patch' && Array.isArray(deltaData.v) && 
+           deltaData.v.some(patch => 
+             patch.p?.includes('/message/status') && 
+             patch.o === 'replace' && 
+             patch.v === 'finished_successfully'
+           ))
+        ) {
+          console.log('🏁 Detected message completion in delta');
           sendToExtension('streamingComplete', {
             url,
             conversationId
@@ -186,11 +253,6 @@ function processStreamingResponse(response, url, requestBody) {
     
     // Get the endpoint type
     const endpointType = getEndpointType(url);
-    if (endpointType) {
-      console.log("=====================================================")
-      console.log("endpointType", endpointType)
-      console.log("url", url) 
-    }
     
     let requestBody = null;
     
@@ -208,13 +270,9 @@ function processStreamingResponse(response, url, requestBody) {
         // Silently fail if we can't parse
       }
     }
-    console.log("requestBody", requestBody)
-
     
     // Call original fetch
     const response = await originalFetch.apply(this, arguments);
-    console.log("response", response)
-    console.log("=====================================================")
     
     // Only process if it's an endpoint we care about
     if (endpointType && !processedRequests.has(requestId)) {
@@ -230,6 +288,7 @@ function processStreamingResponse(response, url, requestBody) {
       try {
         // Check if response is streaming (text/event-stream)
         const isStreaming = response.headers.get('content-type')?.includes('text/event-stream') || false;
+        console.log("isStreamin>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.....", isStreaming)
         
         if (endpointType === 'chatCompletion') {
           // For streaming responses
