@@ -59,12 +59,10 @@ export class TemplateService {
    * Initialize the template service
    */
   public async initialize(): Promise<void> {
-    console.log('📝 Initializing template service...');
     
     // Load templates immediately
     await this.loadTemplates();
     
-    console.log('✅ Template service initialized');
   }
   
   /**
@@ -75,26 +73,21 @@ export class TemplateService {
     // Skip if we've loaded recently (within 1 minute) and not forcing refresh
     const now = Date.now();
     if (!forceRefresh && this.lastLoadTime > 0 && now - this.lastLoadTime < 60000) {
-      console.log('🔄 Using cached templates');
       return this.getTemplateCollection();
     }
     
     // Skip if already loading
     if (this.isLoading) {
-      console.log('⏳ Templates already loading');
       return this.getTemplateCollection();
     }
     
     this.isLoading = true;
     
     try {
-      console.log('📝 Loading templates from API...');
       
       // Call API to get templates
       const response = await apiService.getAllTemplates();
-      
-      console.log('📦 API Response:', JSON.stringify(response, null, 2));
-      
+            
       if (response && response.success) {
         // Here's the fix - properly handle the separate userTemplates and officialTemplates
         this.templateCollection = {
@@ -109,7 +102,6 @@ export class TemplateService {
         };
         
         this.lastLoadTime = now;
-        console.log(`✅ Loaded templates - User: ${this.templateCollection.userTemplates.templates.length}, Official: ${this.templateCollection.officialTemplates.templates.length}`);
         
         // Notify update listeners
         this.notifyUpdateListeners();

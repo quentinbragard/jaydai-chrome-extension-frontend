@@ -60,6 +60,9 @@ export class UserInfoService {
    * Handle user info captured by network monitor
    */
   private handleUserInfoCapture(data: any): void {
+    console.log('💬 User info captured:', { 
+      data
+    });
     if (!data || !data.responseBody) return;
 
     const userData = data.responseBody;

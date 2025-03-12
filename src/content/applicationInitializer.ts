@@ -43,17 +43,14 @@ export class AppInitializer {
   public async initialize(): Promise<boolean> {
     // Skip if already initialized
     if (this.isInitialized) {
-      console.log('⚠️ Application already initialized');
       return true;
     }
     
     // Skip if we're not on ChatGPT
     if (!this.isChatGPTSite()) {
-      console.log('⚠️ Not on ChatGPT, skipping initialization');
       return false;
     }
     
-    console.log('🚀 Initializing Archimind application...');
     
     try {
       // 1. Authenticate user
@@ -73,7 +70,6 @@ export class AppInitializer {
       this.setupMessageListeners();
       
       this.isInitialized = true;
-      console.log('✅ Archimind application initialized successfully');
       return true;
     } catch (error) {
       console.error('❌ Error initializing application:', error);
@@ -86,9 +82,7 @@ export class AppInitializer {
    */
   public cleanup(): void {
     if (!this.isInitialized) return;
-    
-    console.log('🧹 Cleaning up Archimind application...');
-    
+        
     // Clean up services
     statsService.cleanup();
     notificationService.cleanup();
@@ -103,7 +97,6 @@ export class AppInitializer {
     }
     
     this.isInitialized = false;
-    console.log('✅ Archimind application cleaned up');
   }
   
   /**
@@ -133,18 +126,15 @@ export class AppInitializer {
     this.isAuthenticating = true;
     
     try {
-      console.log('🔑 Authenticating user...');
       
       // Check for user ID in storage
       const userId = await getUserId();
       
       if (!userId) {
-        console.log('⚠️ No user ID found, user not authenticated');
         this.isAuthenticating = false;
         return false;
       }
       
-      console.log('✅ User authenticated:', userId);
       this.isAuthenticating = false;
       return true;
     } catch (error) {
@@ -166,7 +156,6 @@ export class AppInitializer {
    * Initialize all services
    */
   private async initializeServices(): Promise<void> {
-    console.log('🔧 Initializing services...');
     
     // Initialize network monitoring first since other services depend on it
     networkRequestMonitor.initialize();
@@ -187,15 +176,12 @@ export class AppInitializer {
     
     // Initialize user info service  
     userInfoService.initialize();
-    
-    console.log('✅ Services initialized');
-  }
+    }
   
   /**
    * Inject UI components
    */
   private injectUIComponents(): void {
-    console.log('🖼️ Injecting UI components...');
     
     // Inject the Stats Panel centered above the composer
     componentInjector.inject(StatsPanel, {}, {
@@ -235,7 +221,6 @@ export class AppInitializer {
     // Also set up a MutationObserver to watch for DOM changes that might affect the composer div
     this.setupComposerObserver();
     
-    console.log('✅ UI components injected');
   }
   
   /**
@@ -257,7 +242,6 @@ export class AppInitializer {
     // Update the left position to keep it centered
     statsPanel.style.left = `${centerX}px`;
     
-    console.log('📏 Updated StatsPanel position to match composer center:', centerX);
   }
   
   /**
@@ -314,7 +298,6 @@ export class AppInitializer {
   private saveCurrentConversation(): void {
     const chatId = UrlChangeListener.extractChatIdFromUrl(window.location.href);
     if (!chatId) {
-      console.log('⚠️ No active conversation to save');
       return;
     }
     
@@ -377,7 +360,6 @@ export class AppInitializer {
   private applySettings(settings: any): void {
     if (!settings) return;
     
-    console.log('⚙️ Applying settings:', settings);
     
     // Example settings implementation
     if (settings.statsVisible !== undefined) {

@@ -95,14 +95,6 @@ export class MessageHandler {
     this.processedMessages.clear();
   }
   
-  /**
-   * Save message to backend
-   */
-  private saveMessageToBackend(params: SaveMessageParams): void {
-    apiService.saveMessageToBackend(params).catch(error => {
-      console.error('❌ Error saving message to backend:', error);
-    });
-  }
   
   /**
    * Notify all listeners of a new message

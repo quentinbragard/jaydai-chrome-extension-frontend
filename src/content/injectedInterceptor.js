@@ -22,12 +22,7 @@
    * Send intercepted data back to the extension
    */
   function sendToExtension(type, data) {
-    // Log the event being dispatched
-    console.log(`📡 Dispatching event: ${type}`, {
-      dataType: data ? typeof data : null,
-      hasData: !!data,
-      timestamp: new Date().toISOString()
-    });
+
     
     try {
       // Create and dispatch a custom event
@@ -43,7 +38,6 @@
       document.dispatchEvent(event);
       
       // Verify event was dispatched
-      console.log(`✅ Event ${type} dispatched`);
     } catch (error) {
       console.error(`❌ Error dispatching ${type} event:`, error);
     }
@@ -98,148 +92,97 @@
  * This version adds better debugging and handling of the delta events
  */
 function processStreamingResponse(response, url, requestBody) {
-  console.log('🔄 Processing streaming response for:', url);
-  
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
   let assistantAnswer = '';
+  let messageId = null;
+  let modelId = null;
+  let conversationId = requestBody?.conversation_id || null;
+  let realResponseStarted = false;
   
-  // Count for tracking progress
-  let eventCount = 0;
-  
-  // Read the stream
   reader.read().then(function processChunk({ done, value }) {
-    if (done) {
-      console.log(`✅ Stream processing complete for: ${url} (processed ${eventCount} events)`);
-      // Send final completion event
-      sendToExtension('streamingComplete', {
-        url,
-        conversationId: requestBody?.conversation_id || null,
-        assistantAnswer: assistantAnswer
-      });
-      return;
-    }
+
     
     // Decode and add to buffer
     const chunk = decoder.decode(value, { stream: true });
     buffer += chunk;
-    
     
     // Process complete events in the buffer
     const events = buffer.split('\n\n');
     buffer = events.pop() || ''; // Keep the last incomplete chunk in the buffer
     
     for (const event of events) {
-      console.log("---------------------------------------------event",  event, '\n\n')
       if (!event.trim()) continue;
       
-      // Extract event type and data
-      const eventMatch = event.match(/^event: ([^\n]+)/);
       const dataMatch = event.match(/data: (.+)$/m);
-      console.log("---------------------------------------------eventMatch", eventMatch)
-      console.log("---------------------------------------------dataMatch", dataMatch)
-
-      if (eventMatch === 'delta') {
-        delta_dict = JSON.parse(dataMatch[1])
-        if ('v' in delta_dict) {
-          if (typeof delta_dict.v === 'string') {
-            assistantAnswer += delta_dict.v
-          }
-          else if ("message" in delta_dict && "id" in delta_dict.message) {
-            message_id = delta_dict.message.id
-            model_id = delta_dict.message.model_slug
-          }
-          else if (Array.isArray(delta_dict.v) && delta_dict.v.length > 0) {
-            for (let elem of delta_dict.v) {
-              if (elem.v === "finished_successfully") {
-                console.log("---------------------------------------------finished_successfully", assistantAnswer)
-                done = true
-              }
-            }
-          }
-        }
-      }
-      
-      
-      console.log("---------------------------------------------eventMatch", eventMatch[1])
-      console.log("---------------------------------------------dataMatch", JSON.parse(dataMatch[1]))
-
-      
-
-
-      
       if (!dataMatch) continue;
+      const eventMatch = event.match(/event: (.+)$/m);
       
-      const eventType = eventMatch ? eventMatch[1] : 'unknown';
-      eventCount++;
+      // Skip [DONE] marker
+      if (dataMatch[1].trim() === '[DONE]') continue;
       
       try {
-        // Skip [DONE] marker
-        if (dataMatch[1].trim() === '[DONE]') {
+        const delta = JSON.parse(dataMatch[1]);
+        
+        // CASE 1: Initial message creation
+        if (delta.v && delta.v.message) {
+          messageId = delta.v.message.id;
+          modelId = delta.v.message.metadata?.model_slug || 'unknown';
+          conversationId = delta.v.conversation_id || conversationId;
 
-          sendToExtension('streamingComplete', {
-            url,
-            conversationId: requestBody?.conversation_id
-          });
-          continue;
         }
         
-        let deltaData;
-        try {
-          deltaData = JSON.parse(dataMatch[1]);
-        } catch (e) {
-          console.error('Failed to parse delta data:', e, dataMatch[1]);
-          continue;
+        // CASE 2: Content append - with path (actual assistant response)
+        else if (delta.o === 'append' && delta.p?.includes('/message/content/parts/') && typeof delta.v === 'string') {
+          realResponseStarted = true; // Mark that we're now receiving the real response
+          assistantAnswer += delta.v;
         }
         
-        // Extract conversation ID from various possible locations
-        const conversationId = 
-          requestBody?.conversation_id || 
-          deltaData.conversation_id || 
-          (deltaData.v && deltaData.v.conversation_id) || 
-          null;
+        // CASE 3: Direct string values - only append if it's NOT a thinking step
+        // This is the key change - we only include direct string values if we've already started a real response
+        else if (typeof delta.v === 'string' && realResponseStarted) {
+          assistantAnswer += delta.v;
+        }
         
-        // Send delta to extension - ENSURE THIS EVENT IS BEING DISPATCHED
-        sendToExtension('streamingDelta', {
-          url,
-          eventType,
-          delta: deltaData,
-          conversationId
-        });
+        // CASE 4: Completion signals
+        else if (delta.p?.includes('/message/metadata') && delta.v?.is_complete) {
+          if (realResponseStarted) {
+            sendToExtension('streamingComplete', {
+              url,
+              conversationId,
+              messageId,
+              content: assistantAnswer,
+              model: modelId
+            });
+          }
+        }
         
-        // Check for stream completion messages
-        if (
-          deltaData.type === 'message_stream_complete' || 
-          (deltaData.message && deltaData.message.end_turn === true) ||
-          (deltaData.o === 'patch' && Array.isArray(deltaData.v) && 
-           deltaData.v.some(patch => 
-             patch.p?.includes('/message/status') && 
-             patch.o === 'replace' && 
-             patch.v === 'finished_successfully'
-           ))
-        ) {
-          console.log('🏁 Detected message completion in delta');
-          sendToExtension('streamingComplete', {
-            url,
-            conversationId
-          });
+        // CASE 5: Another completion format (finished_successfully)
+        else if (Array.isArray(delta.v) && delta.v.some(item => item.v === "finished_successfully")) {
+          if (realResponseStarted) {
+            sendToExtension('streamingComplete', {
+              url,
+              conversationId,
+              messageId,
+              content: assistantAnswer,
+              model: modelId
+            });
+          }
         }
       } catch (e) {
         // Skip unparseable data
-        console.error('Error processing event data:', e);
       }
     }
     
     // Continue reading
     return reader.read().then(processChunk);
   }).catch(error => {
-    console.error('Error reading stream:', error);
     // Notify about error
     sendToExtension('streamingError', {
       url,
       error: error.message,
-      conversationId: requestBody?.conversation_id
+      conversationId
     });
   });
 }
@@ -288,7 +231,6 @@ function processStreamingResponse(response, url, requestBody) {
       try {
         // Check if response is streaming (text/event-stream)
         const isStreaming = response.headers.get('content-type')?.includes('text/event-stream') || false;
-        console.log("isStreamin>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.....", isStreaming)
         
         if (endpointType === 'chatCompletion') {
           // For streaming responses
@@ -417,5 +359,4 @@ function processStreamingResponse(response, url, requestBody) {
   
   // Notify that injection is complete
   sendToExtension('injectionComplete', { status: 'success' });
-  console.log('ChatGPT Network Interceptor injected successfully');
 })();

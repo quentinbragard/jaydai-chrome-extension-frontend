@@ -119,9 +119,6 @@ export class StreamingHandler {
         // Initialize this message
         messages.set(messageId, message);
         messageContents.set(messageId, '');
-        
-        // Debug log for new message
-        console.log(`💬 New message in stream: ${messageId} (${message.author?.role || 'unknown'})`);
       }
       
       // Handle content appending

@@ -17,12 +17,9 @@ export class ConversationHandler {
    */
   public setCurrentChatId(chatId: string | null): void {
     if (this.currentChatId !== chatId) {
-      console.log(`📝 Chat ID changed: ${this.currentChatId} -> ${chatId}`);
       this.currentChatId = chatId;
       const currentChatTitleElement = document.querySelector(`a[href="/c/${chatId}"]`);
-      console.log(`📝 Current chat title element: ${currentChatTitleElement}`);
       this.currentChatTitle = currentChatTitleElement?.textContent || 'No title';
-      console.log(`📝 Chat title: ${this.currentChatTitle}`);
       
       // Proactively fetch conversation data if we have a valid chat ID
       //if (chatId) {
@@ -50,17 +47,14 @@ export class ConversationHandler {
    */
   public async fetchConversationData(chatId: string): Promise<void> {
     if (this.fetchInProgress) {
-      console.log(`🔄 Fetch already in progress for chat: ${chatId}`);
       return;
     }
     
     this.fetchInProgress = true;
-    console.log(`🔍 Proactively fetching conversation data for chat: ${chatId}`);
     
     try {
       // Use the fetch API directly with the current user's credentials
       const conversationUrl = `https://chatgpt.com/backend-api/conversation/${chatId}`;
-      console.log(`📡 Requesting: ${conversationUrl}`);
       
       const response = await fetch(conversationUrl, {
         method: 'GET',
@@ -76,10 +70,6 @@ export class ConversationHandler {
       }
       
       const data = await response.json();
-      console.log(`✅ Successfully fetched conversation data for: ${chatId}`);
-      console.log(`📊 Response structure:`, Object.keys(data));
-      console.log(`📄 Title: ${data.title || 'No title'}`);
-      console.log(`📄 Message count: ${Object.keys(data.mapping || {}).length}`);
       
       // Update the conversation title
       if (data.title) {
@@ -104,7 +94,6 @@ export class ConversationHandler {
   public updateChatTitle(title: string): void {
     if (title && title !== this.currentChatTitle) {
       this.currentChatTitle = title;
-      console.log(`📝 Chat title updated: ${this.currentChatTitle}`);
       
       if (this.currentChatId) {
         this.saveChatToBackend(this.currentChatId, this.currentChatTitle);
@@ -148,14 +137,11 @@ export class ConversationHandler {
    * Process conversation list data from API
    */
   public processConversationList(data: any): void {
-    console.log('📋 Processing conversation list data');
     try {
       if (!data || !Array.isArray(data.items)) {
-        console.log('⚠️ Invalid conversation list data format', data);
         return;
       }
       
-      console.log(`📋 Processing ${data.items.length} conversations`);
       
       // Process each conversation
       for (const chat of data.items) {
@@ -187,7 +173,6 @@ export class ConversationHandler {
     // If this is the current chat, update the title
     if (this.currentChatId === chat.id && chat.title !== this.currentChatTitle) {
       this.currentChatTitle = chat.title;
-      console.log(`📝 Chat title updated from API: ${this.currentChatTitle}`);
     }
   }
   

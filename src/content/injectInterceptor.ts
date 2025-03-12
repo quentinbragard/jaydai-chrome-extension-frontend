@@ -28,7 +28,6 @@ export function injectNetworkInterceptor(): void {
     // Set up listener for intercepted network data
     setupInterceptListener();
     
-    console.log('✅ Network interceptor script injected');
   } catch (error) {
     console.error('Failed to inject network interceptor:', error);
   }
@@ -63,7 +62,6 @@ function setupInterceptListener(): void {
           break;
           
         case 'injectionComplete':
-          console.log('✅ Interceptor injection completed');
           break;
       }
     } catch (error) {
@@ -116,7 +114,6 @@ function handleSpecificConversation(data: any): void {
  * Handle intercepted chat completion data
  */
 async function handleChatCompletion(data: any): Promise<void> {
-  console.log('💬💬💬💬💬hgerughekrufbhufhkufhekrujq💬💬💬💬💬💬 Handling chat completion:', data);
   try {
     const { url, requestBody, responseBody, isStreaming } = data;
     

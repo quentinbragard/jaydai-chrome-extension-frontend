@@ -24,23 +24,19 @@ export default {
  */
 async function initializeInternal() {
   try {
-    console.log('🔹 Archimind initializing...');
     
     // Dynamically import the app initializer to avoid bundling issues
      // Use chrome.runtime.getURL to get the correct path to applicationInitializer
      const applicationInitializerUrl = chrome.runtime.getURL('applicationInitializer.js');
-     console.log('🔹 Application initializer URL:', applicationInitializerUrl);
     
      // Dynamically import the app initializer using the correct URL
      const { appInitializer } = await import(applicationInitializerUrl);
 
-    console.log('🔹 App initializer imported:', appInitializer);  
     
     // Initialize the application
     const success = await appInitializer.initialize();
     
     if (success) {
-      console.log('✅ Archimind initialized successfully');
     } else {
       console.error('❌ Archimind initialization failed');
     }
@@ -57,7 +53,6 @@ async function initializeInternal() {
  */
 async function cleanupInternal() {
   try {
-    console.log('🔹 Cleaning up Archimind...');
     
     // Dynamically import the app initializer
     const { appInitializer } = await import('./applicationInitializer');
@@ -65,7 +60,6 @@ async function cleanupInternal() {
     // Clean up the application
     appInitializer.cleanup();
     
-    console.log('✅ Archimind cleanup complete');
     return true;
   } catch (error) {
     console.error('❌ Error cleaning up Archimind:', error);

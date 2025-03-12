@@ -41,7 +41,7 @@ export class MessageService {
    * Initialize the service - intercept messages
    */
   public initialize(): void {
-    console.log('💬 Initializing message service...');
+
     
     // Initialize network request monitoring
     networkRequestMonitor.initialize();
@@ -59,7 +59,6 @@ export class MessageService {
     // Load processed message IDs from storage to avoid duplicates
     this.loadProcessedMessageIds();
     
-    console.log('✅ Message service initialized');
   }
   
   /**
@@ -72,8 +71,7 @@ export class MessageService {
       const { requestBody, responseBody, isStreaming } = data;
       
       console.log('💬 Chat completion captured:', { 
-        isStreaming, 
-        hasResponseBody: !!responseBody
+        data
       });
       
       // Process user message from request body if present
@@ -192,127 +190,7 @@ export class MessageService {
     }
   }
   
-  /**
-   * Process streaming deltas specifically for the ChatGPT pattern
-   */
-    /**
-     * Process streaming deltas specifically for the ChatGPT pattern
-     * Enhanced to handle the simplified delta format you're seeing
-     */
-    public processStreamingDelta(delta: any, eventType: string, conversationId: string): void {
-        try {
-        // Log the delta with a more readable preview
-        const valuePreview = delta.v && typeof delta.v === 'string' 
-            ? `"${delta.v.substring(0, 30)}${delta.v.length > 30 ? '...' : ''}"` 
-            : (delta.v ? typeof delta.v : null);
-            
-        console.log(`🔄 Delta: ${delta.o || 'unknown'}`, { 
-            path: delta.p,
-            valuePreview,
-            counter: delta.c
-        });
-    
-        // CASE 1: Initial message creation (tool or assistant)
-        if (delta.o === 'add' && delta.v?.message) {
-            const message = delta.v.message;
-            const messageId = message.id;
-            const role = message.author?.role || 'assistant';
-            const model = message.metadata?.model_slug || 'unknown';
-    
-            console.log(`💬 New message created: ${messageId} (${role})`);
-            
-            if (this.processedMessageIds.has(messageId)) {
-            console.log(`⚠️ Already processed message: ${messageId}`);
-            return;
-            }
-    
-            this.messageBuilders.set(messageId, {
-            id: messageId,
-            role,
-            content: '',
-            conversationId,
-            model,
-            finished: false
-            });
-        }
-    
-        // CASE 2: Content appending - including simplified format without 'o' and 'p'
-        else if ((delta.o === 'append' && delta.v) || 
-                // Handle the simplified delta format with just "v" property
-                (delta.v && typeof delta.v === 'string' && !delta.o)) {
-            
-            // Find the message to append to
-            let messageId = this.findMessageId(delta);
-            
-            if (messageId && this.messageBuilders.has(messageId)) {
-            const builder = this.messageBuilders.get(messageId);
-            builder.content += delta.v;
-            console.log(`📝 Appended: "${delta.v.substring(0, 30)}${delta.v.length > 30 ? '...' : ''}" to ${messageId}`);
-            console.log(`📊 Current content length: ${builder.content.length} chars`);
-            } else {
-            console.log(`⚠️ No message found to append content to`);
-            }
-        }
-    
-        // CASE 3: Patch operation with completion signal
-        else if (delta.o === 'patch' && Array.isArray(delta.v)) {
-            // Find the message being updated
-            let messageId = this.findMessageId(delta);
-            
-            if (!messageId || !this.messageBuilders.has(messageId)) {
-            console.log(`⚠️ No message found for patch operation`);
-            return;
-            }
-    
-            let isFinished = false;
-            let addedContent = '';
-    
-            // Process each patch operation
-            for (const patch of delta.v) {
-            // Log each patch operation
-            console.log(`🔹 Patch: ${patch.o || 'unknown'}`, {
-                path: patch.p,
-                value: patch.v && typeof patch.v === 'string' 
-                ? `"${patch.v.substring(0, 20)}${patch.v.length > 20 ? '...' : ''}"` 
-                : (patch.v ? typeof patch.v : null)
-            });
-            
-            // Handle content appends
-            if ((patch.o === 'append' && patch.p?.includes('/message/content/parts/')) && patch.v) {
-                addedContent += patch.v;
-                const builder = this.messageBuilders.get(messageId);
-                builder.content += patch.v;
-            }
-    
-            // Check for completion status
-            if (patch.p?.includes('/message/status') && patch.o === 'replace' && patch.v === 'finished_successfully') {
-                isFinished = true;
-            }
-            }
-    
-            if (addedContent) {
-            console.log(`📝 Patched with: "${addedContent}"`);
-            }
-    
-            // If message is finished, mark it and process it
-            if (isFinished) {
-            console.log(`✅ Message ${messageId} marked as finished`);
-            const builder = this.messageBuilders.get(messageId);
-            builder.finished = true;
-            
-            this.finalizeMessage(messageId);
-            }
-        }
-    
-        // CASE 4: Message stream complete event
-        if (eventType === 'message_stream_complete' || delta.type === 'message_stream_complete') {
-            console.log(`🏁 Stream complete for conversation: ${conversationId}`);
-            this.finalizeAllMessages(conversationId);
-        }
-        } catch (error) {
-        console.error('❌ Error processing delta:', error);
-        }
-    }
+
     
     /**
      * Find the message ID that this delta applies to
@@ -447,21 +325,67 @@ export class MessageService {
       this.handleChatCompletionCapture(detail.data);
     }
     
-    // For streaming message completions, handle deltas if available
+    // For streaming message completions
     if (detail.type === 'streamingDelta' && detail.delta) {
-      const conversationId = detail.conversationId || 'unknown';
-      const eventType = detail.eventType || 'unknown';
-      
       this.processStreamingDelta(
         detail.delta, 
-        eventType,
-        conversationId
+        detail.eventType || 'unknown',
+        detail.conversationId || 'unknown'
       );
     }
     
-    // Handle streaming completion notification
-    if (detail.type === 'streamingComplete' && detail.conversationId) {
-      this.finalizeAllMessages(detail.conversationId);
+    // Handle direct streaming completion event - this is the new simplified path
+    if (detail.type === 'streamingComplete' && detail.data) {
+      const { messageId, content, model, conversationId } = detail.data;
+      
+      // Skip if already processed
+      if (messageId && content && !this.processedMessageIds.has(messageId)) {
+        // Process the complete message directly
+        messageHandler.processMessage({
+          type: 'assistant',
+          messageId,
+          content,
+          timestamp: Date.now(),
+          conversationId,
+          model: model || 'unknown'
+        });
+        
+        // Mark as processed
+        this.processedMessageIds.add(messageId);
+      }
+    }
+  }
+  
+  /**
+   * Process streaming deltas - simplified version focusing on the ChatGPT pattern
+   */
+  public processStreamingDelta(delta: any, eventType: string, conversationId: string): void {
+    // For backward compatibility we'll keep this method,
+    // but the main processing now happens directly via streamingComplete events
+    
+    try {
+      // Handle message initialization only to track the message ID
+      if (delta.v && delta.v.message && delta.v.message.id) {
+        const messageId = delta.v.message.id;
+        const model = delta.v.message.metadata?.model_slug || 'unknown';
+        
+        // Just track that we've seen this message
+        if (!this.messageBuilders.has(messageId)) {
+          this.messageBuilders.set(messageId, {
+            id: messageId,
+            role: 'assistant',
+            content: '',
+            conversationId: delta.v.conversation_id || conversationId,
+            model,
+            finished: false
+          });
+        }
+      }
+      
+      // We don't need to process content appends here anymore
+      // The injectedInterceptor will accumulate them and send a complete message
+    } catch (error) {
+      console.error('Error processing delta:', error);
     }
   }
   
