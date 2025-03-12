@@ -1,287 +1,360 @@
-// src/services/MessageService.ts
 import { networkRequestMonitor } from '@/utils/NetworkRequestMonitor';
-import { messageHandler } from '@/services/handlers/MessageHandler';
-import { MessageEvent } from './chat/types';
+import { apiService } from '@/services/ApiService';
+import { MessageEvent } from './types';
 
-/**
- * Service to intercept and process chat messages from ChatGPT
- * Focused on network request interception with no DOM dependencies
- */
 export class MessageService {
-  private static instance: MessageService;
-  private cleanupListeners: (() => void)[] = [];
-  private processedMessageIds: Set<string> = new Set();
-  private storageKey: string = 'archimind_recent_messages';
-  private inProcessMessages: Map<string, boolean> = new Map();
-  
-  private constructor() {}
-  
-  /**
-   * Get the singleton instance
-   */
+  private static _instance: MessageService | null = null;
+  private processedMessageIds = new Set<string>();
+  private currentConversation: {
+    userMessage: MessageEvent | null;
+    assistantMessage: {
+      content: string;
+      messageId: string;
+      modelId: string;
+      conversationId: string | null;
+    } | null;
+  } = {
+    userMessage: null,
+    assistantMessage: null
+  };
+
+  // Private constructor to enforce singleton pattern
+  private constructor() {
+    // Bind methods to ensure correct context
+    this.handleNetworkEvent = this.handleNetworkEvent.bind(this);
+    this.handleChatCompletion = this.handleChatCompletion.bind(this);
+  }
+
+  // Singleton instance getter with null check
   public static getInstance(): MessageService {
-    if (!MessageService.instance) {
-      MessageService.instance = new MessageService();
+    if (!this._instance) {
+      this._instance = new MessageService();
     }
-    return MessageService.instance;
+    return this._instance;
   }
-  
-  /**
-   * Initialize the service - intercept messages via network requests
-   */
+
   public initialize(): void {
-    console.log('💬 Initializing message service...');
-    
-    // Initialize network request monitoring
-    networkRequestMonitor.initialize();
-    
-    // Listen for chat completion endpoints
-    const removeChatCompletionListener = networkRequestMonitor.addListener(
-      '/backend-api/conversation',
-      this.handleChatCompletionCapture.bind(this)
-    );
-    this.cleanupListeners.push(removeChatCompletionListener);
-    
-    // Add event listener for message data from injected script
-    document.addEventListener('archimind-network-intercept', this.handleInterceptEvent.bind(this));
-    
-    // Load processed message IDs from storage to avoid duplicates
-    this.loadProcessedMessageIds();
-    
-    console.log('✅ Message service initialized');
-  }
-  
-  /**
-   * Handle chat completion captured by network monitor
-   */
-  private handleChatCompletionCapture(data: any): void {
-    console.log("====CHAT COMPLETION CAPTURED=====", data);
-    if (!data) return;
-    
-    setTimeout(() => {
-      try {
-        const { requestBody, responseBody, isStreaming } = data;
-        
-        // Process user message from request body if present
-        if (requestBody && requestBody.messages && requestBody.messages.length > 0) {
-          const userMessage = this.extractUserMessage(requestBody);
-          if (userMessage) {
-            this.processMessage({
-              type: 'user',
-              messageId: userMessage.id,
-              content: userMessage.content,
-              timestamp: Date.now(),
-              conversationId: requestBody.conversation_id || null,
-              model: requestBody.model || userMessage.model
-            });
-          }
-        }
-        
-        // For non-streaming responses
-        if (!isStreaming && responseBody && responseBody.message) {
-          this.processAssistantMessage(responseBody);
-        }
-      } catch (error) {
-        console.error('❌ Error processing chat completion:', error);
-      }
-    }, 0);
-  }
-  
-  /**
-   * Extract user message from request body
-   */
-  private extractUserMessage(requestBody: any): { id: string, content: string, model?: string } | null {
     try {
-      // Find the user message
-      const message = requestBody.messages.find((m: any) => 
-        m.author?.role === 'user' || 
-        m.role === 'user'
-      );
-      
-      if (!message) return null;
-      
-      // Extract content
-      let content = '';
-      if (message.content?.parts && Array.isArray(message.content.parts)) {
-        content = message.content.parts.join('\n');
-      } else if (typeof message.content === 'string') {
-        content = message.content;
-      }
-      
-      if (!content) return null;
-      
-      return {
-        id: message.id || `user-${Date.now()}`,
-        content: content,
-        model: requestBody.model
-      };
+      console.log('💬 Initializing message service...');
+      this.setupMessageCapture();
     } catch (error) {
-      console.error('❌ Error extracting user message:', error);
-      return null;
+      console.error('❌ Error in message service initialization:', error);
     }
   }
-  
-  /**
-   * Process assistant message from response body
-   */
-  private processAssistantMessage(responseBody: any): void {
+
+  private setupMessageCapture(): void {
     try {
-      const message = responseBody.message;
-      const messageId = message.id || `assistant-${Date.now()}`;
-      
-      // Skip if already processed
-      if (this.processedMessageIds.has(messageId) || this.inProcessMessages.has(messageId)) return;
-      this.inProcessMessages.set(messageId, true);
-      
-      // Extract content
-      let messageContent = '';
-      if (message.content?.parts && Array.isArray(message.content.parts)) {
-        messageContent = message.content.parts.join('\n');
-      } else if (typeof message.content === 'string') {
-        messageContent = message.content;
-      } else if (message.content?.text) {
-        messageContent = message.content.text;
+      // Ensure network request monitor is available
+      if (!networkRequestMonitor) {
+        throw new Error('Network request monitor is not initialized');
       }
+
+      // Capture chat completion requests
+      networkRequestMonitor.addListener('/backend-api/conversation', this.handleChatCompletion);
       
-      if (!messageContent) {
-        this.inProcessMessages.delete(messageId);
+      // Listen for streaming events
+      document.addEventListener('archimind-network-intercept', this.handleNetworkEvent);
+    } catch (error) {
+      console.error('❌ Error setting up message capture:', error);
+    }
+  }
+
+  private handleNetworkEvent(event: CustomEvent): void {
+    try {
+      // Validate event
+      if (!event.detail || typeof event.detail !== 'object') {
+        console.warn('Invalid network event received');
         return;
       }
-      
-      // Extract role and model
-      const role = message.author?.role || 'assistant';
-      const model = message.metadata?.model_slug || responseBody.model || 'unknown';
-      
-      // Process message
-      this.processMessage({
-        type: role,
-        messageId: messageId,
-        content: messageContent,
-        timestamp: message.create_time || Date.now(),
-        conversationId: responseBody.conversation_id || null,
-        model: model
-      });
-      
-      this.inProcessMessages.delete(messageId);
+
+      const { type, data } = event.detail;
+
+      switch(type) {
+        case 'chatCompletion':
+          console.log("#################CHAT COMPLETION#################");
+          this.handleChatCompletion(data);
+          break;
+        case 'streamedChatCompletion':
+          console.log("#################STREAMING CHAT COMPLETION#################");
+          this.processStreamingResponse(data);
+          break;
+        default:
+          console.log(`Unhandled network event type: ${type}`);
+      }
     } catch (error) {
-      console.error('❌ Error processing assistant message:', error);
+      console.error('❌ Error in network event handler:', error);
     }
   }
+
+  private handleChatCompletion(data: any): void {
+    console.log("DATA", data);
+    try {
+      // Validate input
+      if (!data || !data.requestBody) {
+        console.warn('Invalid chat completion data');
+        return;
+      }
+
+      const { requestBody } = data;
+
+      // Capture and save user message
+      const userMessage = this.extractUserMessage(requestBody);
+      if (userMessage) {
+        this.currentConversation.userMessage = userMessage;
+        this.saveMessage(userMessage).catch(error => {
+          console.error('Failed to save user message:', error);
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error processing user message:', error);
+    }
+  }
+
+  private processStreamingResponse(data: any): void {
+    try {
+      // Validate input
+      if (!data || !data.buffer) {
+        console.warn('Invalid streaming response data');
+        return;
+      }
   
-  /**
-   * Handle events from the network interceptor
-   */
-  private handleInterceptEvent(event: any): void {
-    if (!event.detail) return;
-    
-    const detail = event.detail;
-    
-    setTimeout(() => {
-      try {
-        // Handle chat completion events
-        if (detail.type === 'chatCompletion' && detail.data) {
-          this.handleChatCompletionCapture(detail.data);
-        }
-        
-        // Handle direct streaming completion event
-        else if (detail.type === 'streamingComplete' && detail.data) {
-          const { messageId, content, model, conversationId } = detail.data;
+      const { buffer, requestBody } = data;
+      
+      // Ensure stream is complete
+      if (!buffer.includes('[DONE]')) return;
+  
+      const deltas = this.parseStreamDeltas(buffer);
+      const thinkingSteps: string[] = [];
+      let finalAssistantAnswer = '';
+      let currentAssistantMessage: any = null;
+  
+      for (let i = 0; i < deltas.length; i++) {
+        const delta = deltas[i];
+  
+        // Capture thinking steps
+        if (delta.o === 'add' && delta.v?.message) {
+          const message = delta.v.message;
           
-          // Skip if already processed
-          if (!messageId || !content || this.processedMessageIds.has(messageId) || 
-              this.inProcessMessages.has(messageId)) {
-            return;
+          // Check if it's a thinking/tool step (not an assistant message)
+          if (message.author.role !== 'assistant') {
+            let thinkingStep = message.content.parts.join('\n');
+            
+            // Collect additional content for the thinking step
+            while (
+              i + 1 < deltas.length && 
+              deltas[i + 1].o !== 'add' && 
+              typeof deltas[i + 1].v === 'string'
+            ) {
+              i++;
+              thinkingStep += deltas[i].v;
+            }
+            
+            // Only add non-empty thinking steps
+            if (thinkingStep.trim()) {
+              thinkingSteps.push(thinkingStep.trim());
+            }
           }
           
-          this.inProcessMessages.set(messageId, true);
-          
-          // Process the complete message directly
-          this.processMessage({
-            type: 'assistant',
-            messageId,
-            content,
-            timestamp: Date.now(),
-            conversationId,
-            model: model || 'unknown'
-          });
-          
-          this.inProcessMessages.delete(messageId);
+          // Track the assistant message
+          if (message.author.role === 'assistant') {
+            currentAssistantMessage = message;
+          }
         }
-      } catch (error) {
-        console.error('❌ Error in handleInterceptEvent:', error);
+  
+        // Capture assistant message content
+        if (
+          (delta.p?.includes('/message/content/parts/') && delta.o === 'append') || 
+          (typeof delta.v === 'string' && currentAssistantMessage)
+        ) {
+          finalAssistantAnswer += delta.v || '';
+        }
+  
+        // Check for final answer completion
+        if (delta.o === 'patch' && Array.isArray(delta.v)) {
+          const isComplete = delta.v.some(
+            patch => patch.p === '/message/metadata' && patch.v?.is_complete
+          );
+  
+          if (isComplete) {
+            break;
+          }
+        }
       }
-    }, 0);
-  }
   
-  /**
-   * Process a message and save it
-   */
-  private processMessage(message: MessageEvent): void {
-    // Skip if already processed
-    if (this.processedMessageIds.has(message.messageId)) return;
-    
-    // Also use the message handler for any additional processing
-    messageHandler.processMessage(message);
-    
-    // Mark as processed
-    this.processedMessageIds.add(message.messageId);
-    
-    // Save periodically
-    if (this.processedMessageIds.size % 20 === 0) {
-      this.saveProcessedMessageIds();
+      // Log the results
+      console.log("#################THINKING STEPS#################", thinkingSteps);
+      console.log("#################FINAL ASSISTANT ANSWER#################", finalAssistantAnswer.trim());
+  
+      // If you want to save the message
+      if (currentAssistantMessage) {
+        this.saveAssistantMessage({
+          messageId: currentAssistantMessage.id,
+          provider_chat_id: requestBody?.conversation_id || null,
+          content: finalAssistantAnswer.trim(),
+          modelId: currentAssistantMessage.metadata?.model_slug || 'unknown',
+          conversationId: requestBody?.conversation_id || null
+        });
+      }
+    } catch (error) {
+      console.error('Error processing streaming response:', error);
     }
   }
-  
-  /**
-   * Save processed message IDs to storage
-   */
-  private saveProcessedMessageIds(): void {
-    try {
-      // Keep only the most recent 500 message IDs 
-      const recentIds = Array.from(this.processedMessageIds).slice(-500);
+  private parseStreamDeltas(buffer: string): any[] {
+    const deltas: any[] = [];
+    const eventRegex = /data: (.+)(?:\n\n|$)/g;
+    let match;
+
+    while ((match = eventRegex.exec(buffer)) !== null) {
+      const deltaStr = match[1].trim();
       
-      chrome.storage.local.set({ [this.storageKey]: recentIds });
-    } catch (error) {
-      console.error('❌ Error saving processed message IDs to storage:', error);
+      if (deltaStr === '[DONE]') break;
+
+      try {
+        const delta = JSON.parse(deltaStr);
+        deltas.push(delta);
+      } catch (error) {
+        console.error('Error parsing delta:', error);
+      }
     }
+
+    return deltas;
   }
-  
-  /**
-   * Load processed message IDs from storage
-   */
-  private loadProcessedMessageIds(): void {
-    try {
-      chrome.storage.local.get([this.storageKey], (result) => {
-        if (result && result[this.storageKey] && Array.isArray(result[this.storageKey])) {
-          const ids = result[this.storageKey].slice(-500);
-          ids.forEach((id: string) => {
-            this.processedMessageIds.add(id);
-          });
-          console.log(`💬 Loaded ${this.processedMessageIds.size} processed message IDs from storage`);
+
+  private processStreamDeltas(deltas: any[], requestBody: any): void {
+    let assistantMessage = {
+      content: '',
+      messageId: '',
+      modelId: requestBody?.model || 'unknown',
+      conversationId: requestBody?.conversation_id || null
+    };
+
+    deltas.forEach(delta => {
+      // Message creation
+      console.log("#################DELTA#################", delta);
+      if (delta.o === 'add' && delta.v?.message) {
+        const message = delta.v.message;
+        assistantMessage.messageId = message.id;
+        assistantMessage.modelId = message.metadata?.model_slug || assistantMessage.modelId;
+        assistantMessage.conversationId = delta.v.conversation_id || assistantMessage.conversationId;
+      }
+
+      // Content appending
+      if (delta.o === 'append') {
+        if (delta.p?.includes('/message/content/parts/') && typeof delta.v === 'string') {
+          assistantMessage.content += delta.v;
         }
-      });
-    } catch (error) {
-      console.error('❌ Error loading processed message IDs from storage:', error);
+      }
+
+      // Check for final answer completion
+      if (delta.o === 'patch' && Array.isArray(delta.v)) {
+        const isComplete = delta.v.some(
+          patch => patch.p === '/message/metadata' && patch.v?.is_complete
+        );
+
+        if (isComplete && assistantMessage.messageId && assistantMessage.content) {
+          this.saveAssistantMessage(assistantMessage).catch(error => {
+            console.error('Failed to save assistant message:', error);
+          });
+        }
+      }
+    });
+  }
+
+  private async saveAssistantMessage(assistantData: {
+    messageId: string;
+    content: string;
+    modelId: string;
+    conversationId: string | null;
+  }): Promise<void> {
+    const { userMessage } = this.currentConversation;
+    
+    if (userMessage) {
+      try {
+        const messageToSave: MessageEvent = {
+          message_id: assistantData.messageId,
+          provider_chat_id: assistantData.conversationId || userMessage.conversationId,
+          content: assistantData.content,
+          role: 'assistant',
+          rank: 0,
+          model: assistantData.modelId,
+          created_at: Date.now()
+        };
+
+        await this.saveMessage(messageToSave);
+
+        // Reset for next conversation
+        this.currentConversation = {
+          userMessage: null,
+          assistantMessage: null
+        };
+      } catch (error) {
+        console.error('❌ Error saving assistant message:', error);
+      }
     }
   }
-  
-  /**
-   * Clean up resources
-   */
+
+  private async saveMessage(message: MessageEvent): Promise<void> {
+    try {
+      // Prevent duplicate saves
+      if (this.processedMessageIds.has(message.message_id)) return;
+
+      // Ensure apiService is available
+      if (!apiService || typeof apiService.saveMessage !== 'function') {
+        throw new Error('API service is not properly initialized');
+      }
+      console.log("#################SAVE MESSAGE#################", message);
+      await apiService.saveMessage(message);
+      this.processedMessageIds.add(message.message_id);
+    } catch (error) {
+      console.error('❌ Error saving message:', error);
+    }
+  }
+
+  private extractUserMessage(requestBody: any): MessageEvent | null {
+    if (!requestBody?.messages?.length) return null;
+
+    const message = requestBody.messages.find(
+      (m: any) => m.author?.role === 'user' || m.role === 'user'
+    );
+
+    if (!message) return null;
+
+    return {
+      message_id: message.id || `user-${Date.now()}`,
+      provider_chat_id: requestBody.conversation_id,
+      content: this.extractMessageContent(message),
+      role: 'user',
+      rank: 0,
+      model: requestBody.model,
+      created_at: Date.now()
+    };
+  }
+
+  private extractMessageContent(message: any): string {
+    if (message.content?.parts) {
+      return message.content.parts.join('\n');
+    }
+    return message.content || '';
+  }
+
   public cleanup(): void {
-    // Save processed message IDs before cleanup
-    this.saveProcessedMessageIds();
-    
-    // Remove all listeners
-    this.cleanupListeners.forEach(cleanup => cleanup());
-    this.cleanupListeners = [];
-    
-    // Remove event listener
-    document.removeEventListener('archimind-network-intercept', this.handleInterceptEvent.bind(this));
-    
-    console.log('✅ Message service cleaned up');
+    try {
+      // Remove event listener
+      document.removeEventListener('archimind-network-intercept', this.handleNetworkEvent);
+
+      // Clear processed messages
+      this.processedMessageIds.clear();
+      
+      // Reset current conversation
+      this.currentConversation = {
+        userMessage: null,
+        assistantMessage: null
+      };
+    } catch (error) {
+      console.error('❌ Error during message service cleanup:', error);
+    }
   }
 }
 
-// Export a singleton instance
+// Export singleton instance
 export const messageService = MessageService.getInstance();

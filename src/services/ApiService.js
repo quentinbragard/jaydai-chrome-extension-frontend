@@ -274,17 +274,18 @@ export class ApiService {
     });
   }
   
-  async saveMessageToBackend(messageData) {
+  async saveMessage(messageData) {
+    console.log("MESSAGE DATA", messageData);
     return this.request('/save/message', {
       method: 'POST',
       body: JSON.stringify({
-        message_id: messageData.messageId,
-        content: messageData.message,
+        message_id: messageData.message_id,
+        content: messageData.content,
         role: messageData.role,
         rank: messageData.rank,
-        provider_chat_id: messageData.providerChatId,
-        model: messageData.model || 'unknown',
-        thinking_time: messageData.thinkingTime || 0
+        provider_chat_id: messageData.provider_chat_id,
+        model: messageData.model,
+        created_at: messageData.created_at
       })
     });
   }
