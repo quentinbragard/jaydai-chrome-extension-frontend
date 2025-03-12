@@ -1,5 +1,6 @@
 // src/services/StatsService.ts
-import { apiService } from './ApiService';
+
+import { userApi } from "@/api";
 
 export interface Stats {
   totalChats: number;
@@ -151,7 +152,7 @@ export class StatsService {
     
     try {
       console.log('📊 Loading stats from backend...');
-      const data = await apiService.getUserStats();
+      const data = await userApi.getUserStats();
       
       if (data) {
         // Merge backend stats with local tracking

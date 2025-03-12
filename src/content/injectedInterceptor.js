@@ -5,7 +5,7 @@
   // Store original fetch method
   const originalFetch = window.fetch;
   
-  // Define endpoints with simple paths
+  // Define endpoints of interest
   const ENDPOINTS = {
     USER_INFO: '/backend-api/me',
     CONVERSATIONS_LIST: '/backend-api/conversations',
@@ -13,7 +13,7 @@
     SPECIFIC_CONVERSATION: /\/backend-api\/conversation\/([a-f0-9-]+)$/
   };
   
-  // Simple endpoint detection
+  // Determine endpoint type from URL
   function getEndpointType(url) {
     if (!url) return null;
     
@@ -21,11 +21,9 @@
       ? new URL(url).pathname 
       : url.split('?')[0];
     
-    // Check endpoints in priority order
     if (ENDPOINTS.SPECIFIC_CONVERSATION.test(pathname)) {
       return 'specificConversation';
     }
-    
     if (pathname === ENDPOINTS.USER_INFO) return 'userInfo';
     if (pathname.startsWith(ENDPOINTS.CONVERSATIONS_LIST)) return 'conversationList';
     if (pathname.startsWith(ENDPOINTS.CHAT_COMPLETION)) return 'chatCompletion';
@@ -40,164 +38,107 @@
     }));
   }
   
-  // Efficient streaming response processor
+  // Process streaming responses from ChatGPT
   async function processStreamingResponse(response, requestBody) {
-    // Clone response to avoid consuming the original
     const clonedResponse = response.clone();
     const reader = clonedResponse.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     
-    // Track assistant response data
-    let assistantResponseData = {
+    // Data for current assistant response
+    const assistantData = {
       messageId: null,
       conversationId: null,
-      createTime: null,
       model: null,
       content: '',
       isComplete: false
     };
-    
-    // Flag to track if we're currently processing an assistant response
-    let isProcessingAssistantResponse = false;
     
     try {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         
-        const decodedValue = decoder.decode(value, { stream: true });
-        buffer += decodedValue;
+        buffer += decoder.decode(value, { stream: true });
         
-        // Process each complete event in the buffer
+        // Process complete events
         let eventEndIndex;
         while ((eventEndIndex = buffer.indexOf('\n\n')) !== -1) {
           const eventString = buffer.substring(0, eventEndIndex + 2);
           buffer = buffer.substring(eventEndIndex + 2);
           
-          const { event, eventData } = processDecodedValue(eventString);
+          // Parse event
+          const eventMatch = eventString.match(/^event: ([^\n]+)/);
+          const dataMatch = eventString.match(/data: (.+)$/m);
           
-          if (event && eventData) {
-            console.log("event", event);
-            console.log("eventData", eventData);
-            console.log("--------------------------------");
-            
-            // Handle delta events
-            if (event === 'delta') {
-              // Handle different delta event types
-              
-              // Check if this is the start of an assistant response
-              if (eventData.o === 'add' && 
-                  eventData.v?.message?.author?.role === 'assistant') {
-                isProcessingAssistantResponse = true;
-                // Extract initial assistant data
-                assistantResponseData = {
-                  messageId: eventData.v.message.id,
-                  conversationId: eventData.v.conversation_id,
-                  createTime: eventData.v.message.create_time,
-                  model: eventData.v.message.metadata?.model_slug || null,
-                  content: '',
-                  isComplete: false
-                };
-                console.log('Detected assistant response:', assistantResponseData);
-              }
-              
-              // Only process content if we're tracking an assistant response
-              if (isProcessingAssistantResponse) {
-                // Accumulate content from append operations
-                if (eventData.p === '/message/content/parts/0' && eventData.o === 'append') {
-                  assistantResponseData.content += eventData.v;
-                  console.log('Accumulated content:', assistantResponseData.content);
-                } else if (eventData.v && typeof eventData.v === 'string' && !eventData.p) {
-                  // Sometimes the content is directly in the v property
-                  assistantResponseData.content += eventData.v;
-                  console.log('Accumulated content (direct):', assistantResponseData.content);
-                }
-                
-                // Check for completion markers
-                if (eventData.o === 'patch' && Array.isArray(eventData.v)) {
-                  const statusUpdate = eventData.v.find(patch => 
-                    patch.p === '/message/status' && 
-                    patch.v === 'finished_successfully'
-                  );
-                  
-                  const endTurnUpdate = eventData.v.find(patch => 
-                    patch.p === '/message/end_turn' && 
-                    patch.v === true
-                  );
-                  
-                  if (statusUpdate && endTurnUpdate) {
-                    assistantResponseData.isComplete = true;
-                    console.log('Assistant response complete:', assistantResponseData);
-                    
-                    // Send the complete assistant response data to extension
-                    sendToExtension('assistantResponse', assistantResponseData);
-                    
-                    // Reset tracking
-                    isProcessingAssistantResponse = false;
-                  }
-                }
-              }
-            } else if (event === 'delta_encoding') {
-              // Handle version info or other metadata
-              console.log('Delta encoding event:', eventData);
+          if (!dataMatch) continue;
+          
+          const eventType = eventMatch ? eventMatch[1] : 'unknown';
+          
+          // Skip [DONE] marker
+          if (dataMatch[1].trim() === '[DONE]') {
+            if (assistantData.messageId) {
+              assistantData.isComplete = true;
+              sendToExtension('assistantResponse', assistantData);
             }
+            break;
           }
-        }
-        
-        // If we have a complete response marker, send immediately
-        if (buffer.includes('[DONE]')) {
-          if (isProcessingAssistantResponse && assistantResponseData.messageId) {
-            assistantResponseData.isComplete = true;
-            console.log('Response complete via [DONE] marker:', assistantResponseData);
-            sendToExtension('assistantResponse', assistantResponseData);
+          
+          // Parse JSON data
+          try {
+            const data = JSON.parse(dataMatch[1]);
+            
+            // Handle different event types
+            if (eventType === 'delta') {
+              // Handle message creation
+              if (data.o === 'add' && data.v?.message?.author?.role === 'assistant') {
+                assistantData.messageId = data.v.message.id;
+                assistantData.conversationId = data.v.conversation_id;
+                assistantData.model = data.v.message.metadata?.model_slug || null;
+              }
+              
+              // Handle content appending
+              if (data.p === '/message/content/parts/0' && data.o === 'append') {
+                assistantData.content += data.v;
+              }
+              
+              // Check for message completion
+              if (data.o === 'patch' && Array.isArray(data.v)) {
+                const statusUpdate = data.v.find(p => 
+                  p.p === '/message/status' && p.v === 'finished_successfully'
+                );
+                
+                const endTurnUpdate = data.v.find(p => 
+                  p.p === '/message/end_turn' && p.v === true
+                );
+                
+                if (statusUpdate && endTurnUpdate && assistantData.messageId) {
+                  assistantData.isComplete = true;
+                  sendToExtension('assistantResponse', assistantData);
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Error parsing data:', error);
           }
-          break;
         }
       }
     } catch (error) {
-      console.error('Stream processing error:', error);
+      console.error('Error processing stream:', error);
     }
   }
 
-  // Function to process event strings
-  function processDecodedValue(valueString) {
-    // Find the index of the keywords
-    const eventIndex = valueString.indexOf("event: ");
-    const dataIndex = valueString.indexOf("data: ");
-
-    let event = null;
-    let eventData = null;
-
-    if (eventIndex !== -1 && dataIndex !== -1) {
-      // Extract the event string
-      event = valueString.substring(eventIndex + 7, dataIndex).trim();
-
-      // Extract the data string
-      const dataString = valueString.substring(dataIndex + 6).trim();
-
-      // Attempt to parse the data string as JSON
-      try {
-        eventData = JSON.parse(dataString);
-      } catch (e) {
-        eventData = dataString; // Fallback to string if parsing fails
-      }
-    }
-
-    return { event, eventData };
-  }
-
-  // Fetch override with focused functionality
+  // Override fetch to intercept network requests
   window.fetch = async function(input, init) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
     const endpointType = getEndpointType(url);
     
-    // Skip processing for irrelevant endpoints
+    // Skip irrelevant endpoints
     if (!endpointType) {
       return originalFetch.apply(this, arguments);
     }
     
-    // Extract request body if present
+    // Extract request body
     let requestBody = null;
     if (init && init.body) {
       try {
@@ -216,32 +157,29 @@
     // Call original fetch
     const response = await originalFetch.apply(this, arguments);
     
-    // Skip processing for non-successful responses
+    // Skip non-successful responses
     if (!response.ok) return response;
     
-    // Process response based on type
     try {
       const isStreaming = response.headers.get('content-type')?.includes('text/event-stream') || false;
       
       if (endpointType === 'chatCompletion') {
-        // Send the request info immediately
+        // Send request info
         sendToExtension('chatCompletion', { requestBody });
         
-        // Process streaming content if applicable
-        console.log('isStreaming', isStreaming);
-        console.log('requestBody', requestBody);
+        // Process streaming responses
         if (isStreaming && requestBody?.messages?.[0]?.author?.role === "user") {
           processStreamingResponse(response, requestBody);
         }
       } 
-      else if (!isStreaming && (endpointType === 'specificConversation' || endpointType === 'conversationList')) {
-        // For non-streaming endpoints that return JSON
-        const data = await response.clone().json().catch(() => null);
-        if (data) {
+      else if (!isStreaming) {
+        // For non-streaming endpoints, clone and process response
+        const responseData = await response.clone().json().catch(() => null);
+        if (responseData) {
           sendToExtension(endpointType, {
             url,
             requestBody,
-            responseBody: data,
+            responseBody: responseData,
             method: init?.method || 'GET'
           });
         }

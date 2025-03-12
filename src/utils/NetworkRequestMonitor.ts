@@ -1,12 +1,17 @@
 // src/utils/NetworkRequestMonitor.ts
 
 /**
+ * Simple interface for network event listeners
+ */
+export type NetworkEventListener = (data: any) => void;
+
+/**
  * Simplified network request monitor
  */
 export class NetworkRequestMonitor {
   private static instance: NetworkRequestMonitor;
   private isInitialized: boolean = false;
-  private listeners: Map<string, Set<(data: any) => void>> = new Map();
+  private listeners: Map<string, Set<NetworkEventListener>> = new Map();
   private boundEventHandler: (event: CustomEvent) => void;
   
   private constructor() {
@@ -30,11 +35,11 @@ export class NetworkRequestMonitor {
     if (this.isInitialized) return true;
     
     try {
+      // Start listening for network interception events
+      document.addEventListener('archimind-network-intercept', this.boundEventHandler as EventListener);
+      
       // Notify background script to start monitoring
       chrome.runtime.sendMessage({ action: 'start-network-monitoring' });
-      
-      // Listen for network interception events
-      document.addEventListener('archimind-network-intercept', this.boundEventHandler as EventListener);
       
       this.isInitialized = true;
       return true;
@@ -45,7 +50,7 @@ export class NetworkRequestMonitor {
   }
   
   /**
-   * Handle a captured request efficiently
+   * Handle a captured request
    */
   private handleCapturedRequest(event: CustomEvent): void {
     const detail = event.detail;
@@ -59,8 +64,10 @@ export class NetworkRequestMonitor {
     // Also notify URL-pattern listeners if URL is present
     if (data?.url) {
       this.listeners.forEach((callbacks, pattern) => {
-        if (data.url.includes(pattern)) {
+        if (typeof pattern === 'string' && data.url.includes(pattern)) {
           this.notifyListeners(pattern, data);
+        } else if (pattern instanceof RegExp && pattern.test(data.url)) {
+          this.notifyListeners(pattern.toString(), data);
         }
       });
     }
@@ -85,20 +92,22 @@ export class NetworkRequestMonitor {
   /**
    * Register a listener for a specific URL pattern or event type
    */
-  public addListener(pattern: string, callback: (data: any) => void): () => void {
-    if (!this.listeners.has(pattern)) {
-      this.listeners.set(pattern, new Set());
+  public addListener(pattern: string | RegExp, callback: NetworkEventListener): () => void {
+    const patternKey = pattern instanceof RegExp ? pattern.toString() : pattern;
+    
+    if (!this.listeners.has(patternKey)) {
+      this.listeners.set(patternKey, new Set());
     }
     
-    this.listeners.get(pattern)!.add(callback);
+    this.listeners.get(patternKey)!.add(callback);
     
     // Return a function to remove this listener
     return () => {
-      const callbacks = this.listeners.get(pattern);
+      const callbacks = this.listeners.get(patternKey);
       if (callbacks) {
         callbacks.delete(callback);
         if (callbacks.size === 0) {
-          this.listeners.delete(pattern);
+          this.listeners.delete(patternKey);
         }
       }
     };
@@ -110,8 +119,8 @@ export class NetworkRequestMonitor {
   public cleanup(): void {
     if (!this.isInitialized) return;
     
-    chrome.runtime.sendMessage({ action: 'stop-network-monitoring' });
     document.removeEventListener('archimind-network-intercept', this.boundEventHandler as EventListener);
+    chrome.runtime.sendMessage({ action: 'stop-network-monitoring' });
     
     this.listeners.clear();
     this.isInitialized = false;

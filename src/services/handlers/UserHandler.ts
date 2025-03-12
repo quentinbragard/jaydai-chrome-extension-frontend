@@ -1,5 +1,5 @@
 // src/services/chat/handlers/UserHandler.ts
-import { apiService } from '@/services/ApiService';
+import { userApi } from '@/api';
 import { UserMetadata } from '../chat/types';
 
 /**
@@ -53,7 +53,7 @@ export class UserHandler {
   private saveUserMetadataToBackend(): void {
     if (!this.userInfo) return;
     
-    apiService.request('/save/user_metadata', {
+    userApi.request('/save/user_metadata', {
       method: 'POST',
       body: JSON.stringify(this.userInfo)
     }).catch(error => {

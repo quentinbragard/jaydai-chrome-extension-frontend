@@ -1,198 +1,94 @@
-import { networkRequestMonitor } from '@/utils/NetworkRequestMonitor';
-import { apiService } from '@/services/ApiService';
+// src/services/chat/MessageService.ts
 
-// Define consistent message interface
-export interface MessageEvent {
-  message_id: string;
-  provider_chat_id: string;
+import { messageApi } from "../api/MessageApi";
+
+export interface Message {
+  messageId: string;
+  conversationId: string;
   content: string;
-  role: string;
-  rank: number;
-  model: string;
-  created_at: number;
-  type?: string;
-  conversationId?: string;
+  role: 'user' | 'assistant' | 'system';
+  model?: string;
+  timestamp: number;
   thinkingTime?: number;
 }
 
-// Define assistant response data interface
-interface AssistantResponseData {
-  messageId: string;
-  conversationId: string;
-  createTime: number;
-  model: string;
-  content: string;
-  isComplete: boolean;
-}
+export type MessageListener = (message: Message) => void;
 
+/**
+ * Service for handling and processing chat messages
+ */
 export class MessageService {
-  private static instance: MessageService | null = null;
-  private processedMessageIds = new Set<string>();
+  private static instance: MessageService;
+  private messageListeners: Set<MessageListener> = new Set();
+  private processedMessageIds: Set<string> = new Set();
+  private messageQueue: Message[] = [];
+  private processingQueue: boolean = false;
+  private queueTimer: number | null = null;
   
-  private constructor() {
-    this.handleNetworkEvent = this.handleNetworkEvent.bind(this);
-    this.handleChatCompletion = this.handleChatCompletion.bind(this);
-    this.processStreamingResponse = this.processStreamingResponse.bind(this);
-  }
-
+  private constructor() {}
+  
   public static getInstance(): MessageService {
-    if (!this.instance) {
-      this.instance = new MessageService();
+    if (!MessageService.instance) {
+      MessageService.instance = new MessageService();
     }
-    return this.instance;
+    return MessageService.instance;
   }
-
+  
+  /**
+   * Initialize the message service
+   */
   public initialize(): void {
-    try {
-      // Set up event listeners
-      document.addEventListener('archimind-network-intercept', this.handleNetworkEvent);
-      
-      // Add listener for chat completion endpoint
-      if (networkRequestMonitor) {
-        networkRequestMonitor.addListener('/backend-api/conversation', this.handleChatCompletion);
-      }
-      
-      console.log('MessageService initialized');
-    } catch (error) {
-      console.error('MessageService initialization error:', error);
-    }
+    // Set up event listeners for messages from injected script
+    document.addEventListener('archimind-network-intercept', this.handleNetworkEvent);
+    console.log('MessageService initialized');
   }
-
-  private handleNetworkEvent(event: CustomEvent): void {
-    try {
-      const { type, data } = event.detail;
-
-      switch(type) {
-        case 'chatCompletion':
-          this.handleChatCompletion(data);
-          break;
-        case 'streamedChatCompletion':
-          this.processStreamingResponse(data);
-          break;
-        case 'assistantResponse':
-          this.handleAssistantResponse(data);
-          break;
-      }
-    } catch (error) {
-      console.error('Network event handler error:', error);
-    }
-  }
-
-  private handleChatCompletion(data: any): void {
-    try {
-      if (!data?.requestBody?.messages?.length) return;
-      
-      // Extract and save user message
-      const userMessage = this.extractUserMessage(data.requestBody);
-      if (userMessage) {
-        this.saveMessage(userMessage);
-      }
-    } catch (error) {
-      console.error('Chat completion processing error:', error);
-    }
-  }
-
-  private processStreamingResponse(data: any): void {
-    try {
-      const { buffer, requestBody } = data;
-      
-      // Skip incomplete streams
-      if (!buffer || !buffer.includes('[DONE]')) return;
-      
-      // Parse the stream events
-      const events = this.parseStreamEvents(buffer);
-      
-      // Extract assistant message and content
-      const { messageId, content, model } = this.extractAssistantContent(events, requestBody);
-      
-      if (messageId && content) {
-        // Create assistant message
-        const assistantMessage = {
-          message_id: messageId,
-          provider_chat_id: requestBody?.conversation_id || '',
-          content: content,
-          role: 'assistant',
-          rank: 1,
-          model: model || requestBody?.model || 'unknown',
-          created_at: Date.now()
-        };
-        
-        // Save the chat title if available
-        if (requestBody?.conversation_id) {
-          // Try to extract a title from the conversation or create a default one
-          const title = content.split('\\n')[0].substring(0, 50) || 
-                        `Chat ${new Date().toLocaleString()}`;
-                        
-          // Save chat directly
-          this.saveChat(requestBody.conversation_id, title);
-        }
-        
-        // Save message directly
-        this.saveMessage(assistantMessage);
-      }
-    } catch (error) {
-      console.error('Stream processing error:', error);
-    }
-  }
-
-  private parseStreamEvents(buffer: string): any[] {
-    const events: any[] = [];
-    const chunks = buffer.split('\\n');
+  
+  /**
+   * Add a listener for new messages
+   */
+  public addMessageListener(listener: MessageListener): () => void {
+    this.messageListeners.add(listener);
     
-    for (const chunk of chunks) {
-      if (chunk.startsWith('data: ') && chunk !== 'data: [DONE]') {
-        try {
-          const data = chunk.substring(6);
-          const parsed = JSON.parse(data);
-          events.push(parsed);
-        } catch (e) {
-          // Skip invalid JSON
-        }
-      }
-    }
-    
-    return events;
+    // Return cleanup function
+    return () => {
+      this.messageListeners.delete(listener);
+    };
   }
-
-  private extractAssistantContent(events: any[], requestBody: any): { 
-    messageId: string, 
-    content: string,
-    model: string
-  } {
-    let messageId = '';
-    let content = '';
-    let model = '';
+  
+  /**
+   * Handle network events from the injected script
+   */
+  private handleNetworkEvent = (event: CustomEvent) => {
+    const { type, data } = event.detail;
     
-    // Find the assistant message - simplest approach
-    for (const event of events) {
-      if (event.message?.id && event.message.author?.role === 'assistant') {
-        messageId = event.message.id;
-        model = event.message.metadata?.model_slug || '';
-        
-        if (event.message.content?.parts) {
-          content = event.message.content.parts.join('\\n');
-          break; // Found what we need
-        }
-      }
-      
-      if (event.delta?.content) {
-        content += event.delta.content;
-      }
-      
-      if (typeof event.v === 'string' && event.o === 'append') {
-        content += event.v;
-      }
+    if (!data) return;
+    
+    switch (type) {
+      case 'chatCompletion':
+        this.processUserMessage(data);
+        break;
+      case 'assistantResponse':
+        this.processAssistantResponse(data);
+        break;
     }
+  };
+  
+  /**
+   * Extract and process user message from chat completion request
+   */
+  private processUserMessage(data: any): void {
+    if (!data.requestBody?.messages?.length) return;
     
-    // If we still don't have a message ID, generate one
-    if (!messageId && content) {
-      messageId = `assistant-${Date.now()}`;
+    const userMessage = this.extractUserMessage(data.requestBody);
+    if (userMessage) {
+      this.processMessage(userMessage);
     }
-    
-    return { messageId, content: content.trim(), model };
   }
-
-  private extractUserMessage(requestBody: any): any {
+  
+  /**
+   * Extract user message from request body
+   */
+  private extractUserMessage(requestBody: any): Message | null {
     const message = requestBody.messages.find(
       (m: any) => m.author?.role === 'user' || m.role === 'user'
     );
@@ -202,105 +98,152 @@ export class MessageService {
     // Extract content from message
     let content = '';
     if (message.content?.parts) {
-      content = message.content.parts.join('\\n');
+      content = message.content.parts.join('\n');
     } else if (message.content) {
       content = message.content;
     }
     
     return {
-      message_id: message.id || `user-${Date.now()}`,
-      provider_chat_id: requestBody.conversation_id || '',
+      messageId: message.id || `user-${Date.now()}`,
+      conversationId: requestBody.conversation_id || '',
       content,
       role: 'user',
-      rank: 0,
       model: requestBody.model || 'unknown',
-      created_at: Date.now()
+      timestamp: Date.now()
     };
   }
-
-  // Save message directly without queueing
-  private async saveMessage(message: any): Promise<void> {
+  
+  /**
+   * Process assistant response
+   */
+  private processAssistantResponse(data: any): void {
+    if (!data.messageId || !data.content) return;
+    
+    const message: Message = {
+      messageId: data.messageId,
+      conversationId: data.conversationId || '',
+      content: data.content,
+      role: 'assistant',
+      model: data.model || 'unknown',
+      timestamp: data.createTime || Date.now(),
+      thinkingTime: data.thinkingTime
+    };
+    
+    this.processMessage(message);
+  }
+  
+  /**
+   * Process a message (user or assistant)
+   */
+  public processMessage(message: Message): void {
     // Skip if already processed
-    if (this.processedMessageIds.has(message.message_id)) return;
+    if (this.processedMessageIds.has(message.messageId)) return;
     
-    // Mark as processed to prevent duplicates
-    this.processedMessageIds.add(message.message_id);
+    // Mark as processed
+    this.processedMessageIds.add(message.messageId);
     
-    try {
-      await apiService.saveMessage(message);
-      console.log(`Saved ${message.role} message: ${message.message_id.substring(0, 8)}...`);
-    } catch (error) {
-      console.error('Error saving message:', error);
+    // Add to queue for saving
+    this.addToQueue(message);
+    
+    // Notify listeners immediately
+    this.notifyListeners(message);
+  }
+  
+  /**
+   * Add message to processing queue
+   */
+  private addToQueue(message: Message): void {
+    this.messageQueue.push(message);
+    
+    // Start processing queue if not already in progress
+    if (!this.processingQueue) {
+      this.processQueue();
     }
   }
   
-  // Save chat directly without queueing
-  private async saveChat(chatId: string, title: string): Promise<void> {
-    try {
-      await apiService.saveChat({
-        chatId,
-        chatTitle: title,
-        providerName: 'ChatGPT'
-      });
-      console.log(`Saved chat: ${chatId.substring(0, 8)}... with title: ${title}`);
-    } catch (error) {
-      console.error('Error saving chat:', error);
-    }
-  }
-
   /**
-   * Handle structured assistant response data from the injector
+   * Process the message queue
    */
-  private handleAssistantResponse(data: {
-    messageId: string;
-    conversationId: string;
-    createTime: number;
-    model: string;
-    content: string;
-    isComplete: boolean;
-  }): void {
+  private processQueue(): void {
+    if (this.queueTimer) {
+      clearTimeout(this.queueTimer);
+      this.queueTimer = null;
+    }
+    
+    // If queue is empty, mark as not processing
+    if (this.messageQueue.length === 0) {
+      this.processingQueue = false;
+      return;
+    }
+    
+    this.processingQueue = true;
+    
+    // Get next batch of messages (up to 5)
+    const batch = this.messageQueue.splice(0, 5);
+    
+    // Process the batch
+    this.saveBatch(batch)
+      .finally(() => {
+        // Schedule next batch processing
+        this.queueTimer = window.setTimeout(() => this.processQueue(), 100);
+      });
+  }
+  
+  /**
+   * Save a batch of messages
+   */
+  private async saveBatch(messages: Message[]): Promise<void> {
+    if (messages.length === 0) return;
+    
     try {
-      if (!data.messageId || !data.content || !data.isComplete) {
-        console.warn('Incomplete assistant response data:', data);
-        return;
-      }
-
-      console.log('Processing assistant response:', data);
-
-      // Create assistant message object
-      const assistantMessage: MessageEvent = {
-        message_id: data.messageId,
-        provider_chat_id: data.conversationId || '',
-        content: data.content,
-        role: 'assistant',
-        rank: 1,
-        model: data.model || 'unknown',
-        created_at: data.createTime || Date.now()
-      };
-
-      // Save the chat title if available (using first line of content as title)
-      if (data.conversationId) {
-        // Extract a title from the first line of the content or create a default one
-        const title = data.content.split('\n')[0].substring(0, 50) || 
-                      `Chat ${new Date().toLocaleString()}`;
-                      
-        // Save chat directly
-        this.saveChat(data.conversationId, title);
-      }
-
-      // Save message directly
-      this.saveMessage(assistantMessage);
+      // Format messages for API
+      const formattedMessages = messages.map(msg => ({
+        message_id: msg.messageId,
+        provider_chat_id: msg.conversationId,
+        content: msg.content,
+        role: msg.role,
+        rank: 0, // Could be improved
+        model: msg.model || 'unknown',
+        created_at: msg.timestamp
+      }));
+      
+      // Save messages
+      await messageApi.saveMessageBatch(formattedMessages);
+      console.log(`✅ Saved ${messages.length} messages`);
     } catch (error) {
-      console.error('Assistant response processing error:', error);
+      console.error('❌ Error saving messages:', error);
     }
   }
-
+  
+  /**
+   * Notify all listeners of a new message
+   */
+  private notifyListeners(message: Message): void {
+    this.messageListeners.forEach(listener => {
+      try {
+        listener(message);
+      } catch (error) {
+        console.error('❌ Error in message listener:', error);
+      }
+    });
+  }
+  
+  /**
+   * Clean up resources
+   */
   public cleanup(): void {
     document.removeEventListener('archimind-network-intercept', this.handleNetworkEvent);
+    
+    if (this.queueTimer) {
+      clearTimeout(this.queueTimer);
+      this.queueTimer = null;
+    }
+    
+    this.messageListeners.clear();
     this.processedMessageIds.clear();
+    this.messageQueue = [];
+    this.processingQueue = false;
   }
 }
 
-// Export singleton instance
 export const messageService = MessageService.getInstance();
-

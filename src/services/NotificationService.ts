@@ -1,6 +1,6 @@
 // src/services/NotificationService.ts
-import { apiService } from './ApiService';
 import { toast } from "sonner";
+import { notificationApi } from "../api/NotificationApi";
 
 export interface Notification {
   id: string;
@@ -93,7 +93,7 @@ export class NotificationService {
       const previousUnreadCount = this.getUnreadCount();
       
       // Call API to get notifications
-      const data = await apiService.fetchNotifications();
+      const data = await notificationApi.fetchNotifications();
       
       if (data) {
         this.notifications = data || [];
@@ -162,7 +162,7 @@ export class NotificationService {
       this.notifyUpdateListeners();
       
       // Call API to mark as read
-      await apiService.markNotificationRead(id);
+      await notificationApi.markNotificationRead(id);
       
       return true;
     } catch (error) {
@@ -195,7 +195,7 @@ export class NotificationService {
       this.notifyUpdateListeners();
       
       // Call API to mark all as read
-      await apiService.markAllNotificationsRead();
+      await notificationApi.markAllNotificationsRead();
       
       // Show success notification
       toast.success(`Marked ${unreadCount} notifications as read`);

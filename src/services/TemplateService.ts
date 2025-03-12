@@ -1,5 +1,5 @@
 // src/services/TemplateService.ts
-import { apiService } from './ApiService';
+import { templateApi } from '../api'
 
 export interface Template {
   id: string;
@@ -86,7 +86,7 @@ export class TemplateService {
     try {
       
       // Call API to get templates
-      const response = await apiService.getAllTemplates();
+      const response = await templateApi.getAllTemplates();
             
       if (response && response.success) {
         // Here's the fix - properly handle the separate userTemplates and officialTemplates
@@ -147,7 +147,7 @@ export class TemplateService {
    */
   public async createTemplate(template: Omit<Template, 'id' | 'created_at' | 'updated_at' | 'usage_count'>): Promise<Template> {
     try {
-      const response = await apiService.createTemplate(template);
+      const response = await templateApi.createTemplate(template);
       
       if (response && response.success && response.template) {
         // Add to local collection
@@ -176,7 +176,7 @@ export class TemplateService {
    */
   public async updateTemplate(id: string, template: Partial<Template>): Promise<Template> {
     try {
-      const response = await apiService.updateTemplate(id, template);
+      const response = await templateApi.updateTemplate(id, template);
       
       if (response && response.success && response.template) {
         // Update in local collection
@@ -210,7 +210,7 @@ export class TemplateService {
    */
   public async deleteTemplate(id: string): Promise<boolean> {
     try {
-      const response = await apiService.deleteTemplate(id);
+      const response = await templateApi.deleteTemplate(id);
       
       if (response && response.success) {
         // Remove from local collection
@@ -247,7 +247,7 @@ export class TemplateService {
       }
       
       // Track usage
-      await apiService.useTemplate(id);
+      await templateApi.useTemplate(id);
       
       // Update local usage count
       template.usage_count = (template.usage_count || 0) + 1;

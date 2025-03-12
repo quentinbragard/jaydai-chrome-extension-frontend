@@ -1,5 +1,5 @@
 // src/services/handlers/MessageHandler.ts
-import { apiService } from '@/services/ApiService';
+import { apiClient } from '@/services/apiClient';
 import { MessageEvent, MessageListener, SaveMessageParams } from '../chat/types';
 import { conversationHandler } from './ConversationHandler';
 
@@ -123,7 +123,7 @@ export class MessageHandler {
     }
     
     // Create and track API call
-    const apiPromise = apiService.saveMessageToBackend(saveParams)
+    const apiPromise = apiClient.saveMessageToBackend(saveParams)
       .then(response => {
         console.log(`✅ Successfully saved message ${saveParams.messageId} to backend`);
         return response;
