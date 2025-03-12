@@ -51,7 +51,7 @@ export class SpecificConversationHandler {
           try {
             // Directly call the batch API with messages
             console.log("🔄🔄🔄🔄🔄 Saving messages batch:", messages);
-            await apiService.saveMessagesBatch(messages);
+            await apiService.saveMessageBatch(messages);
             console.log(`✅ Successfully sent ${messages.length} messages to batch API for conversation: ${conversationId}`);
           } catch (error) {
             console.error('❌ Error sending messages to batch API:', error);

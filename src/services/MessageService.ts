@@ -1,360 +1,306 @@
 import { networkRequestMonitor } from '@/utils/NetworkRequestMonitor';
 import { apiService } from '@/services/ApiService';
-import { MessageEvent } from './types';
+
+// Define consistent message interface
+export interface MessageEvent {
+  message_id: string;
+  provider_chat_id: string;
+  content: string;
+  role: string;
+  rank: number;
+  model: string;
+  created_at: number;
+  type?: string;
+  conversationId?: string;
+  thinkingTime?: number;
+}
+
+// Define assistant response data interface
+interface AssistantResponseData {
+  messageId: string;
+  conversationId: string;
+  createTime: number;
+  model: string;
+  content: string;
+  isComplete: boolean;
+}
 
 export class MessageService {
-  private static _instance: MessageService | null = null;
+  private static instance: MessageService | null = null;
   private processedMessageIds = new Set<string>();
-  private currentConversation: {
-    userMessage: MessageEvent | null;
-    assistantMessage: {
-      content: string;
-      messageId: string;
-      modelId: string;
-      conversationId: string | null;
-    } | null;
-  } = {
-    userMessage: null,
-    assistantMessage: null
-  };
-
-  // Private constructor to enforce singleton pattern
+  
   private constructor() {
-    // Bind methods to ensure correct context
     this.handleNetworkEvent = this.handleNetworkEvent.bind(this);
     this.handleChatCompletion = this.handleChatCompletion.bind(this);
+    this.processStreamingResponse = this.processStreamingResponse.bind(this);
   }
 
-  // Singleton instance getter with null check
   public static getInstance(): MessageService {
-    if (!this._instance) {
-      this._instance = new MessageService();
+    if (!this.instance) {
+      this.instance = new MessageService();
     }
-    return this._instance;
+    return this.instance;
   }
 
   public initialize(): void {
     try {
-      console.log('💬 Initializing message service...');
-      this.setupMessageCapture();
-    } catch (error) {
-      console.error('❌ Error in message service initialization:', error);
-    }
-  }
-
-  private setupMessageCapture(): void {
-    try {
-      // Ensure network request monitor is available
-      if (!networkRequestMonitor) {
-        throw new Error('Network request monitor is not initialized');
-      }
-
-      // Capture chat completion requests
-      networkRequestMonitor.addListener('/backend-api/conversation', this.handleChatCompletion);
-      
-      // Listen for streaming events
+      // Set up event listeners
       document.addEventListener('archimind-network-intercept', this.handleNetworkEvent);
+      
+      // Add listener for chat completion endpoint
+      if (networkRequestMonitor) {
+        networkRequestMonitor.addListener('/backend-api/conversation', this.handleChatCompletion);
+      }
+      
+      console.log('MessageService initialized');
     } catch (error) {
-      console.error('❌ Error setting up message capture:', error);
+      console.error('MessageService initialization error:', error);
     }
   }
 
   private handleNetworkEvent(event: CustomEvent): void {
     try {
-      // Validate event
-      if (!event.detail || typeof event.detail !== 'object') {
-        console.warn('Invalid network event received');
-        return;
-      }
-
       const { type, data } = event.detail;
 
       switch(type) {
         case 'chatCompletion':
-          console.log("#################CHAT COMPLETION#################");
           this.handleChatCompletion(data);
           break;
         case 'streamedChatCompletion':
-          console.log("#################STREAMING CHAT COMPLETION#################");
           this.processStreamingResponse(data);
           break;
-        default:
-          console.log(`Unhandled network event type: ${type}`);
+        case 'assistantResponse':
+          this.handleAssistantResponse(data);
+          break;
       }
     } catch (error) {
-      console.error('❌ Error in network event handler:', error);
+      console.error('Network event handler error:', error);
     }
   }
 
   private handleChatCompletion(data: any): void {
-    console.log("DATA", data);
     try {
-      // Validate input
-      if (!data || !data.requestBody) {
-        console.warn('Invalid chat completion data');
-        return;
-      }
-
-      const { requestBody } = data;
-
-      // Capture and save user message
-      const userMessage = this.extractUserMessage(requestBody);
+      if (!data?.requestBody?.messages?.length) return;
+      
+      // Extract and save user message
+      const userMessage = this.extractUserMessage(data.requestBody);
       if (userMessage) {
-        this.currentConversation.userMessage = userMessage;
-        this.saveMessage(userMessage).catch(error => {
-          console.error('Failed to save user message:', error);
-        });
+        this.saveMessage(userMessage);
       }
     } catch (error) {
-      console.error('❌ Error processing user message:', error);
+      console.error('Chat completion processing error:', error);
     }
   }
 
   private processStreamingResponse(data: any): void {
     try {
-      // Validate input
-      if (!data || !data.buffer) {
-        console.warn('Invalid streaming response data');
-        return;
-      }
-  
       const { buffer, requestBody } = data;
       
-      // Ensure stream is complete
-      if (!buffer.includes('[DONE]')) return;
-  
-      const deltas = this.parseStreamDeltas(buffer);
-      const thinkingSteps: string[] = [];
-      let finalAssistantAnswer = '';
-      let currentAssistantMessage: any = null;
-  
-      for (let i = 0; i < deltas.length; i++) {
-        const delta = deltas[i];
-  
-        // Capture thinking steps
-        if (delta.o === 'add' && delta.v?.message) {
-          const message = delta.v.message;
-          
-          // Check if it's a thinking/tool step (not an assistant message)
-          if (message.author.role !== 'assistant') {
-            let thinkingStep = message.content.parts.join('\n');
-            
-            // Collect additional content for the thinking step
-            while (
-              i + 1 < deltas.length && 
-              deltas[i + 1].o !== 'add' && 
-              typeof deltas[i + 1].v === 'string'
-            ) {
-              i++;
-              thinkingStep += deltas[i].v;
-            }
-            
-            // Only add non-empty thinking steps
-            if (thinkingStep.trim()) {
-              thinkingSteps.push(thinkingStep.trim());
-            }
-          }
-          
-          // Track the assistant message
-          if (message.author.role === 'assistant') {
-            currentAssistantMessage = message;
-          }
-        }
-  
-        // Capture assistant message content
-        if (
-          (delta.p?.includes('/message/content/parts/') && delta.o === 'append') || 
-          (typeof delta.v === 'string' && currentAssistantMessage)
-        ) {
-          finalAssistantAnswer += delta.v || '';
-        }
-  
-        // Check for final answer completion
-        if (delta.o === 'patch' && Array.isArray(delta.v)) {
-          const isComplete = delta.v.some(
-            patch => patch.p === '/message/metadata' && patch.v?.is_complete
-          );
-  
-          if (isComplete) {
-            break;
-          }
-        }
-      }
-  
-      // Log the results
-      console.log("#################THINKING STEPS#################", thinkingSteps);
-      console.log("#################FINAL ASSISTANT ANSWER#################", finalAssistantAnswer.trim());
-  
-      // If you want to save the message
-      if (currentAssistantMessage) {
-        this.saveAssistantMessage({
-          messageId: currentAssistantMessage.id,
-          provider_chat_id: requestBody?.conversation_id || null,
-          content: finalAssistantAnswer.trim(),
-          modelId: currentAssistantMessage.metadata?.model_slug || 'unknown',
-          conversationId: requestBody?.conversation_id || null
-        });
-      }
-    } catch (error) {
-      console.error('Error processing streaming response:', error);
-    }
-  }
-  private parseStreamDeltas(buffer: string): any[] {
-    const deltas: any[] = [];
-    const eventRegex = /data: (.+)(?:\n\n|$)/g;
-    let match;
-
-    while ((match = eventRegex.exec(buffer)) !== null) {
-      const deltaStr = match[1].trim();
+      // Skip incomplete streams
+      if (!buffer || !buffer.includes('[DONE]')) return;
       
-      if (deltaStr === '[DONE]') break;
-
-      try {
-        const delta = JSON.parse(deltaStr);
-        deltas.push(delta);
-      } catch (error) {
-        console.error('Error parsing delta:', error);
-      }
-    }
-
-    return deltas;
-  }
-
-  private processStreamDeltas(deltas: any[], requestBody: any): void {
-    let assistantMessage = {
-      content: '',
-      messageId: '',
-      modelId: requestBody?.model || 'unknown',
-      conversationId: requestBody?.conversation_id || null
-    };
-
-    deltas.forEach(delta => {
-      // Message creation
-      console.log("#################DELTA#################", delta);
-      if (delta.o === 'add' && delta.v?.message) {
-        const message = delta.v.message;
-        assistantMessage.messageId = message.id;
-        assistantMessage.modelId = message.metadata?.model_slug || assistantMessage.modelId;
-        assistantMessage.conversationId = delta.v.conversation_id || assistantMessage.conversationId;
-      }
-
-      // Content appending
-      if (delta.o === 'append') {
-        if (delta.p?.includes('/message/content/parts/') && typeof delta.v === 'string') {
-          assistantMessage.content += delta.v;
-        }
-      }
-
-      // Check for final answer completion
-      if (delta.o === 'patch' && Array.isArray(delta.v)) {
-        const isComplete = delta.v.some(
-          patch => patch.p === '/message/metadata' && patch.v?.is_complete
-        );
-
-        if (isComplete && assistantMessage.messageId && assistantMessage.content) {
-          this.saveAssistantMessage(assistantMessage).catch(error => {
-            console.error('Failed to save assistant message:', error);
-          });
-        }
-      }
-    });
-  }
-
-  private async saveAssistantMessage(assistantData: {
-    messageId: string;
-    content: string;
-    modelId: string;
-    conversationId: string | null;
-  }): Promise<void> {
-    const { userMessage } = this.currentConversation;
-    
-    if (userMessage) {
-      try {
-        const messageToSave: MessageEvent = {
-          message_id: assistantData.messageId,
-          provider_chat_id: assistantData.conversationId || userMessage.conversationId,
-          content: assistantData.content,
+      // Parse the stream events
+      const events = this.parseStreamEvents(buffer);
+      
+      // Extract assistant message and content
+      const { messageId, content, model } = this.extractAssistantContent(events, requestBody);
+      
+      if (messageId && content) {
+        // Create assistant message
+        const assistantMessage = {
+          message_id: messageId,
+          provider_chat_id: requestBody?.conversation_id || '',
+          content: content,
           role: 'assistant',
-          rank: 0,
-          model: assistantData.modelId,
+          rank: 1,
+          model: model || requestBody?.model || 'unknown',
           created_at: Date.now()
         };
-
-        await this.saveMessage(messageToSave);
-
-        // Reset for next conversation
-        this.currentConversation = {
-          userMessage: null,
-          assistantMessage: null
-        };
-      } catch (error) {
-        console.error('❌ Error saving assistant message:', error);
+        
+        // Save the chat title if available
+        if (requestBody?.conversation_id) {
+          // Try to extract a title from the conversation or create a default one
+          const title = content.split('\\n')[0].substring(0, 50) || 
+                        `Chat ${new Date().toLocaleString()}`;
+                        
+          // Save chat directly
+          this.saveChat(requestBody.conversation_id, title);
+        }
+        
+        // Save message directly
+        this.saveMessage(assistantMessage);
       }
-    }
-  }
-
-  private async saveMessage(message: MessageEvent): Promise<void> {
-    try {
-      // Prevent duplicate saves
-      if (this.processedMessageIds.has(message.message_id)) return;
-
-      // Ensure apiService is available
-      if (!apiService || typeof apiService.saveMessage !== 'function') {
-        throw new Error('API service is not properly initialized');
-      }
-      console.log("#################SAVE MESSAGE#################", message);
-      await apiService.saveMessage(message);
-      this.processedMessageIds.add(message.message_id);
     } catch (error) {
-      console.error('❌ Error saving message:', error);
+      console.error('Stream processing error:', error);
     }
   }
 
-  private extractUserMessage(requestBody: any): MessageEvent | null {
-    if (!requestBody?.messages?.length) return null;
+  private parseStreamEvents(buffer: string): any[] {
+    const events: any[] = [];
+    const chunks = buffer.split('\\n');
+    
+    for (const chunk of chunks) {
+      if (chunk.startsWith('data: ') && chunk !== 'data: [DONE]') {
+        try {
+          const data = chunk.substring(6);
+          const parsed = JSON.parse(data);
+          events.push(parsed);
+        } catch (e) {
+          // Skip invalid JSON
+        }
+      }
+    }
+    
+    return events;
+  }
 
+  private extractAssistantContent(events: any[], requestBody: any): { 
+    messageId: string, 
+    content: string,
+    model: string
+  } {
+    let messageId = '';
+    let content = '';
+    let model = '';
+    
+    // Find the assistant message - simplest approach
+    for (const event of events) {
+      if (event.message?.id && event.message.author?.role === 'assistant') {
+        messageId = event.message.id;
+        model = event.message.metadata?.model_slug || '';
+        
+        if (event.message.content?.parts) {
+          content = event.message.content.parts.join('\\n');
+          break; // Found what we need
+        }
+      }
+      
+      if (event.delta?.content) {
+        content += event.delta.content;
+      }
+      
+      if (typeof event.v === 'string' && event.o === 'append') {
+        content += event.v;
+      }
+    }
+    
+    // If we still don't have a message ID, generate one
+    if (!messageId && content) {
+      messageId = `assistant-${Date.now()}`;
+    }
+    
+    return { messageId, content: content.trim(), model };
+  }
+
+  private extractUserMessage(requestBody: any): any {
     const message = requestBody.messages.find(
       (m: any) => m.author?.role === 'user' || m.role === 'user'
     );
-
+    
     if (!message) return null;
-
+    
+    // Extract content from message
+    let content = '';
+    if (message.content?.parts) {
+      content = message.content.parts.join('\\n');
+    } else if (message.content) {
+      content = message.content;
+    }
+    
     return {
       message_id: message.id || `user-${Date.now()}`,
-      provider_chat_id: requestBody.conversation_id,
-      content: this.extractMessageContent(message),
+      provider_chat_id: requestBody.conversation_id || '',
+      content,
       role: 'user',
       rank: 0,
-      model: requestBody.model,
+      model: requestBody.model || 'unknown',
       created_at: Date.now()
     };
   }
 
-  private extractMessageContent(message: any): string {
-    if (message.content?.parts) {
-      return message.content.parts.join('\n');
+  // Save message directly without queueing
+  private async saveMessage(message: any): Promise<void> {
+    // Skip if already processed
+    if (this.processedMessageIds.has(message.message_id)) return;
+    
+    // Mark as processed to prevent duplicates
+    this.processedMessageIds.add(message.message_id);
+    
+    try {
+      await apiService.saveMessage(message);
+      console.log(`Saved ${message.role} message: ${message.message_id.substring(0, 8)}...`);
+    } catch (error) {
+      console.error('Error saving message:', error);
     }
-    return message.content || '';
+  }
+  
+  // Save chat directly without queueing
+  private async saveChat(chatId: string, title: string): Promise<void> {
+    try {
+      await apiService.saveChat({
+        chatId,
+        chatTitle: title,
+        providerName: 'ChatGPT'
+      });
+      console.log(`Saved chat: ${chatId.substring(0, 8)}... with title: ${title}`);
+    } catch (error) {
+      console.error('Error saving chat:', error);
+    }
+  }
+
+  /**
+   * Handle structured assistant response data from the injector
+   */
+  private handleAssistantResponse(data: {
+    messageId: string;
+    conversationId: string;
+    createTime: number;
+    model: string;
+    content: string;
+    isComplete: boolean;
+  }): void {
+    try {
+      if (!data.messageId || !data.content || !data.isComplete) {
+        console.warn('Incomplete assistant response data:', data);
+        return;
+      }
+
+      console.log('Processing assistant response:', data);
+
+      // Create assistant message object
+      const assistantMessage: MessageEvent = {
+        message_id: data.messageId,
+        provider_chat_id: data.conversationId || '',
+        content: data.content,
+        role: 'assistant',
+        rank: 1,
+        model: data.model || 'unknown',
+        created_at: data.createTime || Date.now()
+      };
+
+      // Save the chat title if available (using first line of content as title)
+      if (data.conversationId) {
+        // Extract a title from the first line of the content or create a default one
+        const title = data.content.split('\n')[0].substring(0, 50) || 
+                      `Chat ${new Date().toLocaleString()}`;
+                      
+        // Save chat directly
+        this.saveChat(data.conversationId, title);
+      }
+
+      // Save message directly
+      this.saveMessage(assistantMessage);
+    } catch (error) {
+      console.error('Assistant response processing error:', error);
+    }
   }
 
   public cleanup(): void {
-    try {
-      // Remove event listener
-      document.removeEventListener('archimind-network-intercept', this.handleNetworkEvent);
-
-      // Clear processed messages
-      this.processedMessageIds.clear();
-      
-      // Reset current conversation
-      this.currentConversation = {
-        userMessage: null,
-        assistantMessage: null
-      };
-    } catch (error) {
-      console.error('❌ Error during message service cleanup:', error);
-    }
+    document.removeEventListener('archimind-network-intercept', this.handleNetworkEvent);
+    this.processedMessageIds.clear();
   }
 }
 
 // Export singleton instance
 export const messageService = MessageService.getInstance();
+

@@ -1,4 +1,3 @@
-// src/services/ApiService.js
 import { getAuthToken, refreshAuthToken } from '../utils/auth.js';
 
 export class ApiService {
@@ -6,7 +5,7 @@ export class ApiService {
     this.baseUrl = baseUrl;
     this.tokenProvider = getAuthToken;
     this.refreshTokenProvider = refreshAuthToken;
-    this.pendingRequests = new Map(); // To deduplicate simultaneous requests
+    this.pendingRequests = new Map();
   }
   
   async request(endpoint, options = {}) {
@@ -42,12 +41,9 @@ export class ApiService {
       try {
         token = await this.tokenProvider();
       } catch (tokenError) {
-        console.error('❌ Token error:', tokenError);
-        // Try using a default or anonymous mode if authentication isn't critical for this endpoint
         if (endpoint.startsWith('/public/') || options.allowAnonymous) {
           token = null;
         } else {
-          // For most endpoints, auth is required so we'll rethrow
           throw tokenError;
         }
       }
@@ -70,17 +66,11 @@ export class ApiService {
         }
       };
       
-      console.log(`🔄 API Request: ${this.baseUrl}${endpoint}`);
-      
       // Make request
       const response = await fetch(`${this.baseUrl}${endpoint}`, fetchOptions);
       
-      console.log(`📝 API Response status: ${response.status}`);
-      
       // Handle unauthorized (token expired)
       if (response.status === 403 || response.status === 401) {
-        console.log('🔄 Token expired, attempting to refresh...');
-        // Only retry once to avoid infinite loops
         if (retryCount < 1) {
           try {
             token = await this.refreshTokenProvider();
@@ -97,7 +87,6 @@ export class ApiService {
             // Retry request with new token
             return this._executeRequest(endpoint, newOptions, retryCount + 1);
           } catch (refreshError) {
-            console.error('❌ Token refresh failed:', refreshError);
             throw new Error('Authentication failed after token refresh attempt');
           }
         } else {
@@ -115,31 +104,21 @@ export class ApiService {
           errorData = { detail: errorText };
         }
         
-        console.error(`❌ API error (${response.status}):`, errorData);
         throw new Error(errorData?.detail || `API error: ${response.status}`);
       }
       
       // Parse response as JSON, handling errors
       try {
-        const data = await response.json();
-        console.log(`✅ API Success:`, {
-          endpoint,
-          success: data.success,
-          dataKeys: Object.keys(data)
-        });
-        return data;
+        return await response.json();
       } catch (jsonError) {
-        console.error('❌ JSON parse error:', jsonError);
         return { success: true, message: 'Request successful but response was not JSON' };
       }
     } catch (error) {
-      console.error(`❌ API request failed (${endpoint}):`, error);
-      
       // Implement basic retry for network errors
       if (
         (error.message?.includes('network') || error.message?.includes('fetch')) &&
         retryCount < 2 && 
-        !options.method || options.method === 'GET'  // Only retry GETs automatically
+        (!options.method || options.method === 'GET')
       ) {
         await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
         return this._executeRequest(endpoint, options, retryCount + 1);
@@ -147,6 +126,98 @@ export class ApiService {
       
       throw error;
     }
+  }
+  
+  // Save methods
+  
+  /**
+ * Save a batch of messages in one operation
+ * @param {Array} messages Array of message objects
+ */
+async saveMessageBatch(messages) {
+  // Validate each message and ensure consistent format
+  const validatedMessages = messages.map(msg => ({
+    message_id: msg.message_id || msg.messageId,
+    content: msg.content,
+    role: msg.role || msg.type,
+    rank: msg.rank || 0,
+    provider_chat_id: msg.provider_chat_id || msg.providerChatId || msg.conversationId,
+    model: msg.model || 'unknown',
+    created_at: msg.created_at || msg.createdAt || Date.now()
+  }));
+  
+  return this.request('/save/batch/message', {
+    method: 'POST',
+    body: JSON.stringify({
+      messages: validatedMessages
+    })
+  });
+}
+
+/**
+ * Save a batch of chats in one operation
+ * @param {Array} chats Array of chat objects
+ */
+async saveChatBatch(chats) {
+  // Validate each chat and ensure consistent format
+  const validatedChats = chats.map(chat => ({
+    provider_chat_id: chat.provider_chat_id || chat.providerChatId || chat.chatId,
+    title: chat.title || chat.chatTitle || `Chat ${chat.provider_chat_id?.substring(0, 8)}`,
+    provider_name: chat.provider_name || chat.providerName || 'ChatGPT'
+  }));
+  
+  return this.request('/save/batch/chat', {
+    method: 'POST',
+    body: JSON.stringify({
+      chats: validatedChats
+    })
+  });
+}
+  
+  async saveMessage(messageData) {
+    // Validate message data before sending
+    const validatedMessage = {
+      message_id: messageData.message_id,
+      content: messageData.content,
+      role: messageData.role,
+      rank: messageData.rank || 0,
+      provider_chat_id: messageData.provider_chat_id,
+      model: messageData.model || 'unknown',
+      created_at: messageData.created_at || Date.now()
+    };
+    
+    return this.request('/save/message', {
+      method: 'POST',
+      body: JSON.stringify(validatedMessage)
+    });
+  }
+  
+  async saveChat(chatData) {
+    return this.request('/save/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        provider_chat_id: chatData.chatId,
+        title: chatData.chatTitle,
+        provider_name: chatData.providerName || 'ChatGPT'
+      })
+    });
+  }
+  
+  async saveUserMetadata(userData) {
+    // Only send fields that are present
+    const metadata = {
+      email: userData.email
+    };
+    
+    if (userData.name) metadata.name = userData.name;
+    if (userData.phone_number) metadata.phone_number = userData.phone_number;
+    if (userData.org_name) metadata.org_name = userData.org_name;
+    if (userData.picture) metadata.picture = userData.picture;
+    
+    return this.request('/save/user_metadata', {
+      method: 'POST',
+      body: JSON.stringify(metadata)
+    });
   }
   
   // User stats
@@ -344,33 +415,9 @@ async saveBatch(batchData) {
   });
 }
 
-/**
- * Save a batch of chats (conversation list)
- */
-async saveChatListBatch(chats) {
-  return this.request('/save/chat-list-batch', {
-    method: 'POST',
-    body: JSON.stringify({
-      chats: chats
-    })
-  });
-}
 
-/**
- * Save an entire conversation with all its messages in one batch operation
- * @param conversationId The conversation ID
- * @param title The conversation title
- * @param messages Array of message objects with all required fields
- */
-async saveMessagesBatch(messages) {
-  console.log("🔄🔄🔄🔄🔄 Saving messages batch:", messages);
-  return this.request('/save/batch/messages', {
-    method: 'POST',
-    body: JSON.stringify({
-      messages: messages
-    })
-  });
-}
+
+
 }
 
 // Export a singleton instance

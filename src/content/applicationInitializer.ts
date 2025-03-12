@@ -12,7 +12,6 @@ import React from 'react';
 import { networkRequestMonitor } from '@/utils/NetworkRequestMonitor';
 import { messageService } from '@/services/MessageService';
 import { UrlChangeListener } from '@/services/UrlChangeListener';
-import { conversationHandler } from '@/services/handlers/ConversationHandler';
 import { specificConversationHandler } from '@/services/handlers/SpecificConversationHandler';
 
 /**
@@ -101,8 +100,6 @@ export class AppInitializer {
     // Initialize message service
     messageService.initialize();
     
-    // Initialize conversation handler
-    await conversationHandler.initialize();
 
     // Set up specific endpoint listeners
     this.setupSpecificEndpointListeners();
@@ -114,15 +111,9 @@ export class AppInitializer {
    * Set up listeners for specific API endpoints
    */
   private setupSpecificEndpointListeners(): void {
-    // Add listener for conversation list endpoint
-    networkRequestMonitor.addListener('/backend-api/conversations', (data) => {
-      if (data && data.responseBody) {
-        conversationHandler.processConversationList(data.responseBody);
-      }
-    });
     
     // Add listener for specific conversation endpoint
-    const specificConversationRegex = /\/backend-api\/conversation\/[a-zA-Z0-9-]+$/;
+    const specificConversationRegex = '/backend-api/conversation/[a-zA-Z0-9-]+$';
     networkRequestMonitor.addListener(specificConversationRegex, (data) => {
       specificConversationHandler.processSpecificConversation(data);
     });
@@ -146,10 +137,7 @@ export class AppInitializer {
         
         // Extract chatId from URL
         const chatId = UrlChangeListener.extractChatIdFromUrl(newUrl);
-        if (chatId) {
-          // Set as current chat
-          conversationHandler.setCurrentChatId(chatId);
-        }
+       
       }
     });
     
