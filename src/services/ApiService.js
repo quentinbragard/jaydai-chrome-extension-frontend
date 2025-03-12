@@ -332,6 +332,44 @@ export class ApiService {
   async getNotificationCounts() {
     return this.request('/notifications/count');
   }
+
+  /**
+ * Save a batch of chats and messages
+ */
+async saveBatch(batchData) {
+  return this.request('/save/batch', {
+    method: 'POST',
+    body: JSON.stringify(batchData)
+  });
+}
+
+/**
+ * Save a batch of chats (conversation list)
+ */
+async saveChatListBatch(chats) {
+  return this.request('/save/chat-list-batch', {
+    method: 'POST',
+    body: JSON.stringify({
+      chats: chats
+    })
+  });
+}
+
+/**
+ * Save an entire conversation with all its messages in one batch operation
+ * @param conversationId The conversation ID
+ * @param title The conversation title
+ * @param messages Array of message objects with all required fields
+ */
+async saveMessagesBatch(messages) {
+  console.log("🔄🔄🔄🔄🔄 Saving messages batch:", messages);
+  return this.request('/save/batch/messages', {
+    method: 'POST',
+    body: JSON.stringify({
+      messages: messages
+    })
+  });
+}
 }
 
 // Export a singleton instance

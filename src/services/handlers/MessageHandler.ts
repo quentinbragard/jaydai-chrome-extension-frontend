@@ -1,5 +1,4 @@
-// src/services/chat/handlers/MessageHandler.ts
-// Handles message processing for user and assistant messages
+// src/services/handlers/MessageHandler.ts
 import { apiService } from '@/services/ApiService';
 import { MessageEvent, MessageListener, SaveMessageParams } from '../chat/types';
 import { conversationHandler } from './ConversationHandler';
@@ -9,7 +8,12 @@ import { conversationHandler } from './ConversationHandler';
  */
 export class MessageHandler {
   private messageListeners: MessageListener[] = [];
-  private processedMessages: Set<string> = new Set(); // Track processed message IDs
+  private processedMessages: Set<string> = new Set(); 
+  private pendingApiCalls: Map<string, Promise<any>> = new Map();
+  private batchSaveTimeout: number | null = null;
+  private batchSaveQueue: SaveMessageParams[] = [];
+  private readonly BATCH_SAVE_DELAY = 2000; // 2 seconds
+  private readonly MAX_BATCH_SIZE = 5;
   
   /**
    * Register a listener for new messages
@@ -25,67 +29,116 @@ export class MessageHandler {
   }
   
   /**
-   * Process a new message from any source
+   * Process a new message from any source - optimized
    */
   public processMessage(message: MessageEvent): void {
-    // Skip if we don't have a valid conversation ID
-    const conversationId = message.conversationId || conversationHandler.getCurrentChatId();
+    if (this.processedMessages.has(message.messageId)) {
+      return; // Skip already processed messages
+    }
     
     // Skip if we don't have a valid conversation ID
+    const conversationId = message.conversationId || conversationHandler.getCurrentChatId();
     if (!conversationId) {
       console.warn('⚠️ Skipping message - no conversation ID available');
       return;
     }
     
-    // Skip if already processed this message
-    if (this.processedMessages.has(message.messageId)) {
-      console.warn(`⚠️ Skipping message ${message.messageId} - already processed`);
+    this.processedMessages.add(message.messageId);
+    
+    // Prepare save parameters
+    const saveParams: SaveMessageParams = {
+      messageId: message.messageId,
+      message: message.content,
+      role: message.type,
+      rank: 0, // Could be improved with proper rank tracking
+      providerChatId: conversationId,
+      model: message.model || '',
+      thinkingTime: message.thinkingTime || 0
+    };
+    
+    // Add to batch queue
+    this.addToBatchSaveQueue(saveParams);
+    
+    // Notify listeners on next tick to avoid blocking
+    setTimeout(() => {
+      this.notifyListeners(message);
+    }, 0);
+  }
+  
+  /**
+   * Add message to batch save queue
+   */
+  private addToBatchSaveQueue(saveParams: SaveMessageParams): void {
+    this.batchSaveQueue.push(saveParams);
+    
+    // If queue has reached max size, process immediately
+    if (this.batchSaveQueue.length >= this.MAX_BATCH_SIZE) {
+      this.processBatchSaveQueue();
       return;
     }
     
-    this.processedMessages.add(message.messageId);
-    
-    console.log(`🔍 PROCESSING MESSAGE TO SAVE:`, {
-      type: message.type,
-      messageId: message.messageId, 
-      conversationId,
-      contentLength: message.content.length,
-      contentPreview: message.content.substring(0, 50) + (message.content.length > 50 ? '...' : ''),
-      timestamp: new Date(message.timestamp).toISOString()
-    });
-    
-    try {
-      // Save to backend
-      console.log(`📤 Saving message ${message.messageId} to Supabase...`);
-      
-      // This is where we send to Supabase
-      const saveParams = {
-        messageId: message.messageId,
-        message: message.content,
-        role: message.type,
-        rank: 0, // We don't have rank info here, could be improved
-        providerChatId: conversationId,
-        model: message.model || '',
-        thinkingTime: message.thinkingTime || 0
-      };
-      
-      console.log(`📦 Save params:`, saveParams);
-      
-      apiService.saveMessageToBackend(saveParams)
-        .then(response => {
-          console.log(`✅ Successfully saved message ${message.messageId} to Supabase:`, response);
-        })
-        .catch(error => {
-          console.error(`❌ Error saving message ${message.messageId} to Supabase:`, error);
-        });
-      
-      // Notify all listeners
-      this.notifyListeners(message);
-      
-      console.log(`✅ Processed ${message.type} message: ${message.messageId}`);
-    } catch (error) {
-      console.error('❌ Error processing message:', error);
+    // Otherwise schedule a delayed save
+    if (this.batchSaveTimeout === null) {
+      this.batchSaveTimeout = window.setTimeout(() => {
+        this.processBatchSaveQueue();
+      }, this.BATCH_SAVE_DELAY);
     }
+  }
+  
+  /**
+   * Process the batch save queue
+   */
+  private processBatchSaveQueue(): void {
+    // Clear timeout if it exists
+    if (this.batchSaveTimeout !== null) {
+      clearTimeout(this.batchSaveTimeout);
+      this.batchSaveTimeout = null;
+    }
+    
+    // Skip if queue is empty
+    if (this.batchSaveQueue.length === 0) {
+      return;
+    }
+    
+    // Get messages to process
+    const messagesToSave = [...this.batchSaveQueue];
+    this.batchSaveQueue = [];
+    
+    // Process each message
+    messagesToSave.forEach(saveParams => {
+      this.saveMessageToBackend(saveParams);
+    });
+  }
+  
+  /**
+   * Save message to backend with rate limiting
+   */
+  private saveMessageToBackend(saveParams: SaveMessageParams): void {
+    // Create a unique key for this message
+    const messageKey = saveParams.messageId;
+    
+    // Check if this message is already being saved
+    if (this.pendingApiCalls.has(messageKey)) {
+      return;
+    }
+    
+    // Create and track API call
+    const apiPromise = apiService.saveMessageToBackend(saveParams)
+      .then(response => {
+        console.log(`✅ Successfully saved message ${saveParams.messageId} to backend`);
+        return response;
+      })
+      .catch(error => {
+        console.error(`❌ Error saving message ${saveParams.messageId} to backend:`, error);
+        return null;
+      })
+      .finally(() => {
+        // Remove from pending calls
+        this.pendingApiCalls.delete(messageKey);
+      });
+    
+    // Store promise
+    this.pendingApiCalls.set(messageKey, apiPromise);
   }
   
   /**
@@ -94,7 +147,6 @@ export class MessageHandler {
   public clearProcessedMessages(): void {
     this.processedMessages.clear();
   }
-  
   
   /**
    * Notify all listeners of a new message

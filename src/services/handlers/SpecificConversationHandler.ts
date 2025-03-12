@@ -1,6 +1,5 @@
-// src/services/chat/handlers/SpecificConversationHandler.ts
-import { messageHandler } from './MessageHandler';
-import { conversationHandler } from './ConversationHandler';
+// src/services/handlers/SpecificConversationHandler.ts
+import { apiService } from '../ApiService'; // Assuming you have this service
 
 /**
  * Handles processing of complete conversation data from specific conversation endpoints
@@ -24,143 +23,100 @@ export class SpecificConversationHandler {
   /**
    * Process a complete conversation response from the specific conversation endpoint
    */
-  public processSpecificConversation(data: any): void {
+  public async processSpecificConversation(data: any): Promise<void> {
+    console.log('💬 Processing specific conversation:', data);
     try {
       if (!data || !data.responseBody) return;
       
-      const conversation = data.responseBody;
-      if (!conversation || !conversation.id) {
+      const conversationData = data.responseBody;
+      if (!conversationData || !conversationData.conversation_id) {
         console.warn('⚠️ Invalid conversation data received');
         return;
       }
       
-      const conversationId = conversation.id;
+      const conversationId = conversationData.conversation_id;
       
-      // Skip if we've already processed this conversation
+      // Skip if we've already processed this conversation recently
       if (this.processedConversations.has(conversationId)) {
         return;
       }
       
       console.log(`📑 Processing complete conversation: ${conversationId}`);
       
-      // Update conversation info
-      conversationHandler.processConversation({
-        id: conversationId,
-        title: conversation.title || `Chat ${conversationId.substring(0, 8)}`,
-        create_time: conversation.create_time,
-        update_time: conversation.update_time
-      });
-      
       // Process all messages in the conversation
-      if (conversation.mapping && typeof conversation.mapping === 'object') {
-        this.processConversationMapping(conversation.mapping, conversationId);
+      if (conversationData.mapping && typeof conversationData.mapping === 'object') {
+        const messages = this.extractMessagesFromMapping(conversationData.mapping, conversationId);
+        
+        if (messages.length > 0) {
+          try {
+            // Directly call the batch API with messages
+            console.log("🔄🔄🔄🔄🔄 Saving messages batch:", messages);
+            await apiService.saveMessagesBatch(messages);
+            console.log(`✅ Successfully sent ${messages.length} messages to batch API for conversation: ${conversationId}`);
+          } catch (error) {
+            console.error('❌ Error sending messages to batch API:', error);
+          }
+        }
       }
       
-      // Mark as processed
+      // Mark as processed to avoid duplicate processing in short timeframe
       this.processedConversations.add(conversationId);
       
-      console.log(`✅ Processed conversation with ${Object.keys(conversation.mapping || {}).length} nodes`);
+      // Clear old processed IDs after some time to allow re-processing if needed
+      setTimeout(() => {
+        this.processedConversations.delete(conversationId);
+      }, 60000); // 1 minute
+      
+      console.log(`✅ Processed conversation with ID: ${conversationId}`);
     } catch (error) {
       console.error('❌ Error processing specific conversation:', error);
     }
   }
   
   /**
-   * Process the conversation mapping structure containing all messages
+   * Extract all messages from the conversation mapping structure
+   * Follows conversation tree structure to preserve proper message order
    */
-  private processConversationMapping(mapping: Record<string, any>, conversationId: string): void {
+  private extractMessagesFromMapping(mapping: Record<string, any>, conversationId: string): any[] {
+    console.log("===========mapping===========", mapping);
     try {
-      // First pass: collect all nodes and their relationships
-      const nodes = new Map();
-      
-      // Skip the root nodes that don't contain actual messages
-      const rootNodeId = Object.keys(mapping).find(id => 
-        id === 'client-created-root' || 
-        (mapping[id].parent === null && mapping[id].message === null)
-      );
-      
-      // Build the node graph
-      Object.entries(mapping).forEach(([nodeId, node]) => {
-        if (node.message && node.message.content && 
-            node.message.author && node.message.author.role) {
-          nodes.set(nodeId, {
-            id: nodeId,
-            parentId: node.parent,
-            message: node.message,
-            children: node.children || []
-          });
-        }
-      });
-      
-      // Find the first level of real message nodes (children of the root)
-      let currentNodes = rootNodeId 
-        ? (mapping[rootNodeId]?.children || []).map(id => nodes.get(id)).filter(Boolean)
-        : Array.from(nodes.values()).filter(n => !n.parentId || !nodes.has(n.parentId));
-      
-      // Process nodes in order
+      // Create array to store processed messages
+      const processedMessages: any[] = [];
       let rank = 0;
-      while (currentNodes.length > 0) {
-        const nextNodes = [];
-        
-        for (const node of currentNodes) {
-          this.processMessageNode(node, rank, conversationId);
-          rank++;
-          
-          // Add children to the next level
-          const childNodes = node.children
-            .map(id => nodes.get(id))
-            .filter(Boolean);
-            
-          nextNodes.push(...childNodes);
-        }
-        
-        currentNodes = nextNodes;
-      }
-    } catch (error) {
-      console.error('❌ Error processing conversation mapping:', error);
-    }
-  }
+      
+      // Log each message in the mapping
+      Object.keys(mapping).forEach((messageId: string) => {
+        if (messageId !== "client-created-root") {
+          const message = mapping[messageId].message;
+          const role = message.author.role;
+          if (role === "user" || role === "assistant" && message.content.content_type === "text") {
+            rank += 1;
+            const createdTime = message.create_time;
+            const content = message.content.parts.join("\n");
+            const model = message.metadata.model_slug;
   
-  /**
-   * Process a single message node
-   */
-  private processMessageNode(node: any, rank: number, conversationId: string): void {
-    try {
-      const message = node.message;
-      if (!message || !message.author || !message.content) return;
-      
-      const role = message.author.role;
-      if (!role || (role !== 'user' && role !== 'assistant' && role !== 'system')) return;
-      
-      // Extract content based on content type
-      let content = '';
-      if (message.content.content_type === 'text') {
-        content = message.content.parts.join('\n');
-      } else if (typeof message.content === 'string') {
-        content = message.content;
-      } else if (message.content.parts && Array.isArray(message.content.parts)) {
-        content = message.content.parts.join('\n');
-      }
-      
-      if (!content.trim()) return;
-      
-      // Extract model information
-      let modelName = 'unknown';
-      if (message.metadata && message.metadata.model_slug) {
-        modelName = message.metadata.model_slug;
-      }
-      
-      // Process the message
-      messageHandler.processMessage({
-        type: role as 'user' | 'assistant' | 'system',
-        messageId: message.id,
-        content: content,
-        timestamp: new Date(message.create_time || Date.now()).getTime(),
-        conversationId: conversationId,
-        model: modelName
+          processedMessages.push({
+            message_id: messageId,
+            provider_chat_id: conversationId,
+            content: content,
+            role: role,
+            rank: rank,
+            model: model,
+            created_at: createdTime,
+            });
+          }
+        }
       });
+      
+      
+      
+      
+      
+      console.log('🎉 Extraction complete. Processed messages:', processedMessages);
+      return processedMessages;
     } catch (error) {
-      console.error('❌ Error processing message node:', error);
+      console.error('❌ Error extracting messages from mapping:', error);
+      return [];
     }
   }
 }

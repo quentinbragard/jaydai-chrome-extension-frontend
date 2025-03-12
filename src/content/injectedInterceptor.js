@@ -7,45 +7,17 @@
   const originalXHROpen = XMLHttpRequest.prototype.open;
   const originalXHRSend = XMLHttpRequest.prototype.send;
   
-  // Define endpoints we're interested in - EXPANDED to include specific conversation endpoints
+  // Define endpoints we're interested in - EXPANDED to better match conversation patterns
   const ENDPOINTS = {
     USER_INFO: '/backend-api/me',
     CONVERSATIONS_LIST: '/backend-api/conversations',
     CHAT_COMPLETION: '/backend-api/conversation',
-    SPECIFIC_CONVERSATION: new RegExp('/backend-api/conversation/[a-z0-9-]+$')
+    // Updated regex to ONLY match UUID-like chat IDs and exclude "init" and other keywords
+    SPECIFIC_CONVERSATION: new RegExp('/backend-api/conversation/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$')
   };
   
-  // Track processed requests to avoid duplicates
-  const processedRequests = new Set();
+  // And update the getEndpointType function to be more precise:
   
-  /**
-   * Send intercepted data back to the extension
-   */
-  function sendToExtension(type, data) {
-
-    
-    try {
-      // Create and dispatch a custom event
-      const event = new CustomEvent('archimind-network-intercept', {
-        detail: {
-          type,
-          data,
-          timestamp: Date.now()
-        }
-      });
-      
-      // Dispatch the event
-      document.dispatchEvent(event);
-      
-      // Verify event was dispatched
-    } catch (error) {
-      console.error(`❌ Error dispatching ${type} event:`, error);
-    }
-  }
-  
-  /**
-   * Check if a URL matches our target endpoints
-   */
   function getEndpointType(url) {
     if (!url) return null;
     
@@ -65,127 +37,150 @@
     }
     
     // Check for specific conversation detail endpoint (check this first since it's more specific)
+    // This will only match UUIDs and not keywords like "init"
     if (ENDPOINTS.SPECIFIC_CONVERSATION.test(pathname)) {
+      // Extract the chat ID from the URL for logging
+      const match = pathname.match(ENDPOINTS.SPECIFIC_CONVERSATION);
+      const chatId = match ? match[1] : null;
+      console.log(`🔍 Detected specific conversation endpoint for chat: ${chatId}`);
       return 'specificConversation';
     }
     
-    // Check for user info endpoint - exact match for /backend-api/me
+    // Other endpoint checks remain the same
     if (pathname === ENDPOINTS.USER_INFO) {
       return 'userInfo';
     }
     
-    // Check for conversations list endpoint
     if (pathname.startsWith(ENDPOINTS.CONVERSATIONS_LIST)) {
       return 'conversationList';
     }
     
-    // Check for chat completion endpoint
-    if (pathname.startsWith(ENDPOINTS.CHAT_COMPLETION)) {
+    // Make sure this doesn't match specific conversation endpoints we want to handle separately
+    if (pathname.startsWith(ENDPOINTS.CHAT_COMPLETION) && !ENDPOINTS.SPECIFIC_CONVERSATION.test(pathname)) {
       return 'chatCompletion';
     }
     
     return null;
   }
-
-/**
- * Process a streaming response and send delta events to the extension
- * This version adds better debugging and handling of the delta events
- */
-function processStreamingResponse(response, url, requestBody) {
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
-  let assistantAnswer = '';
-  let messageId = null;
-  let modelId = null;
-  let conversationId = requestBody?.conversation_id || null;
-  let realResponseStarted = false;
   
-  reader.read().then(function processChunk({ done, value }) {
+  // Track processed requests to avoid duplicates
+  const processedRequests = new Set();
+  const MAX_PROCESSED_REQUESTS = 200;
+  
+  /**
+   * Send intercepted data back to the extension
+   */
+  function sendToExtension(type, data) {
+    try {
+      // Create and dispatch a custom event
+      const event = new CustomEvent('archimind-network-intercept', {
+        detail: {
+          type,
+          data,
+          timestamp: Date.now()
+        }
+      });
+      
+      // Dispatch the event
+      document.dispatchEvent(event);
+    } catch (error) {
+      console.error(`Error dispatching ${type} event:`, error);
+    }
+  }
+  
 
+  /**
+   * Process a streaming response and send delta events to the extension
+   */
+  function processStreamingResponse(response, url, requestBody) {
+    // Clone the response to avoid consuming the original
+    const clonedResponse = response.clone();
+    const reader = clonedResponse.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let assistantAnswer = '';
+    let messageId = null;
+    let modelId = null;
+    let conversationId = requestBody?.conversation_id || null;
     
-    // Decode and add to buffer
-    const chunk = decoder.decode(value, { stream: true });
-    buffer += chunk;
-    
-    // Process complete events in the buffer
-    const events = buffer.split('\n\n');
-    buffer = events.pop() || ''; // Keep the last incomplete chunk in the buffer
-    
-    for (const event of events) {
-      if (!event.trim()) continue;
-      
-      const dataMatch = event.match(/data: (.+)$/m);
-      if (!dataMatch) continue;
-      const eventMatch = event.match(/event: (.+)$/m);
-      
-      // Skip [DONE] marker
-      if (dataMatch[1].trim() === '[DONE]') continue;
-      
-      try {
-        const delta = JSON.parse(dataMatch[1]);
-        
-        // CASE 1: Initial message creation
-        if (delta.v && delta.v.message) {
-          messageId = delta.v.message.id;
-          modelId = delta.v.message.metadata?.model_slug || 'unknown';
-          conversationId = delta.v.conversation_id || conversationId;
-
-        }
-        
-        // CASE 2: Content append - with path (actual assistant response)
-        else if (delta.o === 'append' && delta.p?.includes('/message/content/parts/') && typeof delta.v === 'string') {
-          realResponseStarted = true; // Mark that we're now receiving the real response
-          assistantAnswer += delta.v;
-        }
-        
-        // CASE 3: Direct string values - only append if it's NOT a thinking step
-        // This is the key change - we only include direct string values if we've already started a real response
-        else if (typeof delta.v === 'string' && realResponseStarted) {
-          assistantAnswer += delta.v;
-        }
-        
-        // CASE 4: Completion signals
-        else if (delta.p?.includes('/message/metadata') && delta.v?.is_complete) {
-          if (realResponseStarted) {
+    // We'll use a more efficient Promise-based approach
+    function processStream() {
+      reader.read().then(({ done, value }) => {
+        // If stream is done, finalize
+        if (done) {
+          if (messageId && assistantAnswer) {
             sendToExtension('streamingComplete', {
               url,
               conversationId,
               messageId,
               content: assistantAnswer,
-              model: modelId
+              model: modelId || 'unknown'
             });
           }
+          return;
         }
         
-        // CASE 5: Another completion format (finished_successfully)
-        else if (Array.isArray(delta.v) && delta.v.some(item => item.v === "finished_successfully")) {
-          if (realResponseStarted) {
-            sendToExtension('streamingComplete', {
-              url,
-              conversationId,
-              messageId,
-              content: assistantAnswer,
-              model: modelId
-            });
+        try {
+          // Process this chunk
+          const chunk = decoder.decode(value, { stream: true });
+          buffer += chunk;
+          
+          // Extract any complete events
+          const events = buffer.split('\n\n');
+          buffer = events.pop() || '';
+          
+          // Process each event
+          for (const event of events) {
+            if (!event.trim()) continue;
+            
+            const dataMatch = event.match(/data: (.+)$/m);
+            if (!dataMatch || dataMatch[1].trim() === '[DONE]') continue;
+            
+            try {
+              const delta = JSON.parse(dataMatch[1]);
+              
+              // Extract message ID if available
+              if (delta.message_id && !messageId) {
+                messageId = delta.message_id;
+              } else if (delta.id && !messageId) {
+                messageId = delta.id;
+              } else if (delta.v && delta.v.message && delta.v.message.id && !messageId) {
+                messageId = delta.v.message.id;
+                modelId = delta.v.message.metadata?.model_slug || modelId;
+                conversationId = delta.v.conversation_id || conversationId;
+              }
+              
+              // Extract content from appropriate delta types
+              if (delta.o === 'append' && delta.p?.includes('/message/content/parts/') && typeof delta.v === 'string') {
+                assistantAnswer += delta.v;
+              } 
+              // Handle direct content
+              else if (delta.content || delta.delta?.content) {
+                const content = delta.content || delta.delta.content;
+                if (typeof content === 'string') {
+                  assistantAnswer += content;
+                }
+              }
+            } catch (e) {
+              // Skip unparseable data
+            }
           }
+          
+          // Continue reading
+          processStream();
+        } catch (error) {
+          console.error('Error processing stream chunk:', error);
+          // Try to continue despite errors
+          processStream();
         }
-      } catch (e) {
-        // Skip unparseable data
-      }
+      }).catch(error => {
+        console.error('Stream reading error:', error);
+      });
     }
     
-    // Continue reading
-    return reader.read().then(processChunk);
-  }).catch(error => {
-    // Notify about error
-    sendToExtension('streamingError', {
-      url,
-      error: error.message,
-      conversationId
-    });
-  });
-}
+    // Start processing
+    processStream();
+  }
 
   /**
    * Override fetch API to intercept requests
@@ -196,6 +191,16 @@ function processStreamingResponse(response, url, requestBody) {
     
     // Get the endpoint type
     const endpointType = getEndpointType(url);
+    
+    // Skip processing if not an endpoint we care about
+    if (!endpointType) {
+      return originalFetch.apply(this, arguments);
+    }
+    
+    // Skip if already processed
+    if (processedRequests.has(requestId)) {
+      return originalFetch.apply(this, arguments);
+    }
     
     let requestBody = null;
     
@@ -214,63 +219,44 @@ function processStreamingResponse(response, url, requestBody) {
       }
     }
     
+    // Add to processed requests with limit
+    processedRequests.add(requestId);
+    if (processedRequests.size > MAX_PROCESSED_REQUESTS) {
+      // Remove oldest entries
+      const oldestEntries = Array.from(processedRequests).slice(0, 50);
+      oldestEntries.forEach(entry => processedRequests.delete(entry));
+    }
+    
     // Call original fetch
     const response = await originalFetch.apply(this, arguments);
     
-    // Only process if it's an endpoint we care about
-    if (endpointType && !processedRequests.has(requestId)) {
-      processedRequests.add(requestId);
+    // Skip processing responses other than 200-299
+    if (!response.ok) {
+      return response;
+    }
+    
+    // Process response based on type
+    try {
+      // Check if response is streaming
+      const isStreaming = response.headers.get('content-type')?.includes('text/event-stream') || false;
       
-      // Clean up processedRequests if it gets too large
-      if (processedRequests.size > 1000) {
-        const oldestEntries = Array.from(processedRequests).slice(0, 500);
-        oldestEntries.forEach(entry => processedRequests.delete(entry));
-      }
-      
-      // Process response based on type
-      try {
-        // Check if response is streaming (text/event-stream)
-        const isStreaming = response.headers.get('content-type')?.includes('text/event-stream') || false;
-        
-        if (endpointType === 'chatCompletion') {
-          // For streaming responses
-          if (isStreaming) {
-            // Clone the response to avoid consuming it
-            const streamClone = response.clone();
-            
-            // Send basic metadata to extension
-            sendToExtension(endpointType, {
-              url,
-              requestBody,
-              method: init?.method || 'GET',
-              isStreaming: true,
-              metadata: {
-                url,
-                headers: Object.fromEntries(response.headers.entries()),
-                status: response.status
-              }
-            });
-            
-            // Process the stream
-            processStreamingResponse(streamClone, url, requestBody);
-          } else {
-            // Handle non-streaming responses
-            response.clone().json().then(data => {
-              sendToExtension(endpointType, {
-                url,
-                requestBody,
-                responseBody: data,
-                method: init?.method || 'GET',
-                isStreaming: false
-              });
-            }).catch(e => {
-              console.error('Error parsing JSON from response:', e);
-            });
-          }
-        } else if (!isStreaming) {
-          // For other non-streaming endpoint types (userInfo, conversationList, specificConversation)
+      if (endpointType === 'chatCompletion') {
+        // For streaming responses
+        if (isStreaming) {
+          // Send initial metadata
+          sendToExtension('chatCompletion', {
+            url,
+            requestBody,
+            method: init?.method || 'GET',
+            isStreaming: true
+          });
+          
+          // Process the stream
+          processStreamingResponse(response, url, requestBody);
+        } else {
+          // For non-streaming, clone and process asynchronously
           response.clone().json().then(data => {
-            sendToExtension(endpointType, {
+            sendToExtension('chatCompletion', {
               url,
               requestBody,
               responseBody: data,
@@ -278,13 +264,39 @@ function processStreamingResponse(response, url, requestBody) {
               isStreaming: false
             });
           }).catch(e => {
-            console.error(`Error parsing JSON for ${endpointType}:`, e);
+            // Silent fail for JSON parsing
           });
         }
-      } catch (error) {
-        // Error processing intercepted fetch
-        console.error('Error processing intercepted fetch:', error);
+      } 
+      else if (endpointType === 'specificConversation') {
+        // Special handling for specific conversation endpoints
+        response.clone().json().then(data => {
+          sendToExtension('specificConversation', {
+            url,
+            requestBody,
+            responseBody: data,
+            method: init?.method || 'GET'
+          });
+        }).catch(e => {
+          console.error(`Error parsing JSON for ${endpointType}:`, e);
+        });
       }
+      else if (!isStreaming) {
+        // For other endpoint types
+        response.clone().json().then(data => {
+          sendToExtension(endpointType, {
+            url,
+            requestBody,
+            responseBody: data,
+            method: init?.method || 'GET'
+          });
+        }).catch(e => {
+          console.error(`Error parsing JSON for ${endpointType}:`, e);
+        });
+      }
+    } catch (error) {
+      // Error in processing - log but don't block response
+      console.error('Error processing intercepted fetch:', error);
     }
     
     // Return original response
@@ -307,6 +319,13 @@ function processStreamingResponse(response, url, requestBody) {
     const endpointType = getEndpointType(url);
     const requestId = `xhr-${url}-${Date.now()}`;
     
+    // Skip if not an endpoint we care about or already processed
+    if (!endpointType || processedRequests.has(requestId)) {
+      return originalXHRSend.apply(this, arguments);
+    }
+    
+    processedRequests.add(requestId);
+    
     // Parse request body if possible
     let requestBody = null;
     if (body) {
@@ -320,38 +339,33 @@ function processStreamingResponse(response, url, requestBody) {
       }
     }
     
-    // Only add listener if it's an endpoint we care about
-    if (endpointType && !processedRequests.has(requestId)) {
-      processedRequests.add(requestId);
-      
-      // Add load event listener
-      this.addEventListener('load', function() {
-        if (this.status >= 200 && this.status < 300) {
-          try {
-            const responseText = this.responseText;
-            if (responseText) {
-              let responseData;
-              try {
-                responseData = JSON.parse(responseText);
-              } catch (e) {
-                responseData = { rawText: responseText.substring(0, 1000) };
-              }
-              
-              sendToExtension(endpointType, {
-                url,
-                requestBody,
-                responseBody: responseData,
-                method,
-                isStreaming: false
-              });
+    // Add load event listener
+    this.addEventListener('load', function() {
+      if (this.status >= 200 && this.status < 300) {
+        try {
+          const responseText = this.responseText;
+          if (responseText) {
+            let responseData;
+            try {
+              responseData = JSON.parse(responseText);
+            } catch (e) {
+              responseData = { rawText: responseText.substring(0, 1000) };
             }
-          } catch (error) {
-            // Error processing XHR response
-            console.error('Error processing XHR response:', error);
+            
+            sendToExtension(endpointType, {
+              url,
+              requestBody,
+              responseBody: responseData,
+              method,
+              isStreaming: false
+            });
           }
+        } catch (error) {
+          // Error processing XHR response
+          console.error('Error processing XHR response:', error);
         }
-      });
-    }
+      }
+    });
     
     // Call original send
     return originalXHRSend.apply(this, arguments);
