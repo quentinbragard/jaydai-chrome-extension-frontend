@@ -5,17 +5,14 @@ import { MessageEvent } from './chat/types';
 
 /**
  * Service to intercept and process chat messages from ChatGPT
+ * Focused on network request interception with no DOM dependencies
  */
 export class MessageService {
   private static instance: MessageService;
   private cleanupListeners: (() => void)[] = [];
   private processedMessageIds: Set<string> = new Set();
   private storageKey: string = 'archimind_recent_messages';
-  private inProcessMessages: Map<string, boolean> = new Map(); // Track in-process messages
-  private processingDelay: number = 50; // ms between processing messages
-  
-  // Configuration option for saving thinking steps
-  private saveThinkinSteps: boolean = false;
+  private inProcessMessages: Map<string, boolean> = new Map();
   
   private constructor() {}
   
@@ -30,7 +27,7 @@ export class MessageService {
   }
   
   /**
-   * Initialize the service - intercept messages
+   * Initialize the service - intercept messages via network requests
    */
   public initialize(): void {
     console.log('💬 Initializing message service...');
@@ -55,24 +52,34 @@ export class MessageService {
   }
   
   /**
-   * Handle chat completion captured by network monitor - optimized
+   * Handle chat completion captured by network monitor
    */
   private handleChatCompletionCapture(data: any): void {
+    console.log("====CHAT COMPLETION CAPTURED=====", data);
     if (!data) return;
     
-    // Use debounce to prevent excessive processing
     setTimeout(() => {
       try {
         const { requestBody, responseBody, isStreaming } = data;
         
-        // Process user message from request body if present - but don't block
+        // Process user message from request body if present
         if (requestBody && requestBody.messages && requestBody.messages.length > 0) {
-          setTimeout(() => this.processUserMessage(requestBody), this.processingDelay);
+          const userMessage = this.extractUserMessage(requestBody);
+          if (userMessage) {
+            this.processMessage({
+              type: 'user',
+              messageId: userMessage.id,
+              content: userMessage.content,
+              timestamp: Date.now(),
+              conversationId: requestBody.conversation_id || null,
+              model: requestBody.model || userMessage.model
+            });
+          }
         }
         
-        // For non-streaming responses only
-        if (!isStreaming && responseBody) {
-          setTimeout(() => this.processAssistantMessage(responseBody), this.processingDelay);
+        // For non-streaming responses
+        if (!isStreaming && responseBody && responseBody.message) {
+          this.processAssistantMessage(responseBody);
         }
       } catch (error) {
         console.error('❌ Error processing chat completion:', error);
@@ -81,66 +88,48 @@ export class MessageService {
   }
   
   /**
-   * Process user message from request body - optimized
+   * Extract user message from request body
    */
-  private processUserMessage(requestBody: any): void {
-    if (!requestBody || !requestBody.messages || !requestBody.messages.length) return;
-    
+  private extractUserMessage(requestBody: any): { id: string, content: string, model?: string } | null {
     try {
-      // Look for the user message in the request body
-      const userMessage = requestBody.messages.find((m: any) => 
+      // Find the user message
+      const message = requestBody.messages.find((m: any) => 
         m.author?.role === 'user' || 
         m.role === 'user'
       );
       
-      if (!userMessage) return;
-      
-      const messageId = userMessage.id || `user-${Date.now()}`;
-      
-      // Skip if already processed or in process
-      if (this.processedMessageIds.has(messageId) || this.inProcessMessages.has(messageId)) return;
-      this.inProcessMessages.set(messageId, true);
+      if (!message) return null;
       
       // Extract content
       let content = '';
-      if (userMessage.content?.parts && Array.isArray(userMessage.content.parts)) {
-        content = userMessage.content.parts.join('\n');
-      } else if (typeof userMessage.content === 'string') {
-        content = userMessage.content;
+      if (message.content?.parts && Array.isArray(message.content.parts)) {
+        content = message.content.parts.join('\n');
+      } else if (typeof message.content === 'string') {
+        content = message.content;
       }
       
-      if (!content) {
-        this.inProcessMessages.delete(messageId);
-        return;
-      }
+      if (!content) return null;
       
-      messageHandler.processMessage({
-        type: 'user',
-        messageId: messageId,
+      return {
+        id: message.id || `user-${Date.now()}`,
         content: content,
-        timestamp: userMessage.create_time || Date.now(),
-        conversationId: requestBody.conversation_id || null,
-        model: requestBody.model || 'unknown'
-      });
-      
-      this.processedMessageIds.add(messageId);
-      this.inProcessMessages.delete(messageId);
+        model: requestBody.model
+      };
     } catch (error) {
-      console.error('❌ Error processing user message:', error);
+      console.error('❌ Error extracting user message:', error);
+      return null;
     }
   }
   
   /**
-   * Process assistant message from response body - optimized
+   * Process assistant message from response body
    */
   private processAssistantMessage(responseBody: any): void {
-    if (!responseBody || !responseBody.message) return;
-    
     try {
       const message = responseBody.message;
       const messageId = message.id || `assistant-${Date.now()}`;
       
-      // Skip if already processed or in process
+      // Skip if already processed
       if (this.processedMessageIds.has(messageId) || this.inProcessMessages.has(messageId)) return;
       this.inProcessMessages.set(messageId, true);
       
@@ -159,16 +148,12 @@ export class MessageService {
         return;
       }
       
-      // Extract role
+      // Extract role and model
       const role = message.author?.role || 'assistant';
+      const model = message.metadata?.model_slug || responseBody.model || 'unknown';
       
-      // Extract model information
-      const model = message.metadata?.model_slug || 
-                   responseBody.model || 
-                   'unknown';
-      
-      // Process with a slight delay to not block UI
-      messageHandler.processMessage({
+      // Process message
+      this.processMessage({
         type: role,
         messageId: messageId,
         content: messageContent,
@@ -177,7 +162,6 @@ export class MessageService {
         model: model
       });
       
-      this.processedMessageIds.add(messageId);
       this.inProcessMessages.delete(messageId);
     } catch (error) {
       console.error('❌ Error processing assistant message:', error);
@@ -185,14 +169,13 @@ export class MessageService {
   }
   
   /**
-   * Handle events from the network interceptor - optimized
+   * Handle events from the network interceptor
    */
   private handleInterceptEvent(event: any): void {
     if (!event.detail) return;
     
     const detail = event.detail;
     
-    // Process in next tick to prevent UI blocking
     setTimeout(() => {
       try {
         // Handle chat completion events
@@ -200,7 +183,7 @@ export class MessageService {
           this.handleChatCompletionCapture(detail.data);
         }
         
-        // Handle direct streaming completion event - this is the more efficient path
+        // Handle direct streaming completion event
         else if (detail.type === 'streamingComplete' && detail.data) {
           const { messageId, content, model, conversationId } = detail.data;
           
@@ -213,7 +196,7 @@ export class MessageService {
           this.inProcessMessages.set(messageId, true);
           
           // Process the complete message directly
-          messageHandler.processMessage({
+          this.processMessage({
             type: 'assistant',
             messageId,
             content,
@@ -222,14 +205,7 @@ export class MessageService {
             model: model || 'unknown'
           });
           
-          // Mark as processed
-          this.processedMessageIds.add(messageId);
           this.inProcessMessages.delete(messageId);
-          
-          // Save periodically
-          if (this.processedMessageIds.size % 20 === 0) {
-            this.saveProcessedMessageIds();
-          }
         }
       } catch (error) {
         console.error('❌ Error in handleInterceptEvent:', error);
@@ -238,10 +214,28 @@ export class MessageService {
   }
   
   /**
-   * Save processed message IDs to storage - with throttling
+   * Process a message and save it
+   */
+  private processMessage(message: MessageEvent): void {
+    // Skip if already processed
+    if (this.processedMessageIds.has(message.messageId)) return;
+    
+    // Also use the message handler for any additional processing
+    messageHandler.processMessage(message);
+    
+    // Mark as processed
+    this.processedMessageIds.add(message.messageId);
+    
+    // Save periodically
+    if (this.processedMessageIds.size % 20 === 0) {
+      this.saveProcessedMessageIds();
+    }
+  }
+  
+  /**
+   * Save processed message IDs to storage
    */
   private saveProcessedMessageIds(): void {
-    // Limit to prevent storage bloat
     try {
       // Keep only the most recent 500 message IDs 
       const recentIds = Array.from(this.processedMessageIds).slice(-500);
@@ -259,7 +253,6 @@ export class MessageService {
     try {
       chrome.storage.local.get([this.storageKey], (result) => {
         if (result && result[this.storageKey] && Array.isArray(result[this.storageKey])) {
-          // Only load up to 500 IDs to prevent memory bloat
           const ids = result[this.storageKey].slice(-500);
           ids.forEach((id: string) => {
             this.processedMessageIds.add(id);
@@ -270,31 +263,6 @@ export class MessageService {
     } catch (error) {
       console.error('❌ Error loading processed message IDs from storage:', error);
     }
-  }
-  
-  /**
-   * Process a message directly - with optimization
-   */
-  public processMessage(message: MessageEvent): void {
-    // Skip if already processed or in process
-    if (this.processedMessageIds.has(message.messageId) || 
-        this.inProcessMessages.has(message.messageId)) {
-      return;
-    }
-    
-    this.inProcessMessages.set(message.messageId, true);
-    
-    // Process with a slight delay
-    setTimeout(() => {
-      messageHandler.processMessage(message);
-      this.processedMessageIds.add(message.messageId);
-      this.inProcessMessages.delete(message.messageId);
-      
-      // Save periodically
-      if (this.processedMessageIds.size % 20 === 0) {
-        this.saveProcessedMessageIds();
-      }
-    }, this.processingDelay);
   }
   
   /**

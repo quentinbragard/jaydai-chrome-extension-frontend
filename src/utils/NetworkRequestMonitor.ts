@@ -1,4 +1,8 @@
 // src/utils/NetworkRequestMonitor.ts
+/**
+ * Monitors network requests intercepted by the injected script
+ * Optimized for efficiency and performance
+ */
 export class NetworkRequestMonitor {
   private static instance: NetworkRequestMonitor;
   private isInitialized: boolean = false;
@@ -23,7 +27,7 @@ export class NetworkRequestMonitor {
   }
   
   /**
-   * Initialize the monitor - simplified
+   * Initialize the monitor
    */
   public initialize(): boolean {
     if (this.isInitialized) return true;
@@ -31,12 +35,11 @@ export class NetworkRequestMonitor {
     try {
       console.log('🔍 Initializing network request monitor');
       
-      // Notify background script that we're starting monitoring
-      // Use a timeout to avoid blocking initialization
+      // Notify background script to start monitoring
       setTimeout(() => {
         chrome.runtime.sendMessage({ action: 'start-network-monitoring' }, (response) => {
           if (response && response.success) {
-            console.log('✅ Background acknowledged network monitoring');
+            console.log('✅ Background script acknowledged network monitoring');
           } else {
             console.log('⚠️ Using fallback monitor approach');
           }
@@ -56,17 +59,17 @@ export class NetworkRequestMonitor {
   }
   
   /**
-   * Handle a captured request - optimized with debounce
+   * Handle a captured request with efficient event throttling
    */
   private handleCapturedRequest(event: CustomEvent): void {
-    // Don't block the main thread
+    // Process in next tick to avoid blocking the main thread
     setTimeout(() => {
       try {
         const detail = event.detail;
-        if (!detail || !detail.data || !detail.data.url) return;
+        if (!detail || !detail.data) return;
         
         const data = detail.data;
-        const url = data.url;
+        const url = data.url || '';
         const type = detail.type;
         
         // Process for all registered listeners - both regex and string patterns
@@ -78,43 +81,41 @@ export class NetworkRequestMonitor {
   }
   
   /**
-   * Process listeners for a URL
+   * Process listeners for a URL with optimized pattern matching
    */
   private processListenersForUrl(url: string, type: string, data: any): void {
-    // First check string patterns
+    // Event type listeners have highest priority
+    this.notifyListeners(type, data);
+    
+    // Check string patterns (fast path)
     for (const pattern of this.urlPatterns) {
       if (url.includes(pattern)) {
         this.notifyListeners(pattern, data);
       }
     }
     
-    // Then check regex patterns
+    // Check regex patterns (slower path)
     this.regexPatterns.forEach((regex, patternKey) => {
       if (regex.test(url)) {
         this.notifyListeners(patternKey, data);
       }
     });
-    
-    // Also notify any listeners registered directly for this endpoint type
-    this.notifyListeners(type, data);
   }
   
   /**
-   * Notify listeners for a specific pattern
+   * Notify listeners for a specific pattern with debounced execution
    */
   private notifyListeners(pattern: string, data: any): void {
-    const listeners = this.listeners.get(pattern) || [];
+    const listeners = this.listeners.get(pattern);
+    if (!listeners || listeners.length === 0) return;
     
-    // Process each listener in a separate tick
-    listeners.forEach((listener, index) => {
-      // Stagger listener execution to prevent thread blocking
-      setTimeout(() => {
-        try {
-          listener(data);
-        } catch (error) {
-          console.error(`❌ Error in listener for ${pattern}:`, error);
-        }
-      }, index * 5); // 5ms between listeners
+    // Process each listener with minimal staggering for performance
+    listeners.forEach(listener => {
+      try {
+        listener(data);
+      } catch (error) {
+        console.error(`❌ Error in listener for ${pattern}:`, error);
+      }
     });
   }
   
@@ -176,7 +177,9 @@ export class NetworkRequestMonitor {
    * Clean up resources
    */
   public cleanup(): void {
-    // Tell background script to stop monitoring - don't block
+    if (!this.isInitialized) return;
+    
+    // Tell background script to stop monitoring
     setTimeout(() => {
       chrome.runtime.sendMessage({ action: 'stop-network-monitoring' });
     }, 0);

@@ -11,16 +11,12 @@ import { SettingsDialog } from '@/components/SettingsDialog';
 import React from 'react';
 import { networkRequestMonitor } from '@/utils/NetworkRequestMonitor';
 import { messageService } from '@/services/MessageService';
-import { batchSaveService } from '@/services/BatchSaveService';
 import { UrlChangeListener } from '@/services/UrlChangeListener';
 import { conversationHandler } from '@/services/handlers/ConversationHandler';
 import { specificConversationHandler } from '@/services/handlers/SpecificConversationHandler';
-import { chatListScanner } from '@/utils/ChatListScanner';
-
-
 
 /**
- * Main application initializer - optimized for performance
+ * Main application initializer
  * Coordinates the initialization of all services and components
  */
 export class AppInitializer {
@@ -29,9 +25,8 @@ export class AppInitializer {
   private isAuthenticating: boolean = false;
   private settingsOpen: boolean = false;
   private resizeHandler: (() => void) | null = null;
-  private observerTimeout: number | null = null;
-  private statsPanelUpdateTimeout: number | null = null;
   private mutationObserver: MutationObserver | null = null;
+  private statsPanelUpdateTimeout: number | null = null;
   
   private constructor() {}
   
@@ -46,123 +41,189 @@ export class AppInitializer {
   }
   
   /**
- * Initialize the application with performance optimizations
- */
-public async initialize(): Promise<boolean> {
-  // Skip if already initialized
-  if (this.isInitialized) {
-    return true;
-  }
-  
-  // Skip if we're not on ChatGPT
-  if (!this.isChatGPTSite()) {
-    return false;
-  }
-  
-  try {
-    console.log('🚀 Initializing Archimind application...');
+   * Initialize the application
+   */
+  public async initialize(): Promise<boolean> {
+    // Skip if already initialized
+    if (this.isInitialized) {
+      return true;
+    }
     
-    // 1. First authenticate user - must be done synchronously 
-    const isAuthenticated = await this.authenticateUser();
-    if (!isAuthenticated) {
-      console.error('❌ User authentication failed');
+    // Skip if we're not on ChatGPT
+    if (!this.isChatGPTSite()) {
       return false;
     }
     
-    // 2. Initialize essential core services first
-    await this.initializeCoreServices();
-    
-    // 3. Inject UI components after a delay to allow page to load
-    setTimeout(() => {
-      this.injectUIComponents();
-    }, 800);
-    
-    // 4. Initialize secondary services with a delay
-    setTimeout(() => {
-      this.initializeSecondaryServices();
-    }, 1500);
-    
-    // 5. Set up URL change monitoring
-    this.setupUrlChangeMonitoring();
-    
-    this.setupMessageListeners();
-    
-    // 7. IMPORTANT: Scan the sidebar for all existing chats and save in batch
-    // Do this with a sufficient delay to ensure the sidebar is loaded
-    setTimeout(() => {
-      chatListScanner.scanAndSaveChatList();
-    }, 3000);
-    
-    this.isInitialized = true;
-    console.log('✅ Archimind application initialized successfully');
-    return true;
-  } catch (error) {
-    console.error('❌ Error initializing application:', error);
-    return false;
-  }
-}
-
-/**
- * Initialize core services - those needed immediately
- */
-private async initializeCoreServices(): Promise<void> {
-  console.log('🔧 Initializing core services...');
-  
-  // Initialize network monitoring first since other services depend on it
-  networkRequestMonitor.initialize();
-  
-  // Initialize batch save service
-  batchSaveService.initialize();
-  
-  // Initialize message service - critical for capturing chat data
-  messageService.initialize();
-
-   // Set up specific endpoint listeners for conversation data
-   this.setupSpecificEndpointListeners();
-  
-  console.log('✅ Core services initialized');
-}
-
-/**
- * Set up listeners for specific API endpoints
- */
-private setupSpecificEndpointListeners(): void {
-  // Add listener for specific conversation endpoint (using regex pattern)
-  const specificConversationRegex = /\/backend-api\/conversation\/[a-zA-Z0-9-]+$/;
-  networkRequestMonitor.addListener(specificConversationRegex, (data) => {
-    specificConversationHandler.processSpecificConversation(data);
-  });
-  
-  // Also listen for the specific event type
-  networkRequestMonitor.addListener('specificConversation', (data) => {
-    specificConversationHandler.processSpecificConversation(data);
-  });
-  
-  console.log('✅ Specific endpoint listeners set up');
-}
-
-
-/**
- * Set up URL change monitoring to detect navigation between chats
- */
-private setupUrlChangeMonitoring(): void {
-  // Create URL change listener
-  const urlListener = new UrlChangeListener({
-    onUrlChange: (newUrl) => {
-      console.log(`🔍 URL changed: ${newUrl}`);
+    try {
+      console.log('🚀 Initializing Archimind application...');
       
-      // Extract chatId from URL
-      const chatId = UrlChangeListener.extractChatIdFromUrl(newUrl);
-      if (chatId) {
-        // Set as current chat
-        conversationHandler.setCurrentChatId(chatId);
+      // 1. Authenticate user
+      const isAuthenticated = await this.authenticateUser();
+      if (!isAuthenticated) {
+        console.error('❌ User authentication failed');
+        return false;
       }
+      
+      // 2. Initialize core services
+      await this.initializeCoreServices();
+      
+      // 3. Set up URL change monitoring
+      this.setupUrlChangeMonitoring();
+      
+      // 4. Set up message listeners
+      this.setupMessageListeners();
+      
+      // 5. Inject UI components
+      this.injectUIComponents();
+      
+      // 6. Initialize secondary services
+      await this.initializeSecondaryServices();
+      
+      this.isInitialized = true;
+      console.log('✅ Archimind application initialized successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Error initializing application:', error);
+      return false;
     }
-  });
+  }
+
+  /**
+   * Initialize core services
+   */
+  private async initializeCoreServices(): Promise<void> {
+    console.log('🔧 Initializing core services...');
+    
+    // Initialize network monitoring first since other services depend on it
+    networkRequestMonitor.initialize();
+
+    
+    // Initialize message service
+    messageService.initialize();
+    
+    // Initialize conversation handler
+    await conversationHandler.initialize();
+
+    // Set up specific endpoint listeners
+    this.setupSpecificEndpointListeners();
+    
+    console.log('✅ Core services initialized');
+  }
+
+  /**
+   * Set up listeners for specific API endpoints
+   */
+  private setupSpecificEndpointListeners(): void {
+    // Add listener for conversation list endpoint
+    networkRequestMonitor.addListener('/backend-api/conversations', (data) => {
+      if (data && data.responseBody) {
+        conversationHandler.processConversationList(data.responseBody);
+      }
+    });
+    
+    // Add listener for specific conversation endpoint
+    const specificConversationRegex = /\/backend-api\/conversation\/[a-zA-Z0-9-]+$/;
+    networkRequestMonitor.addListener(specificConversationRegex, (data) => {
+      specificConversationHandler.processSpecificConversation(data);
+    });
+    
+    // Also listen for the specific event type
+    networkRequestMonitor.addListener('specificConversation', (data) => {
+      specificConversationHandler.processSpecificConversation(data);
+    });
+    
+    console.log('✅ Specific endpoint listeners set up');
+  }
+
+  /**
+   * Set up URL change monitoring
+   */
+  private setupUrlChangeMonitoring(): void {
+    // Create URL change listener
+    const urlListener = new UrlChangeListener({
+      onUrlChange: (newUrl) => {
+        console.log(`🔍 URL changed: ${newUrl}`);
+        
+        // Extract chatId from URL
+        const chatId = UrlChangeListener.extractChatIdFromUrl(newUrl);
+        if (chatId) {
+          // Set as current chat
+          conversationHandler.setCurrentChatId(chatId);
+        }
+      }
+    });
+    
+    // Start listening for URL changes
+    urlListener.startListening();
+  }
   
-  // Start listening for URL changes
-  urlListener.startListening();
-}
+  /**
+   * Initialize secondary services
+   */
+  private async initializeSecondaryServices(): Promise<void> {
+    console.log('🔧 Initializing secondary services...');
+    
+    // Initialize template service
+    templateService.initialize();
+    
+    // Initialize notification service
+    notificationService.initialize();
+    
+    // Initialize user info service
+    userInfoService.initialize();
+    
+    // Initialize statistics service
+    statsService.initialize();
+    
+    console.log('✅ Secondary services initialized');
+  }
+  
+  /**
+   * Inject UI components
+   */
+  private injectUIComponents(): void {
+    console.log('🔧 Injecting UI components...');
+    
+    // Inject the Stats Panel
+    componentInjector.inject(StatsPanel, {}, {
+      id: 'archimind-stats-panel',
+      position: {
+        type: 'fixed',
+        top: '5px',
+        left: '50%',
+        zIndex: '10000'
+      },
+      containerStyle: {
+        transform: 'translateX(-50%)' // Center horizontally
+      }
+    });
+    
+    // Inject the Main Button
+    componentInjector.inject(MainButton, {
+      onSettingsClick: () => this.openSettings(),
+      onSaveClick: () => this.saveCurrentConversation()
+    }, {
+      id: 'archimind-main-button',
+      position: {
+        type: 'fixed',
+        bottom: '10px',
+        right: '75px',
+        zIndex: '9999'
+      }
+    });
+    
+    // Set up resize listener for responsive positioning
+    this.resizeHandler = this.debouncedUpdatePosition.bind(this);
+    window.addEventListener('resize', this.resizeHandler);
+    
+    // Initial position update
+    this.updateStatsPanelPosition();
+    
+    // Setup a lighter MutationObserver for layout changes
+    this.setupLightMutationObserver();
+    
+    console.log('✅ UI components injected');
+  }
   
   /**
    * Clean up all resources
@@ -171,24 +232,10 @@ private setupUrlChangeMonitoring(): void {
     if (!this.isInitialized) return;
     
     console.log('🧹 Cleaning up Archimind application...');
-
-    chatListScanner.resetScan();
-
-
     
-    
-    // Force save any pending changes
-    batchSaveService.forceSave();
-  
-   // Clean up batch save service
-    batchSaveService.cleanup();
+
     
     // Clear any pending timeouts
-    if (this.observerTimeout !== null) {
-      clearTimeout(this.observerTimeout);
-      this.observerTimeout = null;
-    }
-    
     if (this.statsPanelUpdateTimeout !== null) {
       clearTimeout(this.statsPanelUpdateTimeout);
       this.statsPanelUpdateTimeout = null;
@@ -205,6 +252,7 @@ private setupUrlChangeMonitoring(): void {
     notificationService.cleanup();
     messageService.cleanup();
     networkRequestMonitor.cleanup();
+    conversationHandler.cleanup();
     
     // Remove UI components
     componentInjector.removeAll();
@@ -271,113 +319,15 @@ private setupUrlChangeMonitoring(): void {
    * Check if user is authenticated
    */
   private isAuthenticated(): boolean {
-    // For simplicity, we'll just check if we can get a user ID
+    // For simplicity, check if userId exists in local storage
     return !!localStorage.getItem('userId');
   }
   
-
   /**
    * Handle network intercept events
    */
   private handleNetworkIntercept(event: CustomEvent): void {
-    // Don't need to do anything here yet - just a stub
-    // This could be used later for monitoring specific events
-  }
-  
-  /**
-   * Initialize secondary services - those that can be delayed
-   */
-  private async initializeSecondaryServices(): Promise<void> {
-    console.log('🔧 Initializing secondary services...');
-    
-    // Initialize with a chain of promises to spread the load
-    try {
-      
-      // Initialize template service
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          templateService.initialize();
-          resolve();
-        }, 300);
-      });
-      
-      // Initialize notification service
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          notificationService.initialize();
-          resolve();
-        }, 300);
-      });
-      
-      // Initialize user info service  
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          userInfoService.initialize();
-          resolve();
-        }, 300);
-      });
-      
-      // Initialize statistics service last
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          statsService.initialize();
-          resolve();
-        }, 300);
-      });
-      
-      console.log('✅ Secondary services initialized');
-    } catch (error) {
-      console.error('❌ Error initializing secondary services:', error);
-    }
-  }
-  
-  /**
-   * Inject UI components
-   */
-  private injectUIComponents(): void {
-    console.log('🔧 Injecting UI components...');
-    
-    // Inject the Stats Panel centered above the composer
-    componentInjector.inject(StatsPanel, {}, {
-      id: 'archimind-stats-panel',
-      position: {
-        type: 'fixed',
-        top: '5px',
-        left: '50%', // Will be updated by updateStatsPanelPosition
-        zIndex: '10000'
-      },
-      containerStyle: {
-        transform: 'translateX(-50%)' // Center horizontally
-      }
-    });
-    
-    // Inject the Main Button in the bottom-right corner
-    componentInjector.inject(MainButton, {
-      onSettingsClick: () => this.openSettings(),
-      onSaveClick: () => this.saveCurrentConversation()
-    }, {
-      id: 'archimind-main-button',
-      position: {
-        type: 'fixed',
-        bottom: '10px',
-        right: '75px',
-        zIndex: '9999'
-      }
-    });
-    
-    // Initial position update - with slight delay for layout to settle
-    setTimeout(() => {
-      this.updateStatsPanelPosition();
-    }, 500);
-    
-    // Set up debounced resize listener for responsive positioning
-    this.resizeHandler = this.debouncedUpdatePosition.bind(this);
-    window.addEventListener('resize', this.resizeHandler);
-    
-    // Setup a lighter, optimized MutationObserver
-    this.setupLightMutationObserver();
-    
-    console.log('✅ UI components injected');
+    // Stub for future functionality
   }
   
   /**
@@ -397,7 +347,7 @@ private setupUrlChangeMonitoring(): void {
   }
   
   /**
-   * Update the position of the stats panel to stay centered
+   * Update the position of the stats panel
    */
   private updateStatsPanelPosition(): void {
     // Find the composer parent element
@@ -417,7 +367,7 @@ private setupUrlChangeMonitoring(): void {
   }
   
   /**
-   * Setup a lighter MutationObserver that doesn't bog down the page
+   * Setup a lightweight MutationObserver for layout changes
    */
   private setupLightMutationObserver(): void {
     // Clear any existing observer
@@ -428,7 +378,7 @@ private setupUrlChangeMonitoring(): void {
     
     // Create a new observer
     this.mutationObserver = new MutationObserver((mutations) => {
-      // Check if any of the mutations affect layout
+      // Check if any mutations affect layout
       const layoutChanged = mutations.some(mutation => {
         // Only care about changes to class, style, or width attributes
         if (mutation.type === 'attributes') {
@@ -444,20 +394,16 @@ private setupUrlChangeMonitoring(): void {
       }
     });
     
-    // Start observing with a delay to ensure page is loaded
-    this.observerTimeout = window.setTimeout(() => {
-      // Only observe the main area of the page
-      const mainArea = document.querySelector('main');
-      if (mainArea && this.mutationObserver) {
-        this.mutationObserver.observe(mainArea, {
-          childList: false, // Don't need to watch children
-          subtree: false,   // Don't need to watch deeply
-          attributes: true, // Only need to watch attributes
-          attributeFilter: ['class', 'style', 'width'] // Only these attributes
-        });
-      }
-      this.observerTimeout = null;
-    }, 2000);
+    // Start observing the main area
+    const mainArea = document.querySelector('main');
+    if (mainArea) {
+      this.mutationObserver.observe(mainArea, {
+        childList: false,
+        subtree: false,
+        attributes: true,
+        attributeFilter: ['class', 'style', 'width']
+      });
+    }
   }
   
   /**
@@ -490,7 +436,23 @@ private setupUrlChangeMonitoring(): void {
    * Save current conversation
    */
   private saveCurrentConversation(): void {
-    // Don't actually do anything here - just show a toast
+    // Get current chat ID
+    const chatId = conversationHandler.getCurrentChatId();
+    if (!chatId) {
+      document.dispatchEvent(new CustomEvent('archimind:show-toast', {
+        detail: {
+          title: 'No Active Conversation',
+          description: 'Please select a conversation first.',
+          type: 'warning'
+        }
+      }));
+      return;
+    }
+    
+    // Save conversation to backend
+    conversationHandler.setCurrentChatId(chatId);
+    
+    // Show success toast
     document.dispatchEvent(new CustomEvent('archimind:show-toast', {
       detail: {
         title: 'Conversation Saved',
@@ -504,7 +466,7 @@ private setupUrlChangeMonitoring(): void {
    * Set up message listeners for internal communication
    */
   private setupMessageListeners(): void {
-    // Listen for Chrome extension messages - with optimization
+    // Listen for Chrome extension messages
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.action === 'applySettings') {
         // Process settings asynchronously
@@ -531,17 +493,14 @@ private setupUrlChangeMonitoring(): void {
   private applySettings(settings: any): void {
     if (!settings) return;
     
-    // Process settings with slight delay to avoid UI thread blocking
-    setTimeout(() => {
-      if (settings.statsVisible !== undefined) {
-        const statsPanel = document.getElementById('archimind-stats-panel');
-        if (statsPanel) {
-          statsPanel.style.display = settings.statsVisible ? 'block' : 'none';
-        }
+    if (settings.statsVisible !== undefined) {
+      const statsPanel = document.getElementById('archimind-stats-panel');
+      if (statsPanel) {
+        statsPanel.style.display = settings.statsVisible ? 'block' : 'none';
       }
-      
-      // Apply other settings as needed
-    }, 0);
+    }
+    
+    // Apply other settings as needed
   }
 }
 
