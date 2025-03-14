@@ -61,8 +61,8 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
           {activePanel === 'notifications' && <NotificationsPanel onClose={handleClosePanel} />}
           {activePanel === 'templates' && (
             <TemplatesPanel 
-              onClose={handleClosePanel} 
-              onPlaceholderEditorOpenChange={handlePlaceholderEditorStateChange}
+              onClose={handleClosePanel}
+              onPlaceholderEditorOpenChange={setIsPlaceholderEditorOpen} 
             />
           )}
         </div>

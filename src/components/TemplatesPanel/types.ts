@@ -39,4 +39,5 @@ export interface TemplateFormData {
 export interface TemplatesPanelProps {
   onClose?: () => void;
   maxHeight?: string;
+  onPlaceholderEditorOpenChange?: (isOpen: boolean) => void;
 }

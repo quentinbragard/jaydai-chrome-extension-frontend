@@ -119,9 +119,24 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(open) => {
+        onOpenChange(open);
+        document.dispatchEvent(new CustomEvent(
+          open ? 'archimind:placeholder-editor-opened' : 'archimind:placeholder-editor-closed'
+        ));
+      }}
+    >
       <DialogOverlay className="bg-black/70 backdrop-blur-sm" />
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col z-50 border-primary/10 shadow-2xl">
+      <DialogContent
+        className="max-w-3xl max-h-[90vh] flex flex-col z-50 border-primary/10 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxHeight: '90vh',
+          overflow: 'auto',
+        }}
+      >
         <DialogDescription>
           Customize the template to your needs
         </DialogDescription>
@@ -165,6 +180,8 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
               contentEditable
               suppressContentEditableWarning
               className="flex-grow h-[50vh] resize-none border rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-primary overflow-auto"
+              onClick={(e) => e.stopPropagation()} // Add this to prevent click propagation
+              onMouseDown={(e) => e.stopPropagation()} // Add this to prevent mousedown propagation
             ></div>
           </div>
         </div>

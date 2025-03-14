@@ -128,14 +128,31 @@ export function useTemplates() {
   const insertTemplateContent = (content: string): boolean => {
     try {
       // Find ChatGPT textarea
-      const textarea = document.querySelector('textarea[data-id="root"]') as HTMLTextAreaElement;
+      const textarea = document.querySelector('#prompt-textarea') as HTMLElement;
       if (!textarea) {
         console.error('ChatGPT textarea not found');
         return false;
       }
+      console.log('🔑🔑🔑 inserting template content', content);
       
-      // Set content and trigger change event
-      textarea.value = content;
+      // Try multiple approaches
+      if (textarea.tagName === 'TEXTAREA') {
+        // It's actually a textarea
+        (textarea as HTMLTextAreaElement).value = content;
+      } else if (textarea.isContentEditable) {
+        // It's a contentEditable div
+        textarea.textContent = content;
+      } else {
+        // Try to find the hidden input
+        const input = textarea.querySelector('input, textarea');
+        if (input) {
+          (input as HTMLInputElement).value = content;
+        } else {
+          // Last resort
+          textarea.textContent = content;
+        }
+      }
+      
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
       textarea.focus();
       

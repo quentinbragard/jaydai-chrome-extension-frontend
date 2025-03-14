@@ -13,7 +13,8 @@ import { cn } from "@/core/utils/classNames";
 
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({ 
   onClose, 
-  maxHeight = '400px' 
+  maxHeight = '400px',
+  onPlaceholderEditorOpenChange
 }) => {
   const {
     templateCollection,
@@ -230,6 +231,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           open={placeholderEditorOpen}
           onOpenChange={(open) => {
             setPlaceholderEditorOpen(open);
+            
+            // Also inform the parent component about the state change
+            if (onPlaceholderEditorOpenChange) {
+              onPlaceholderEditorOpenChange(open);
+            }
+            
             // If dialog is closing and we have an onClose callback, call it
             if (!open && onClose) {
               setTimeout(() => onClose(), 300); // Slight delay to allow animation to finish

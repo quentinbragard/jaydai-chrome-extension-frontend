@@ -77,6 +77,12 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
         return;
       }
       
+      // Check if we're clicking on a dialog or inside a dialog
+      const isDialogClick = (e.target as Element)?.closest('[role="dialog"]');
+      if (isDialogClick) {
+        return; // Don't close if clicking inside any dialog
+      }
+      
       if (
         isOpen &&
         menuRef.current &&
@@ -88,7 +94,7 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
         setActivePanel('none');
       }
     };
-
+  
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
