@@ -119,12 +119,16 @@ export class AppInitializer {
     // Add listener for specific conversation endpoint
     const specificConversationRegex = '/backend-api/conversation/[a-zA-Z0-9-]+$';
     networkRequestMonitor.addListener(specificConversationRegex, (data) => {
-      chatService.processSpecificConversation(data);
+      chatService.getConversation(data);
+      chatService.setCurrentConversationId(data);
+      console.log('🔑🔑 specificConversation', data);
     });
     
     // Also listen for the specific event type
     networkRequestMonitor.addListener('specificConversation', (data) => {
-      chatService.processSpecificConversation(data);
+      chatService.getConversation(data);
+      chatService.setCurrentConversationId(data);
+      console.log('🔑 specificConversation', data);
     });
     
     console.log('✅ Specific endpoint listeners set up');
