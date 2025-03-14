@@ -2,6 +2,7 @@ import React from 'react';
 import { 
   Dialog, 
   DialogContent, 
+  DialogDescription, 
   DialogHeader, 
   DialogTitle 
 } from "@/components/ui/dialog";
@@ -29,6 +30,9 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
+        <DialogDescription>
+          Create and manage your templates
+        </DialogDescription>
         <DialogHeader>
           <DialogTitle>{currentTemplate ? 'Edit Template' : 'Create Template'}</DialogTitle>
         </DialogHeader>

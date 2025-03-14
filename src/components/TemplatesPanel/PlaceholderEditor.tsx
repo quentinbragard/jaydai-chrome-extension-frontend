@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogOverlay } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogOverlay, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -122,6 +122,9 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/70 backdrop-blur-sm" />
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col z-50 border-primary/10 shadow-2xl">
+        <DialogDescription>
+          Customize the template to your needs
+        </DialogDescription>
         <DialogHeader>
           <DialogTitle>Customize Template: {templateTitle}</DialogTitle>
         </DialogHeader>

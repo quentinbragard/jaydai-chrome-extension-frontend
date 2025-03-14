@@ -1,7 +1,7 @@
 import React from 'react';
 import { FolderOpen, ChevronRight, ChevronDown } from "lucide-react";
 import { TemplateFolder } from './types';
-import TemplateItem from './TemplateItem';
+import { TemplateItem } from './TemplateItem';
 import { Template } from './types';
 
 interface FolderTreeProps {

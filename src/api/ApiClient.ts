@@ -1,6 +1,6 @@
 // src/services/api/ApiClient.ts
 
-import { getAuthToken, refreshAuthToken } from '../utils/auth';
+import { authService } from '@/services/auth/AuthService';
 
 /**
  * Base API client with authentication and request handling
@@ -51,7 +51,7 @@ export class ApiClient {
       // Get auth token
       let token;
       try {
-        token = await getAuthToken();
+        token = await authService.getAuthToken();
       } catch (tokenError) {
         if (endpoint.startsWith('/public/') || options.allowAnonymous) {
           token = null;
@@ -85,7 +85,7 @@ export class ApiClient {
       if (response.status === 403 || response.status === 401) {
         if (retryCount < 1) {
           try {
-            token = await refreshAuthToken();
+            token = await authService.refreshAuthToken();
             
             // Update authorization header with new token
             const newOptions = {

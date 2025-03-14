@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Notification } from './types';
 // Import the consolidated notification service
-import { notificationService } from '@/services/NotificationService';
+import { notificationService } from '@/services/notifications/NotificationService';
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);

@@ -13,6 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export default defineConfig(function (_a) {
+    const envPrefix = 'VITE_';
     const mode = _a.mode;
     const isProduction = mode === 'production';
     return {
@@ -28,17 +29,17 @@ export default defineConfig(function (_a) {
                     },
                     // Copy HTML files from their source locations to the dist folder
                     {
-                        src: 'src/popup/popup.html',
+                        src: 'src/extension/popup/popup.html',
                         dest: '',
                         rename: 'popup.html'
                     },
                     {
-                        src: 'src/welcome/welcome.html',
+                        src: 'src/extension/welcome/welcome.html',
                         dest: '',
                         rename: 'welcome.html'
                     },
                     {
-                        src: 'src/content/content.css',
+                        src: 'src/extension/content/content.css',
                         dest: 'assets/'
                     }
                 ]
@@ -60,16 +61,16 @@ export default defineConfig(function (_a) {
             sourcemap: !isProduction,
             rollupOptions: {
                 input: {
-                    content: resolve(__dirname, 'src/content/content.js'),
-                    'content-init': resolve(__dirname, 'src/content/initializer.ts'), // We'll create this file
-                    background: resolve(__dirname, 'src/background/background.js'),
-                    popup: resolve(__dirname, 'src/popup/popup.jsx'),
-                    welcome: resolve(__dirname, 'src/welcome/welcome.jsx'),
-                    'injectedInterceptor': resolve(__dirname, 'src/content/injectedInterceptor.js'),
-                    'applicationInitializer': resolve(__dirname, 'src/content/applicationInitializer.ts'),
-                    'popup-styles': resolve(__dirname, 'src/popup/popup.css'),
-                    'welcome-styles': resolve(__dirname, 'src/welcome/welcome.css'),
-                    'content-styles': resolve(__dirname, 'src/content/content.css')
+                    content: resolve(__dirname, 'src/extension/content/content.js'),
+                    'content-init': resolve(__dirname, 'src/extension/content/initializer.ts'), // We'll create this file
+                    background: resolve(__dirname, 'src/extension/background/background.js'),
+                    popup: resolve(__dirname, 'src/extension/popup/popup.tsx'),
+                    welcome: resolve(__dirname, 'src/extension/welcome/welcome.tsx'),
+                    'injectedInterceptor': resolve(__dirname, 'src/extension/content/injectedInterceptor.js'),
+                    'applicationInitializer': resolve(__dirname, 'src/extension/content/applicationInitializer.ts'),
+                    'popup-styles': resolve(__dirname, 'src/extension/popup/popup.css'),
+                    'welcome-styles': resolve(__dirname, 'src/extension/welcome/welcome.css'),
+                    'content-styles': resolve(__dirname, 'src/extension/content/content.css')
                 },
                 output: {
                     entryFileNames: '[name].js',
@@ -92,7 +93,14 @@ export default defineConfig(function (_a) {
         },
         define: {
             // This makes process.env.NODE_ENV available in your code
-            'process.env.NODE_ENV': JSON.stringify(mode)
+            'process.env.NODE_ENV': JSON.stringify(mode),
+            'process.env.VITE_API_URL': mode === 'production' 
+                ? JSON.stringify('https://api.yourproductiondomain.com')
+                : JSON.stringify('http://localhost:8000'),
+            'process.env.VITE_DEBUG': mode === 'production'
+                ? JSON.stringify('false')
+                : JSON.stringify('true'),
+            'process.env.VITE_APP_VERSION': JSON.stringify('1.0.0')
           },
           server: {
             hmr: {

@@ -93,11 +93,11 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
+        <DialogDescription>
+          Configure how Archimind works with ChatGPT
+        </DialogDescription>
         <DialogHeader>
           <DialogTitle>Archimind Settings</DialogTitle>
-          <DialogDescription>
-            Configure how Archimind works with ChatGPT
-          </DialogDescription>
         </DialogHeader>
         
         <div className="py-4 space-y-6">

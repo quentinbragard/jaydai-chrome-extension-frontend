@@ -1,0 +1,171 @@
+// src/extension/content/ContentScript.ts
+
+import { errorReporter } from '@/core/errors/ErrorReporter';
+import { AppError, ErrorCode } from '@/core/errors/AppError';
+import { emitEvent, AppEvent } from '@/core/events/events';
+import { config, debug } from '@/core/config';
+import { authService } from '@/services/auth/AuthService';
+import { chatService } from '@/services/chat/ChatService';
+import { componentInjector } from '@/core/utils/componentInjector';
+import MainButton from '@/components/MainButton';
+import StatsPanel from '@/components/StatsPanel';
+
+/**
+ * Main content script class that manages extension functionality
+ */
+export class ContentScript {
+  private static instance: ContentScript;
+  private isInitialized: boolean = false;
+  
+  private constructor() {}
+  
+  public static getInstance(): ContentScript {
+    if (!ContentScript.instance) {
+      ContentScript.instance = new ContentScript();
+    }
+    return ContentScript.instance;
+  }
+  
+  /**
+   * Initialize the content script
+   */
+  public async initialize(): Promise<boolean> {
+    if (this.isInitialized) {
+      return true;
+    }
+    
+    // Skip if not on supported site
+    if (!this.isSupportedSite()) {
+      return false;
+    }
+    
+    try {
+      debug('Initializing content script...');
+      
+      // Initialize authentication
+      const isAuthenticated = await authService.initialize();
+      if (!isAuthenticated) {
+        debug('User not authenticated');
+        return false;
+      }
+      
+      // Initialize services
+      await chatService.initialize();
+      
+      // Inject UI components
+      this.injectUIComponents();
+      
+      // Mark as initialized
+      this.isInitialized = true;
+      
+      // Emit initialization event
+      emitEvent(AppEvent.EXTENSION_INITIALIZED, {
+        version: config.version
+      });
+      
+      debug('Content script initialized successfully');
+      return true;
+    } catch (error) {
+      const appError = AppError.from(error, 'Failed to initialize content script');
+      errorReporter.captureError(appError);
+      
+      // Emit error event
+      emitEvent(AppEvent.EXTENSION_ERROR, {
+        message: appError.message,
+        stack: appError.stack
+      });
+      
+      return false;
+    }
+  }
+  
+  /**
+   * Check if the current site is supported
+   */
+  private isSupportedSite(): boolean {
+    return window.location.hostname.includes('chatgpt.com') || 
+           window.location.hostname.includes('chat.openai.com');
+  }
+  
+  /**
+   * Inject UI components
+   */
+  private injectUIComponents(): void {
+    // Inject main button
+    componentInjector.inject(MainButton, {
+      onSettingsClick: this.handleSettingsClick,
+      onSaveClick: this.handleSaveClick
+    }, {
+      id: 'archimind-main-button',
+      position: {
+        type: 'fixed',
+        bottom: '75px',
+        right: '20px',
+        zIndex: '9999'
+      }
+    });
+    
+    // Inject stats panel
+    componentInjector.inject(StatsPanel, {}, {
+      id: 'archimind-stats-panel',
+      position: {
+        type: 'fixed',
+        top: '10px',
+        left: '50%',
+        zIndex: '10000'
+      },
+      containerStyle: {
+        transform: 'translateX(-50%)' // Center horizontally
+      }
+    });
+  }
+  
+  /**
+   * Handle settings click
+   */
+  private handleSettingsClick = (): void => {
+    // Implementation for settings dialog
+  };
+  
+  /**
+   * Handle save click
+   */
+  private handleSaveClick = (): void => {
+    const chatId = chatService.getCurrentConversationId();
+    
+    if (!chatId) {
+      // Show toast or notification
+      return;
+    }
+    
+    // Save current conversation
+    chatService.setCurrentConversationId(chatId);
+  };
+  
+  /**
+   * Clean up resources
+   */
+  public cleanup(): void {
+    if (!this.isInitialized) {
+      return;
+    }
+    
+    // Clean up services
+    chatService.cleanup();
+    
+    // Remove UI components
+    componentInjector.removeAll();
+    
+    this.isInitialized = false;
+    debug('Content script cleaned up');
+  }
+}
+
+// Export singleton instance
+export const contentScript = ContentScript.getInstance();
+
+// Default export for module imports
+export default {
+  initialize: () => contentScript.initialize(),
+  cleanup: () => contentScript.cleanup()
+};

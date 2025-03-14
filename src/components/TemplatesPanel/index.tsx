@@ -1,15 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FileText, Plus, X, BookTemplate, Folder } from "lucide-react";
 import { useTemplates } from './useTemplates';
 import { TemplatesPanelProps } from './types';
-import TemplateItem from './TemplateItem';
+import { TemplateItem } from './TemplateItem';
 import FolderTree from './FolderTree';
 import TemplateDialog from './TemplateDialog';
 import PlaceholderEditor from './PlaceholderEditor';
-import { cn } from "@/lib/utils"; // Make sure you have this utility function
+import { cn } from "@/core/utils/classNames"; // Make sure you have this utility function
 
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({ 
   onClose, 
