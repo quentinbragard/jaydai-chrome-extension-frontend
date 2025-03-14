@@ -40,6 +40,7 @@
   
   // Process streaming responses from ChatGPT
   async function processStreamingResponse(response, requestBody) {
+    console.log("PROCESSING STREAMING RESPONSE")
     const clonedResponse = response.clone();
     const reader = clonedResponse.body.getReader();
     const decoder = new TextDecoder();
@@ -70,6 +71,7 @@
           // Parse event
           const eventMatch = eventString.match(/^event: ([^\n]+)/);
           const dataMatch = eventString.match(/data: (.+)$/m);
+          console.log('🔑🔑 dataMatch', dataMatch);
           
           if (!dataMatch) continue;
           
@@ -79,6 +81,7 @@
           if (dataMatch[1].trim() === '[DONE]') {
             if (assistantData.messageId) {
               assistantData.isComplete = true;
+              console.log("STOOOOOOOOOOOP")
               sendToExtension('assistantResponse', assistantData);
             }
             break;
@@ -102,21 +105,6 @@
                 assistantData.content += data.v;
               }
               
-              // Check for message completion
-              if (data.o === 'patch' && Array.isArray(data.v)) {
-                const statusUpdate = data.v.find(p => 
-                  p.p === '/message/status' && p.v === 'finished_successfully'
-                );
-                
-                const endTurnUpdate = data.v.find(p => 
-                  p.p === '/message/end_turn' && p.v === true
-                );
-                
-                if (statusUpdate && endTurnUpdate && assistantData.messageId) {
-                  assistantData.isComplete = true;
-                  sendToExtension('assistantResponse', assistantData);
-                }
-              }
             }
           } catch (error) {
             console.error('Error parsing data:', error);

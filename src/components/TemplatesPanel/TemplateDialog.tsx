@@ -19,6 +19,14 @@ interface TemplateDialogProps {
   onSaveTemplate: () => void;
 }
 
+// Default form data to use as fallback
+const DEFAULT_FORM_DATA: TemplateFormData = {
+  name: '',
+  content: '',
+  description: '',
+  folder: ''
+};
+
 const TemplateDialog: React.FC<TemplateDialogProps> = ({
   open,
   onOpenChange,
@@ -27,22 +35,33 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
   onFormChange,
   onSaveTemplate
 }) => {
+  // Ensure we always have valid form data
+  const safeFormData = formData || DEFAULT_FORM_DATA;
+  
+  // Safe handler for form changes that won't fail if formData is undefined
+  const handleFormChange = (field: keyof TemplateFormData, value: string) => {
+    onFormChange({
+      ...safeFormData,
+      [field]: value
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogDescription>
-          Create and manage your templates
-        </DialogDescription>
         <DialogHeader>
           <DialogTitle>{currentTemplate ? 'Edit Template' : 'Create Template'}</DialogTitle>
         </DialogHeader>
+        <DialogDescription>
+          Create and manage your templates
+        </DialogDescription>
         
         <div className="space-y-4 py-2">
           <div>
             <label className="text-sm font-medium">Name</label>
             <Input 
-              value={formData.name} 
-              onChange={(e) => onFormChange({...formData, name: e.target.value})}
+              value={safeFormData.name} 
+              onChange={(e) => handleFormChange('name', e.target.value)}
               placeholder="Template name"
             />
           </div>
@@ -50,8 +69,8 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
           <div>
             <label className="text-sm font-medium">Description (optional)</label>
             <Input 
-              value={formData.description} 
-              onChange={(e) => onFormChange({...formData, description: e.target.value})}
+              value={safeFormData.description} 
+              onChange={(e) => handleFormChange('description', e.target.value)}
               placeholder="Brief description"
             />
           </div>
@@ -59,8 +78,8 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
           <div>
             <label className="text-sm font-medium">Folder (optional)</label>
             <Input 
-              value={formData.folder} 
-              onChange={(e) => onFormChange({...formData, folder: e.target.value})}
+              value={safeFormData.folder} 
+              onChange={(e) => handleFormChange('folder', e.target.value)}
               placeholder="e.g. work/coding"
             />
             <p className="text-xs text-muted-foreground mt-1">
@@ -73,8 +92,8 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
             <textarea 
               className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               rows={6}
-              value={formData.content} 
-              onChange={(e) => onFormChange({...formData, content: e.target.value})}
+              value={safeFormData.content} 
+              onChange={(e) => handleFormChange('content', e.target.value)}
               placeholder="Template content"
             />
           </div>
@@ -93,4 +112,4 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
   );
 };
 
-export default TemplateDialog; 
+export default TemplateDialog;

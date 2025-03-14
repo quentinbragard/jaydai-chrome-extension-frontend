@@ -16,6 +16,9 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
   const [imageLoaded, setImageLoaded] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  
+  // Flag to track if a placeholder editor is open
+  const [isPlaceholderEditorOpen, setIsPlaceholderEditorOpen] = useState(false);
 
   // Handle notification counts
   useEffect(() => {
@@ -43,18 +46,37 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
       'archimind:notification-count-changed',
       handleCountChange as EventListener
     );
+    
+    // Listen for placeholder editor state
+    const handlePlaceholderEditorOpen = () => {
+      setIsPlaceholderEditorOpen(true);
+    };
+    
+    const handlePlaceholderEditorClose = () => {
+      setIsPlaceholderEditorOpen(false);
+    };
+    
+    document.addEventListener('archimind:placeholder-editor-opened', handlePlaceholderEditorOpen);
+    document.addEventListener('archimind:placeholder-editor-closed', handlePlaceholderEditorClose);
 
     return () => {
       document.removeEventListener(
         'archimind:notification-count-changed',
         handleCountChange as EventListener
       );
+      document.removeEventListener('archimind:placeholder-editor-opened', handlePlaceholderEditorOpen);
+      document.removeEventListener('archimind:placeholder-editor-closed', handlePlaceholderEditorClose);
     };
   }, []);
 
   // Handle clicks outside to close menu
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
+      // Skip this check if placeholder editor is open
+      if (isPlaceholderEditorOpen) {
+        return;
+      }
+      
       if (
         isOpen &&
         menuRef.current &&
@@ -71,7 +93,7 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, isPlaceholderEditorOpen]);
 
   const toggleMenu = () => {
     if (activePanel === 'menu') {

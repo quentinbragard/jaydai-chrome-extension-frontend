@@ -9,6 +9,8 @@ export interface Template {
   description?: string;
   folder?: string;
   title?: string;
+  based_on_official_id?: number | null;
+  usage_count?: number;
 }
 
 export interface TemplateResponse {
@@ -19,12 +21,8 @@ export interface TemplateResponse {
 
 export interface AllTemplatesResponse {
   success: boolean;
-  userTemplates: {
-    templates: Template[];
-  };
-  officialTemplates: {
-    templates: Template[];
-  };
+  userTemplates: Template[];
+  officialTemplates: Template[];
   error?: string;
 }
 
@@ -34,13 +32,21 @@ export class TemplateApi {
    */
   async getAllTemplates(): Promise<AllTemplatesResponse> {
     try {
-      const response = await apiClient.request<AllTemplatesResponse>('/prompt-templates/all-templates');
+      const response = await apiClient.request<{
+        success: boolean;
+        userTemplates: Template[];
+        officialTemplates: Template[];
+      }>('/prompt-templates/all-templates');
       
       if (response && response.success) {
-        return response;
+        return {
+          success: true,
+          userTemplates: response.userTemplates || [],
+          officialTemplates: response.officialTemplates || []
+        };
       }
       
-      // Fallback to separate requests
+      // Fallback to separate requests if the combined endpoint fails
       const [userTemplatesResponse, officialTemplatesResponse] = await Promise.all([
         this.getUserTemplates(),
         this.getOfficialTemplates()
@@ -48,19 +54,15 @@ export class TemplateApi {
       
       return {
         success: true,
-        userTemplates: {
-          templates: userTemplatesResponse?.templates || []
-        },
-        officialTemplates: {
-          templates: officialTemplatesResponse?.templates || []
-        }
+        userTemplates: userTemplatesResponse?.templates || [],
+        officialTemplates: officialTemplatesResponse?.templates || []
       };
     } catch (error) {
       console.error('Error fetching templates:', error);
       return {
         success: false,
-        userTemplates: { templates: [] },
-        officialTemplates: { templates: [] },
+        userTemplates: [],
+        officialTemplates: [],
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
@@ -83,7 +85,7 @@ export class TemplateApi {
   /**
    * Create a new template
    */
-  async createTemplate(template: Template): Promise<TemplateResponse> {
+  async createTemplate(template: Omit<Template, 'id' | 'usage_count'>): Promise<TemplateResponse> {
     return apiClient.request<TemplateResponse>('/prompt-templates/template', {
       method: 'POST',
       body: JSON.stringify(template)
@@ -109,19 +111,6 @@ export class TemplateApi {
     });
   }
   
-  /**
-   * Track template usage
-   */
-  async trackTemplateUsage(id: string | number): Promise<TemplateResponse> {
-    try {
-      return await apiClient.request<TemplateResponse>(`/prompt-templates/use-template/${id}`, {
-        method: 'POST'
-      });
-    } catch (error) {
-      console.error('Error tracking template usage:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
-    }
-  }
 }
 
 export const templateApi = new TemplateApi();

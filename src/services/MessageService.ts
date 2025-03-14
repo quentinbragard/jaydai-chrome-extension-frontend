@@ -1,4 +1,4 @@
-// src/services/chat/MessageService.ts
+// src/services/MessageService.ts
 
 import { messageApi } from "../api/MessageApi";
 
@@ -10,6 +10,7 @@ export interface Message {
   model?: string;
   timestamp: number;
   thinkingTime?: number;
+  rank?: number; // Added rank property
 }
 
 export type MessageListener = (message: Message) => void;
@@ -24,6 +25,12 @@ export class MessageService {
   private messageQueue: Message[] = [];
   private processingQueue: boolean = false;
   private queueTimer: number | null = null;
+  
+  // Track conversation message counts for ranking
+  private conversationMessageCounts: Map<string, number> = new Map();
+  
+  // Map for pending messages that don't have a conversation ID yet
+  private pendingMessages: Map<string, Message> = new Map();
   
   private constructor() {}
   
@@ -70,6 +77,13 @@ export class MessageService {
       case 'assistantResponse':
         this.processAssistantResponse(data);
         break;
+      case 'specificConversation':
+        // When we get a specific conversation, check if we have any pending messages
+        // that need to be associated with this conversation
+        if (data.conversationId) {
+          this.checkAndLinkPendingMessages(data.conversationId);
+        }
+        break;
     }
   };
   
@@ -81,7 +95,63 @@ export class MessageService {
     
     const userMessage = this.extractUserMessage(data.requestBody);
     if (userMessage) {
-      this.processMessage(userMessage);
+      // If the conversation ID is missing, store as pending
+      if (!userMessage.conversationId) {
+        this.storePendingMessage(userMessage);
+      } else {
+        // Add rank if message doesn't have one
+        if (userMessage.rank === undefined) {
+          userMessage.rank = this.getNextRank(userMessage.conversationId);
+        }
+        
+        this.processMessage(userMessage);
+      }
+    }
+  }
+  
+  /**
+   * Store a message without a conversation ID for later processing
+   */
+  private storePendingMessage(message: Message): void {
+    const key = `pending-${message.messageId}`;
+    this.pendingMessages.set(key, message);
+    
+    // Set a cleanup timeout (5 minutes)
+    setTimeout(() => {
+      this.pendingMessages.delete(key);
+    }, 5 * 60 * 1000);
+    
+    console.log(`Stored pending message: ${message.messageId}`);
+  }
+  
+  /**
+   * Check for pending messages and link them to a conversation
+   */
+  private checkAndLinkPendingMessages(conversationId: string): void {
+    if (this.pendingMessages.size === 0) return;
+    
+    const pendingKeys = Array.from(this.pendingMessages.keys());
+    let linked = false;
+    
+    // Look for pending messages that should be associated with this conversation
+    pendingKeys.forEach(key => {
+      const message = this.pendingMessages.get(key);
+      if (message) {
+        // Update the message with the conversation ID and rank
+        message.conversationId = conversationId;
+        message.rank = this.getNextRank(conversationId);
+        
+        // Process the updated message
+        this.processMessage(message);
+        
+        // Remove from pending
+        this.pendingMessages.delete(key);
+        linked = true;
+      }
+    });
+    
+    if (linked) {
+      console.log(`Linked pending message(s) to conversation: ${conversationId}`);
     }
   }
   
@@ -109,7 +179,8 @@ export class MessageService {
       content,
       role: 'user',
       model: requestBody.model || 'unknown',
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      rank: requestBody.rank // This might be set by the interceptor
     };
   }
   
@@ -126,10 +197,30 @@ export class MessageService {
       role: 'assistant',
       model: data.model || 'unknown',
       timestamp: data.createTime || Date.now(),
-      thinkingTime: data.thinkingTime
+      thinkingTime: data.thinkingTime,
+      rank: data.rank || (data.conversationId ? this.getNextRank(data.conversationId) : undefined)
     };
     
-    this.processMessage(message);
+    // Only process messages with a conversation ID
+    if (message.conversationId) {
+      this.processMessage(message);
+    } else {
+      // Store as pending if no conversation ID
+      this.storePendingMessage(message);
+    }
+  }
+  
+  /**
+   * Get the next rank for a conversation
+   */
+  private getNextRank(conversationId: string): number {
+    const currentCount = this.conversationMessageCounts.get(conversationId) || 0;
+    const nextRank = currentCount;
+    
+    // Update the count for next time
+    this.conversationMessageCounts.set(conversationId, currentCount + 1);
+    
+    return nextRank;
   }
   
   /**
@@ -202,14 +293,14 @@ export class MessageService {
         provider_chat_id: msg.conversationId,
         content: msg.content,
         role: msg.role,
-        rank: 0, // Could be improved
+        rank: msg.rank !== undefined ? msg.rank : 0, // Use provided rank or default to 0
         model: msg.model || 'unknown',
         created_at: msg.timestamp
       }));
       
       // Save messages
       await messageApi.saveMessageBatch(formattedMessages);
-      console.log(`✅ Saved ${messages.length} messages`);
+      console.log(`✅ Saved ${messages.length} messages`, messages);
     } catch (error) {
       console.error('❌ Error saving messages:', error);
     }
@@ -243,6 +334,8 @@ export class MessageService {
     this.processedMessageIds.clear();
     this.messageQueue = [];
     this.processingQueue = false;
+    this.pendingMessages.clear();
+    this.conversationMessageCounts.clear();
   }
 }
 

@@ -1,7 +1,5 @@
-// src/types/templates.ts
-
 export interface Template {
-    id: string | number;
+    id: string | number;  // Allow either string or number IDs
     name: string;
     title?: string;
     content: string;
@@ -29,4 +27,17 @@ export interface Template {
       templates: Template[];
       folders: TemplateFolder[];
     };
+  }
+  
+  export interface TemplateFormData {
+    name: string;
+    content: string;
+    description: string;
+    folder: string;
+    based_on_official_id?: number | null;
+  }
+  
+  export interface TemplatesPanelProps {
+    onClose?: () => void;
+    maxHeight?: string;
   }

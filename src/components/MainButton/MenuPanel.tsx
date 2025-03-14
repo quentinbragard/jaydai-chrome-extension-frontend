@@ -15,6 +15,7 @@ interface MenuPanelProps {
   handleClosePanel: () => void;
   handleSaveClick: () => void;
   handleSettingsClick: () => void;
+  setIsPlaceholderEditorOpen: (isOpen: boolean) => void;
 }
 
 const MenuPanel: React.FC<MenuPanelProps> = ({
@@ -25,9 +26,20 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   openPanel,
   handleClosePanel,
   handleSaveClick,
-  handleSettingsClick
+  handleSettingsClick,
+  setIsPlaceholderEditorOpen
 }) => {
   if (!isOpen) return null;
+
+  // Handle PlaceholderEditor state changes
+  const handlePlaceholderEditorStateChange = (isOpen: boolean) => {
+    setIsPlaceholderEditorOpen(isOpen);
+    
+    // Also dispatch a custom event so other components can respond
+    document.dispatchEvent(new CustomEvent('archimind:placeholder-editor-status', {
+      detail: { isOpen }
+    }));
+  };
 
   return (
     <div 
@@ -47,16 +59,31 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
             <span className="text-xs">Back</span>
           </Button>
           {activePanel === 'notifications' && <NotificationsPanel onClose={handleClosePanel} />}
-          {activePanel === 'templates' && <TemplatesPanel onClose={handleClosePanel} />}
+          {activePanel === 'templates' && (
+            <TemplatesPanel 
+              onClose={handleClosePanel} 
+              onPlaceholderEditorOpenChange={handlePlaceholderEditorStateChange}
+            />
+          )}
         </div>
       )}
       {activePanel === 'menu' && (
         <Card className="w-48 p-1 shadow-lg">
           <div className="flex flex-col space-y-1">
-            <Button variant="ghost" size="sm" className="justify-start" onClick={() => openPanel('templates')}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="justify-start" 
+              onClick={() => openPanel('templates')}
+            >
               <FileText className="mr-2 h-4 w-4" /> Templates
             </Button>
-            <Button variant="ghost" size="sm" className="justify-start" onClick={() => openPanel('notifications')}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="justify-start" 
+              onClick={() => openPanel('notifications')}
+            >
               <Bell className="mr-2 h-4 w-4" /> Notifications
               {notificationCount > 0 && (
                 <span className="ml-auto bg-primary text-primary-foreground rounded-full text-xs px-1.5 py-0.5">
@@ -64,10 +91,20 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
                 </span>
               )}
             </Button>
-            <Button variant="ghost" size="sm" className="justify-start" onClick={handleSaveClick}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="justify-start" 
+              onClick={handleSaveClick}
+            >
               <FileText className="mr-2 h-4 w-4" /> Save Conversation
             </Button>
-            <Button variant="ghost" size="sm" className="justify-start" onClick={handleSettingsClick}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="justify-start" 
+              onClick={handleSettingsClick}
+            >
               <Settings className="mr-2 h-4 w-4" /> Settings
             </Button>
           </div>
@@ -77,4 +114,4 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   );
 };
 
-export default MenuPanel; 
+export default MenuPanel;
