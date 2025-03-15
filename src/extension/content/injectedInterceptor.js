@@ -158,25 +158,30 @@ function processStreamData(data, assistantData, thinkingSteps) {
   }
   
   // Return current state unchanged for any unhandled data format
+  console.log("ASSISTANT DATA: ", assistantData);
+  console.log("THINKING STEPS: ", thinkingSteps);
   return { assistantData, thinkingSteps };
 }
   
   // Process streaming responses from ChatGPT
   async function processStreamingResponse(response, requestBody) {
-    console.log("PROCESSING STREAMING RESPONSE")
+    console.log("PROCESSING STREAMING RESPONSE");
     const clonedResponse = response.clone();
     const reader = clonedResponse.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     
     // Data for current assistant response
-    const assistantData = {
+    let assistantData = {
       messageId: null,
       conversationId: null,
       model: null,
       content: '',
       isComplete: false
     };
+    
+    // Array to track thinking steps
+    let thinkingSteps = [];
     
     try {
       while (true) {
@@ -198,54 +203,74 @@ function processStreamData(data, assistantData, thinkingSteps) {
           if (!dataMatch) continue;
           
           const eventType = eventMatch ? eventMatch[1] : 'unknown';
+  
+          console.log("EVENT TYPE: ", eventType);
+          console.log("DATA MATCH[1]: ", dataMatch[1]);
           
-         
+          // Handle special "[DONE]" message 
+          if (dataMatch[1] === '[DONE]') {
+            console.log("Received [DONE] message, finalizing response");
+            if (assistantData.messageId && assistantData.content.length > 0) {
+              assistantData.isComplete = true;
+              sendToExtension('assistantResponse', assistantData);
+            }
+            continue; // Skip JSON parsing for this message
+          }
           
-          // Parse JSON data
+          // Parse JSON data (only for non-[DONE] messages)
           try {
             const data = JSON.parse(dataMatch[1]);
-            console.log('🔑🔑 data', data);
-            console.log('🔑🔑 eventType', eventType);
-
-            // Handle different data types
-
+            
+            // Process message stream complete event
             if (data.type === "message_stream_complete") {
               if (assistantData.messageId) {
                 assistantData.isComplete = true;
-                console.log("STOOOOOOOOOOOP")
+                console.log("Stream processing complete");
                 sendToExtension('assistantResponse', assistantData);
               }
-              break;
+              continue;
             }
-
-            if(typeof data.v === "string") {
             
-            // Handle different event types
+            // Process the data using our specialized function
+            const result = processStreamData(data, assistantData, thinkingSteps);
+            assistantData = result.assistantData;
+            thinkingSteps = result.thinkingSteps;
             
-            if (eventType === 'delta') {
-              // Handle message creation
-              if (data.o === 'add' && data.v?.message?.author?.role === 'assistant') {
-                assistantData.messageId = data.v.message.id;
-                assistantData.conversationId = data.v.conversation_id;
-                assistantData.model = data.v.message.metadata?.model_slug || null;
-              }
-              
-              // Handle content appending
-              if (data.p === '/message/content/parts/0' && data.o === 'append') {
-                assistantData.content += data.v;
-              }
-              
+            // If the assistant is the final answer and we've accumulated significant content,
+            // send periodic updates for long responses
+            if (assistantData.messageId && 
+                assistantData.content.length > 0 && 
+                assistantData.content.length % 500 === 0) {
+              // Send interim update with isComplete=false
+              sendToExtension('assistantResponse', {
+                ...assistantData,
+                isComplete: false
+              });
             }
           } catch (error) {
-            console.error('Error parsing data:', error);
+            console.error('Error parsing data:', error, 'Raw data:', dataMatch[1]);
           }
         }
       }
+      
+      // Final check: If we have message content but never got a completion signal,
+      // send what we have with isComplete=true
+      if (assistantData.messageId && assistantData.content.length > 0 && !assistantData.isComplete) {
+        console.log("Stream ended without completion signal, sending final data");
+        assistantData.isComplete = true;
+        sendToExtension('assistantResponse', assistantData);
+      }
     } catch (error) {
       console.error('Error processing stream:', error);
+      
+      // Try to salvage partial response in case of errors
+      if (assistantData.messageId && assistantData.content.length > 0) {
+        console.log("Salvaging partial response after error");
+        assistantData.isComplete = true;
+        sendToExtension('assistantResponse', assistantData);
+      }
     }
   }
-
   // Override fetch to intercept network requests
   window.fetch = async function(input, init) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
