@@ -1,4 +1,4 @@
-// src/services/MessageService.ts
+// Updated MessageService with fixes for the errors
 
 import { messageApi } from "../api/MessageApi";
 
@@ -6,11 +6,11 @@ export interface Message {
   messageId: string;
   conversationId: string;
   content: string;
-  role: 'user' | 'assistant' | 'system';
+  role: 'user' | 'assistant' | 'system' | 'tool';
   model?: string;
   timestamp: number;
+  parent_message_id?: string;  // Added parent message ID
   thinkingTime?: number;
-  rank?: number; // Added rank property
 }
 
 export type MessageListener = (message: Message) => void;
@@ -25,9 +25,6 @@ export class MessageService {
   private messageQueue: Message[] = [];
   private processingQueue: boolean = false;
   private queueTimer: number | null = null;
-  
-  // Track conversation message counts for ranking
-  private conversationMessageCounts: Map<string, number> = new Map();
   
   // Map for pending messages that don't have a conversation ID yet
   private pendingMessages: Map<string, Message> = new Map();
@@ -99,11 +96,6 @@ export class MessageService {
       if (!userMessage.conversationId) {
         this.storePendingMessage(userMessage);
       } else {
-        // Add rank if message doesn't have one
-        if (userMessage.rank === undefined) {
-          userMessage.rank = this.getNextRank(userMessage.conversationId);
-        }
-        
         this.processMessage(userMessage);
       }
     }
@@ -137,9 +129,8 @@ export class MessageService {
     pendingKeys.forEach(key => {
       const message = this.pendingMessages.get(key);
       if (message) {
-        // Update the message with the conversation ID and rank
+        // Update the message with the conversation ID
         message.conversationId = conversationId;
-        message.rank = this.getNextRank(conversationId);
         
         // Process the updated message
         this.processMessage(message);
@@ -152,6 +143,32 @@ export class MessageService {
     
     if (linked) {
       console.log(`Linked pending message(s) to conversation: ${conversationId}`);
+    }
+  }
+  
+  /**
+   * Process assistant response
+   */
+  private processAssistantResponse(data: any): void {
+    if (!data.messageId || !data.content) return;
+    
+    const message: Message = {
+      messageId: data.messageId,
+      conversationId: data.conversationId || '',
+      content: data.content,
+      role: 'assistant',
+      model: data.model || 'unknown',
+      timestamp: data.createTime ? data.createTime * 1000 : Date.now(), // Convert to milliseconds
+      thinkingTime: data.thinkingTime,
+      parent_message_id: data.parentMessageId  // Include parent message ID
+    };
+    
+    // Only process messages with a conversation ID
+    if (message.conversationId) {
+      this.processMessage(message);
+    } else {
+      // Store as pending if no conversation ID
+      this.storePendingMessage(message);
     }
   }
   
@@ -179,48 +196,9 @@ export class MessageService {
       content,
       role: 'user',
       model: requestBody.model || 'unknown',
-      timestamp: Date.now(),
-      rank: requestBody.rank // This might be set by the interceptor
+      timestamp: message.create_time ? message.create_time * 1000 : Date.now(), // Convert to milliseconds
+      parent_message_id: requestBody.parent_message_id // Include parent message ID
     };
-  }
-  
-  /**
-   * Process assistant response
-   */
-  private processAssistantResponse(data: any): void {
-    if (!data.messageId || !data.content) return;
-    
-    const message: Message = {
-      messageId: data.messageId,
-      conversationId: data.conversationId || '',
-      content: data.content,
-      role: 'assistant',
-      model: data.model || 'unknown',
-      timestamp: data.createTime || Date.now(),
-      thinkingTime: data.thinkingTime,
-      rank: data.rank || (data.conversationId ? this.getNextRank(data.conversationId) : undefined)
-    };
-    
-    // Only process messages with a conversation ID
-    if (message.conversationId) {
-      this.processMessage(message);
-    } else {
-      // Store as pending if no conversation ID
-      this.storePendingMessage(message);
-    }
-  }
-  
-  /**
-   * Get the next rank for a conversation
-   */
-  private getNextRank(conversationId: string): number {
-    const currentCount = this.conversationMessageCounts.get(conversationId) || 0;
-    const nextRank = currentCount;
-    
-    // Update the count for next time
-    this.conversationMessageCounts.set(conversationId, currentCount + 1);
-    
-    return nextRank;
   }
   
   /**
@@ -293,7 +271,7 @@ export class MessageService {
         provider_chat_id: msg.conversationId,
         content: msg.content,
         role: msg.role,
-        rank: msg.rank !== undefined ? msg.rank : 0, // Use provided rank or default to 0
+        parent_message_id: msg.parent_message_id,
         model: msg.model || 'unknown',
         created_at: msg.timestamp
       }));
@@ -335,7 +313,6 @@ export class MessageService {
     this.messageQueue = [];
     this.processingQueue = false;
     this.pendingMessages.clear();
-    this.conversationMessageCounts.clear();
   }
 }
 

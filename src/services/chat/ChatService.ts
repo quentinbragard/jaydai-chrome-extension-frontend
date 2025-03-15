@@ -1,18 +1,13 @@
-// src/services/chat/ChatService.ts
+// Updated ChatService with fixes for the errors
 
-import { networkRequestMonitor } from '@/core/network/NetworkRequestMonitor';
-import { errorReporter } from '@/core/errors/ErrorReporter';
-import { emitEvent, AppEvent } from '@/core/events/events';
-import { AppError, ErrorCode } from '@/core/errors/AppError';
-import { Message, Conversation } from '@/types/chat';
-import { debug } from '@/core/config';
-import { messageApi } from '@/api/MessageApi';
-
-// Type for message waiting for a conversation ID
-interface PendingMessage {
-  message: Message;
-  timestamp: number;
-}
+import { messageApi } from "@/api/MessageApi";
+import { debug } from "@/core/config";
+import { AppError } from "@/core/errors/AppError";
+import { errorReporter } from "@/core/errors/ErrorReporter";
+import { emitEvent } from "@/core/events/events";
+import { AppEvent } from "@/core/events/events";
+import { networkRequestMonitor } from "@/core/network/NetworkRequestMonitor";
+import { Conversation, Message } from "@/types/chat";
 
 /**
  * Service for chat functionality
@@ -23,9 +18,6 @@ export class ChatService {
   private conversations: Map<string, Conversation> = new Map();
   private messages: Map<string, Message[]> = new Map();
   private pendingMessages: PendingMessage[] = [];
-  
-  // Track conversation message counts for ranking
-  private messageCounters: Map<string, number> = new Map();
   
   private constructor() {}
   
@@ -97,20 +89,12 @@ export class ChatService {
     
     debug(`Processing ${this.pendingMessages.length} pending messages for conversation: ${conversationId}`);
     
-    // Get the next rank to use
-    let nextRank = this.getNextRank(conversationId);
-    
     // Process each pending message
     this.pendingMessages.forEach(item => {
       const message = item.message;
       
       // Update the conversation ID
       message.conversationId = conversationId;
-      
-      // Assign rank
-      if (message.rank === undefined) {
-        message.rank = nextRank++;
-      }
       
       // Add to messages for this conversation
       this.addMessage(message);
@@ -119,11 +103,20 @@ export class ChatService {
       this.saveMessage(message);
     });
     
-    // Update message counter
-    this.messageCounters.set(conversationId, nextRank);
-    
     // Clear pending messages
     this.pendingMessages = [];
+  }
+  
+  /**
+   * Clean up old pending messages
+   */
+  private cleanupOldPendingMessages(): void {
+    const now = Date.now();
+    const fiveMinutes = 5 * 60 * 1000;
+    
+    this.pendingMessages = this.pendingMessages.filter(item => {
+      return now - item.timestamp < fiveMinutes;
+    });
   }
   
   /**
@@ -137,8 +130,7 @@ export class ChatService {
       if (userMessage) {
         // Check if this is a message for an existing conversation
         if (userMessage.conversationId) {
-          // Add to local cache with rank
-          userMessage.rank = this.getNextRank(userMessage.conversationId);
+          // Add to local cache
           this.addMessage(userMessage);
           
           // Emit event
@@ -185,15 +177,13 @@ export class ChatService {
         content: data.content,
         role: 'assistant',
         model: data.model || 'unknown',
-        timestamp: data.createTime || Date.now(),
-        thinkingTime: data.thinkingTime
+        timestamp: data.createTime ? data.createTime * 1000 : Date.now(), // Convert to milliseconds if needed
+        thinkingTime: data.thinkingTime,
+        parent_message_id: data.parentMessageId || undefined // Use parent message ID from data
       };
       
       // If we have a conversation ID, process normally
       if (message.conversationId) {
-        // Assign rank
-        message.rank = this.getNextRank(message.conversationId);
-        
         // Add to local cache
         this.addMessage(message);
         
@@ -287,31 +277,6 @@ export class ChatService {
   };
   
   /**
-   * Clean up old pending messages
-   */
-  private cleanupOldPendingMessages(): void {
-    const now = Date.now();
-    const fiveMinutes = 5 * 60 * 1000;
-    
-    this.pendingMessages = this.pendingMessages.filter(item => {
-      return now - item.timestamp < fiveMinutes;
-    });
-  }
-  
-  /**
-   * Get the next rank for a conversation
-   */
-  private getNextRank(conversationId: string): number {
-    const currentCount = this.messageCounters.get(conversationId) || 0;
-    const nextRank = currentCount;
-    
-    // Update the counter
-    this.messageCounters.set(conversationId, currentCount + 1);
-    
-    return nextRank;
-  }
-  
-  /**
    * Extract user message from request body
    */
   private extractUserMessage(requestBody: any): Message | null {
@@ -335,67 +300,105 @@ export class ChatService {
       content,
       role: 'user',
       model: requestBody.model || 'unknown',
-      timestamp: Date.now()
+      timestamp: message.create_time ? message.create_time * 1000 : Date.now(), // Use create_time if available
+      parent_message_id: requestBody.parent_message_id || undefined // Use parent message ID from request
     };
   }
   
   /**
    * Extract messages from conversation data
    */
-  private extractMessagesFromConversation(conversation: any): Message[] {
-    const messages: Message[] = [];
+  /**
+ * Extract messages from conversation data with improved model detection
+ */
+private extractMessagesFromConversation(conversation: any): Message[] {
+  const messages: Message[] = [];
+  const modelCache: Record<string, string> = {};
+  
+  if (!conversation.mapping) return messages;
+  
+  // First pass: Extract messages and build the message structure
+  Object.keys(conversation.mapping).forEach(messageId => {
+    if (messageId === 'client-created-root') return;
     
-    if (!conversation.mapping) return messages;
+    const messageNode = conversation.mapping[messageId];
+    if (!messageNode?.message?.author?.role) return;
     
-    // Process each message in the mapping
-    Object.keys(conversation.mapping).forEach(messageId => {
-      if (messageId === 'client-created-root') return;
+    const message = messageNode.message;
+    const role = message.author.role;
+    
+    // Only process user, assistant and tool text messages
+    if ((role === 'user' || role === 'assistant' || role === 'tool')) {
       
-      const messageNode = conversation.mapping[messageId];
-      if (!messageNode?.message?.author?.role) return;
-      
-      const message = messageNode.message;
-      const role = message.author.role;
-      
-      // Only process user and assistant text messages
-      if ((role === 'user' || role === 'assistant') && 
-          (!message.content.content_type || message.content.content_type === 'text')) {
-        
-        // Get message creation order from metadata if available, otherwise use create_time
-        const rank = message.metadata?.sequence_number !== undefined ? 
-                        parseInt(message.metadata.sequence_number) : messages.length;
-        
-        const content = Array.isArray(message.content.parts) 
+      const contentType = message.content.content_type;
+      let content = '';
+      if (contentType === 'text') {
+        content = Array.isArray(message.content.parts) 
           ? message.content.parts.join('\n') 
           : message.content.parts || '';
-          
-        messages.push({
-          messageId,
-          conversationId: conversation.conversation_id,
-          content,
-          role,
-          model: message.metadata?.model_slug || 'unknown',
-          timestamp: message.create_time || Date.now(),
-          rank
+      } else if (contentType === "multimodal_text") {
+        message.content.parts.forEach((part: any) => {
+          if (typeof part === 'string') {
+            content += part;
+          }
+          else if (part.text && typeof part.text === 'string') {
+            content += part.text;
+          }
         });
       }
-    });
-    
-    // Sort messages by rank if available, otherwise by timestamp
-    messages.sort((a, b) => {
-      if (a.rank !== undefined && b.rank !== undefined) {
-        return a.rank - b.rank;
+      
+      // Get parent message ID if available, otherwise try to use children info
+      let parentMessageId = ''
+      if (!messageNode.children && messageNode.children.length > 0) {
+        // Attempt to use the first child as a potential parent
+        parentMessageId = messageNode.children[0];
       }
-      return a.timestamp - b.timestamp;
-    });
-    
-    // Update message counter based on number of messages
-    if (messages.length > 0 && conversation.conversation_id) {
-      this.messageCounters.set(conversation.conversation_id, messages.length);
+      if (!parentMessageId) {
+        parentMessageId = messageNode.parent?.id || message.metadata?.parent_id;
+      }
+      
+      // Extract model if available
+      const model = message.metadata?.model_slug;
+      if (model) {
+        // If this message has a model, cache it by message ID
+        modelCache[messageId] = model;
+      }
+      
+      messages.push({
+        messageId,
+        conversationId: conversation.conversation_id,
+        content,
+        role,
+        model: model || 'unknown', // Set default model, will try to update in second pass
+        timestamp: message.create_time ? message.create_time * 1000 : Date.now(),
+        parent_message_id: parentMessageId
+      });
     }
-    
-    return messages;
-  }
+  });
+  
+  // Second pass: For messages without a model, try to find from child messages
+  // This is especially useful for user messages where model info is in the assistant's response
+  messages.forEach(msg => {
+    if (msg.model === 'unknown') {
+      // Try to find model info from children
+      const messageNode = conversation.mapping[msg.messageId];
+      if (messageNode?.children && messageNode.children.length > 0) {
+        // Look for the first child with a cached model
+        for (const childId of messageNode.children) {
+          if (modelCache[childId]) {
+            msg.model = modelCache[childId];
+            break;
+          }
+        }
+      }
+    }
+  });
+  
+  // Sort messages by timestamp
+  messages.sort((a, b) => a.timestamp - b.timestamp);
+  
+  return messages;
+}
   
   /**
    * Add a message to local cache
@@ -422,13 +425,8 @@ export class ChatService {
       // Add new message
       conversationMessages.push(message);
       
-      // Sort by rank if available
-      conversationMessages.sort((a, b) => {
-        if (a.rank !== undefined && b.rank !== undefined) {
-          return a.rank - b.rank;
-        }
-        return a.timestamp - b.timestamp;
-      });
+      // Sort by timestamp
+      conversationMessages.sort((a, b) => a.timestamp - b.timestamp);
     }
   }
   
@@ -442,7 +440,7 @@ export class ChatService {
         provider_chat_id: message.conversationId,
         content: message.content,
         role: message.role,
-        rank: message.rank !== undefined ? message.rank : 0,
+        parent_message_id: message.parent_message_id, // Include parent_message_id
         model: message.model || 'unknown',
         created_at: message.timestamp
       });
@@ -481,7 +479,7 @@ export class ChatService {
         provider_chat_id: msg.conversationId,
         content: msg.content,
         role: msg.role,
-        rank: msg.rank !== undefined ? msg.rank : 0,
+        parent_message_id: msg.parent_message_id, // Include parent_message_id
         model: msg.model || 'unknown',
         created_at: msg.timestamp
       }));

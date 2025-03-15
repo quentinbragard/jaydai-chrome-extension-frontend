@@ -1,14 +1,14 @@
-// src/services/api/MessageApi.ts
+// src/api/MessageApi.ts - Updated interface
 import { apiClient } from './ApiClient';
 
 export interface SaveMessageParams {
   message_id: string;
   content: string;
   role: string;
-  rank: number;
   provider_chat_id: string;
   model?: string;
   created_at?: number;
+  parent_message_id?: string; // Added parent_message_id
 }
 
 export interface SaveChatParams {
