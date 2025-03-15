@@ -305,33 +305,81 @@ export class ChatService {
     };
   }
   
-  /**
-   * Extract messages from conversation data
-   */
-  /**
- * Extract messages from conversation data with improved model detection
+/**
+ * Extract only user and assistant messages from conversation data
+ * with support for tracking associated tools and correct parent relationships
  */
 private extractMessagesFromConversation(conversation: any): Message[] {
   const messages: Message[] = [];
   const modelCache: Record<string, string> = {};
+  const messageMap: Record<string, any> = {};
   
   if (!conversation.mapping) return messages;
   
-  // First pass: Extract messages and build the message structure
+  // First pass: Build a map of all message nodes for easy lookup
+  // and track all tool IDs associated with each assistant message
+  const toolsMap: Record<string, string[]> = {};
+  const childToParentMap: Record<string, string> = {};
+  
   Object.keys(conversation.mapping).forEach(messageId => {
+    const messageNode = conversation.mapping[messageId];
+    messageMap[messageId] = messageNode;
+    
+    // Track parent-child relationships
+    if (messageNode?.children?.length > 0) {
+      messageNode.children.forEach((childId: string) => {
+        childToParentMap[childId] = messageId;
+      });
+    }
+    
+    // Don't process the root node
     if (messageId === 'client-created-root') return;
     
-    const messageNode = conversation.mapping[messageId];
+    // Check if this is a valid message node
     if (!messageNode?.message?.author?.role) return;
     
     const message = messageNode.message;
     const role = message.author.role;
     
-    // Only process user, assistant and tool text messages
-    if ((role === 'user' || role === 'assistant' || role === 'tool')) {
-      
-      const contentType = message.content.content_type;
+    // Check if this is a tool message - if so, track it for the parent assistant
+    if (role === 'tool') {
+      const parentId = childToParentMap[messageId];
+      if (parentId) {
+        if (!toolsMap[parentId]) {
+          toolsMap[parentId] = [];
+        }
+        
+        // Add the tool name
+        const toolName = message.author.name || 'unknown-tool';
+        if (!toolsMap[parentId].includes(toolName)) {
+          toolsMap[parentId].push(toolName);
+        }
+      }
+    }
+    
+    // Extract model if available for caching
+    const model = message.metadata?.model_slug;
+    if (model) {
+      modelCache[messageId] = model;
+    }
+  });
+  
+  // Second pass: Extract only user and assistant messages with correct parent relationships
+  Object.keys(conversation.mapping).forEach(messageId => {
+    if (messageId === 'client-created-root') return;
+    
+    const messageNode = messageMap[messageId];
+    if (!messageNode?.message?.author?.role) return;
+    
+    const message = messageNode.message;
+    const role = message.author.role;
+    
+    // Only process user and assistant messages
+    if (role === 'user' || role === 'assistant') {
+      // Extract content based on content type
+      const contentType = message.content?.content_type;
       let content = '';
+      
       if (contentType === 'text') {
         content = Array.isArray(message.content.parts) 
           ? message.content.parts.join('\n') 
@@ -347,49 +395,66 @@ private extractMessagesFromConversation(conversation: any): Message[] {
         });
       }
       
-      // Get parent message ID if available, otherwise try to use children info
-      let parentMessageId = ''
-      if (!messageNode.children && messageNode.children.length > 0) {
-        // Attempt to use the first child as a potential parent
-        parentMessageId = messageNode.children[0];
-      }
-      if (!parentMessageId) {
-        parentMessageId = messageNode.parent?.id || message.metadata?.parent_id;
+      // Skip messages with no content
+      if (!content.trim()) {
+        return;
       }
       
-      // Extract model if available
-      const model = message.metadata?.model_slug;
-      if (model) {
-        // If this message has a model, cache it by message ID
-        modelCache[messageId] = model;
+      // Determine parent message ID only for assistant messages
+      let parentMessageId = '';
+      
+      if (role === 'assistant') {
+        // First try direct parent from metadata
+        parentMessageId = message.metadata?.parent_id || '';
+        
+        // If no direct parent, walk up the chain to find a user message
+        if (!parentMessageId) {
+          let currentId = childToParentMap[messageId];
+          while (currentId) {
+            const parentNode = messageMap[currentId];
+            if (parentNode?.message?.author?.role === 'user') {
+              parentMessageId = currentId;
+              break;
+            }
+            currentId = childToParentMap[currentId];
+          }
+        }
       }
       
-      messages.push({
+      // Create message object
+      const messageObj: Message = {
         messageId,
         conversationId: conversation.conversation_id,
         content,
         role,
-        model: model || 'unknown', // Set default model, will try to update in second pass
-        timestamp: message.create_time ? message.create_time * 1000 : Date.now(),
-        parent_message_id: parentMessageId
-      });
+        model: modelCache[messageId] || 'unknown',
+        timestamp: message.create_time ? message.create_time * 1000 : Date.now()
+      };
+      
+      // Only set parent_message_id for assistant messages, never for user messages
+      if (role === 'assistant' && parentMessageId) {
+        messageObj.parent_message_id = parentMessageId;
+      }
+      
+      // Add tools array if this is an assistant message with associated tools
+      if (role === 'assistant' && toolsMap[messageId] && toolsMap[messageId].length > 0) {
+        messageObj.tools = toolsMap[messageId];
+      }
+      
+      messages.push(messageObj);
     }
   });
   
-  // Second pass: For messages without a model, try to find from child messages
-  // This is especially useful for user messages where model info is in the assistant's response
+  // Try to assign better model information based on assistant messages
   messages.forEach(msg => {
-    if (msg.model === 'unknown') {
-      // Try to find model info from children
-      const messageNode = conversation.mapping[msg.messageId];
-      if (messageNode?.children && messageNode.children.length > 0) {
-        // Look for the first child with a cached model
-        for (const childId of messageNode.children) {
-          if (modelCache[childId]) {
-            msg.model = modelCache[childId];
-            break;
-          }
-        }
+    if (msg.model === 'unknown' && msg.role === 'user') {
+      // Find any assistant response to this user message
+      const assistantResponse = messages.find(m => 
+        m.role === 'assistant' && m.parent_message_id === msg.messageId
+      );
+      
+      if (assistantResponse && assistantResponse.model !== 'unknown') {
+        msg.model = assistantResponse.model;
       }
     }
   });
