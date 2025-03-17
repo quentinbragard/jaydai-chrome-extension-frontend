@@ -26,7 +26,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
       <CardHeader className="py-3 flex flex-row items-center justify-between">
         <CardTitle className="text-base font-medium flex items-center">
           <Bell className="mr-2 h-4 w-4" />
-          Notifications 
+          {chrome.i18n.getMessage('notifications')}
           {unreadCount > 0 && (
             <span className="ml-2 text-xs bg-primary rounded-full h-5 w-5 flex items-center justify-center text-primary-foreground">
               {unreadCount}
@@ -42,7 +42,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
               className="h-7 px-2 text-xs"
             >
               <Check className="h-3.5 w-3.5 mr-1" />
-              Mark all read
+              {chrome.i18n.getMessage('markAllRead')}
             </Button>
           )}
           {onClose && (
@@ -68,12 +68,12 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
           {loading ? (
             <div className="py-8 text-center">
               <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
-              <p className="text-sm text-muted-foreground mt-2">Loading notifications...</p>
+              <p className="text-sm text-muted-foreground mt-2">{chrome.i18n.getMessage('loadingNotifications')}</p>
             </div>
           ) : notifications.length === 0 ? (
             <div className="py-8 px-4 text-center">
               <Bell className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
-              <p className="text-sm text-muted-foreground">You don't have any notifications yet</p>
+              <p className="text-sm text-muted-foreground">{chrome.i18n.getMessage('noNotifications')}</p>
             </div>
           ) : (
             <ul className="divide-y divide-border">

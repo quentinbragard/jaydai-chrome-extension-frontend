@@ -138,16 +138,16 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
         }}
       >
         <DialogDescription>
-          Customize the template to your needs
+          {chrome.i18n.getMessage('customizeTemplateDesc')}
         </DialogDescription>
         <DialogHeader>
-          <DialogTitle>Customize Template: {templateTitle}</DialogTitle>
+          <DialogTitle>{chrome.i18n.getMessage('customizeTemplate', { template_name: templateTitle })}</DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4 flex-grow overflow-hidden">
           {/* Placeholders Section */}
           <div className="space-y-4 overflow-auto">
-            <h3 className="text-sm font-medium">Replace Placeholders</h3>
+            <h3 className="text-sm font-medium">{chrome.i18n.getMessage('replacePlaceholders')}</h3>
 
             {placeholders.length > 0 ? (
               <ScrollArea className="h-[50vh]">
@@ -168,13 +168,13 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
                 </div>
               </ScrollArea>
             ) : (
-              <div className="text-muted-foreground text-center py-8">No placeholders found in this template</div>
+              <div className="text-muted-foreground text-center py-8">{chrome.i18n.getMessage('noPlaceholders')}</div>
             )}
           </div>
 
           {/* Rich Text Editable Section */}
           <div className="border rounded-md p-4 overflow-hidden flex flex-col">
-            <h3 className="text-sm font-medium mb-2">Edit Template</h3>
+            <h3 className="text-sm font-medium mb-2">{chrome.i18n.getMessage('editTemplate')}</h3>
             <div
               ref={editorRef}
               contentEditable
@@ -188,9 +188,9 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel}>
-            Cancel
+            {chrome.i18n.getMessage('cancel')}
           </Button>
-          <Button onClick={handleComplete}>Use Template</Button>
+          <Button onClick={handleComplete}>{chrome.i18n.getMessage('useTemplate')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

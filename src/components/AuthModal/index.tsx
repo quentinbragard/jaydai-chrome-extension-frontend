@@ -14,7 +14,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
   const handleEmailSignIn = async () => {
     if (!email || !password) {
-      setMessage("Please enter both email and password.");
+      setMessage(chrome.i18n.getMessage('enterEmailPassword'));
       return;
     }
 
@@ -24,24 +24,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         { action: "emailSignIn", email, password }, 
         (response) => {
           if (response.success) {
-            toast.success("Sign-in successful!", {
-              description: "You can now access your ChatGPT conversations.",
+            toast.success(chrome.i18n.getMessage('signInSuccessful'), {
+              description: chrome.i18n.getMessage('youCanNowAccess'),
               action: {
-                label: "Open ChatGPT",
+                label: chrome.i18n.getMessage('openChatGPT'),
                 onClick: () => window.open("https://chatgpt.com/", "_blank")
               }
             });
             onClose?.();
           } else {
-            toast.error("Sign-in failed", {
-              description: response.error || "An error occurred during sign-in."
+            toast.error(chrome.i18n.getMessage('signInFailed'), {
+              description: response.error || chrome.i18n.getMessage('unableToProcess')
             });
           }
         }
       );
     } catch (error) {
-      toast.error("Authentication Error", {
-        description: "Unable to process sign-in at this moment."
+      toast.error(chrome.i18n.getMessage('authError'), {
+        description: chrome.i18n.getMessage('unableToProcess')
       });
     }
   };
@@ -52,24 +52,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         { action: "googleSignIn" }, 
         (response) => {
           if (response.success) {
-            toast.success("Google Sign-in successful!", {
-              description: "You can now access your ChatGPT conversations.",
+            toast.success(chrome.i18n.getMessage('signInSuccessful', { provider: 'Google' }), {
+              description: chrome.i18n.getMessage('youCanNowAccess'),
               action: {
-                label: "Open ChatGPT",
+                label: chrome.i18n.getMessage('openChatGPT'),
                 onClick: () => window.open("https://chatgpt.com/", "_blank")
               }
             });
             onClose?.();
           } else {
-            toast.error("Google Sign-in failed", {
-              description: response.error || "An error occurred during sign-in."
+            toast.error(chrome.i18n.getMessage('signInFailed'), {
+              description: response.error || chrome.i18n.getMessage('unableToProcess')
             });
           }
         }
       );
     } catch (error) {
-      toast.error("Authentication Error", {
-        description: "Unable to process Google sign-in at this moment."
+      toast.error(chrome.i18n.getMessage('authError'), {
+        description: chrome.i18n.getMessage('unableToProcess')
       });
     }
   };
@@ -84,13 +84,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
       <div className="space-y-2">
         <Input 
           type="email" 
-          placeholder="Email" 
+          placeholder={chrome.i18n.getMessage('email')} 
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <Input 
           type="password" 
-          placeholder="Password" 
+          placeholder={chrome.i18n.getMessage('password')} 
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -99,7 +99,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         onClick={handleEmailSignIn} 
         className="w-full"
       >
-        Sign In
+        {chrome.i18n.getMessage('signIn')}
       </Button>
       <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
@@ -107,7 +107,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         </div>
         <div className="relative flex justify-center text-sm">
           <span className="px-2 bg-white text-gray-500">
-            Or continue with
+            {chrome.i18n.getMessage('or')}
           </span>
         </div>
       </div>
@@ -116,7 +116,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         onClick={handleGoogleSignIn} 
         className="w-full"
       >
-        Sign In with Google
+        {chrome.i18n.getMessage('signInWith', 'Google')}
       </Button>
     </div>
   );

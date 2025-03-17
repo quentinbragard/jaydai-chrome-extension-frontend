@@ -66,7 +66,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                 onClick={(e) => onDismiss(notification, e)}
                 className="h-5 text-xs px-1.5"
               >
-                Dismiss
+                {chrome.i18n.getMessage('dismiss')}
               </Button>
             )}
           </div>
@@ -87,4 +87,4 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   );
 };
 
-export default NotificationItem; 
+export default NotificationItem;

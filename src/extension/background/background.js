@@ -15,6 +15,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         getAuthToken: () => sendAuthToken(sendResponse),
         refreshAuthToken: () => refreshAndSendToken(sendResponse),
         
+        // Locale actions
+        getUserLocale: () => {
+            // Get user's preferred locale
+            const locale = chrome.i18n.getUILanguage();
+            sendResponse({ success: true, locale });
+            return false;
+        },
+        
         // Network monitoring actions - simplified
         'start-network-monitoring': () => {
             console.log('🔍 Starting network monitoring (simplified version)...');
@@ -205,6 +213,13 @@ function storeUser(user) {
 
     chrome.storage.local.set({ user: user });
     console.log("🔄 Stored user:", user.id);
+}
+
+function storeUserId(userId) {
+    if (!userId) return;
+
+    chrome.storage.local.set({ userId: userId });
+    console.log("🔄 Stored user ID:", userId);
 }
 
 /* ==========================================

@@ -41,7 +41,12 @@ export default defineConfig(function (_a) {
                     {
                         src: 'src/extension/content/content.css',
                         dest: 'assets/'
+                    },
+                    {
+                        src: '_locales',
+                        dest: ''
                     }
+
                 ]
             })
         ],

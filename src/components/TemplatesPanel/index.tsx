@@ -44,7 +44,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const userFolders = templateCollection?.userTemplates?.folders || [];
 
   // Function to call handleUseTemplate with onClose callback
-  const onTemplateClick = (template) => {
+  const onTemplateClick = (template: any) => {
     handleUseTemplate(template, onClose);
   };
 
@@ -61,7 +61,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           <CardHeader className="py-3 flex flex-row items-center justify-between">
             <CardTitle className="text-base font-medium flex items-center">
               <FileText className="mr-2 h-4 w-4" />
-              Prompt Templates
+              {chrome.i18n.getMessage('templates')}
             </CardTitle>
             <div className="flex gap-1">
               <Button 
@@ -69,10 +69,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 size="sm" 
                 onClick={captureCurrentPromptAsTemplate}
                 className="h-7 px-2 text-xs"
-                title="Create from current prompt"
+                title={chrome.i18n.getMessage('createTemplate')}
               >
                 <Plus className="h-3.5 w-3.5 mr-1" />
-                New
+                {chrome.i18n.getMessage('newTemplate')}
               </Button>
               {onClose && (
                 <Button 
@@ -97,7 +97,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               {loading ? (
                 <div className="py-8 text-center">
                   <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
-                  <p className="text-sm text-muted-foreground mt-2">Loading templates...</p>
+                  <p className="text-sm text-muted-foreground mt-2">{chrome.i18n.getMessage('loadingNotifications')}</p>
                 </div>
               ) : (
                 <div>
@@ -106,7 +106,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                     <div className="p-2">
                       <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
                         <BookTemplate className="mr-2 h-4 w-4" />
-                        Official Templates
+                        {chrome.i18n.getMessage('officialTemplates')}
                       </div>
                       {/* Root-level official templates */}
                       {officialTemplates
@@ -150,7 +150,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                     <div className="p-2 border-t">
                       <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
                         <Folder className="mr-2 h-4 w-4" />
-                        My Templates
+                        {chrome.i18n.getMessage('myTemplates')}
                       </div>
                       {/* Root-level user templates */}
                       {userTemplates
@@ -194,7 +194,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                    userTemplates.length === 0 && (
                     <div className="py-8 px-4 text-center">
                       <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
-                      <p className="text-sm text-muted-foreground">No templates found</p>
+                      <p className="text-sm text-muted-foreground">{chrome.i18n.getMessage('noTemplates')}</p>
                       <Button 
                         variant="outline" 
                         size="sm" 
@@ -202,7 +202,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                         className="mt-4"
                       >
                         <Plus className="h-4 w-4 mr-1" />
-                        Create your first template
+                        {chrome.i18n.getMessage('createFirstTemplate')}
                       </Button>
                     </div>
                   )}

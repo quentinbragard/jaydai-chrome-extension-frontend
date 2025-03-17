@@ -56,7 +56,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
             onClick={() => openPanel('menu')}
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
-            <span className="text-xs">Back</span>
+            <span className="text-xs">{chrome.i18n.getMessage('back')}</span>
           </Button>
           {activePanel === 'notifications' && <NotificationsPanel onClose={handleClosePanel} />}
           {activePanel === 'templates' && (
@@ -76,7 +76,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
               className="justify-start" 
               onClick={() => openPanel('templates')}
             >
-              <FileText className="mr-2 h-4 w-4" /> Templates
+              <FileText className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('templates')}
             </Button>
             <Button 
               variant="ghost" 
@@ -84,7 +84,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
               className="justify-start" 
               onClick={() => openPanel('notifications')}
             >
-              <Bell className="mr-2 h-4 w-4" /> Notifications
+              <Bell className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('notifications')}
               {notificationCount > 0 && (
                 <span className="ml-auto bg-primary text-primary-foreground rounded-full text-xs px-1.5 py-0.5">
                   {notificationCount}
@@ -97,7 +97,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
               className="justify-start" 
               onClick={handleSaveClick}
             >
-              <FileText className="mr-2 h-4 w-4" /> Save Conversation
+              <FileText className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('saveConversation')}
             </Button>
             <Button 
               variant="ghost" 
@@ -105,7 +105,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
               className="justify-start" 
               onClick={handleSettingsClick}
             >
-              <Settings className="mr-2 h-4 w-4" /> Settings
+              <Settings className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('settings')}
             </Button>
           </div>
         </Card>

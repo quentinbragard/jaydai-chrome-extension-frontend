@@ -54,8 +54,8 @@ const ExtensionPopup: React.FC = () => {
     <div className="w-80 bg-background">
       <Card className="w-full">
         <CardHeader>
-          <CardTitle className=" text-yellow-500 text-center">
-            AI Tool Launcher...
+          <CardTitle className="text-yellow-500 text-center">
+            {chrome.i18n.getMessage('aiToolLauncher')}
           </CardTitle>
         </CardHeader>
         <Separator />

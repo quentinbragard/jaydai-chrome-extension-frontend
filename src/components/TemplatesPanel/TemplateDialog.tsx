@@ -50,33 +50,35 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{currentTemplate ? 'Edit Template' : 'Create Template'}</DialogTitle>
+          <DialogTitle>
+            {currentTemplate ? chrome.i18n.getMessage('editTemplate') : chrome.i18n.getMessage('createTemplateTitle')}
+          </DialogTitle>
         </DialogHeader>
         <DialogDescription>
-          Create and manage your templates
+          {chrome.i18n.getMessage('createTemplateTitle')}
         </DialogDescription>
         
         <div className="space-y-4 py-2">
           <div>
-            <label className="text-sm font-medium">Name</label>
+            <label className="text-sm font-medium">{chrome.i18n.getMessage('templateName')}</label>
             <Input 
               value={safeFormData.name} 
               onChange={(e) => handleFormChange('name', e.target.value)}
-              placeholder="Template name"
+              placeholder={chrome.i18n.getMessage('templateName')}
             />
           </div>
           
           <div>
-            <label className="text-sm font-medium">Description (optional)</label>
+            <label className="text-sm font-medium">{chrome.i18n.getMessage('templateDescription')}</label>
             <Input 
               value={safeFormData.description} 
               onChange={(e) => handleFormChange('description', e.target.value)}
-              placeholder="Brief description"
+              placeholder={chrome.i18n.getMessage('templateDescription')}
             />
           </div>
           
           <div>
-            <label className="text-sm font-medium">Folder (optional)</label>
+            <label className="text-sm font-medium">{chrome.i18n.getMessage('templateFolder')}</label>
             <Input 
               value={safeFormData.folder} 
               onChange={(e) => handleFormChange('folder', e.target.value)}
@@ -88,23 +90,23 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
           </div>
           
           <div>
-            <label className="text-sm font-medium">Content</label>
+            <label className="text-sm font-medium">{chrome.i18n.getMessage('templateContent')}</label>
             <textarea 
               className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               rows={6}
               value={safeFormData.content} 
               onChange={(e) => handleFormChange('content', e.target.value)}
-              placeholder="Template content"
+              placeholder={chrome.i18n.getMessage('templateContent')}
             />
           </div>
         </div>
         
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {chrome.i18n.getMessage('cancel')}
           </Button>
           <Button onClick={onSaveTemplate}>
-            {currentTemplate ? 'Update' : 'Create'}
+            {currentTemplate ? chrome.i18n.getMessage('update') : chrome.i18n.getMessage('create')}
           </Button>
         </div>
       </DialogContent>

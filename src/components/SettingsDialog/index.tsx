@@ -63,7 +63,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
     try {
       // Save settings to chrome storage
       chrome.storage.sync.set({ archimindSettings: settings }, () => {
-        toast.success('Settings saved successfully');
+        toast.success(chrome.i18n.getMessage('saveChanges'));
         
         // Notify content script to apply changes
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -79,7 +79,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
       });
     } catch (error) {
       console.error('Failed to save settings:', error);
-      toast.error('Failed to save settings');
+      toast.error(chrome.i18n.getMessage('saveChanges'));
     }
   };
 
@@ -94,10 +94,10 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogDescription>
-          Configure how Archimind works with ChatGPT
+          {chrome.i18n.getMessage('configureArchimind')}
         </DialogDescription>
         <DialogHeader>
-          <DialogTitle>Archimind Settings</DialogTitle>
+          <DialogTitle>{chrome.i18n.getMessage('archimindSettings')}</DialogTitle>
         </DialogHeader>
         
         <div className="py-4 space-y-6">
@@ -110,7 +110,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium" htmlFor="auto-save">
-                    Auto-save conversations
+                    {chrome.i18n.getMessage('autoSaveConversations')}
                   </label>
                   <input
                     id="auto-save"
@@ -124,7 +124,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 {settings.autoSave && (
                   <div className="flex items-center justify-between pl-4">
                     <label className="text-sm font-medium" htmlFor="auto-save-interval">
-                      Auto-save interval (seconds)
+                      {chrome.i18n.getMessage('autoSaveInterval')}
                     </label>
                     <Input
                       id="auto-save-interval"
@@ -144,7 +144,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium" htmlFor="sync-enabled">
-                    Enable synchronization
+                    {chrome.i18n.getMessage('enableSync')}
                   </label>
                   <input
                     id="sync-enabled"
@@ -157,7 +157,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium" htmlFor="stats-visible">
-                    Show stats panel
+                    {chrome.i18n.getMessage('showStatsPanel')}
                   </label>
                   <input
                     id="stats-visible"
@@ -174,10 +174,10 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
         
         <div className="flex justify-end space-x-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {chrome.i18n.getMessage('cancel')}
           </Button>
           <Button onClick={saveSettings} disabled={loading}>
-            Save Changes
+            {chrome.i18n.getMessage('saveChanges')}
           </Button>
         </div>
       </DialogContent>

@@ -50,10 +50,10 @@ const WelcomePage: React.FC = () => {
       <Card className="w-full max-w-5xl shadow-2xl border-none">
         <CardHeader className="text-center pb-0">
           <CardTitle className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-            Welcome to Archimind
+            {chrome.i18n.getMessage('welcomeTitle')}
           </CardTitle>
           <CardDescription className="text-2xl text-gray-600 mt-2">
-            Your Intelligent AI Usage Companion
+            {chrome.i18n.getMessage('welcomeSubtitle')}
           </CardDescription>
         </CardHeader>
         
@@ -64,46 +64,46 @@ const WelcomePage: React.FC = () => {
           <div className="grid md:grid-cols-3 gap-6">
             <FeatureCard 
               icon={<Zap className="h-6 w-6 text-primary" />}
-              title="Energy Insights"
-              description="Track and optimize your AI usage with real-time energy consumption metrics."
+              title={chrome.i18n.getMessage('energyInsights')}
+              description={chrome.i18n.getMessage('energyInsightsDesc')}
             />
             <FeatureCard 
               icon={<BookOpen className="h-6 w-6 text-primary" />}
-              title="Smart Templates"
-              description="Access a library of curated prompt templates to enhance your AI interactions."
+              title={chrome.i18n.getMessage('smartTemplates')}
+              description={chrome.i18n.getMessage('smartTemplatesDesc')}
             />
             <FeatureCard 
               icon={<TrendingUp className="h-6 w-6 text-primary" />}
-              title="Skill Development"
-              description="Receive personalized recommendations to upskill and maintain human expertise."
+              title={chrome.i18n.getMessage('skillDevelopment')}
+              description={chrome.i18n.getMessage('skillDevelopmentDesc')}
             />
           </div>
 
           {/* How It Works Section */}
           <div className="bg-white/50 backdrop-blur-sm rounded-lg p-8 space-y-6">
             <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-              How Archimind Empowers You
+              {chrome.i18n.getMessage('howItWorks')}
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="text-center">
                 <Lightbulb className="h-12 w-12 mx-auto text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-2">AI Usage Tracking</h3>
+                <h3 className="text-xl font-semibold mb-2">{chrome.i18n.getMessage('aiUsageTracking')}</h3>
                 <p className="text-gray-600">
-                  Monitor your AI interactions, understand patterns, and gain insights into your digital workflow.
+                  {chrome.i18n.getMessage('aiUsageTrackingDesc')}
                 </p>
               </div>
               <div className="text-center">
                 <Activity className="h-12 w-12 mx-auto text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Personalized Insights</h3>
+                <h3 className="text-xl font-semibold mb-2">{chrome.i18n.getMessage('personalizedInsights')}</h3>
                 <p className="text-gray-600">
-                  Receive actionable recommendations to improve your AI usage and maintain your skills.
+                  {chrome.i18n.getMessage('personalizedInsightsDesc')}
                 </p>
               </div>
               <div className="text-center">
                 <Target className="h-12 w-12 mx-auto text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Continuous Learning</h3>
+                <h3 className="text-xl font-semibold mb-2">{chrome.i18n.getMessage('continuousLearning')}</h3>
                 <p className="text-gray-600">
-                  Develop a balanced approach to AI assistance with weekly reports and skill development tips.
+                  {chrome.i18n.getMessage('continuousLearningDesc')}
                 </p>
               </div>
             </div>
@@ -112,10 +112,10 @@ const WelcomePage: React.FC = () => {
           {/* Call to Action */}
           <div className="text-center space-y-4">
             <h2 className="text-3xl font-bold text-gray-800">
-              Ready to Unlock Your AI Potential?
+              {chrome.i18n.getMessage('readyToUnlock')}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Archimind helps you harness the power of AI while maintaining your unique human expertise.
+              {chrome.i18n.getMessage('readyToUnlockDesc')}
             </p>
             
             <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
@@ -125,15 +125,15 @@ const WelcomePage: React.FC = () => {
                   className="mx-auto px-10 py-3 text-lg"
                   size="lg"
                 >
-                  Get Started
+                  {chrome.i18n.getMessage('getStarted')}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogDescription>
-                  Sign in to Archimind to get started
+                  {chrome.i18n.getMessage('signInToArchimind')}
                 </DialogDescription>
                 <DialogHeader>
-                  <DialogTitle>Sign In to Archimind</DialogTitle>
+                  <DialogTitle>{chrome.i18n.getMessage('signInToArchimind')}</DialogTitle>
                 </DialogHeader>
                 <AuthModal onClose={() => setIsAuthOpen(false)} />
               </DialogContent>

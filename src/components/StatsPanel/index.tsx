@@ -20,8 +20,6 @@ const mockData = {
   }
 };
 
-
-
 export const StatsPanel = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [stats, setStats] = useState(mockData);
@@ -84,7 +82,7 @@ export const StatsPanel = () => {
       <div className="px-3 py-2 flex items-center justify-between">
         <div className="flex items-center gap-1">
           <BarChart2 className="h-3.5 w-3.5 text-blue-500 mr-1" />
-          <span className="text-xs font-medium">AI Stats</span>
+          <span className="text-xs font-medium">{chrome.i18n.getMessage('aiStats')}</span>
         </div>
         
         <div className="flex items-center gap-3">
@@ -101,7 +99,7 @@ export const StatsPanel = () => {
             color={efficiencyColor}
           />
           
-          < StatCard 
+          <StatCard 
             icon={<Zap className="h-3.5 w-3.5" />} 
             value={formatEnergy(stats.energyUsage.total)} 
             unit="kWh" 
@@ -135,7 +133,7 @@ export const StatsPanel = () => {
       {isExpanded && (
         <div className="px-4 py-3 border-t animate-in fade-in slide-in-from-top-2 duration-300">
           <DetailRow 
-            label="Energy Usage (Monthly)" 
+            label={chrome.i18n.getMessage('energyInsights')}
             value={`${stats.energyUsage.lastMonth} kWh`} 
             icon={<Zap className="h-3.5 w-3.5" />} 
             progress={stats.energyUsage.percentage}
@@ -143,7 +141,7 @@ export const StatsPanel = () => {
           />
           
           <DetailRow 
-            label="Messages Per Chat" 
+            label={chrome.i18n.getMessage('smartTemplates')} 
             value={stats.avgMessagesPerChat.toFixed(1)} 
             icon={<MessageCircle className="h-3.5 w-3.5" />} 
             progress={stats.avgMessagesPerChat * 5}
@@ -151,7 +149,7 @@ export const StatsPanel = () => {
           />
           
           <DetailRow 
-            label="Avg. Response Time" 
+            label={chrome.i18n.getMessage('skillDevelopment')} 
             value={`${stats.thinkingTime.average.toFixed(1)}s`} 
             icon={<Award className="h-3.5 w-3.5" />} 
             progress={100 - (stats.thinkingTime.average * 5)}
