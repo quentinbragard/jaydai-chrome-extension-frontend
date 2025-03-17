@@ -12,6 +12,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         // Auth actions
         googleSignIn: () => googleSignIn(sendResponse),
         emailSignIn: () => emailSignIn(request.email, request.password, sendResponse),
+        signUp: () => signUp(request.email, request.password, request.name, sendResponse),
         getAuthToken: () => sendAuthToken(sendResponse),
         refreshAuthToken: () => refreshAndSendToken(sendResponse),
         
@@ -135,6 +136,45 @@ async function emailSignIn(email, password, sendResponse) {
         }
     } catch (error) {
         console.error("❌ Error in email sign-in:", error);
+        sendResponse({ success: false, error: error.message });
+    }
+    
+    return true; // Keep channel open for async response
+}
+
+/**
+ * Sign up a new user with email/password
+ */
+function signUp(email, password, name, sendResponse) {
+    try {
+        // Send request to our backend API
+        fetch("http://127.0.0.1:8000/auth/sign_up", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, name }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("✅ Signup successful:", data);
+                sendResponse({ 
+                    success: true, 
+                    message: "Signup successful. Please check your email to verify your account."
+                });
+            } else {
+                console.error("❌ Signup failed:", data.detail || data.error);
+                sendResponse({ 
+                    success: false, 
+                    error: data.detail || data.error || "Failed to create account" 
+                });
+            }
+        })
+        .catch(error => {
+            console.error("❌ Error in signup:", error);
+            sendResponse({ success: false, error: error.message });
+        });
+    } catch (error) {
+        console.error("❌ Error in signup:", error);
         sendResponse({ success: false, error: error.message });
     }
     

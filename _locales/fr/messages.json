@@ -1,330 +1,410 @@
 {
-    "appName": {
-      "message": "Extension Chrome Archimind",
-      "description": "Le nom de l'extension"
-    },
-    "appDesc": {
-      "message": "Intercepte les messages ChatGPT et les enregistre dans Supabase.",
-      "description": "La description de l'extension"
-    },
-    "aiToolLauncher": {
-      "message": "Lanceur d'Outils IA",
-      "description": "Titre pour le popup"
-    },
-    "welcomeTitle": {
-      "message": "Bienvenue sur Archimind",
-      "description": "Titre de la page d'accueil"
-    },
-    "welcomeSubtitle": {
-      "message": "Votre Compagnon Intelligent d'Utilisation de l'IA",
-      "description": "Sous-titre de la page d'accueil"
-    },
-    "energyInsights": {
-      "message": "Analyses Énergétiques",
-      "description": "Titre de carte de fonctionnalité"
-    },
-    "energyInsightsDesc": {
-      "message": "Suivez et optimisez votre utilisation de l'IA avec des métriques de consommation d'énergie en temps réel.",
-      "description": "Description de carte de fonctionnalité"
-    },
-    "smartTemplates": {
-      "message": "Modèles Intelligents",
-      "description": "Titre de carte de fonctionnalité"
-    },
-    "smartTemplatesDesc": {
-      "message": "Accédez à une bibliothèque de modèles d'invite soigneusement sélectionnés pour améliorer vos interactions avec l'IA.",
-      "description": "Description de carte de fonctionnalité"
-    },
-    "skillDevelopment": {
-      "message": "Développement de Compétences",
-      "description": "Titre de carte de fonctionnalité"
-    },
-    "skillDevelopmentDesc": {
-      "message": "Recevez des recommandations personnalisées pour améliorer vos compétences et maintenir votre expertise humaine.",
-      "description": "Description de carte de fonctionnalité"
-    },
-    "howItWorks": {
-      "message": "Comment Archimind Vous Donne du Pouvoir",
-      "description": "Titre de section"
-    },
-    "aiUsageTracking": {
-      "message": "Suivi d'Utilisation de l'IA",
-      "description": "Titre de fonctionnalité"
-    },
-    "aiUsageTrackingDesc": {
-      "message": "Surveillez vos interactions avec l'IA, comprenez les modèles et obtenez des informations sur votre flux de travail numérique.",
-      "description": "Description de fonctionnalité"
-    },
-    "personalizedInsights": {
-      "message": "Informations Personnalisées",
-      "description": "Titre de fonctionnalité"
-    },
-    "personalizedInsightsDesc": {
-      "message": "Recevez des recommandations exploitables pour améliorer votre utilisation de l'IA et maintenir vos compétences.",
-      "description": "Description de fonctionnalité"
-    },
-    "continuousLearning": {
-      "message": "Apprentissage Continu",
-      "description": "Titre de fonctionnalité"
-    },
-    "continuousLearningDesc": {
-      "message": "Développez une approche équilibrée de l'assistance IA avec des rapports hebdomadaires et des conseils de développement de compétences.",
-      "description": "Description de fonctionnalité"
-    },
-    "readyToUnlock": {
-      "message": "Prêt à Débloquer Votre Potentiel IA ?",
-      "description": "Titre CTA"
-    },
-    "readyToUnlockDesc": {
-      "message": "Archimind vous aide à exploiter la puissance de l'IA tout en maintenant votre expertise humaine unique.",
-      "description": "Description CTA"
-    },
-    "getStarted": {
-      "message": "Commencer",
-      "description": "Bouton CTA"
-    },
-    "signIn": {
-      "message": "Se Connecter",
-      "description": "Bouton de connexion"
-    },
-    "signInWith": {
-      "message": "Se Connecter avec $PROVIDER$",
-      "description": "Bouton de connexion avec fournisseur",
-      "placeholders": {
-        "provider": {
-          "content": "$1",
-          "example": "Google"
-        }
+ "appName": {
+    "message": "Extension Chrome Archimind",
+    "description": "Le nom de l'extension"
+  },
+  "appDesc": {
+    "message": "Intercepte les messages ChatGPT et les enregistre dans Supabase.",
+    "description": "La description de l'extension"
+  },
+  "welcomeTitle": {
+    "message": "Bienvenue sur Archimind",
+    "description": "Titre de la page d'accueil"
+  },
+  "yourAICompanion": {
+    "message": "Votre compagnon IA",
+    "description": "Sous-titre de la page d'accueil"
+  },
+  "useAIToPrefix": {
+    "message": "Utilisez l'IA pour",
+    "description": "Préfixe pour les tâches changeantes dans la page d'accueil"
+  },
+  "aiTask1": {
+    "message": "rédiger des emails professionnels",
+    "description": "Exemple de tâche IA 1"
+  },
+  "aiTask2": {
+    "message": "organiser des données complexes",
+    "description": "Exemple de tâche IA 2"
+  }, 
+  "aiTask3": {
+    "message": "créer du contenu convaincant",
+    "description": "Exemple de tâche IA 3"
+  },
+  "aiTask4": {
+    "message": "résumer de longs documents",
+    "description": "Exemple de tâche IA 4"
+  },
+  "aiTask5": {
+    "message": "rédiger des rapports techniques",
+    "description": "Exemple de tâche IA 5"
+  },
+  "welcomeDescription": {
+    "message": "Votre Compagnon Intelligent d'Utilisation de l'IA. Notre objectif est de vous aider à exploiter la puissance de l'IA tout en maintenant votre expertise humaine unique.",
+    "description": "Description de la page d'accueil"
+  },
+  "energyInsights": {
+    "message": "Analyses Énergétiques",
+    "description": "Titre de carte de fonctionnalité"
+  },
+  "energyInsightsDesc": {
+    "message": "Suivez et optimisez votre utilisation de l'IA avec des métriques de consommation d'énergie en temps réel.",
+    "description": "Description de carte de fonctionnalité"
+  },
+  "smartTemplates": {
+    "message": "Modèles Intelligents",
+    "description": "Titre de carte de fonctionnalité"
+  },
+  "smartTemplatesDesc": {
+    "message": "Accédez à une bibliothèque de modèles d'invite soigneusement sélectionnés pour améliorer vos interactions avec l'IA.",
+    "description": "Description de carte de fonctionnalité"
+  },
+  "skillDevelopment": {
+    "message": "Développement de Compétences",
+    "description": "Titre de carte de fonctionnalité"
+  },
+  "skillDevelopmentDesc": {
+    "message": "Recevez des recommandations personnalisées pour améliorer vos compétences et maintenir votre expertise humaine.",
+    "description": "Description de carte de fonctionnalité"
+  },
+  "getStarted": {
+    "message": "Commencer",
+    "description": "Bouton CTA"
+  },
+  "signIn": {
+    "message": "Se Connecter",
+    "description": "Bouton de connexion"
+  },
+  "signUp": {
+    "message": "S'inscrire",
+    "description": "Bouton d'inscription"
+  },
+  "emailConfirmationRequired": {
+    "message": "Vérification par e-mail requise après l'inscription",
+    "description": "Avis de vérification par e-mail"
+  },
+  "allRightsReserved": {
+    "message": "Tous droits réservés",
+    "description": "Texte de copyright en bas de page"
+  },
+  "aiToolLauncher": {
+    "message": "Lanceur d'Outils IA",
+    "description": "Titre pour le popup"
+  },
+  "welcomeSubtitle": {
+    "message": "Votre Compagnon Intelligent d'Utilisation de l'IA",
+    "description": "Sous-titre de la page d'accueil"
+  },
+  "howItWorks": {
+    "message": "Comment Archimind Vous Donne du Pouvoir",
+    "description": "Titre de section"
+  },
+  "aiUsageTracking": {
+    "message": "Suivi d'Utilisation de l'IA",
+    "description": "Titre de fonctionnalité"
+  },
+  "aiUsageTrackingDesc": {
+    "message": "Surveillez vos interactions avec l'IA, comprenez les modèles et obtenez des informations sur votre flux de travail numérique.",
+    "description": "Description de fonctionnalité"
+  },
+  "personalizedInsights": {
+    "message": "Informations Personnalisées",
+    "description": "Titre de fonctionnalité"
+  },
+  "personalizedInsightsDesc": {
+    "message": "Recevez des recommandations exploitables pour améliorer votre utilisation de l'IA et maintenir vos compétences.",
+    "description": "Description de fonctionnalité"
+  },
+  "continuousLearning": {
+    "message": "Apprentissage Continu",
+    "description": "Titre de fonctionnalité"
+  },
+  "continuousLearningDesc": {
+    "message": "Développez une approche équilibrée de l'assistance IA avec des rapports hebdomadaires et des conseils de développement de compétences.",
+    "description": "Description de fonctionnalité"
+  },
+  "readyToUnlock": {
+    "message": "Prêt à Débloquer Votre Potentiel IA ?",
+    "description": "Titre CTA"
+  },
+  "readyToUnlockDesc": {
+    "message": "Archimind vous aide à exploiter la puissance de l'IA tout en maintenant votre expertise humaine unique.",
+    "description": "Description CTA"
+  },
+  "name": {
+    "message": "Nom",
+    "description": "Étiquette de nom"
+  },
+  "signInWith": {
+    "message": "Se Connecter avec $PROVIDER$",
+    "description": "Bouton de connexion avec fournisseur",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Google"
       }
-    },
-    "email": {
-      "message": "Email",
-      "description": "Étiquette d'email"
-    },
-    "password": {
-      "message": "Mot de passe",
-      "description": "Étiquette de mot de passe"
-    },
-    "or": {
-      "message": "Ou continuer avec",
-      "description": "Texte séparateur"
-    },
-    "signInToArchimind": {
-      "message": "Connexion à Archimind",
-      "description": "Titre de dialogue de connexion"
-    },
-    "enterEmailPassword": {
-      "message": "Veuillez saisir à la fois l'email et le mot de passe.",
-      "description": "Message de validation"
-    },
-    "signInSuccessful": {
-      "message": "Connexion réussie !",
-      "description": "Message de succès"
-    },
-    "youCanNowAccess": {
-      "message": "Vous pouvez maintenant accéder à vos conversations ChatGPT.",
-      "description": "Description du message de succès"
-    },
-    "openChatGPT": {
-      "message": "Ouvrir ChatGPT",
-      "description": "Bouton pour ouvrir ChatGPT"
-    },
-    "signInFailed": {
-      "message": "Échec de la connexion",
-      "description": "Message d'erreur"
-    },
-    "authError": {
-      "message": "Erreur d'Authentification",
-      "description": "Titre d'erreur"
-    },
-    "unableToProcess": {
-      "message": "Impossible de traiter la connexion pour le moment.",
-      "description": "Message d'erreur"
-    },
-    "templates": {
-      "message": "Modèles",
-      "description": "Élément de menu Modèles"
-    },
-    "notifications": {
-      "message": "Notifications",
-      "description": "Élément de menu Notifications"
-    },
-    "saveConversation": {
-      "message": "Enregistrer la Conversation",
-      "description": "Élément de menu Enregistrer la conversation"
-    },
-    "settings": {
-      "message": "Paramètres",
-      "description": "Élément de menu Paramètres"
-    },
-    "cancel": {
-      "message": "Annuler",
-      "description": "Bouton Annuler"
-    },
-    "save": {
-      "message": "Enregistrer",
-      "description": "Bouton Enregistrer"
-    },
-    "saveChanges": {
-      "message": "Enregistrer les Modifications",
-      "description": "Bouton Enregistrer les modifications"
-    },
-    "back": {
-      "message": "Retour",
-      "description": "Bouton Retour"
-    },
-    "aiStats": {
-      "message": "Statistiques IA",
-      "description": "Étiquette des statistiques IA"
-    },
-    "noActiveConversation": {
-      "message": "Aucune Conversation Active",
-      "description": "Message d'erreur"
-    },
-    "pleaseSelectConversation": {
-      "message": "Veuillez d'abord sélectionner une conversation.",
-      "description": "Description du message d'erreur"
-    },
-    "conversationSaved": {
-      "message": "Conversation Enregistrée",
-      "description": "Message de succès"
-    },
-    "conversationSavedSuccess": {
-      "message": "Votre conversation a été enregistrée avec succès.",
-      "description": "Description du message de succès"
-    },
-    "errorSavingConversation": {
-      "message": "Erreur d'Enregistrement de la Conversation",
-      "description": "Message d'erreur"
-    },
-    "problemSavingConversation": {
-      "message": "Un problème est survenu lors de l'enregistrement de votre conversation.",
-      "description": "Description du message d'erreur"
-    },
-    "markAllRead": {
-      "message": "Tout marquer comme lu",
-      "description": "Bouton Tout marquer comme lu"
-    },
-    "loadingNotifications": {
-      "message": "Chargement des notifications...",
-      "description": "Message de chargement"
-    },
-    "noNotifications": {
-      "message": "Vous n'avez pas encore de notifications",
-      "description": "Message d'état vide"
-    },
-    "dismiss": {
-      "message": "Ignorer",
-      "description": "Bouton Ignorer"
-    },
-    "newTemplate": {
-      "message": "Nouveau",
-      "description": "Bouton Nouveau modèle"
-    },
-    "officialTemplates": {
-      "message": "Modèles Officiels",
-      "description": "Titre de section Modèles officiels"
-    },
-    "myTemplates": {
-      "message": "Mes Modèles",
-      "description": "Titre de section Mes modèles"
-    },
-    "noTemplates": {
-      "message": "Aucun modèle trouvé",
-      "description": "Message d'état vide"
-    },
-    "createTemplate": {
-      "message": "Créer un Modèle",
-      "description": "Bouton Créer un modèle"
-    },
-    "createFirstTemplate": {
-      "message": "Créer votre premier modèle",
-      "description": "Bouton Créer votre premier modèle"
-    },
-    "editTemplate": {
-      "message": "Modifier le Modèle",
-      "description": "Titre de dialogue Modifier le modèle"
-    },
-    "createTemplateTitle": {
-      "message": "Créer un Modèle",
-      "description": "Titre de dialogue Créer un modèle"
-    },
-    "templateName": {
-      "message": "Nom",
-      "description": "Étiquette Nom du modèle"
-    },
-    "templateDescription": {
-      "message": "Description (optionnel)",
-      "description": "Étiquette Description du modèle"
-    },
-    "templateFolder": {
-      "message": "Dossier (optionnel)",
-      "description": "Étiquette Dossier du modèle"
-    },
-    "templateContent": {
-      "message": "Contenu",
-      "description": "Étiquette Contenu du modèle"
-    },
-    "update": {
-      "message": "Mettre à jour",
-      "description": "Bouton Mettre à jour"
-    },
-    "create": {
-      "message": "Créer",
-      "description": "Bouton Créer"
-    },
-    "archimindSettings": {
-      "message": "Paramètres d'Archimind",
-      "description": "Titre de dialogue Paramètres"
-    },
-    "configureArchimind": {
-      "message": "Configurez le fonctionnement d'Archimind avec ChatGPT",
-      "description": "Description du dialogue Paramètres"
-    },
-    "autoSaveConversations": {
-      "message": "Enregistrement automatique des conversations",
-      "description": "Option de paramètres"
-    },
-    "autoSaveInterval": {
-      "message": "Intervalle d'enregistrement automatique (secondes)",
-      "description": "Option de paramètres"
-    },
-    "enableSync": {
-      "message": "Activer la synchronisation",
-      "description": "Option de paramètres"
-    },
-    "showStatsPanel": {
-      "message": "Afficher le panneau de statistiques",
-      "description": "Option de paramètres"
-    },
-    "customizeTemplate": {
-      "message": "Personnaliser le Modèle: $TEMPLATE_NAME$",
-      "description": "Titre de dialogue Personnaliser le modèle",
-      "placeholders": {
-        "template_name": {
-          "content": "$1",
-          "example": "Mon Modèle"
-        }
-      }
-    },
-    "customizeTemplateDesc": {
-      "message": "Personnalisez le modèle selon vos besoins",
-      "description": "Description du dialogue Personnaliser le modèle"
-    },
-    "replacePlaceholders": {
-      "message": "Remplacer les Espaces Réservés",
-      "description": "Titre de section Remplacer les espaces réservés"
-    },
-    "editTemplate": {
-      "message": "Modifier le Modèle",
-      "description": "Titre de section Modifier le modèle"
-    },
-    "noPlaceholders": {
-      "message": "Aucun espace réservé trouvé dans ce modèle",
-      "description": "Message Aucun espace réservé"
-    },
-    "useTemplate": {
-      "message": "Utiliser le Modèle",
-      "description": "Bouton Utiliser le modèle"
     }
+  },
+  "email": {
+    "message": "Email",
+    "description": "Étiquette d'email"
+  },
+  "password": {
+    "message": "Mot de passe",
+    "description": "Étiquette de mot de passe"
+  },
+  "or": {
+    "message": "Ou continuer avec",
+    "description": "Texte séparateur"
+  },
+  "signInToArchimind": {
+    "message": "Connexion à Archimind",
+    "description": "Titre de dialogue de connexion"
+  },
+  "enterEmailPassword": {
+    "message": "Veuillez saisir à la fois l'email et le mot de passe.",
+    "description": "Message de validation"
+  },
+  "signInSuccessful": {
+    "message": "Connexion réussie !",
+    "description": "Message de succès"
+  },
+  "youCanNowAccess": {
+    "message": "Vous pouvez maintenant accéder à vos conversations ChatGPT.",
+    "description": "Description du message de succès"
+  },
+  "openChatGPT": {
+    "message": "Ouvrir ChatGPT",
+    "description": "Bouton pour ouvrir ChatGPT"
+  },
+  "signInFailed": {
+    "message": "Échec de la connexion",
+    "description": "Message d'erreur"
+  },
+  "authError": {
+    "message": "Erreur d'Authentification",
+    "description": "Titre d'erreur"
+  },
+  "unableToProcess": {
+    "message": "Impossible de traiter la demande pour le moment.",
+    "description": "Message d'erreur"
+  },
+  "emailVerificationSent": {
+    "message": "Vérifiez Votre E-mail",
+    "description": "Titre d'envoi de vérification par e-mail"
+  },
+  "emailVerificationInstructions": {
+    "message": "Nous avons envoyé un lien de vérification à votre adresse e-mail. Veuillez vérifier votre boîte de réception et suivre les instructions pour compléter votre inscription.",
+    "description": "Instructions de vérification par e-mail"
+  },
+  "close": {
+    "message": "Fermer",
+    "description": "Bouton Fermer"
+  },
+  "signingIn": {
+    "message": "Connexion en cours...",
+    "description": "Texte de chargement de connexion"
+  },
+  "signingUp": {
+    "message": "Création du compte...",
+    "description": "Texte de chargement d'inscription"
+  },
+  "signUpSuccessful": {
+    "message": "Compte créé avec succès !",
+    "description": "Message de succès d'inscription"
+  },
+  "signUpFailed": {
+    "message": "Échec de la création du compte",
+    "description": "Message d'échec d'inscription"
+  },
+  "passwordRequirements": {
+    "message": "Le mot de passe doit comporter au moins 8 caractères avec au moins une lettre et un chiffre.",
+    "description": "Conseil sur les exigences du mot de passe"
+  },
+  "bySigningUp": {
+    "message": "En vous inscrivant, vous acceptez nos Conditions d'Utilisation et notre Politique de Confidentialité.",
+    "description": "Texte d'accord des conditions"
+  },
+  "templates": {
+    "message": "Modèles",
+    "description": "Élément de menu Modèles"
+  },
+  "notifications": {
+    "message": "Notifications",
+    "description": "Élément de menu Notifications"
+  },
+  "saveConversation": {
+    "message": "Enregistrer la Conversation",
+    "description": "Élément de menu Enregistrer la conversation"
+  },
+  "settings": {
+    "message": "Paramètres",
+    "description": "Élément de menu Paramètres"
+  },
+  "cancel": {
+    "message": "Annuler",
+    "description": "Bouton Annuler"
+  },
+  "save": {
+    "message": "Enregistrer",
+    "description": "Bouton Enregistrer"
+  },
+  "saveChanges": {
+    "message": "Enregistrer les Modifications",
+    "description": "Bouton Enregistrer les modifications"
+  },
+  "back": {
+    "message": "Retour",
+    "description": "Bouton Retour"
+  },
+  "aiStats": {
+    "message": "Statistiques IA",
+    "description": "Étiquette des statistiques IA"
+  },
+  "noActiveConversation": {
+    "message": "Aucune Conversation Active",
+    "description": "Message d'erreur"
+  },
+  "pleaseSelectConversation": {
+    "message": "Veuillez d'abord sélectionner une conversation.",
+    "description": "Description du message d'erreur"
+  },
+  "conversationSaved": {
+    "message": "Conversation Enregistrée",
+    "description": "Message de succès"
+  },
+  "conversationSavedSuccess": {
+    "message": "Votre conversation a été enregistrée avec succès.",
+    "description": "Description du message de succès"
+  },
+  "errorSavingConversation": {
+    "message": "Erreur d'Enregistrement de la Conversation",
+    "description": "Message d'erreur"
+  },
+  "problemSavingConversation": {
+    "message": "Un problème est survenu lors de l'enregistrement de votre conversation.",
+    "description": "Description du message d'erreur"
+  },
+  "markAllRead": {
+    "message": "Tout marquer comme lu",
+    "description": "Bouton Tout marquer comme lu"
+  },
+  "loadingNotifications": {
+    "message": "Chargement des notifications...",
+    "description": "Message de chargement"
+  },
+  "noNotifications": {
+    "message": "Vous n'avez pas encore de notifications",
+    "description": "Message d'état vide"
+  },
+  "dismiss": {
+    "message": "Ignorer",
+    "description": "Bouton Ignorer"
+  },
+  "newTemplate": {
+    "message": "Nouveau",
+    "description": "Bouton Nouveau modèle"
+  },
+  "officialTemplates": {
+    "message": "Modèles Officiels",
+    "description": "Titre de section Modèles officiels"
+  },
+  "myTemplates": {
+    "message": "Mes Modèles",
+    "description": "Titre de section Mes modèles"
+  },
+  "noTemplates": {
+    "message": "Aucun modèle trouvé",
+    "description": "Message d'état vide"
+  },
+  "createTemplate": {
+    "message": "Créer un Modèle",
+    "description": "Bouton Créer un modèle"
+  },
+  "createFirstTemplate": {
+    "message": "Créer votre premier modèle",
+    "description": "Bouton Créer votre premier modèle"
+  },
+  "createTemplateTitle": {
+    "message": "Créer un Modèle",
+    "description": "Titre de dialogue Créer un modèle"
+  },
+  "templateName": {
+    "message": "Nom",
+    "description": "Étiquette Nom du modèle"
+  },
+  "templateDescription": {
+    "message": "Description (optionnel)",
+    "description": "Étiquette Description du modèle"
+  },
+  "templateFolder": {
+    "message": "Dossier (optionnel)",
+    "description": "Étiquette Dossier du modèle"
+  },
+  "templateContent": {
+    "message": "Contenu",
+    "description": "Étiquette Contenu du modèle"
+  },
+  "update": {
+    "message": "Mettre à jour",
+    "description": "Bouton Mettre à jour"
+  },
+  "create": {
+    "message": "Créer",
+    "description": "Bouton Créer"
+  },
+  "archimindSettings": {
+    "message": "Paramètres d'Archimind",
+    "description": "Titre de dialogue Paramètres"
+  },
+  "configureArchimind": {
+    "message": "Configurez le fonctionnement d'Archimind avec ChatGPT",
+    "description": "Description du dialogue Paramètres"
+  },
+  "autoSaveConversations": {
+    "message": "Enregistrement automatique des conversations",
+    "description": "Option de paramètres"
+  },
+  "autoSaveInterval": {
+    "message": "Intervalle d'enregistrement automatique (secondes)",
+    "description": "Option de paramètres"
+  },
+  "enableSync": {
+    "message": "Activer la synchronisation",
+    "description": "Option de paramètres"
+  },
+  "showStatsPanel": {
+    "message": "Afficher le panneau de statistiques",
+    "description": "Option de paramètres"
+  },
+  "customizeTemplate": {
+    "message": "Personnaliser le Modèle: $TEMPLATE_NAME$",
+    "description": "Titre de dialogue Personnaliser le modèle",
+    "placeholders": {
+      "template_name": {
+        "content": "$1",
+        "example": "Mon Modèle"
+      }
+    }
+  },
+  "customizeTemplateDesc": {
+    "message": "Personnalisez le modèle selon vos besoins",
+    "description": "Description du dialogue Personnaliser le modèle"
+  },
+  "replacePlaceholders": {
+    "message": "Remplacer les Espaces Réservés",
+    "description": "Titre de section Remplacer les espaces réservés"
+  },
+  "editTemplate": {
+    "message": "Modifier le Modèle",
+    "description": "Titre de section Modifier le modèle"
+  },
+  "noPlaceholders": {
+    "message": "Aucun espace réservé trouvé dans ce modèle",
+    "description": "Message Aucun espace réservé"
+  },
+  "useTemplate": {
+    "message": "Utiliser le Modèle",
+    "description": "Bouton Utiliser le modèle"
   }
+}

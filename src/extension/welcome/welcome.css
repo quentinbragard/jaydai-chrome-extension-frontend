@@ -1,12 +1,199 @@
-/* src/popup/welcome.css */
+/* src/extension/welcome/welcome.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Add welcome-specific styles here */
+/* Basic resets with font families */
 body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
+  font-family: 'Roboto', sans-serif;
+  background-color: #0a0a0a;
+  color: #f9fafb;
+}
+
+/* Apply Poppins to all headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.025em;
+}
+
+/* Dark theme background */
+.bg-gray-950 {
+  background-color: #0a0a0a;
+}
+
+.bg-gray-900 {
+  background-color: #111827;
+}
+
+.bg-gray-800 {
+  background-color: #1f2937;
+}
+
+/* Text colors for dark theme */
+.text-white {
+  color: #f9fafb;
+}
+
+.text-gray-300 {
+  color: #d1d5db;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.text-blue-500 {
+  color: #3b82f6;
+}
+
+/* Feature card styling for dark theme */
+.feature-card {
+  transition: all 0.2s ease-in-out;
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  border-color: #3b82f6;
+}
+
+/* Button styling */
+.btn-transition {
+  transition: all 0.2s ease;
+}
+
+.btn-transition:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Logo styling */
+.logo-container {
+  background-color: #111827;
+  border-radius: 9999px;
+  padding: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 5rem;
+  height: 5rem;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid #1f2937;
+}
+
+.logo-container img {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Animation container to ensure proper spacing */
+.animation-container {
+  height: 3.5rem;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+/* Make the animation text use Poppins too */
+.animation-container div {
+  font-family: 'Poppins', sans-serif;
+}
+
+@media (max-width: 768px) {
+  .animation-container {
+    height: 4rem;
+  }
+}
+
+/* Ensure text stays on a single line */
+.whitespace-nowrap {
+  white-space: nowrap;
+}
+
+/* Fixed-width container for consistent animation */
+.min-w-60 {
+  min-width: 15rem;
+}
+
+/* Better typography for dark theme */
+p {
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+/* Button text should use Poppins */
+button {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+}
+
+/* Dialog styling for dark theme */
+.dialog-content {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  color: #f9fafb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+  
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+  
+  .min-w-60 {
+    min-width: 12rem;
+  }
+}
+
+/* Font classes */
+.font-heading {
+  font-family: 'Poppins', sans-serif;
+}
+
+.font-sans {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Input styling for dark theme */
+.input {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
+}
+
+/* Animation for loading spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Focus styles for better accessibility in dark mode */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
