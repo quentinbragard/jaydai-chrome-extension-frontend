@@ -313,6 +313,7 @@ private extractMessagesFromConversation(conversation: any): Message[] {
   const messages: Message[] = [];
   const modelCache: Record<string, string> = {};
   const messageMap: Record<string, any> = {};
+  const directParentMap: Record<string, string> = {}; // Track direct parent relationships
   
   if (!conversation.mapping) return messages;
   
@@ -335,11 +336,16 @@ private extractMessagesFromConversation(conversation: any): Message[] {
     // Don't process the root node
     if (messageId === 'client-created-root') return;
     
-    // Check if this is a valid message node
+    // Check if this is a valid message node with author role
     if (!messageNode?.message?.author?.role) return;
     
     const message = messageNode.message;
     const role = message.author.role;
+    
+    // Store direct parent from metadata if available
+    if (message.metadata?.parent_id) {
+      directParentMap[messageId] = message.metadata.parent_id;
+    }
     
     // Check if this is a tool message - if so, track it for the parent assistant
     if (role === 'tool') {
@@ -365,6 +371,9 @@ private extractMessagesFromConversation(conversation: any): Message[] {
   });
   
   // Second pass: Extract only user and assistant messages with correct parent relationships
+  const userMessages: Message[] = [];
+  const assistantMessages: Message[] = [];
+  
   Object.keys(conversation.mapping).forEach(messageId => {
     if (messageId === 'client-created-root') return;
     
@@ -400,27 +409,6 @@ private extractMessagesFromConversation(conversation: any): Message[] {
         return;
       }
       
-      // Determine parent message ID only for assistant messages
-      let parentMessageId = '';
-      
-      if (role === 'assistant') {
-        // First try direct parent from metadata
-        parentMessageId = message.metadata?.parent_id || '';
-        
-        // If no direct parent, walk up the chain to find a user message
-        if (!parentMessageId) {
-          let currentId = childToParentMap[messageId];
-          while (currentId) {
-            const parentNode = messageMap[currentId];
-            if (parentNode?.message?.author?.role === 'user') {
-              parentMessageId = currentId;
-              break;
-            }
-            currentId = childToParentMap[currentId];
-          }
-        }
-      }
-      
       // Create message object
       const messageObj: Message = {
         messageId,
@@ -431,19 +419,89 @@ private extractMessagesFromConversation(conversation: any): Message[] {
         timestamp: message.create_time ? message.create_time * 1000 : Date.now()
       };
       
-      // Only set parent_message_id for assistant messages, never for user messages
-      if (role === 'assistant' && parentMessageId) {
-        messageObj.parent_message_id = parentMessageId;
-      }
-      
       // Add tools array if this is an assistant message with associated tools
       if (role === 'assistant' && toolsMap[messageId] && toolsMap[messageId].length > 0) {
         messageObj.tools = toolsMap[messageId];
       }
       
-      messages.push(messageObj);
+      // Add to appropriate array
+      if (role === 'user') {
+        userMessages.push(messageObj);
+      } else {
+        assistantMessages.push(messageObj);
+      }
     }
   });
+  
+  // Third pass: Properly set parent message IDs
+  // Find the first user message
+  if (userMessages.length > 0) {
+    // Sort by timestamp to ensure correct ordering
+    userMessages.sort((a, b) => a.timestamp - b.timestamp);
+    assistantMessages.sort((a, b) => a.timestamp - b.timestamp);
+    
+    // The first user message has 'client-created-root' as parent
+    userMessages[0].parent_message_id = 'client-created-root';
+    
+    // For each assistant message, find the appropriate user message parent
+    assistantMessages.forEach(assistantMsg => {
+      // First try direct parent from metadata
+      let parentMessageId = directParentMap[assistantMsg.messageId] || '';
+      
+      // If no direct parent, use childToParentMap to find nearest parent user message
+      if (!parentMessageId) {
+        let currentId = childToParentMap[assistantMsg.messageId];
+        while (currentId) {
+          const parentNode = messageMap[currentId];
+          if (parentNode?.message?.author?.role === 'user') {
+            parentMessageId = currentId;
+            break;
+          }
+          currentId = childToParentMap[currentId];
+        }
+      }
+      
+      // If still no parent, find the closest user message by timestamp
+      if (!parentMessageId) {
+        const candidateUserMessages = userMessages.filter(
+          userMsg => userMsg.timestamp < assistantMsg.timestamp
+        );
+        
+        if (candidateUserMessages.length > 0) {
+          // Find the most recent user message before this assistant message
+          const closestUserMsg = candidateUserMessages.reduce((prev, current) => 
+            (current.timestamp > prev.timestamp) ? current : prev
+          );
+          parentMessageId = closestUserMsg.messageId;
+        }
+      }
+      
+      if (parentMessageId) {
+        assistantMsg.parent_message_id = parentMessageId;
+      }
+    });
+    
+    // For user messages after the first, set their parent to the previous assistant message
+    for (let i = 1; i < userMessages.length; i++) {
+      const userMsg = userMessages[i];
+      // Find all assistant messages before this user message
+      const previousAssistantMsgs = assistantMessages.filter(
+        assistantMsg => assistantMsg.timestamp < userMsg.timestamp
+      );
+      
+      if (previousAssistantMsgs.length > 0) {
+        // Find the most recent assistant message
+        const mostRecentAssistantMsg = previousAssistantMsgs.reduce((prev, current) => 
+          (current.timestamp > prev.timestamp) ? current : prev
+        );
+        userMsg.parent_message_id = mostRecentAssistantMsg.messageId;
+      }
+    }
+  }
+  
+  // Combine and sort all messages by timestamp
+  messages.push(...userMessages, ...assistantMessages);
+  messages.sort((a, b) => a.timestamp - b.timestamp);
   
   // Try to assign better model information based on assistant messages
   messages.forEach(msg => {
@@ -458,9 +516,6 @@ private extractMessagesFromConversation(conversation: any): Message[] {
       }
     }
   });
-  
-  // Sort messages by timestamp
-  messages.sort((a, b) => a.timestamp - b.timestamp);
   
   return messages;
 }
