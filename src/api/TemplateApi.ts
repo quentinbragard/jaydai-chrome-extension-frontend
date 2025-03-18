@@ -110,6 +110,24 @@ export class TemplateApi {
       method: 'DELETE'
     });
   }
+
+    /**
+   * Pin an official folder
+   */
+    async pinFolder(folderId: number): Promise<any> {
+      return apiClient.request(`/prompt-templates/pin-folder/${folderId}`, {
+        method: 'POST'
+      });
+    }
+    
+    /**
+     * Unpin an official folder
+     */
+    async unpinFolder(folderId: number): Promise<any> {
+      return apiClient.request(`/prompt-templates/unpin-folder/${folderId}`, {
+        method: 'POST'
+      });
+    }
   
 }
 

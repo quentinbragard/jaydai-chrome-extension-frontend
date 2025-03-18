@@ -12,6 +12,22 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
   based_on_official_id: null
 };
 
+export interface TemplateCollection {
+  userTemplates: {
+    templates: Template[];
+    folders: TemplateFolder[];
+  };
+  officialTemplates: {
+    templates: Template[];
+    folders: TemplateFolder[];
+  };
+  organizationTemplates?: {
+    templates: Template[];
+    folders: TemplateFolder[];
+  };
+  pinnedFolders: number[];
+}
+
 export function useTemplates() {
   // Template collection state
   const [templateCollection, setTemplateCollection] = useState<TemplateCollection>({
@@ -37,7 +53,7 @@ export function useTemplates() {
   }, []);
   
   // Load templates from API
-  const loadTemplates = async (forceRefresh = false) => {
+  const loadTemplates = async (forceRefresh = false): Promise<TemplateCollection> => {
     try {
       setLoading(true);
       
@@ -52,15 +68,22 @@ export function useTemplates() {
           },
           officialTemplates: {
             templates: response.officialTemplates || [],
-            folders: organizeFolders(response.officialTemplates || [])
-          }
+            folders: response.officialFolders || []
+          },
+          pinnedFolders: response.pinnedFolders || []
         };
+        
+        // Add organization templates if they exist
+        if (response.organizationTemplates && response.organizationTemplates.length > 0) {
+          processedCollection.organizationTemplates = {
+            templates: response.organizationTemplates || [],
+            folders: response.organizationFolders || []
+          };
+        }
         
         setTemplateCollection(processedCollection);
         
-        // Log for debugging
-        console.log(`🔢 Template counts - Official: ${processedCollection.officialTemplates.templates.length}, User: ${processedCollection.userTemplates.templates.length}`);
-        console.log(`📂 Folder counts - Official folders: ${processedCollection.officialTemplates.folders.length}, User folders: ${processedCollection.userTemplates.folders.length}`);
+        console.log(`🔢 Template counts - Official: ${processedCollection.officialTemplates.templates.length}, User: ${processedCollection.userTemplates.templates.length}, Organization: ${processedCollection.organizationTemplates?.templates.length || 0}`);
       } else {
         console.error('Failed to load templates:', response.error);
         toast.error('Failed to load templates');
@@ -71,7 +94,9 @@ export function useTemplates() {
     } finally {
       setLoading(false);
     }
-  };
+    
+    return this.getTemplateCollection();
+  }
   
   // Toggle folder expansion
   const toggleFolder = (path: string) => {
@@ -337,6 +362,59 @@ export function useTemplates() {
     // Return root's subfolders
     return folderMap[''].subfolders;
   };
+
+  // Pin a folder
+const handlePinFolder = async (folderId: number) => {
+  try {
+    const response = await templateApi.pinFolder(folderId);
+    
+    if (response.success) {
+      toast.success('Folder pinned successfully');
+      
+      // Update pinned folders in the state
+      setTemplateCollection(prev => ({
+        ...prev,
+        pinnedFolders: response.pinned_folders
+      }));
+      
+      return true;
+    } else {
+      toast.error('Failed to pin folder');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error pinning folder:', error);
+    toast.error('Failed to pin folder');
+    return false;
+  }
+};
+
+// Unpin a folder
+const handleUnpinFolder = async (folderId: number) => {
+  try {
+    const response = await templateApi.unpinFolder(folderId);
+    
+    if (response.success) {
+      toast.success('Folder unpinned');
+      
+      // Update pinned folders in the state
+      setTemplateCollection(prev => ({
+        ...prev,
+        pinnedFolders: response.pinned_folders
+      }));
+      
+      return true;
+    } else {
+      toast.error('Failed to unpin folder');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error unpinning folder:', error);
+    toast.error('Failed to unpin folder');
+    return false;
+  }
+};
+
   
   return {
     templateCollection,
@@ -356,6 +434,8 @@ export function useTemplates() {
     openEditDialog,
     handleSaveTemplate,
     handleDeleteTemplate,
-    captureCurrentPromptAsTemplate
+    captureCurrentPromptAsTemplate,
+    handlePinFolder,
+    handleUnpinFolder
   };
 }

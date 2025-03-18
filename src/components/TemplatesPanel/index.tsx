@@ -101,40 +101,63 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 </div>
               ) : (
                 <div>
-                  {/* Official Templates Section */}
+                {/* Official Templates Section */}
                   {officialTemplates.length > 0 && (
                     <div className="p-2">
                       <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
                         <BookTemplate className="mr-2 h-4 w-4" />
                         {chrome.i18n.getMessage('officialTemplates')}
                       </div>
-                      {/* Root-level official templates */}
-                      {officialTemplates
-                        .filter(t => !t.folder)
-                        .map(template => (
-                          <TemplateItem
-                            key={`official-${template.id}`}
-                            template={{
-                              ...template,
-                              title: template.title || template.name
-                            }}
+                      
+                      {/* Pinned folders first */}
+                      {officialFolders
+                        .filter(folder => folder.is_pinned)
+                        .map(folder => (
+                          <FolderTree
+                            key={`official-folder-${folder.path}`}
+                            folder={folder}
+                            isPinned={true}
+                            onTogglePin={() => handleUnpinFolder(folder.id)}
+                            expandedFolders={expandedFolders}
+                            onToggleFolder={toggleFolder}
                             onUseTemplate={onTemplateClick}
                             onEditTemplate={openEditDialog}
                             onDeleteTemplate={handleDeleteTemplate}
                           />
                         ))}
                       
-                      {/* Official Template Folders */}
-                      {officialFolders.map(folder => (
+                      {/* Unpinned folders */}
+                      {officialFolders
+                        .filter(folder => !folder.is_pinned)
+                        .map(folder => (
+                          <FolderTree
+                            key={`official-folder-${folder.path}`}
+                            folder={folder}
+                            isPinned={false}
+                            onTogglePin={() => handlePinFolder(folder.id)}
+                            expandedFolders={expandedFolders}
+                            onToggleFolder={toggleFolder}
+                            onUseTemplate={onTemplateClick}
+                            onEditTemplate={openEditDialog}
+                            onDeleteTemplate={handleDeleteTemplate}
+                          />
+                        ))}
+                    </div>
+                  )}
+
+                  {/* Organization Templates Section - only show if they exist */}
+                  {organizationTemplates && organizationTemplates.length > 0 && (
+                    <div className="p-2 border-t">
+                      <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
+                        <Users className="mr-2 h-4 w-4" />
+                        {chrome.i18n.getMessage('organizationTemplates')}
+                      </div>
+                      
+                      {/* Organization folder trees */}
+                      {organizationFolders.map(folder => (
                         <FolderTree
-                          key={`official-folder-${folder.path}`}
-                          folder={{
-                            ...folder,
-                            templates: folder.templates.map(t => ({
-                              ...t,
-                              title: t.title || t.name
-                            }))
-                          }}
+                          key={`org-folder-${folder.path}`}
+                          folder={folder}
                           expandedFolders={expandedFolders}
                           onToggleFolder={toggleFolder}
                           onUseTemplate={onTemplateClick}
@@ -152,6 +175,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                         <Folder className="mr-2 h-4 w-4" />
                         {chrome.i18n.getMessage('myTemplates')}
                       </div>
+                      
                       {/* Root-level user templates */}
                       {userTemplates
                         .filter(t => !t.folder)
