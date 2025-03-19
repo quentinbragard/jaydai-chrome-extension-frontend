@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Plus, X, BookTemplate, Folder } from "lucide-react";
+import { FileText, Plus, X, BookTemplate, Folder, Users, ChevronDown } from "lucide-react";
 import { useTemplates } from './useTemplates';
-import { TemplatesPanelProps } from './types';
+import { TemplatesPanelProps, Template } from './types';
 import { TemplateItem } from './TemplateItem';
 import FolderTree from './FolderTree';
 import TemplateDialog from './TemplateDialog';
 import PlaceholderEditor from './PlaceholderEditor';
+import BrowseMoreModal from './BrowseMoreModal';
 import { cn } from "@/core/utils/classNames";
+import { userApi } from '@/api/UserApi';
 
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({ 
   onClose, 
@@ -37,14 +39,44 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     captureCurrentPromptAsTemplate
   } = useTemplates();
 
+  const [browseMoreOpen, setBrowseMoreOpen] = useState(false);
+  const [pinnedOfficialFolderIds, setPinnedOfficialFolderIds] = useState<number[]>([]);
+  const [pinnedOrganizationFolderIds, setPinnedOrganizationFolderIds] = useState<number[]>([]);
+
+  // Load pinned folders from user metadata
+  useEffect(() => {
+    const loadPinnedFolders = async () => {
+      try {
+        const response = await userApi.getUserMetadata();
+        if (response.success && response.data) {
+          setPinnedOfficialFolderIds(response.data.pinned_official_folder_ids || []);
+          setPinnedOrganizationFolderIds(response.data.pinned_organization_folder_ids || []);
+        }
+      } catch (error) {
+        console.error('Error loading pinned folders:', error);
+      }
+    };
+    loadPinnedFolders();
+  }, []);
+
   // Safely access template collections with fallbacks
   const officialTemplates = templateCollection?.officialTemplates?.templates || [];
   const officialFolders = templateCollection?.officialTemplates?.folders || [];
   const userTemplates = templateCollection?.userTemplates?.templates || [];
   const userFolders = templateCollection?.userTemplates?.folders || [];
+  const organizationTemplates = templateCollection?.organizationTemplates?.templates || [];
+  const organizationFolders = templateCollection?.organizationTemplates?.folders || [];
+
+  // Filter folders based on pinned status
+  const pinnedOfficialFolders = officialFolders.filter(folder => 
+    pinnedOfficialFolderIds.includes(folder.id)
+  );
+  const pinnedOrganizationFolders = organizationFolders.filter(folder => 
+    pinnedOrganizationFolderIds.includes(folder.id)
+  );
 
   // Function to call handleUseTemplate with onClose callback
-  const onTemplateClick = (template: any) => {
+  const onTemplateClick = (template: Template) => {
     handleUseTemplate(template, onClose);
   };
 
@@ -101,68 +133,73 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 </div>
               ) : (
                 <div>
-                {/* Official Templates Section */}
+                  {/* Official Templates Section */}
                   {officialTemplates.length > 0 && (
                     <div className="p-2">
-                      <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
-                        <BookTemplate className="mr-2 h-4 w-4" />
-                        {chrome.i18n.getMessage('officialTemplates')}
+                      <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
+                        <div className="flex items-center">
+                          <BookTemplate className="mr-2 h-4 w-4" />
+                          {chrome.i18n.getMessage('officialTemplates')}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-xs"
+                          onClick={() => setBrowseMoreOpen(true)}
+                        >
+                          <ChevronDown className="h-3.5 w-3.5 mr-1" />
+                          {chrome.i18n.getMessage('browseMore')}
+                        </Button>
                       </div>
                       
-                      {/* Pinned folders first */}
-                      {officialFolders
-                        .filter(folder => folder.is_pinned)
-                        .map(folder => (
-                          <FolderTree
-                            key={`official-folder-${folder.path}`}
-                            folder={folder}
-                            isPinned={true}
-                            onTogglePin={() => handleUnpinFolder(folder.id)}
-                            expandedFolders={expandedFolders}
-                            onToggleFolder={toggleFolder}
-                            onUseTemplate={onTemplateClick}
-                            onEditTemplate={openEditDialog}
-                            onDeleteTemplate={handleDeleteTemplate}
-                          />
-                        ))}
-                      
-                      {/* Unpinned folders */}
-                      {officialFolders
-                        .filter(folder => !folder.is_pinned)
-                        .map(folder => (
-                          <FolderTree
-                            key={`official-folder-${folder.path}`}
-                            folder={folder}
-                            isPinned={false}
-                            onTogglePin={() => handlePinFolder(folder.id)}
-                            expandedFolders={expandedFolders}
-                            onToggleFolder={toggleFolder}
-                            onUseTemplate={onTemplateClick}
-                            onEditTemplate={openEditDialog}
-                            onDeleteTemplate={handleDeleteTemplate}
-                          />
-                        ))}
-                    </div>
-                  )}
-
-                  {/* Organization Templates Section - only show if they exist */}
-                  {organizationTemplates && organizationTemplates.length > 0 && (
-                    <div className="p-2 border-t">
-                      <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
-                        <Users className="mr-2 h-4 w-4" />
-                        {chrome.i18n.getMessage('organizationTemplates')}
-                      </div>
-                      
-                      {/* Organization folder trees */}
-                      {organizationFolders.map(folder => (
+                      {/* Pinned official folders */}
+                      {pinnedOfficialFolders.map(folder => (
                         <FolderTree
-                          key={`org-folder-${folder.path}`}
+                          key={`official-folder-${folder.path}`}
                           folder={folder}
+                          isPinned={true}
                           expandedFolders={expandedFolders}
                           onToggleFolder={toggleFolder}
                           onUseTemplate={onTemplateClick}
                           onEditTemplate={openEditDialog}
                           onDeleteTemplate={handleDeleteTemplate}
+                          onTogglePin={() => {}}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Organization Templates Section */}
+                  {organizationTemplates.length > 0 && (
+                    <div className="p-2 border-t">
+                      <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
+                        <div className="flex items-center">
+                          <Users className="mr-2 h-4 w-4" />
+                          {chrome.i18n.getMessage('organizationTemplates')}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-xs"
+                          onClick={() => setBrowseMoreOpen(true)}
+                        >
+                          <ChevronDown className="h-3.5 w-3.5 mr-1" />
+                          {chrome.i18n.getMessage('browseMore')}
+                        </Button>
+                      </div>
+                      
+                      {/* Pinned organization folders */}
+                      {pinnedOrganizationFolders.map(folder => (
+                        <FolderTree
+                          key={`org-folder-${folder.path}`}
+                          folder={folder}
+                          isPinned={true}
+                          expandedFolders={expandedFolders}
+                          onToggleFolder={toggleFolder}
+                          onUseTemplate={onTemplateClick}
+                          onEditTemplate={openEditDialog}
+                          onDeleteTemplate={handleDeleteTemplate}
+                          onTogglePin={() => {}}
                         />
                       ))}
                     </div>
@@ -208,6 +245,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                           onUseTemplate={onTemplateClick}
                           onEditTemplate={openEditDialog}
                           onDeleteTemplate={handleDeleteTemplate}
+                          isPinned={false}
+                          onTogglePin={() => {}}
                         />
                       ))}
                     </div>
@@ -249,21 +288,17 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         />
       )}
       
-      {/* Placeholder Editor Dialog - Rendered outside the card for better z-index handling */}
+      {/* Placeholder Editor Dialog */}
       {selectedTemplate && (
         <PlaceholderEditor
           open={placeholderEditorOpen}
           onOpenChange={(open) => {
             setPlaceholderEditorOpen(open);
-            
-            // Also inform the parent component about the state change
             if (onPlaceholderEditorOpenChange) {
               onPlaceholderEditorOpenChange(open);
             }
-            
-            // If dialog is closing and we have an onClose callback, call it
             if (!open && onClose) {
-              setTimeout(() => onClose(), 300); // Slight delay to allow animation to finish
+              setTimeout(() => onClose(), 300);
             }
           }}
           templateContent={selectedTemplate.content}
@@ -271,6 +306,25 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           onComplete={(finalContent) => handleFinalizeTemplate(finalContent, onClose)}
         />
       )}
+
+      {/* Browse More Modal */}
+      <BrowseMoreModal
+        open={browseMoreOpen}
+        onOpenChange={setBrowseMoreOpen}
+        officialFolders={officialFolders}
+        organizationFolders={organizationFolders}
+        pinnedOfficialFolderIds={pinnedOfficialFolderIds}
+        pinnedOrganizationFolderIds={pinnedOrganizationFolderIds}
+        onFoldersPinned={(officialIds, orgIds) => {
+          setPinnedOfficialFolderIds(officialIds);
+          setPinnedOrganizationFolderIds(orgIds);
+        }}
+        expandedFolders={expandedFolders}
+        onToggleFolder={toggleFolder}
+        onUseTemplate={onTemplateClick}
+        onEditTemplate={openEditDialog}
+        onDeleteTemplate={handleDeleteTemplate}
+      />
     </>
   );
 };

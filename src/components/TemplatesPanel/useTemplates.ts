@@ -12,22 +12,6 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
   based_on_official_id: null
 };
 
-export interface TemplateCollection {
-  userTemplates: {
-    templates: Template[];
-    folders: TemplateFolder[];
-  };
-  officialTemplates: {
-    templates: Template[];
-    folders: TemplateFolder[];
-  };
-  organizationTemplates?: {
-    templates: Template[];
-    folders: TemplateFolder[];
-  };
-  pinnedFolders: number[];
-}
-
 export function useTemplates() {
   // Template collection state
   const [templateCollection, setTemplateCollection] = useState<TemplateCollection>({
@@ -58,6 +42,7 @@ export function useTemplates() {
       setLoading(true);
       
       const response = await templateApi.getAllTemplates();
+      console.log("🔢 response", response);
       
       if (response && response.success) {
         // Process the templates and organize them

@@ -26,7 +26,7 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
 
   // Extract placeholders from template content
   const extractPlaceholders = (content: string) => {
-    const placeholderRegex = /\[([A-Z0-9_/ ]+)\]/g;
+    const placeholderRegex = /\[(.*?)\]/g;
     const matches = [...content.matchAll(placeholderRegex)];
 
     const uniqueKeys = new Set();
@@ -52,7 +52,7 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
   // Function to highlight placeholders inside the content
   const highlightPlaceholders = (content: string) => {
     return content.replace(
-      /\[([A-Z0-9_/ ]+)\]/g,
+      /\[(.*?)\]/g,
       `<span class="bg-yellow-300 text-yellow-900 font-bold px-1 rounded">${"$&"}</span>`
     );
   };

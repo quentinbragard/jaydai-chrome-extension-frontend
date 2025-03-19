@@ -20,6 +20,13 @@ export class UserApi {
       body: JSON.stringify(userData)
     });
   }
+
+  /**
+   * Get user metadata
+   */
+  async getUserMetadata(): Promise<any> {
+    return apiClient.request('/user/metadata');
+  }
   
   /**
    * Get user stats

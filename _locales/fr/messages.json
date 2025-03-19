@@ -52,11 +52,11 @@
     "description": "Description de carte de fonctionnalité"
   },
   "smartTemplates": {
-    "message": "Modèles Intelligents",
+    "message": "Templates Intelligents",
     "description": "Titre de carte de fonctionnalité"
   },
   "smartTemplatesDesc": {
-    "message": "Accédez à une bibliothèque de modèles d'invite soigneusement sélectionnés pour améliorer vos interactions avec l'IA.",
+    "message": "Accédez à une bibliothèque de templates d'invite soigneusement sélectionnés pour améliorer vos interactions avec l'IA.",
     "description": "Description de carte de fonctionnalité"
   },
   "skillDevelopment": {
@@ -104,7 +104,7 @@
     "description": "Titre de fonctionnalité"
   },
   "aiUsageTrackingDesc": {
-    "message": "Surveillez vos interactions avec l'IA, comprenez les modèles et obtenez des informations sur votre flux de travail numérique.",
+    "message": "Surveillez vos interactions avec l'IA, comprenez les templates et obtenez des informations sur votre flux de travail numérique.",
     "description": "Description de fonctionnalité"
   },
   "personalizedInsights": {
@@ -225,9 +225,9 @@
     "message": "En vous inscrivant, vous acceptez nos Conditions d'Utilisation et notre Politique de Confidentialité.",
     "description": "Texte d'accord des conditions"
   },
-  "templates": {
-    "message": "Modèles",
-    "description": "Élément de menu Modèles"
+  "Templates": {
+    "message": "Templates",
+    "description": "Élément de menu templates"
   },
   "notifications": {
     "message": "Notifications",
@@ -303,47 +303,47 @@
   },
   "newTemplate": {
     "message": "Nouveau",
-    "description": "Bouton Nouveau modèle"
+    "description": "Bouton Nouveau template"
   },
   "officialTemplates": {
-    "message": "Modèles Officiels",
-    "description": "Titre de section Modèles officiels"
+    "message": "Templates Officiels",
+    "description": "Titre de section templates officiels"
   },
   "myTemplates": {
-    "message": "Mes Modèles",
-    "description": "Titre de section Mes modèles"
+    "message": "Mes templates",
+    "description": "Titre de section Mes templates"
   },
   "noTemplates": {
-    "message": "Aucun modèle trouvé",
+    "message": "Aucun template trouvé",
     "description": "Message d'état vide"
   },
   "createTemplate": {
-    "message": "Créer un Modèle",
-    "description": "Bouton Créer un modèle"
+    "message": "Créer un template",
+    "description": "Bouton Créer un template"
   },
   "createFirstTemplate": {
-    "message": "Créer votre premier modèle",
-    "description": "Bouton Créer votre premier modèle"
+    "message": "Créer votre premier template",
+    "description": "Bouton Créer votre premier template"
   },
   "createTemplateTitle": {
-    "message": "Créer un Modèle",
-    "description": "Titre de dialogue Créer un modèle"
+    "message": "Créer un template",
+    "description": "Titre de dialogue Créer un template"
   },
-  "templateName": {
+  "TemplateName": {
     "message": "Nom",
-    "description": "Étiquette Nom du modèle"
+    "description": "Étiquette Nom du template"
   },
-  "templateDescription": {
+  "TemplateDescription": {
     "message": "Description (optionnel)",
-    "description": "Étiquette Description du modèle"
+    "description": "Étiquette Description du template"
   },
-  "templateFolder": {
+  "TemplateFolder": {
     "message": "Dossier (optionnel)",
-    "description": "Étiquette Dossier du modèle"
+    "description": "Étiquette Dossier du template"
   },
-  "templateContent": {
+  "TemplateContent": {
     "message": "Contenu",
-    "description": "Étiquette Contenu du modèle"
+    "description": "Étiquette Contenu du template"
   },
   "update": {
     "message": "Mettre à jour",
@@ -378,33 +378,61 @@
     "description": "Option de paramètres"
   },
   "customizeTemplate": {
-    "message": "Personnaliser le Modèle: $TEMPLATE_NAME$",
-    "description": "Titre de dialogue Personnaliser le modèle",
+    "message": "Personnaliser le template: $TEMPLATE_NAME$",
+    "description": "Titre de dialogue Personnaliser le template",
     "placeholders": {
-      "template_name": {
+      "Template_name": {
         "content": "$1",
-        "example": "Mon Modèle"
+        "example": "Mon template"
       }
     }
   },
   "customizeTemplateDesc": {
-    "message": "Personnalisez le modèle selon vos besoins",
-    "description": "Description du dialogue Personnaliser le modèle"
+    "message": "Personnalisez le template selon vos besoins",
+    "description": "Description du dialogue Personnaliser le template"
   },
   "replacePlaceholders": {
     "message": "Remplacer les Espaces Réservés",
     "description": "Titre de section Remplacer les espaces réservés"
   },
   "editTemplate": {
-    "message": "Modifier le Modèle",
-    "description": "Titre de section Modifier le modèle"
+    "message": "Modifier le template",
+    "description": "Titre de section Modifier le template"
   },
   "noPlaceholders": {
-    "message": "Aucun espace réservé trouvé dans ce modèle",
+    "message": "Aucun espace réservé trouvé dans ce template",
     "description": "Message Aucun espace réservé"
   },
   "useTemplate": {
-    "message": "Utiliser le Modèle",
-    "description": "Bouton Utiliser le modèle"
+    "message": "Utiliser le template",
+    "description": "Bouton Utiliser le template"
+  },
+  "browseMore": {
+    "message": "Parcourir Plus",
+    "description": "Texte du bouton Parcourir plus"
+  },
+  "browseMoreTitle": {
+    "message": "Parcourir les Templates",
+    "description": "Titre de la modale Parcourir plus"
+  },
+  "browseMoreDesc": {
+    "message": "Parcourir et épingler les templates officiels et d'organisation",
+    "description": "Description de la modale Parcourir plus"
+  },
+  "pinFolder": {
+    "message": "Épingler le Dossier",
+    "description": "Texte du bouton Épingler le dossier"
+  },
+  "unpinFolder": {
+    "message": "Désépingler le Dossier",
+    "description": "Texte du bouton Désépingler le dossier"
+  },
+  "pinnedFolders": {
+    "message": "Dossiers Épinglés",
+    "description": "Titre de section Dossiers épinglés"
+  },
+  "allFolders": {
+    "message": "Tous les Dossiers",
+    "description": "Titre de section Tous les dossiers"
   }
 }

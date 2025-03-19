@@ -408,5 +408,33 @@
   "useTemplate": {
     "message": "Use Template",
     "description": "Use template button"
+  },
+  "browseMore": {
+    "message": "Browse More",
+    "description": "Browse more button text"
+  },
+  "browseMoreTitle": {
+    "message": "Browse Templates",
+    "description": "Browse more modal title"
+  },
+  "browseMoreDesc": {
+    "message": "Browse and pin official and organization templates",
+    "description": "Browse more modal description"
+  },
+  "pinFolder": {
+    "message": "Pin Folder",
+    "description": "Pin folder button text"
+  },
+  "unpinFolder": {
+    "message": "Unpin Folder",
+    "description": "Unpin folder button text"
+  },
+  "pinnedFolders": {
+    "message": "Pinned Folders",
+    "description": "Pinned folders section title"
+  },
+  "allFolders": {
+    "message": "All Folders",
+    "description": "All folders section title"
   }
 }

@@ -1,6 +1,6 @@
 export interface Template {
-  id: string | number;  // Allow either string or number IDs
-  name?: string;
+  id: string | number;
+  name: string;
   title?: string;
   content: string;
   description?: string;
@@ -16,6 +16,8 @@ export interface TemplateFolder {
   name: string;
   templates: Template[];
   subfolders: TemplateFolder[];
+  id: number;
+  is_pinned?: boolean;
 }
 
 export interface TemplateCollection {
@@ -27,6 +29,11 @@ export interface TemplateCollection {
     templates: Template[];
     folders: TemplateFolder[];
   };
+  // Make organizationTemplates optional with ? operator
+  organizationTemplates?: {
+    templates: Template[];
+    folders: TemplateFolder[];
+  };
 }
 
 export interface TemplateFormData {
@@ -34,6 +41,7 @@ export interface TemplateFormData {
   content: string;
   description: string;
   folder: string;
+  based_on_official_id?: number | null;
 }
 
 export interface TemplatesPanelProps {
