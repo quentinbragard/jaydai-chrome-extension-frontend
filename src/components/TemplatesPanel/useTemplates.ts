@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Template, TemplateFormData, TemplateCollection, TemplateFolder } from './types';
-import { templateApi } from '@/api/TemplateApi';
+import { Template, TemplateFormData, TemplateCollection } from './types';
+import { templateApi, AllTemplatesResponse } from '@/api/TemplateApi';
 import { toast } from 'sonner';
 
 // Default form data
@@ -16,7 +16,8 @@ export function useTemplates() {
   // Template collection state
   const [templateCollection, setTemplateCollection] = useState<TemplateCollection>({
     userTemplates: { templates: [], folders: [] },
-    officialTemplates: { templates: [], folders: [] }
+    officialTemplates: { templates: [], folders: [] },
+    organizationTemplates: { templates: [], folders: [] }
   });
   
   const [loading, setLoading] = useState(true);
@@ -37,38 +38,33 @@ export function useTemplates() {
   }, []);
   
   // Load templates from API
-  const loadTemplates = async (forceRefresh = false): Promise<TemplateCollection> => {
+  const loadTemplates = async (): Promise<TemplateCollection> => {
     try {
       setLoading(true);
       
-      const response = await templateApi.getAllTemplates();
+      const response = await templateApi.getPinnedTemplates();
       console.log("🔢 response", response);
       
       if (response && response.success) {
         // Process the templates and organize them
         const processedCollection = {
           userTemplates: {
-            templates: response.userTemplates || [],
-            folders: organizeFolders(response.userTemplates || [])
+            templates: response.user_folders[0]?.templates || [],
+            folders: response.user_folders.slice(1) || []
           },
           officialTemplates: {
-            templates: response.officialTemplates || [],
-            folders: response.officialFolders || []
+            templates: response.official_folders[0]?.templates || [],
+            folders: response.official_folders.slice(1) || []
           },
-          pinnedFolders: response.pinnedFolders || []
+          organizationTemplates: {
+            templates: response.organization_folders[0]?.templates || [],
+            folders: response.organization_folders.slice(1) || []
+          }
         };
-        
-        // Add organization templates if they exist
-        if (response.organizationTemplates && response.organizationTemplates.length > 0) {
-          processedCollection.organizationTemplates = {
-            templates: response.organizationTemplates || [],
-            folders: response.organizationFolders || []
-          };
-        }
         
         setTemplateCollection(processedCollection);
         
-        console.log(`🔢 Template counts - Official: ${processedCollection.officialTemplates.templates.length}, User: ${processedCollection.userTemplates.templates.length}, Organization: ${processedCollection.organizationTemplates?.templates.length || 0}`);
+        console.log(`🔢 Template counts - Official: ${processedCollection.officialTemplates.templates.length}, User: ${processedCollection.userTemplates.templates.length}, Organization: ${processedCollection.organizationTemplates.templates.length}`);
       } else {
         console.error('Failed to load templates:', response.error);
         toast.error('Failed to load templates');
@@ -80,7 +76,7 @@ export function useTemplates() {
       setLoading(false);
     }
     
-    return this.getTemplateCollection();
+    return templateCollection;
   }
   
   // Toggle folder expansion
@@ -97,12 +93,11 @@ export function useTemplates() {
   };
   
   // Handle using a template
-  const handleUseTemplate = async (template: Template, onClose?: () => void) => {
+  const handleUseTemplate = async (template: Template) => {
     try {
       // Set selected template for placeholder editor
       setSelectedTemplate(template);
       setPlaceholderEditorOpen(true);
-      
       
       return true;
     } catch (error) {
@@ -180,7 +175,7 @@ export function useTemplates() {
     // Initialize form data from template or defaults
     if (template) {
       setTemplateFormData({
-        name: template.name || '',
+        name: template.title || '',
         content: template.content || '',
         description: template.description || '',
         folder: template.folder || '',
@@ -223,7 +218,7 @@ export function useTemplates() {
       }
       
       // Reload templates and close dialog
-      await loadTemplates(true);
+      await loadTemplates();
       setEditDialogOpen(false);
     } catch (error) {
       console.error('Error saving template:', error);
@@ -235,13 +230,13 @@ export function useTemplates() {
   const handleDeleteTemplate = async (template: Template, e: React.MouseEvent) => {
     e.stopPropagation();
     
-    if (window.confirm(`Are you sure you want to delete "${template.title || template.name}"?`)) {
+    if (window.confirm(`Are you sure you want to delete "${template.title}"?`)) {
       try {
         const response = await templateApi.deleteTemplate(template.id);
         
         if (response.success) {
           toast.success('Template deleted successfully');
-          await loadTemplates(true);
+          await loadTemplates();
         } else {
           throw new Error(response.error || 'Failed to delete template');
         }
@@ -283,123 +278,78 @@ export function useTemplates() {
       toast.error('Failed to capture current prompt');
     }
   };
-  
-  // Organize templates into folder structure
-  const organizeFolders = (templates: Template[]): TemplateFolder[] => {
-    const folderMap: Record<string, TemplateFolder> = {};
-    
-    // Create root folder
-    folderMap[''] = {
-      path: '',
-      name: 'Root',
-      templates: [],
-      subfolders: []
-    };
-    
-    // First, collect all templates with no folder to the root
-    templates.forEach(template => {
-      if (!template.folder) {
-        folderMap[''].templates.push(template);
-      }
-    });
-    
-    // Then process the templates with folders
-    templates.forEach(template => {
-      const folderPath = template.folder || '';
-      
-      if (!folderPath) {
-        // Skip root templates as they're already added
-        return;
-      }
-      
-      const folderParts = folderPath.split('/');
-      
-      // Ensure all parent folders exist
-      let currentPath = '';
-      folderParts.forEach((part, index) => {
-        currentPath += (index > 0 ? '/' : '') + part;
-        
-        if (!folderMap[currentPath]) {
-          folderMap[currentPath] = {
-            path: currentPath,
-            name: part,
-            templates: [],
-            subfolders: []
-          };
-          
-          // Add to parent folder's subfolders
-          if (index > 0) {
-            const parentPath = folderParts.slice(0, index).join('/');
-            if (folderMap[parentPath]) {
-              folderMap[parentPath].subfolders.push(folderMap[currentPath]);
-            }
-          } else {
-            // Root-level folders go into root's subfolders
-            folderMap[''].subfolders.push(folderMap[currentPath]);
-          }
-        }
-      });
-      
-      // Add template to its folder
-      folderMap[folderPath].templates.push(template);
-    });
-    
-    // Return root's subfolders
-    return folderMap[''].subfolders;
-  };
 
   // Pin a folder
-const handlePinFolder = async (folderId: number) => {
-  try {
-    const response = await templateApi.pinFolder(folderId);
-    
-    if (response.success) {
-      toast.success('Folder pinned successfully');
+  const handlePinFolder = async (folderId: number, isOfficial: boolean = true, pinnedOfficialFolderIds: number[] = [], pinnedOrganizationFolderIds: number[] = []) => {
+    try {
+      const updatedOfficialFolderIds = [...pinnedOfficialFolderIds];
+      const updatedOrganizationFolderIds = [...pinnedOrganizationFolderIds];
       
-      // Update pinned folders in the state
-      setTemplateCollection(prev => ({
-        ...prev,
-        pinnedFolders: response.pinned_folders
-      }));
+      if (isOfficial) {
+        if (!updatedOfficialFolderIds.includes(folderId)) {
+          updatedOfficialFolderIds.push(folderId);
+        }
+      } else {
+        if (!updatedOrganizationFolderIds.includes(folderId)) {
+          updatedOrganizationFolderIds.push(folderId);
+        }
+      }
       
-      return true;
-    } else {
+      const response = await templateApi.updatePinnedFolders(
+        updatedOfficialFolderIds,
+        updatedOrganizationFolderIds
+      );
+      
+      if (response.success) {
+        toast.success(chrome.i18n.getMessage('pinFolder'));
+        return {
+          pinnedOfficialFolderIds: updatedOfficialFolderIds,
+          pinnedOrganizationFolderIds: updatedOrganizationFolderIds
+        };
+      } else {
+        toast.error('Failed to pin folder');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error pinning folder:', error);
       toast.error('Failed to pin folder');
-      return false;
+      return null;
     }
-  } catch (error) {
-    console.error('Error pinning folder:', error);
-    toast.error('Failed to pin folder');
-    return false;
-  }
-};
+  };
 
-// Unpin a folder
-const handleUnpinFolder = async (folderId: number) => {
-  try {
-    const response = await templateApi.unpinFolder(folderId);
-    
-    if (response.success) {
-      toast.success('Folder unpinned');
+  // Unpin a folder
+  const handleUnpinFolder = async (folderId: number, isOfficial: boolean = true, pinnedOfficialFolderIds: number[] = [], pinnedOrganizationFolderIds: number[] = []) => {
+    try {
+      const updatedOfficialFolderIds = [...pinnedOfficialFolderIds];
+      const updatedOrganizationFolderIds = [...pinnedOrganizationFolderIds];
       
-      // Update pinned folders in the state
-      setTemplateCollection(prev => ({
-        ...prev,
-        pinnedFolders: response.pinned_folders
-      }));
+      if (isOfficial) {
+        updatedOfficialFolderIds.splice(updatedOfficialFolderIds.indexOf(folderId), 1);
+      } else {
+        updatedOrganizationFolderIds.splice(updatedOrganizationFolderIds.indexOf(folderId), 1);
+      }
       
-      return true;
-    } else {
+      const response = await templateApi.updatePinnedFolders(
+        updatedOfficialFolderIds,
+        updatedOrganizationFolderIds
+      );
+      
+      if (response.success) {
+        toast.success(chrome.i18n.getMessage('unpinFolder'));
+        return {
+          pinnedOfficialFolderIds: updatedOfficialFolderIds,
+          pinnedOrganizationFolderIds: updatedOrganizationFolderIds
+        };
+      } else {
+        toast.error('Failed to unpin folder');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error unpinning folder:', error);
       toast.error('Failed to unpin folder');
-      return false;
+      return null;
     }
-  } catch (error) {
-    console.error('Error unpinning folder:', error);
-    toast.error('Failed to unpin folder');
-    return false;
-  }
-};
-
+  };
   
   return {
     templateCollection,

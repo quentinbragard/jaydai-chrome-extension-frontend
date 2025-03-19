@@ -86,7 +86,7 @@ export class TemplateService {
     try {
       
       // Call API to get templates
-      const response = await templateApi.getAllTemplates();
+      const response = await templateApi.getPinnedTemplates();
             
       if (response && response.success) {
         // Here's the fix - properly handle the separate userTemplates and officialTemplates

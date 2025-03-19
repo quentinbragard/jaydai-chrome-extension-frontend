@@ -3,13 +3,17 @@ import { apiClient } from './ApiClient';
 
 
 export interface UserMetadata {
-  email: string;
+  email?: string;
   name?: string;
   phone_number?: string | null;
   org_name?: string | null;
   picture?: string | null;
+  additional_emails?: string[];
+  additional_organizations?: string[];
+  pinned_official_folder_ids?: number[];
+  pinned_organization_folder_ids?: number[];
+  preferences_metadata?: Record<string, any>;
 }
-
 export class UserApi {
   /**
    * Save user metadata

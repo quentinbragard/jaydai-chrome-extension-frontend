@@ -1,22 +1,22 @@
 export interface Template {
-  id: string | number;
-  name: string;
-  title?: string;
+  id: number;
+  title: string;
   content: string;
   description?: string;
   folder?: string;
-  category?: string;
-  created_at?: string;
-  usage_count?: number;
-  based_on_official_id?: string | number | null;
+  based_on_official_id?: number | null;
+  locale?: string;
+  tags?: string[] | null;
+  folder_id?: number;
+  type?: string;
 }
 
 export interface TemplateFolder {
-  path: string;
-  name: string;
-  templates: Template[];
-  subfolders: TemplateFolder[];
   id: number;
+  name: string;
+  description?: string;
+  templates: Template[];
+  subfolders?: TemplateFolder[];
   is_pinned?: boolean;
 }
 
@@ -29,8 +29,7 @@ export interface TemplateCollection {
     templates: Template[];
     folders: TemplateFolder[];
   };
-  // Make organizationTemplates optional with ? operator
-  organizationTemplates?: {
+  organizationTemplates: {
     templates: Template[];
     folders: TemplateFolder[];
   };
@@ -41,11 +40,29 @@ export interface TemplateFormData {
   content: string;
   description: string;
   folder: string;
-  based_on_official_id?: number | null;
+  based_on_official_id: number | null;
 }
 
 export interface TemplatesPanelProps {
   onClose?: () => void;
   maxHeight?: string;
   onPlaceholderEditorOpenChange?: (isOpen: boolean) => void;
+}
+
+export interface AllTemplatesResponse {
+  success: boolean;
+  error?: string;
+  user_folders: TemplateFolder[];
+  official_folders: TemplateFolder[];
+  organization_folders: TemplateFolder[];
+}
+
+export interface PinnedTemplatesResponse {
+  success: boolean;
+  error?: string;
+  data: {
+    user_folders: TemplateFolder[];
+    official_folders: TemplateFolder[];
+    organization_folders: TemplateFolder[];
+  };
 }
