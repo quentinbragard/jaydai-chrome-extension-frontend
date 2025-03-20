@@ -4,14 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FileText, Plus, X, BookTemplate, Folder, Users, ChevronDown } from "lucide-react";
 import { useTemplates } from './useTemplates';
-import { TemplatesPanelProps, Template } from './types';
-import { TemplateItem } from './TemplateItem';
-import FolderTree from './FolderTree';
+import { TemplatesPanelProps, Template, TemplateFolder } from './types';
 import TemplateDialog from './TemplateDialog';
 import PlaceholderEditor from './PlaceholderEditor';
-import BrowseMoreModal from './BrowseMoreModal';
 import { cn } from "@/core/utils/classNames";
-import { userApi } from '@/api/UserApi';
+import { promptApi } from '@/api/PromptApi';
+import SubFolder from './SubFolder';
+import { toast } from 'sonner';
 
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({ 
   onClose, 
@@ -19,12 +18,11 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   onPlaceholderEditorOpenChange
 }) => {
   const {
-    templateCollection,
-    loading,
+    templates,
+    loading: templatesLoading,
     expandedFolders,
     editDialogOpen,
     setEditDialogOpen,
-    currentTemplate,
     templateFormData,
     setTemplateFormData,
     placeholderEditorOpen,
@@ -36,88 +34,165 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     openEditDialog,
     handleSaveTemplate,
     handleDeleteTemplate,
-    captureCurrentPromptAsTemplate,
-    handlePinFolder,
-    handleUnpinFolder
   } = useTemplates();
 
   const [browseMoreOpen, setBrowseMoreOpen] = useState(false);
   const [pinnedOfficialFolderIds, setPinnedOfficialFolderIds] = useState<number[]>([]);
   const [pinnedOrganizationFolderIds, setPinnedOrganizationFolderIds] = useState<number[]>([]);
+  const [pinnedOfficialFolders, setPinnedOfficialFolders] = useState<TemplateFolder[]>([]);
+  const [pinnedOrganizationFolders, setPinnedOrganizationFolders] = useState<TemplateFolder[]>([]);
+  const [userFolders, setUserFolders] = useState<TemplateFolder[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState({ step: 0, total: 3 });
 
-  // Load pinned folders from user metadata
+  // Helper function to convert any array to a safe array of numbers
+  const safeNumberArray = (ids: any): number[] => {
+    if (!ids) return [];
+    if (Array.isArray(ids)) {
+      return ids.map(id => typeof id === 'string' ? parseInt(id, 10) : id)
+               .filter(id => !isNaN(id));
+    }
+    return [];
+  };
+
+  // Convert API response to TemplateFolder objects
+  const mapToTemplateFolder = (folders: any[]): TemplateFolder[] => {
+    if (!folders || !Array.isArray(folders)) return [];
+    
+    return folders.map(folder => ({
+      id: folder.id,
+      name: folder.name || `Folder ${folder.id}`,
+      templates: Array.isArray(folder.templates) ? folder.templates : [],
+      subfolders: Array.isArray(folder.subfolders) ? folder.subfolders : []
+    }));
+  };
+
+  // Load user data from Chrome storage
   useEffect(() => {
-    const loadPinnedFolders = async () => {
+    const loadUserData = async () => {
+      setLoadingProgress({ step: 1, total: 3 });
+      
       try {
-        const response = await userApi.getUserMetadata();
-        if (response.success && response.data) {
-          setPinnedOfficialFolderIds(response.data.pinned_official_folder_ids || []);
-          setPinnedOrganizationFolderIds(response.data.pinned_organization_folder_ids || []);
-        }
+        chrome.storage.local.get('user', (result) => {
+          console.log('Retrieved user from storage:', result?.user);
+          
+          if (result?.user?.metadata) {
+            // Safely extract and convert folder IDs
+            const officialIds = safeNumberArray(result.user.metadata.pinned_official_folder_ids);
+            const organizationIds = safeNumberArray(result.user.metadata.pinned_organization_folder_ids);
+            
+            console.log('Parsed official IDs:', officialIds);
+            console.log('Parsed organization IDs:', organizationIds);
+            
+            setPinnedOfficialFolderIds(officialIds);
+            setPinnedOrganizationFolderIds(organizationIds);
+          } else {
+            console.log('No user metadata found in storage');
+            setPinnedOfficialFolderIds([]);
+            setPinnedOrganizationFolderIds([]);
+          }
+          setLoadingProgress({ step: 2, total: 3 });
+        });
       } catch (error) {
-        console.error('Error loading pinned folders:', error);
+        console.error('Error loading user data from storage:', error);
+        setPinnedOfficialFolderIds([]);
+        setPinnedOrganizationFolderIds([]);
+        toast.error('Failed to load user data');
+        setLoadingProgress({ step: 2, total: 3 });
       }
     };
-    loadPinnedFolders();
+
+    loadUserData();
   }, []);
 
-  // Safely access template collections with fallbacks
-  const officialTemplates = templateCollection?.officialTemplates?.templates || [];
-  const officialFolders = templateCollection?.officialTemplates?.folders || [];
-  const userTemplates = templateCollection?.userTemplates?.templates || [];
-  const userFolders = templateCollection?.userTemplates?.folders || [];
-  const organizationTemplates = templateCollection?.organizationTemplates?.templates || [];
-  const organizationFolders = templateCollection?.organizationTemplates?.folders || [];
-
-  // Filter folders based on pinned status
-  const pinnedOfficialFolders = officialFolders.filter(folder => 
-    pinnedOfficialFolderIds.includes(folder.id)
-  );
-  const pinnedOrganizationFolders = organizationFolders.filter(folder => 
-    pinnedOrganizationFolderIds.includes(folder.id)
-  );
-
-  // Function to handle pinning a folder
-  const handleFolderPin = async (folderId: number, isOfficial: boolean) => {
-    try {
-      const result = await handlePinFolder(
-        folderId, 
-        isOfficial, 
-        pinnedOfficialFolderIds, 
-        pinnedOrganizationFolderIds
-      );
-      
-      if (result) {
-        setPinnedOfficialFolderIds(result.pinnedOfficialFolderIds);
-        setPinnedOrganizationFolderIds(result.pinnedOrganizationFolderIds);
+  // Load folders data after getting folder IDs
+  useEffect(() => {
+    if (loadingProgress.step < 2) return;
+    
+    const loadFolders = async () => {
+      try {
+        // Load all folder types in parallel
+        const [officialResponse, organizationResponse, userResponse] = await Promise.allSettled([
+          // Only load official folders if we have IDs
+          pinnedOfficialFolderIds.length > 0 
+            ? promptApi.getPromptTemplatesFolders('official', pinnedOfficialFolderIds) 
+            : Promise.resolve({ success: true, folders: [] }),
+            
+          // Only load organization folders if we have IDs
+          pinnedOrganizationFolderIds.length > 0
+            ? promptApi.getPromptTemplatesFolders('organization', pinnedOrganizationFolderIds)
+            : Promise.resolve({ success: true, folders: [] }),
+            
+          // Always try to load user folders
+          promptApi.getPromptTemplatesFolders('user')
+        ]);
+        
+        console.log('API responses:', { 
+          official: officialResponse, 
+          organization: organizationResponse, 
+          user: userResponse 
+        });
+        
+        // Process official folders
+        if (officialResponse.status === 'fulfilled' && officialResponse.value.success) {
+          setPinnedOfficialFolders(mapToTemplateFolder(officialResponse.value.folders || []));
+        } else {
+          console.warn('Failed to load official folders:', officialResponse);
+          setPinnedOfficialFolders([]);
+        }
+        
+        // Process organization folders
+        if (organizationResponse.status === 'fulfilled' && organizationResponse.value.success) {
+          setPinnedOrganizationFolders(mapToTemplateFolder(organizationResponse.value.folders || []));
+        } else {
+          console.warn('Failed to load organization folders:', organizationResponse);
+          setPinnedOrganizationFolders([]);
+        }
+        
+        // Process user folders
+        if (userResponse.status === 'fulfilled' && userResponse.value.success) {
+          setUserFolders(mapToTemplateFolder(userResponse.value.folders || []));
+        } else {
+          console.warn('Failed to load user folders:', userResponse);
+          setUserFolders([]);
+        }
+      } catch (error) {
+        console.error('Error loading folders:', error);
+        toast.error('Failed to load template folders');
+        
+        // Set empty arrays as fallback
+        setPinnedOfficialFolders([]);
+        setPinnedOrganizationFolders([]);
+        setUserFolders([]);
+      } finally {
+        setIsLoading(false);
+        setLoadingProgress({ step: 3, total: 3 });
       }
-    } catch (error) {
-      console.error('Error pinning folder:', error);
-    }
-  };
-  
-  // Function to handle unpinning a folder
-  const handleFolderUnpin = async (folderId: number, isOfficial: boolean) => {
-    try {
-      const result = await handleUnpinFolder(
-        folderId, 
-        isOfficial, 
-        pinnedOfficialFolderIds, 
-        pinnedOrganizationFolderIds
-      );
-      
-      if (result) {
-        setPinnedOfficialFolderIds(result.pinnedOfficialFolderIds);
-        setPinnedOrganizationFolderIds(result.pinnedOrganizationFolderIds);
-      }
-    } catch (error) {
-      console.error('Error unpinning folder:', error);
-    }
-  };
+    };
+    
+    setIsLoading(true);
+    loadFolders();
+  }, [loadingProgress.step, pinnedOfficialFolderIds, pinnedOrganizationFolderIds]);
 
-  // Function to call handleUseTemplate with onClose callback
+  // Display current loading progress and data
+  useEffect(() => {
+    console.log('Loading progress:', loadingProgress);
+    console.log('Folder data:', {
+      official: { ids: pinnedOfficialFolderIds, folders: pinnedOfficialFolders },
+      organization: { ids: pinnedOrganizationFolderIds, folders: pinnedOrganizationFolders },
+      user: userFolders
+    });
+  }, [
+    loadingProgress,
+    pinnedOfficialFolderIds, 
+    pinnedOrganizationFolderIds, 
+    pinnedOfficialFolders, 
+    pinnedOrganizationFolders, 
+    userFolders
+  ]);
+
   const onTemplateClick = (template: Template) => {
-    handleUseTemplate(template, onClose);
+    handleUseTemplate(template);
   };
 
   // Add a class when the placeholder editor is open to help with styles
@@ -125,6 +200,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     "w-96 shadow-lg transition-all duration-300", 
     placeholderEditorOpen ? "editor-active opacity-30" : "opacity-100"
   );
+
+  // Determine if we're still loading anything
+  const loading = isLoading || templatesLoading || loadingProgress.step < 3;
 
   return (
     <>
@@ -139,7 +217,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={captureCurrentPromptAsTemplate}
+                onClick={() => openEditDialog(null)}
                 className="h-7 px-2 text-xs"
                 title={chrome.i18n.getMessage('createTemplate')}
               >
@@ -169,12 +247,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               {loading ? (
                 <div className="py-8 text-center">
                   <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
-                  <p className="text-sm text-muted-foreground mt-2">{chrome.i18n.getMessage('loadingNotifications')}</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {chrome.i18n.getMessage('loadingTemplates')} ({loadingProgress.step}/{loadingProgress.total})
+                  </p>
                 </div>
               ) : (
                 <div>
                   {/* Official Templates Section */}
-                  {(officialTemplates.length > 0 || pinnedOfficialFolders.length > 0) && (
+                  {pinnedOfficialFolders.length > 0 && (
                     <div className="p-2">
                       <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
                         <div className="flex items-center">
@@ -194,37 +274,19 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       
                       {/* Pinned official folders */}
                       {pinnedOfficialFolders.map(folder => (
-                        <FolderTree
+                        <SubFolder
                           key={`official-folder-${folder.id}`}
                           folder={folder}
-                          isPinned={true}
-                          expandedFolders={expandedFolders}
-                          onToggleFolder={toggleFolder}
                           onUseTemplate={onTemplateClick}
                           onEditTemplate={openEditDialog}
                           onDeleteTemplate={handleDeleteTemplate}
-                          onTogglePin={() => handleFolderUnpin(folder.id, true)}
                         />
                       ))}
-                      
-                      {/* Non-folder official templates */}
-                      {officialTemplates
-                        .filter(t => !t.folder_id) // Only show root-level templates
-                        .map((template) => (
-                          <TemplateItem 
-                            key={`official-${template.id}`} 
-                            template={template}
-                            onUseTemplate={onTemplateClick}
-                            onEditTemplate={openEditDialog}
-                            onDeleteTemplate={handleDeleteTemplate}
-                          />
-                        ))
-                      }
                     </div>
                   )}
 
                   {/* Organization Templates Section */}
-                  {(organizationTemplates.length > 0 || pinnedOrganizationFolders.length > 0) && (
+                  {pinnedOrganizationFolders.length > 0 && (
                     <div className="p-2 border-t">
                       <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
                         <div className="flex items-center">
@@ -244,37 +306,19 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       
                       {/* Pinned organization folders */}
                       {pinnedOrganizationFolders.map(folder => (
-                        <FolderTree
+                        <SubFolder
                           key={`org-folder-${folder.id}`}
                           folder={folder}
-                          isPinned={true}
-                          expandedFolders={expandedFolders}
-                          onToggleFolder={toggleFolder}
                           onUseTemplate={onTemplateClick}
                           onEditTemplate={openEditDialog}
                           onDeleteTemplate={handleDeleteTemplate}
-                          onTogglePin={() => handleFolderUnpin(folder.id, false)}
                         />
                       ))}
-                      
-                      {/* Non-folder organization templates */}
-                      {organizationTemplates
-                        .filter(t => !t.folder_id) // Only show root-level templates
-                        .map((template) => (
-                          <TemplateItem 
-                            key={`org-${template.id}`} 
-                            template={template}
-                            onUseTemplate={onTemplateClick}
-                            onEditTemplate={openEditDialog}
-                            onDeleteTemplate={handleDeleteTemplate}
-                          />
-                        ))
-                      }
                     </div>
                   )}
 
                   {/* User Templates Section */}
-                  {(userTemplates.length > 0 || userFolders.length > 0) && (
+                  {userFolders.length > 0 && (
                     <div className="p-2 border-t">
                       <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
                         <Folder className="mr-2 h-4 w-4" />
@@ -283,38 +327,21 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       
                       {/* User Template Folders */}
                       {userFolders.map(folder => (
-                        <FolderTree
+                        <SubFolder
                           key={`user-folder-${folder.id}`}
                           folder={folder}
-                          expandedFolders={expandedFolders}
-                          onToggleFolder={toggleFolder}
                           onUseTemplate={onTemplateClick}
                           onEditTemplate={openEditDialog}
                           onDeleteTemplate={handleDeleteTemplate}
                         />
                       ))}
-                      
-                      {/* Root-level user templates */}
-                      {userTemplates
-                        .filter(t => !t.folder_id)
-                        .map(template => (
-                          <TemplateItem
-                            key={`user-${template.id}`}
-                            template={template}
-                            onUseTemplate={onTemplateClick}
-                            onEditTemplate={openEditDialog}
-                            onDeleteTemplate={handleDeleteTemplate}
-                          />
-                        ))}
                     </div>
                   )}
                   
-                  {/* Empty state */}
-                  {officialTemplates.length === 0 && 
-                   userTemplates.length === 0 && 
-                   organizationTemplates.length === 0 && 
-                   pinnedOfficialFolders.length === 0 &&
-                   pinnedOrganizationFolders.length === 0 && (
+                  {/* Empty state - show when no templates or folders are found */}
+                  {pinnedOfficialFolders.length === 0 && 
+                   pinnedOrganizationFolders.length === 0 && 
+                   userFolders.length === 0 && (
                     <div className="py-8 px-4 text-center">
                       <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
                       <p className="text-sm text-muted-foreground">{chrome.i18n.getMessage('noTemplates')}</p>
@@ -341,7 +368,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         <TemplateDialog
           open={editDialogOpen}
           onOpenChange={setEditDialogOpen}
-          currentTemplate={currentTemplate}
+          currentTemplate={selectedTemplate}
           formData={templateFormData}
           onFormChange={setTemplateFormData}
           onSaveTemplate={handleSaveTemplate}
@@ -366,23 +393,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           onComplete={(finalContent) => handleFinalizeTemplate(finalContent, onClose)}
         />
       )}
-
-      {/* Browse More Modal */}
-      <BrowseMoreModal
-        open={browseMoreOpen}
-        onOpenChange={setBrowseMoreOpen}
-        officialFolders={officialFolders}
-        organizationFolders={organizationFolders}
-        pinnedOfficialFolderIds={pinnedOfficialFolderIds}
-        pinnedOrganizationFolderIds={pinnedOrganizationFolderIds}
-        onPinFolder={handleFolderPin}
-        onUnpinFolder={handleFolderUnpin}
-        expandedFolders={expandedFolders}
-        onToggleFolder={toggleFolder}
-        onUseTemplate={onTemplateClick}
-        onEditTemplate={openEditDialog}
-        onDeleteTemplate={handleDeleteTemplate}
-      />
     </>
   );
 };

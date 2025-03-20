@@ -1,7 +1,6 @@
 // src/content/applicationInitializer.ts
 
 import { statsService } from '@/services/analytics/StatsService';
-import { templateService } from '@/services/templates/TemplateService';
 import { notificationService } from '@/services/notifications/NotificationService';
 import { userInfoService } from '@/services/user/UserInfoService'; 
 import { componentInjector } from '@/core/utils/componentInjector';
@@ -168,9 +167,6 @@ export class AppInitializer {
   private async initializeSecondaryServices(): Promise<void> {
     console.log('🔧 Initializing secondary services...');
     
-    // Initialize template service
-    templateService.initialize();
-    
     // Initialize notification service
     notificationService.initialize();
     
@@ -331,7 +327,7 @@ export class AppInitializer {
   /**
    * Handle network intercept events
    */
-  private handleNetworkIntercept(event: CustomEvent): void {
+  private handleNetworkIntercept(): void {
     // Stub for future functionality
   }
   
@@ -495,7 +491,7 @@ export class AppInitializer {
   /**
    * Apply settings changes
    */
-  private applySettings(settings: any): void {
+  private applySettings(settings: Record<string, unknown>): void {
     if (!settings) return;
     
     if (settings.statsVisible !== undefined) {

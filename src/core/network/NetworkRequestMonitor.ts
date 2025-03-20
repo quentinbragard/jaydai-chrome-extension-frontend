@@ -37,10 +37,7 @@ export class NetworkRequestMonitor {
     try {
       // Start listening for network interception events
       document.addEventListener('archimind-network-intercept', this.boundEventHandler as EventListener);
-      
-      // Notify background script to start monitoring
-      chrome.runtime.sendMessage({ action: 'start-network-monitoring' });
-      
+            
       this.isInitialized = true;
       return true;
     } catch (error) {

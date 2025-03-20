@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Template, TemplateFormData, TemplateCollection } from './types';
-import { templateApi, AllTemplatesResponse } from '@/api/TemplateApi';
+import { Template, TemplateFormData } from './types';
 import { toast } from 'sonner';
 
 // Default form data
@@ -13,183 +12,79 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
 };
 
 export function useTemplates() {
-  // Template collection state
-  const [templateCollection, setTemplateCollection] = useState<TemplateCollection>({
-    userTemplates: { templates: [], folders: [] },
-    officialTemplates: { templates: [], folders: [] },
-    organizationTemplates: { templates: [], folders: [] }
+  // Essential states
+  const [templates, setTemplates] = useState({
+    user: [],
+    official: [],
+    organization: []
   });
-  
-  const [loading, setLoading] = useState(true);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   
   // Dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [currentTemplate, setCurrentTemplate] = useState<Template | null>(null);
-  const [templateFormData, setTemplateFormData] = useState<TemplateFormData>(DEFAULT_FORM_DATA);
-  
-  // Placeholder editor states
-  const [placeholderEditorOpen, setPlaceholderEditorOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  
-  // Load templates on mount
-  useEffect(() => {
-    loadTemplates();
-  }, []);
-  
-  // Load templates from API
-  const loadTemplates = async (): Promise<TemplateCollection> => {
-    try {
-      setLoading(true);
-      
-      const response = await templateApi.getPinnedTemplates();
-      console.log("🔢 response", response);
-      
-      if (response && response.success) {
-        // Process the templates and organize them
-        const processedCollection = {
-          userTemplates: {
-            templates: response.user_folders[0]?.templates || [],
-            folders: response.user_folders.slice(1) || []
-          },
-          officialTemplates: {
-            templates: response.official_folders[0]?.templates || [],
-            folders: response.official_folders.slice(1) || []
-          },
-          organizationTemplates: {
-            templates: response.organization_folders[0]?.templates || [],
-            folders: response.organization_folders.slice(1) || []
-          }
-        };
-        
-        setTemplateCollection(processedCollection);
-        
-        console.log(`🔢 Template counts - Official: ${processedCollection.officialTemplates.templates.length}, User: ${processedCollection.userTemplates.templates.length}, Organization: ${processedCollection.organizationTemplates.templates.length}`);
-      } else {
-        console.error('Failed to load templates:', response.error);
-        toast.error('Failed to load templates');
-      }
-    } catch (error) {
-      console.error('Error loading templates:', error);
-      toast.error('Failed to load templates');
-    } finally {
-      setLoading(false);
-    }
-    
-    return templateCollection;
-  }
+  const [templateFormData, setTemplateFormData] = useState<TemplateFormData>(DEFAULT_FORM_DATA);
+  const [placeholderEditorOpen, setPlaceholderEditorOpen] = useState(false);
   
   // Toggle folder expansion
   const toggleFolder = (path: string) => {
-    const newExpandedFolders = new Set(expandedFolders);
-    
-    if (newExpandedFolders.has(path)) {
-      newExpandedFolders.delete(path);
-    } else {
-      newExpandedFolders.add(path);
-    }
-    
-    setExpandedFolders(newExpandedFolders);
+    setExpandedFolders(prev => {
+      const next = new Set(prev);
+      if (next.has(path)) {
+        next.delete(path);
+      } else {
+        next.add(path);
+      }
+      return next;
+    });
   };
   
-  // Handle using a template
+  // Handle template usage
   const handleUseTemplate = async (template: Template) => {
-    try {
-      // Set selected template for placeholder editor
-      setSelectedTemplate(template);
-      setPlaceholderEditorOpen(true);
-      
-      return true;
-    } catch (error) {
-      console.error('Error using template:', error);
-      toast.error('Failed to use template');
-      return false;
-    }
+    setSelectedTemplate(template);
+    setPlaceholderEditorOpen(true);
   };
   
-  // Finalize template usage after placeholder editing
+  // Apply template content
   const handleFinalizeTemplate = (finalContent: string, onClose?: () => void) => {
-    try {
-      // Insert content into editor
-      const success = insertTemplateContent(finalContent);
-      
-      if (success) {
-        toast.success('Template applied successfully');
-        if (onClose) onClose();
-      } else {
-        toast.error('Failed to insert template content');
-      }
-      
-      // Clear selected template
-      setSelectedTemplate(null);
-      setPlaceholderEditorOpen(false);
-    } catch (error) {
-      console.error('Error finalizing template:', error);
-      toast.error('Failed to apply template');
+    const textarea = document.querySelector('#prompt-textarea');
+    if (!textarea) {
+      toast.error('Could not find input area');
+      return;
     }
-  };
-  
-  // Insert template content into editor
-  const insertTemplateContent = (content: string): boolean => {
+
     try {
-      // Find ChatGPT textarea
-      const textarea = document.querySelector('#prompt-textarea') as HTMLElement;
-      if (!textarea) {
-        console.error('ChatGPT textarea not found');
-        return false;
-      }
-      console.log('🔑🔑🔑 inserting template content', content);
-      
-      // Try multiple approaches
-      if (textarea.tagName === 'TEXTAREA') {
-        // It's actually a textarea
-        (textarea as HTMLTextAreaElement).value = content;
-      } else if (textarea.isContentEditable) {
-        // It's a contentEditable div
-        textarea.textContent = content;
+      if (textarea instanceof HTMLTextAreaElement) {
+        textarea.value = finalContent;
       } else {
-        // Try to find the hidden input
-        const input = textarea.querySelector('input, textarea');
-        if (input) {
-          (input as HTMLInputElement).value = content;
-        } else {
-          // Last resort
-          textarea.textContent = content;
-        }
+        textarea.textContent = finalContent;
       }
       
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
       textarea.focus();
       
-      return true;
+      toast.success('Template applied');
+      setPlaceholderEditorOpen(false);
+      setSelectedTemplate(null);
+      if (onClose) onClose();
     } catch (error) {
-      console.error('Error inserting template content:', error);
-      return false;
+      toast.error('Failed to apply template');
     }
   };
   
-  // Open edit dialog
+  // Template CRUD operations
   const openEditDialog = (template: Template | null) => {
-    setCurrentTemplate(template);
-    
-    // Initialize form data from template or defaults
-    if (template) {
-      setTemplateFormData({
-        name: template.title || '',
-        content: template.content || '',
-        description: template.description || '',
-        folder: template.folder || '',
-        based_on_official_id: typeof template.based_on_official_id === 'number' ? 
-          template.based_on_official_id : null
-      });
-    } else {
-      setTemplateFormData(DEFAULT_FORM_DATA);
-    }
-    
+    setSelectedTemplate(template);
+    setTemplateFormData(template ? {
+      name: template.title || '',
+      content: template.content || '',
+      description: template.description || '',
+      folder: template.folder || '',
+      based_on_official_id: template.based_on_official_id ?? null
+    } : DEFAULT_FORM_DATA);
     setEditDialogOpen(true);
   };
   
-  // Save template (create or update)
   const handleSaveTemplate = async () => {
     try {
       if (!templateFormData.name || !templateFormData.content) {
@@ -197,180 +92,32 @@ export function useTemplates() {
         return;
       }
       
-      let response;
-      
-      if (currentTemplate) {
-        // Update existing template
-        response = await templateApi.updateTemplate(currentTemplate.id, templateFormData);
-        if (response.success) {
-          toast.success('Template updated successfully');
-        } else {
-          throw new Error(response.error || 'Failed to update template');
-        }
-      } else {
-        // Create new template
-        response = await templateApi.createTemplate(templateFormData);
-        if (response.success) {
-          toast.success('Template created successfully');
-        } else {
-          throw new Error(response.error || 'Failed to create template');
-        }
-      }
-      
-      // Reload templates and close dialog
-      await loadTemplates();
-      setEditDialogOpen(false);
+        
     } catch (error) {
-      console.error('Error saving template:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to save template');
     }
   };
   
-  // Delete template
   const handleDeleteTemplate = async (template: Template, e: React.MouseEvent) => {
     e.stopPropagation();
-    
-    if (window.confirm(`Are you sure you want to delete "${template.title}"?`)) {
-      try {
-        const response = await templateApi.deleteTemplate(template.id);
-        
-        if (response.success) {
-          toast.success('Template deleted successfully');
-          await loadTemplates();
-        } else {
-          throw new Error(response.error || 'Failed to delete template');
-        }
-      } catch (error) {
-        console.error('Error deleting template:', error);
-        toast.error(error instanceof Error ? error.message : 'Failed to delete template');
-      }
-    }
-  };
-  
-  // Capture current prompt as template
-  const captureCurrentPromptAsTemplate = () => {
-    try {
-      // Find ChatGPT textarea
-      const textarea = document.querySelector('textarea[data-id="root"]') as HTMLTextAreaElement;
-      if (!textarea || !textarea.value.trim()) {
-        toast.error('No content to capture');
-        return;
-      }
-      
-      // Extract title from first line
-      const content = textarea.value;
-      const firstLine = content.split('\n')[0].trim();
-      const title = firstLine.length > 50 ? firstLine.substring(0, 47) + '...' : firstLine;
-      
-      // Initialize form with captured content
-      setTemplateFormData({
-        name: title,
-        content: content,
-        description: '',
-        folder: '',
-        based_on_official_id: null
-      });
-      
-      setCurrentTemplate(null);
-      setEditDialogOpen(true);
-    } catch (error) {
-      console.error('Error capturing prompt:', error);
-      toast.error('Failed to capture current prompt');
-    }
-  };
-
-  // Pin a folder
-  const handlePinFolder = async (folderId: number, isOfficial: boolean = true, pinnedOfficialFolderIds: number[] = [], pinnedOrganizationFolderIds: number[] = []) => {
-    try {
-      const updatedOfficialFolderIds = [...pinnedOfficialFolderIds];
-      const updatedOrganizationFolderIds = [...pinnedOrganizationFolderIds];
-      
-      if (isOfficial) {
-        if (!updatedOfficialFolderIds.includes(folderId)) {
-          updatedOfficialFolderIds.push(folderId);
-        }
-      } else {
-        if (!updatedOrganizationFolderIds.includes(folderId)) {
-          updatedOrganizationFolderIds.push(folderId);
-        }
-      }
-      
-      const response = await templateApi.updatePinnedFolders(
-        updatedOfficialFolderIds,
-        updatedOrganizationFolderIds
-      );
-      
-      if (response.success) {
-        toast.success(chrome.i18n.getMessage('pinFolder'));
-        return {
-          pinnedOfficialFolderIds: updatedOfficialFolderIds,
-          pinnedOrganizationFolderIds: updatedOrganizationFolderIds
-        };
-      } else {
-        toast.error('Failed to pin folder');
-        return null;
-      }
-    } catch (error) {
-      console.error('Error pinning folder:', error);
-      toast.error('Failed to pin folder');
-      return null;
-    }
-  };
-
-  // Unpin a folder
-  const handleUnpinFolder = async (folderId: number, isOfficial: boolean = true, pinnedOfficialFolderIds: number[] = [], pinnedOrganizationFolderIds: number[] = []) => {
-    try {
-      const updatedOfficialFolderIds = [...pinnedOfficialFolderIds];
-      const updatedOrganizationFolderIds = [...pinnedOrganizationFolderIds];
-      
-      if (isOfficial) {
-        updatedOfficialFolderIds.splice(updatedOfficialFolderIds.indexOf(folderId), 1);
-      } else {
-        updatedOrganizationFolderIds.splice(updatedOrganizationFolderIds.indexOf(folderId), 1);
-      }
-      
-      const response = await templateApi.updatePinnedFolders(
-        updatedOfficialFolderIds,
-        updatedOrganizationFolderIds
-      );
-      
-      if (response.success) {
-        toast.success(chrome.i18n.getMessage('unpinFolder'));
-        return {
-          pinnedOfficialFolderIds: updatedOfficialFolderIds,
-          pinnedOrganizationFolderIds: updatedOrganizationFolderIds
-        };
-      } else {
-        toast.error('Failed to unpin folder');
-        return null;
-      }
-    } catch (error) {
-      console.error('Error unpinning folder:', error);
-      toast.error('Failed to unpin folder');
-      return null;
-    }
+    if (!window.confirm(`Delete "${template.title}"?`)) return;
   };
   
   return {
-    templateCollection,
-    loading,
+    templates,
     expandedFolders,
     editDialogOpen,
     setEditDialogOpen,
-    currentTemplate,
+    selectedTemplate,
     templateFormData,
     setTemplateFormData,
     placeholderEditorOpen,
     setPlaceholderEditorOpen,
-    selectedTemplate,
     toggleFolder,
     handleUseTemplate,
     handleFinalizeTemplate,
     openEditDialog,
     handleSaveTemplate,
     handleDeleteTemplate,
-    captureCurrentPromptAsTemplate,
-    handlePinFolder,
-    handleUnpinFolder
   };
 }

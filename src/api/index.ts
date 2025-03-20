@@ -2,6 +2,6 @@
 
 export * from './ApiClient';
 export * from './MessageApi';
-export * from './TemplateApi';
+export * from './PromptApi';
 export * from './NotificationApi';
 export * from './UserApi';
