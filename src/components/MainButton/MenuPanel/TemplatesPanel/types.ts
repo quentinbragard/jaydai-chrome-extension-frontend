@@ -47,6 +47,7 @@ export interface TemplatesPanelProps {
   onClose?: () => void;
   maxHeight?: string;
   onPlaceholderEditorOpenChange?: (isOpen: boolean) => void;
+  goBackToPreviousPanel?: () => void;
 }
 
 export interface AllTemplatesResponse {

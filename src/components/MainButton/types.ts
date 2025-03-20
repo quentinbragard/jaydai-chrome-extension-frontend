@@ -5,7 +5,7 @@ export interface MainButtonProps {
   onSaveClick?: () => void;
 }
 
-export type ActivePanel = 'none' | 'notifications' | 'templates' | 'menu';
+export type ActivePanel = 'none' | 'notifications' | 'templates' | 'menu' | 'browseOfficialFolders' | 'browseOrganizationFolders';
 
 export interface NotificationService {
   getUnreadCount: () => number;

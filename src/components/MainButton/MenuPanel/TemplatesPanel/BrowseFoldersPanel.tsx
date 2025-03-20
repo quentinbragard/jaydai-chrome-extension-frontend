@@ -1,33 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogDescription,
-  DialogOverlay
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, ChevronRight, ChevronDown, Star, Folder } from "lucide-react";
 import { promptApi } from '@/api/PromptApi';
 import { TemplateFolder } from './types';
-import { ChevronRight, ChevronDown, Star, Folder, X } from "lucide-react";
 import { toast } from 'sonner';
-import { cn } from "@/core/utils/classNames";
 
-interface BrowseFoldersDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+interface BrowseFoldersPanelProps {
   folderType: 'official' | 'organization';
   pinnedFolderIds: number[];
   onPinChange: (folderId: number, isPinned: boolean) => Promise<void>;
+  maxHeight?: string;
 }
 
-const BrowseFoldersDialog: React.FC<BrowseFoldersDialogProps> = ({
-  open,
-  onOpenChange,
+const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
   folderType,
   pinnedFolderIds,
-  onPinChange
+  onPinChange,
+  maxHeight = '400px'
 }) => {
   const [folders, setFolders] = useState<TemplateFolder[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
@@ -35,13 +26,13 @@ const BrowseFoldersDialog: React.FC<BrowseFoldersDialogProps> = ({
   
   // Load all folders of the specified type
   useEffect(() => {
-    if (!open) return;
-    
     const loadFolders = async () => {
       setIsLoading(true);
       try {
         // Load all folders (empty=true means we don't load templates inside them, just structure)
         const response = await promptApi.getAllTemplateFolders(folderType, true);
+        console.log(`Loaded ${folderType} folders:`, response);
+        
         if (response.success && response.folders) {
           setFolders(response.folders);
         } else {
@@ -56,7 +47,7 @@ const BrowseFoldersDialog: React.FC<BrowseFoldersDialogProps> = ({
     };
     
     loadFolders();
-  }, [open, folderType]);
+  }, [folderType]);
   
   // Toggle folder expansion
   const toggleFolder = (folderId: number) => {
@@ -77,7 +68,7 @@ const BrowseFoldersDialog: React.FC<BrowseFoldersDialogProps> = ({
     
     try {
       // Call the parent handler to update pin status
-      await onPinChange(folderId, !isPinned);
+      await onPinChange(folderId, isPinned);
     } catch (error) {
       console.error('Error toggling pin:', error);
       toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder`);
@@ -86,6 +77,12 @@ const BrowseFoldersDialog: React.FC<BrowseFoldersDialogProps> = ({
   
   // Recursive component to render folder tree
   const renderFolder = (folder: TemplateFolder) => {
+    // Skip rendering if folder doesn't have an id or name
+    if (!folder || !folder.id || !folder.name) {
+      console.warn("Skipping invalid folder:", folder);
+      return null;
+    }
+    
     const isPinned = pinnedFolderIds.includes(folder.id);
     const isExpanded = expandedFolders.has(folder.id);
     
@@ -118,47 +115,35 @@ const BrowseFoldersDialog: React.FC<BrowseFoldersDialogProps> = ({
     );
   };
   
-  const dialogTitle = `Browse ${folderType === 'official' ? 'Official' : 'Organization'} Templates`;
+  const title = `${folderType === 'official' ? 'Official' : 'Organization'} Templates`;
 
-  if (!open) return null;
-
-  // Using a custom dialog implementation for full control
+  // Don't use a back button at the top level since we now have it controlled by MenuPanel
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-      <div 
-        className={cn(
-          "bg-background rounded-lg shadow-lg",
-          "w-[500px] max-w-[90vw] max-h-[90vh]",
-          "flex flex-col overflow-hidden"
-        )}
-      >
-        {/* Header */}
-        <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="text-lg font-semibold">{dialogTitle}</h2>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 w-8 p-0" 
-            onClick={() => onOpenChange(false)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+    <Card className="w-80 shadow-lg">
+      <CardHeader className="py-3 flex flex-row items-center justify-between">
+        <CardTitle className="text-base font-medium">
+          {title}
+        </CardTitle>
+      </CardHeader>
+      
+      <Separator />
+      
+      <CardContent className="p-0">
+        <p className="px-4 py-2 text-xs text-muted-foreground">
+          Pin {folderType} template folders to access them quickly.
+        </p>
         
-        {/* Description */}
-        <div className="px-4 py-2 text-sm text-muted-foreground">
-          {`Pin ${folderType} template folders to access them quickly. Starred folders will appear in your templates panel.`}
-        </div>
-        
-        {/* Content */}
-        <div className="p-4 overflow-y-auto flex-1">
+        <div 
+          className="overflow-y-auto"
+          style={{ maxHeight }}
+        >
           {isLoading ? (
             <div className="py-8 text-center">
               <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
               <p className="text-sm text-muted-foreground mt-2">Loading folders...</p>
             </div>
-          ) : folders.length > 0 ? (
-            <div className="space-y-1">
+          ) : folders && folders.length > 0 ? (
+            <div className="space-y-1 p-2">
               {folders.map(folder => renderFolder(folder))}
             </div>
           ) : (
@@ -167,16 +152,9 @@ const BrowseFoldersDialog: React.FC<BrowseFoldersDialogProps> = ({
             </div>
           )}
         </div>
-        
-        {/* Footer */}
-        <div className="p-4 border-t flex justify-end">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
-export default BrowseFoldersDialog;
+export default BrowseFoldersPanel;
