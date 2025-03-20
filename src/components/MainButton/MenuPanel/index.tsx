@@ -4,10 +4,19 @@ import MenuPanelMenu from './MenuPanelMenu';
 import TemplatesPanel from './TemplatesPanel';
 import NotificationsPanel from './NotificationsPanel';
 
-export type PanelState =
-  | { panel: 'menu' }
-  | { panel: 'templates'; view: 'pinned' | 'browse-official' | 'browse-organization' }
-  | { panel: 'notifications' };
+// Panel state types
+export type MenuPanelType = 'menu';
+export type TemplatesPanelType = 'templates' | 'browse-official' | 'browse-organization';
+export type NotificationsPanelType = 'notifications';
+
+// Union type for all panel types
+export type PanelType = MenuPanelType | TemplatesPanelType | NotificationsPanelType;
+
+// Panel state with type and metadata
+export interface PanelState {
+  type: PanelType;
+  meta?: Record<string, any>; // Optional metadata for the panel
+}
 
 export interface MenuPanelProps {
   isOpen: boolean;
@@ -28,55 +37,58 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   onSettingsClick,
   setIsPlaceholderEditorOpen,
 }) => {
-  // Navigation stack – the initial state is the main menu.
-  const [navStack, setNavStack] = useState<PanelState[]>([{ panel: 'menu' }]);
+  // Navigation stack - the initial state is the main menu
+  const [navStack, setNavStack] = useState<PanelState[]>([{ type: 'menu' }]);
 
+  // Get the current panel from the top of the navigation stack
   const currentPanel = navStack[navStack.length - 1];
 
+  // Push a new panel to the navigation stack
   const pushPanel = (panel: PanelState) => {
     setNavStack((prev) => [...prev, panel]);
   };
 
+  // Go back to the previous panel
   const popPanel = () => {
     if (navStack.length > 1) {
       setNavStack((prev) => prev.slice(0, prev.length - 1));
+    } else {
+      // If we're at the root menu, close the entire panel
+      onClosePanel();
     }
   };
 
-  // Change panel without adding a new stack entry (if needed)
-  const updateCurrentPanel = (panel: PanelState) => {
-    setNavStack((prev) => [...prev.slice(0, prev.length - 1), panel]);
-  };
-
-  // Determine header title based on current panel
+  // Determine the header title based on the current panel
   const getTitle = () => {
-    if (currentPanel.panel === 'templates') {
-      switch (currentPanel.view) {
-        case 'browse-official':
-          return chrome.i18n.getMessage('browseOfficialTemplates');
-        case 'browse-organization':
-          return chrome.i18n.getMessage('browseOrganizationTemplates');
-        default:
-          return chrome.i18n.getMessage('templates');
-      }
+    console.log('currentPanel', currentPanel);
+    switch (currentPanel.type) {
+      case 'menu':
+        console.log(chrome.i18n.getMessage('templates'));
+        return chrome.i18n.getMessage('menu');
+      case 'templates':
+        return chrome.i18n.getMessage('templates');
+      case 'browse-official':
+        return chrome.i18n.getMessage('browseOfficialTemplates');
+      case 'browse-organization':
+        return chrome.i18n.getMessage('browseOrganizationTemplates');
+      case 'notifications':
+        return chrome.i18n.getMessage('notifications');
+      default:
+        return chrome.i18n.getMessage('menu');
     }
-    if (currentPanel.panel === 'notifications') {
-      return chrome.i18n.getMessage('notifications');
-    }
-    return ''; // no title for main menu
   };
 
+  // Render the appropriate content based on the current panel
   const renderContent = () => {
-    switch (currentPanel.panel) {
+    switch (currentPanel.type) {
       case 'menu':
         return (
           <MenuPanelMenu
             onSelect={(panel) => {
               if (panel === 'templates') {
-                // When entering Templates, start with the pinned folders view.
-                pushPanel({ panel: 'templates', view: 'pinned' });
+                pushPanel({ type: 'templates' });
               } else if (panel === 'notifications') {
-                pushPanel({ panel: 'notifications' });
+                pushPanel({ type: 'notifications' });
               }
             }}
             notificationCount={notificationCount}
@@ -85,12 +97,13 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
           />
         );
       case 'templates':
+      case 'browse-official':
+      case 'browse-organization':
         return (
           <TemplatesPanel
-            view={currentPanel.view}
+            view={currentPanel.type as TemplatesPanelType}
             onViewChange={(newView) => {
-              // Push a new Templates panel state when switching views.
-              pushPanel({ panel: 'templates', view: newView });
+              pushPanel({ type: newView });
             }}
             setIsPlaceholderEditorOpen={setIsPlaceholderEditorOpen}
           />
@@ -103,6 +116,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   };
 
   if (!isOpen) return null;
+  console.log('getTitle()', getTitle());
 
   return (
     <div
@@ -115,7 +129,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
         onClose={onClosePanel}
         title={getTitle()}
       />
-      <div className="p-2">{renderContent()}</div>
+      <div className="p-2 dark:bg-white dark:text-black bg-gray-800 rounded-b-md">{renderContent()}</div>
     </div>
   );
 };

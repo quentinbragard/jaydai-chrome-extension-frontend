@@ -51,7 +51,13 @@ export class ApiClient {
       // Get auth token
       let token;
       try {
-        token = await authService.getAuthToken();
+        const authTokenResponse = await authService.getAuthToken();
+        if (authTokenResponse.success) {
+          token = authTokenResponse.token;
+        } else {
+          throw new Error('Failed to get auth token');
+        }
+        console.log('token', token);
       } catch (tokenError) {
         if (endpoint.startsWith('/public/') || options.allowAnonymous) {
           token = null;
@@ -85,7 +91,7 @@ export class ApiClient {
       if (response.status === 403 || response.status === 401) {
         if (retryCount < 1) {
           try {
-            token = await authService.refreshAuthToken();
+            token = await authService.refreshToken();
             
             // Update authorization header with new token
             const newOptions = {

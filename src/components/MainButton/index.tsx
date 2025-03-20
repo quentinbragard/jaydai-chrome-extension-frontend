@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Toaster } from "sonner";
-import { ActivePanel } from './types';
 import ButtonIcon from './ButtonIcon';
 import MenuPanel from './MenuPanel';
 
@@ -10,52 +9,14 @@ interface MainButtonProps {
 }
 
 const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick }) => {
+  // Simple state for whether the menu is open or not
   const [isOpen, setIsOpen] = useState(false);
-  const [activePanel, setActivePanel] = useState<ActivePanel>('none');
   const [notificationCount, setNotificationCount] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isPlaceholderEditorOpen, setIsPlaceholderEditorOpen] = useState(false);
+  
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  
-  // Flag to track if a placeholder editor is open
-  const [isPlaceholderEditorOpen, setIsPlaceholderEditorOpen] = useState(false);
-
-  // State for pinned folders
-  const [pinnedOfficialFolderIds, setPinnedOfficialFolderIds] = useState<number[]>([]);
-  const [pinnedOrganizationFolderIds, setPinnedOrganizationFolderIds] = useState<number[]>([]);
-
-  // Load user data from Chrome storage to get pinned folder IDs
-  useEffect(() => {
-    try {
-      chrome.storage.local.get('user', (result) => {
-        if (result?.user?.metadata) {
-          // Safely extract and convert folder IDs
-          const officialIds = safeNumberArray(result.user.metadata.pinned_official_folder_ids);
-          const organizationIds = safeNumberArray(result.user.metadata.pinned_organization_folder_ids);
-          
-          setPinnedOfficialFolderIds(officialIds);
-          setPinnedOrganizationFolderIds(organizationIds);
-        } else {
-          setPinnedOfficialFolderIds([]);
-          setPinnedOrganizationFolderIds([]);
-        }
-      });
-    } catch (error) {
-      console.error('Error loading pinned folders:', error);
-      setPinnedOfficialFolderIds([]);
-      setPinnedOrganizationFolderIds([]);
-    }
-  }, []);
-
-  // Helper function to convert any array to a safe array of numbers
-  const safeNumberArray = (ids: any): number[] => {
-    if (!ids) return [];
-    if (Array.isArray(ids)) {
-      return ids.map(id => typeof id === 'string' ? parseInt(id, 10) : id)
-               .filter(id => !isNaN(id));
-    }
-    return [];
-  };
 
   // Handle notification counts
   useEffect(() => {
@@ -128,7 +89,6 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
         !buttonRef.current.contains(e.target as Node)
       ) {
         setIsOpen(false);
-        setActivePanel('none');
       }
     };
   
@@ -139,21 +99,10 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
   }, [isOpen, isPlaceholderEditorOpen]);
 
   const toggleMenu = () => {
-    if (activePanel === 'menu') {
-      setActivePanel('none');
-      setIsOpen(false);
-    } else {
-      setActivePanel('menu');
-      setIsOpen(true);
-    }
-  };
-
-  const openPanel = (panel: ActivePanel) => {
-    setActivePanel(panel);
+    setIsOpen(!isOpen);
   };
 
   const handleClosePanel = () => {
-    setActivePanel('none');
     setIsOpen(false);
   };
 
@@ -176,68 +125,18 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
     handleClosePanel();
   };
 
-  // Handle toggling pin status for folders
-  const handleTogglePin = async (folderId: number, isPinned: boolean, type: 'official' | 'organization') => {
-    // Get current pinned IDs based on folder type
-    const currentPinnedIds = type === 'official' 
-      ? pinnedOfficialFolderIds 
-      : pinnedOrganizationFolderIds;
-    
-    // Create new array of IDs based on pin action
-    const newPinnedIds = isPinned
-      ? currentPinnedIds.filter(id => id !== folderId) // Remove ID if unpinning
-      : [...currentPinnedIds, folderId]; // Add ID if pinning
-    
-    try {
-      // Update backend via promptApi
-      const promptApi = window.promptApi || { updatePinnedFolders: async () => ({ success: true }) };
-      const response = await promptApi.updatePinnedFolders(type, newPinnedIds);
-      
-      if (response.success) {
-        // Update local state
-        if (type === 'official') {
-          setPinnedOfficialFolderIds(newPinnedIds);
-        } else {
-          setPinnedOrganizationFolderIds(newPinnedIds);
-        }
-        
-        // Update local storage
-        chrome.storage.local.get('user', (result) => {
-          if (result?.user) {
-            const updatedUser = {
-              ...result.user,
-              metadata: {
-                ...result.user.metadata,
-                pinned_official_folder_ids: type === 'official' ? newPinnedIds : result.user.metadata.pinned_official_folder_ids,
-                pinned_organization_folder_ids: type === 'organization' ? newPinnedIds : result.user.metadata.pinned_organization_folder_ids
-              }
-            };
-            chrome.storage.local.set({ user: updatedUser });
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Error toggling pin status:', error);
-    }
-  };
-
   return (
     <div className="fixed bottom-6 right-2 z-[9999]">
       <div className="relative w-24 h-24 flex items-center justify-center">
         {/* Panel that appears above the main button */}
         <MenuPanel
           isOpen={isOpen}
-          activePanel={activePanel}
           notificationCount={notificationCount}
           menuRef={menuRef}
-          openPanel={openPanel}
-          handleClosePanel={handleClosePanel}
-          handleSaveClick={handleSaveClick}
-          handleSettingsClick={handleSettingsClick}
+          onClosePanel={handleClosePanel}
+          onSaveClick={handleSaveClick}
+          onSettingsClick={handleSettingsClick}
           setIsPlaceholderEditorOpen={setIsPlaceholderEditorOpen}
-          pinnedOfficialFolderIds={pinnedOfficialFolderIds}
-          pinnedOrganizationFolderIds={pinnedOrganizationFolderIds}
-          handleTogglePin={handleTogglePin}
         />
 
         {/* Main Button with logo */}

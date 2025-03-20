@@ -229,13 +229,17 @@
     "message": "Templates",
     "description": "Élément de menu templates"
   },
+  "menu": {
+    "message": "Menu",
+    "description": "Élément de menu Menu"
+  },
   "notifications": {
     "message": "Notifications",
     "description": "Élément de menu Notifications"
   },
-  "saveConversation": {
-    "message": "Enregistrer la Conversation",
-    "description": "Élément de menu Enregistrer la conversation"
+  "aiNews": {
+    "message": "News IA",
+    "description": "Élément de menu AI News"
   },
   "settings": {
     "message": "Paramètres",

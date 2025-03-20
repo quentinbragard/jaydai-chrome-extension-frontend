@@ -9,8 +9,8 @@ import BrowseFoldersPanel from './BrowseFoldersPanel';
 import { Template } from './types';
 
 export interface TemplatesPanelProps {
-  view: 'pinned' | 'browse-official' | 'browse-organization';
-  onViewChange: (newView: 'pinned' | 'browse-official' | 'browse-organization') => void;
+  view: 'templates' | 'browse-official' | 'browse-organization';
+  onViewChange: (newView: 'templates' | 'browse-official' | 'browse-organization') => void;
   setIsPlaceholderEditorOpen: (isOpen: boolean) => void;
 }
 
@@ -20,7 +20,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   setIsPlaceholderEditorOpen,
 }) => {
   const {
-    templates,
     loading: templatesLoading,
     editDialogOpen,
     setEditDialogOpen,
@@ -39,7 +38,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     userFolders,
   } = useTemplates();
 
-  // Determine overall loading state as needed.
+  // Determine overall loading state
   const loading = templatesLoading;
 
   const onTemplateClick = (template: Template) => {
@@ -56,8 +55,17 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       return (
         <BrowseFoldersPanel
           folderType="official"
+          pinnedFolderIds={pinnedOfficialFolders && pinnedOfficialFolders.map(folder => folder.id)}
           onPinChange={async (folderId, isPinned) => {
-            // Add logic for handling official folder pin toggling here.
+            // Implement pin toggling logic here
+            try {
+              // Mock implementation for now
+              toast.success(isPinned ? 'Folder unpinned' : 'Folder pinned');
+              return Promise.resolve();
+            } catch (error) {
+              toast.error('Failed to update folder pin status');
+              return Promise.reject(error);
+            }
           }}
         />
       );
@@ -65,13 +73,22 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       return (
         <BrowseFoldersPanel
           folderType="organization"
+          pinnedFolderIds={pinnedOrganizationFolders && pinnedOrganizationFolders.map(folder => folder.id)}
           onPinChange={async (folderId, isPinned) => {
-            // Add logic for handling organization folder pin toggling here.
+            // Implement pin toggling logic here
+            try {
+              // Mock implementation for now
+              toast.success(isPinned ? 'Folder unpinned' : 'Folder pinned');
+              return Promise.resolve();
+            } catch (error) {
+              toast.error('Failed to update folder pin status');
+              return Promise.reject(error);
+            }
           }}
         />
       );
     }
-    // Default view: display pinned folders.
+    // Default view: display pinned folders
     return (
       <PinnedFoldersPanel
         pinnedOfficialFolders={pinnedOfficialFolders}
@@ -83,6 +100,17 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         onCreateTemplate={() => openEditDialog(null)}
         openBrowseOfficialFolders={() => onViewChange('browse-official')}
         openBrowseOrganizationFolders={() => onViewChange('browse-organization')}
+        handleTogglePin={async (folderId, isPinned, type) => {
+          // Implement pin toggling logic here
+          try {
+            // Mock implementation for now
+            toast.success(isPinned ? 'Folder unpinned' : 'Folder pinned');
+            return Promise.resolve();
+          } catch (error) {
+            toast.error('Failed to update folder pin status');
+            return Promise.reject(error);
+          }
+        }}
         loading={loading}
       />
     );

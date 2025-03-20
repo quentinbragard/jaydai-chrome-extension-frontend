@@ -83,7 +83,7 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
       return null;
     }
     
-    const isPinned = pinnedFolderIds.includes(folder.id);
+    const isPinned = pinnedFolderIds && pinnedFolderIds.includes(folder.id);
     const isExpanded = expandedFolders.has(folder.id);
     
     return (

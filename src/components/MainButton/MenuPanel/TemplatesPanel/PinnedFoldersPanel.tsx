@@ -14,7 +14,6 @@ interface PinnedFoldersPanelProps {
   onEditTemplate: (template: Template) => void;
   onDeleteTemplate: (template: Template, e: React.MouseEvent) => void;
   onCreateTemplate: () => void;
-  onClose?: () => void;
   openBrowseOfficialFolders: () => void;
   openBrowseOrganizationFolders: () => void;
   handleTogglePin: (folderId: number, isPinned: boolean, type: 'official' | 'organization') => Promise<void>;
@@ -30,7 +29,6 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
   onEditTemplate,
   onDeleteTemplate,
   onCreateTemplate,
-  onClose,
   openBrowseOfficialFolders,
   openBrowseOrganizationFolders,
   handleTogglePin,
@@ -55,16 +53,6 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
             <Plus className="h-3.5 w-3.5 mr-1" />
             {chrome.i18n.getMessage('newTemplate')}
           </Button>
-          {onClose && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={onClose}
-              className="h-7 w-7 p-0"
-            >
-              <FileText className="h-4 w-4" />
-            </Button>
-          )}
         </div>
       </CardHeader>
       
@@ -103,7 +91,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                 </div>
                 
                 {/* Pinned official folders */}
-                {pinnedOfficialFolders.length > 0 ? (
+                {pinnedOfficialFolders && pinnedOfficialFolders.length > 0 ? (
                   pinnedOfficialFolders.map(folder => (
                     <SubFolder
                       key={`official-folder-${folder.id}`}
@@ -142,7 +130,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                 </div>
                 
                 {/* Pinned organization folders */}
-                {pinnedOrganizationFolders.length > 0 ? (
+                {pinnedOrganizationFolders && pinnedOrganizationFolders.length > 0 ? (
                   pinnedOrganizationFolders.map(folder => (
                     <SubFolder
                       key={`org-folder-${folder.id}`}
@@ -163,7 +151,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
               </div>
 
               {/* User Templates Section */}
-              {userFolders.length > 0 && (
+              {userFolders && userFolders.length > 0 && (
                 <div className="p-2 border-t">
                   <div className="flex items-center text-sm font-medium text-muted-foreground mb-2">
                     <Folder className="mr-2 h-4 w-4" />
@@ -185,9 +173,9 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
               )}
               
               {/* Empty state - show when no templates or folders of any kind are found */}
-              {pinnedOfficialFolders.length === 0 && 
-               pinnedOrganizationFolders.length === 0 && 
-               userFolders.length === 0 && (
+              {pinnedOfficialFolders && pinnedOfficialFolders.length === 0 && 
+               pinnedOrganizationFolders && pinnedOrganizationFolders.length === 0 && 
+               userFolders && userFolders.length === 0 && (
                 <div className="py-8 px-4 text-center">
                   <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
                   <p className="text-sm text-muted-foreground">{chrome.i18n.getMessage('noTemplates')}</p>

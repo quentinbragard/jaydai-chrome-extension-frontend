@@ -10,27 +10,45 @@ import {
   LogIn,
   UserPlus,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  RefreshCw
 } from 'lucide-react';
 import { toast } from "sonner";
 
 interface AuthModalProps {
   onClose?: () => void;
   initialMode?: 'signin' | 'signup';
+  // New prop to handle session expired case
+  isSessionExpired?: boolean;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ onClose, initialMode = 'signin' }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ 
+  onClose, 
+  initialMode = 'signin',
+  isSessionExpired = false 
+}) => {
   const [activeTab, setActiveTab] = useState<string>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{text: string, type: 'error' | 'success' | 'info'} | null>(null);
+  const [message, setMessage] = useState<{text: string, type: 'error' | 'success' | 'info'} | null>(
+    isSessionExpired 
+      ? { text: chrome.i18n.getMessage('sessionExpired'), type: 'info' }
+      : null
+  );
   const [signupSuccess, setSignupSuccess] = useState(false);
 
   useEffect(() => {
     setActiveTab(initialMode);
   }, [initialMode]);
+
+  useEffect(() => {
+    // Set message when session expired flag changes
+    if (isSessionExpired) {
+      setMessage({ text: chrome.i18n.getMessage('sessionExpired'), type: 'info' });
+    }
+  }, [isSessionExpired]);
 
   const resetForm = () => {
     setEmail('');
@@ -44,46 +62,104 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, initialMode = 'signin' }
     resetForm();
   };
 
+  const validateSignInInputs = (): boolean => {
+    if (!email.trim()) {
+      setMessage({text: chrome.i18n.getMessage('enterEmail'), type: 'error'});
+      return false;
+    }
+    
+    if (!password) {
+      setMessage({text: chrome.i18n.getMessage('enterPassword'), type: 'error'});
+      return false;
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setMessage({text: chrome.i18n.getMessage('invalidEmail'), type: 'error'});
+      return false;
+    }
+    
+    return true;
+  }
+
+  const validateSignUpInputs = (): boolean => {
+    if (!validateSignInInputs()) {
+      return false;
+    }
+    
+    if (password.length < 8) {
+      setMessage({text: chrome.i18n.getMessage('passwordTooShort'), type: 'error'});
+      return false;
+    }
+    
+    return true;
+  }
+
   const handleEmailSignIn = async () => {
-    if (!email || !password) {
-      setMessage({text: chrome.i18n.getMessage('enterEmailPassword'), type: 'error'});
+    if (!validateSignInInputs()) {
       return;
     }
 
     setIsLoading(true);
+    setMessage(null);
+    
     try {
       chrome.runtime.sendMessage(
-        { action: "emailSignIn", email, password }, 
+        { action: "emailSignIn", email: email.trim(), password }, 
         (response) => {
           setIsLoading(false);
+          
           if (response.success) {
             toast.success(chrome.i18n.getMessage('signInSuccessful'), {
               description: chrome.i18n.getMessage('youCanNowAccess')
             });
             onClose?.();
           } else {
-            setMessage({text: response.error || chrome.i18n.getMessage('unableToProcess'), type: 'error'});
+            // Handle specific error codes
+            if (response.errorCode === 'INVALID_CREDENTIALS') {
+              setMessage({
+                text: chrome.i18n.getMessage('invalidCredentials'), 
+                type: 'error'
+              });
+            } else if (response.errorCode === 'EMAIL_NOT_VERIFIED') {
+              setMessage({
+                text: chrome.i18n.getMessage('emailNotVerified'), 
+                type: 'error'
+              });
+            } else {
+              setMessage({
+                text: response.error || chrome.i18n.getMessage('unableToProcess'), 
+                type: 'error'
+              });
+            }
           }
         }
       );
     } catch (error) {
       setIsLoading(false);
-      setMessage({text: chrome.i18n.getMessage('unableToProcess'), type: 'error'});
+      setMessage({
+        text: chrome.i18n.getMessage('unableToProcess'), 
+        type: 'error'
+      });
+      console.error('Auth modal error:', error);
     }
   };
 
   const handleSignUp = async () => {
-    if (!email || !password) {
-      setMessage({text: chrome.i18n.getMessage('enterEmailPassword'), type: 'error'});
+    if (!validateSignUpInputs()) {
       return;
     }
 
     setIsLoading(true);
+    setMessage(null);
+    
     try {
       chrome.runtime.sendMessage(
-        { action: "signUp", email, password, name }, 
+        { action: "signUp", email: email.trim(), password, name: name.trim() }, 
         (response) => {
           setIsLoading(false);
+          
           if (response.success) {
             setSignupSuccess(true);
             setMessage({
@@ -91,36 +167,60 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, initialMode = 'signin' }
               type: 'success'
             });
           } else {
-            setMessage({text: response.error || chrome.i18n.getMessage('signUpFailed'), type: 'error'});
+            if (response.errorCode === 'EMAIL_IN_USE') {
+              setMessage({
+                text: chrome.i18n.getMessage('emailAlreadyInUse'), 
+                type: 'error'
+              });
+            } else {
+              setMessage({
+                text: response.error || chrome.i18n.getMessage('signUpFailed'), 
+                type: 'error'
+              });
+            }
           }
         }
       );
     } catch (error) {
       setIsLoading(false);
-      setMessage({text: chrome.i18n.getMessage('unableToProcess'), type: 'error'});
+      setMessage({
+        text: chrome.i18n.getMessage('unableToProcess'), 
+        type: 'error'
+      });
+      console.error('Auth modal error:', error);
     }
   };
 
   const handleGoogleSignIn = () => {
     setIsLoading(true);
+    setMessage(null);
+    
     try {
       chrome.runtime.sendMessage(
         { action: "googleSignIn" }, 
         (response) => {
           setIsLoading(false);
+          
           if (response.success) {
             toast.success(chrome.i18n.getMessage('signInSuccessful'), {
               description: chrome.i18n.getMessage('youCanNowAccess')
             });
             onClose?.();
           } else {
-            setMessage({text: response.error || chrome.i18n.getMessage('unableToProcess'), type: 'error'});
+            setMessage({
+              text: response.error || chrome.i18n.getMessage('unableToProcess'), 
+              type: 'error'
+            });
           }
         }
       );
     } catch (error) {
       setIsLoading(false);
-      setMessage({text: chrome.i18n.getMessage('unableToProcess'), type: 'error'});
+      setMessage({
+        text: chrome.i18n.getMessage('unableToProcess'), 
+        type: 'error'
+      });
+      console.error('Auth modal error:', error);
     }
   };
 
@@ -190,8 +290,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, initialMode = 'signin' }
           >
             {message.type === 'error' ? (
               <AlertCircle className="h-5 w-5 shrink-0" />
-            ) : (
+            ) : message.type === 'success' ? (
               <CheckCircle className="h-5 w-5 shrink-0" />
+            ) : (
+              <RefreshCw className="h-5 w-5 shrink-0" />
             )}
             <span className="text-sm font-sans">{message.text}</span>
           </div>

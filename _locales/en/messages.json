@@ -231,13 +231,17 @@
     "message": "Templates",
     "description": "Templates menu item"
   },
+  "menu": {
+    "message": "Menu",
+    "description": "Menu menu item"
+  },
   "notifications": {
     "message": "Notifications",
     "description": "Notifications menu item"
   },
-  "saveConversation": {
-    "message": "Save Conversation",
-    "description": "Save conversation menu item"
+  "aiNews": {
+    "message": "AI News",
+    "description": "Élément de menu AI News"
   },
   "settings": {
     "message": "Settings",
