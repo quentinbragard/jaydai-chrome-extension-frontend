@@ -11,6 +11,7 @@ import { cn } from "@/core/utils/classNames";
 import { promptApi } from '@/api/PromptApi';
 import SubFolder from './SubFolder';
 import { toast } from 'sonner';
+import BrowseFoldersDialog from './BrowseFoldersDialog';
 
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({ 
   onClose, 
@@ -36,7 +37,11 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     handleDeleteTemplate,
   } = useTemplates();
 
-  const [browseMoreOpen, setBrowseMoreOpen] = useState(false);
+  // Browse folders dialog state
+  const [browseDialogOpen, setBrowseDialogOpen] = useState(false);
+  const [browseFolderType, setBrowseFolderType] = useState<'official' | 'organization'>('official');
+  
+  // Pinned folders state
   const [pinnedOfficialFolderIds, setPinnedOfficialFolderIds] = useState<number[]>([]);
   const [pinnedOrganizationFolderIds, setPinnedOrganizationFolderIds] = useState<number[]>([]);
   const [pinnedOfficialFolders, setPinnedOfficialFolders] = useState<TemplateFolder[]>([]);
@@ -174,22 +179,72 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     loadFolders();
   }, [loadingProgress.step, pinnedOfficialFolderIds, pinnedOrganizationFolderIds]);
 
-  // Display current loading progress and data
-  useEffect(() => {
-    console.log('Loading progress:', loadingProgress);
-    console.log('Folder data:', {
-      official: { ids: pinnedOfficialFolderIds, folders: pinnedOfficialFolders },
-      organization: { ids: pinnedOrganizationFolderIds, folders: pinnedOrganizationFolders },
-      user: userFolders
-    });
-  }, [
-    loadingProgress,
-    pinnedOfficialFolderIds, 
-    pinnedOrganizationFolderIds, 
-    pinnedOfficialFolders, 
-    pinnedOrganizationFolders, 
-    userFolders
-  ]);
+  // Open browse dialog for different folder types
+  const openBrowseDialog = (type: 'official' | 'organization') => {
+    setBrowseFolderType(type);
+    setBrowseDialogOpen(true);
+  };
+  
+  // Handle pin/unpin of a folder
+  const handleTogglePin = async (folderId: number, isPinned: boolean, type: 'official' | 'organization') => {
+    // Get current pinned IDs based on folder type
+    const currentPinnedIds = type === 'official' 
+      ? pinnedOfficialFolderIds 
+      : pinnedOrganizationFolderIds;
+    
+    // Create new array of IDs based on pin action
+    const newPinnedIds = isPinned
+      ? currentPinnedIds.filter(id => id !== folderId) // Remove ID if unpinning
+      : [...currentPinnedIds, folderId]; // Add ID if pinning
+    
+    try {
+      // Update backend
+      const response = await promptApi.updatePinnedFolders(type, newPinnedIds);
+      
+      if (response.success) {
+        // Update local state
+        if (type === 'official') {
+          setPinnedOfficialFolderIds(newPinnedIds);
+        } else {
+          setPinnedOrganizationFolderIds(newPinnedIds);
+        }
+        
+        toast.success(isPinned ? 'Folder unpinned' : 'Folder pinned');
+        
+        // Re-fetch folders if needed
+        if (!isPinned) {
+          // We're pinning a new folder, so we need to fetch its data
+          const folderResponse = await promptApi.getPromptTemplatesFolders(type, [folderId]);
+          if (folderResponse.success && folderResponse.folders) {
+            const newFolders = mapToTemplateFolder(folderResponse.folders);
+            
+            if (type === 'official') {
+              setPinnedOfficialFolders(prev => [...prev, ...newFolders]);
+            } else {
+              setPinnedOrganizationFolders(prev => [...prev, ...newFolders]);
+            }
+          }
+        } else {
+          // We're unpinning a folder, so remove it from state
+          if (type === 'official') {
+            setPinnedOfficialFolders(prev => prev.filter(folder => folder.id !== folderId));
+          } else {
+            setPinnedOrganizationFolders(prev => prev.filter(folder => folder.id !== folderId));
+          }
+        }
+      } else {
+        toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder`);
+      }
+    } catch (error) {
+      console.error('Error toggling pin status:', error);
+      toast.error(`Error ${isPinned ? 'unpinning' : 'pinning'} folder`);
+    }
+  };
+  
+  // Handle pin change from the browse dialog
+  const handleDialogPinChange = async (folderId: number, isPinned: boolean) => {
+    await handleTogglePin(folderId, isPinned, browseFolderType);
+  };
 
   const onTemplateClick = (template: Template) => {
     handleUseTemplate(template);
@@ -254,68 +309,82 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               ) : (
                 <div>
                   {/* Official Templates Section */}
-                  {pinnedOfficialFolders.length > 0 && (
-                    <div className="p-2">
-                      <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
-                        <div className="flex items-center">
-                          <BookTemplate className="mr-2 h-4 w-4" />
-                          {chrome.i18n.getMessage('officialTemplates')}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-xs"
-                          onClick={() => setBrowseMoreOpen(true)}
-                        >
-                          <ChevronDown className="h-3.5 w-3.5 mr-1" />
-                          {chrome.i18n.getMessage('browseMore')}
-                        </Button>
+                  <div className="p-2">
+                    <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
+                      <div className="flex items-center">
+                        <BookTemplate className="mr-2 h-4 w-4" />
+                        {chrome.i18n.getMessage('officialTemplates')}
                       </div>
-                      
-                      {/* Pinned official folders */}
-                      {pinnedOfficialFolders.map(folder => (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => openBrowseDialog('official')}
+                      >
+                        <ChevronDown className="h-3.5 w-3.5 mr-1" />
+                        {chrome.i18n.getMessage('browseMore')}
+                      </Button>
+                    </div>
+                    
+                    {/* Pinned official folders */}
+                    {pinnedOfficialFolders.length > 0 ? (
+                      pinnedOfficialFolders.map(folder => (
                         <SubFolder
                           key={`official-folder-${folder.id}`}
                           folder={folder}
                           onUseTemplate={onTemplateClick}
                           onEditTemplate={openEditDialog}
                           onDeleteTemplate={handleDeleteTemplate}
+                          type="official"
+                          isPinned={true}
+                          onTogglePin={(folderId, isPinned, e) => handleTogglePin(folderId, isPinned, 'official')}
                         />
-                      ))}
-                    </div>
-                  )}
+                      ))
+                    ) : (
+                      <div className="text-center py-2 text-sm text-muted-foreground">
+                        No pinned official templates. Click 'Browse More' to add some.
+                      </div>
+                    )}
+                  </div>
 
                   {/* Organization Templates Section */}
-                  {pinnedOrganizationFolders.length > 0 && (
-                    <div className="p-2 border-t">
-                      <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
-                        <div className="flex items-center">
-                          <Users className="mr-2 h-4 w-4" />
-                          {chrome.i18n.getMessage('organizationTemplates')}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-xs"
-                          onClick={() => setBrowseMoreOpen(true)}
-                        >
-                          <ChevronDown className="h-3.5 w-3.5 mr-1" />
-                          {chrome.i18n.getMessage('browseMore')}
-                        </Button>
+                  <div className="p-2 border-t">
+                    <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
+                      <div className="flex items-center">
+                        <Users className="mr-2 h-4 w-4" />
+                        {chrome.i18n.getMessage('organizationTemplates')}
                       </div>
-                      
-                      {/* Pinned organization folders */}
-                      {pinnedOrganizationFolders.map(folder => (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => openBrowseDialog('organization')}
+                      >
+                        <ChevronDown className="h-3.5 w-3.5 mr-1" />
+                        {chrome.i18n.getMessage('browseMore')}
+                      </Button>
+                    </div>
+                    
+                    {/* Pinned organization folders */}
+                    {pinnedOrganizationFolders.length > 0 ? (
+                      pinnedOrganizationFolders.map(folder => (
                         <SubFolder
                           key={`org-folder-${folder.id}`}
                           folder={folder}
                           onUseTemplate={onTemplateClick}
                           onEditTemplate={openEditDialog}
                           onDeleteTemplate={handleDeleteTemplate}
+                          type="organization"
+                          isPinned={true}
+                          onTogglePin={(folderId, isPinned, e) => handleTogglePin(folderId, isPinned, 'organization')}
                         />
-                      ))}
-                    </div>
-                  )}
+                      ))
+                    ) : (
+                      <div className="text-center py-2 text-sm text-muted-foreground">
+                        No pinned organization templates. Click 'Browse More' to add some.
+                      </div>
+                    )}
+                  </div>
 
                   {/* User Templates Section */}
                   {userFolders.length > 0 && (
@@ -333,12 +402,13 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                           onUseTemplate={onTemplateClick}
                           onEditTemplate={openEditDialog}
                           onDeleteTemplate={handleDeleteTemplate}
+                          type="user"
                         />
                       ))}
                     </div>
                   )}
                   
-                  {/* Empty state - show when no templates or folders are found */}
+                  {/* Empty state - show when no templates or folders of any kind are found */}
                   {pinnedOfficialFolders.length === 0 && 
                    pinnedOrganizationFolders.length === 0 && 
                    userFolders.length === 0 && (
@@ -363,7 +433,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         </Card>
       )}
       
-      {/* Only render the dialog when it's open */}
+      {/* Template Edit Dialog */}
       {editDialogOpen && (
         <TemplateDialog
           open={editDialogOpen}
@@ -374,6 +444,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           onSaveTemplate={handleSaveTemplate}
         />
       )}
+      
+      {/* Browse Folders Dialog */}
+      <BrowseFoldersDialog
+        open={browseDialogOpen}
+        onOpenChange={setBrowseDialogOpen}
+        folderType={browseFolderType}
+        pinnedFolderIds={browseFolderType === 'official' ? pinnedOfficialFolderIds : pinnedOrganizationFolderIds}
+        onPinChange={handleDialogPinChange}
+      />
       
       {/* Placeholder Editor Dialog */}
       {selectedTemplate && (
