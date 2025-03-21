@@ -21,7 +21,7 @@ class PromptApiClient {
       }
       
       // Build the endpoint with the proper query parameters
-      let endpoint = `/prompt/template-folders?type=${type}`;
+      let endpoint = `/prompts/folders/template-folders?type=${type}`;
       
       // Add folder_ids as a comma-separated string for efficiency
       if ((type === 'official' || type === 'organization') && folderIds.length > 0) {
@@ -60,7 +60,7 @@ class PromptApiClient {
       console.log(`Fetching all ${type} folders`);
       
       // Use the same endpoint but without folder_ids to get all folders
-      const endpoint = `/prompt/template-folders?type=${type}&empty=${empty ? 'true' : 'false'}`;
+      const endpoint = `/prompts/folders/template-folders?type=${type}&empty=${empty ? 'true' : 'false'}`;
       
       console.log(`Making API request to: ${endpoint}`);
       
@@ -87,50 +87,24 @@ class PromptApiClient {
    */
   async updatePinnedFolders(type: 'official' | 'organization', folderIds: number[]) {
     try {
-      // Determine which field to update based on type
-      const field = type === 'official' 
-        ? 'pinned_official_folder_ids' 
-        : 'pinned_organization_folder_ids';
-      
-      // Get the current user data from storage to include required fields
-      const userData = await this.getUserFromStorage();
-      if (!userData || !userData.metadata) {
-        throw new Error('User data not found in storage');
-      }
+      // Determine which endpoint to use based on folder type
+      const endpoint = type === 'official' 
+        ? '/prompts/folders/update-pinned' 
+        : '/prompts/folders/update-pinned';
       
       // Create payload with the required fields
       const payload = {
-        email: userData.metadata.additional_email || userData.email || '',
-        name: userData.metadata.name || userData.user_metadata?.name || '',
-        [field]: folderIds
+        official_folder_ids: type === 'official' ? folderIds : [],
+        organization_folder_ids: type === 'organization' ? folderIds : []
       };
       
       console.log(`Updating pinned ${type} folders:`, folderIds);
       
-      // Use your existing user metadata endpoint
-      const response = await apiClient.request('/save/user_metadata', {
+      // Use your existing API endpoint
+      const response = await apiClient.request(endpoint, {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      
-      // If successful, also update local storage
-      if (response.success) {
-        // Update the appropriate field in user metadata
-        const updatedMetadata = {
-          ...userData.metadata,
-          [field]: folderIds
-        };
-        
-        // Update the user object with new metadata
-        const updatedUser = {
-          ...userData,
-          metadata: updatedMetadata
-        };
-        
-        // Save back to storage
-        await this.updateUserInStorage(updatedUser);
-        console.log(`Updated user storage with new ${type} folder IDs:`, folderIds);
-      }
       
       return response;
     } catch (error) {
@@ -143,11 +117,47 @@ class PromptApiClient {
   }
   
   /**
+   * Toggle pin status for a single folder
+   * @param folderId - ID of the folder to toggle
+   * @param isPinned - Current pin status (true if pinned, false if not)
+   * @param type - Type of folder (official or organization)
+   */
+  async toggleFolderPin(folderId: number, isPinned: boolean, type: 'official' | 'organization') {
+    try {
+      // Determine which endpoint to use based on current pin status
+      const endpoint = isPinned 
+        ? `/prompts/folders/unpin/${folderId}` 
+        : `/prompts/folders/pin/${folderId}`;
+      
+      // Create payload with the folder type
+      const payload = {
+        is_official: type === 'official'
+      };
+      
+      console.log(`${isPinned ? 'Unpinning' : 'Pinning'} ${type} folder: ${folderId}`);
+      
+      // Make the API request
+      const response = await apiClient.request(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      
+      return response;
+    } catch (error) {
+      console.error(`Error toggling pin for ${type} folder ${folderId}:`, error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+  
+  /**
    * Create a new template
    */
   async createTemplate(templateData: any) {
     try {
-      const response = await apiClient.request('/prompt/template', {
+      const response = await apiClient.request('/prompts/templates', {
         method: 'POST',
         body: JSON.stringify(templateData)
       });
@@ -166,7 +176,7 @@ class PromptApiClient {
    */
   async updateTemplate(templateId: number, templateData: any) {
     try {
-      const response = await apiClient.request(`/prompt/template/${templateId}`, {
+      const response = await apiClient.request(`/prompts/templates/${templateId}`, {
         method: 'PUT',
         body: JSON.stringify(templateData)
       });
@@ -185,12 +195,49 @@ class PromptApiClient {
    */
   async deleteTemplate(templateId: number) {
     try {
-      const response = await apiClient.request(`/prompt/template/${templateId}`, {
+      const response = await apiClient.request(`/prompts/templates/${templateId}`, {
         method: 'DELETE'
       });
       return response;
     } catch (error) {
       console.error('Error deleting template:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * Create a new folder
+   */
+  async createFolder(folderData: any) {
+    try {
+      const response = await apiClient.request('/prompts/folders', {
+        method: 'POST',
+        body: JSON.stringify(folderData)
+      });
+      return response;
+    } catch (error) {
+      console.error('Error creating folder:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * Delete a folder
+   */
+  async deleteFolder(folderId: number) {
+    try {
+      const response = await apiClient.request(`/prompts/folders/${folderId}`, {
+        method: 'DELETE'
+      });
+      return response;
+    } catch (error) {
+      console.error('Error deleting folder:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -218,6 +265,41 @@ class PromptApiClient {
         resolve(true);
       });
     });
+  }
+
+  /**
+   * Track template usage
+   * @param templateId - ID of the template being used
+   */
+  async trackTemplateUsage(templateId: number) {
+    try {
+      const response = await apiClient.request(`/prompts/templates/use/${templateId}`, {
+        method: 'POST'
+      });
+      return response;
+    } catch (error) {
+      console.error('Error tracking template usage:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * Get user metadata
+   */
+  async getUserMetadata() {
+    try {
+      const response = await apiClient.request('/user/metadata');
+      return response;
+    } catch (error) {
+      console.error('Error getting user metadata:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
   }
 }
 
