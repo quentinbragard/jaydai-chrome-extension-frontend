@@ -1,5 +1,5 @@
 // src/components/MainButton/hooks/useMainButtonState.ts
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export interface UseMainButtonStateProps {
   onSettingsClick?: () => void;
@@ -21,6 +21,7 @@ export function useMainButtonState({ onSettingsClick, onSaveClick }: UseMainButt
     const fetchNotificationCount = async () => {
       try {
         // You would typically call an API service here
+        // For now we use a mock count
         setNotificationCount(3); // Example count - replace with actual API call
       } catch (error) {
         console.error('Failed to fetch notification count:', error);
@@ -95,32 +96,32 @@ export function useMainButtonState({ onSettingsClick, onSaveClick }: UseMainButt
   }, [isOpen, isPlaceholderEditorOpen]);
 
   // UI event handlers
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+  const toggleMenu = useCallback(() => {
+    setIsOpen(prevIsOpen => !prevIsOpen);
+  }, []);
 
-  const handleClosePanel = () => {
+  const handleClosePanel = useCallback(() => {
     setIsOpen(false);
-  };
+  }, []);
 
-  const handleImageLoad = () => {
+  const handleImageLoad = useCallback(() => {
     setImageLoaded(true);
-  };
+  }, []);
 
-  const handleImageError = () => {
+  const handleImageError = useCallback(() => {
     setImageLoaded(false);
     console.error("Failed to load logo image");
-  };
+  }, []);
 
-  const handleSaveClick = () => {
+  const handleSaveClick = useCallback(() => {
     if (onSaveClick) onSaveClick();
     handleClosePanel();
-  };
+  }, [onSaveClick, handleClosePanel]);
 
-  const handleSettingsClick = () => {
+  const handleSettingsClick = useCallback(() => {
     if (onSettingsClick) onSettingsClick();
     handleClosePanel();
-  };
+  }, [onSettingsClick, handleClosePanel]);
 
   return {
     // State

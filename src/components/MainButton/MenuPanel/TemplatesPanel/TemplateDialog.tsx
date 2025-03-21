@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Template, TemplateFormData, TemplateFolder } from './types';
+import { Template, TemplateFormData, TemplateFolder, DEFAULT_FORM_DATA } from './types';
 
 interface TemplateDialogProps {
   open: boolean;
@@ -22,15 +22,6 @@ interface TemplateDialogProps {
   onSaveTemplate: () => void;
   userFolders?: TemplateFolder[];
 }
-
-// Default form data to use as fallback
-const DEFAULT_FORM_DATA: TemplateFormData = {
-  name: '',
-  content: '',
-  description: '',
-  folder: '',
-  based_on_official_id: null
-};
 
 const TemplateDialog: React.FC<TemplateDialogProps> = ({
   open,
@@ -45,6 +36,7 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
   const safeFormData = formData || DEFAULT_FORM_DATA;
   const [selectedFolderId, setSelectedFolderId] = useState<string>('');
   const [useFolderPath, setUseFolderPath] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Flatten folder hierarchy for select dropdown
   const [flattenedFolders, setFlattenedFolders] = useState<{id: number, name: string, path: string}[]>([]);
@@ -63,6 +55,8 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
     
     const processFolders = (folders: TemplateFolder[], parentPath = '') => {
       folders.forEach(folder => {
+        if (!folder || !folder.id || !folder.name) return;
+        
         const fullPath = parentPath ? `${parentPath}/${folder.name}` : folder.name;
         flattened.push({
           id: folder.id,
@@ -81,7 +75,7 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
   }, [currentTemplate, userFolders]);
   
   // Safe handler for form changes that won't fail if formData is undefined
-  const handleFormChange = (field: keyof TemplateFormData, value: string) => {
+  const handleFormChange = (field: keyof TemplateFormData, value: any) => {
     onFormChange({
       ...safeFormData,
       [field]: value
@@ -96,7 +90,9 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
     // Find the selected folder's path
     const selectedFolder = flattenedFolders.find(f => f.id.toString() === folderId);
     if (selectedFolder) {
+      // Update both folder path and folder_id
       handleFormChange('folder', selectedFolder.path);
+      handleFormChange('folder_id', selectedFolder.id);
     }
   };
   
@@ -105,6 +101,28 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
     setUseFolderPath(!useFolderPath);
     if (!useFolderPath) {
       setSelectedFolderId('');
+      // Clear folder_id when switching to manual path
+      handleFormChange('folder_id', undefined);
+    }
+  };
+
+  // Handle save with loading state
+  const handleSave = async () => {
+    if (!safeFormData.name.trim()) {
+      alert('Template name is required');
+      return;
+    }
+
+    if (!safeFormData.content.trim()) {
+      alert('Template content is required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSaveTemplate();
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -193,11 +211,20 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
             {chrome.i18n.getMessage('cancel')}
           </Button>
-          <Button onClick={onSaveTemplate}>
-            {currentTemplate ? chrome.i18n.getMessage('update') : chrome.i18n.getMessage('create')}
+          <Button onClick={handleSave} disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <span className="mr-2">
+                  <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin rounded-full inline-block"></div>
+                </span>
+                {currentTemplate ? chrome.i18n.getMessage('updating') : chrome.i18n.getMessage('creating')}
+              </>
+            ) : (
+              currentTemplate ? chrome.i18n.getMessage('update') : chrome.i18n.getMessage('create')
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

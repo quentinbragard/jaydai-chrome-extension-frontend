@@ -13,7 +13,28 @@ export interface Template {
   created_at?: string;
   updated_at?: string;
   organization_id?: number;
+  usage_count?: number;
 }
+
+export interface TemplateFormData {
+  name: string;
+  content: string;
+  description: string;
+  folder: string;
+  folder_id?: number; // Add folder_id field to properly track selected folders
+  based_on_official_id: number | null;
+}
+
+// Default form data with the correct structure
+export const DEFAULT_FORM_DATA: TemplateFormData = {
+  name: '',
+  content: '',
+  description: '',
+  folder: '',
+  folder_id: undefined,
+  based_on_official_id: null
+};
+
 
 export interface TemplateFolder {
   id: number;
@@ -41,13 +62,6 @@ export interface TemplateCollection {
   };
 }
 
-export interface TemplateFormData {
-  name: string;
-  content: string;
-  description: string;
-  folder: string;
-  based_on_official_id: number | null;
-}
 
 export interface TemplatesPanelProps {
   onClose?: () => void;

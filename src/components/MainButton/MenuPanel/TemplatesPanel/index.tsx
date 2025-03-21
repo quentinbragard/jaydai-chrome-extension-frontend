@@ -44,23 +44,34 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     error
   } = useTemplates();
 
-  // Local loading state with a timeout
+  // Local loading state with a timeout to prevent infinite loading
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingTimeoutId, setLoadingTimeoutId] = useState<number | null>(null);
   
   // Create a timeout to set loading to false after a reasonable time
-  // This prevents infinite loading if something goes wrong
   useEffect(() => {
     setIsLoading(templatesLoading);
     
-    // Safety timeout - if loading takes more than 10 seconds, stop showing loading
-    const timer = setTimeout(() => {
-      if (isLoading) {
+    // Clear any existing timeout
+    if (loadingTimeoutId) {
+      window.clearTimeout(loadingTimeoutId);
+    }
+    
+    // Safety timeout - if loading takes more than 8 seconds, stop showing loading
+    if (templatesLoading) {
+      const timeoutId = window.setTimeout(() => {
         console.warn('Loading timeout reached - forcing loading state to false');
         setIsLoading(false);
-      }
-    }, 10000);
+      }, 8000);
+      
+      setLoadingTimeoutId(timeoutId);
+    }
     
-    return () => clearTimeout(timer);
+    return () => {
+      if (loadingTimeoutId) {
+        window.clearTimeout(loadingTimeoutId);
+      }
+    };
   }, [templatesLoading]);
 
   // Log loading state for debugging

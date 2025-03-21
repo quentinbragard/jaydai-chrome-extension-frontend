@@ -1,10 +1,11 @@
-// src/features/MainButton/components/MenuPanel/index.tsx
+// src/components/MainButton/MenuPanel/index.tsx
 import React from 'react';
 import { useMenuPanel } from '../hooks/useMenuPanel';
 import MenuPanelHeader from './MenuPanelHeader';
 import MenuPanelMenu from './MenuPanelMenu';
 import TemplatesPanel from '@/components/MainButton/MenuPanel/TemplatesPanel';
 import NotificationsPanel from '@/components/MainButton/MenuPanel/NotificationsPanel';
+import { FolderOpen, Activity } from 'lucide-react';
 
 export interface MenuPanelProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
     pushPanel,
     popPanel,
     getTitle,
+    getIcon,
   } = useMenuPanel();
 
   // Render the appropriate content based on the current panel
@@ -75,13 +77,14 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   return (
     <div
       ref={menuRef}
-      className="absolute backdrop-blur-sm bottom-full mb-2 right-0 animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-150"
+      className="absolute backdrop-blur-sm bottom-full mb-2 right-0 animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-150 shadow-lg rounded-md overflow-hidden"
     >
       <MenuPanelHeader
         showBackButton={navStack.length > 1}
         onBack={popPanel}
         onClose={onClosePanel}
         title={getTitle()}
+        icon={getIcon()}
       />
       <div className="p-2 dark:bg-white dark:text-black bg-gray-800 rounded-b-md">{renderContent()}</div>
     </div>

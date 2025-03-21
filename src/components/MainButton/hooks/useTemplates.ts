@@ -1,18 +1,10 @@
-// src/features/Templates/hooks/useTemplates.ts
+// src/components/MainButton/hooks/useTemplates.ts - Improved template management
+
 import { useState, useCallback, useEffect } from 'react';
-import { Template, TemplateFormData } from '../types';
+import { Template, TemplateFormData, DEFAULT_FORM_DATA } from '../MenuPanel/TemplatesPanel/types';
 import { toast } from 'sonner';
 import { promptApi } from '@/api/PromptApi';
 import { useFolders } from './useFolders';
-
-// Default form data
-const DEFAULT_FORM_DATA: TemplateFormData = {
-  name: '',
-  content: '',
-  description: '',
-  folder: '',
-  based_on_official_id: null
-};
 
 export function useTemplates() {
   // Get folder functionality
@@ -48,6 +40,12 @@ export function useTemplates() {
 
   // Handle template usage
   const handleUseTemplate = async (template: Template) => {
+    // Valid template check
+    if (!template || !template.content) {
+      toast.error('Invalid template selected');
+      return;
+    }
+    
     setSelectedTemplate(template);
     setPlaceholderEditorOpen(true);
     
@@ -101,11 +99,13 @@ export function useTemplates() {
       setCurrentFolderContext(null);
     }
     
+    // Initialize form data from template or defaults
     setTemplateFormData(template ? {
       name: template.title || '',
       content: template.content || '',
       description: template.description || '',
       folder: template.folder || template.path || '',
+      folder_id: template.folder_id,
       based_on_official_id: template.based_on_official_id ?? null
     } : {
       ...DEFAULT_FORM_DATA,
@@ -115,27 +115,35 @@ export function useTemplates() {
     setEditDialogOpen(true);
   };
   
+  // Save or update a template
   const handleSaveTemplate = useCallback(async () => {
     try {
-      if (!templateFormData.name || !templateFormData.content) {
-        toast.error('Name and content are required');
+      // Form validation
+      if (!templateFormData.name?.trim()) {
+        toast.error('Template name is required');
+        return;
+      }
+      
+      if (!templateFormData.content?.trim()) {
+        toast.error('Template content is required');
         return;
       }
       
       setLoading(true);
       setError(null);
       
-      // If we have a current folder context but no folder specified in the form,
-      // use the folder context
+      // Determine folder path to use
       const folderToUse = templateFormData.folder || currentFolderContext || '';
       
       // Prepare template data
       const templateData = {
-        name: templateFormData.name,
-        content: templateFormData.content,
-        description: templateFormData.description || '',
+        name: templateFormData.name.trim(),
+        content: templateFormData.content.trim(),
+        description: templateFormData.description?.trim() || '',
         folder: folderToUse,
-        based_on_official_id: templateFormData.based_on_official_id
+        folder_id: templateFormData.folder_id, // Include folder_id
+        based_on_official_id: templateFormData.based_on_official_id,
+        type: 'user' // Explicitly set type
       };
       
       console.log('Saving template with data:', templateData);
@@ -150,14 +158,20 @@ export function useTemplates() {
         response = await promptApi.createTemplate(templateData);
       }
       
-      if (response.success) {
+      console.log('Template save response:', response);
+      
+      if (response && response.success) {
         toast.success(selectedTemplate ? 'Template updated' : 'Template created');
         setEditDialogOpen(false);
+        
+        // Clear form data and selection
+        setTemplateFormData(DEFAULT_FORM_DATA);
+        setSelectedTemplate(null);
         
         // Refresh folders to show the new or updated template
         await loadFolders();
       } else {
-        const errorMessage = `Failed to ${selectedTemplate ? 'update' : 'create'} template: ${response.error || 'Unknown error'}`;
+        const errorMessage = `Failed to ${selectedTemplate ? 'update' : 'create'} template: ${response?.error || 'Unknown error'}`;
         setError(errorMessage);
         toast.error(errorMessage);
       }
@@ -171,18 +185,22 @@ export function useTemplates() {
     }
   }, [templateFormData, currentFolderContext, selectedTemplate, loadFolders]);
   
+  // Delete a template with confirmation
   const handleDeleteTemplate = useCallback(async (template: Template, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm(`Delete "${template.title}"?`)) return;
+    
+    // Valid template check
+    if (!template || !template.id) {
+      toast.error('Invalid template selected');
+      return;
+    }
+    
+    // Confirmation dialog
+    if (!window.confirm(`Delete "${template.title || 'this template'}"?`)) return;
     
     try {
       setLoading(true);
       setError(null);
-      
-      if (!template.id) {
-        toast.error('Template ID is missing');
-        return;
-      }
       
       const response = await promptApi.deleteTemplate(template.id);
       

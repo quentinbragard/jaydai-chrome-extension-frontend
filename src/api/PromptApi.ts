@@ -152,15 +152,30 @@ class PromptApiClient {
     }
   }
   
-  /**
-   * Create a new template
-   */
   async createTemplate(templateData: any) {
     try {
+      // Ensure required fields are present
+      if (!templateData.name || !templateData.content) {
+        return {
+          success: false,
+          error: 'Name and content are required'
+        };
+      }
+      
+      // Ensure type is set to "user" for user-created templates
+      const dataToSend = {
+        ...templateData,
+        type: "user"  // Explicitly set type to "user"
+      };
+      
+      console.log('Creating template with data:', dataToSend);
+      
       const response = await apiClient.request('/prompts/templates', {
         method: 'POST',
-        body: JSON.stringify(templateData)
+        body: JSON.stringify(dataToSend)
       });
+      
+      console.log('Template creation response:', response);
       return response;
     } catch (error) {
       console.error('Error creating template:', error);
@@ -171,15 +186,21 @@ class PromptApiClient {
     }
   }
   
-  /**
-   * Update an existing template
-   */
   async updateTemplate(templateId: number, templateData: any) {
     try {
+      // Ensure we don't change the type when updating
+      const dataToSend = {
+        ...templateData
+      };
+      
+      console.log(`Updating template ${templateId} with data:`, dataToSend);
+      
       const response = await apiClient.request(`/prompts/templates/${templateId}`, {
         method: 'PUT',
-        body: JSON.stringify(templateData)
+        body: JSON.stringify(dataToSend)
       });
+      
+      console.log('Template update response:', response);
       return response;
     } catch (error) {
       console.error('Error updating template:', error);

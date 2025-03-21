@@ -5,6 +5,9 @@ import MenuPanel from './MenuPanel';
 import { useMainButtonState } from './hooks/useMainButtonState';
 import { MainButtonProps } from './types';
 
+/**
+ * Main floating button component that opens various panels
+ */
 const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick }) => {
   const {
     isOpen,
@@ -25,15 +28,17 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
     <div className="fixed bottom-6 right-2 z-[9999]">
       <div className="relative w-24 h-24 flex items-center justify-center">
         {/* Panel that appears above the main button */}
-        <MenuPanel
-          isOpen={isOpen}
-          notificationCount={notificationCount}
-          menuRef={menuRef}
-          onClosePanel={handleClosePanel}
-          onSaveClick={handleSaveClick}
-          onSettingsClick={handleSettingsClick}
-          setIsPlaceholderEditorOpen={setIsPlaceholderEditorOpen}
-        />
+        {isOpen && (
+          <MenuPanel
+            isOpen={isOpen}
+            notificationCount={notificationCount}
+            menuRef={menuRef}
+            onClosePanel={handleClosePanel}
+            onSaveClick={handleSaveClick}
+            onSettingsClick={handleSettingsClick}
+            setIsPlaceholderEditorOpen={setIsPlaceholderEditorOpen}
+          />
+        )}
 
         {/* Main Button with logo */}
         <ButtonIcon
@@ -45,7 +50,7 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
           handleImageError={handleImageError}
         />
       </div>
-      <Toaster />
+      <Toaster richColors position="top-right" />
     </div>
   );
 };
