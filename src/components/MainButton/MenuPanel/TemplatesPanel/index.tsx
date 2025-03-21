@@ -52,43 +52,59 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     placeholderEditorOpen ? "editor-active opacity-30" : "opacity-100"
   );
 
-  // Handle pin/unpin for official folders
+  // Handle pin/unpin for official folders with improved error handling
   const handleToggleOfficialPin = async (folderId: number, isPinned: boolean) => {
     try {
+      console.log(`Toggling official folder pin: ID ${folderId}, isPinned: ${isPinned}`);
+      
       const response = await promptApi.toggleFolderPin(folderId, isPinned, 'official');
-      console.log('response', response);
+      console.log('Toggle pin response:', response);
+      
+      if (!response) {
+        throw new Error('No response received from toggleFolderPin');
+      }
       
       if (response.success) {
         toast.success(isPinned ? 'Folder unpinned' : 'Folder pinned');
         // Refresh folders after pin/unpin
         refreshFolders();
       } else {
-        toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder: ${response.error}`);
+        toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder: ${response.error || 'Unknown error'}`);
       }
       
       return Promise.resolve();
     } catch (error) {
-      toast.error('Failed to update folder pin status');
+      console.error('Error toggling official folder pin:', error);
+      toast.error(`Failed to update folder pin status: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return Promise.reject(error);
     }
   };
 
-  // Handle pin/unpin for organization folders
+  // Handle pin/unpin for organization folders with improved error handling
   const handleToggleOrganizationPin = async (folderId: number, isPinned: boolean) => {
     try {
+      console.log(`Toggling organization folder pin: ID ${folderId}, isPinned: ${isPinned}`);
+      
+      // Use the correct 'organization' type
       const response = await promptApi.toggleFolderPin(folderId, isPinned, 'organization');
+      console.log('Toggle organization pin response:', response);
+      
+      if (!response) {
+        throw new Error('No response received from toggleFolderPin');
+      }
       
       if (response.success) {
         toast.success(isPinned ? 'Folder unpinned' : 'Folder pinned');
         // Refresh folders after pin/unpin
         refreshFolders();
       } else {
-        toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder: ${response.error}`);
+        toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder: ${response.error || 'Unknown error'}`);
       }
       
       return Promise.resolve();
     } catch (error) {
-      toast.error('Failed to update folder pin status');
+      console.error('Error toggling organization folder pin:', error);
+      toast.error(`Failed to update folder pin status: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return Promise.reject(error);
     }
   };

@@ -280,3 +280,79 @@
   transition: opacity 0.3s ease, filter 0.3s ease;
   pointer-events: none;
 }
+
+/* Add these to your content.css file */
+
+/* Ensure dialogs are positioned correctly */
+.dialog-content {
+  z-index: 10001 !important; /* Higher than the MenuPanel */
+}
+
+.dialog-overlay {
+  z-index: 10000 !important; /* Slightly lower than content, higher than MenuPanel */
+}
+
+/* Make templates panel fade out when editor is active */
+.templates-panel-container.editor-active {
+  opacity: 0.2;
+  filter: blur(2px);
+  transition: opacity 0.3s ease, filter 0.3s ease;
+  pointer-events: none;
+}
+
+/* Improve folder tree visualization */
+.subfolder-container {
+  position: relative;
+}
+
+.subfolder-content {
+  border-left: 1px dashed rgba(128, 128, 128, 0.2);
+  margin-left: 0.75rem;
+  padding-left: 0.75rem;
+}
+
+.subfolder-header {
+  transition: background-color 0.2s ease;
+}
+
+.subfolder-header:hover {
+  background-color: rgba(128, 128, 128, 0.1);
+}
+
+/* Enhanced template item styling */
+.template-item {
+  transition: background-color 0.2s ease;
+  border-radius: 0.25rem;
+  position: relative;
+}
+
+.template-item:hover {
+  background-color: rgba(128, 128, 128, 0.1);
+}
+
+.template-item::before {
+  content: '';
+  position: absolute;
+  left: -0.75rem;
+  top: 50%;
+  width: 0.5rem;
+  height: 1px;
+  background-color: rgba(128, 128, 128, 0.2);
+}
+
+/* Menu panel z-index and animations */
+.menu-panel {
+  z-index: 9999;
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

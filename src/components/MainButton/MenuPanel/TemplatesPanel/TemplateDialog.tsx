@@ -4,7 +4,9 @@ import {
   DialogContent, 
   DialogDescription, 
   DialogHeader, 
-  DialogTitle 
+  DialogTitle,
+  DialogFooter,
+  DialogOverlay  
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,7 +26,8 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
   name: '',
   content: '',
   description: '',
-  folder: ''
+  folder: '',
+  based_on_official_id: null
 };
 
 const TemplateDialog: React.FC<TemplateDialogProps> = ({
@@ -48,7 +51,8 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogOverlay className="bg-black/70 backdrop-blur-sm z-[10000]" />
+      <DialogContent className="z-[10001]">
         <DialogHeader>
           <DialogTitle>
             {currentTemplate ? chrome.i18n.getMessage('editTemplate') : chrome.i18n.getMessage('createTemplateTitle')}
@@ -101,14 +105,14 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
           </div>
         </div>
         
-        <div className="flex justify-end gap-2">
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {chrome.i18n.getMessage('cancel')}
           </Button>
           <Button onClick={onSaveTemplate}>
             {currentTemplate ? chrome.i18n.getMessage('update') : chrome.i18n.getMessage('create')}
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

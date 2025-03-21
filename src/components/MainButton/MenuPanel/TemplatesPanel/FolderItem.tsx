@@ -19,86 +19,8 @@ interface FolderItemProps {
   onTogglePin?: (folderId: number, isPinned: boolean, e: React.MouseEvent) => void;
   onDeleteFolder?: (folderId: number) => Promise<boolean>;
   type?: 'official' | 'organization' | 'user';
+  level?: number; // Track nesting level to prevent infinite recursion
 }
-
-// Helper function to organize templates into a folder structure based on paths
-const organizeTemplatesByPath = (templates: Template[]) => {
-  if (!templates || !Array.isArray(templates)) {
-    console.log('Templates is not an array', templates);
-    return { rootTemplates: [], subfolders: [] };
-  }
-
-  const rootTemplates: Template[] = [];
-  const subfolders: Record<string, TemplateFolder> = {};
-
-  templates.forEach(template => {
-    if (!template) {
-      console.log('Template is undefined');
-      return;
-    }
-
-    if (!template.path || template.path === '') {
-      // Templates without a path or with empty path go to the root
-      rootTemplates.push(template);
-      return;
-    }
-
-    const pathParts = template.path.split('/').filter(Boolean);
-    
-    if (pathParts.length === 0) {
-      // If path is just "/" or empty after filtering, it's a root template
-      rootTemplates.push(template);
-      return;
-    }
-
-    // Build folder hierarchy
-    let currentPath = '';
-    for (let i = 0; i < pathParts.length; i++) {
-      const part = pathParts[i];
-      const isLastPart = i === pathParts.length - 1;
-      const prevPath = currentPath;
-      currentPath = currentPath ? `${currentPath}/${part}` : part;
-
-      // Create folder if it doesn't exist
-      if (!subfolders[currentPath]) {
-        subfolders[currentPath] = {
-          id: 0, // IDs will be generated as needed
-          name: part,
-          templates: [],
-          path: currentPath,
-          subfolders: []
-        };
-      }
-
-      // Add template to the last folder in the path
-      if (isLastPart) {
-        subfolders[currentPath].templates.push(template);
-      }
-
-      // Add this folder as a subfolder of its parent
-      if (prevPath && subfolders[prevPath]) {
-        // Ensure the parent has a subfolders array
-        if (!subfolders[prevPath].subfolders) {
-          subfolders[prevPath].subfolders = [];
-        }
-        
-        // Only add if not already added
-        if (!subfolders[prevPath].subfolders?.some((sf: TemplateFolder) => sf.path === currentPath)) {
-          subfolders[prevPath].subfolders?.push(subfolders[currentPath]);
-        }
-      }
-    }
-  });
-
-  // Return first-level subfolders (direct children of root)
-  return {
-    rootTemplates,
-    subfolders: Object.values(subfolders).filter(folder => {
-      const pathParts = folder.path?.split('/').filter(Boolean) || [];
-      return pathParts.length === 1;
-    })
-  };
-};
 
 const FolderItem: React.FC<FolderItemProps> = ({
   folder,
@@ -108,9 +30,17 @@ const FolderItem: React.FC<FolderItemProps> = ({
   isPinned = false,
   onTogglePin,
   onDeleteFolder,
-  type = 'user'
+  type = 'user',
+  level = 0
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Prevent infinite recursion by limiting depth
+  const MAX_DEPTH = 5;
+  if (level > MAX_DEPTH) {
+    console.warn(`Maximum folder depth reached: ${folder.name}`);
+    return null;
+  }
 
   const toggleExpand = () => setIsExpanded(!isExpanded);
   
@@ -127,26 +57,89 @@ const FolderItem: React.FC<FolderItemProps> = ({
     }
   };
 
-  // Organize templates by path
-  const { rootTemplates, subfolders } = useMemo(() => {
-    // Add null check for folder
+  // Process templates and create folder structure
+  const { directTemplates, subfolders } = useMemo(() => {
     if (!folder || !folder.templates) {
-      console.log('Folder or templates is undefined', folder);
-      return { rootTemplates: [], subfolders: [] };
+      return { directTemplates: [], subfolders: {} };
     }
-    
-    return organizeTemplatesByPath(folder.templates);
+
+    const directTemplates: Template[] = [];
+    const subfolders: Record<string, {
+      name: string,
+      templates: Template[],
+      children: Record<string, any>
+    }> = {};
+
+    folder.templates.forEach(template => {
+      if (!template.path || template.path === '') {
+        // Templates without path go directly in this folder
+        directTemplates.push(template);
+        return;
+      }
+
+      // Split the path and process
+      const pathParts = template.path.split('/').filter(Boolean);
+      
+      if (pathParts.length === 0) {
+        // Empty path after filtering - add to direct templates
+        directTemplates.push(template);
+        return;
+      }
+
+      // Process the path parts to create the folder hierarchy
+      let currentLevel = subfolders;
+      let currentPath = '';
+
+      pathParts.forEach((part, index) => {
+        currentPath = currentPath ? `${currentPath}/${part}` : part;
+        
+        // Create this level if it doesn't exist
+        if (!currentLevel[part]) {
+          currentLevel[part] = {
+            name: part,
+            templates: [],
+            children: {}
+          };
+        }
+        
+        // If this is the last path part, add the template to this folder
+        if (index === pathParts.length - 1) {
+          currentLevel[part].templates.push(template);
+        }
+        
+        // Move to the next level for the next iteration
+        currentLevel = currentLevel[part].children;
+      });
+    });
+
+    return { 
+      directTemplates, 
+      subfolders 
+    };
   }, [folder]);
+
+  // Convert the subfolders object to an array for rendering
+  const subfoldersArray = useMemo(() => {
+    return Object.entries(subfolders).map(([key, value]) => ({
+      id: 0, // Temporary ID
+      name: value.name,
+      templates: value.templates,
+      subfolderMap: value.children,
+      path: key
+    }));
+  }, [subfolders]);
 
   // If folder is undefined, don't render anything
   if (!folder) {
-    console.log('Folder is undefined, not rendering');
     return null;
   }
 
   return (
     <div className="subfolder-container">
-      <div className="subfolder-header flex items-center p-2 hover:bg-accent cursor-pointer group rounded-sm" onClick={toggleExpand}>
+      <div 
+        className="subfolder-header flex items-center p-2 hover:bg-accent cursor-pointer group rounded-sm" 
+        onClick={toggleExpand}
+      >
         {isExpanded ? <ChevronDown className="h-4 w-4 mr-1" /> : <ChevronRight className="h-4 w-4 mr-1" />}
         <span className="text-sm flex-1">{folder.name}</span>
         
@@ -190,10 +183,10 @@ const FolderItem: React.FC<FolderItemProps> = ({
       
       {isExpanded && (
         <div className="subfolder-content pl-5">
-          {/* Display root-level templates (no path or root path) */}
-          {rootTemplates.map(template => (
+          {/* Direct templates in this folder */}
+          {directTemplates.map(template => (
             <TemplateItem 
-              key={template.id}
+              key={`template-${template.id}`}
               template={template}
               onUseTemplate={onUseTemplate}
               onEditTemplate={onEditTemplate}
@@ -201,18 +194,93 @@ const FolderItem: React.FC<FolderItemProps> = ({
             />
           ))}
           
-          {/* Display subfolders created from paths */}
-          {subfolders.map(subfolder => (
-            <FolderItem
-              key={`${subfolder.path || subfolder.name}`}
-              folder={subfolder}
+          {/* Render subfolders */}
+          {subfoldersArray.map(subfolder => (
+            <SubfolderRenderer
+              key={`subfolder-${subfolder.path}`}
+              name={subfolder.name}
+              templates={subfolder.templates}
+              subfolderMap={subfolder.subfolderMap}
               onUseTemplate={onUseTemplate}
               onEditTemplate={onEditTemplate}
               onDeleteTemplate={onDeleteTemplate}
-              type={type}
-              isPinned={isPinned}
-              onTogglePin={onTogglePin}
-              onDeleteFolder={onDeleteFolder}
+              level={level + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Helper component to render subfolders
+interface SubfolderRendererProps {
+  name: string;
+  templates: Template[];
+  subfolderMap: Record<string, any>;
+  onUseTemplate: (template: Template) => void;
+  onEditTemplate: (template: Template) => void;
+  onDeleteTemplate: (template: Template, e: React.MouseEvent) => void;
+  level: number;
+}
+
+const SubfolderRenderer: React.FC<SubfolderRendererProps> = ({
+  name,
+  templates,
+  subfolderMap,
+  onUseTemplate,
+  onEditTemplate,
+  onDeleteTemplate,
+  level
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpand = () => setIsExpanded(!isExpanded);
+
+  // Convert the subfolders object to an array for rendering
+  const subfoldersArray = useMemo(() => {
+    return Object.entries(subfolderMap).map(([key, value]) => ({
+      name: value.name,
+      templates: value.templates,
+      subfolderMap: value.children,
+      path: key
+    }));
+  }, [subfolderMap]);
+
+  return (
+    <div className="subfolder-container">
+      <div 
+        className="subfolder-header flex items-center p-2 hover:bg-accent cursor-pointer group rounded-sm" 
+        onClick={toggleExpand}
+      >
+        {isExpanded ? <ChevronDown className="h-4 w-4 mr-1" /> : <ChevronRight className="h-4 w-4 mr-1" />}
+        <span className="text-sm flex-1">{name}</span>
+      </div>
+      
+      {isExpanded && (
+        <div className="subfolder-content pl-5">
+          {/* Templates directly in this subfolder */}
+          {templates.map(template => (
+            <TemplateItem 
+              key={`template-${template.id}`}
+              template={template}
+              onUseTemplate={onUseTemplate}
+              onEditTemplate={onEditTemplate}
+              onDeleteTemplate={onDeleteTemplate}
+            />
+          ))}
+          
+          {/* Render nested subfolders */}
+          {subfoldersArray.map(subfolder => (
+            <SubfolderRenderer
+              key={`subfolder-${subfolder.path}`}
+              name={subfolder.name}
+              templates={subfolder.templates}
+              subfolderMap={subfolder.subfolderMap}
+              onUseTemplate={onUseTemplate}
+              onEditTemplate={onEditTemplate}
+              onDeleteTemplate={onDeleteTemplate}
+              level={level + 1}
             />
           ))}
         </div>

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, ChevronRight, ChevronDown, Star, Folder } from "lucide-react";
+import { ChevronRight, ChevronDown, Star, Folder, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { promptApi } from '@/api/PromptApi';
 import { TemplateFolder } from './types';
 import { toast } from 'sonner';
@@ -23,6 +24,8 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
   const [folders, setFolders] = useState<TemplateFolder[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredFolders, setFilteredFolders] = useState<TemplateFolder[]>([]);
   
   // Load all folders of the specified type
   useEffect(() => {
@@ -35,6 +38,7 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
         
         if (response.success && response.folders) {
           setFolders(response.folders);
+          setFilteredFolders(response.folders);
         } else {
           toast.error(`Failed to load ${folderType} folders`);
         }
@@ -48,6 +52,36 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
     
     loadFolders();
   }, [folderType]);
+
+  // Filter folders when search query changes
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredFolders(folders);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    
+    // Helper function to check if a folder or any of its subfolders match the query
+    const folderMatchesQuery = (folder: TemplateFolder): boolean => {
+      // Check if this folder's name matches
+      if (folder.name.toLowerCase().includes(query)) {
+        return true;
+      }
+      
+      // Check if any of its subfolders match
+      if (folder.Folders && folder.Folders.length > 0) {
+        return folder.Folders.some(subfolder => folderMatchesQuery(subfolder));
+      }
+      
+      return false;
+    };
+    
+    // Filter top-level folders
+    const filtered = folders.filter(folder => folderMatchesQuery(folder));
+    setFilteredFolders(filtered);
+    
+  }, [searchQuery, folders]);
   
   // Toggle folder expansion
   const toggleFolder = (folderId: number) => {
@@ -107,22 +141,49 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
         </div>
         
         {isExpanded && folder.Folders && folder.Folders.length > 0 && (
-          <div className="Folder-container pl-5">
-            {folder.Folders.map(Folder => renderFolder(Folder))}
+          <div className="subfolder-content pl-5">
+            {folder.Folders.map(subfolder => renderFolder(subfolder))}
           </div>
         )}
       </div>
     );
   };
   
+  // Reset search and close expanded folders
+  const handleResetSearch = () => {
+    setSearchQuery('');
+    setExpandedFolders(new Set());
+  };
 
-  // Don't use a back button at the top level since we now have it controlled by MenuPanel
   return (
     <Card className="w-80 shadow-lg">
       <CardContent className="p-0">
-        <p className="px-4 py-2 text-xs text-muted-foreground">
-          Pin {folderType} template folders to access them quickly.
-        </p>
+        <div className="p-4">
+          <div className="relative mb-2">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Search ${folderType} folders...`}
+              className="pl-8 pr-8"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                onClick={handleResetSearch}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Pin {folderType} template folders to access them quickly.
+          </p>
+        </div>
+        
+        <Separator />
         
         <div 
           className="overflow-y-auto"
@@ -133,13 +194,17 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
               <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
               <p className="text-sm text-muted-foreground mt-2">Loading folders...</p>
             </div>
-          ) : folders && folders.length > 0 ? (
+          ) : filteredFolders.length > 0 ? (
             <div className="space-y-1 p-2">
-              {folders.map(folder => renderFolder(folder))}
+              {filteredFolders.map(folder => renderFolder(folder))}
             </div>
           ) : (
             <div className="py-8 text-center">
-              <p className="text-sm text-muted-foreground">No folders available</p>
+              {searchQuery ? (
+                <p className="text-sm text-muted-foreground">No folders matching "{searchQuery}"</p>
+              ) : (
+                <p className="text-sm text-muted-foreground">No folders available</p>
+              )}
             </div>
           )}
         </div>

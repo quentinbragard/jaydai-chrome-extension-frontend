@@ -37,6 +37,9 @@ export function useTemplates() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [templateFormData, setTemplateFormData] = useState<TemplateFormData>(DEFAULT_FORM_DATA);
   const [placeholderEditorOpen, setPlaceholderEditorOpen] = useState(false);
+  
+  // Current folder context - store the current folder when creating a template
+  const [currentFolderContext, setCurrentFolderContext] = useState<string | null>(null);
 
   // Load folders on component mount
   useEffect(() => {
@@ -47,6 +50,8 @@ export function useTemplates() {
   const loadFolders = useCallback(async () => {
     setLoading(true);
     try {
+      console.log('Loading folders and templates...');
+      
       // Fetch user's metadata to get pinned folder IDs
       const userMetadataResponse = await promptApi.getUserMetadata();
       
@@ -58,7 +63,8 @@ export function useTemplates() {
       
       // Get pinned official folders
       const officialFolderIds = metadata?.pinned_official_folder_ids || [];
-      console.log("officialFolderIds--->", officialFolderIds)
+      console.log("Official folder IDs:", officialFolderIds);
+      
       let officialFolders: TemplateFolder[] = [];
       
       if (officialFolderIds.length > 0) {
@@ -67,10 +73,12 @@ export function useTemplates() {
           officialFolders = officialResponse.folders || [];
         }
       }
-      console.log("officialFolders--->", officialFolders)
+      console.log("Loaded official folders:", officialFolders);
       
       // Get pinned organization folders
       const orgFolderIds = metadata?.pinned_organization_folder_ids || [];
+      console.log("Organization folder IDs:", orgFolderIds);
+      
       let orgFolders: TemplateFolder[] = [];
       
       if (orgFolderIds.length > 0) {
@@ -79,10 +87,12 @@ export function useTemplates() {
           orgFolders = orgResponse.folders || [];
         }
       }
+      console.log("Loaded organization folders:", orgFolders);
       
       // Get user folders
       const userResponse = await promptApi.getPromptTemplatesFolders('user');
       const userFolders = userResponse.success ? userResponse.folders || [] : [];
+      console.log("Loaded user folders:", userFolders);
       
       // Update state
       setPinnedOfficialFolders(officialFolders);
@@ -159,15 +169,27 @@ export function useTemplates() {
   };
   
   // Template CRUD operations
-  const openEditDialog = (template: Template | null) => {
+  const openEditDialog = (template: Template | null, folderPath?: string) => {
     setSelectedTemplate(template);
+    
+    // If folder path is provided, use it (for creating a template in a specific folder)
+    if (folderPath) {
+      setCurrentFolderContext(folderPath);
+    } else {
+      setCurrentFolderContext(null);
+    }
+    
     setTemplateFormData(template ? {
       name: template.title || '',
       content: template.content || '',
       description: template.description || '',
-      folder: template.folder || '',
+      folder: template.folder || template.path || '',
       based_on_official_id: template.based_on_official_id ?? null
-    } : DEFAULT_FORM_DATA);
+    } : {
+      ...DEFAULT_FORM_DATA,
+      folder: folderPath || '' // Use the provided folder path if available
+    });
+    
     setEditDialogOpen(true);
   };
   
@@ -180,14 +202,20 @@ export function useTemplates() {
       
       setLoading(true);
       
+      // If we have a current folder context but no folder specified in the form,
+      // use the folder context
+      const folderToUse = templateFormData.folder || currentFolderContext || '';
+      
       // Prepare template data
       const templateData = {
         name: templateFormData.name,
         content: templateFormData.content,
         description: templateFormData.description || '',
-        folder: templateFormData.folder || '',
+        folder: folderToUse,
         based_on_official_id: templateFormData.based_on_official_id
       };
+      
+      console.log('Saving template with data:', templateData);
       
       let response;
       
@@ -249,6 +277,8 @@ export function useTemplates() {
     try {
       setLoading(true);
       
+      console.log('Creating folder with data:', folderData);
+      
       const response = await promptApi.createFolder(folderData);
       
       if (response.success) {
@@ -256,6 +286,11 @@ export function useTemplates() {
         
         // Refresh folders to update the UI
         refreshFolders();
+        
+        // Open the template creation dialog with the new folder's path
+        const folderPath = folderData.path || folderData.name;
+        openEditDialog(null, folderPath);
+        
         return true;
       } else {
         toast.error(`Failed to create folder: ${response.error}`);
@@ -317,6 +352,7 @@ export function useTemplates() {
     handleDeleteTemplate,
     refreshFolders,
     createFolder,
-    deleteFolder
+    deleteFolder,
+    currentFolderContext
   };
 }
