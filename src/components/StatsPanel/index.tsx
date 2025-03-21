@@ -28,7 +28,7 @@ export const StatsPanel = () => {
   
   // Animation classes
   const containerClasses = `
-    stats-panel
+    
     bg-white
     dark:bg-black 
     shadow-md
@@ -39,7 +39,7 @@ export const StatsPanel = () => {
     ease-in-out
     backdrop-blur-sm
     overflow-hidden
-    w-96
+    max-w-96
     ${theme === 'dark' ? 'bg-opacity-90 border-slate-700' : 'bg-opacity-95 border-slate-200'}
   `;
   
@@ -82,7 +82,6 @@ export const StatsPanel = () => {
       <div className="px-3 py-2 flex items-center justify-between">
         <div className="flex items-center gap-1">
           <BarChart2 className="h-3.5 w-3.5 text-blue-500 mr-1" />
-          <span className="text-xs font-medium">{chrome.i18n.getMessage('aiStats')}</span>
         </div>
         
         <div className="flex items-center gap-3">

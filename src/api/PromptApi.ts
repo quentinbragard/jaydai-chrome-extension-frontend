@@ -165,11 +165,25 @@ async createTemplate(templateData: any) {
       };
     }
     
-    console.log('Creating template with data:', templateData);
+    // Create a proper API request body
+    const requestBody = {
+      title: templateData.title,
+      content: templateData.content,
+      tags: templateData.tags || [],
+      locale: templateData.locale || 'en',
+      type: 'user'  // Always creating a user template
+    };
+    
+    // Only add folder_id if it's defined
+    if (templateData.folder_id !== undefined && templateData.folder_id !== null) {
+      requestBody.folder_id = templateData.folder_id;
+    }
+    
+    console.log('Creating template with data:', requestBody);
     
     const response = await apiClient.request('/prompts/templates', {
       method: 'POST',
-      body: JSON.stringify(templateData)
+      body: JSON.stringify(requestBody)
     });
     
     console.log('Template creation response:', response);
@@ -182,6 +196,7 @@ async createTemplate(templateData: any) {
     };
   }
 }
+
 
 /**
  * Update an existing template

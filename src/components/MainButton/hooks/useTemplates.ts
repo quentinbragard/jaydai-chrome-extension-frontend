@@ -1,10 +1,9 @@
-// src/components/MainButton/hooks/useTemplates.ts - Complete implementation
+// src/components/MainButton/hooks/useTemplates.ts
 import { useState, useCallback, useEffect } from 'react';
 import { Template, TemplateFormData, DEFAULT_FORM_DATA } from '../MenuPanel/TemplatesPanel/types';
 import { toast } from 'sonner';
 import { promptApi } from '@/api/PromptApi';
 import { useFolders } from './useFolders';
-import { resolveFolderPath } from '@/components/utils/folderUtils';
 
 export function useTemplates() {
   // Get folder functionality
@@ -27,9 +26,6 @@ export function useTemplates() {
   const [placeholderEditorOpen, setPlaceholderEditorOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  // Current folder context - store the current folder when creating a template
-  const [currentFolderContext, setCurrentFolderContext] = useState<string | null>(null);
 
   // Incorporate the folders error into our error state
   useEffect(() => {
@@ -69,14 +65,34 @@ export function useTemplates() {
     }
 
     try {
+      // Normalize line breaks and trim excess whitespace
+      const formattedContent = finalContent
+        .replace(/\r\n/g, '\n')  // Normalize line breaks
+        .replace(/\n{3,}/g, '\n\n')  // Limit consecutive newlines
+        .trim();  // Remove leading/trailing whitespace
+
       if (textarea instanceof HTMLTextAreaElement) {
-        textarea.value = finalContent;
+        // If it's a textarea, set the value directly
+        textarea.value = formattedContent;
       } else {
-        textarea.textContent = finalContent;
+        // For contenteditable divs, set textContent
+        textarea.textContent = formattedContent;
       }
       
+      // Trigger input event to notify React of the change
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      textarea.dispatchEvent(new Event('change', { bubbles: true }));
+      
+      // Focus the textarea
       textarea.focus();
+      
+      // If the textarea supports setting cursor position
+      if ('setSelectionRange' in textarea) {
+        (textarea as HTMLTextAreaElement).setSelectionRange(
+          formattedContent.length, 
+          formattedContent.length
+        );
+      }
       
       toast.success('Template applied');
       setPlaceholderEditorOpen(false);
@@ -89,28 +105,18 @@ export function useTemplates() {
   };
   
   // Template CRUD operations
-  const openEditDialog = (template: Template | null, folderPath?: string) => {
+  const openEditDialog = (template: Template | null) => {
     setSelectedTemplate(template);
-    
-    // If folder path is provided, use it (for creating a template in a specific folder)
-    if (folderPath) {
-      setCurrentFolderContext(folderPath);
-    } else {
-      setCurrentFolderContext(null);
-    }
     
     // Initialize form data from template or defaults
     setTemplateFormData(template ? {
       name: template.title || '',
       content: template.content || '',
       description: template.description || '',
-      folder: template.folder || template.path || '',
+      folder: template.folder || '',
       folder_id: template.folder_id,
-      based_on_official_id: template.based_on_official_id ?? null
-    } : {
-      ...DEFAULT_FORM_DATA,
-      folder: folderPath || '' // Use the provided folder path if available
-    });
+      based_on_official_id: null
+    } : DEFAULT_FORM_DATA);
     
     setEditDialogOpen(true);
   };
@@ -132,20 +138,12 @@ export function useTemplates() {
       setLoading(true);
       setError(null);
       
-      // Determine folder path to use
-      const folderToUse = templateFormData.folder || currentFolderContext || '';
-      
-      // Step 1: Resolve the folder path to get the correct folder ID
-      const { folder_id, path } = await resolveFolderPath(folderToUse, promptApi);
-      
-      console.log('Resolved folder:', { folder_id, path });
-      
-      // Step 2: Prepare template data for backend
+      // Prepare template data for backend 
+      // Notice we're sending folder_id directly as expected by the backend
       const templateData = {
         title: templateFormData.name.trim(),  // Backend expects 'title'
         content: templateFormData.content.trim(),
-        folder_id: folder_id,  // This is what backend expects - folder ID as 'folder'
-        path: path,         // Store remaining path parts
+        folder_id: templateFormData.folder_id,
         tags: [],           // Optional in backend
         locale: chrome.i18n.getUILanguage() || 'en'  // Fallback to 'en' if no language is available
       };
@@ -187,7 +185,7 @@ export function useTemplates() {
     } finally {
       setLoading(false);
     }
-  }, [templateFormData, currentFolderContext, selectedTemplate, loadFolders, promptApi]);
+  }, [templateFormData, selectedTemplate, loadFolders]);
   
   // Delete a template with confirmation
   const handleDeleteTemplate = useCallback(async (template: Template, e: React.MouseEvent) => {
@@ -226,7 +224,44 @@ export function useTemplates() {
     } finally {
       setLoading(false);
     }
-  }, [loadFolders, promptApi]);
+  }, [loadFolders]);
+  
+  // Create a new folder and select it immediately in the template form
+  const handleCreateFolder = useCallback(async (folderData: { name: string; path: string; description: string }) => {
+    try {
+      setLoading(true);
+      const success = await createFolder(folderData);
+      
+      if (success) {
+        // Refresh folders
+        await loadFolders();
+        
+        // Get the newly created folder
+        const userFoldersResponse = await promptApi.getUserFolders();
+        if (userFoldersResponse.success && userFoldersResponse.folders) {
+          const newFolder = userFoldersResponse.folders.find(f => f.name === folderData.name);
+          
+          if (newFolder) {
+            // Update the template form with the new folder
+            setTemplateFormData(prev => ({
+              ...prev,
+              folder_id: newFolder.id,
+              folder: newFolder.name
+            }));
+          }
+        }
+        
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error creating folder:', error);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [createFolder, loadFolders]);
   
   // Function to retry loading if there was an error
   const retryLoading = useCallback(async () => {
@@ -258,10 +293,10 @@ export function useTemplates() {
     openEditDialog,
     handleSaveTemplate,
     handleDeleteTemplate,
+    handleCreateFolder,
     refreshFolders: retryLoading,
     createFolder,
     deleteFolder,
-    toggleFolderPin,
-    currentFolderContext
+    toggleFolderPin
   };
 }

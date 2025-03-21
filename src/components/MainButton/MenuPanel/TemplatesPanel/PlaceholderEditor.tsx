@@ -49,12 +49,14 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
     return uniquePlaceholders;
   };
 
-  // Function to highlight placeholders inside the content
+  // Function to highlight placeholders inside the content with improved formatting
   const highlightPlaceholders = (content: string) => {
-    return content.replace(
-      /\[(.*?)\]/g,
-      `<span class="bg-yellow-300 text-yellow-900 font-bold px-1 rounded">${"$&"}</span>`
-    );
+    return content
+      .replace(/\n/g, '<br>')  // Convert newlines to <br> for proper display
+      .replace(
+        /\[(.*?)\]/g, 
+        `<span class="bg-yellow-300 text-yellow-900 font-bold px-1 rounded inline-block my-0.5">${"$&"}</span>`
+      );
   };
 
   // Ensure initial content is rendered in contentEditable div
@@ -77,7 +79,13 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
     if (!contentMounted || !editorRef.current) return;
 
     const observer = new MutationObserver(() => {
-      setModifiedContent(editorRef.current?.innerText || "");
+      // Replace <br> back to \n when getting text
+      const cleanedContent = editorRef.current?.innerHTML
+        .replace(/<br>/g, '\n')
+        .replace(/<\/?span[^>]*>/g, '')  // Remove span tags
+        .replace(/&nbsp;/g, ' ');  // Replace non-breaking spaces
+
+      setModifiedContent(cleanedContent || "");
     });
 
     observer.observe(editorRef.current, { childList: true, subtree: true, characterData: true });
@@ -179,7 +187,7 @@ const PlaceholderEditor: React.FC<PlaceholderEditorProps> = ({
               ref={editorRef}
               contentEditable
               suppressContentEditableWarning
-              className="flex-grow h-[50vh] resize-none border rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-primary overflow-auto"
+              className="flex-grow h-[50vh] resize-none border rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-primary overflow-auto whitespace-pre-wrap"
               onClick={(e) => e.stopPropagation()} 
               onMouseDown={(e) => e.stopPropagation()} 
             ></div>

@@ -17,7 +17,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   onDeleteTemplate
 }) => {
   // Ensure we have a display name, falling back through various options
-  const displayName = template.title || template.name || 'Untitled Template';
+  const displayName = template.title || 'Untitled Template';
   
   // Safely handle usage count
   const usageCount = typeof template.usage_count === 'number' ? template.usage_count : 0;
@@ -37,12 +37,13 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
           <div className="text-xs text-muted-foreground">Used {usageCount} times</div>
         )}
       </div>
-      <div className="ml-2 flex opacity-0 group-hover:opacity-100 transition-opacity">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-6 w-6 p-0"
-          onClick={(e) => {
+      {template.type === "user" && (
+        <div className="ml-2 flex opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-6 w-6 p-0"
+            onClick={(e) => {
             e.stopPropagation();
             onEditTemplate(template);
           }}
@@ -58,9 +59,10 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
             onDeleteTemplate(template, e);
           }}
         >
-          <Trash className="h-3.5 w-3.5" />
-        </Button>
-      </div>
+            <Trash className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

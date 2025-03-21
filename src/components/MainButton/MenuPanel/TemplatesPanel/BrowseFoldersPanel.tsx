@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ChevronRight, ChevronDown, Star, Folder, Search } from "lucide-react";
+import { ChevronRight, ChevronDown, Star, Folder, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { promptApi } from '@/api/PromptApi';
 import { TemplateFolder } from './types';
@@ -65,7 +65,7 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
     // Helper function to check if a folder or any of its subfolders match the query
     const folderMatchesQuery = (folder: TemplateFolder): boolean => {
       // Check if this folder's name matches
-      if (folder.name.toLowerCase().includes(query)) {
+      if (folder.name && folder.name.toLowerCase().includes(query)) {
         return true;
       }
       

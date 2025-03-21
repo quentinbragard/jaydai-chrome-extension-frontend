@@ -1,4 +1,4 @@
-// src/content/applicationInitializer.ts
+// src/extension/content/applicationInitializer.ts
 
 import { statsService } from '@/services/analytics/StatsService';
 import { notificationService } from '@/services/notifications/NotificationService';
@@ -25,9 +25,6 @@ export class AppInitializer {
   private isInitialized: boolean = false;
   private isAuthenticating: boolean = false;
   private settingsOpen: boolean = false;
-  private resizeHandler: (() => void) | null = null;
-  private mutationObserver: MutationObserver | null = null;
-  private statsPanelUpdateTimeout: number | null = null;
   
   private constructor() {}
   
@@ -180,24 +177,10 @@ export class AppInitializer {
   }
   
   /**
-   * Inject UI components
+   * Inject UI components with simplified positioning
    */
   private injectUIComponents(): void {
     console.log('🔧 Injecting UI components...');
-    
-    // Inject the Stats Panel
-    componentInjector.inject(StatsPanel, {}, {
-      id: 'archimind-stats-panel',
-      position: {
-        type: 'fixed',
-        top: '50%',
-        left: '50px',
-        zIndex: '10000'
-      },
-      containerStyle: {
-        transform: 'translateY(-50%)' // Center vertically
-      }
-    });
     
     // Inject the Main Button
     componentInjector.inject(MainButton, {
@@ -207,24 +190,18 @@ export class AppInitializer {
       id: 'archimind-main-button',
       position: {
         type: 'fixed',
-        bottom: '10px',
+        bottom: '20px',
         right: '75px',
         zIndex: '9999'
       }
     });
     
-    // Set up resize listener for responsive positioning
-    this.resizeHandler = this.debouncedUpdatePosition.bind(this);
-    window.addEventListener('resize', this.resizeHandler);
-    
-    // Initial position update
-    this.updateStatsPanelPosition();
-    
-    // Setup a lighter MutationObserver for layout changes
-    this.setupLightMutationObserver();
-    
     console.log('✅ UI components injected');
   }
+
+
+
+  
   
   /**
    * Clean up all resources
@@ -233,18 +210,6 @@ export class AppInitializer {
     if (!this.isInitialized) return;
     
     console.log('🧹 Cleaning up Archimind application...');
-    
-    // Clear any pending timeouts
-    if (this.statsPanelUpdateTimeout !== null) {
-      clearTimeout(this.statsPanelUpdateTimeout);
-      this.statsPanelUpdateTimeout = null;
-    }
-    
-    // Disconnect mutation observer
-    if (this.mutationObserver) {
-      this.mutationObserver.disconnect();
-      this.mutationObserver = null;
-    }
     
     // Clean up services
     statsService.cleanup();
@@ -255,12 +220,6 @@ export class AppInitializer {
     
     // Remove UI components
     componentInjector.removeAll();
-    
-    // Remove event listeners
-    if (this.resizeHandler) {
-      window.removeEventListener('resize', this.resizeHandler);
-      this.resizeHandler = null;
-    }
     
     // Remove event listener for network intercept
     document.removeEventListener('archimind-network-intercept', 
@@ -329,106 +288,6 @@ export class AppInitializer {
    */
   private handleNetworkIntercept(): void {
     // Stub for future functionality
-  }
-  
-  /**
-   * Debounced version of updateStatsPanelPosition
-   */
-  private debouncedUpdatePosition(): void {
-    // Cancel any pending update
-    if (this.statsPanelUpdateTimeout !== null) {
-      clearTimeout(this.statsPanelUpdateTimeout);
-    }
-    
-    // Schedule new update
-    this.statsPanelUpdateTimeout = window.setTimeout(() => {
-      this.updateStatsPanelPosition();
-      this.statsPanelUpdateTimeout = null;
-    }, 100);
-  }
-  
-  /**
-   * Update the position of the stats panel
-   */
-  private updateStatsPanelPosition(): void {
-    // Find the sidebar toggle button
-    const sidebarToggle = document.querySelector('div.no-draggable.absolute.bottom-0.left-0.top-0 button');
-    if (!sidebarToggle) return;
-    
-    // Get the bounding rect of the toggle button
-    const toggleRect = sidebarToggle.getBoundingClientRect();
-    const rightEdge = toggleRect.right + 10; // Add 10px spacing
-    
-    // Get the stats panel container
-    const statsPanel = document.getElementById('archimind-stats-panel-container');
-    if (!statsPanel) return;
-    
-    // Update the position to be on the right of the toggle button
-    statsPanel.style.left = `${rightEdge}px`;
-    statsPanel.style.top = '50%';
-    statsPanel.style.transform = 'translateY(-50%)';
-  }
-  
-  /**
-   * Setup a lightweight MutationObserver for layout changes
-   */
-  private setupLightMutationObserver(): void {
-    // Clear any existing observer
-    if (this.mutationObserver) {
-      this.mutationObserver.disconnect();
-      this.mutationObserver = null;
-    }
-    
-    // Create a new observer
-    this.mutationObserver = new MutationObserver((mutations) => {
-      // Check if any mutations affect layout
-      const layoutChanged = mutations.some(mutation => {
-        // Only care about changes to class, style, or width attributes
-        if (mutation.type === 'attributes') {
-          const attrName = mutation.attributeName;
-          return attrName === 'class' || attrName === 'style' || attrName === 'width';
-        }
-        return false;
-      });
-      
-      // Only update if layout changed
-      if (layoutChanged) {
-        this.debouncedUpdatePosition();
-      }
-    });
-    
-    // Start observing the main area and sidebar area
-    const mainArea = document.querySelector('main');
-    const sidebarArea = document.querySelector('nav');
-    
-    if (mainArea) {
-      this.mutationObserver.observe(mainArea, {
-        childList: false,
-        subtree: false,
-        attributes: true,
-        attributeFilter: ['class', 'style', 'width']
-      });
-    }
-    
-    if (sidebarArea) {
-      this.mutationObserver.observe(sidebarArea, {
-        childList: false,
-        subtree: false,
-        attributes: true,
-        attributeFilter: ['class', 'style', 'width']
-      });
-    }
-    
-    // Also observe the sidebar toggle button container if present
-    const sidebarToggleContainer = document.querySelector('div.no-draggable.absolute');
-    if (sidebarToggleContainer) {
-      this.mutationObserver.observe(sidebarToggleContainer, {
-        childList: false,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['class', 'style', 'width']
-      });
-    }
   }
   
   /**

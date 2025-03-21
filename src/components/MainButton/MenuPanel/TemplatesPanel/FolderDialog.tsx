@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useTemplates } from '@/components/MainButton/hooks/useTemplates';
 
 interface FolderDialogProps {
   open: boolean;
@@ -23,11 +24,16 @@ const FolderDialog: React.FC<FolderDialogProps> = ({
   onSaveFolder
 }) => {
   const [name, setName] = useState('');
-  const [path, setPath] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Get the createFolder function from useTemplates
+  const { createFolder } = useTemplates();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!name.trim()) {
       alert('Folder name is required');
       return;
@@ -35,16 +41,22 @@ const FolderDialog: React.FC<FolderDialogProps> = ({
 
     setIsSubmitting(true);
     try {
-      // Use path if provided, otherwise use name
-      const finalPath = path.trim() || name.trim();
-      
-      const success = await onSaveFolder({
+      // Create the folder using the path based on name
+      const success = await createFolder({
         name: name.trim(),
-        path: finalPath,
+        path: name.trim(), // Use name as path for simplicity
         description: description.trim()
       });
       
       if (success) {
+        // Call the parent callback with the created folder data
+        await onSaveFolder({
+          name: name.trim(),
+          path: name.trim(),
+          description: description.trim()
+        });
+        
+        // Close this dialog ONLY after success and reset form
         resetForm();
         onOpenChange(false);
       }
@@ -55,7 +67,6 @@ const FolderDialog: React.FC<FolderDialogProps> = ({
 
   const resetForm = () => {
     setName('');
-    setPath('');
     setDescription('');
   };
 
@@ -80,18 +91,6 @@ const FolderDialog: React.FC<FolderDialogProps> = ({
               onChange={(e) => setName(e.target.value)}
               placeholder="My Templates"
             />
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium">Folder Path (Optional)</label>
-            <Input 
-              value={path} 
-              onChange={(e) => setPath(e.target.value)}
-              placeholder="work/projects"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Use / to create nested paths (e.g. work/projects). Leave empty to use the folder name.
-            </p>
           </div>
           
           <div>
