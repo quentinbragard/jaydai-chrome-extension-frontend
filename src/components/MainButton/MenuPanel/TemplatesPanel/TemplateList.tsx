@@ -5,7 +5,7 @@ import { BookTemplate, FileText, Folder, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { TemplateItem } from './TemplateItem';
-import { useTemplates } from './useTemplates';
+import { useTemplates } from '../../hooks/useTemplates';
 import { EmptyState } from '@/components/ui/empty-state'
 
 interface TemplateListProps {

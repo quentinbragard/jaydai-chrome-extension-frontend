@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Card, CardContent} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Plus, BookTemplate, Folder as FolderIcon, Users, ChevronDown, FolderPlus, MoreVertical } from "lucide-react";
-import { Template, TemplateFolder } from './types';
+import { FileText, Plus, BookTemplate, Folder as FolderIcon, Users, ChevronDown, FolderPlus, MoreVertical, PlusCircle, RefreshCw } from "lucide-react";
+import { Template, TemplateFolder } from '../types';
 import FolderItem from './FolderItem';
 import FolderDialog from './FolderDialog';
-import { useTemplates } from './useTemplates';
+import { useTemplates } from '@/components/MainButton/hooks/useTemplates';
 
 
 interface PinnedFoldersPanelProps {
@@ -38,7 +38,26 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
   maxHeight = '400px'
 }) => {
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-  const { createFolder, deleteFolder } = useTemplates();
+  const { createFolder, deleteFolder, refreshFolders } = useTemplates();
+  
+  // Add local timeout for loading state to prevent infinite loading
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+  
+  React.useEffect(() => {
+    if (loading) {
+      // Set a timeout to show loading indicator for max 5 seconds
+      setLoadingTimeout(true);
+      const timer = setTimeout(() => {
+        setLoadingTimeout(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    } else {
+      setLoadingTimeout(false);
+    }
+  }, [loading]);
+  
+  // Determine if we should show loading state
+  const showLoading = loading && loadingTimeout;
 
   const handleCreateFolder = async (folderData: { name: string; path: string; description: string }) => {
     return await createFolder(folderData);
@@ -56,7 +75,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
             className="overflow-y-auto py-1" 
             style={{ maxHeight }}
           >
-            {loading ? (
+            {showLoading ? (
               <div className="py-8 text-center">
                 <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
                 <p className="text-sm text-muted-foreground mt-2">
@@ -85,9 +104,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                   
                   {/* Pinned official folders */}
                   {pinnedOfficialFolders && pinnedOfficialFolders.length > 0 ? (
-                  
                     pinnedOfficialFolders.map(folder => (
-                      console.log("folder->", folder),
                       <FolderItem
                         key={`official-folder-${folder.id}`}
                         folder={folder}
@@ -154,15 +171,28 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                       <FolderIcon className="mr-2 h-4 w-4" />
                       {chrome.i18n.getMessage('myTemplates')}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0"
-                      onClick={() => setFolderDialogOpen(true)}
-                      title={chrome.i18n.getMessage('newFolder')}
-                    >
-                      <FolderPlus className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      {/* Add a new button specifically for creating templates */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0"
+                        onClick={onCreateTemplate}
+                        title={chrome.i18n.getMessage('newTemplate')}
+                      >
+                        <PlusCircle className="h-4 w-4" />
+                      </Button>
+                      {/* Keep the folder creation button */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0"
+                        onClick={() => setFolderDialogOpen(true)}
+                        title={chrome.i18n.getMessage('newFolder')}
+                      >
+                        <FolderPlus className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   
                   {/* User Template Folders */}
@@ -186,21 +216,41 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                 </div>
                 
                 {/* Empty state - show when no templates or folders of any kind are found */}
-                {pinnedOfficialFolders && pinnedOfficialFolders.length === 0 && 
-                pinnedOrganizationFolders && pinnedOrganizationFolders.length === 0 && 
-                userFolders && userFolders.length === 0 && (
+                {pinnedOfficialFolders.length === 0 && 
+                 pinnedOrganizationFolders.length === 0 && 
+                 userFolders.length === 0 && (
                   <div className="py-8 px-4 text-center">
                     <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
                     <p className="text-sm text-muted-foreground">{chrome.i18n.getMessage('noTemplates')}</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={onCreateTemplate}
-                      className="mt-4"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      {chrome.i18n.getMessage('createFirstTemplate')}
-                    </Button>
+                    <div className="flex flex-col items-center justify-center gap-2 mt-4">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={onCreateTemplate}
+                        className="flex items-center w-full"
+                      >
+                        <PlusCircle className="h-4 w-4 mr-1" />
+                        {chrome.i18n.getMessage('createFirstTemplate')}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setFolderDialogOpen(true)}
+                        className="flex items-center w-full"
+                      >
+                        <FolderPlus className="h-4 w-4 mr-1" />
+                        {chrome.i18n.getMessage('createFolder')}
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={refreshFolders}
+                        className="flex items-center mt-2"
+                      >
+                        <RefreshCw className="h-4 w-4 mr-1" />
+                        Refresh
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>

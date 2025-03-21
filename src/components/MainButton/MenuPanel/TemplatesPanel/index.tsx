@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from "@/core/utils/classNames";
 import { toast } from 'sonner';
-import { useTemplates } from './useTemplates';
-import TemplateDialog from './TemplateDialog';
-import PlaceholderEditor from './PlaceholderEditor';
-import PinnedFoldersPanel from './PinnedFoldersPanel';
-import BrowseFoldersPanel from './BrowseFoldersPanel';
+import { useTemplates } from '@/components/MainButton/hooks/useTemplates';
+import TemplateDialog from '@/components/MainButton/MenuPanel/TemplatesPanel/TemplateDialog';
+import PlaceholderEditor from '@/components/MainButton/MenuPanel/TemplatesPanel/PlaceholderEditor';
+import PinnedFoldersPanel from '@/components/MainButton/MenuPanel/TemplatesPanel/PinnedFoldersPanel';
+import BrowseFoldersPanel from '@/components/MainButton/MenuPanel/TemplatesPanel/BrowseFoldersPanel';
 import { Template } from './types';
 import { promptApi } from '@/api/PromptApi';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 export interface TemplatesPanelProps {
   view: 'templates' | 'browse-official' | 'browse-organization';
@@ -38,13 +41,45 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     pinnedOrganizationFolders,
     userFolders,
     refreshFolders,
+    error
   } = useTemplates();
 
-  // Determine overall loading state
-  const loading = templatesLoading;
+  // Local loading state with a timeout
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Create a timeout to set loading to false after a reasonable time
+  // This prevents infinite loading if something goes wrong
+  useEffect(() => {
+    setIsLoading(templatesLoading);
+    
+    // Safety timeout - if loading takes more than 10 seconds, stop showing loading
+    const timer = setTimeout(() => {
+      if (isLoading) {
+        console.warn('Loading timeout reached - forcing loading state to false');
+        setIsLoading(false);
+      }
+    }, 10000);
+    
+    return () => clearTimeout(timer);
+  }, [templatesLoading]);
+
+  // Log loading state for debugging
+  useEffect(() => {
+    console.log('TemplatesPanel loading:', isLoading);
+    console.log('templates loading', templatesLoading);
+    console.log('folders:', {
+      pinnedOfficialFolders,
+      pinnedOrganizationFolders,
+      userFolders
+    });
+  }, [isLoading, templatesLoading, pinnedOfficialFolders, pinnedOrganizationFolders, userFolders]);
 
   const onTemplateClick = (template: Template) => {
     handleUseTemplate(template);
+  };
+  
+  const handleCreateTemplate = () => {
+    openEditDialog(null);
   };
 
   const templatesPanelClass = cn(
@@ -109,6 +144,28 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     }
   };
 
+  // Show error state if there's an error
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mb-4">
+        <AlertDescription>
+          <div className="flex flex-col items-center justify-center py-4">
+            <p className="mb-2">Failed to load templates: {error}</p>
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={() => refreshFolders()}
+              className="mt-2"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry
+            </Button>
+          </div>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   const renderContent = () => {
     if (view === 'browse-official') {
       return (
@@ -127,6 +184,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         />
       );
     }
+    
     // Default view: display pinned folders
     return (
       <PinnedFoldersPanel
@@ -136,7 +194,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         onUseTemplate={onTemplateClick}
         onEditTemplate={openEditDialog}
         onDeleteTemplate={handleDeleteTemplate}
-        onCreateTemplate={() => openEditDialog(null)}
+        onCreateTemplate={handleCreateTemplate}
         openBrowseOfficialFolders={() => onViewChange('browse-official')}
         openBrowseOrganizationFolders={() => onViewChange('browse-organization')}
         handleTogglePin={async (folderId, isPinned, type) => {
@@ -146,7 +204,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             return handleToggleOrganizationPin(folderId, isPinned);
           }
         }}
-        loading={loading}
+        loading={isLoading}
       />
     );
   };
@@ -167,6 +225,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           formData={templateFormData}
           onFormChange={setTemplateFormData}
           onSaveTemplate={handleSaveTemplate}
+          userFolders={userFolders}
         />
       )}
 

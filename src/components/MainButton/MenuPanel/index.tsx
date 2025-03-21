@@ -1,22 +1,10 @@
-import React, { useState } from 'react';
+// src/features/MainButton/components/MenuPanel/index.tsx
+import React from 'react';
+import { useMenuPanel } from '../hooks/useMenuPanel';
 import MenuPanelHeader from './MenuPanelHeader';
 import MenuPanelMenu from './MenuPanelMenu';
-import TemplatesPanel from './TemplatesPanel';
-import NotificationsPanel from './NotificationsPanel';
-
-// Panel state types
-export type MenuPanelType = 'menu';
-export type TemplatesPanelType = 'templates' | 'browse-official' | 'browse-organization';
-export type NotificationsPanelType = 'notifications';
-
-// Union type for all panel types
-export type PanelType = MenuPanelType | TemplatesPanelType | NotificationsPanelType;
-
-// Panel state with type and metadata
-export interface PanelState {
-  type: PanelType;
-  meta?: Record<string, any>; // Optional metadata for the panel
-}
+import TemplatesPanel from '@/components/MainButton/MenuPanel/TemplatesPanel';
+import NotificationsPanel from '@/components/MainButton/MenuPanel/NotificationsPanel';
 
 export interface MenuPanelProps {
   isOpen: boolean;
@@ -37,46 +25,13 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   onSettingsClick,
   setIsPlaceholderEditorOpen,
 }) => {
-  // Navigation stack - the initial state is the main menu
-  const [navStack, setNavStack] = useState<PanelState[]>([{ type: 'menu' }]);
-
-  // Get the current panel from the top of the navigation stack
-  const currentPanel = navStack[navStack.length - 1];
-
-  // Push a new panel to the navigation stack
-  const pushPanel = (panel: PanelState) => {
-    setNavStack((prev) => [...prev, panel]);
-  };
-
-  // Go back to the previous panel
-  const popPanel = () => {
-    if (navStack.length > 1) {
-      setNavStack((prev) => prev.slice(0, prev.length - 1));
-    } else {
-      // If we're at the root menu, close the entire panel
-      onClosePanel();
-    }
-  };
-
-  // Determine the header title based on the current panel
-  const getTitle = () => {
-    console.log('currentPanel', currentPanel);
-    switch (currentPanel.type) {
-      case 'menu':
-        console.log(chrome.i18n.getMessage('templates'));
-        return chrome.i18n.getMessage('menu');
-      case 'templates':
-        return chrome.i18n.getMessage('templates');
-      case 'browse-official':
-        return chrome.i18n.getMessage('browseOfficialTemplates');
-      case 'browse-organization':
-        return chrome.i18n.getMessage('browseOrganizationTemplates');
-      case 'notifications':
-        return chrome.i18n.getMessage('notifications');
-      default:
-        return chrome.i18n.getMessage('menu');
-    }
-  };
+  const {
+    navStack,
+    currentPanel,
+    pushPanel,
+    popPanel,
+    getTitle,
+  } = useMenuPanel();
 
   // Render the appropriate content based on the current panel
   const renderContent = () => {
@@ -101,7 +56,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       case 'browse-organization':
         return (
           <TemplatesPanel
-            view={currentPanel.type as TemplatesPanelType}
+            view={currentPanel.type}
             onViewChange={(newView) => {
               pushPanel({ type: newView });
             }}
@@ -116,7 +71,6 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   };
 
   if (!isOpen) return null;
-  console.log('getTitle()', getTitle());
 
   return (
     <div
