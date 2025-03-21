@@ -6,14 +6,12 @@ import { Button } from "@/components/ui/button";
 interface MenuPanelMenuProps {
   onSelect: (panel: 'templates' | 'notifications') => void;
   notificationCount: number;
-  onSaveClick: () => void;
   onSettingsClick: () => void;
 }
 
 const MenuPanelMenu: React.FC<MenuPanelMenuProps> = ({ 
   onSelect, 
   notificationCount, 
-  onSaveClick, 
   onSettingsClick 
 }) => {
   return (
@@ -46,7 +44,7 @@ const MenuPanelMenu: React.FC<MenuPanelMenuProps> = ({
           variant="ghost" 
           size="sm" 
           className="justify-start" 
-          onClick={onSaveClick}
+          onClick={() => window.open('https://thetunnel.substack.com/utm_source=archimind-extension', '_blank')}
         >
           <Save className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('aiNews')}
         </Button>

@@ -85,7 +85,7 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
               placeholder="e.g. work/coding"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Use / to create subfolders (e.g. marketing/emails)
+              Use / to create Folders (e.g. marketing/emails)
             </p>
           </div>
           

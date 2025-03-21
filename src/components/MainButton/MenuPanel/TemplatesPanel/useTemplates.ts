@@ -58,6 +58,7 @@ export function useTemplates() {
       
       // Get pinned official folders
       const officialFolderIds = metadata?.pinned_official_folder_ids || [];
+      console.log("officialFolderIds--->", officialFolderIds)
       let officialFolders: TemplateFolder[] = [];
       
       if (officialFolderIds.length > 0) {
@@ -66,6 +67,7 @@ export function useTemplates() {
           officialFolders = officialResponse.folders || [];
         }
       }
+      console.log("officialFolders--->", officialFolders)
       
       // Get pinned organization folders
       const orgFolderIds = metadata?.pinned_organization_folder_ids || [];

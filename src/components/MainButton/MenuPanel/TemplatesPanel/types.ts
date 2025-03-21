@@ -9,6 +9,10 @@ export interface Template {
   tags?: string[] | null;
   folder_id?: number;
   type?: string;
+  path?: string;
+  created_at?: string;
+  updated_at?: string;
+  organization_id?: number;
 }
 
 export interface TemplateFolder {
@@ -16,8 +20,10 @@ export interface TemplateFolder {
   name: string;
   description?: string;
   templates: Template[];
-  subfolders?: TemplateFolder[];
+  Folders?: TemplateFolder[];
   is_pinned?: boolean;
+  path?: string;
+  subfolders?: TemplateFolder[];
 }
 
 export interface TemplateCollection {

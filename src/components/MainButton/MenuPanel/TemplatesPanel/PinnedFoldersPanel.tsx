@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { FileText, Plus, BookTemplate, Folder, Users, ChevronDown, FolderPlus, MoreVertical } from "lucide-react";
+import { FileText, Plus, BookTemplate, Folder as FolderIcon, Users, ChevronDown, FolderPlus, MoreVertical } from "lucide-react";
 import { Template, TemplateFolder } from './types';
-import SubFolder from './SubFolder';
+import FolderItem from './FolderItem';
 import FolderDialog from './FolderDialog';
 import { useTemplates } from './useTemplates';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 
 interface PinnedFoldersPanelProps {
   pinnedOfficialFolders: TemplateFolder[];
@@ -57,39 +51,6 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
   return (
     <>
       <Card className="w-80 shadow-lg">
-        <CardHeader className="py-3 flex flex-row items-center justify-between">
-          <CardTitle className="text-base font-medium flex items-center">
-            <FileText className="mr-2 h-4 w-4" />
-            {chrome.i18n.getMessage('templates')}
-          </CardTitle>
-          <div className="flex gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-7 px-2 text-xs"
-                >
-                  <Plus className="h-3.5 w-3.5 mr-1" />
-                  {chrome.i18n.getMessage('new')}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onCreateTemplate}>
-                  <FileText className="h-4 w-4 mr-2" />
-                  {chrome.i18n.getMessage('newTemplate')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFolderDialogOpen(true)}>
-                  <FolderPlus className="h-4 w-4 mr-2" />
-                  {chrome.i18n.getMessage('newFolder')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </CardHeader>
-        
-        <Separator />
-        
         <CardContent className="p-0">
           <div 
             className="overflow-y-auto py-1" 
@@ -124,8 +85,10 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                   
                   {/* Pinned official folders */}
                   {pinnedOfficialFolders && pinnedOfficialFolders.length > 0 ? (
+                  
                     pinnedOfficialFolders.map(folder => (
-                      <SubFolder
+                      console.log("folder->", folder),
+                      <FolderItem
                         key={`official-folder-${folder.id}`}
                         folder={folder}
                         onUseTemplate={onUseTemplate}
@@ -165,7 +128,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                   {/* Pinned organization folders */}
                   {pinnedOrganizationFolders && pinnedOrganizationFolders.length > 0 ? (
                     pinnedOrganizationFolders.map(folder => (
-                      <SubFolder
+                      <FolderItem
                         key={`org-folder-${folder.id}`}
                         folder={folder}
                         onUseTemplate={onUseTemplate}
@@ -188,7 +151,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                 <div className="p-2 border-t">
                   <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
                     <div className="flex items-center">
-                      <Folder className="mr-2 h-4 w-4" />
+                      <FolderIcon className="mr-2 h-4 w-4" />
                       {chrome.i18n.getMessage('myTemplates')}
                     </div>
                     <Button
@@ -205,7 +168,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                   {/* User Template Folders */}
                   {userFolders && userFolders.length > 0 ? (
                     userFolders.map(folder => (
-                      <SubFolder
+                      <FolderItem
                         key={`user-folder-${folder.id}`}
                         folder={folder}
                         onUseTemplate={onUseTemplate}

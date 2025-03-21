@@ -106,28 +106,19 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
           </Button>
         </div>
         
-        {isExpanded && folder.subfolders && folder.subfolders.length > 0 && (
-          <div className="subfolder-container pl-5">
-            {folder.subfolders.map(subfolder => renderFolder(subfolder))}
+        {isExpanded && folder.Folders && folder.Folders.length > 0 && (
+          <div className="Folder-container pl-5">
+            {folder.Folders.map(Folder => renderFolder(Folder))}
           </div>
         )}
       </div>
     );
   };
   
-  const title = `${folderType === 'official' ? 'Official' : 'Organization'} Templates`;
 
   // Don't use a back button at the top level since we now have it controlled by MenuPanel
   return (
     <Card className="w-80 shadow-lg">
-      <CardHeader className="py-3 flex flex-row items-center justify-between">
-        <CardTitle className="text-base font-medium">
-          {title}
-        </CardTitle>
-      </CardHeader>
-      
-      <Separator />
-      
       <CardContent className="p-0">
         <p className="px-4 py-2 text-xs text-muted-foreground">
           Pin {folderType} template folders to access them quickly.

@@ -21,7 +21,7 @@ class PromptApiClient {
       }
       
       // Build the endpoint with the proper query parameters
-      let endpoint = `/prompts/folders/template-folders?type=${type}`;
+      let endpoint = `/prompts/folders?type=${type}`;
       
       // Add folder_ids as a comma-separated string for efficiency
       if ((type === 'official' || type === 'organization') && folderIds.length > 0) {
@@ -60,7 +60,7 @@ class PromptApiClient {
       console.log(`Fetching all ${type} folders`);
       
       // Use the same endpoint but without folder_ids to get all folders
-      const endpoint = `/prompts/folders/template-folders?type=${type}&empty=${empty ? 'true' : 'false'}`;
+      const endpoint = `/prompts/folders?type=${type}&empty=${empty ? 'true' : 'false'}`;
       
       console.log(`Making API request to: ${endpoint}`);
       
@@ -292,6 +292,7 @@ class PromptApiClient {
   async getUserMetadata() {
     try {
       const response = await apiClient.request('/user/metadata');
+      console.log("response", response)
       return response;
     } catch (error) {
       console.error('Error getting user metadata:', error);
