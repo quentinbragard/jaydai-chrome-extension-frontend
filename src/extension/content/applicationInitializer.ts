@@ -190,12 +190,12 @@ export class AppInitializer {
       id: 'archimind-stats-panel',
       position: {
         type: 'fixed',
-        top: '5px',
-        left: '50%',
+        top: '50%',
+        left: '50px',
         zIndex: '10000'
       },
       containerStyle: {
-        transform: 'translateX(-50%)' // Center horizontally
+        transform: 'translateY(-50%)' // Center vertically
       }
     });
     
@@ -351,20 +351,22 @@ export class AppInitializer {
    * Update the position of the stats panel
    */
   private updateStatsPanelPosition(): void {
-    // Find the composer parent element
-    const composerDiv = document.querySelector('div[role="presentation"].composer-parent');
-    if (!composerDiv) return;
+    // Find the sidebar toggle button
+    const sidebarToggle = document.querySelector('div.no-draggable.absolute.bottom-0.left-0.top-0 button');
+    if (!sidebarToggle) return;
     
-    // Get the center position of the composer div
-    const composerRect = composerDiv.getBoundingClientRect();
-    const centerX = composerRect.x + (composerRect.width / 2);
+    // Get the bounding rect of the toggle button
+    const toggleRect = sidebarToggle.getBoundingClientRect();
+    const rightEdge = toggleRect.right + 10; // Add 10px spacing
     
     // Get the stats panel container
     const statsPanel = document.getElementById('archimind-stats-panel-container');
     if (!statsPanel) return;
     
-    // Update the left position to keep it centered
-    statsPanel.style.left = `${centerX}px`;
+    // Update the position to be on the right of the toggle button
+    statsPanel.style.left = `${rightEdge}px`;
+    statsPanel.style.top = '50%';
+    statsPanel.style.transform = 'translateY(-50%)';
   }
   
   /**
@@ -395,12 +397,34 @@ export class AppInitializer {
       }
     });
     
-    // Start observing the main area
+    // Start observing the main area and sidebar area
     const mainArea = document.querySelector('main');
+    const sidebarArea = document.querySelector('nav');
+    
     if (mainArea) {
       this.mutationObserver.observe(mainArea, {
         childList: false,
         subtree: false,
+        attributes: true,
+        attributeFilter: ['class', 'style', 'width']
+      });
+    }
+    
+    if (sidebarArea) {
+      this.mutationObserver.observe(sidebarArea, {
+        childList: false,
+        subtree: false,
+        attributes: true,
+        attributeFilter: ['class', 'style', 'width']
+      });
+    }
+    
+    // Also observe the sidebar toggle button container if present
+    const sidebarToggleContainer = document.querySelector('div.no-draggable.absolute');
+    if (sidebarToggleContainer) {
+      this.mutationObserver.observe(sidebarToggleContainer, {
+        childList: false,
+        subtree: true,
         attributes: true,
         attributeFilter: ['class', 'style', 'width']
       });

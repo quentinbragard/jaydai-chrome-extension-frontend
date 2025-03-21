@@ -152,101 +152,118 @@ class PromptApiClient {
     }
   }
   
-  async createTemplate(templateData: any) {
-    try {
-      // Ensure required fields are present
-      if (!templateData.name || !templateData.content) {
-        return {
-          success: false,
-          error: 'Name and content are required'
-        };
-      }
-      
-      // Ensure type is set to "user" for user-created templates
-      const dataToSend = {
-        ...templateData,
-        type: "user"  // Explicitly set type to "user"
-      };
-      
-      console.log('Creating template with data:', dataToSend);
-      
-      const response = await apiClient.request('/prompts/templates', {
-        method: 'POST',
-        body: JSON.stringify(dataToSend)
-      });
-      
-      console.log('Template creation response:', response);
-      return response;
-    } catch (error) {
-      console.error('Error creating template:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+/**
+ * Create a new template
+ */
+async createTemplate(templateData: any) {
+  try {
+    // Ensure required fields are present
+    if (!templateData.title || !templateData.content) {
+      return {
+        success: false,
+        error: 'Title and content are required'
       };
     }
+    
+    console.log('Creating template with data:', templateData);
+    
+    const response = await apiClient.request('/prompts/templates', {
+      method: 'POST',
+      body: JSON.stringify(templateData)
+    });
+    
+    console.log('Template creation response:', response);
+    return response;
+  } catch (error) {
+    console.error('Error creating template:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
-  
-  async updateTemplate(templateId: number, templateData: any) {
-    try {
-      // Ensure we don't change the type when updating
-      const dataToSend = {
-        ...templateData
-      };
-      
-      console.log(`Updating template ${templateId} with data:`, dataToSend);
-      
-      const response = await apiClient.request(`/prompts/templates/${templateId}`, {
-        method: 'PUT',
-        body: JSON.stringify(dataToSend)
-      });
-      
-      console.log('Template update response:', response);
-      return response;
-    } catch (error) {
-      console.error('Error updating template:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
-  
-  /**
-   * Delete a template
-   */
-  async deleteTemplate(templateId: number) {
-    try {
-      const response = await apiClient.request(`/prompts/templates/${templateId}`, {
-        method: 'DELETE'
-      });
-      return response;
-    } catch (error) {
-      console.error('Error deleting template:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
+}
 
-  /**
-   * Create a new folder
-   */
-  async createFolder(folderData: any) {
-    try {
-      const response = await apiClient.request('/prompts/folders', {
-        method: 'POST',
-        body: JSON.stringify(folderData)
-      });
-      return response;
-    } catch (error) {
-      console.error('Error creating folder:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+/**
+ * Update an existing template
+ */
+async updateTemplate(templateId: number, templateData: any) {
+  try {
+    // Ensure required fields are present
+    if (!templateData.title && !templateData.content) {
+      return {
+        success: false,
+        error: 'At least one field to update is required'
       };
     }
+    
+    console.log(`Updating template ${templateId} with data:`, templateData);
+    
+    const response = await apiClient.request(`/prompts/templates/${templateId}`, {
+      method: 'PUT',
+      body: JSON.stringify(templateData)
+    });
+    
+    console.log('Template update response:', response);
+    return response;
+  } catch (error) {
+    console.error('Error updating template:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
+}
+
+/**
+ * Get user folders
+ */
+async getUserFolders() {
+  try {
+    const response = await apiClient.request('/prompts/folders?type=user', {
+      method: 'GET'
+    });
+    
+    console.log('User folders response:', response);
+    return response;
+  } catch (error) {
+    console.error('Error fetching user folders:', error);
+    return { 
+      success: false, 
+      folders: [],
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+/**
+ * Create a new folder
+ */
+async createFolder(folderData: any) {
+  try {
+    if (!folderData.name) {
+      return {
+        success: false,
+        error: 'Folder name is required'
+      };
+    }
+    
+    console.log('Creating folder with data:', folderData);
+    
+    const response = await apiClient.request('/prompts/folders', {
+      method: 'POST',
+      body: JSON.stringify(folderData)
+    });
+    
+    console.log('Folder creation response:', response);
+    return response;
+  } catch (error) {
+    console.error('Error creating folder:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
 
   /**
    * Delete a folder

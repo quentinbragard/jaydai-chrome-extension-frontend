@@ -1,10 +1,10 @@
-// src/components/MainButton/hooks/useTemplates.ts - Improved template management
-
+// src/components/MainButton/hooks/useTemplates.ts - Complete implementation
 import { useState, useCallback, useEffect } from 'react';
 import { Template, TemplateFormData, DEFAULT_FORM_DATA } from '../MenuPanel/TemplatesPanel/types';
 import { toast } from 'sonner';
 import { promptApi } from '@/api/PromptApi';
 import { useFolders } from './useFolders';
+import { resolveFolderPath } from '@/components/utils/folderUtils';
 
 export function useTemplates() {
   // Get folder functionality
@@ -135,15 +135,19 @@ export function useTemplates() {
       // Determine folder path to use
       const folderToUse = templateFormData.folder || currentFolderContext || '';
       
-      // Prepare template data
+      // Step 1: Resolve the folder path to get the correct folder ID
+      const { folder_id, path } = await resolveFolderPath(folderToUse, promptApi);
+      
+      console.log('Resolved folder:', { folder_id, path });
+      
+      // Step 2: Prepare template data for backend
       const templateData = {
-        name: templateFormData.name.trim(),
+        title: templateFormData.name.trim(),  // Backend expects 'title'
         content: templateFormData.content.trim(),
-        description: templateFormData.description?.trim() || '',
-        folder: folderToUse,
-        folder_id: templateFormData.folder_id, // Include folder_id
-        based_on_official_id: templateFormData.based_on_official_id,
-        type: 'user' // Explicitly set type
+        folder_id: folder_id,  // This is what backend expects - folder ID as 'folder'
+        path: path,         // Store remaining path parts
+        tags: [],           // Optional in backend
+        locale: chrome.i18n.getUILanguage() || 'en'  // Fallback to 'en' if no language is available
       };
       
       console.log('Saving template with data:', templateData);
@@ -183,7 +187,7 @@ export function useTemplates() {
     } finally {
       setLoading(false);
     }
-  }, [templateFormData, currentFolderContext, selectedTemplate, loadFolders]);
+  }, [templateFormData, currentFolderContext, selectedTemplate, loadFolders, promptApi]);
   
   // Delete a template with confirmation
   const handleDeleteTemplate = useCallback(async (template: Template, e: React.MouseEvent) => {
@@ -222,7 +226,7 @@ export function useTemplates() {
     } finally {
       setLoading(false);
     }
-  }, [loadFolders]);
+  }, [loadFolders, promptApi]);
   
   // Function to retry loading if there was an error
   const retryLoading = useCallback(async () => {

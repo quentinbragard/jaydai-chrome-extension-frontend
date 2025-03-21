@@ -1,13 +1,12 @@
 export interface Template {
   id: number;
-  title: string;
+  title: string;           // Backend uses 'title', not 'name'
   content: string;
-  description?: string;
-  folder?: string;
-  based_on_official_id?: number | null;
-  locale?: string;
+  description?: string;    // Not used in backend but kept for UI
+  folder?: string;         // Used for path display
+  folder_id?: number;      // Real folder ID in database
   tags?: string[] | null;
-  folder_id?: number;
+  locale?: string;
   type?: string;
   path?: string;
   created_at?: string;
@@ -17,12 +16,12 @@ export interface Template {
 }
 
 export interface TemplateFormData {
-  name: string;
+  name: string;            // We keep this as 'name' in form but send as 'title' to API
   content: string;
-  description: string;
-  folder: string;
-  folder_id?: number; // Add folder_id field to properly track selected folders
-  based_on_official_id: number | null;
+  description: string;     // Keep for UI even though backend doesn't use it
+  folder: string;          // Path representation 
+  folder_id?: number;      // Actual folder ID
+  based_on_official_id?: number | null; // Not used in current backend but kept for future
 }
 
 // Default form data with the correct structure
@@ -34,7 +33,6 @@ export const DEFAULT_FORM_DATA: TemplateFormData = {
   folder_id: undefined,
   based_on_official_id: null
 };
-
 
 export interface TemplateFolder {
   id: number;

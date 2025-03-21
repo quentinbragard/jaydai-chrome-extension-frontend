@@ -5,8 +5,7 @@ import {
   DialogDescription, 
   DialogHeader, 
   DialogTitle,
-  DialogFooter,
-  DialogOverlay  
+  DialogFooter
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -128,8 +127,7 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogOverlay className="bg-black/70 backdrop-blur-sm z-[10000]" />
-      <DialogContent className="z-[10001]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
             {currentTemplate ? chrome.i18n.getMessage('editTemplate') : chrome.i18n.getMessage('createTemplateTitle')}
@@ -201,7 +199,7 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
           <div>
             <label className="text-sm font-medium">{chrome.i18n.getMessage('templateContent')}</label>
             <textarea 
-              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
               rows={6}
               value={safeFormData.content} 
               onChange={(e) => handleFormChange('content', e.target.value)}
@@ -217,9 +215,7 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({
           <Button onClick={handleSave} disabled={isSubmitting}>
             {isSubmitting ? (
               <>
-                <span className="mr-2">
-                  <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin rounded-full inline-block"></div>
-                </span>
+                <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin rounded-full inline-block mr-2"></div>
                 {currentTemplate ? chrome.i18n.getMessage('updating') : chrome.i18n.getMessage('creating')}
               </>
             ) : (
