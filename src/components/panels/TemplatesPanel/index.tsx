@@ -9,8 +9,8 @@ import { toast } from 'sonner';
 import BasePanel from '../BasePanel';
 import { useTemplates } from '@/hooks/templates';
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
+import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import TemplateFolderSection from './TemplateFolderSection';
-// Removed useOpenDialog import
 
 interface TemplatesPanelProps {
   showBackButton?: boolean;
@@ -56,18 +56,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     }
   };
 
-  // Custom use template handler that uses window.dialogManager directly
+  // Custom use template handler that ensures we're using the window.dialogManager
   const handleTemplateUse = (template) => {
     // First run the current handleUseTemplate to set selectedTemplate and track usage
     handleUseTemplate(template);
     
-    // Then open the placeholder editor dialog using window.dialogManager
-    if (template && template.content && window.dialogManager) {
-      window.dialogManager.openDialog('placeholderEditor', {
-        content: template.content,
-        title: template.title,
-        onComplete: (finalContent) => handleFinalizeTemplate(finalContent, () => {})
-      });
+    // Debug check
+    if (!window.dialogManager) {
+      console.error('Dialog manager not available in TemplatesPanel');
+      toast.error('Dialog manager not available. Please refresh the page and try again.');
     }
   };
 
@@ -84,6 +81,27 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         pinnedFolderIds: folderIds,
         onPinChange: (id: number, isPinned: boolean) => handleToggleFolderPin(id, isPinned, type)
       } 
+    });
+  };
+
+  // Explicitly open the CreateTemplate dialog
+  const openCreateTemplateDialog = () => {
+    if (!window.dialogManager) {
+      console.error('Dialog manager not available when trying to create template');
+      toast.error('Dialog system not available. Please refresh the page and try again.');
+      return;
+    }
+    
+    console.log('Opening create template dialog via window.dialogManager');
+    window.dialogManager.openDialog(DIALOG_TYPES.CREATE_TEMPLATE, {
+      onFormChange: (formData) => console.log('Form updated:', formData),
+      onSave: async () => {
+        console.log('Saving template...');
+        // This would typically call your template save logic
+        await refreshFolders();
+        return true;
+      },
+      userFolders: userFolders || []
     });
   };
 
@@ -220,7 +238,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 variant="ghost"
                 size="sm"
                 className="h-7 w-7 p-0"
-                onClick={handleCreateTemplate}
+                onClick={openCreateTemplateDialog}
                 title={chrome.i18n.getMessage('newTemplate') || 'New Template'}
               >
                 <PlusCircle className="h-4 w-4" />
@@ -250,7 +268,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={handleCreateTemplate}
+                onClick={openCreateTemplateDialog}
                 className="flex items-center w-full"
               >
                 <PlusCircle className="h-4 w-4 mr-1" />

@@ -27,9 +27,14 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   };
 
   // Handle settings click - open settings dialog
-  const handleSettingsClick = () => {
-    dialogManager.openDialog('settings');
-  };
+const handleSettingsClick = () => {
+  if (window.dialogManager) {
+    window.dialogManager.openDialog('settings');
+  } else {
+    console.error('Dialog manager not available');
+    toast.error('Could not open settings. Please try again.');
+  }
+};
 
   // Handle AI news click - open external link
   const handleAiNewsClick = () => {
@@ -43,7 +48,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       onClose={onClose}
       className="w-56"
     >
-      <Card className="p-1 shadow-none border-0">
+      <Card className="p-1 shadow-none border-0 bg-background text-foreground">
         <div className="flex flex-col space-y-1">
           <Button 
             variant="ghost" 

@@ -1,4 +1,4 @@
-// src/components/dialogs/core/DialogContext.tsx
+// src/core/dialogs/core/DialogContext.tsx
 import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode, useEffect } from 'react';
 import { DialogType, DialogProps, DIALOG_TYPES } from '@/core/dialogs/registry';
 
@@ -29,29 +29,29 @@ declare global {
  * Hook to use the dialog manager within components
  */
 export function useDialogManager(): DialogManagerContextType {
-    const context = useContext(DialogManagerContext);
-    
-    // Add a fallback when context is not available
-    if (!context) {
-      // First, check if window.dialogManager exists and use it if available
-      if (typeof window !== 'undefined' && window.dialogManager) {
-        // Return a minimal context that uses window.dialogManager
-        return {
-          openDialogs: {},
-          dialogData: {},
-          openDialog: window.dialogManager.openDialog,
-          closeDialog: window.dialogManager.closeDialog,
-          isDialogOpen: () => false,  // Fallback implementations
-          getDialogData: () => undefined,
-        };
-      }
-      
-      // If no fallback is available, throw the error
-      throw new Error('useDialogManager must be used within a DialogManagerProvider');
+  const context = useContext(DialogManagerContext);
+  
+  // Add a fallback when context is not available
+  if (!context) {
+    // First, check if window.dialogManager exists and use it if available
+    if (typeof window !== 'undefined' && window.dialogManager) {
+      // Return a minimal context that uses window.dialogManager
+      return {
+        openDialogs: {},
+        dialogData: {},
+        openDialog: window.dialogManager.openDialog,
+        closeDialog: window.dialogManager.closeDialog,
+        isDialogOpen: () => false,  // Fallback implementations
+        getDialogData: () => undefined,
+      };
     }
     
-    return context;
+    // If no fallback is available, throw the error
+    throw new Error('useDialogManager must be used within a DialogManagerProvider');
   }
+  
+  return context;
+}
 
 /**
  * Hook to use a specific dialog
@@ -156,17 +156,37 @@ export const DialogManagerProvider: React.FC<{children: ReactNode}> = ({ childre
     getDialogData,
   }), [openDialogs, dialogData, openDialog, closeDialog, isDialogOpen, getDialogData]);
   
-  window.dialogManager = {
-    openDialog,
-    closeDialog,
-  };
-  
-  // Keep the useEffect for cleanup
+  // Assign window.dialogManager methods
   useEffect(() => {
+    console.log('Initializing window.dialogManager');
+    
+    // Make sure to define window.dialogManager if it doesn't exist
+    if (!window.dialogManager) {
+      window.dialogManager = {
+        openDialog,
+        closeDialog
+      };
+      console.log('window.dialogManager initialized successfully');
+    } else {
+      console.log('window.dialogManager already exists, updating methods');
+      window.dialogManager.openDialog = openDialog;
+      window.dialogManager.closeDialog = closeDialog;
+    }
+    
+    // Keep the useEffect for cleanup
     return () => {
-      delete window.dialogManager;
+      console.log('Cleaning up window.dialogManager');
+      if (window.dialogManager) {
+        // Only delete if our functions were assigned
+        if (window.dialogManager.openDialog === openDialog) {
+          delete window.dialogManager;
+          console.log('window.dialogManager cleaned up');
+        } else {
+          console.log('Not cleaning up window.dialogManager as it was overridden');
+        }
+      }
     };
-  }, []);
+  }, [openDialog, closeDialog]);
   
   return (
     <DialogManagerContext.Provider value={contextValue}>

@@ -7,8 +7,6 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { DialogProvider } from '@/components/dialogs';
 
-// Lazy-loaded components
-const StatsPanel = React.lazy(() => import('@/components/panels/StatsPanel'));
 
 /**
  * Main app component that brings everything together
@@ -26,9 +24,7 @@ const Main: React.FC = () => {
           <Suspense fallback={<div className="fixed top-4 left-1/2 transform -translate-x-1/2">
             <LoadingSpinner size="sm" message="Loading stats..." />
           </div>}>
-            <div className="fixed top-4 left-1/2 transform -translate-x-1/2">
-              <StatsPanel compact />
-            </div>
+            
           </Suspense>
           
           {/* Toast notifications */}

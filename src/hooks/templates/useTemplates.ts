@@ -3,6 +3,7 @@ import { Template, TemplateFormData, DEFAULT_FORM_DATA } from '@/types/templates
 import { useTemplateFolders } from './useTemplateFolders';
 import { useTemplateEditor } from './useTemplateEditor';
 import { toast } from 'sonner';
+import { DIALOG_TYPES } from '@/core/dialogs/registry';
 
 /**
  * Main templates hook that consolidates template functionality
@@ -10,7 +11,6 @@ import { toast } from 'sonner';
  */
 export function useTemplates() {
   // State
-  const [placeholderEditorOpen, setPlaceholderEditorOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [templateFormData, setTemplateFormData] = useState<TemplateFormData>(DEFAULT_FORM_DATA);
   
@@ -19,7 +19,7 @@ export function useTemplates() {
   const templateEditor = useTemplateEditor(folderManager.loadFolders);
   
   // Create a combined hook object for easy use
-  const { editDialogOpen, setEditDialogOpen, isSubmitting, error } = templateEditor;
+  const { isSubmitting, error } = templateEditor;
   
   // Debug state changes
   const lastFormUpdate = useRef<string>('');
@@ -75,11 +75,9 @@ export function useTemplates() {
         );
       }
       
-      // Close dialogs
+      // Close dialogs using dialog manager
       if (window.dialogManager) {
-        window.dialogManager.closeDialog('placeholderEditor');
-      } else {
-        setPlaceholderEditorOpen(false);
+        window.dialogManager.closeDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
       }
       
       setSelectedTemplate(null);
@@ -122,8 +120,8 @@ export function useTemplates() {
         
         // Close dialogs if using dialog manager
         if (window.dialogManager) {
-          window.dialogManager.closeDialog('createTemplate');
-          window.dialogManager.closeDialog('editTemplate');
+          window.dialogManager.closeDialog(DIALOG_TYPES.CREATE_TEMPLATE);
+          window.dialogManager.closeDialog(DIALOG_TYPES.EDIT_TEMPLATE);
         }
         
         // Refresh the folders list to show the new template
@@ -152,22 +150,16 @@ export function useTemplates() {
     
     setSelectedTemplate(template);
     
-    // Try to use the dialog manager
-    try {
-      if (window.dialogManager) {
-        window.dialogManager.openDialog('placeholderEditor', {
-          content: template.content,
-          title: template.title,
-          onComplete: handleFinalizeTemplate
-        });
-      } else {
-        // Fallback to direct state management
-        setPlaceholderEditorOpen(true);
-      }
-    } catch (error) {
-      console.error("❌ Error opening placeholder editor:", error);
-      // Fallback to direct state management
-      setPlaceholderEditorOpen(true);
+    // Always use the dialog manager
+    if (window.dialogManager) {
+      window.dialogManager.openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
+        content: template.content,
+        title: template.title,
+        onComplete: handleFinalizeTemplate
+      });
+    } else {
+      console.error('Dialog manager not available');
+      toast.error('Could not open template editor. Please try again.');
     }
     
     // Track template usage in the background
@@ -191,17 +183,15 @@ export function useTemplates() {
     
     console.log('🆕 Creating new template with data:', initialData);
     
-    // Use window.dialogManager directly
+    // Always use window.dialogManager
     if (window.dialogManager) {
-      window.dialogManager.openDialog('createTemplate', {
+      window.dialogManager.openDialog(DIALOG_TYPES.CREATE_TEMPLATE, {
         formData: initialData,
         onFormChange: updateFormData,
-        onSave: () => handleSaveTemplate(),
+        onSave: handleSaveTemplate,
         userFolders: folderManager.userFolders || []
       });
     } else {
-      // Instead of using setEditDialogOpen which might not exist anymore,
-      // use a toast to show an error message
       console.error('Dialog manager not available');
       toast.error('Could not open template editor. Please try again.');
     }
@@ -231,18 +221,16 @@ export function useTemplates() {
     
     console.log('✏️ Editing template:', template.id, 'with data:', formData);
     
-    // Use window.dialogManager directly
+    // Always use window.dialogManager
     if (window.dialogManager) {
-      window.dialogManager.openDialog('editTemplate', {
+      window.dialogManager.openDialog(DIALOG_TYPES.EDIT_TEMPLATE, {
         template,
         formData,
         onFormChange: updateFormData,
-        onSave: () => handleSaveTemplate(),
+        onSave: handleSaveTemplate,
         userFolders: folderManager.userFolders || []
       });
     } else {
-      // Instead of using setEditDialogOpen which might not exist anymore,
-      // use a toast to show an error message
       console.error('Dialog manager not available');
       toast.error('Could not open template editor. Please try again.');
     }
@@ -258,18 +246,11 @@ export function useTemplates() {
     refreshFolders: folderManager.loadFolders,
     
     // Editor state
-    editDialogOpen, 
-    setEditDialogOpen,
     selectedTemplate,
     templateFormData, 
     setTemplateFormData: updateFormData,
     
-    // Placeholder editor state
-    placeholderEditorOpen,
-    setPlaceholderEditorOpen,
-    
     // Editor functions
-    openEditor: handleEditTemplate,
     handleCreateTemplate,
     handleSaveTemplate,
     handleDeleteTemplate: templateEditor.deleteTemplate,

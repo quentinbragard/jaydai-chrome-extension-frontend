@@ -40,16 +40,81 @@ export const TemplateDialog: React.FC = () => {
     }
   };
   
-  // Local state
+  // Local state for form data - this is key to fixing the typing issue
+  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [selectedFolderId, setSelectedFolderId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Safe extraction of dialog data with defaults
+  // Extract data from dialog
   const currentTemplate = data?.template || null;
-  const formData = data?.formData || DEFAULT_FORM_DATA;
-  const onFormChange = data?.onFormChange || (() => console.warn("No onFormChange provided"));
+  const initialFormData = data?.formData || DEFAULT_FORM_DATA;
+  const onFormChange = data?.onFormChange;
   const onSave = data?.onSave || (() => Promise.resolve(false));
   const userFolders = data?.userFolders || [];
+  
+  // Initialize form state when dialog opens or data changes
+  useEffect(() => {
+    if (isOpen && initialFormData) {
+      setFormData(initialFormData);
+      
+      // Set selected folder ID
+      if (initialFormData.folder_id) {
+        setSelectedFolderId(initialFormData.folder_id.toString());
+      } else {
+        setSelectedFolderId('root');
+      }
+    }
+  }, [isOpen, initialFormData]);
+  
+  // Form field change handler
+  const handleFormChange = (field: string, value: any) => {
+    // Update local state first
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [field]: value
+      };
+      
+      // Call the external change handler if provided
+      if (onFormChange) {
+        console.log(`Updating form field ${field}:`, value);
+        onFormChange(newData);
+      }
+      
+      return newData;
+    });
+  };
+  
+  // Handle folder selection
+  const handleFolderSelect = (folderId: string) => {
+    if (folderId === 'new') {
+      // Open create folder dialog
+      if (window.dialogManager) {
+        window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
+          onSaveFolder: handleCreateFolder
+        });
+      }
+      return;
+    }
+    
+    setSelectedFolderId(folderId);
+    
+    // Handle "root" folder (no folder) specially
+    if (folderId === 'root') {
+      handleFormChange('folder_id', undefined);
+      handleFormChange('folder', '');
+      return;
+    }
+    
+    // Update form data with folder_id
+    handleFormChange('folder_id', parseInt(folderId));
+    
+    // Find the selected folder's path for display
+    const selectedFolder = flattenedFolders.find(f => f.id.toString() === folderId);
+    if (selectedFolder) {
+      handleFormChange('folder', selectedFolder.fullPath);
+    }
+  };
   
   // Get flattened folder list for select dropdown
   const flattenedFolders = React.useMemo(() => {
@@ -81,52 +146,6 @@ export const TemplateDialog: React.FC = () => {
     return flattenFolderHierarchy(userFolders);
   }, [userFolders]);
   
-  // Update selected folder ID when the form data changes
-  useEffect(() => {
-    if (formData.folder_id) {
-      setSelectedFolderId(formData.folder_id.toString());
-    } else {
-      setSelectedFolderId('root');
-    }
-  }, [formData.folder_id]);
-  
-  // Form field change handler
-  const handleFormChange = (field: string, value: any) => {
-    onFormChange({
-      ...formData,
-      [field]: value
-    });
-  };
-  
-  // Handle folder selection
-  const handleFolderSelect = (folderId: string) => {
-    if (folderId === 'new') {
-      // Open create folder dialog
-      window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
-        onSaveFolder: handleCreateFolder
-      });
-      return;
-    }
-    
-    setSelectedFolderId(folderId);
-    
-    // Handle "root" folder (no folder) specially
-    if (folderId === 'root') {
-      handleFormChange('folder_id', undefined);
-      handleFormChange('folder', '');
-      return;
-    }
-    
-    // Update form data with folder_id
-    handleFormChange('folder_id', parseInt(folderId));
-    
-    // Find the selected folder's path for display
-    const selectedFolder = flattenedFolders.find(f => f.id.toString() === folderId);
-    if (selectedFolder) {
-      handleFormChange('folder', selectedFolder.fullPath);
-    }
-  };
-  
   // Handler for folder creation
   const handleCreateFolder = async (folderData: { name: string; path: string; description: string }) => {
     try {
@@ -155,10 +174,15 @@ export const TemplateDialog: React.FC = () => {
 
     setIsSubmitting(true);
     try {
+      console.log('Saving template with data:', formData);
       const success = await onSave();
       if (success) {
         handleClose();
       }
+      return success;
+    } catch (error) {
+      console.error('Error saving template:', error);
+      return false;
     } finally {
       setIsSubmitting(false);
     }
@@ -184,7 +208,7 @@ export const TemplateDialog: React.FC = () => {
           <div>
             <label className="text-sm font-medium">Template Name</label>
             <Input 
-              value={formData.name} 
+              value={formData.name || ''} 
               onChange={(e) => handleFormChange('name', e.target.value)}
               placeholder="Enter template name"
               className="mt-1"
@@ -194,7 +218,7 @@ export const TemplateDialog: React.FC = () => {
           <div>
             <label className="text-sm font-medium">Description</label>
             <Input 
-              value={formData.description} 
+              value={formData.description || ''} 
               onChange={(e) => handleFormChange('description', e.target.value)}
               placeholder="Brief description of this template"
               className="mt-1"
@@ -240,7 +264,7 @@ export const TemplateDialog: React.FC = () => {
             <textarea 
               className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm mt-1"
               rows={6}
-              value={formData.content} 
+              value={formData.content || ''} 
               onChange={(e) => handleFormChange('content', e.target.value)}
               placeholder="Enter your template content here"
             />

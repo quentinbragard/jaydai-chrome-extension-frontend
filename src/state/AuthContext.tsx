@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User } from '@/types';
 import { authService } from '@/services/auth/AuthService';
-import { dialogManager } from '@/core/managers/DialogManager';
+
 
 // Define the auth context type
 interface AuthContextType {
@@ -139,10 +139,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // Open login dialog
-  const openLoginDialog = useCallback((initialMode: 'signin' | 'signup' = 'signin') => {
-    dialogManager.openDialog('auth', { initialMode });
-  }, []);
 
   const value: AuthContextType = {
     user,
@@ -152,8 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     loginWithGoogle,
     signup,
-    logout,
-    openLoginDialog
+    logout
   };
 
   return (

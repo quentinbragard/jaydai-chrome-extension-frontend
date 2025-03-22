@@ -9,47 +9,65 @@ import { promptApi } from '@/services/api/PromptApi';
 export function useTemplateEditor(onSaveSuccess?: () => Promise<void>) {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [templateFormData, setTemplateFormData] = useState<TemplateFormData>(DEFAULT_FORM_DATA);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Function to update form data - add debugging to track state updates
+  const updateFormData = useCallback((newData: TemplateFormData) => {
+    console.log('Updating template form data:', newData);
+    setTemplateFormData(prevData => {
+      // Only update if something actually changed
+      const hasChanges = Object.entries(newData).some(([key, value]) => 
+        prevData[key as keyof TemplateFormData] !== value
+      );
+      
+      if (hasChanges) {
+        return { ...newData };
+      }
+      return prevData;
+    });
+  }, []);
   
   // Open editor for a new or existing template
   const openEditor = useCallback((template: Template | null) => {
     setSelectedTemplate(template);
     
     // Initialize form data from template or defaults
-    setTemplateFormData(template ? {
+    const formData = template ? {
       name: template.title || '',
       content: template.content || '',
       description: template.description || '',
       folder: template.folder || '',
       folder_id: template.folder_id,
       based_on_official_id: null
-    } : DEFAULT_FORM_DATA);
+    } : { ...DEFAULT_FORM_DATA };
     
-    setEditDialogOpen(true);
-  }, []);
+    updateFormData(formData);
+    
+    console.log('Template editor initialized with:', formData);
+  }, [updateFormData]);
   
   // Close the editor
   const closeEditor = useCallback(() => {
-    setEditDialogOpen(false);
     setSelectedTemplate(null);
-    setTemplateFormData(DEFAULT_FORM_DATA);
+    updateFormData({ ...DEFAULT_FORM_DATA });
     setError(null);
-  }, []);
+  }, [updateFormData]);
   
   // Save template (create or update)
   const saveTemplate = useCallback(async () => {
     try {
+      console.log('Saving template with data:', templateFormData);
+      
       // Form validation
       if (!templateFormData.name?.trim()) {
         toast.error('Template name is required');
-        return;
+        return false;
       }
       
       if (!templateFormData.content?.trim()) {
         toast.error('Template content is required');
-        return;
+        return false;
       }
       
       setIsSubmitting(true);
@@ -65,7 +83,7 @@ export function useTemplateEditor(onSaveSuccess?: () => Promise<void>) {
         locale: chrome.i18n.getUILanguage() || 'en'  // Fallback to 'en' if no language is available
       };
       
-      console.log('Saving template with data:', templateData);
+      console.log('Sending template data to API:', templateData);
       
       let response;
       
@@ -157,12 +175,11 @@ export function useTemplateEditor(onSaveSuccess?: () => Promise<void>) {
     // State
     selectedTemplate,
     templateFormData,
-    editDialogOpen,
     isSubmitting,
     error,
     
     // Functions
-    setTemplateFormData,
+    setTemplateFormData: updateFormData,
     openEditor,
     closeEditor,
     saveTemplate,

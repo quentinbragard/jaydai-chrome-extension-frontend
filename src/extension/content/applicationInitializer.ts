@@ -6,7 +6,7 @@ import { componentInjector } from '@/core/utils/componentInjector';
 import { eventManager } from '@/core/events/EventManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
-import MainButton from '@/components/layout/MainButton';
+import Main from '@/components/Main';
 import { toast } from 'sonner';
 
 /**
@@ -57,10 +57,28 @@ export class AppInitializer {
       if (!servicesInitialized) {
         throw new Error('Failed to initialize services');
       }
-
       
-      // Inject UI components
+      // Check if dialog manager is already available (should not be at this point)
+      if (window.dialogManager) {
+        console.log('⚠️ Dialog manager already exists during initialization:', window.dialogManager);
+      } else {
+        console.log('✅ Dialog manager not yet initialized, will be created by Main component');
+      }
+      
+      // Inject UI components - Main component will set up the dialog system
       this.injectUIComponents();
+      
+      // Verify dialog manager after UI injection
+      setTimeout(() => {
+        if (window.dialogManager) {
+          console.log('✅ Dialog manager verification successful after initialization');
+        } else {
+          console.error('❌ Dialog manager not available after initialization');
+          errorReporter.captureError(
+            new AppError('Dialog manager initialization failed', ErrorCode.EXTENSION_ERROR)
+          );
+        }
+      }, 1000); // Give it a second to initialize
       
       this.isInitialized = true;
       console.log('✅ Archimind application initialized successfully');
@@ -89,15 +107,11 @@ export class AppInitializer {
   private injectUIComponents(): void {
     console.log('🔧 Injecting UI components...');
     
-    // Inject the Main Button
-    componentInjector.inject(MainButton, {
-      onSaveClick: () => this.saveCurrentConversation()
-    }, {
-      id: 'archimind-main-button',
+    // Inject the Main component which includes DialogProvider
+    componentInjector.inject(Main, {}, {
+      id: 'archimind-main-component',
       position: {
         type: 'fixed',
-        bottom: '20px',
-        right: '75px',
         zIndex: '9999'
       }
     });
@@ -105,7 +119,6 @@ export class AppInitializer {
     console.log('✅ UI components injected');
   }
   
-
   /**
    * Save current conversation
    */
