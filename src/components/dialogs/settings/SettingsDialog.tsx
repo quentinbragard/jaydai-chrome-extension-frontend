@@ -1,5 +1,4 @@
-// src/components/dialogs/SettingsDialog.tsx
-
+// src/components/dialogs/settings/SettingsDialog.tsx
 import React, { useState, useEffect } from 'react';
 import { 
   Dialog,
@@ -13,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { useDialog } from '@/core/hooks/useDialog';
+import { useDialog } from '@/components/dialogs/core/DialogContext';
+import { DIALOG_TYPES } from '@/core/dialogs/registry';
 
 interface Settings {
   autoSave: boolean;
@@ -22,15 +22,11 @@ interface Settings {
   statsVisible: boolean;
 }
 
-interface SettingsDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-const SettingsDialog: React.FC<SettingsDialogProps> = ({ 
-  open, 
-  onOpenChange 
-}) => {
+/**
+ * Dialog for application settings
+ */
+export const SettingsDialog: React.FC = () => {
+  const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.SETTINGS);
   const [settings, setSettings] = useState<Settings>({
     autoSave: true,
     autoSaveInterval: 60,
@@ -42,10 +38,10 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
 
   // Load settings when dialog opens
   useEffect(() => {
-    if (open) {
+    if (isOpen) {
       loadSettings();
     }
-  }, [open]);
+  }, [isOpen]);
 
   const loadSettings = async () => {
     setLoading(true);
@@ -80,7 +76,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
         });
         
         // Close the dialog
-        onOpenChange(false);
+        dialogProps.onOpenChange(false);
       });
     } catch (error) {
       console.error('Failed to save settings:', error);
@@ -96,11 +92,13 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
   };
 
   const handleCancel = () => {
-    onOpenChange(false);
+    dialogProps.onOpenChange(false);
   };
+  
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog {...dialogProps}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{chrome.i18n.getMessage('archimindSettings') || 'Settings'}</DialogTitle>
@@ -191,21 +189,5 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-};
-
-// This exports both the dialog component and a standalone component that can be used
-// with the DialogManager system
-export default SettingsDialog;
-
-// For use with DialogManager - this can be called anywhere in the app
-export const StandaloneSettingsDialog: React.FC = () => {
-  const { isOpen, dialogProps } = useDialog('settings');
-  
-  return (
-    <SettingsDialog
-      open={isOpen}
-      onOpenChange={dialogProps.onOpenChange}
-    />
   );
 };

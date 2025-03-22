@@ -1,11 +1,11 @@
+// src/components/Main.tsx
 import React, { Suspense } from 'react';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/state/AuthContext';
 import MainButton from '@/components/layout/MainButton';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import AuthDialog from '@/components/auth/AuthDialog';
-import { DialogManagerProvider } from '@/core/managers/DialogManager';
+import { DialogProvider } from '@/components/dialogs';
 
 // Lazy-loaded components
 const StatsPanel = React.lazy(() => import('@/components/panels/StatsPanel'));
@@ -18,16 +18,9 @@ const Main: React.FC = () => {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <DialogManagerProvider>
+        <DialogProvider>
           {/* UI Components */}
-          <MainButton
-            onSettingsClick={() => {
-              // Use the useDialogManager hook or dialogManager global inside of components
-              if (window.dialogManager) {
-                window.dialogManager.openDialog('settings');
-              }
-            }}
-          />
+          <MainButton />
           
           {/* Stats Panel with suspense fallback */}
           <Suspense fallback={<div className="fixed top-4 left-1/2 transform -translate-x-1/2">
@@ -38,12 +31,9 @@ const Main: React.FC = () => {
             </div>
           </Suspense>
           
-          {/* Global Dialogs - now handled by DialogManagerProvider */}
-          <AuthDialog />
-          
           {/* Toast notifications */}
           <Toaster richColors position="top-right" />
-        </DialogManagerProvider>
+        </DialogProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

@@ -1,3 +1,4 @@
+// src/components/dialogs/templates/FolderDialog.tsx
 import React, { useState } from 'react';
 import { 
   Dialog, 
@@ -10,26 +11,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useTemplates } from '@/hooks/templates';
+import { useDialog } from '@/components/dialogs/core/DialogContext';
+import { DIALOG_TYPES } from '@/core/dialogs/registry';
 
-interface FolderDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSaveFolder: (folderData: { name: string; path: string; description: string }) => Promise<boolean>;
-}
-
-const FolderDialog: React.FC<FolderDialogProps> = ({
-  open,
-  onOpenChange,
-  onSaveFolder
-}) => {
+/**
+ * Dialog for creating new template folders
+ */
+export const FolderDialog: React.FC = () => {
+  const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.CREATE_FOLDER);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Get the createFolder function from useTemplates
-  const { createFolder } = useTemplates();
-
+  // Safe extraction of dialog data with defaults
+  const onSaveFolder = data?.onSaveFolder || (() => Promise.resolve(false));
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -41,24 +37,17 @@ const FolderDialog: React.FC<FolderDialogProps> = ({
 
     setIsSubmitting(true);
     try {
-      // Create the folder using the path based on name
-      const success = await createFolder({
+      // Call the provided callback with folder data
+      const success = await onSaveFolder({
         name: name.trim(),
         path: name.trim(), // Use name as path for simplicity
         description: description.trim()
       });
       
       if (success) {
-        // Call the parent callback with the created folder data
-        await onSaveFolder({
-          name: name.trim(),
-          path: name.trim(),
-          description: description.trim()
-        });
-        
-        // Close this dialog ONLY after success and reset form
+        // Reset form and close dialog
         resetForm();
-        onOpenChange(false);
+        dialogProps.onOpenChange(false);
       }
     } finally {
       setIsSubmitting(false);
@@ -69,12 +58,11 @@ const FolderDialog: React.FC<FolderDialogProps> = ({
     setName('');
     setDescription('');
   };
+  
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={open} onOpenChange={(open) => {
-      if (!open) resetForm();
-      onOpenChange(open);
-    }}>
+    <Dialog {...dialogProps}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create New Folder</DialogTitle>
@@ -105,7 +93,7 @@ const FolderDialog: React.FC<FolderDialogProps> = ({
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+          <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isSubmitting}>
@@ -116,5 +104,3 @@ const FolderDialog: React.FC<FolderDialogProps> = ({
     </Dialog>
   );
 };
-
-export default FolderDialog;

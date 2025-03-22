@@ -1,6 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { FolderOpen, BookTemplate, Users, Folder, PlusCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -8,11 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from 'sonner';
 import BasePanel from '../BasePanel';
 import { useTemplates } from '@/hooks/templates';
-import { Template, TemplateFolder } from '@/types/templates';
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
 import TemplateFolderSection from './TemplateFolderSection';
-import PlaceholderEditor from './PlaceholderEditor';
-import { useDialogManager } from '@/core/managers/DialogManager';
+// Removed useOpenDialog import
 
 interface TemplatesPanelProps {
   showBackButton?: boolean;
@@ -29,16 +27,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   onClose
 }) => {
   const { pushPanel } = usePanelNavigation();
-  const [placeholderEditorOpen, setPlaceholderEditorOpen] = useState(false);
-  
-  // Get the dialog manager if available
-  let dialogManager;
-  try {
-    dialogManager = useDialogManager();
-  } catch (e) {
-    // Dialog manager context not available, will fall back to window.dialogManager
-    console.log("Dialog manager context not available, using fallback methods");
-  }
   
   const {
     loading,
@@ -53,7 +41,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     refreshFolders,
     handleCreateTemplate,
     error,
-    pinnedFolderIds,
     toggleFolderPin
   } = useTemplates();
 
@@ -66,6 +53,21 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     } catch (error) {
       toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder`);
       console.error('Error toggling pin:', error);
+    }
+  };
+
+  // Custom use template handler that uses window.dialogManager directly
+  const handleTemplateUse = (template) => {
+    // First run the current handleUseTemplate to set selectedTemplate and track usage
+    handleUseTemplate(template);
+    
+    // Then open the placeholder editor dialog using window.dialogManager
+    if (template && template.content && window.dialogManager) {
+      window.dialogManager.openDialog('placeholderEditor', {
+        content: template.content,
+        title: template.title,
+        onComplete: (finalContent) => handleFinalizeTemplate(finalContent, () => {})
+      });
     }
   };
 
@@ -115,163 +117,150 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }
 
   return (
-    <>
-      <BasePanel
-        title="Templates"
-        icon={FolderOpen}
-        showBackButton={showBackButton}
-        onBack={onBack}
-        onClose={onClose}
-        className="w-80"
-        maxHeight="500px"
-      >
-        {loading ? (
-          <div className="py-8 text-center">
-            <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
-            <p className="text-sm text-muted-foreground mt-2">Loading templates...</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Official Templates Section */}
-            <div>
-              <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
-                <div className="flex items-center">
-                  <BookTemplate className="mr-2 h-4 w-4" />
-                  {chrome.i18n.getMessage('officialTemplates') || 'Official Templates'}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs"
-                  onClick={() => handleBrowseMore('official')}
-                >
-                  Browse More
-                </Button>
+    <BasePanel
+      title="Templates"
+      icon={FolderOpen}
+      showBackButton={showBackButton}
+      onBack={onBack}
+      onClose={onClose}
+      className="w-80"
+      maxHeight="500px"
+    >
+      {loading ? (
+        <div className="py-8 text-center">
+          <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
+          <p className="text-sm text-muted-foreground mt-2">Loading templates...</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {/* Official Templates Section */}
+          <div>
+            <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
+              <div className="flex items-center">
+                <BookTemplate className="mr-2 h-4 w-4" />
+                {chrome.i18n.getMessage('officialTemplates') || 'Official Templates'}
               </div>
-              
-              {pinnedOfficialFolders && pinnedOfficialFolders.length > 0 ? (
-                <TemplateFolderSection 
-                  folders={pinnedOfficialFolders}
-                  onUseTemplate={handleUseTemplate}
-                  onEditTemplate={handleEditTemplate}
-                  onDeleteTemplate={handleDeleteTemplate}
-                  onTogglePin={(folderId, isPinned, e) => 
-                    handleToggleFolderPin(folderId, isPinned, 'official')
-                  }
-                  showPinControls={true}
-                  type="official"
-                />
-              ) : (
-                <div className="text-center py-2 text-xs text-muted-foreground">
-                  No pinned official templates. Click 'Browse More' to add some.
-                </div>
-              )}
-            </div>
-
-            <Separator />
-            
-            {/* Organization Templates Section */}
-            <div>
-              <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
-                <div className="flex items-center">
-                  <Users className="mr-2 h-4 w-4" />
-                  {chrome.i18n.getMessage('organizationTemplates') || 'Organization Templates'}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs"
-                  onClick={() => handleBrowseMore('organization')}
-                >
-                  Browse More
-                </Button>
-              </div>
-              
-              {pinnedOrganizationFolders && pinnedOrganizationFolders.length > 0 ? (
-                <TemplateFolderSection 
-                  folders={pinnedOrganizationFolders}
-                  onUseTemplate={handleUseTemplate}
-                  onEditTemplate={handleEditTemplate}
-                  onDeleteTemplate={handleDeleteTemplate}
-                  onTogglePin={(folderId, isPinned, e) => 
-                    handleToggleFolderPin(folderId, isPinned, 'organization')
-                  }
-                  showPinControls={true}
-                  type="organization"
-                />
-              ) : (
-                <div className="text-center py-2 text-xs text-muted-foreground">
-                  No pinned organization templates. Click 'Browse More' to add some.
-                </div>
-              )}
-            </div>
-
-            <Separator />
-            
-            {/* User Templates Section */}
-            <div>
-              <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
-                <div className="flex items-center">
-                  <Folder className="mr-2 h-4 w-4" />
-                  {chrome.i18n.getMessage('myTemplates') || 'My Templates'}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 w-7 p-0"
-                  onClick={handleCreateTemplate}
-                  title={chrome.i18n.getMessage('newTemplate') || 'New Template'}
-                >
-                  <PlusCircle className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              {userFolders && userFolders.length > 0 ? (
-                <TemplateFolderSection 
-                  folders={userFolders}
-                  onUseTemplate={handleUseTemplate}
-                  onEditTemplate={handleEditTemplate}
-                  onDeleteTemplate={handleDeleteTemplate}
-                  type="user"
-                />
-              ) : (
-                <div className="text-center py-2 text-xs text-muted-foreground">
-                  No user templates. Create a template to get started.
-                </div>
-              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() => handleBrowseMore('official')}
+              >
+                Browse More
+              </Button>
             </div>
             
-            {/* Empty state - when all sections are empty */}
-            {pinnedOfficialFolders.length === 0 && 
-             pinnedOrganizationFolders.length === 0 && 
-             userFolders.length === 0 && (
-              <div className="py-4 px-4 text-center">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleCreateTemplate}
-                  className="flex items-center w-full"
-                >
-                  <PlusCircle className="h-4 w-4 mr-1" />
-                  {chrome.i18n.getMessage('createFirstTemplate') || 'Create Your First Template'}
-                </Button>
+            {pinnedOfficialFolders && pinnedOfficialFolders.length > 0 ? (
+              <TemplateFolderSection 
+                folders={pinnedOfficialFolders}
+                onUseTemplate={handleTemplateUse}
+                onEditTemplate={handleEditTemplate}
+                onDeleteTemplate={handleDeleteTemplate}
+                onTogglePin={(folderId, isPinned, e) => 
+                  handleToggleFolderPin(folderId, isPinned, 'official')
+                }
+                showPinControls={true}
+                type="official"
+              />
+            ) : (
+              <div className="text-center py-2 text-xs text-muted-foreground">
+                No pinned official templates. Click 'Browse More' to add some.
               </div>
             )}
           </div>
-        )}
-      </BasePanel>
 
-      {/* Render the placeholder editor when a template is selected */}
-      {selectedTemplate && (
-        <PlaceholderEditor
-          open={placeholderEditorOpen}
-          onOpenChange={setPlaceholderEditorOpen}
-          templateContent={selectedTemplate.content}
-          templateTitle={selectedTemplate.title}
-          onComplete={finalContent => handleFinalizeTemplate(finalContent, () => {})}
-        />
+          <Separator />
+          
+          {/* Organization Templates Section */}
+          <div>
+            <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
+              <div className="flex items-center">
+                <Users className="mr-2 h-4 w-4" />
+                {chrome.i18n.getMessage('organizationTemplates') || 'Organization Templates'}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() => handleBrowseMore('organization')}
+              >
+                Browse More
+              </Button>
+            </div>
+            
+            {pinnedOrganizationFolders && pinnedOrganizationFolders.length > 0 ? (
+              <TemplateFolderSection 
+                folders={pinnedOrganizationFolders}
+                onUseTemplate={handleTemplateUse}
+                onEditTemplate={handleEditTemplate}
+                onDeleteTemplate={handleDeleteTemplate}
+                onTogglePin={(folderId, isPinned, e) => 
+                  handleToggleFolderPin(folderId, isPinned, 'organization')
+                }
+                showPinControls={true}
+                type="organization"
+              />
+            ) : (
+              <div className="text-center py-2 text-xs text-muted-foreground">
+                No pinned organization templates. Click 'Browse More' to add some.
+              </div>
+            )}
+          </div>
+
+          <Separator />
+          
+          {/* User Templates Section */}
+          <div>
+            <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2">
+              <div className="flex items-center">
+                <Folder className="mr-2 h-4 w-4" />
+                {chrome.i18n.getMessage('myTemplates') || 'My Templates'}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={handleCreateTemplate}
+                title={chrome.i18n.getMessage('newTemplate') || 'New Template'}
+              >
+                <PlusCircle className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {userFolders && userFolders.length > 0 ? (
+              <TemplateFolderSection 
+                folders={userFolders}
+                onUseTemplate={handleTemplateUse}
+                onEditTemplate={handleEditTemplate}
+                onDeleteTemplate={handleDeleteTemplate}
+                type="user"
+              />
+            ) : (
+              <div className="text-center py-2 text-xs text-muted-foreground">
+                No user templates. Create a template to get started.
+              </div>
+            )}
+          </div>
+          
+          {/* Empty state - when all sections are empty */}
+          {pinnedOfficialFolders.length === 0 && 
+           pinnedOrganizationFolders.length === 0 && 
+           userFolders.length === 0 && (
+            <div className="py-4 px-4 text-center">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleCreateTemplate}
+                className="flex items-center w-full"
+              >
+                <PlusCircle className="h-4 w-4 mr-1" />
+                {chrome.i18n.getMessage('createFirstTemplate') || 'Create Your First Template'}
+              </Button>
+            </div>
+          )}
+        </div>
       )}
-    </>
+    </BasePanel>
   );
 };
 

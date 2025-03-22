@@ -37,80 +37,62 @@ export function useTemplates() {
     setTemplateFormData(newData);
   }, []);
   
-  // Function to open the template editor dialog for new template
-  const handleCreateTemplate = useCallback(() => {
-    const initialData = { ...DEFAULT_FORM_DATA };
-    
-    // Update the state immediately
-    setSelectedTemplate(null);
-    updateFormData(initialData);
-    
-    console.log('🆕 Creating new template with data:', initialData);
-    
-    // Try to use the dialog manager
-    try {
-      if (window.dialogManager) {
-        window.dialogManager.openDialog('createTemplate', {
-          formData: initialData,
-          onFormChange: updateFormData,
-          onSave: () => handleSaveTemplate(),
-          userFolders: folderManager.userFolders || []
-        });
-      } else {
-        // Fallback to direct state management
-        setEditDialogOpen(true);
-      }
-    } catch (error) {
-      console.error("Error opening template dialog:", error);
-      // Fallback to direct state management
-      setEditDialogOpen(true);
-    }
-  }, [folderManager.userFolders, setEditDialogOpen, updateFormData]);
-  
-  // Function to open the template editor for an existing template
-  const handleEditTemplate = useCallback((template: Template) => {
-    // Valid template check
-    if (!template) {
-      console.error('❌ Invalid template for editing');
+  // Handle finalizing and applying a template
+  const handleFinalizeTemplate = useCallback((finalContent: string, onClose?: () => void) => {
+    const textarea = document.querySelector('#prompt-textarea');
+    if (!textarea) {
+      console.error('❌ Could not find input area');
       return;
     }
-    
-    // Create form data from template
-    const formData = {
-      name: template.title || '',
-      content: template.content || '',
-      description: template.description || '',
-      folder: template.folder || '',
-      folder_id: template.folder_id,
-      based_on_official_id: null
-    };
-    
-    // Update the state immediately
-    setSelectedTemplate(template);
-    updateFormData(formData);
-    
-    console.log('✏️ Editing template:', template.id, 'with data:', formData);
-    
-    // Try to use the dialog manager
+
     try {
-      if (window.dialogManager) {
-        window.dialogManager.openDialog('editTemplate', {
-          template,
-          formData,
-          onFormChange: updateFormData,
-          onSave: () => handleSaveTemplate(),
-          userFolders: folderManager.userFolders || []
-        });
+      // Normalize line breaks and trim excess whitespace
+      const formattedContent = finalContent
+        .replace(/\r\n/g, '\n')  // Normalize line breaks
+        .replace(/\n{3,}/g, '\n\n')  // Limit consecutive newlines
+        .trim();  // Remove leading/trailing whitespace
+
+      if (textarea instanceof HTMLTextAreaElement) {
+        // If it's a textarea, set the value directly
+        textarea.value = formattedContent;
       } else {
-        // Fallback to direct state management
-        setEditDialogOpen(true);
+        // For contenteditable divs, set textContent
+        textarea.textContent = formattedContent;
       }
+      
+      // Trigger input event to notify React of the change
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      textarea.dispatchEvent(new Event('change', { bubbles: true }));
+      
+      // Focus the textarea
+      textarea.focus();
+      
+      // If the textarea supports setting cursor position
+      if ('setSelectionRange' in textarea) {
+        (textarea as HTMLTextAreaElement).setSelectionRange(
+          formattedContent.length, 
+          formattedContent.length
+        );
+      }
+      
+      // Close dialogs
+      if (window.dialogManager) {
+        window.dialogManager.closeDialog('placeholderEditor');
+      } else {
+        setPlaceholderEditorOpen(false);
+      }
+      
+      setSelectedTemplate(null);
+      updateFormData(DEFAULT_FORM_DATA);
+      
+      if (onClose) onClose();
+      
+      toast.success('Template applied successfully');
     } catch (error) {
-      console.error("Error opening edit template dialog:", error);
-      // Fallback to direct state management
-      setEditDialogOpen(true);
+      console.error('❌ Template application error:', error);
+      toast.error('Error applying template');
     }
-  }, [folderManager.userFolders, setEditDialogOpen, updateFormData]);
+  }, [updateFormData]);
   
   // Handle saving a template
   const handleSaveTemplate = useCallback(async () => {
@@ -197,64 +179,74 @@ export function useTemplates() {
         console.error('❌ Failed to track template usage:', err);
       });
     }
-  }, []);
+  }, [handleFinalizeTemplate]);
   
-  // Handle finalizing and applying a template
-  const handleFinalizeTemplate = useCallback((finalContent: string, onClose?: () => void) => {
-    const textarea = document.querySelector('#prompt-textarea');
-    if (!textarea) {
-      console.error('❌ Could not find input area');
+  // Function to open the template editor dialog for new template
+  const handleCreateTemplate = useCallback(() => {
+    const initialData = { ...DEFAULT_FORM_DATA };
+    
+    // Update the state immediately
+    setSelectedTemplate(null);
+    updateFormData(initialData);
+    
+    console.log('🆕 Creating new template with data:', initialData);
+    
+    // Use window.dialogManager directly
+    if (window.dialogManager) {
+      window.dialogManager.openDialog('createTemplate', {
+        formData: initialData,
+        onFormChange: updateFormData,
+        onSave: () => handleSaveTemplate(),
+        userFolders: folderManager.userFolders || []
+      });
+    } else {
+      // Instead of using setEditDialogOpen which might not exist anymore,
+      // use a toast to show an error message
+      console.error('Dialog manager not available');
+      toast.error('Could not open template editor. Please try again.');
+    }
+  }, [folderManager.userFolders, updateFormData, handleSaveTemplate]);
+  
+  // Function to edit an existing template
+  const handleEditTemplate = useCallback((template: Template) => {
+    // Valid template check
+    if (!template) {
+      console.error('❌ Invalid template for editing');
       return;
     }
-
-    try {
-      // Normalize line breaks and trim excess whitespace
-      const formattedContent = finalContent
-        .replace(/\r\n/g, '\n')  // Normalize line breaks
-        .replace(/\n{3,}/g, '\n\n')  // Limit consecutive newlines
-        .trim();  // Remove leading/trailing whitespace
-
-      if (textarea instanceof HTMLTextAreaElement) {
-        // If it's a textarea, set the value directly
-        textarea.value = formattedContent;
-      } else {
-        // For contenteditable divs, set textContent
-        textarea.textContent = formattedContent;
-      }
-      
-      // Trigger input event to notify React of the change
-      textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      textarea.dispatchEvent(new Event('change', { bubbles: true }));
-      
-      // Focus the textarea
-      textarea.focus();
-      
-      // If the textarea supports setting cursor position
-      if ('setSelectionRange' in textarea) {
-        (textarea as HTMLTextAreaElement).setSelectionRange(
-          formattedContent.length, 
-          formattedContent.length
-        );
-      }
-      
-      // Close dialogs
-      if (window.dialogManager) {
-        window.dialogManager.closeDialog('placeholderEditor');
-      } else {
-        setPlaceholderEditorOpen(false);
-      }
-      
-      setSelectedTemplate(null);
-      updateFormData(DEFAULT_FORM_DATA);
-      
-      if (onClose) onClose();
-      
-      toast.success('Template applied successfully');
-    } catch (error) {
-      console.error('❌ Template application error:', error);
-      toast.error('Error applying template');
+    
+    // Create form data from template
+    const formData = {
+      name: template.title || '',
+      content: template.content || '',
+      description: template.description || '',
+      folder: template.folder || '',
+      folder_id: template.folder_id,
+      based_on_official_id: null
+    };
+    
+    // Update the state immediately
+    setSelectedTemplate(template);
+    updateFormData(formData);
+    
+    console.log('✏️ Editing template:', template.id, 'with data:', formData);
+    
+    // Use window.dialogManager directly
+    if (window.dialogManager) {
+      window.dialogManager.openDialog('editTemplate', {
+        template,
+        formData,
+        onFormChange: updateFormData,
+        onSave: () => handleSaveTemplate(),
+        userFolders: folderManager.userFolders || []
+      });
+    } else {
+      // Instead of using setEditDialogOpen which might not exist anymore,
+      // use a toast to show an error message
+      console.error('Dialog manager not available');
+      toast.error('Could not open template editor. Please try again.');
     }
-  }, [updateFormData]);
+  }, [folderManager.userFolders, updateFormData, handleSaveTemplate]);
 
   return {
     // Folders state from folderManager
