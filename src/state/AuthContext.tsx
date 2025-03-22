@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       try {
         // Get user from auth service
-        const currentUser = await authService.getCurrentUser();
+        const currentUser = await authService.getAuthState().user;
         setUser(currentUser);
       } catch (err) {
         console.error('Error initializing auth:', err);

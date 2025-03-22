@@ -120,51 +120,6 @@ export class AppInitializer {
   }
   
   /**
-   * Save current conversation
-   */
-  private saveCurrentConversation(): void {
-    // Get current chat service from the service manager
-    const chatService = serviceManager.getService('chat');
-    if (!chatService) {
-      console.error('Chat service not available');
-      return;
-    }
-    
-    const chatId = chatService.getCurrentConversationId();
-    if (!chatId) {
-      // Use toast for notification
-      toast.warning(
-        chrome.i18n.getMessage('noActiveConversation') || 'No Active Conversation', 
-        {
-          description: chrome.i18n.getMessage('pleaseSelectConversation') || 'Please select a conversation first.'
-        }
-      );
-      return;
-    }
-    
-    // Use the service to save conversation data
-    try {
-      // Save the conversation (implementation depends on your chat service)
-      chatService.setCurrentConversationId(chatId);
-      
-      // Show success toast
-      toast.success(
-        chrome.i18n.getMessage('conversationSaved') || 'Conversation Saved', 
-        {
-          description: chrome.i18n.getMessage('conversationSavedSuccess') || 'Your conversation has been saved successfully.'
-        }
-      );
-    } catch (error) {
-      toast.error(
-        chrome.i18n.getMessage('errorSavingConversation') || 'Error Saving Conversation', 
-        {
-          description: chrome.i18n.getMessage('problemSavingConversation') || 'There was a problem saving your conversation.'
-        }
-      );
-    }
-  }
-  
-  /**
    * Clean up all resources
    */
   public cleanup(): void {

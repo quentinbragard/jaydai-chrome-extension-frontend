@@ -137,7 +137,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
   return (
     <div className="subfolder-container">
       <div 
-        className="subfolder-header flex items-center p-2 hover:bg-accent cursor-pointer group rounded-sm" 
+        className="subfolder-header flex items-center p-2 hover:bg-accent/60 cursor-pointer group rounded-sm" 
         onClick={toggleExpand}
       >
         {isExpanded ? <ChevronDown className="h-4 w-4 mr-1" /> : <ChevronRight className="h-4 w-4 mr-1" />}
@@ -250,7 +250,7 @@ const SubfolderRenderer: React.FC<SubfolderRendererProps> = ({
   return (
     <div className="subfolder-container">
       <div 
-        className="subfolder-header flex items-center p-2 hover:bg-accent cursor-pointer group rounded-sm" 
+        className="subfolder-header flex items-center p-2 hover:bg-accent/60 cursor-pointer group rounded-sm" 
         onClick={toggleExpand}
       >
         {isExpanded ? <ChevronDown className="h-4 w-4 mr-1" /> : <ChevronRight className="h-4 w-4 mr-1" />}

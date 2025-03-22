@@ -15,7 +15,7 @@ import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { FolderPlus } from 'lucide-react';
 import { DEFAULT_FORM_DATA } from '@/types/templates';
-
+import { promptApi } from '@/services/api/PromptApi';
 /**
  * Unified Template Dialog for both creating and editing templates
  */
@@ -151,8 +151,7 @@ export const TemplateDialog: React.FC = () => {
     try {
       console.log('Creating folder:', folderData);
       
-      // In a real implementation this would call your API through a service
-      // For now, assume success and close dialog
+      promptApi.createFolder(folderData);
       return true;
     } catch (error) {
       console.error('Error creating folder:', error);
@@ -175,6 +174,7 @@ export const TemplateDialog: React.FC = () => {
     setIsSubmitting(true);
     try {
       console.log('Saving template with data:', formData);
+      promptApi.createTemplate(formData);
       const success = await onSave();
       if (success) {
         handleClose();

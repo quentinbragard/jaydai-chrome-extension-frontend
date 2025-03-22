@@ -157,7 +157,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
       return (
         <div key={folder.id} className="folder-container">
           <div 
-            className="folder-header flex items-center p-2 hover:bg-accent cursor-pointer group rounded-sm"
+            className="folder-header flex items-center p-2 hover:bg-accent/60 cursor-pointer group rounded-sm"
             onClick={() => toggleFolder(folder.id)}
           >
             <span className="mr-1">{isExpanded ? '▼' : '▶'}</span>

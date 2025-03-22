@@ -125,7 +125,7 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
     return (
       <div key={folder.id} className="folder-container">
         <div 
-          className="folder-header flex items-center p-2 hover:bg-accent cursor-pointer group rounded-sm"
+          className="folder-header  hover:bg-accent/60 flex items-center p-2 cursor-pointer group rounded-sm"
           onClick={() => toggleFolder(folder.id)}
         >
           {isExpanded ? <ChevronDown className="h-4 w-4 mr-1" /> : <ChevronRight className="h-4 w-4 mr-1" />}

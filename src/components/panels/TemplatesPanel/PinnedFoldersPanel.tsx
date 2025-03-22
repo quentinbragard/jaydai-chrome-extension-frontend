@@ -199,8 +199,10 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                       onUseTemplate={onUseTemplate}
                       onEditTemplate={onEditTemplate}
                       onDeleteTemplate={onDeleteTemplate}
-                      type="user"
-                      onDeleteFolder={handleDeleteFolder}
+                      type="official"
+                      isPinned={true}
+                      onTogglePin={(folderId, isPinned, e) => handleTogglePin(folderId, isPinned, 'official')}
+                      onDeleteFolder={undefined} // Can't delete official folders
                     />
                   ))
                 ) : (

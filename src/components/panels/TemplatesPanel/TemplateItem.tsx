@@ -24,7 +24,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   
   return (
     <div 
-      className="flex items-center p-2 hover:bg-accent rounded-sm cursor-pointer group"
+      className="flex items-center p-2 hover:bg-accent/60 rounded-sm cursor-pointer group"
       onClick={() => onUseTemplate(template)}
     >
       <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
