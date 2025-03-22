@@ -5,7 +5,7 @@ import MainButton from '@/components/layout/MainButton';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import AuthDialog from '@/components/auth/AuthDialog';
-import SettingsDialog from '@/components/dialogs/SettingsDialog';
+import { DialogManagerProvider } from '@/core/managers/DialogManager';
 
 // Lazy-loaded components
 const StatsPanel = React.lazy(() => import('@/components/panels/StatsPanel'));
@@ -18,29 +18,32 @@ const Main: React.FC = () => {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        {/* UI Components */}
-        <MainButton
-          onSettingsClick={() => {
-            // Open settings dialog using DialogManager
-            window.dialogManager?.openDialog('settings');
-          }}
-        />
-        
-        {/* Stats Panel with suspense fallback */}
-        <Suspense fallback={<div className="fixed top-4 left-1/2 transform -translate-x-1/2">
-          <LoadingSpinner size="sm" message="Loading stats..." />
-        </div>}>
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2">
-            <StatsPanel compact />
-          </div>
-        </Suspense>
-        
-        {/* Global Dialogs */}
-        <AuthDialog />
-        <SettingsDialog />
-        
-        {/* Toast notifications */}
-        <Toaster richColors position="top-right" />
+        <DialogManagerProvider>
+          {/* UI Components */}
+          <MainButton
+            onSettingsClick={() => {
+              // Use the useDialogManager hook or dialogManager global inside of components
+              if (window.dialogManager) {
+                window.dialogManager.openDialog('settings');
+              }
+            }}
+          />
+          
+          {/* Stats Panel with suspense fallback */}
+          <Suspense fallback={<div className="fixed top-4 left-1/2 transform -translate-x-1/2">
+            <LoadingSpinner size="sm" message="Loading stats..." />
+          </div>}>
+            <div className="fixed top-4 left-1/2 transform -translate-x-1/2">
+              <StatsPanel compact />
+            </div>
+          </Suspense>
+          
+          {/* Global Dialogs - now handled by DialogManagerProvider */}
+          <AuthDialog />
+          
+          {/* Toast notifications */}
+          <Toaster richColors position="top-right" />
+        </DialogManagerProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

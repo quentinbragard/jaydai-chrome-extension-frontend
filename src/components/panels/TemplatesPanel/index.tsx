@@ -12,6 +12,7 @@ import { Template, TemplateFolder } from '@/types/templates';
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
 import TemplateFolderSection from './TemplateFolderSection';
 import PlaceholderEditor from './PlaceholderEditor';
+import { useDialogManager } from '@/core/managers/DialogManager';
 
 interface TemplatesPanelProps {
   showBackButton?: boolean;
@@ -30,6 +31,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const { pushPanel } = usePanelNavigation();
   const [placeholderEditorOpen, setPlaceholderEditorOpen] = useState(false);
   
+  // Get the dialog manager if available
+  let dialogManager;
+  try {
+    dialogManager = useDialogManager();
+  } catch (e) {
+    // Dialog manager context not available, will fall back to window.dialogManager
+    console.log("Dialog manager context not available, using fallback methods");
+  }
+  
   const {
     loading,
     selectedTemplate,
@@ -41,6 +51,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     handleDeleteTemplate,
     handleFinalizeTemplate,
     refreshFolders,
+    handleCreateTemplate,
     error,
     pinnedFolderIds,
     toggleFolderPin
@@ -56,11 +67,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder`);
       console.error('Error toggling pin:', error);
     }
-  };
-
-  // Open template creation dialog
-  const handleCreateTemplate = () => {
-    dialogManager.openDialog('createTemplate');
   };
 
   // Browse more official or organization templates

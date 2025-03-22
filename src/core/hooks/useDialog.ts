@@ -24,6 +24,7 @@ const useDialogStore = create<DialogState>((set, get) => ({
   listeners: {},
   
   openDialog: (dialogType, data) => {
+    console.log(`Opening dialog: ${dialogType}`, data);
     set((state) => ({
       activeDialogs: {
         ...state.activeDialogs,
@@ -41,6 +42,7 @@ const useDialogStore = create<DialogState>((set, get) => ({
   },
   
   closeDialog: (dialogType) => {
+    console.log(`Closing dialog: ${dialogType}`);
     set((state) => ({
       activeDialogs: {
         ...state.activeDialogs,
@@ -90,7 +92,7 @@ const useDialogStore = create<DialogState>((set, get) => ({
 }));
 
 // Singleton instance for imperative usage
-class DialogManagerClass {
+export class DialogManagerClass {
   openDialog(dialogType: DialogType, data?: any) {
     useDialogStore.getState().openDialog(dialogType, data);
   }
@@ -126,6 +128,7 @@ export function useDialog(dialogType: DialogType) {
   useEffect(() => {
     // Subscribe to dialog changes
     const unsubscribe = dialogManager.subscribe(dialogType, (open, newData) => {
+      console.log(`Dialog ${dialogType} state changed:`, {open, newData});
       setIsOpen(open);
       setData(newData);
     });

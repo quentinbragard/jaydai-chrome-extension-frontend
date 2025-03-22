@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Template, TemplateFormData, DEFAULT_FORM_DATA } from '@/types/templates';
 import { useTemplateFolders } from './useTemplateFolders';
 import { useTemplateEditor } from './useTemplateEditor';
@@ -9,6 +9,7 @@ import { toast } from 'sonner';
  * This hook combines functionality from specialized hooks and adds template usage-specific features
  */
 export function useTemplates() {
+  // State
   const [placeholderEditorOpen, setPlaceholderEditorOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [templateFormData, setTemplateFormData] = useState<TemplateFormData>(DEFAULT_FORM_DATA);
@@ -20,26 +21,102 @@ export function useTemplates() {
   // Create a combined hook object for easy use
   const { editDialogOpen, setEditDialogOpen, isSubmitting, error } = templateEditor;
   
-  // Function to open the template editor dialog
-  const openEditor = useCallback((template: Template | null) => {
-    setSelectedTemplate(template);
+  // Debug state changes
+  const lastFormUpdate = useRef<string>('');
+  useEffect(() => {
+    const formDataStr = JSON.stringify(templateFormData);
+    if (formDataStr !== lastFormUpdate.current) {
+      console.log('✅ templateFormData updated:', templateFormData);
+      lastFormUpdate.current = formDataStr;
+    }
+  }, [templateFormData]);
+  
+  // Function to update form data consistently
+  const updateFormData = useCallback((newData: TemplateFormData) => {
+    console.log('🔄 updateFormData called with:', newData);
+    setTemplateFormData(newData);
+  }, []);
+  
+  // Function to open the template editor dialog for new template
+  const handleCreateTemplate = useCallback(() => {
+    const initialData = { ...DEFAULT_FORM_DATA };
     
-    // Initialize form data from template or defaults
-    setTemplateFormData(template ? {
+    // Update the state immediately
+    setSelectedTemplate(null);
+    updateFormData(initialData);
+    
+    console.log('🆕 Creating new template with data:', initialData);
+    
+    // Try to use the dialog manager
+    try {
+      if (window.dialogManager) {
+        window.dialogManager.openDialog('createTemplate', {
+          formData: initialData,
+          onFormChange: updateFormData,
+          onSave: () => handleSaveTemplate(),
+          userFolders: folderManager.userFolders || []
+        });
+      } else {
+        // Fallback to direct state management
+        setEditDialogOpen(true);
+      }
+    } catch (error) {
+      console.error("Error opening template dialog:", error);
+      // Fallback to direct state management
+      setEditDialogOpen(true);
+    }
+  }, [folderManager.userFolders, setEditDialogOpen, updateFormData]);
+  
+  // Function to open the template editor for an existing template
+  const handleEditTemplate = useCallback((template: Template) => {
+    // Valid template check
+    if (!template) {
+      console.error('❌ Invalid template for editing');
+      return;
+    }
+    
+    // Create form data from template
+    const formData = {
       name: template.title || '',
       content: template.content || '',
       description: template.description || '',
       folder: template.folder || '',
       folder_id: template.folder_id,
       based_on_official_id: null
-    } : DEFAULT_FORM_DATA);
+    };
     
-    setEditDialogOpen(true);
-  }, [setEditDialogOpen]);
+    // Update the state immediately
+    setSelectedTemplate(template);
+    updateFormData(formData);
+    
+    console.log('✏️ Editing template:', template.id, 'with data:', formData);
+    
+    // Try to use the dialog manager
+    try {
+      if (window.dialogManager) {
+        window.dialogManager.openDialog('editTemplate', {
+          template,
+          formData,
+          onFormChange: updateFormData,
+          onSave: () => handleSaveTemplate(),
+          userFolders: folderManager.userFolders || []
+        });
+      } else {
+        // Fallback to direct state management
+        setEditDialogOpen(true);
+      }
+    } catch (error) {
+      console.error("Error opening edit template dialog:", error);
+      // Fallback to direct state management
+      setEditDialogOpen(true);
+    }
+  }, [folderManager.userFolders, setEditDialogOpen, updateFormData]);
   
   // Handle saving a template
   const handleSaveTemplate = useCallback(async () => {
     try {
+      console.log('💾 Saving template with data:', templateFormData);
+      
       // Form validation
       if (!templateFormData.name?.trim()) {
         toast.error('Template name is required');
@@ -55,34 +132,61 @@ export function useTemplates() {
       const success = await templateEditor.saveTemplate();
       
       if (success) {
+        console.log('✅ Template saved successfully');
+        
         // Reset template selection and form when saved successfully
         setSelectedTemplate(null);
-        setTemplateFormData(DEFAULT_FORM_DATA);
+        updateFormData(DEFAULT_FORM_DATA);
+        
+        // Close dialogs if using dialog manager
+        if (window.dialogManager) {
+          window.dialogManager.closeDialog('createTemplate');
+          window.dialogManager.closeDialog('editTemplate');
+        }
         
         // Refresh the folders list to show the new template
         await folderManager.loadFolders();
         
         return true;
+      } else {
+        console.log('❌ Template save failed');
       }
       
       return false;
     } catch (error) {
-      console.error("Error saving template:", error);
+      console.error("❌ Error saving template:", error);
       toast.error("Failed to save template");
       return false;
     }
-  }, [templateFormData, templateEditor, folderManager.loadFolders]);
+  }, [templateFormData, templateEditor, folderManager.loadFolders, updateFormData]);
   
   // Handle using a template (opening placeholder editor)
   const handleUseTemplate = useCallback((template: Template) => {
     // Valid template check
     if (!template || !template.content) {
-      console.error('Invalid template selected');
+      console.error('❌ Invalid template selected');
       return;
     }
     
     setSelectedTemplate(template);
-    setPlaceholderEditorOpen(true);
+    
+    // Try to use the dialog manager
+    try {
+      if (window.dialogManager) {
+        window.dialogManager.openDialog('placeholderEditor', {
+          content: template.content,
+          title: template.title,
+          onComplete: handleFinalizeTemplate
+        });
+      } else {
+        // Fallback to direct state management
+        setPlaceholderEditorOpen(true);
+      }
+    } catch (error) {
+      console.error("❌ Error opening placeholder editor:", error);
+      // Fallback to direct state management
+      setPlaceholderEditorOpen(true);
+    }
     
     // Track template usage in the background
     if (template.id) {
@@ -90,7 +194,7 @@ export function useTemplates() {
       import('@/services/api/PromptApi').then(({ promptApi }) => {
         promptApi.trackTemplateUsage(template.id);
       }).catch(err => {
-        console.error('Failed to track template usage:', err);
+        console.error('❌ Failed to track template usage:', err);
       });
     }
   }, []);
@@ -99,7 +203,7 @@ export function useTemplates() {
   const handleFinalizeTemplate = useCallback((finalContent: string, onClose?: () => void) => {
     const textarea = document.querySelector('#prompt-textarea');
     if (!textarea) {
-      console.error('Could not find input area');
+      console.error('❌ Could not find input area');
       return;
     }
 
@@ -133,15 +237,24 @@ export function useTemplates() {
         );
       }
       
-      setPlaceholderEditorOpen(false);
+      // Close dialogs
+      if (window.dialogManager) {
+        window.dialogManager.closeDialog('placeholderEditor');
+      } else {
+        setPlaceholderEditorOpen(false);
+      }
+      
       setSelectedTemplate(null);
-      setTemplateFormData(DEFAULT_FORM_DATA);
+      updateFormData(DEFAULT_FORM_DATA);
       
       if (onClose) onClose();
+      
+      toast.success('Template applied successfully');
     } catch (error) {
-      console.error('Template application error:', error);
+      console.error('❌ Template application error:', error);
+      toast.error('Error applying template');
     }
-  }, []);
+  }, [updateFormData]);
 
   return {
     // Folders state from folderManager
@@ -157,20 +270,33 @@ export function useTemplates() {
     setEditDialogOpen,
     selectedTemplate,
     templateFormData, 
-    setTemplateFormData,
+    setTemplateFormData: updateFormData,
     
     // Placeholder editor state
     placeholderEditorOpen,
     setPlaceholderEditorOpen,
     
     // Editor functions
-    openEditor,
+    openEditor: handleEditTemplate,
+    handleCreateTemplate,
     handleSaveTemplate,
     handleDeleteTemplate: templateEditor.deleteTemplate,
     
     // Template usage functions
     handleUseTemplate,
+    handleEditTemplate,
     handleFinalizeTemplate,
+    
+    // Folder functions
+    toggleFolderPin: folderManager.toggleFolderPin,
+    createFolder: folderManager.createFolder,
+    deleteFolder: folderManager.deleteFolder,
+    
+    // For templates panel
+    pinnedFolderIds: [
+      ...folderManager.pinnedOfficialFolders.map(f => f.id),
+      ...folderManager.pinnedOrganizationFolders.map(f => f.id)
+    ]
   };
 }
 

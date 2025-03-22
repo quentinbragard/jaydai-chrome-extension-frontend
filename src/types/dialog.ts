@@ -1,59 +1,51 @@
-/**
- * Types for the dialog management system
- */
+// src/types/dialog.ts
 
-// All supported dialog types in the application
+/**
+ * Enum of all dialog types supported by the application
+ */
 export type DialogType = 
-  | 'auth'
   | 'settings'
   | 'createTemplate'
   | 'editTemplate'
   | 'createFolder'
+  | 'placeholderEditor'
   | 'confirmation';
 
 /**
- * Options that can be passed to a dialog
+ * Confirmation dialog data interface
  */
-export interface DialogOptions {
-  title?: string;
-  description?: string;
-  // Auth-specific options
-  initialMode?: 'signin' | 'signup';
-  isSessionExpired?: boolean;
-  // Template-specific options
-  templateId?: string | number;
-  folderId?: string | number;
-  // Generic options
-  entity?: any;
-  data?: any;
-  onConfirm?: () => void;
+export interface ConfirmationDialogData {
+  title: string;
+  description: string;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm: () => void;
   onCancel?: () => void;
-  onClose?: () => void;
 }
 
-// Common options for all dialogs
-export interface DialogBaseOptions {
-  onClose?: () => void;
+/**
+ * Template dialog data interface
+ */
+export interface TemplateDialogData {
+  template?: any;
+  formData?: any;
+  onFormChange?: (formData: any) => void;
+  onSave?: () => Promise<void>;
+  userFolders?: any[];
+}
+
+/**
+ * Placeholder editor dialog data
+ */
+export interface PlaceholderEditorData {
+  content: string;
   title?: string;
-  description?: string;
+  onComplete: (modifiedContent: string) => void;
 }
 
-// Auth dialog specific options
-export interface AuthDialogOptions extends DialogBaseOptions {
-  initialMode?: 'signin' | 'signup';
-  isSessionExpired?: boolean;
-}
-
-// Template dialog specific options
-export interface TemplateDialogOptions extends DialogBaseOptions {
-  templateId?: number;
-  folderId?: number;
-}
-
-// Delete confirmation dialog options
-export interface DeleteConfirmationOptions extends DialogBaseOptions {
-  itemType: 'template' | 'folder' | 'notification';
-  itemId: number | string;
-  itemName?: string;
-  onConfirm: () => Promise<void>;
+/**
+ * Folder dialog data
+ */
+export interface FolderDialogData {
+  onSaveFolder: (folderData: { name: string; path: string; description: string }) => Promise<boolean>;
 }
