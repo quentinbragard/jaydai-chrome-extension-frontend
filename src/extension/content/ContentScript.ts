@@ -8,7 +8,7 @@ import { authService } from '@/services/auth/AuthService';
 import { chatService } from '@/services/chat/ChatService';
 import { componentInjector } from '@/core/utils/componentInjector';
 import MainButton from '@/components/MainButton';
-import StatsPanel from '@/components/StatsPanel';
+import StatsPanel from '@/components/panels/StatsPanel';
 
 /**
  * Main content script class that manages extension functionality

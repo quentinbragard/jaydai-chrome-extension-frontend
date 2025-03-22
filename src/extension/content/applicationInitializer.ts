@@ -1,20 +1,12 @@
-// src/extension/content/applicationInitializer.ts
-
-import { statsService } from '@/services/analytics/StatsService';
-import { notificationService } from '@/services/notifications/NotificationService';
-import { userInfoService } from '@/services/user/UserInfoService'; 
+// Import necessary components and services
+import { serviceManager } from '@/core/managers/ServiceManager';
+import { eventManager } from '@/core/events/EventManager';
+import { registerServices } from '@/services';
 import { componentInjector } from '@/core/utils/componentInjector';
-import { StatsPanel } from '@/components/StatsPanel';
 import MainButton from '@/components/MainButton';
-import { authService } from '@/services/auth/AuthService';
-import { SettingsDialog } from '@/components/SettingsDialog';
-import React from 'react';
-import { networkRequestMonitor } from '@/core/network/NetworkRequestMonitor';
-import { messageService } from '@/services/MessageService';
-import { UrlChangeListener } from '@/services/UrlChangeListener';
-import { chatService } from '@/services/chat/ChatService';
-import { emitEvent, AppEvent } from '@/core/events/events';
-import { toast } from "sonner";
+import { dialogManager } from '@/core/managers/DialogManager';
+import { errorReporter } from '@/core/errors/ErrorReporter';
+import { AppError, ErrorCode } from '@/core/errors/AppError';
 
 /**
  * Main application initializer
@@ -23,8 +15,6 @@ import { toast } from "sonner";
 export class AppInitializer {
   private static instance: AppInitializer;
   private isInitialized: boolean = false;
-  private isAuthenticating: boolean = false;
-  private settingsOpen: boolean = false;
   
   private constructor() {}
   
@@ -55,129 +45,40 @@ export class AppInitializer {
     try {
       console.log('🚀 Initializing Archimind application...');
       
-      // 1. Authenticate user
-      const isAuthenticated = await this.authenticateUser();
-      if (!isAuthenticated) {
-        console.error('❌ User authentication failed');
-        return false;
-      }
+      // Register services
+      registerServices();
       
-      // 2. Initialize core services
-      await this.initializeCoreServices();
+      // Initialize event manager
+      eventManager.initialize();
       
-      // 3. Set up URL change monitoring
-      this.setupUrlChangeMonitoring();
+      // Initialize services (in correct order)
+      await serviceManager.initializeAll();
       
-      // 4. Set up message listeners
-      this.setupMessageListeners();
-      
-      // 5. Inject UI components
+      // Inject UI components
       this.injectUIComponents();
-      
-      // 6. Initialize secondary services
-      await this.initializeSecondaryServices();
       
       this.isInitialized = true;
       console.log('✅ Archimind application initialized successfully');
       return true;
     } catch (error) {
+      errorReporter.captureError(
+        new AppError('Failed to initialize application', ErrorCode.EXTENSION_ERROR, error)
+      );
       console.error('❌ Error initializing application:', error);
       return false;
     }
   }
-
+  
   /**
-   * Initialize core services
+   * Check if we're on ChatGPT
    */
-  private async initializeCoreServices(): Promise<void> {
-    console.log('🔧 Initializing core services...');
-    
-    // Initialize network monitoring first since other services depend on it
-    networkRequestMonitor.initialize();
-    
-    // Initialize the chat service that will now handle conversations
-    await chatService.initialize();
-    
-    // Initialize message service
-    messageService.initialize();
-    
-    // Set up specific endpoint listeners
-    this.setupSpecificEndpointListeners();
-    
-    console.log('✅ Core services initialized');
-  }
-
-  /**
-   * Set up listeners for specific API endpoints
-   */
-  private setupSpecificEndpointListeners(): void {
-    
-    // Add listener for specific conversation endpoint
-    const specificConversationRegex = '/backend-api/conversation/[a-zA-Z0-9-]+$';
-    networkRequestMonitor.addListener(specificConversationRegex, (data) => {
-      chatService.getConversation(data);
-      chatService.setCurrentConversationId(data);
-      console.log('🔑🔑 specificConversation', data);
-    });
-    
-    // Also listen for the specific event type
-    networkRequestMonitor.addListener('specificConversation', (data) => {
-      chatService.getConversation(data);
-      chatService.setCurrentConversationId(data);
-      console.log('🔑 specificConversation', data);
-    });
-    
-    console.log('✅ Specific endpoint listeners set up');
-  }
-
-  /**
-   * Set up URL change monitoring
-   */
-  private setupUrlChangeMonitoring(): void {
-    // Create URL change listener
-    const urlListener = new UrlChangeListener({
-      onUrlChange: (newUrl) => {
-        console.log(`🔍 URL changed: ${newUrl}`);
-        
-        // Extract chatId from URL
-        const chatId = UrlChangeListener.extractChatIdFromUrl(newUrl);
-        
-        // If a valid chat ID is found, update the current conversation
-        if (chatId) {
-          chatService.setCurrentConversationId(chatId);
-          
-          // Emit an event for other components to react to
-          emitEvent(AppEvent.CHAT_CONVERSATION_CHANGED, {
-            conversationId: chatId
-          });
-        }
-      }
-    });
-    
-    // Start listening for URL changes
-    urlListener.startListening();
+  private isChatGPTSite(): boolean {
+    return window.location.hostname.includes('chatgpt.com') || 
+           window.location.hostname.includes('chat.openai.com');
   }
   
   /**
-   * Initialize secondary services
-   */
-  private async initializeSecondaryServices(): Promise<void> {
-    console.log('🔧 Initializing secondary services...');
-    
-    // Initialize notification service
-    notificationService.initialize();
-    
-    // Initialize user info service
-    userInfoService.initialize();
-    
-    // Initialize statistics service
-    statsService.initialize();
-    
-    console.log('✅ Secondary services initialized');
-  }
-  
-  /**
-   * Inject UI components with simplified positioning
+   * Inject UI components
    */
   private injectUIComponents(): void {
     console.log('🔧 Injecting UI components...');
@@ -198,10 +99,55 @@ export class AppInitializer {
     
     console.log('✅ UI components injected');
   }
-
-
-
   
+  /**
+   * Open settings dialog
+   */
+  private openSettings(): void {
+    dialogManager.openDialog('settings');
+  }
+  
+  /**
+   * Save current conversation
+   */
+  private saveCurrentConversation(): void {
+    // Get current chat service from the service manager
+    const chatService = serviceManager.getService('chat');
+    if (!chatService) {
+      console.error('Chat service not available');
+      return;
+    }
+    
+    const chatId = chatService.getCurrentConversationId();
+    if (!chatId) {
+      // Use toast for notification
+      toast.warning(
+        chrome.i18n.getMessage('noActiveConversation') || 'No Active Conversation', 
+        {
+          description: chrome.i18n.getMessage('pleaseSelectConversation') || 'Please select a conversation first.'
+        }
+      );
+      return;
+    }
+    
+    // Use the service to save conversation data
+    try {
+      // Show success toast
+      toast.success(
+        chrome.i18n.getMessage('conversationSaved') || 'Conversation Saved', 
+        {
+          description: chrome.i18n.getMessage('conversationSavedSuccess') || 'Your conversation has been saved successfully.'
+        }
+      );
+    } catch (error) {
+      toast.error(
+        chrome.i18n.getMessage('errorSavingConversation') || 'Error Saving Conversation', 
+        {
+          description: chrome.i18n.getMessage('problemSavingConversation') || 'There was a problem saving your conversation.'
+        }
+      );
+    }
+  }
   
   /**
    * Clean up all resources
@@ -211,180 +157,17 @@ export class AppInitializer {
     
     console.log('🧹 Cleaning up Archimind application...');
     
-    // Clean up services
-    statsService.cleanup();
-    notificationService.cleanup();
-    messageService.cleanup();
-    networkRequestMonitor.cleanup();
-    chatService.cleanup();
-    
     // Remove UI components
     componentInjector.removeAll();
     
-    // Remove event listener for network intercept
-    document.removeEventListener('archimind-network-intercept', 
-      this.handleNetworkIntercept as EventListener);
+    // Clean up services in reverse initialization order
+    serviceManager.cleanupAll();
+    
+    // Clean up event manager
+    eventManager.cleanup();
     
     this.isInitialized = false;
     console.log('✅ Archimind application cleaned up');
-  }
-  
-  /**
-   * Check if we're on ChatGPT
-   */
-  private isChatGPTSite(): boolean {
-    return window.location.hostname.includes('chatgpt.com') || 
-           window.location.hostname.includes('chat.openai.com');
-  }
-  
-  /**
-   * Authenticate the user
-   */
-  private async authenticateUser(): Promise<boolean> {
-    console.log('🔑 Authenticating user...');
-    if (this.isAuthenticating) {
-      return new Promise((resolve) => {
-        // Poll until authentication is complete
-        const checkInterval = setInterval(() => {
-          if (!this.isAuthenticating) {
-            clearInterval(checkInterval);
-            resolve(this.isAuthenticated());
-          }
-        }, 100);
-      });
-    }
-    
-    this.isAuthenticating = true;
-    console.log('🔑 this.isAuthenticating', this.isAuthenticating);
-    
-    try {
-      // Check for user ID in storage
-      const userId = await authService.getUserId();
-      console.log('🔑 userId', userId);
-      if (!userId) {
-        this.isAuthenticating = false;
-        return false;
-      }
-      
-      this.isAuthenticating = false;
-      return true;
-    } catch (error) {
-      console.error('❌ Error authenticating user:', error);
-      this.isAuthenticating = false;
-      return false;
-    }
-  }
-  
-  /**
-   * Check if user is authenticated
-   */
-  private isAuthenticated(): boolean {
-    // For simplicity, check if userId exists in local storage
-    return !!localStorage.getItem('userId');
-  }
-  
-  /**
-   * Handle network intercept events
-   */
-  private handleNetworkIntercept(): void {
-    // Stub for future functionality
-  }
-  
-  /**
-   * Open settings dialog
-   */
-  private openSettings(): void {
-    if (this.settingsOpen) return;
-    
-    this.settingsOpen = true;
-    
-    // Inject the Settings Dialog
-    componentInjector.inject(
-      (props) => React.createElement(SettingsDialog, {
-        open: true,
-        onOpenChange: (open) => {
-          if (!open) {
-            this.settingsOpen = false;
-            // Remove dialog when closed
-            componentInjector.remove('archimind-settings-dialog');
-          }
-        },
-        ...props
-      }),
-      {},
-      { id: 'archimind-settings-dialog' }
-    );
-  }
-  
-  /**
-   * Save current conversation
-   */
-  private saveCurrentConversation(): void {
-    // Get current chat ID from the chat service instead of conversationHandler
-    const chatId = chatService.getCurrentConversationId();
-    if (!chatId) {
-      // Use toast instead of custom event for more consistent UI
-      toast.warning('No Active Conversation', {
-        description: 'Please select a conversation first.'
-      });
-      return;
-    }
-    
-    // Use the service to save conversation data
-    try {
-      // The chatService already has the conversation ID set, and messages are 
-      // saved automatically. We can add special flags or forced saves here if needed.
-      
-      // Show success toast
-      toast.success('Conversation Saved', {
-        description: 'Your conversation has been saved successfully.'
-      });
-    } catch (error) {
-      toast.error('Error Saving Conversation', {
-        description: 'There was a problem saving your conversation.'
-      });
-    }
-  }
-  
-  /**
-   * Set up message listeners for internal communication
-   */
-  private setupMessageListeners(): void {
-    // Listen for Chrome extension messages
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (message.action === 'applySettings') {
-        // Process settings asynchronously
-        setTimeout(() => {
-          this.applySettings(message.settings);
-          sendResponse({ success: true });
-        }, 0);
-        return true; // Keep channel open for async response
-      } 
-      else if (message.action === 'reinitialize') {
-        // Reinitialize the application
-        this.cleanup();
-        this.initialize().then(success => {
-          sendResponse({ success });
-        });
-        return true; // Keep channel open for async response
-      }
-    });
-  }
-  
-  /**
-   * Apply settings changes
-   */
-  private applySettings(settings: Record<string, unknown>): void {
-    if (!settings) return;
-    
-    if (settings.statsVisible !== undefined) {
-      const statsPanel = document.getElementById('archimind-stats-panel');
-      if (statsPanel) {
-        statsPanel.style.display = settings.statsVisible ? 'block' : 'none';
-      }
-    }
-    
-    // Apply other settings as needed
   }
 }
 

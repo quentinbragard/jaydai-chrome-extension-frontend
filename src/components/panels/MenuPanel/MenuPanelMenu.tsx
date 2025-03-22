@@ -1,19 +1,20 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
-import { FileText, Bell, Settings, Save } from "lucide-react";
+import { FileText, Bell, Settings, Save, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePanelNavigation } from '@/core/hooks/usePanelNavigation';
 
 interface MenuPanelMenuProps {
-  onSelect: (panel: 'templates' | 'notifications') => void;
   notificationCount: number;
   onSettingsClick: () => void;
 }
 
 const MenuPanelMenu: React.FC<MenuPanelMenuProps> = ({ 
-  onSelect, 
   notificationCount, 
   onSettingsClick 
 }) => {
+  const { pushPanel } = usePanelNavigation();
+
   return (
     <Card className="w-48 p-1 shadow-lg">
       <div className="flex flex-col space-y-1">
@@ -21,18 +22,27 @@ const MenuPanelMenu: React.FC<MenuPanelMenuProps> = ({
           variant="ghost" 
           size="sm" 
           className="justify-start" 
-          onClick={() => onSelect('templates')}
+          onClick={() => pushPanel({ type: 'templates' })}
         >
-          <FileText className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('templates')}
+          <FileText className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('templates') || 'Templates'}
         </Button>
         
         <Button 
           variant="ghost" 
           size="sm" 
           className="justify-start" 
-          onClick={() => onSelect('notifications')}
+          onClick={() => pushPanel({ type: 'stats' })}
         >
-          <Bell className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('notifications')}
+          <BarChart className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('aiStats') || 'AI Stats'}
+        </Button>
+        
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="justify-start" 
+          onClick={() => pushPanel({ type: 'notifications' })}
+        >
+          <Bell className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('notifications') || 'Notifications'}
           {notificationCount > 0 && (
             <span className="ml-auto bg-primary text-primary-foreground rounded-full text-xs px-1.5 py-0.5">
               {notificationCount}
@@ -44,9 +54,9 @@ const MenuPanelMenu: React.FC<MenuPanelMenuProps> = ({
           variant="ghost" 
           size="sm" 
           className="justify-start" 
-          onClick={() => window.open('https://thetunnel.substack.com/utm_source=archimind-extension', '_blank')}
+          onClick={() => window.open('https://thetunnel.substack.com/?utm_source=archimind-extension', '_blank')}
         >
-          <Save className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('aiNews')}
+          <Save className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('aiNews') || 'AI News'}
         </Button>
         
         <Button 
@@ -55,7 +65,7 @@ const MenuPanelMenu: React.FC<MenuPanelMenuProps> = ({
           className="justify-start" 
           onClick={onSettingsClick}
         >
-          <Settings className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('settings')}
+          <Settings className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('settings') || 'Settings'}
         </Button>
       </div>
     </Card>

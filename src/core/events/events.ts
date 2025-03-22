@@ -1,6 +1,6 @@
 // src/core/events/events.ts
 
-import { eventBus } from "./EventBus";
+import { eventManager } from "./EventManager";
 
 /**
  * Event names used throughout the application
@@ -77,12 +77,13 @@ export enum AppEvent {
    * Type-safe event emitter
    */
   export function emitEvent<T extends AppEvent>(event: T, payload: EventPayloads[T]): void {
-    eventBus.emit(event, payload);
+    eventManager.emit(event, payload);
   }
+  
   
   /**
    * Type-safe event listener
    */
   export function onEvent<T extends AppEvent>(event: T, callback: (payload: EventPayloads[T]) => void): () => void {
-    return eventBus.on(event, callback);
+    return eventManager.on(event, callback);
   }

@@ -1,14 +1,17 @@
 import React from 'react';
 import { Toaster } from "sonner";
 import ButtonIcon from './ButtonIcon';
-import MenuPanel from './MenuPanel';
+import MenuPanel from '../panels/MenuPanel';
 import { useMainButtonState } from './hooks/useMainButtonState';
-import { MainButtonProps } from './types';
+import { PanelNavigationProvider } from '@/core/hooks/usePanelNavigation';
 
 /**
  * Main floating button component that opens various panels
  */
-const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick }) => {
+const MainButton: React.FC<{
+  onSettingsClick?: () => void;
+  onSaveClick?: () => void;
+}> = ({ onSettingsClick, onSaveClick }) => {
   const {
     isOpen,
     notificationCount,
@@ -28,17 +31,18 @@ const MainButton: React.FC<MainButtonProps> = ({ onSettingsClick, onSaveClick })
     <div className="fixed bottom-6 right-2 z-[9999]">
       <div className="relative w-24 h-24 flex items-center justify-center">
         {/* Panel that appears above the main button */}
-        {isOpen && (
-          <MenuPanel
-            isOpen={isOpen}
-            notificationCount={notificationCount}
-            menuRef={menuRef}
-            onClosePanel={handleClosePanel}
-            onSaveClick={handleSaveClick}
-            onSettingsClick={handleSettingsClick}
-            setIsPlaceholderEditorOpen={setIsPlaceholderEditorOpen}
-          />
-        )}
+        <PanelNavigationProvider>
+          {isOpen && (
+            <MenuPanel
+              isOpen={isOpen}
+              notificationCount={notificationCount}
+              menuRef={menuRef}
+              onClosePanel={handleClosePanel}
+              onSettingsClick={handleSettingsClick}
+              setIsPlaceholderEditorOpen={setIsPlaceholderEditorOpen}
+            />
+          )}
+        </PanelNavigationProvider>
 
         {/* Main Button with logo */}
         <ButtonIcon

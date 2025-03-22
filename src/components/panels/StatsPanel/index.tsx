@@ -1,66 +1,65 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, BarChart2, Zap, MessageCircle, Award, RefreshCw } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useService } from '@/core/hooks/useService';
+import { Stats, StatsService } from '@/services/analytics/StatsService';
+import { BasePanel, BasePanelProps } from '../BasePanel';
 import StatCard from './StatCard';
 import DetailRow from './DetailRow';
 
-// Mock data for demonstration
-const mockData = {
-  totalChats: 68,
-  avgMessagesPerChat: 12.5,
-  efficiency: 85, // out of 100
-  energyUsage: {
-    total: 12.4,   // kWh
-    lastMonth: 4.2,
-    percentage: 42 // percentage of monthly budget
-  },
-  thinkingTime: {
-    total: 342,    // seconds
-    average: 8.2
-  }
-};
+interface StatsPanelProps extends BasePanelProps {
+  compact?: boolean;
+}
 
-export const StatsPanel = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [stats, setStats] = useState(mockData);
+const StatsPanel: React.FC<StatsPanelProps> = ({ onClose, className, compact = false }) => {
+  const [isExpanded, setIsExpanded] = useState(!compact);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { theme } = useTheme();
-  
-  // Animation classes
-  const containerClasses = `
-    
-    bg-white
-    dark:bg-black 
-    shadow-md
-    rounded-lg 
-    border 
-    transition-all 
-    duration-300 
-    ease-in-out
-    backdrop-blur-sm
-    overflow-hidden
-    max-w-96
-    ${theme === 'dark' ? 'bg-opacity-90 border-slate-700' : 'bg-opacity-95 border-slate-200'}
-  `;
+  const statsService = useService<StatsService>('stats');
+  const [stats, setStats] = useState<Stats>({
+    totalChats: 0,
+    totalMessages: 0,
+    avgMessagesPerChat: 0,
+    messagesPerDay: {},
+    tokenUsage: {
+      total: 0,
+      lastMonth: 0
+    },
+    energy: {
+      total: 0,
+      perMessage: 0
+    },
+    thinkingTime: {
+      total: 0,
+      average: 0
+    }
+  });
+
+  // Use effect to load stats from service
+  React.useEffect(() => {
+    if (statsService) {
+      // Initial load
+      setStats(statsService.getStats());
+      
+      // Subscribe to updates
+      const unsubscribe = statsService.onUpdate((newStats) => {
+        setStats(newStats);
+      });
+      
+      return unsubscribe;
+    }
+  }, [statsService]);
   
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
   
   const refreshStats = () => {
+    if (!statsService) return;
+    
     setIsRefreshing(true);
-    setTimeout(() => {
-      setStats({
-        ...stats,
-        totalChats: stats.totalChats + 1,
-        efficiency: Math.min(100, stats.efficiency + Math.floor(Math.random() * 5)),
-        energyUsage: {
-          ...stats.energyUsage,
-          total: +(stats.energyUsage.total + 0.1).toFixed(1)
-        }
-      });
+    
+    statsService.refreshStats().finally(() => {
       setIsRefreshing(false);
-    }, 800);
+    });
   };
   
   // Format values
@@ -74,14 +73,17 @@ export const StatsPanel = () => {
     return "text-red-500";
   };
 
-  const efficiencyColor = getEfficiencyColor(stats.efficiency);
+  const efficiencyColor = getEfficiencyColor(stats.efficiency || 0);
 
   return (
-    <div className={containerClasses}>
+    <BasePanel onClose={onClose} className={`stats-panel ${className || ''}`}>
       {/* Compact header row with stats */}
       <div className="px-3 py-2 flex items-center justify-between">
         <div className="flex items-center gap-1">
           <BarChart2 className="h-3.5 w-3.5 text-blue-500 mr-1" />
+          <span className="text-sm font-medium">
+            {chrome.i18n.getMessage('aiStats') || 'AI Stats'}
+          </span>
         </div>
         
         <div className="flex items-center gap-3">
@@ -91,16 +93,18 @@ export const StatsPanel = () => {
             color="text-blue-500"
           />
           
-          <StatCard 
-            icon={<Award className="h-3.5 w-3.5" />} 
-            value={formatEfficiency(stats.efficiency)} 
-            unit="%" 
-            color={efficiencyColor}
-          />
+          {stats.efficiency !== undefined && (
+            <StatCard 
+              icon={<Award className="h-3.5 w-3.5" />} 
+              value={formatEfficiency(stats.efficiency)} 
+              unit="%" 
+              color={efficiencyColor}
+            />
+          )}
           
           <StatCard 
             icon={<Zap className="h-3.5 w-3.5" />} 
-            value={formatEnergy(stats.energyUsage.total)} 
+            value={formatEnergy(stats.energy.total)} 
             unit="kWh" 
             color="text-amber-500"
           />
@@ -124,6 +128,15 @@ export const StatsPanel = () => {
                 <ChevronDown className="h-3 w-3 text-muted-foreground" />
               }
             </button>
+            {!compact && onClose && (
+              <button 
+                onClick={onClose}
+                className="p-1 rounded-full hover:bg-accent/80 transition-colors"
+                aria-label="Close stats panel"
+              >
+                <ChevronDown className="h-3 w-3 text-muted-foreground" />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -132,15 +145,15 @@ export const StatsPanel = () => {
       {isExpanded && (
         <div className="px-4 py-3 border-t animate-in fade-in slide-in-from-top-2 duration-300">
           <DetailRow 
-            label={chrome.i18n.getMessage('energyInsights')}
-            value={`${stats.energyUsage.lastMonth} kWh`} 
+            label={chrome.i18n.getMessage('energyInsights') || 'Energy Usage'}
+            value={`${stats.energy.lastMonth} kWh`} 
             icon={<Zap className="h-3.5 w-3.5" />} 
-            progress={stats.energyUsage.percentage}
+            progress={stats.energy.lastMonth / (stats.energy.total * 0.2) * 100}
             progressColor="#fbbf24" 
           />
           
           <DetailRow 
-            label={chrome.i18n.getMessage('smartTemplates')} 
+            label={chrome.i18n.getMessage('smartTemplates') || 'Messages'} 
             value={stats.avgMessagesPerChat.toFixed(1)} 
             icon={<MessageCircle className="h-3.5 w-3.5" />} 
             progress={stats.avgMessagesPerChat * 5}
@@ -148,7 +161,7 @@ export const StatsPanel = () => {
           />
           
           <DetailRow 
-            label={chrome.i18n.getMessage('skillDevelopment')} 
+            label={chrome.i18n.getMessage('skillDevelopment') || 'Thinking Time'} 
             value={`${stats.thinkingTime.average.toFixed(1)}s`} 
             icon={<Award className="h-3.5 w-3.5" />} 
             progress={100 - (stats.thinkingTime.average * 5)}
@@ -169,7 +182,7 @@ export const StatsPanel = () => {
           </div>
         </div>
       )}
-    </div>
+    </BasePanel>
   );
 };
 

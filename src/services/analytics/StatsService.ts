@@ -1,5 +1,4 @@
-// src/services/StatsService.ts
-
+import { AbstractBaseService } from '../BaseService';
 import { userApi } from "@/api";
 
 export interface Stats {
@@ -7,16 +6,17 @@ export interface Stats {
   totalMessages: number;
   avgMessagesPerChat: number;
   messagesPerDay: Record<string, number>;
+  efficiency?: number;
   tokenUsage: {
     total: number;
     lastMonth: number;
   };
   energy: {
-    total: number;  // watt-hours
+    total: number;
     perMessage: number;
   };
   thinkingTime: {
-    total: number;  // seconds
+    total: number;
     average: number;
   };
 }
@@ -24,8 +24,7 @@ export interface Stats {
 /**
  * Service to manage and update extension usage statistics
  */
-export class StatsService {
-  private static instance: StatsService;
+export class StatsService extends AbstractBaseService {
   private stats: Stats = {
     totalChats: 0,
     totalMessages: 0,
@@ -50,46 +49,14 @@ export class StatsService {
   private retryCount: number = 0;
   private isLoading: boolean = false;
   
-  private constructor() {}
-  
-  /**
-   * Get the singleton instance
-   */
-  public static getInstance(): StatsService {
-    if (!StatsService.instance) {
-      StatsService.instance = new StatsService();
-    }
-    return StatsService.instance;
-  }
-  
   /**
    * Initialize stats tracking
    */
-  public initialize(): void {
+  protected async onInitialize(): Promise<void> {
     console.log('📊 Initializing stats service...');
     
-    // Load initial stats with a small delay to ensure auth is ready
-    setTimeout(() => {
-      this.loadStats();
-    }, 2000);
-    
-    // Listen for new messages
-    //chatInterceptor.onMessage((event) => {
-      // Update local counters immediately for responsive UI
-      //this.stats.totalMessages++;
-      
-      // Track by day
-      //const today = new Date().toISOString().split('T')[0];
-      //this.stats.messagesPerDay[today] = (this.stats.messagesPerDay[today] || 0) + 1;
-      
-      // Update average
-      //if (this.stats.totalChats > 0) {
-      //  this.stats.avgMessagesPerChat = this.stats.totalMessages / this.stats.totalChats;
-      //}
-      
-      // Notify subscribers of the update
-      //this.notifyUpdateListeners();
-    //});
+    // Load initial stats
+    await this.loadStats();
     
     // Set up regular refresh from backend
     this.updateInterval = window.setInterval(() => {
@@ -106,7 +73,7 @@ export class StatsService {
   /**
    * Clean up resources
    */
-  public cleanup(): void {
+  protected onCleanup(): void {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
@@ -121,6 +88,13 @@ export class StatsService {
    */
   public getStats(): Stats {
     return { ...this.stats };
+  }
+  
+  /**
+   * Manually refresh stats from backend
+   */
+  public async refreshStats(): Promise<void> {
+    return this.loadStats(true);
   }
   
   /**
@@ -142,7 +116,12 @@ export class StatsService {
   /**
    * Load stats from backend with improved error handling
    */
-  private async loadStats(): Promise<void> {
+  private async loadStats(forceRefresh = false): Promise<void> {
+    // Skip if not forced and loaded recently
+    if (!forceRefresh && Date.now() - this.lastLoadTime < 60000) {
+      return;
+    }
+    
     // Prevent concurrent loads
     if (this.isLoading) {
       return;
@@ -161,6 +140,7 @@ export class StatsService {
           totalChats: data.total_chats || this.stats.totalChats,
           totalMessages: data.total_messages || this.stats.totalMessages,
           avgMessagesPerChat: data.avg_messages_per_chat || this.stats.avgMessagesPerChat,
+          efficiency: data.efficiency !== undefined ? data.efficiency : this.stats.efficiency,
           tokenUsage: {
             total: data.token_usage?.total || this.stats.tokenUsage.total,
             lastMonth: data.token_usage?.last_month || this.stats.tokenUsage.lastMonth
@@ -240,6 +220,3 @@ export class StatsService {
     });
   }
 }
-
-// Export the singleton instance
-export const statsService = StatsService.getInstance();
