@@ -1,4 +1,3 @@
-// src/components/MainButton/hooks/useMainButtonState.ts
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 export interface UseMainButtonStateProps {
@@ -6,7 +5,13 @@ export interface UseMainButtonStateProps {
   onSaveClick?: () => void;
 }
 
-export function useMainButtonState({ onSettingsClick, onSaveClick }: UseMainButtonStateProps = {}) {
+/**
+ * Hook to manage the state of the main button and its panel
+ */
+export function useMainButtonState({ 
+  onSettingsClick, 
+  onSaveClick 
+}: UseMainButtonStateProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -144,3 +149,5 @@ export function useMainButtonState({ onSettingsClick, onSaveClick }: UseMainButt
     setIsPlaceholderEditorOpen
   };
 }
+
+export default useMainButtonState;

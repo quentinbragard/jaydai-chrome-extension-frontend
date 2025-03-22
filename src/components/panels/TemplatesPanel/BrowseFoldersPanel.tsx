@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ChevronRight, ChevronDown, Star, Folder, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { promptApi } from '@/api/PromptApi';
+import { promptApi } from '@/services/api/PromptApi';
 import { TemplateFolder } from './types';
 import { toast } from 'sonner';
 

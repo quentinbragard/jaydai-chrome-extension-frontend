@@ -3,7 +3,7 @@ import { AbstractBaseService } from '../BaseService';
 import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
-import { messageApi } from '@/api/MessageApi';
+import { messageApi } from '@/services/api/MessageApi';
 
 /**
  * Handles saving conversations to the backend

@@ -15,26 +15,33 @@ import {
 } from 'lucide-react';
 import { toast } from "sonner";
 
-interface AuthModalProps {
-  onClose?: () => void;
+export interface AuthFormProps {
   initialMode?: 'signin' | 'signup';
-  // New prop to handle session expired case
   isSessionExpired?: boolean;
+  onSuccess?: () => void;
+  onClose?: () => void;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ 
-  onClose, 
+export interface AuthMessage {
+  text: string; 
+  type: 'error' | 'success' | 'info';
+}
+
+// The core Auth functionality extracted from both AuthModal and AuthDialog
+export const AuthForm: React.FC<AuthFormProps> = ({ 
   initialMode = 'signin',
-  isSessionExpired = false 
+  isSessionExpired = false,
+  onSuccess,
+  onClose
 }) => {
   const [activeTab, setActiveTab] = useState<string>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{text: string, type: 'error' | 'success' | 'info'} | null>(
+  const [message, setMessage] = useState<AuthMessage | null>(
     isSessionExpired 
-      ? { text: chrome.i18n.getMessage('sessionExpired'), type: 'info' }
+      ? { text: chrome.i18n.getMessage('sessionExpired') || 'Session expired', type: 'info' }
       : null
   );
   const [signupSuccess, setSignupSuccess] = useState(false);
@@ -46,7 +53,10 @@ const AuthModal: React.FC<AuthModalProps> = ({
   useEffect(() => {
     // Set message when session expired flag changes
     if (isSessionExpired) {
-      setMessage({ text: chrome.i18n.getMessage('sessionExpired'), type: 'info' });
+      setMessage({ 
+        text: chrome.i18n.getMessage('sessionExpired') || 'Session expired', 
+        type: 'info' 
+      });
     }
   }, [isSessionExpired]);
 
@@ -62,21 +72,31 @@ const AuthModal: React.FC<AuthModalProps> = ({
     resetForm();
   };
 
+  // Form validation functions
   const validateSignInInputs = (): boolean => {
     if (!email.trim()) {
-      setMessage({text: chrome.i18n.getMessage('enterEmail'), type: 'error'});
+      setMessage({
+        text: chrome.i18n.getMessage('enterEmail') || 'Please enter your email', 
+        type: 'error'
+      });
       return false;
     }
     
     if (!password) {
-      setMessage({text: chrome.i18n.getMessage('enterPassword'), type: 'error'});
+      setMessage({
+        text: chrome.i18n.getMessage('enterPassword') || 'Please enter your password', 
+        type: 'error'
+      });
       return false;
     }
     
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      setMessage({text: chrome.i18n.getMessage('invalidEmail'), type: 'error'});
+      setMessage({
+        text: chrome.i18n.getMessage('invalidEmail') || 'Invalid email address', 
+        type: 'error'
+      });
       return false;
     }
     
@@ -89,13 +109,17 @@ const AuthModal: React.FC<AuthModalProps> = ({
     }
     
     if (password.length < 8) {
-      setMessage({text: chrome.i18n.getMessage('passwordTooShort'), type: 'error'});
+      setMessage({
+        text: chrome.i18n.getMessage('passwordTooShort') || 'Password must be at least 8 characters', 
+        type: 'error'
+      });
       return false;
     }
     
     return true;
   }
 
+  // Auth submission handlers
   const handleEmailSignIn = async () => {
     if (!validateSignInInputs()) {
       return;
@@ -111,25 +135,35 @@ const AuthModal: React.FC<AuthModalProps> = ({
           setIsLoading(false);
           
           if (response.success) {
-            toast.success(chrome.i18n.getMessage('signInSuccessful'), {
-              description: chrome.i18n.getMessage('youCanNowAccess')
-            });
-            onClose?.();
+            toast.success(
+              chrome.i18n.getMessage('signInSuccessful') || 'Sign-in successful', 
+              {
+                description: chrome.i18n.getMessage('youCanNowAccess') || 'You can now access your conversations'
+              }
+            );
+            
+            if (onSuccess) {
+              onSuccess();
+            }
+            
+            if (onClose) {
+              onClose();
+            }
           } else {
             // Handle specific error codes
             if (response.errorCode === 'INVALID_CREDENTIALS') {
               setMessage({
-                text: chrome.i18n.getMessage('invalidCredentials'), 
+                text: chrome.i18n.getMessage('invalidCredentials') || 'Invalid email or password', 
                 type: 'error'
               });
             } else if (response.errorCode === 'EMAIL_NOT_VERIFIED') {
               setMessage({
-                text: chrome.i18n.getMessage('emailNotVerified'), 
+                text: chrome.i18n.getMessage('emailNotVerified') || 'Email not verified', 
                 type: 'error'
               });
             } else {
               setMessage({
-                text: response.error || chrome.i18n.getMessage('unableToProcess'), 
+                text: response.error || chrome.i18n.getMessage('unableToProcess') || 'Unable to process request', 
                 type: 'error'
               });
             }
@@ -139,10 +173,10 @@ const AuthModal: React.FC<AuthModalProps> = ({
     } catch (error) {
       setIsLoading(false);
       setMessage({
-        text: chrome.i18n.getMessage('unableToProcess'), 
+        text: chrome.i18n.getMessage('unableToProcess') || 'Unable to process request', 
         type: 'error'
       });
-      console.error('Auth modal error:', error);
+      console.error('Auth form error:', error);
     }
   };
 
@@ -163,18 +197,18 @@ const AuthModal: React.FC<AuthModalProps> = ({
           if (response.success) {
             setSignupSuccess(true);
             setMessage({
-              text: chrome.i18n.getMessage('signUpSuccessful'), 
+              text: chrome.i18n.getMessage('signUpSuccessful') || 'Sign-up successful', 
               type: 'success'
             });
           } else {
             if (response.errorCode === 'EMAIL_IN_USE') {
               setMessage({
-                text: chrome.i18n.getMessage('emailAlreadyInUse'), 
+                text: chrome.i18n.getMessage('emailAlreadyInUse') || 'Email already in use', 
                 type: 'error'
               });
             } else {
               setMessage({
-                text: response.error || chrome.i18n.getMessage('signUpFailed'), 
+                text: response.error || chrome.i18n.getMessage('signUpFailed') || 'Sign-up failed', 
                 type: 'error'
               });
             }
@@ -184,10 +218,10 @@ const AuthModal: React.FC<AuthModalProps> = ({
     } catch (error) {
       setIsLoading(false);
       setMessage({
-        text: chrome.i18n.getMessage('unableToProcess'), 
+        text: chrome.i18n.getMessage('unableToProcess') || 'Unable to process request', 
         type: 'error'
       });
-      console.error('Auth modal error:', error);
+      console.error('Auth form error:', error);
     }
   };
 
@@ -202,13 +236,23 @@ const AuthModal: React.FC<AuthModalProps> = ({
           setIsLoading(false);
           
           if (response.success) {
-            toast.success(chrome.i18n.getMessage('signInSuccessful'), {
-              description: chrome.i18n.getMessage('youCanNowAccess')
-            });
-            onClose?.();
+            toast.success(
+              chrome.i18n.getMessage('signInSuccessful') || 'Sign-in successful', 
+              {
+                description: chrome.i18n.getMessage('youCanNowAccess') || 'You can now access your conversations'
+              }
+            );
+            
+            if (onSuccess) {
+              onSuccess();
+            }
+            
+            if (onClose) {
+              onClose();
+            }
           } else {
             setMessage({
-              text: response.error || chrome.i18n.getMessage('unableToProcess'), 
+              text: response.error || chrome.i18n.getMessage('unableToProcess') || 'Unable to process request', 
               type: 'error'
             });
           }
@@ -217,10 +261,10 @@ const AuthModal: React.FC<AuthModalProps> = ({
     } catch (error) {
       setIsLoading(false);
       setMessage({
-        text: chrome.i18n.getMessage('unableToProcess'), 
+        text: chrome.i18n.getMessage('unableToProcess') || 'Unable to process request', 
         type: 'error'
       });
-      console.error('Auth modal error:', error);
+      console.error('Auth form error:', error);
     }
   };
 
@@ -232,16 +276,17 @@ const AuthModal: React.FC<AuthModalProps> = ({
           <CheckCircle className="h-12 w-12 text-green-500" />
         </div>
         <h2 className="text-2xl font-medium text-white mb-3 font-heading">
-          {chrome.i18n.getMessage('emailVerificationSent')}
+          {chrome.i18n.getMessage('emailVerificationSent') || 'Email Verification Sent'}
         </h2>
         <p className="text-gray-300 text-center mb-6 max-w-sm font-sans">
-          {chrome.i18n.getMessage('emailVerificationInstructions')}
+          {chrome.i18n.getMessage('emailVerificationInstructions') || 
+            'Please check your email to verify your account.'}
         </p>
         <Button 
-          onClick={() => onClose?.()} 
+          onClick={onClose} 
           className="w-full font-heading bg-blue-600 hover:bg-blue-700"
         >
-          {chrome.i18n.getMessage('close')}
+          {chrome.i18n.getMessage('close') || 'Close'}
         </Button>
       </div>
     );
@@ -249,12 +294,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div className="space-y-4 py-2">
-      <h2 className="text-center text-2xl font-bold text-white font-heading mb-6">
-        {activeTab === 'signin' 
-          ? chrome.i18n.getMessage('signIn') 
-          : chrome.i18n.getMessage('signUp')}
-      </h2>
-      
       <Tabs 
         defaultValue={activeTab} 
         value={activeTab} 
@@ -267,14 +306,14 @@ const AuthModal: React.FC<AuthModalProps> = ({
             className="font-heading text-sm data-[state=active]:bg-blue-600 data-[state=active]:text-white"
           >
             <LogIn className="h-4 w-4 mr-2" />
-            {chrome.i18n.getMessage('signIn')}
+            {chrome.i18n.getMessage('signIn') || 'Sign In'}
           </TabsTrigger>
           <TabsTrigger 
             value="signup" 
             className="font-heading text-sm data-[state=active]:bg-blue-600 data-[state=active]:text-white"
           >
             <UserPlus className="h-4 w-4 mr-2" />
-            {chrome.i18n.getMessage('signUp')}
+            {chrome.i18n.getMessage('signUp') || 'Sign Up'}
           </TabsTrigger>
         </TabsList>
         
@@ -303,7 +342,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
           <div className="space-y-3">
             <div className="space-y-1">
               <Label htmlFor="email-signin" className="text-gray-300 font-sans">
-                {chrome.i18n.getMessage('email')}
+                {chrome.i18n.getMessage('email') || 'Email'}
               </Label>
               <div className="relative">
                 <Input 
@@ -319,7 +358,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             </div>
             <div className="space-y-1">
               <Label htmlFor="password-signin" className="text-gray-300 font-sans">
-                {chrome.i18n.getMessage('password')}
+                {chrome.i18n.getMessage('password') || 'Password'}
               </Label>
               <div className="relative">
                 <Input 
@@ -346,9 +385,9 @@ const AuthModal: React.FC<AuthModalProps> = ({
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                {chrome.i18n.getMessage('signingIn')}
+                {chrome.i18n.getMessage('signingIn') || 'Signing in...'}
               </span>
-            ) : chrome.i18n.getMessage('signIn')}
+            ) : chrome.i18n.getMessage('signIn') || 'Sign In'}
           </Button>
 
           <div className="relative my-4">
@@ -357,7 +396,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-gray-900 text-gray-400 font-sans">
-                {chrome.i18n.getMessage('or')}
+                {chrome.i18n.getMessage('or') || 'Or continue with'}
               </span>
             </div>
           </div>
@@ -369,7 +408,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             disabled={isLoading}
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
-            {chrome.i18n.getMessage('signInWith', ['Google'])}
+            {chrome.i18n.getMessage('signInWith', ['Google']) || 'Sign in with Google'}
           </Button>
         </TabsContent>
         
@@ -377,7 +416,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
           <div className="space-y-3">
             <div className="space-y-1">
               <Label htmlFor="name-signup" className="text-gray-300 font-sans">
-                {chrome.i18n.getMessage('name')}
+                {chrome.i18n.getMessage('name') || 'Name'}
               </Label>
               <div className="relative">
                 <Input 
@@ -393,7 +432,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             </div>
             <div className="space-y-1">
               <Label htmlFor="email-signup" className="text-gray-300 font-sans">
-                {chrome.i18n.getMessage('email')}
+                {chrome.i18n.getMessage('email') || 'Email'}
               </Label>
               <div className="relative">
                 <Input 
@@ -409,7 +448,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             </div>
             <div className="space-y-1">
               <Label htmlFor="password-signup" className="text-gray-300 font-sans">
-                {chrome.i18n.getMessage('password')}
+                {chrome.i18n.getMessage('password') || 'Password'}
               </Label>
               <div className="relative">
                 <Input 
@@ -423,7 +462,8 @@ const AuthModal: React.FC<AuthModalProps> = ({
                 <Lock className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
               <p className="text-xs text-gray-400 mt-1 font-sans">
-                {chrome.i18n.getMessage('passwordRequirements')}
+                {chrome.i18n.getMessage('passwordRequirements') || 
+                  'Password must be at least 8 characters with at least one letter and one number.'}
               </p>
             </div>
           </div>
@@ -439,13 +479,14 @@ const AuthModal: React.FC<AuthModalProps> = ({
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                {chrome.i18n.getMessage('signingUp')}
+                {chrome.i18n.getMessage('signingUp') || 'Creating account...'}
               </span>
-            ) : chrome.i18n.getMessage('signUp')}
+            ) : chrome.i18n.getMessage('signUp') || 'Sign Up'}
           </Button>
           
           <p className="text-xs text-center text-gray-400 font-sans">
-            {chrome.i18n.getMessage('bySigningUp')}
+            {chrome.i18n.getMessage('bySigningUp') || 
+              'By signing up, you agree to our Terms of Service and Privacy Policy.'}
           </p>
         </TabsContent>
       </Tabs>
@@ -453,4 +494,4 @@ const AuthModal: React.FC<AuthModalProps> = ({
   );
 };
 
-export default AuthModal;
+export default AuthForm;

@@ -1,6 +1,6 @@
 // src/services/analytics/StatsService.ts
 import { AbstractBaseService } from '../BaseService';
-import { userApi } from "@/api";
+import { userApi } from "@/services/api/UserApi";
 import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';

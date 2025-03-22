@@ -1,6 +1,6 @@
 // src/services/notifications/NotificationService.ts
 import { AbstractBaseService } from '../BaseService';
-import { notificationApi } from "@/api/NotificationApi";
+import { notificationApi } from "@/services/api/NotificationApi";
 import { toast } from "sonner";
 import { emitEvent, AppEvent } from '@/core/events/events';
 

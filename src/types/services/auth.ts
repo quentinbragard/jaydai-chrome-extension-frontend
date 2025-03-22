@@ -1,55 +1,54 @@
-export interface AuthToken {
-    access_token: string;
-    refresh_token: string;
-    expires_at: number;
-  }
-  
-  export interface TokenResponse {
-    success: boolean;
-    token?: string;
-    error?: string;
-    errorCode?: string;
-  }
-
 /**
- * Authentication session data
+ * Authentication related types
  */
-export interface AuthSession {
-    access_token: string;
-    refresh_token: string;
-    expires_at: number;
-  }
-  
-  /**
-   * Authenticated user data
-   */
-  export interface AuthUser {
+
+// User model
+export interface User {
     id: string;
     email: string;
     name?: string;
+    avatar_url?: string;
+    created_at?: string;
     metadata?: Record<string, any>;
   }
   
-  /**
-   * Authentication state
-   */
-  export interface AuthState {
-    user: AuthUser | null;
-    isAuthenticated: boolean;
-    isLoading: boolean;
-    error: string | null;
+  // Authentication tokens
+  export interface AuthTokens {
+    access_token: string;
+    refresh_token: string;
+    expires_at: number;
   }
   
-  /**
-   * Auth error codes
-   */
+  // Login/signup request
+  export interface AuthRequest {
+    email: string;
+    password: string;
+    name?: string;
+  }
+  
+  // Auth result from API
+  export interface AuthResult {
+    success: boolean;
+    user?: User;
+    session?: {
+      access_token: string;
+      refresh_token: string;
+      expires_at: number;
+    };
+    error?: string;
+    errorCode?: string;
+  }
+  
+  // OAuth providers supported
+  export type OAuthProvider = 'google' | 'github' | 'microsoft';
+  
+  // Login errors
   export enum AuthErrorCode {
-    NOT_AUTHENTICATED = 'NOT_AUTHENTICATED',
-    SESSION_EXPIRED = 'SESSION_EXPIRED',
-    REFRESH_TOKEN_MISSING = 'REFRESH_TOKEN_MISSING',
-    INVALID_REFRESH_TOKEN = 'INVALID_REFRESH_TOKEN',
-    REFRESH_FAILED = 'REFRESH_FAILED',
-    NETWORK_ERROR = 'NETWORK_ERROR',
     INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
     EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED',
+    ACCOUNT_LOCKED = 'ACCOUNT_LOCKED',
+    TOO_MANY_ATTEMPTS = 'TOO_MANY_ATTEMPTS',
+    SESSION_EXPIRED = 'SESSION_EXPIRED',
+    NETWORK_ERROR = 'NETWORK_ERROR',
+    UNKNOWN_ERROR = 'UNKNOWN_ERROR'
   }

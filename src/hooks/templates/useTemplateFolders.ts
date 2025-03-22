@@ -1,10 +1,12 @@
-// src/features/Templates/hooks/useFolders.ts
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { TemplateFolder } from '../types';
-import { promptApi } from '@/api/PromptApi';
+import { TemplateFolder } from '@/types/templates';
+import { promptApi } from '@/services/api/PromptApi';
 
-export function useFolders() {
+/**
+ * Hook for managing template folders
+ */
+export function useTemplateFolders() {
   const [pinnedOfficialFolders, setPinnedOfficialFolders] = useState<TemplateFolder[]>([]);
   const [pinnedOrganizationFolders, setPinnedOrganizationFolders] = useState<TemplateFolder[]>([]);
   const [userFolders, setUserFolders] = useState<TemplateFolder[]>([]);
@@ -91,14 +93,7 @@ export function useFolders() {
     }
   }, []);
 
-  // Load folders on mount
-  useEffect(() => {
-    loadFolders().catch(err => {
-      console.error('Initial folder loading failed:', err);
-      setLoading(false); // Ensure loading is set to false even if error occurs
-    });
-  }, [loadFolders]);
-
+  // Create a new folder
   const createFolder = async (folderData: { name: string, path: string, description?: string }) => {
     try {
       const response = await promptApi.createFolder(folderData);
@@ -120,6 +115,7 @@ export function useFolders() {
     }
   };
 
+  // Delete a folder
   const deleteFolder = async (folderId: number) => {
     if (!window.confirm('Delete this folder and all templates inside?')) return false;
     
@@ -142,6 +138,7 @@ export function useFolders() {
     }
   };
 
+  // Toggle pinning a folder
   const toggleFolderPin = async (folderId: number, isPinned: boolean, type: 'official' | 'organization') => {
     try {
       const response = await promptApi.toggleFolderPin(folderId, isPinned, type);
@@ -163,6 +160,14 @@ export function useFolders() {
     }
   };
 
+  // Load folders on init
+  useEffect(() => {
+    loadFolders().catch(err => {
+      console.error('Initial folder loading failed:', err);
+      setLoading(false); // Ensure loading is set to false even if error occurs
+    });
+  }, [loadFolders]);
+
   return {
     pinnedOfficialFolders,
     pinnedOrganizationFolders,
@@ -175,3 +180,5 @@ export function useFolders() {
     toggleFolderPin
   };
 }
+
+export default useTemplateFolders;

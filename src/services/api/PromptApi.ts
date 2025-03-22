@@ -1,5 +1,5 @@
 // src/api/PromptApi.ts
-import { apiClient } from '@/api/ApiClient';
+import { apiClient } from '@/services/api/ApiClient';
 import { Template, TemplateFolder } from '../types';
 
 /**

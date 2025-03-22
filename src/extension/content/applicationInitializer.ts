@@ -6,7 +6,7 @@ import { componentInjector } from '@/core/utils/componentInjector';
 import { eventManager } from '@/core/events/EventManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
-import MainButton from '@/components/MainButton';
+import MainButton from '@/components/layout/MainButton';
 import { dialogManager } from '@/core/managers/DialogManager';
 import { toast } from 'sonner';
 

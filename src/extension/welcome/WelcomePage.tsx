@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Toaster } from "@/components/ui/sonner";
-import AuthModal from '@/components/AuthModal';
+import AuthModal from '@/components/auth/AuthModal';
 import { MoveRight, LogIn, Zap, BookOpen, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import "./welcome.css";

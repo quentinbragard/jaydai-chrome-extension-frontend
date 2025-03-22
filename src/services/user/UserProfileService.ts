@@ -6,7 +6,7 @@ import { emitEvent, AppEvent } from '@/core/events/events';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { debug } from '@/core/config';
-import { userApi } from '@/api';
+import { userApi } from '@/services/api/UserApi';
 
 /**
  * Service for managing user profile information

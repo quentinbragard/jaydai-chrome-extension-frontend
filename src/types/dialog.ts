@@ -1,30 +1,47 @@
 /**
- * Dialog type identifiers
+ * Types for the dialog management system
  */
+
+// All supported dialog types in the application
 export type DialogType = 
   | 'auth'
   | 'settings'
   | 'createTemplate'
-  | 'editTemplate'
+  | 'createFolder'
   | 'placeholderEditor'
-  | 'createFolder';
+  | 'deleteConfirmation'
+  | 'notification';
 
-/**
- * Options for opening a dialog
- */
-export interface DialogOptions {
-  initialData?: any;
+// Common options for all dialogs
+export interface DialogBaseOptions {
   onClose?: () => void;
-  onConfirm?: (data: any) => void;
+  title?: string;
+  description?: string;
 }
 
-/**
- * Dialog management context
- */
-export interface DialogContext {
-  activeDialogs: Set<DialogType>;
-  openDialog: (type: DialogType, options?: DialogOptions) => void;
-  closeDialog: (type: DialogType) => void;
-  getDialogOptions: (type: DialogType) => DialogOptions | undefined;
-  isDialogOpen: (type: DialogType) => boolean;
+// Auth dialog specific options
+export interface AuthDialogOptions extends DialogBaseOptions {
+  initialMode?: 'signin' | 'signup';
+  isSessionExpired?: boolean;
 }
+
+// Template dialog specific options
+export interface TemplateDialogOptions extends DialogBaseOptions {
+  templateId?: number;
+  folderId?: number;
+}
+
+// Delete confirmation dialog options
+export interface DeleteConfirmationOptions extends DialogBaseOptions {
+  itemType: 'template' | 'folder' | 'notification';
+  itemId: number | string;
+  itemName?: string;
+  onConfirm: () => Promise<void>;
+}
+
+// Generic options for any dialog
+export type DialogOptions = 
+  | DialogBaseOptions 
+  | AuthDialogOptions 
+  | TemplateDialogOptions
+  | DeleteConfirmationOptions;

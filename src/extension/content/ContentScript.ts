@@ -7,8 +7,7 @@ import { config, debug } from '@/core/config';
 import { authService } from '@/services/auth/AuthService';
 import { chatService } from '@/services/chat/ChatNetworkService';
 import { componentInjector } from '@/core/utils/componentInjector';
-import MainButton from '@/components/MainButton';
-import StatsPanel from '@/components/panels/StatsPanel';
+import Main from '@/components/Main';
 
 /**
  * Main content script class that manages extension functionality
@@ -92,55 +91,15 @@ export class ContentScript {
    */
   private injectUIComponents(): void {
     // Inject main button
-    componentInjector.inject(MainButton, {
-      onSettingsClick: this.handleSettingsClick,
-      onSaveClick: this.handleSaveClick
-    }, {
-      id: 'archimind-main-button',
+    componentInjector.inject(Main, {}, {
+      id: 'archimind-root',
       position: {
         type: 'fixed',
-        bottom: '75px',
-        right: '20px',
         zIndex: '9999'
-      }
-    });
-    
-    // Inject stats panel
-    componentInjector.inject(StatsPanel, {}, {
-      id: 'archimind-stats-panel',
-      position: {
-        type: 'fixed',
-        top: '10px',
-        left: '50%',
-        zIndex: '10000'
-      },
-      containerStyle: {
-        transform: 'translateX(-50%)' // Center horizontally
       }
     });
   }
   
-  /**
-   * Handle settings click
-   */
-  private handleSettingsClick = (): void => {
-    // Implementation for settings dialog
-  };
-  
-  /**
-   * Handle save click
-   */
-  private handleSaveClick = (): void => {
-    const chatId = chatService.getCurrentConversationId();
-    
-    if (!chatId) {
-      // Show toast or notification
-      return;
-    }
-    
-    // Save current conversation
-    chatService.setCurrentConversationId(chatId);
-  };
   
   /**
    * Clean up resources

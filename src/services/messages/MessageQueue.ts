@@ -4,7 +4,7 @@ import { Message } from '@/types';
 import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
-import { messageApi } from '@/api/MessageApi';
+import { messageApi } from '@/services/api/MessageApi';
 
 /**
  * Service for batching and saving messages

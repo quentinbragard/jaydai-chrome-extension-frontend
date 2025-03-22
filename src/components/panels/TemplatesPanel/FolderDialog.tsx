@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useTemplates } from '@/components/MainButton/hooks/useTemplates';
+import { useTemplates } from '@/hooks/templates';
 
 interface FolderDialogProps {
   open: boolean;

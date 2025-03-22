@@ -2,10 +2,10 @@
 import React from 'react';
 import { Card, CardContent} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Plus, BookTemplate, Folder as FolderIcon, Users, ChevronDown, RefreshCw, PlusCircle } from "lucide-react";
-import { Template, TemplateFolder } from '../types';
+import { FileText, BookTemplate, Folder as FolderIcon, Users, ChevronDown, RefreshCw, PlusCircle } from "lucide-react";
+import { Template, TemplateFolder } from '@/types/templates';
 import FolderItem from './FolderItem';
-import { useTemplates } from '@/components/MainButton/hooks/useTemplates';
+import { useTemplates } from '@/hooks/templates';
 
 interface PinnedFoldersPanelProps {
   pinnedOfficialFolders: TemplateFolder[];
