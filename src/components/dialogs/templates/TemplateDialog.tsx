@@ -1,5 +1,6 @@
 // src/components/dialogs/templates/TemplateDialog.tsx
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -15,7 +16,9 @@ import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { FolderPlus } from 'lucide-react';
 import { DEFAULT_FORM_DATA } from '@/types/templates';
+import { toast } from 'sonner';
 import { promptApi } from '@/services/api/PromptApi';
+
 /**
  * Unified Template Dialog for both creating and editing templates
  */
@@ -31,19 +34,12 @@ export const TemplateDialog: React.FC = () => {
   const data = createDialog.isOpen ? createDialog.data : editDialog.data;
   const dialogType = createDialog.isOpen ? DIALOG_TYPES.CREATE_TEMPLATE : DIALOG_TYPES.EDIT_TEMPLATE;
   
-  // Handle dialog close
-  const handleClose = () => {
-    if (createDialog.isOpen) {
-      createDialog.close();
-    } else {
-      editDialog.close();
-    }
-  };
-  
-  // Local state for form data - this is key to fixing the typing issue
+  // Local state for form data 
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [selectedFolderId, setSelectedFolderId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const [userFoldersList, setUserFoldersList] = useState<any[]>([]);
   
   // Extract data from dialog
   const currentTemplate = data?.template || null;
@@ -52,22 +48,86 @@ export const TemplateDialog: React.FC = () => {
   const onSave = data?.onSave || (() => Promise.resolve(false));
   const userFolders = data?.userFolders || [];
   
+  // Process user folders for the select dropdown
+  const processUserFolders = useCallback(() => {
+    // Helper function to flatten folder hierarchy
+    const flattenFolderHierarchy = (
+      folders: any[], 
+      path: string = "", 
+      result: {id: number, name: string, fullPath: string}[] = []
+    ) => {
+      folders.forEach(folder => {
+        if (!folder || !folder.id || !folder.name) return;
+        
+        const folderPath = path ? `${path} / ${folder.name}` : folder.name;
+        
+        result.push({
+          id: folder.id,
+          name: folder.name,
+          fullPath: folderPath
+        });
+        
+        if (folder.Folders && folder.Folders.length > 0) {
+          flattenFolderHierarchy(folder.Folders, folderPath, result);
+        }
+      });
+    
+      return result;
+    };
+    
+    const flattenedFolders = flattenFolderHierarchy(userFolders);
+    console.log('Processed user folders:', flattenedFolders);
+    setUserFoldersList(flattenedFolders);
+  }, [userFolders]);
+  
   // Initialize form state when dialog opens or data changes
   useEffect(() => {
-    if (isOpen && initialFormData) {
-      setFormData(initialFormData);
+    if (isOpen) {
+      // Reset validation errors
+      setValidationErrors({});
       
-      // Set selected folder ID
-      if (initialFormData.folder_id) {
-        setSelectedFolderId(initialFormData.folder_id.toString());
-      } else {
-        setSelectedFolderId('root');
+      if (initialFormData) {
+        console.log('Setting initial form data:', initialFormData);
+        setFormData(initialFormData);
+        
+        // Set selected folder ID
+        if (initialFormData.folder_id) {
+          setSelectedFolderId(initialFormData.folder_id.toString());
+        } else {
+          setSelectedFolderId('');
+        }
       }
+      
+      // Process user folders
+      processUserFolders();
     }
-  }, [isOpen, initialFormData]);
+  }, [isOpen, initialFormData, processUserFolders]);
   
-  // Form field change handler
+  // Handle dialog close
+  const handleClose = () => {
+    if (createDialog.isOpen) {
+      createDialog.close();
+    } else {
+      editDialog.close();
+    }
+    
+    // Reset form state
+    setFormData(DEFAULT_FORM_DATA);
+    setSelectedFolderId('');
+    setValidationErrors({});
+  };
+  
+  // Form field change handler with validation
   const handleFormChange = (field: string, value: any) => {
+    // Clear validation error for this field
+    if (validationErrors[field]) {
+      setValidationErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+    
     // Update local state first
     setFormData(prev => {
       const newData = {
@@ -106,75 +166,84 @@ export const TemplateDialog: React.FC = () => {
       return;
     }
     
-    // Update form data with folder_id
-    handleFormChange('folder_id', parseInt(folderId));
+    // Update form data with folder_id (as a number)
+    handleFormChange('folder_id', parseInt(folderId, 10));
     
     // Find the selected folder's path for display
-    const selectedFolder = flattenedFolders.find(f => f.id.toString() === folderId);
+    const selectedFolder = userFoldersList.find(f => f.id.toString() === folderId);
     if (selectedFolder) {
       handleFormChange('folder', selectedFolder.fullPath);
     }
   };
-  
-  // Get flattened folder list for select dropdown
-  const flattenedFolders = React.useMemo(() => {
-    // Helper function to flatten folder hierarchy
-    const flattenFolderHierarchy = (
-      folders: any[], 
-      path: string = "", 
-      result: {id: number, name: string, fullPath: string}[] = []
-    ) => {
-      folders.forEach(folder => {
-        if (!folder || !folder.id || !folder.name) return;
-        
-        const folderPath = path ? `${path} / ${folder.name}` : folder.name;
-        
-        result.push({
-          id: folder.id,
-          name: folder.name,
-          fullPath: folderPath
-        });
-        
-        if (folder.Folders && folder.Folders.length > 0) {
-          flattenFolderHierarchy(folder.Folders, folderPath, result);
-        }
-      });
-    
-      return result;
-    };
-    
-    return flattenFolderHierarchy(userFolders);
-  }, [userFolders]);
   
   // Handler for folder creation
   const handleCreateFolder = async (folderData: { name: string; path: string; description: string }) => {
     try {
       console.log('Creating folder:', folderData);
       
-      promptApi.createFolder(folderData);
-      return true;
+      const result = await promptApi.createFolder(folderData);
+      
+      if (result.success && result.folder) {
+        toast.success(`Folder "${folderData.name}" created`);
+        
+        // Add the new folder to the list
+        const newFolder = {
+          id: result.folder.id,
+          name: result.folder.name,
+          fullPath: result.folder.name
+        };
+        
+        setUserFoldersList(prev => [...prev, newFolder]);
+        
+        // Auto-select the new folder
+        setSelectedFolderId(result.folder.id.toString());
+        handleFormChange('folder_id', result.folder.id);
+        handleFormChange('folder', result.folder.name);
+        
+        return true;
+      } else {
+        toast.error(`Failed to create folder: ${result.error || 'Unknown error'}`);
+        return false;
+      }
     } catch (error) {
       console.error('Error creating folder:', error);
+      toast.error('Error creating folder');
       return false;
     }
   };
   
+  // Validate form before saving
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {};
+    
+    if (!formData.name?.trim()) {
+      errors.name = 'Template name is required';
+    }
+    
+    if (!formData.content?.trim()) {
+      errors.content = 'Template content is required';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+  
   // Save template
   const handleSave = async () => {
-    if (!formData.name?.trim()) {
-      alert('Template name is required');
-      return;
-    }
-
-    if (!formData.content?.trim()) {
-      alert('Template content is required');
+    // Validate form
+    if (!validateForm()) {
+      // Show toast for validation errors
+      if (validationErrors.name) {
+        toast.error(validationErrors.name);
+      } else if (validationErrors.content) {
+        toast.error(validationErrors.content);
+      }
       return;
     }
 
     setIsSubmitting(true);
     try {
       console.log('Saving template with data:', formData);
-      promptApi.createTemplate(formData);
       const success = await onSave();
       if (success) {
         handleClose();
@@ -182,6 +251,7 @@ export const TemplateDialog: React.FC = () => {
       return success;
     } catch (error) {
       console.error('Error saving template:', error);
+      toast.error('Error saving template');
       return false;
     } finally {
       setIsSubmitting(false);
@@ -211,8 +281,11 @@ export const TemplateDialog: React.FC = () => {
               value={formData.name || ''} 
               onChange={(e) => handleFormChange('name', e.target.value)}
               placeholder="Enter template name"
-              className="mt-1"
+              className={`mt-1 ${validationErrors.name ? 'border-red-500' : ''}`}
             />
+            {validationErrors.name && (
+              <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>
+            )}
           </div>
           
           <div>
@@ -231,7 +304,7 @@ export const TemplateDialog: React.FC = () => {
             </div>
             
             <Select 
-              value={selectedFolderId ? selectedFolderId.toString() : 'root'} 
+              value={selectedFolderId || 'root'} 
               onValueChange={handleFolderSelect}
             >
               <SelectTrigger className="w-full">
@@ -242,7 +315,7 @@ export const TemplateDialog: React.FC = () => {
                   <span className="text-muted-foreground">No folder (root)</span>
                 </SelectItem>
                 
-                {flattenedFolders.map(folder => (
+                {userFoldersList.map(folder => (
                   <SelectItem key={folder.id} value={folder.id.toString()}>
                     {folder.fullPath}
                   </SelectItem>
@@ -262,12 +335,17 @@ export const TemplateDialog: React.FC = () => {
           <div>
             <label className="text-sm font-medium">Content</label>
             <textarea 
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm mt-1"
+              className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm mt-1 ${
+                validationErrors.content ? 'border-red-500' : ''
+              }`}
               rows={6}
               value={formData.content || ''} 
               onChange={(e) => handleFormChange('content', e.target.value)}
               placeholder="Enter your template content here"
             />
+            {validationErrors.content && (
+              <p className="text-xs text-red-500 mt-1">{validationErrors.content}</p>
+            )}
           </div>
         </div>
         

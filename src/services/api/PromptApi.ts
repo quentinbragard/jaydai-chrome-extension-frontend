@@ -6,49 +6,6 @@ import { Template, TemplateFolder } from '../types';
  * API client for working with prompt templates
  */
 class PromptApiClient {
-  /**
-   * Get prompt template folders by type and optional folder IDs
-   * @param type - Type of folders to fetch (official, organization, user)
-   * @param folderIds - Optional array of folder IDs to fetch (required for 'official' and 'organization' types)
-   * @param empty - Whether to return folders without templates
-   */
-  async getPromptTemplatesFolders(type: string, folderIds: number[] = [], empty: boolean = false) {
-    try {
-      // For 'official' and 'organization' types, if no folder IDs are provided, return empty result
-      if ((type === 'official' || type === 'organization') && (!folderIds || folderIds.length === 0)) {
-        console.log(`No ${type} folder IDs provided, returning empty result`);
-        return { success: true, folders: [] };
-      }
-      
-      // Build the endpoint with the proper query parameters
-      let endpoint = `/prompts/folders?type=${type}`;
-      
-      // Add folder_ids as a comma-separated string for efficiency
-      if ((type === 'official' || type === 'organization') && folderIds.length > 0) {
-        endpoint += `&folder_ids=${folderIds.join(',')}`;
-      }
-      
-      if (empty) {
-        endpoint += '&empty=true';
-      }
-      
-      console.log(`Making API request to: ${endpoint}`);
-      
-      // Use ApiClient to handle auth and error handling
-      const response = await apiClient.request(endpoint);
-      console.log(`API response for getPromptTemplatesFolders:`, response);
-      return response;
-    } catch (error) {
-      console.error('Error fetching template folders:', error);
-      
-      // Return a safe default value
-      return { 
-        success: false, 
-        folders: [], 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
   
   /**
    * Get all template folders of a specific type (for browsing)
@@ -117,40 +74,103 @@ class PromptApiClient {
   }
   
   /**
-   * Toggle pin status for a single folder
-   * @param folderId - ID of the folder to toggle
-   * @param isPinned - Current pin status (true if pinned, false if not)
-   * @param type - Type of folder (official or organization)
-   */
-  async toggleFolderPin(folderId: number, isPinned: boolean, type: 'official' | 'organization') {
-    try {
-      // Determine which endpoint to use based on current pin status
-      const endpoint = isPinned 
-        ? `/prompts/folders/unpin/${folderId}` 
-        : `/prompts/folders/pin/${folderId}`;
-      
-      // Create payload with the folder type
-      const payload = {
-        is_official: type === 'official'
-      };
-      
-      console.log(`${isPinned ? 'Unpinning' : 'Pinning'} ${type} folder: ${folderId}`);
-      
-      // Make the API request
-      const response = await apiClient.request(endpoint, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-      
-      return response;
-    } catch (error) {
-      console.error(`Error toggling pin for ${type} folder ${folderId}:`, error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
+ * Toggle pin status for a single folder
+ * @param folderId - ID of the folder to toggle
+ * @param isPinned - Current pin status (true if pinned, false if not)
+ * @param type - Type of folder (official or organization)
+ */
+async toggleFolderPin(folderId: number, isPinned: boolean, type: 'official' | 'organization') {
+  try {
+    // Determine which endpoint to use based on current pin status
+    const endpoint = isPinned 
+      ? `/prompts/folders/unpin/${folderId}` 
+      : `/prompts/folders/pin/${folderId}`;
+    
+    // Add the folder_type as a query parameter instead of a JSON payload
+    // This is critical for the backend to properly identify the folder type
+    const queryParams = `?folder_type=${type}`;
+    
+    console.log(`${isPinned ? 'Unpinning' : 'Pinning'} ${type} folder ${folderId}`);
+    
+    // Make the API request with the query parameter
+    const response = await apiClient.request(`${endpoint}${queryParams}`, {
+      method: 'POST'
+    });
+    
+    return response;
+  } catch (error) {
+    console.error(`Error toggling pin for ${type} folder ${folderId}:`, error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
+}
+
+/**
+ * Get template folders by type and optional folder IDs - with debug info
+ */
+async getPromptTemplatesFolders(type: string, folderIds: number[] = [], empty: boolean = false) {
+  try {
+    // Build the endpoint with the proper query parameters
+    let endpoint = `/prompts/folders/template-folders?type=${type}`;
+    
+    // Add folder_ids as a comma-separated string if provided
+    if (folderIds && folderIds.length > 0) {
+      endpoint += `&folder_ids=${folderIds.join(',')}`;
+    }
+    
+    if (empty) {
+      endpoint += '&empty=true';
+    }
+    
+    console.log(`Making API request to: ${endpoint}`);
+    
+    // Use ApiClient to handle auth and error handling
+    const response = await apiClient.request(endpoint);
+    
+    // Add debug info for troubleshooting
+    console.log(`API response for ${type} folders:`, response);
+    
+    // Ensure every folder has a templates array
+    if (response.success && response.folders) {
+      response.folders = response.folders.map(folder => {
+        // Initialize templates array if not present
+        if (!folder.templates) {
+          folder.templates = [];
+        }
+        
+        // Ensure Folders array exists
+        if (!folder.Folders) {
+          folder.Folders = [];
+        }
+        
+        // Process subfolders recursively
+        if (folder.Folders.length > 0) {
+          folder.Folders = folder.Folders.map(subfolder => {
+            if (!subfolder.templates) {
+              subfolder.templates = [];
+            }
+            return subfolder;
+          });
+        }
+        
+        return folder;
+      });
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('Error fetching template folders:', error);
+    
+    // Return a safe default value
+    return { 
+      success: false, 
+      folders: [], 
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
   
 /**
  * Create a new template
