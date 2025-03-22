@@ -1,109 +1,102 @@
+// src/components/panels/MenuPanel/index.tsx
+
 import React from 'react';
-import { FolderOpen, Bell, Menu as MenuIcon, BarChart } from "lucide-react";
-import { usePanelNavigation } from '@/core/hooks/usePanelNavigation';
-import MenuPanelHeader from './MenuPanelHeader';
-import MenuPanelMenu from './MenuPanelMenu';
-import TemplatesPanel from '../TemplatesPanel';
-import NotificationsPanel from '../NotificationsPanel';
-import StatsPanel from '../StatsPanel';
+import { MenuIcon, FileText, Bell, BarChart, Settings, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
+import BasePanel from '../BasePanel';
 
 interface MenuPanelProps {
-  isOpen: boolean;
+  onClose: () => void;
   notificationCount: number;
-  menuRef: React.RefObject<HTMLDivElement>;
-  onClosePanel: () => void;
-  onSettingsClick: () => void;
-  setIsPlaceholderEditorOpen: (isOpen: boolean) => void;
 }
 
+/**
+ * Root menu panel that allows navigation to other panels
+ */
 const MenuPanel: React.FC<MenuPanelProps> = ({
-  isOpen,
+  onClose,
   notificationCount,
-  menuRef,
-  onClosePanel,
-  onSettingsClick,
-  setIsPlaceholderEditorOpen,
 }) => {
-  const {
-    currentPanel,
-    panelStack,
-    popPanel,
-  } = usePanelNavigation();
+  const { pushPanel } = usePanelNavigation();
 
-  // Get title and icon for current panel
-  const getPanelTitle = (): string => {
-    switch (currentPanel.type) {
-      case 'menu':
-        return chrome.i18n.getMessage('menu') || 'Menu';
-      case 'templates':
-        return chrome.i18n.getMessage('templates') || 'Templates';
-      case 'notifications':
-        return chrome.i18n.getMessage('notifications') || 'Notifications';
-      case 'stats':
-        return chrome.i18n.getMessage('aiStats') || 'AI Stats';
-      default:
-        return chrome.i18n.getMessage('menu') || 'Menu';
-    }
+  // Handle navigation to other panels
+  const handleNavigate = (panelType: 'templates' | 'notifications' | 'stats') => {
+    pushPanel({ type: panelType });
   };
 
-  const getPanelIcon = (): React.ComponentType<{ className?: string }> => {
-    switch (currentPanel.type) {
-      case 'menu':
-        return MenuIcon;
-      case 'templates':
-        return FolderOpen;
-      case 'notifications':
-        return Bell;
-      case 'stats':
-        return BarChart;
-      default:
-        return MenuIcon;
-    }
+  // Handle settings click - open settings dialog
+  const handleSettingsClick = () => {
+    dialogManager.openDialog('settings');
   };
 
-  // Render the appropriate content based on the current panel
-  const renderContent = () => {
-    switch (currentPanel.type) {
-      case 'menu':
-        return (
-          <MenuPanelMenu
-            notificationCount={notificationCount}
-            onSettingsClick={onSettingsClick}
-          />
-        );
-      case 'templates':
-        return (
-          <TemplatesPanel
-            setIsPlaceholderEditorOpen={setIsPlaceholderEditorOpen}
-          />
-        );
-      case 'notifications':
-        return <NotificationsPanel />;
-      case 'stats':
-        return <StatsPanel compact />;
-      default:
-        return null;
-    }
+  // Handle AI news click - open external link
+  const handleAiNewsClick = () => {
+    window.open('https://thetunnel.substack.com/?utm_source=archimind-extension', '_blank');
   };
-
-  if (!isOpen) return null;
 
   return (
-    <div
-      ref={menuRef}
-      className="absolute backdrop-blur-sm bottom-full mb-2 right-0 animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-150 shadow-lg rounded-md overflow-hidden z-50"
+    <BasePanel
+      title={chrome.i18n.getMessage('menu') || "Menu"}
+      icon={MenuIcon}
+      onClose={onClose}
+      className="w-56"
     >
-      <MenuPanelHeader
-        showBackButton={panelStack.length > 1}
-        onBack={popPanel}
-        onClose={onClosePanel}
-        title={getPanelTitle()}
-        icon={getPanelIcon()}
-      />
-      <div className="p-2 dark:bg-white dark:text-black bg-gray-800 rounded-b-md">
-        {renderContent()}
-      </div>
-    </div>
+      <Card className="p-1 shadow-none border-0">
+        <div className="flex flex-col space-y-1">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="justify-start" 
+            onClick={() => handleNavigate('templates')}
+          >
+            <FileText className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('templates') || 'Templates'}
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="justify-start" 
+            onClick={() => handleNavigate('stats')}
+          >
+            <BarChart className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('aiStats') || 'AI Stats'}
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="justify-start" 
+            onClick={() => handleNavigate('notifications')}
+          >
+            <Bell className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('notifications') || 'Notifications'}
+            {notificationCount > 0 && (
+              <span className="ml-auto bg-primary text-primary-foreground rounded-full text-xs px-1.5 py-0.5">
+                {notificationCount}
+              </span>
+            )}
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="justify-start" 
+            onClick={handleAiNewsClick}
+          >
+            <Save className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('aiNews') || 'AI News'}
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="justify-start" 
+            onClick={handleSettingsClick}
+          >
+            <Settings className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('settings') || 'Settings'}
+          </Button>
+        </div>
+      </Card>
+    </BasePanel>
   );
 };
 

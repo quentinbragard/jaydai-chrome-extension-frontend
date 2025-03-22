@@ -1,13 +1,18 @@
+// src/components/panels/StatsPanel/index.tsx
+
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, BarChart2, Zap, MessageCircle, Award, RefreshCw } from "lucide-react";
+import { BarChart2, Zap, MessageCircle, Award, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useService } from '@/core/hooks/useService';
 import { Stats, StatsService } from '@/services/analytics/StatsService';
 import StatsCard from './StatsCard';
 import StatsDetailRow from './StatsDetailRow';
+import BasePanel from '../BasePanel';
 import ErrorBoundary from '../../common/ErrorBoundary';
 
 interface StatsPanelProps {
+  showBackButton?: boolean;
+  onBack?: () => void;
   onClose?: () => void;
   className?: string;
   compact?: boolean;
@@ -16,13 +21,14 @@ interface StatsPanelProps {
 
 /**
  * Panel displaying AI usage statistics
- * Uses StatsService to fetch and display data
  */
 const StatsPanel: React.FC<StatsPanelProps> = ({ 
+  showBackButton,
+  onBack,
   onClose, 
   className, 
   compact = false,
-  maxHeight
+  maxHeight = '400px'
 }) => {
   const [isExpanded, setIsExpanded] = useState(!compact);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -47,7 +53,6 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
     efficiency: 0
   });
 
-  // Use effect to load stats from service
   useEffect(() => {
     if (statsService) {
       // Initial load
@@ -95,86 +100,69 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
 
   return (
     <ErrorBoundary>
-      <div 
-        className={`stats-panel p-3 bg-background border rounded-lg shadow-md ${className || ''}`}
-        style={maxHeight ? { maxHeight } : {}}
+      <BasePanel
+        title={chrome.i18n.getMessage('aiStats') || "AI Stats"}
+        icon={BarChart2}
+        showBackButton={showBackButton}
+        onBack={onBack}
+        onClose={onClose}
+        className={`stats-panel w-80 ${className || ''}`}
+        maxHeight={maxHeight}
       >
-        {/* Compact header row with stats */}
-        <div className="px-1 py-1 flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <BarChart2 className="h-3.5 w-3.5 text-blue-500 mr-1" />
-            <span className="text-sm font-medium">
-              {chrome.i18n.getMessage('aiStats') || 'AI Stats'}
-            </span>
-          </div>
+        {/* Stats Cards Row */}
+        <div className="flex items-center justify-between mb-4">
+          <StatsCard 
+            icon={<MessageCircle className="h-3.5 w-3.5" />} 
+            value={stats.totalChats} 
+            color="text-blue-500"
+            title="Conversations"
+          />
           
-          <div className="flex items-center gap-3">
+          {stats.efficiency !== undefined && (
             <StatsCard 
-              icon={<MessageCircle className="h-3.5 w-3.5" />} 
-              value={stats.totalChats} 
-              color="text-blue-500"
-              title="Conversations"
+              icon={<Award className="h-3.5 w-3.5" />} 
+              value={formatEfficiency(stats.efficiency)} 
+              unit="%" 
+              color={efficiencyColor}
+              title="Efficiency"
             />
-            
-            {stats.efficiency !== undefined && (
-              <StatsCard 
-                icon={<Award className="h-3.5 w-3.5" />} 
-                value={formatEfficiency(stats.efficiency)} 
-                unit="%" 
-                color={efficiencyColor}
-                title="Efficiency"
-              />
-            )}
-            
-            <StatsCard 
-              icon={<Zap className="h-3.5 w-3.5" />} 
-              value={formatEnergy(stats.energy.total)} 
-              unit="kWh" 
-              color="text-amber-500"
-              title="Energy"
-            />
-            
-            <div className="flex gap-1">
-              <Button 
-                onClick={refreshStats}
-                className="p-1 rounded-full hover:bg-accent/80 transition-colors"
-                aria-label="Refresh stats"
-                disabled={isRefreshing}
-                variant="ghost"
-                size="sm"
-              >
-                <RefreshCw className={`h-3 w-3 text-muted-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
-              </Button>
-              <Button 
-                onClick={toggleExpand}
-                className="p-1 rounded-full hover:bg-accent/80 transition-colors"
-                aria-label={isExpanded ? "Collapse stats" : "Expand stats"}
-                variant="ghost"
-                size="sm"
-              >
-                {isExpanded ? 
-                  <ChevronUp className="h-3 w-3 text-muted-foreground" /> : 
-                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                }
-              </Button>
-              {!compact && onClose && (
-                <Button 
-                  onClick={onClose}
-                  className="p-1 rounded-full hover:bg-accent/80 transition-colors"
-                  aria-label="Close stats panel"
-                  variant="ghost"
-                  size="sm"
-                >
-                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                </Button>
-              )}
-            </div>
-          </div>
+          )}
+          
+          <StatsCard 
+            icon={<Zap className="h-3.5 w-3.5" />} 
+            value={formatEnergy(stats.energy.total)} 
+            unit="kWh" 
+            color="text-amber-500"
+            title="Energy"
+          />
+          
+          <Button 
+            onClick={refreshStats}
+            className="p-1 rounded-full hover:bg-accent/80 transition-colors"
+            aria-label="Refresh stats"
+            disabled={isRefreshing}
+            variant="ghost"
+            size="sm"
+          >
+            <RefreshCw className={`h-3 w-3 text-muted-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
+          
+          <Button 
+            onClick={toggleExpand}
+            className="p-1 rounded-full hover:bg-accent/80 transition-colors ml-1"
+            variant="ghost"
+            size="sm"
+          >
+            {isExpanded ? 
+              <span className="text-xs">▲</span> : 
+              <span className="text-xs">▼</span>
+            }
+          </Button>
         </div>
         
         {/* Expanded details section */}
         {isExpanded && (
-          <div className="px-4 py-3 border-t mt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="px-2 py-3 border-t mt-2 animate-in fade-in slide-in-from-top-2 duration-300">
             <StatsDetailRow 
               label={chrome.i18n.getMessage('energyInsights') || 'Energy Usage'}
               value={`${stats.energy.lastMonth} kWh`} 
@@ -217,7 +205,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
             </div>
           </div>
         )}
-      </div>
+      </BasePanel>
     </ErrorBoundary>
   );
 };

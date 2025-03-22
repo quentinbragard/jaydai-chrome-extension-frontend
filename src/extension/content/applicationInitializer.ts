@@ -7,7 +7,6 @@ import { eventManager } from '@/core/events/EventManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import MainButton from '@/components/layout/MainButton';
-import { dialogManager } from '@/core/managers/DialogManager';
 import { toast } from 'sonner';
 
 /**
@@ -59,8 +58,6 @@ export class AppInitializer {
         throw new Error('Failed to initialize services');
       }
 
-      // Initialize dialog manager
-      this.initializeDialogManager();
       
       // Inject UI components
       this.injectUIComponents();
@@ -85,13 +82,6 @@ export class AppInitializer {
            window.location.hostname.includes('chat.openai.com');
   }
 
-  // Initialize dialog manager
-private initializeDialogManager(): void {
-  console.log('🔧 Initializing dialog manager...');
-  // Make dialogManager available globally
-  window.dialogManager = dialogManager;
-  console.log('✅ Dialog manager initialized');
-}
   
   /**
    * Inject UI components
@@ -101,7 +91,6 @@ private initializeDialogManager(): void {
     
     // Inject the Main Button
     componentInjector.inject(MainButton, {
-      onSettingsClick: () => this.openSettings(),
       onSaveClick: () => this.saveCurrentConversation()
     }, {
       id: 'archimind-main-button',
@@ -116,13 +105,7 @@ private initializeDialogManager(): void {
     console.log('✅ UI components injected');
   }
   
-  /**
-   * Open settings dialog
-   */
-  private openSettings(): void {
-    dialogManager.openDialog('settings');
-  }
-  
+
   /**
    * Save current conversation
    */

@@ -1,14 +1,16 @@
+// src/components/panels/BrowseTemplatesPanel/index.tsx
+
 import React, { useState, useEffect } from 'react';
+import { FolderOpen, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { ChevronRight, ChevronDown, Star, Folder, Search, X, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import BasePanel from '../BasePanel';
 import { promptApi } from '@/services/api/PromptApi';
 import { TemplateFolder } from '@/types/templates';
 import { toast } from 'sonner';
 
-interface BrowseFoldersPanelProps {
+interface BrowseTemplatesPanelProps {
   folderType: 'official' | 'organization';
   pinnedFolderIds: number[];
   onPinChange: (folderId: number, isPinned: boolean) => Promise<void>;
@@ -16,7 +18,10 @@ interface BrowseFoldersPanelProps {
   maxHeight?: string;
 }
 
-const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
+/**
+ * Panel for browsing and pinning template folders
+ */
+const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
   folderType,
   pinnedFolderIds,
   onPinChange,
@@ -99,7 +104,7 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
   };
   
   // Toggle pin status for a folder
-  const togglePin = async (folderId: number, isPinned: boolean, e: React.MouseEvent) => {
+  const handleTogglePin = async (folderId: number, isPinned: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
     
     try {
@@ -111,122 +116,120 @@ const BrowseFoldersPanel: React.FC<BrowseFoldersPanelProps> = ({
     }
   };
   
-  // Recursive component to render folder tree
-  const renderFolder = (folder: TemplateFolder) => {
-    // Skip rendering if folder doesn't have an id or name
-    if (!folder || !folder.id || !folder.name) {
-      console.warn("Skipping invalid folder:", folder);
-      return null;
-    }
-    
-    const isPinned = pinnedFolderIds && pinnedFolderIds.includes(folder.id);
-    const isExpanded = expandedFolders.has(folder.id);
-    
-    return (
-      <div key={folder.id} className="folder-container">
-        <div 
-          className="folder-header flex items-center p-2 hover:bg-accent cursor-pointer group rounded-sm"
-          onClick={() => toggleFolder(folder.id)}
-        >
-          {isExpanded ? <ChevronDown className="h-4 w-4 mr-1" /> : <ChevronRight className="h-4 w-4 mr-1" />}
-          <Folder className="h-4 w-4 mr-2 text-muted-foreground" />
-          <span className="text-sm flex-1">{folder.name}</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`h-6 w-6 p-0 transition-opacity ${isPinned ? 'text-yellow-500' : 'text-muted-foreground opacity-0 group-hover:opacity-100'}`}
-            onClick={(e) => togglePin(folder.id, isPinned, e)}
-            title={isPinned ? 'Unpin folder' : 'Pin folder'}
-          >
-            <Star className={`h-4 w-4 ${isPinned ? 'fill-yellow-500' : ''}`} />
-          </Button>
-        </div>
-        
-        {isExpanded && folder.Folders && folder.Folders.length > 0 && (
-          <div className="subfolder-content pl-5">
-            {folder.Folders.map(subfolder => renderFolder(subfolder))}
-          </div>
-        )}
-      </div>
-    );
-  };
-  
   // Reset search and close expanded folders
   const handleResetSearch = () => {
     setSearchQuery('');
     setExpandedFolders(new Set());
   };
 
-  return (
-    <Card className="w-80 shadow-lg">
-      <CardHeader className="flex flex-row items-center justify-between py-3">
-        <CardTitle className="text-base font-medium flex items-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBackToTemplates}
-            className="mr-2 h-7 w-7 p-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          {folderType === 'official' ? 'Official Templates' : 'Organization Templates'}
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="p-0">
-        <div className="p-4">
-          <div className="relative mb-2">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              value={searchQuery} 
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={`Search ${folderType} folders...`}
-              className="pl-8 pr-8"
-            />
-            {searchQuery && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
-                onClick={handleResetSearch}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Pin {folderType} template folders to access them quickly.
-          </p>
+  // Recursive component to render folder tree
+  const renderFolderTree = () => {
+    if (isLoading) {
+      return (
+        <div className="py-8 text-center">
+          <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
+          <p className="text-sm text-muted-foreground mt-2">Loading folders...</p>
         </div>
-        
-        <Separator />
-        
-        <div 
-          className="overflow-y-auto"
-          style={{ maxHeight }}
-        >
-          {isLoading ? (
-            <div className="py-8 text-center">
-              <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
-              <p className="text-sm text-muted-foreground mt-2">Loading folders...</p>
-            </div>
-          ) : filteredFolders.length > 0 ? (
-            <div className="space-y-1 p-2">
-              {filteredFolders.map(folder => renderFolder(folder))}
-            </div>
+      );
+    }
+    
+    if (filteredFolders.length === 0) {
+      return (
+        <div className="py-8 text-center">
+          {searchQuery ? (
+            <p className="text-sm text-muted-foreground">No folders matching "{searchQuery}"</p>
           ) : (
-            <div className="py-8 text-center">
-              {searchQuery ? (
-                <p className="text-sm text-muted-foreground">No folders matching "{searchQuery}"</p>
-              ) : (
-                <p className="text-sm text-muted-foreground">No folders available</p>
-              )}
+            <p className="text-sm text-muted-foreground">No folders available</p>
+          )}
+        </div>
+      );
+    }
+    
+    const renderFolder = (folder: TemplateFolder) => {
+      // Skip rendering if folder doesn't have an id or name
+      if (!folder || !folder.id || !folder.name) {
+        return null;
+      }
+      
+      const isPinned = pinnedFolderIds.includes(folder.id);
+      const isExpanded = expandedFolders.has(folder.id);
+      
+      return (
+        <div key={folder.id} className="folder-container">
+          <div 
+            className="folder-header flex items-center p-2 hover:bg-accent cursor-pointer group rounded-sm"
+            onClick={() => toggleFolder(folder.id)}
+          >
+            <span className="mr-1">{isExpanded ? '▼' : '▶'}</span>
+            <span className="text-sm flex-1">{folder.name}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-6 w-6 p-0 transition-opacity ${isPinned ? 'text-yellow-500' : 'text-muted-foreground opacity-0 group-hover:opacity-100'}`}
+              onClick={(e) => handleTogglePin(folder.id, isPinned, e)}
+              title={isPinned ? 'Unpin folder' : 'Pin folder'}
+            >
+              <span className={`${isPinned ? 'text-yellow-500' : ''}`}>★</span>
+            </Button>
+          </div>
+          
+          {isExpanded && folder.Folders && folder.Folders.length > 0 && (
+            <div className="subfolder-content pl-5">
+              {folder.Folders.map(subfolder => renderFolder(subfolder))}
             </div>
           )}
         </div>
-      </CardContent>
-    </Card>
+      );
+    };
+    
+    return (
+      <div className="space-y-1 p-2">
+        {filteredFolders.map(folder => renderFolder(folder))}
+      </div>
+    );
+  };
+
+  return (
+    <BasePanel
+      title={folderType === 'official' ? 'Official Templates' : 'Organization Templates'}
+      icon={FolderOpen}
+      showBackButton={true}
+      onBack={onBackToTemplates}
+      className="w-80"
+      maxHeight={maxHeight}
+    >
+      <div className="p-4">
+        <div className="relative mb-2">
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={`Search ${folderType} folders...`}
+            className="pl-8 pr-8"
+          />
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+              onClick={handleResetSearch}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Pin {folderType} template folders to access them quickly.
+        </p>
+      </div>
+      
+      <Separator />
+      
+      <div className="overflow-y-auto">
+        {renderFolderTree()}
+      </div>
+    </BasePanel>
   );
 };
 
-export default BrowseFoldersPanel;
+export default BrowseTemplatesPanel;
