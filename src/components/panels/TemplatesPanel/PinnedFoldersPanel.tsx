@@ -1,4 +1,3 @@
-// src/components/MainButton/MenuPanel/TemplatesPanel/PinnedFoldersPanel.tsx
 import React from 'react';
 import { Card, CardContent} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { FileText, BookTemplate, Folder as FolderIcon, Users, ChevronDown, Refre
 import { Template, TemplateFolder } from '@/types/templates';
 import FolderItem from './FolderItem';
 import { useTemplates } from '@/hooks/templates';
+import { dialogManager } from '@/core/managers/DialogManager'; // Import dialogManager
 
 interface PinnedFoldersPanelProps {
   pinnedOfficialFolders: TemplateFolder[];
@@ -61,6 +61,21 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
     return await deleteFolder(folderId);
   };
 
+  // Handle create template button click
+  const handleCreateTemplate = () => {
+    // Use dialogManager directly
+    dialogManager.openDialog('createTemplate');
+  };
+
+  // Handle browse more button click
+  const handleBrowseMore = (type: 'official' | 'organization') => {
+    if (type === 'official') {
+      openBrowseOfficialFolders();
+    } else {
+      openBrowseOrganizationFolders();
+    }
+  };
+
   return (
     <Card className="w-80 shadow-lg">
       <CardContent className="p-0">
@@ -88,7 +103,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                     variant="ghost"
                     size="sm"
                     className="h-7 px-2 text-xs"
-                    onClick={openBrowseOfficialFolders}
+                    onClick={() => handleBrowseMore('official')}
                   >
                     <ChevronDown className="h-3.5 w-3.5 mr-1" />
                     {chrome.i18n.getMessage('browseMore')}
@@ -128,7 +143,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                     variant="ghost"
                     size="sm"
                     className="h-7 px-2 text-xs"
-                    onClick={openBrowseOrganizationFolders}
+                    onClick={() => handleBrowseMore('organization')}
                   >
                     <ChevronDown className="h-3.5 w-3.5 mr-1" />
                     {chrome.i18n.getMessage('browseMore')}
@@ -168,7 +183,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                     variant="ghost"
                     size="sm"
                     className="h-7 w-7 p-0"
-                    onClick={onCreateTemplate}
+                    onClick={handleCreateTemplate}
                     title={chrome.i18n.getMessage('newTemplate')}
                   >
                     <PlusCircle className="h-4 w-4" />
@@ -206,7 +221,7 @@ const PinnedFoldersPanel: React.FC<PinnedFoldersPanelProps> = ({
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={onCreateTemplate}
+                      onClick={handleCreateTemplate}
                       className="flex items-center w-full"
                     >
                       <PlusCircle className="h-4 w-4 mr-1" />

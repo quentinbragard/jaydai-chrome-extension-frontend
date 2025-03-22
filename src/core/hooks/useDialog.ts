@@ -4,9 +4,10 @@ import { DialogType, DialogOptions } from '@/types/dialog';
 
 /**
  * Hook for managing dialogs
+ * Provides state and methods for opening/closing a specific dialog type
  */
 export function useDialog(type: DialogType) {
-  const [isOpen, setIsOpen] = useState(dialogManager.isDialogOpen(type));
+  const [isOpen, setIsOpen] = useState<boolean>(dialogManager.isDialogOpen(type));
   const [options, setOptions] = useState<DialogOptions | undefined>(
     dialogManager.getDialogOptions(type)
   );
@@ -15,11 +16,10 @@ export function useDialog(type: DialogType) {
     // Subscribe to dialog changes
     const unsubscribe = dialogManager.subscribe(type, (open, dialogOptions) => {
       setIsOpen(open);
-      if (dialogOptions) {
-        setOptions(dialogOptions);
-      }
+      setOptions(dialogOptions || {});
     });
     
+    // Cleanup subscription on unmount
     return unsubscribe;
   }, [type]);
   
@@ -36,7 +36,7 @@ export function useDialog(type: DialogType) {
     options, 
     openDialog, 
     closeDialog,
-    // Helper for dialogs to pass to UI components
+    // Helper for passing directly to UI components
     dialogProps: {
       open: isOpen,
       onOpenChange: (open: boolean) => {

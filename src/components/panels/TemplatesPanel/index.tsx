@@ -2,27 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { cn } from "@/core/utils/classNames";
 import { toast } from 'sonner';
 import { useTemplates } from '@/hooks/templates';
-import TemplateDialog from '@/components/panels/TemplatesPanel/TemplateDialog';
-import PlaceholderEditor from '@/components/panels/TemplatesPanel/PlaceholderEditor';
-import PinnedFoldersPanel from '@/components/panels/TemplatesPanel/PinnedFoldersPanel';
-import BrowseFoldersPanel from '@/components/panels/TemplatesPanel/BrowseFoldersPanel';
-import { Template } from '@/components/panels/TemplatesPanel/types';
+import TemplateDialog from './TemplateDialog';
+import PlaceholderEditor from './PlaceholderEditor';
+import TemplatesViewManager, { TemplatesView } from './TemplatesViewManager';
+import { Template } from './types';
 import { promptApi } from '@/services/api/PromptApi';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 
 export interface TemplatesPanelProps {
-  view: 'templates' | 'browse-official' | 'browse-organization';
-  onViewChange: (newView: 'templates' | 'browse-official' | 'browse-organization') => void;
   setIsPlaceholderEditorOpen: (isOpen: boolean) => void;
 }
 
+/**
+ * Main Templates Panel component that serves as the entry point for template features
+ */
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
-  view,
-  onViewChange,
   setIsPlaceholderEditorOpen,
 }) => {
+  // View state for templates/browse modes
+  const [currentView, setCurrentView] = useState<TemplatesView>('templates');
+
   const {
     loading: templatesLoading,
     editDialogOpen,
@@ -34,7 +35,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     selectedTemplate,
     handleUseTemplate,
     handleFinalizeTemplate,
-    openEditDialog,
+    openEditor,
     handleSaveTemplate,
     handleDeleteTemplate,
     pinnedOfficialFolders,
@@ -74,23 +75,24 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     };
   }, [templatesLoading]);
 
-  // Log loading state for debugging
+  // For debugging
   useEffect(() => {
     console.log('TemplatesPanel loading:', isLoading);
     console.log('templates loading', templatesLoading);
+    console.log('current view:', currentView);
     console.log('folders:', {
       pinnedOfficialFolders,
       pinnedOrganizationFolders,
       userFolders
     });
-  }, [isLoading, templatesLoading, pinnedOfficialFolders, pinnedOrganizationFolders, userFolders]);
+  }, [isLoading, templatesLoading, pinnedOfficialFolders, pinnedOrganizationFolders, userFolders, currentView]);
 
   const onTemplateClick = (template: Template) => {
     handleUseTemplate(template);
   };
   
   const handleCreateTemplate = () => {
-    openEditDialog(null);
+    openEditor(null);
   };
 
   const templatesPanelClass = cn(
@@ -98,12 +100,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     placeholderEditorOpen ? "editor-active opacity-30" : "opacity-100"
   );
 
-  // Handle pin/unpin for official folders with improved error handling
-  const handleToggleOfficialPin = async (folderId: number, isPinned: boolean) => {
+  // Handle pin/unpin for folders with improved error handling
+  const handleToggleFolderPin = async (folderId: number, isPinned: boolean, type: 'official' | 'organization') => {
     try {
-      console.log(`Toggling official folder pin: ID ${folderId}, isPinned: ${isPinned}`);
+      console.log(`Toggling ${type} folder pin: ID ${folderId}, isPinned: ${isPinned}`);
       
-      const response = await promptApi.toggleFolderPin(folderId, isPinned, 'official');
+      const response = await promptApi.toggleFolderPin(folderId, isPinned, type);
       console.log('Toggle pin response:', response);
       
       if (!response) {
@@ -117,41 +119,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       } else {
         toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder: ${response.error || 'Unknown error'}`);
       }
-      
-      return Promise.resolve();
     } catch (error) {
-      console.error('Error toggling official folder pin:', error);
+      console.error(`Error toggling ${type} folder pin:`, error);
       toast.error(`Failed to update folder pin status: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      return Promise.reject(error);
-    }
-  };
-
-  // Handle pin/unpin for organization folders with improved error handling
-  const handleToggleOrganizationPin = async (folderId: number, isPinned: boolean) => {
-    try {
-      console.log(`Toggling organization folder pin: ID ${folderId}, isPinned: ${isPinned}`);
-      
-      // Use the correct 'organization' type
-      const response = await promptApi.toggleFolderPin(folderId, isPinned, 'organization');
-      console.log('Toggle organization pin response:', response);
-      
-      if (!response) {
-        throw new Error('No response received from toggleFolderPin');
-      }
-      
-      if (response.success) {
-        toast.success(isPinned ? 'Folder unpinned' : 'Folder pinned');
-        // Refresh folders after pin/unpin
-        refreshFolders();
-      } else {
-        toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder: ${response.error || 'Unknown error'}`);
-      }
-      
-      return Promise.resolve();
-    } catch (error) {
-      console.error('Error toggling organization folder pin:', error);
-      toast.error(`Failed to update folder pin status: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      return Promise.reject(error);
+      throw error;
     }
   };
 
@@ -177,54 +148,23 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     );
   }
 
-  const renderContent = () => {
-    if (view === 'browse-official') {
-      return (
-        <BrowseFoldersPanel
-          folderType="official"
-          pinnedFolderIds={pinnedOfficialFolders?.map(folder => folder.id) || []}
-          onPinChange={handleToggleOfficialPin}
-        />
-      );
-    } else if (view === 'browse-organization') {
-      return (
-        <BrowseFoldersPanel
-          folderType="organization"
-          pinnedFolderIds={pinnedOrganizationFolders?.map(folder => folder.id) || []}
-          onPinChange={handleToggleOrganizationPin}
-        />
-      );
-    }
-    
-    // Default view: display pinned folders
-    return (
-      <PinnedFoldersPanel
-        pinnedOfficialFolders={pinnedOfficialFolders || []}
-        pinnedOrganizationFolders={pinnedOrganizationFolders || []}
-        userFolders={userFolders || []}
-        onUseTemplate={onTemplateClick}
-        onEditTemplate={openEditDialog}
-        onDeleteTemplate={handleDeleteTemplate}
-        onCreateTemplate={handleCreateTemplate}
-        openBrowseOfficialFolders={() => onViewChange('browse-official')}
-        openBrowseOrganizationFolders={() => onViewChange('browse-organization')}
-        handleTogglePin={async (folderId, isPinned, type) => {
-          if (type === 'official') {
-            return handleToggleOfficialPin(folderId, isPinned);
-          } else {
-            return handleToggleOrganizationPin(folderId, isPinned);
-          }
-        }}
-        loading={isLoading}
-      />
-    );
-  };
-
   return (
     <>
       {!selectedTemplate && (
         <div className={templatesPanelClass}>
-          {renderContent()}
+          <TemplatesViewManager 
+            view={currentView}
+            onViewChange={setCurrentView}
+            pinnedOfficialFolders={pinnedOfficialFolders || []}
+            pinnedOrganizationFolders={pinnedOrganizationFolders || []}
+            userFolders={userFolders || []}
+            onUseTemplate={onTemplateClick}
+            onEditTemplate={openEditor}
+            onDeleteTemplate={handleDeleteTemplate}
+            onCreateTemplate={handleCreateTemplate}
+            onToggleFolderPin={handleToggleFolderPin}
+            loading={isLoading}
+          />
         </div>
       )}
 

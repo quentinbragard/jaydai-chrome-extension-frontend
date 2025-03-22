@@ -19,7 +19,7 @@ interface Settings {
   statsVisible: boolean;
 }
 
-export const SettingsDialog: React.FC = () => {
+const SettingsDialog: React.FC = () => {
   const { isOpen, closeDialog, dialogProps } = useDialog('settings');
   
   const [settings, setSettings] = useState<Settings>({
@@ -180,3 +180,5 @@ export const SettingsDialog: React.FC = () => {
     </BaseDialog>
   );
 };
+
+export default SettingsDialog;

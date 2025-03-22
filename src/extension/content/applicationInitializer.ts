@@ -58,6 +58,9 @@ export class AppInitializer {
       if (!servicesInitialized) {
         throw new Error('Failed to initialize services');
       }
+
+      // Initialize dialog manager
+      this.initializeDialogManager();
       
       // Inject UI components
       this.injectUIComponents();
@@ -81,6 +84,14 @@ export class AppInitializer {
     return window.location.hostname.includes('chatgpt.com') || 
            window.location.hostname.includes('chat.openai.com');
   }
+
+  // Initialize dialog manager
+private initializeDialogManager(): void {
+  console.log('🔧 Initializing dialog manager...');
+  // Make dialogManager available globally
+  window.dialogManager = dialogManager;
+  console.log('✅ Dialog manager initialized');
+}
   
   /**
    * Inject UI components

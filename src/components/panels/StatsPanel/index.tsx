@@ -11,6 +11,7 @@ interface StatsPanelProps {
   onClose?: () => void;
   className?: string;
   compact?: boolean;
+  maxHeight?: string;
 }
 
 /**
@@ -20,7 +21,8 @@ interface StatsPanelProps {
 const StatsPanel: React.FC<StatsPanelProps> = ({ 
   onClose, 
   className, 
-  compact = false 
+  compact = false,
+  maxHeight
 }) => {
   const [isExpanded, setIsExpanded] = useState(!compact);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -93,7 +95,10 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
 
   return (
     <ErrorBoundary>
-      <div className={`stats-panel p-3 bg-background border rounded-lg shadow-md ${className || ''}`}>
+      <div 
+        className={`stats-panel p-3 bg-background border rounded-lg shadow-md ${className || ''}`}
+        style={maxHeight ? { maxHeight } : {}}
+      >
         {/* Compact header row with stats */}
         <div className="px-1 py-1 flex items-center justify-between">
           <div className="flex items-center gap-1">

@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { FileText, Bell, Settings, Save, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePanelNavigation } from '@/core/hooks/usePanelNavigation';
+import { dialogManager } from '@/core/managers/DialogManager'; // Import dialogManager
 
 interface MenuPanelMenuProps {
   notificationCount: number;
@@ -14,6 +15,16 @@ const MenuPanelMenu: React.FC<MenuPanelMenuProps> = ({
   onSettingsClick 
 }) => {
   const { pushPanel } = usePanelNavigation();
+
+  // Handle browse templates click
+  const handleBrowseTemplates = () => {
+    pushPanel({ type: 'templatesBrowse' });
+  };
+
+  // Handle create template click
+  const handleCreateTemplate = () => {
+    dialogManager.openDialog('createTemplate');
+  };
 
   return (
     <Card className="w-48 p-1 shadow-lg">

@@ -5,7 +5,7 @@ import MenuPanelHeader from './MenuPanelHeader';
 import MenuPanelMenu from './MenuPanelMenu';
 import TemplatesPanel from '../TemplatesPanel';
 import NotificationsPanel from '../NotificationsPanel';
-import StatsPanel from '@/components/panels/StatsPanel';
+import StatsPanel from '../StatsPanel';
 
 interface MenuPanelProps {
   isOpen: boolean;
@@ -37,8 +37,6 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
         return chrome.i18n.getMessage('menu') || 'Menu';
       case 'templates':
         return chrome.i18n.getMessage('templates') || 'Templates';
-      case 'templatesBrowse':
-        return chrome.i18n.getMessage('browseTemplates') || 'Browse Templates';
       case 'notifications':
         return chrome.i18n.getMessage('notifications') || 'Notifications';
       case 'stats':
@@ -53,7 +51,6 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       case 'menu':
         return MenuIcon;
       case 'templates':
-      case 'templatesBrowse':
         return FolderOpen;
       case 'notifications':
         return Bell;
@@ -75,10 +72,8 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
           />
         );
       case 'templates':
-      case 'templatesBrowse':
         return (
           <TemplatesPanel
-            view={currentPanel.type === 'templates' ? 'templates' : 'browse'}
             setIsPlaceholderEditorOpen={setIsPlaceholderEditorOpen}
           />
         );

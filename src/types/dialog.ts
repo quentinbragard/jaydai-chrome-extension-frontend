@@ -7,10 +7,29 @@ export type DialogType =
   | 'auth'
   | 'settings'
   | 'createTemplate'
+  | 'editTemplate'
   | 'createFolder'
-  | 'placeholderEditor'
-  | 'deleteConfirmation'
-  | 'notification';
+  | 'confirmation';
+
+/**
+ * Options that can be passed to a dialog
+ */
+export interface DialogOptions {
+  title?: string;
+  description?: string;
+  // Auth-specific options
+  initialMode?: 'signin' | 'signup';
+  isSessionExpired?: boolean;
+  // Template-specific options
+  templateId?: string | number;
+  folderId?: string | number;
+  // Generic options
+  entity?: any;
+  data?: any;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+  onClose?: () => void;
+}
 
 // Common options for all dialogs
 export interface DialogBaseOptions {
@@ -38,10 +57,3 @@ export interface DeleteConfirmationOptions extends DialogBaseOptions {
   itemName?: string;
   onConfirm: () => Promise<void>;
 }
-
-// Generic options for any dialog
-export type DialogOptions = 
-  | DialogBaseOptions 
-  | AuthDialogOptions 
-  | TemplateDialogOptions
-  | DeleteConfirmationOptions;

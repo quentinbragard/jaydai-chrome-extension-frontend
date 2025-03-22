@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { ChevronRight, ChevronDown, Star, Folder, Search, X, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { promptApi } from '@/services/api/PromptApi';
-import { TemplateFolder } from './types';
+import { TemplateFolder } from '@/types/templates';
 import { toast } from 'sonner';
 
 interface BrowseFoldersPanelProps {
