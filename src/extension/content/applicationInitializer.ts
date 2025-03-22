@@ -1,12 +1,14 @@
-// Import necessary components and services
+// src/extension/content/applicationInitializer.ts
+
 import { serviceManager } from '@/core/managers/ServiceManager';
-import { eventManager } from '@/core/events/EventManager';
 import { registerServices } from '@/services';
 import { componentInjector } from '@/core/utils/componentInjector';
-import MainButton from '@/components/MainButton';
-import { dialogManager } from '@/core/managers/DialogManager';
+import { eventManager } from '@/core/events/EventManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
+import MainButton from '@/components/MainButton';
+import { dialogManager } from '@/core/managers/DialogManager';
+import { toast } from 'sonner';
 
 /**
  * Main application initializer
@@ -45,14 +47,17 @@ export class AppInitializer {
     try {
       console.log('🚀 Initializing Archimind application...');
       
-      // Register services
-      registerServices();
-      
-      // Initialize event manager
+      // Initialize event manager first
       eventManager.initialize();
       
-      // Initialize services (in correct order)
-      await serviceManager.initializeAll();
+      // Register all services
+      registerServices();
+      
+      // Initialize services
+      const servicesInitialized = await serviceManager.initializeAll();
+      if (!servicesInitialized) {
+        throw new Error('Failed to initialize services');
+      }
       
       // Inject UI components
       this.injectUIComponents();
@@ -132,6 +137,9 @@ export class AppInitializer {
     
     // Use the service to save conversation data
     try {
+      // Save the conversation (implementation depends on your chat service)
+      chatService.setCurrentConversationId(chatId);
+      
       // Show success toast
       toast.success(
         chrome.i18n.getMessage('conversationSaved') || 'Conversation Saved', 
@@ -160,7 +168,7 @@ export class AppInitializer {
     // Remove UI components
     componentInjector.removeAll();
     
-    // Clean up services in reverse initialization order
+    // Clean up services
     serviceManager.cleanupAll();
     
     // Clean up event manager

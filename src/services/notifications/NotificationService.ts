@@ -1,6 +1,8 @@
-// src/services/NotificationService.ts
-import { toast } from "sonner";
+// src/services/notifications/NotificationService.ts
+import { AbstractBaseService } from '../BaseService';
 import { notificationApi } from "@/api/NotificationApi";
+import { toast } from "sonner";
+import { emitEvent, AppEvent } from '@/core/events/events';
 
 export interface Notification {
   id: string;
@@ -17,9 +19,8 @@ export interface Notification {
 
 /**
  * Service to manage notifications
- * Single instance to be used throughout the extension
  */
-export class NotificationService {
+export class NotificationService extends AbstractBaseService {
   private static instance: NotificationService;
   private notifications: Notification[] = [];
   private isLoading: boolean = false;
@@ -28,7 +29,9 @@ export class NotificationService {
   private updateCallbacks: ((notifications: Notification[]) => void)[] = [];
   private unreadCount: number = 0;
   
-  private constructor() {}
+  private constructor() {
+    super();
+  }
   
   /**
    * Get the singleton instance
@@ -43,7 +46,7 @@ export class NotificationService {
   /**
    * Initialize the notification service
    */
-  public async initialize(): Promise<void> {
+  protected async onInitialize(): Promise<void> {
     console.log('🔔 Initializing notification service...');
     
     // Load notifications immediately
@@ -58,7 +61,7 @@ export class NotificationService {
   /**
    * Clean up resources
    */
-  public cleanup(): void {
+  protected onCleanup(): void {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
       this.pollingInterval = null;
@@ -113,6 +116,9 @@ export class NotificationService {
         // Update badge and notify listeners
         this.updateBadge();
         this.notifyUpdateListeners();
+        
+        // Emit event
+        emitEvent(AppEvent.NOTIFICATION_COUNT_UPDATED, { count: newUnreadCount });
       }
     } catch (error) {
       console.error('❌ Error loading notifications:', error);
@@ -160,6 +166,9 @@ export class NotificationService {
       // Update badge and notify listeners
       this.updateBadge();
       this.notifyUpdateListeners();
+      
+      // Emit event
+      emitEvent(AppEvent.NOTIFICATION_READ, { notificationId: id });
       
       // Call API to mark as read
       await notificationApi.markNotificationRead(id);
@@ -375,5 +384,4 @@ export class NotificationService {
   }
 }
 
-// Export the singleton instance
 export const notificationService = NotificationService.getInstance();

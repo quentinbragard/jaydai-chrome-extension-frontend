@@ -1,6 +1,6 @@
 // src/components/MainButton/hooks/useTemplates.ts
 import { useState, useCallback, useEffect } from 'react';
-import { Template, TemplateFormData, DEFAULT_FORM_DATA } from '../MenuPanel/TemplatesPanel/types';
+import { Template, TemplateFormData, DEFAULT_FORM_DATA } from '@/components/panels/MenuPanel/TemplatesPanel/types';
 import { toast } from 'sonner';
 import { promptApi } from '@/api/PromptApi';
 import { useFolders } from './useFolders';

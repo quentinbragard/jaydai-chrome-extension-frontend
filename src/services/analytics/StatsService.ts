@@ -1,5 +1,10 @@
+// src/services/analytics/StatsService.ts
 import { AbstractBaseService } from '../BaseService';
 import { userApi } from "@/api";
+import { debug } from '@/core/config';
+import { errorReporter } from '@/core/errors/ErrorReporter';
+import { AppError, ErrorCode } from '@/core/errors/AppError';
+import { emitEvent, AppEvent } from '@/core/events/events';
 
 export interface Stats {
   totalChats: number;
@@ -19,6 +24,11 @@ export interface Stats {
     total: number;
     average: number;
   };
+}
+
+export interface ChartData {
+  labels: string[];
+  values: number[];
 }
 
 /**
@@ -48,12 +58,27 @@ export class StatsService extends AbstractBaseService {
   private lastLoadTime: number = 0;
   private retryCount: number = 0;
   private isLoading: boolean = false;
+  private static instance: StatsService;
+
+   private constructor() {
+    super();
+  }
   
+  public static getInstance(): StatsService {
+    if (!StatsService.instance) {
+      StatsService.instance = new StatsService();
+    }
+    return StatsService.instance;
+  }
+
   /**
    * Initialize stats tracking
    */
   protected async onInitialize(): Promise<void> {
-    console.log('📊 Initializing stats service...');
+    debug('Initializing stats service...');
+    
+    // Listen for relevant events
+    this.setupEventListeners();
     
     // Load initial stats
     await this.loadStats();
@@ -67,7 +92,7 @@ export class StatsService extends AbstractBaseService {
       }
     }, 60000); // Check every minute
     
-    console.log('✅ Stats service initialized');
+    debug('Stats service initialized');
   }
   
   /**
@@ -80,7 +105,64 @@ export class StatsService extends AbstractBaseService {
     }
     
     this.updateCallbacks = [];
-    console.log('✅ Stats service cleaned up');
+    debug('Stats service cleaned up');
+  }
+  
+  /**
+   * Set up event listeners for tracking stats
+   */
+  private setupEventListeners(): void {
+    // Example: listen for message events to track message counts
+    document.addEventListener('archimind-network-intercept', this.handleNetworkEvent);
+  }
+  
+  /**
+   * Handle network interception events for stats
+   */
+  private handleNetworkEvent = (event: CustomEvent): void => {
+    const { type, data } = event.detail;
+    
+    if (!data) return;
+    
+    try {
+      switch (type) {
+        case 'chatCompletion':
+          // Track user message sent
+          this.trackMessageSent(data);
+          break;
+        case 'assistantResponse':
+          // Track assistant response if complete
+          if (data.isComplete) {
+            this.trackMessageReceived(data);
+          }
+          break;
+      }
+    } catch (error) {
+      debug('Error handling stats event:', error);
+    }
+  };
+  
+  /**
+   * Track when a user sends a message
+   */
+  private trackMessageSent(data: any): void {
+    // Local tracking could be implemented here
+    // For example, increment a counter or add to local storage
+    // This would be synced with the backend periodically
+  }
+  
+  /**
+   * Track when an assistant message is received
+   */
+  private trackMessageReceived(data: any): void {
+    // Track thinking time if available
+    if (data.thinkingTime) {
+      // Update local stats
+      this.stats.thinkingTime.total += data.thinkingTime;
+      // Recalculate average
+      this.stats.thinkingTime.average = 
+        this.stats.totalMessages > 0 ? this.stats.thinkingTime.total / this.stats.totalMessages : 0;
+    }
   }
   
   /**
@@ -88,6 +170,29 @@ export class StatsService extends AbstractBaseService {
    */
   public getStats(): Stats {
     return { ...this.stats };
+  }
+  
+  /**
+   * Get chart data for messages per day
+   */
+  public getMessagesPerDayChart(): ChartData {
+    const sortedDays = Object.keys(this.stats.messagesPerDay).sort();
+    return {
+      labels: sortedDays,
+      values: sortedDays.map(day => this.stats.messagesPerDay[day])
+    };
+  }
+  
+  /**
+   * Get energy usage chart data
+   */
+  public getEnergyUsageChart(): ChartData {
+    // Example: Create chart data for energy usage (would depend on your data structure)
+    // In a real implementation, this would extract the appropriate data
+    return {
+      labels: ['Current', 'Previous'],
+      values: [this.stats.energy.total, 0] // Would be actual comparative data
+    };
   }
   
   /**
@@ -130,7 +235,7 @@ export class StatsService extends AbstractBaseService {
     this.isLoading = true;
     
     try {
-      console.log('📊 Loading stats from backend...');
+      debug('Loading stats from backend...');
       const data = await userApi.getUserStats();
       
       if (data) {
@@ -162,19 +267,24 @@ export class StatsService extends AbstractBaseService {
           }
         }
         
-        console.log('📊 Stats updated from backend');
+        debug('Stats updated from backend');
         this.lastLoadTime = Date.now();
         this.retryCount = 0; // Reset retry count on success
         this.notifyUpdateListeners();
+        
+        // Emit event for other components
+        emitEvent(AppEvent.STATS_UPDATED, { stats: this.getStats() });
       }
     } catch (error) {
-      console.error('❌ Error loading stats:', error);
+      errorReporter.captureError(
+        new AppError('Error loading stats', ErrorCode.API_ERROR, error)
+      );
       
       // Implement retry with exponential backoff
       if (this.retryCount < 3) {
         this.retryCount++;
         const delay = Math.pow(2, this.retryCount) * 1000; // 2s, 4s, 8s
-        console.log(`⏱️ Will retry loading stats in ${delay/1000}s (attempt ${this.retryCount}/3)`);
+        debug(`Will retry loading stats in ${delay/1000}s (attempt ${this.retryCount}/3)`);
         
         setTimeout(() => {
           this.isLoading = false;
@@ -183,7 +293,7 @@ export class StatsService extends AbstractBaseService {
       } else {
         // Use fallback data for initial display if all retries fail
         if (this.lastLoadTime === 0) {
-          console.log('⚠️ Using fallback stats data after multiple failed attempts');
+          debug('Using fallback stats data after multiple failed attempts');
           
           // Update with at least some minimal info if we have it
           if (this.stats.totalMessages === 0) {
@@ -215,8 +325,13 @@ export class StatsService extends AbstractBaseService {
       try {
         callback(statsCopy);
       } catch (error) {
-        console.error('❌ Error in stats update callback:', error);
+        errorReporter.captureError(
+          new AppError('Error in stats update callback', ErrorCode.EXTENSION_ERROR, error)
+        );
       }
     });
   }
 }
+
+// Don't export a singleton instance here - we'll create it when registering services
+// This allows for better testing and dependency injection

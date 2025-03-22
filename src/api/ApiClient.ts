@@ -1,17 +1,55 @@
 // src/services/api/ApiClient.ts
+import { AbstractBaseService } from '@/services/BaseService';
+import { serviceManager } from '@/core/managers/ServiceManager';
+import { errorReporter } from '@/core/errors/ErrorReporter';
+import { AppError, ErrorCode } from '@/core/errors/AppError';
+import { debug } from '@/core/config';
 
-import { authService } from '@/services/auth/AuthService';
+/**
+ * Request options interface
+ */
+export interface RequestOptions extends RequestInit {
+  allowAnonymous?: boolean;
+}
 
 /**
  * Base API client with authentication and request handling
  */
-export class ApiClient {
+export class ApiClient extends AbstractBaseService {
+  private static instance: ApiClient;
   private baseUrl: string;
   private pendingRequests: Map<string, Promise<any>>;
   
-  constructor(baseUrl = 'http://127.0.0.1:8000') {
+  private constructor(baseUrl = 'http://127.0.0.1:8000') {
+    super();
     this.baseUrl = baseUrl;
     this.pendingRequests = new Map();
+  }
+  
+  /**
+   * Get the singleton instance
+   */
+  public static getInstance(baseUrl?: string): ApiClient {
+    if (!ApiClient.instance) {
+      ApiClient.instance = new ApiClient(baseUrl);
+    }
+    return ApiClient.instance;
+  }
+  
+  /**
+   * Initialize the API client
+   */
+  protected async onInitialize(): Promise<void> {
+    debug('Initializing API client...');
+    // Nothing specific to initialize
+  }
+  
+  /**
+   * Clean up resources
+   */
+  protected onCleanup(): void {
+    this.pendingRequests.clear();
+    debug('API client cleaned up');
   }
   
   /**
@@ -48,21 +86,61 @@ export class ApiClient {
    */
   private async _executeRequest<T>(endpoint: string, options: RequestOptions = {}, retryCount = 0): Promise<T> {
     try {
-      // Get auth token
+      // Get auth token service from service manager
+      const authService = serviceManager.getService('auth.state');
       let token;
-      try {
-        const authTokenResponse = await authService.getAuthToken();
-        if (authTokenResponse.success) {
-          token = authTokenResponse.token;
-        } else {
-          throw new Error('Failed to get auth token');
-        }
-        console.log('token', token);
-      } catch (tokenError) {
+      
+      if (!authService) {
+        debug('Auth service not available');
         if (endpoint.startsWith('/public/') || options.allowAnonymous) {
           token = null;
         } else {
-          throw tokenError;
+          throw new Error('Authentication service not available');
+        }
+      } else {
+        try {
+          const tokenService = serviceManager.getService('auth.token');
+          if (tokenService) {
+            const authTokenResponse = await tokenService.getAuthToken();
+            if (authTokenResponse.success) {
+              token = authTokenResponse.token;
+            } else {
+              debug('Failed to get auth token:', authTokenResponse.error);
+              if (endpoint.startsWith('/public/') || options.allowAnonymous) {
+                token = null;
+              } else {
+                throw new Error(authTokenResponse.error || 'Failed to get auth token');
+              }
+            }
+          } else {
+            // Use legacy auth service as fallback
+            const legacyAuth = serviceManager.getService('auth');
+            if (legacyAuth) {
+              const authTokenResponse = await legacyAuth.getAuthToken();
+              if (authTokenResponse.success) {
+                token = authTokenResponse.token;
+              } else {
+                debug('Failed to get auth token with legacy service');
+                if (endpoint.startsWith('/public/') || options.allowAnonymous) {
+                  token = null;
+                } else {
+                  throw new Error(authTokenResponse.error || 'Failed to get auth token');
+                }
+              }
+            } else {
+              if (endpoint.startsWith('/public/') || options.allowAnonymous) {
+                token = null;
+              } else {
+                throw new Error('No authentication service available');
+              }
+            }
+          }
+        } catch (tokenError) {
+          if (endpoint.startsWith('/public/') || options.allowAnonymous) {
+            token = null;
+          } else {
+            throw tokenError;
+          }
         }
       }
       
@@ -84,6 +162,8 @@ export class ApiClient {
         }
       };
       
+      debug(`Requesting ${options.method || 'GET'} ${endpoint}`);
+      
       // Make request
       const response = await fetch(`${this.baseUrl}${endpoint}`, fetchOptions);
       
@@ -91,21 +171,60 @@ export class ApiClient {
       if (response.status === 403 || response.status === 401) {
         if (retryCount < 1) {
           try {
-            token = await authService.refreshToken();
-            
-            // Update authorization header with new token
-            const newOptions = {
-              ...options,
-              headers: {
-                ...options.headers,
-                'Authorization': `Bearer ${token}`
+            const tokenService = serviceManager.getService('auth.token');
+            if (tokenService) {
+              const refreshSuccess = await tokenService.refreshToken();
+              
+              if (refreshSuccess) {
+                const authTokenResponse = await tokenService.getAuthToken();
+                token = authTokenResponse.token;
+                
+                // Update authorization header with new token
+                const newOptions = {
+                  ...options,
+                  headers: {
+                    ...options.headers,
+                    'Authorization': `Bearer ${token}`
+                  }
+                };
+                
+                // Retry request with new token
+                return this._executeRequest<T>(endpoint, newOptions, retryCount + 1);
+              } else {
+                throw new Error('Token refresh failed');
               }
-            };
-            
-            // Retry request with new token
-            return this._executeRequest<T>(endpoint, newOptions, retryCount + 1);
+            } else {
+              // Try legacy auth service
+              const legacyAuth = serviceManager.getService('auth');
+              if (legacyAuth) {
+                const refreshSuccess = await legacyAuth.refreshToken();
+                
+                if (refreshSuccess) {
+                  const authTokenResponse = await legacyAuth.getAuthToken();
+                  token = authTokenResponse.token;
+                  
+                  // Update authorization header with new token
+                  const newOptions = {
+                    ...options,
+                    headers: {
+                      ...options.headers,
+                      'Authorization': `Bearer ${token}`
+                    }
+                  };
+                  
+                  // Retry request with new token
+                  return this._executeRequest<T>(endpoint, newOptions, retryCount + 1);
+                } else {
+                  throw new Error('Token refresh failed with legacy service');
+                }
+              } else {
+                throw new Error('No authentication service available for token refresh');
+              }
+            }
           } catch (refreshError) {
-            throw new Error('Authentication failed after token refresh attempt');
+            const error = refreshError instanceof Error ? refreshError.message : 'Authentication failed after token refresh attempt';
+            debug('Token refresh failed:', error);
+            throw new Error(error);
           }
         } else {
           throw new Error('Authentication failed after retry');
@@ -122,38 +241,57 @@ export class ApiClient {
           errorData = { detail: errorText };
         }
         
-        throw new Error(errorData?.detail || `API error: ${response.status}`);
+        const errorMessage = errorData?.detail || `API error: ${response.status}`;
+        debug(`API error: ${errorMessage}`);
+        
+        throw new Error(errorMessage);
       }
       
       // Parse response as JSON
       try {
-        return await response.json();
+        const data = await response.json();
+        return data;
       } catch (jsonError) {
+        debug('Response was not JSON, returning success object');
         return { success: true, message: 'Request successful but response was not JSON' } as unknown as T;
+      }
+    } catch (error) {
+      // Implement basic retry for network errors
+      if (
+        (error instanceof Error && 
+        (error.message?.includes('network') || error.message?.includes('fetch'))) &&
+        retryCount < 2 && 
+        (!options.method || options.method === 'GET')
+      ) {
+        const delay = 1000 * (retryCount + 1);
+        debug(`Network error, retrying in ${delay}ms (attempt ${retryCount + 1})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return this._executeRequest<T>(endpoint, options, retryCount + 1);
+      }
+      
+      // Report error
+      errorReporter.captureError(
+        new AppError(`API request to ${endpoint} failed`, ErrorCode.API_ERROR, error)
+      );
+      
+      throw error;
     }
-  } catch (error) {
-    // Implement basic retry for network errors
-    if (
-      (error instanceof Error && 
-      (error.message?.includes('network') || error.message?.includes('fetch'))) &&
-      retryCount < 2 && 
-      (!options.method || options.method === 'GET')
-    ) {
-      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
-      return this._executeRequest<T>(endpoint, options, retryCount + 1);
-    }
-    
-    throw error;
   }
-}
-}
-
-/**
-* Request options interface
-*/
-export interface RequestOptions extends RequestInit {
-allowAnonymous?: boolean;
+  
+  /**
+   * Set base URL
+   */
+  public setBaseUrl(url: string): void {
+    this.baseUrl = url;
+  }
+  
+  /**
+   * Get base URL
+   */
+  public getBaseUrl(): string {
+    return this.baseUrl;
+  }
 }
 
 // Export a singleton instance
-export const apiClient = new ApiClient();
+export const apiClient = ApiClient.getInstance();

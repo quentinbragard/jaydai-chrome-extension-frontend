@@ -3,9 +3,9 @@ import { FolderOpen, Bell, Menu as MenuIcon, BarChart } from "lucide-react";
 import { usePanelNavigation } from '@/core/hooks/usePanelNavigation';
 import MenuPanelHeader from './MenuPanelHeader';
 import MenuPanelMenu from './MenuPanelMenu';
-import TemplatesPanel from '../TemplatesPanel';
-import NotificationsPanel from '../NotificationsPanel';
-import StatsPanel from '../StatsPanel';
+import TemplatesPanel from './TemplatesPanel';
+import NotificationsPanel from './NotificationsPanel';
+import StatsPanel from '@/components/panels/StatsPanel';
 
 interface MenuPanelProps {
   isOpen: boolean;

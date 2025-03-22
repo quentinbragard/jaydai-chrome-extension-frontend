@@ -5,7 +5,7 @@ import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { emitEvent, AppEvent } from '@/core/events/events';
 import { config, debug } from '@/core/config';
 import { authService } from '@/services/auth/AuthService';
-import { chatService } from '@/services/chat/ChatService';
+import { chatService } from '@/services/chat/ChatNetworkService';
 import { componentInjector } from '@/core/utils/componentInjector';
 import MainButton from '@/components/MainButton';
 import StatsPanel from '@/components/panels/StatsPanel';

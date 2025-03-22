@@ -1,39 +1,40 @@
-// src/services/UserInfoService.ts
-import { UserMetadata } from '@/types/chat';
+// src/services/user/UserProfileService.ts
+import { AbstractBaseService } from '../BaseService';
+import { UserMetadata } from '@/types/services/conversation';
 import { networkRequestMonitor } from '@/core/network/NetworkRequestMonitor';
-import { userApi } from '@/api';
 import { emitEvent, AppEvent } from '@/core/events/events';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { debug } from '@/core/config';
+import { userApi } from '@/api';
 
 /**
- * Service to fetch and process user information
+ * Service for managing user profile information
+ * Handles user data storage, retrieval, and updates
  */
-export class UserInfoService {
-  private static instance: UserInfoService;
+export class UserProfileService extends AbstractBaseService {
+  private static instance: UserProfileService;
+  private userInfo: UserMetadata | null = null;
   private fetchedUserInfo: boolean = false;
   private storageKey: string = 'archimind_user_info';
   private cleanupListeners: (() => void)[] = [];
-  private userInfo: UserMetadata | null = null;
   
-  private constructor() {}
+  private constructor() {
+    super();
+  }
   
-  /**
-   * Get the singleton instance
-   */
-  public static getInstance(): UserInfoService {
-    if (!UserInfoService.instance) {
-      UserInfoService.instance = new UserInfoService();
+  public static getInstance(): UserProfileService {
+    if (!UserProfileService.instance) {
+      UserProfileService.instance = new UserProfileService();
     }
-    return UserInfoService.instance;
+    return UserProfileService.instance;
   }
   
   /**
-   * Initialize the service - fetch user info
+   * Initialize the user profile service
    */
-  public initialize(): void {
-    debug('Initializing UserInfoService');
+  protected async onInitialize(): Promise<void> {
+    debug('Initializing UserProfileService');
     
     // First try to get from storage
     this.getUserInfoFromStorage().then(data => {
@@ -43,6 +44,31 @@ export class UserInfoService {
       }
     });
     
+    // Set up network request listeners
+    this.setupNetworkListeners();
+    
+    // Add event listener for user data from injected script
+    document.addEventListener('archimind-network-intercept', this.handleInterceptEvent);
+  }
+  
+  /**
+   * Clean up resources
+   */
+  protected onCleanup(): void {
+    // Remove all listeners
+    this.cleanupListeners.forEach(cleanup => cleanup());
+    this.cleanupListeners = [];
+    
+    // Remove event listener
+    document.removeEventListener('archimind-network-intercept', this.handleInterceptEvent);
+    
+    debug('UserProfileService cleaned up');
+  }
+  
+  /**
+   * Set up network request listeners
+   */
+  private setupNetworkListeners(): void {
     // Listen specifically for /backend-api/me responses
     const removeUserInfoListener = networkRequestMonitor.addListener(
       '/backend-api/me',
@@ -56,11 +82,6 @@ export class UserInfoService {
       this.handleConversationsCapture.bind(this)
     );
     this.cleanupListeners.push(removeConversationsListener);
-    
-    // Add event listener for user data from injected script
-    document.addEventListener('archimind-network-intercept', this.handleInterceptEvent.bind(this));
-    
-    debug('UserInfoService initialized');
   }
   
   /**
@@ -68,7 +89,7 @@ export class UserInfoService {
    */
   public handleUserInfoCapture(data: any): void {
     try {
-      debug('User info captured');
+      debug('User info captured from network');
       
       if (!data || !data.responseBody) return;
       
@@ -126,7 +147,7 @@ export class UserInfoService {
   /**
    * Handle events from the network interceptor
    */
-  private handleInterceptEvent(event: any): void {
+  private handleInterceptEvent = (event: CustomEvent): void => {
     try {
       if (!event.detail || event.detail.type !== 'userInfo' || !event.detail.data) {
         return;
@@ -152,6 +173,42 @@ export class UserInfoService {
     } catch (error) {
       errorReporter.captureError(
         new AppError('Error handling intercept event', ErrorCode.EXTENSION_ERROR, error)
+      );
+    }
+  };
+  
+  /**
+   * Process user information from API
+   */
+  public processUserInfo(data: any): void {
+    try {
+      if (!data || !data.id || !data.email) {
+        return;
+      }
+      
+      // Extract org name if available
+      let orgName = null;
+      if (data.orgs && data.orgs.data && data.orgs.data.length > 0) {
+        orgName = data.orgs.data[0].title || null;
+      }
+      
+      // Build user metadata
+      this.userInfo = {
+        id: data.id,
+        email: data.email,
+        name: data.name || data.email.split('@')[0],
+        picture: data.picture || null,
+        phone_number: data.phone_number || null,
+        org_name: orgName
+      };
+      
+      // Save to backend
+      this.saveUserMetadataToBackend();
+      
+      debug('User info processed successfully');
+    } catch (error) {
+      errorReporter.captureError(
+        new AppError('Error processing user info', ErrorCode.VALIDATION_ERROR, error)
       );
     }
   }
@@ -196,46 +253,17 @@ export class UserInfoService {
   }
   
   /**
-   * Process user information from API
-   */
-  public processUserInfo(data: any): void {
-    try {
-      if (!data || !data.id || !data.email) {
-        return;
-      }
-      
-      // Extract org name if available
-      let orgName = null;
-      if (data.orgs && data.orgs.data && data.orgs.data.length > 0) {
-        orgName = data.orgs.data[0].title || null;
-      }
-      
-      // Build user metadata
-      this.userInfo = {
-        id: data.id,
-        email: data.email,
-        name: data.name || data.email.split('@')[0],
-        picture: data.picture || null,
-        phone_number: data.phone_number || null,
-        org_name: orgName
-      };
-      
-      // Save to backend
-      this.saveUserMetadataToBackend();
-      
-      debug('User info processed successfully');
-    } catch (error) {
-      errorReporter.captureError(
-        new AppError('Error processing user info', ErrorCode.VALIDATION_ERROR, error)
-      );
-    }
-  }
-  
-  /**
    * Get the current user info
    */
   public getUserInfo(): UserMetadata | null {
     return this.userInfo;
+  }
+  
+  /**
+   * Get user ID
+   */
+  public getUserId(): string | null {
+    return this.userInfo?.id || null;
   }
   
   /**
@@ -245,7 +273,6 @@ export class UserInfoService {
     if (!this.userInfo) return;
     
     try {
-      // Use the userApi from our new API structure instead of apiService
       userApi.saveUserMetadata({
         email: this.userInfo.email,
         name: this.userInfo.name,
@@ -278,21 +305,6 @@ export class UserInfoService {
     chrome.storage.local.remove([this.storageKey]);
     debug('User info refreshed');
   }
-  
-  /**
-   * Clean up resources
-   */
-  public cleanup(): void {
-    // Remove all listeners
-    this.cleanupListeners.forEach(cleanup => cleanup());
-    this.cleanupListeners = [];
-    
-    // Remove event listener
-    document.removeEventListener('archimind-network-intercept', this.handleInterceptEvent.bind(this));
-    
-    debug('UserInfoService cleaned up');
-  }
 }
 
-// Export a singleton instance
-export const userInfoService = UserInfoService.getInstance();
+export const userProfileService = UserProfileService.getInstance();

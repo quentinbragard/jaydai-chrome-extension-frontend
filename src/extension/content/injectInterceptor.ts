@@ -1,5 +1,5 @@
 // src/extension/content/injectInterceptor.ts
-import { chatService } from '@/services/chat/ChatService';
+import { chatService } from '@/services/chat/ChatNetworkService';
 import { userInfoService } from '@/services/user/UserInfoService';
 
 import { messageService } from '@/services/MessageService';
