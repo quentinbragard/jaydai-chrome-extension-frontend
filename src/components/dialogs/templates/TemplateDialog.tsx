@@ -47,6 +47,7 @@ export const TemplateDialog: React.FC = () => {
   const onFormChange = data?.onFormChange;
   const onSave = data?.onSave || (() => Promise.resolve(false));
   const userFolders = data?.userFolders || [];
+  const selectedFolder = data?.selectedFolder; // New: pre-selected folder from folder creation
   
   // Process user folders for the select dropdown
   const processUserFolders = useCallback(() => {
@@ -100,8 +101,16 @@ export const TemplateDialog: React.FC = () => {
       
       // Process user folders
       processUserFolders();
+
+      // If there's a selectedFolder from folder creation, set it
+      if (selectedFolder) {
+        console.log('Auto-selecting folder from creation:', selectedFolder);
+        setSelectedFolderId(selectedFolder.id.toString());
+        handleFormChange('folder_id', selectedFolder.id);
+        handleFormChange('folder', selectedFolder.name);
+      }
     }
-  }, [isOpen, initialFormData, processUserFolders]);
+  }, [isOpen, initialFormData, processUserFolders, selectedFolder]);
   
   // Handle dialog close
   const handleClose = () => {
@@ -148,10 +157,24 @@ export const TemplateDialog: React.FC = () => {
   // Handle folder selection
   const handleFolderSelect = (folderId: string) => {
     if (folderId === 'new') {
-      // Open create folder dialog
+      // Open create folder dialog and pass callback to handle newly created folder
       if (window.dialogManager) {
         window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
-          onSaveFolder: handleCreateFolder
+          onSaveFolder: handleCreateFolder,
+          onFolderCreated: (folder: any) => {
+            // When folder is created, update the form with the new folder
+            console.log('New folder created, updating selection:', folder);
+            setSelectedFolderId(folder.id.toString());
+            handleFormChange('folder_id', folder.id);
+            handleFormChange('folder', folder.name);
+            
+            // Add the new folder to the list immediately for better UX
+            setUserFoldersList(prev => [...prev, {
+              id: folder.id,
+              name: folder.name,
+              fullPath: folder.name
+            }]);
+          }
         });
       }
       return;
@@ -184,23 +207,8 @@ export const TemplateDialog: React.FC = () => {
       const result = await promptApi.createFolder(folderData);
       
       if (result.success && result.folder) {
-        toast.success(`Folder "${folderData.name}" created`);
-        
-        // Add the new folder to the list
-        const newFolder = {
-          id: result.folder.id,
-          name: result.folder.name,
-          fullPath: result.folder.name
-        };
-        
-        setUserFoldersList(prev => [...prev, newFolder]);
-        
-        // Auto-select the new folder
-        setSelectedFolderId(result.folder.id.toString());
-        handleFormChange('folder_id', result.folder.id);
-        handleFormChange('folder', result.folder.name);
-        
-        return true;
+        // Note: We don't need to select the folder here, as the onFolderCreated callback will handle it
+        return result;
       } else {
         toast.error(`Failed to create folder: ${result.error || 'Unknown error'}`);
         return false;
@@ -244,7 +252,7 @@ export const TemplateDialog: React.FC = () => {
     setIsSubmitting(true);
     try {
       console.log('Saving template with data:', formData);
-      const success = await onSave();
+      const success = await onSave(formData);
       if (success) {
         handleClose();
       }

@@ -236,6 +236,67 @@ export function useTemplates() {
     }
   }, [folderManager.userFolders, updateFormData, handleSaveTemplate]);
 
+  // src/hooks/templates/useTemplates.ts - toggleFolderPin function with improved refresh
+
+/**
+ * Toggle folder pin status with improved refresh logic
+ */
+const toggleFolderPin = useCallback(async (
+  folderId: number, 
+  isPinned: boolean, 
+  type: 'official' | 'organization'
+) => {
+  try {
+    console.log(`Toggling pin for folder ${folderId}, currently ${isPinned ? 'pinned' : 'unpinned'}`);
+    
+    if (!folderId) {
+      console.error('Invalid folder ID');
+      toast.error('Invalid folder ID');
+      return false;
+    }
+    
+    // Validate folder type
+    if (type !== 'official' && type !== 'organization') {
+      console.error(`Invalid folder type: ${type}`);
+      toast.error('Invalid folder type');
+      return false;
+    }
+    
+    // Call the API via folderManager
+    const success = await folderManager.toggleFolderPin(folderId, isPinned, type);
+    
+    if (success) {
+      console.log(`Successfully ${isPinned ? 'unpinned' : 'pinned'} folder ${folderId}`);
+      
+      // Important: Reload folders to update UI with latest data from the server
+      await folderManager.loadFolders();
+      
+      // If we're unpinning a folder, we should update the local state immediately
+      // to ensure a more responsive UI
+      if (isPinned) {
+        if (type === 'official') {
+          setPinnedOfficialFolders(prev => 
+            prev.filter(folder => folder.id !== folderId)
+          );
+        } else if (type === 'organization') {
+          setPinnedOrganizationFolders(prev => 
+            prev.filter(folder => folder.id !== folderId)
+          );
+        }
+      }
+      
+      return true;
+    } else {
+      console.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder ${folderId}`);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error in toggleFolderPin:', error);
+    toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    return false;
+  }
+}, [folderManager]);
+
   return {
     // Folders state from folderManager
     pinnedOfficialFolders: folderManager.pinnedOfficialFolders,

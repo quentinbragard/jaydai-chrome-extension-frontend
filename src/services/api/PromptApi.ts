@@ -6,6 +6,7 @@ import { Template, TemplateFolder } from '../types';
  * API client for working with prompt templates
  */
 class PromptApiClient {
+
   
   /**
    * Get all template folders of a specific type (for browsing)
@@ -191,15 +192,15 @@ async createTemplate(templateData: any) {
       content: templateData.content,
       tags: templateData.tags || [],
       locale: templateData.locale || 'en',
-      type: 'user'  // Always creating a user template
+      folder_id: templateData.folder_id || null,
+      type: templateData.type || 'user'
     };
     
     // Only add folder_id if it's defined
     if (templateData.folder_id !== undefined && templateData.folder_id !== null) {
       requestBody.folder_id = templateData.folder_id;
     }
-    
-    console.log('Creating template with data:', requestBody);
+
     
     const response = await apiClient.request('/prompts/templates', {
       method: 'POST',

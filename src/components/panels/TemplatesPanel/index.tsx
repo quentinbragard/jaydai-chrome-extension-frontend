@@ -1,5 +1,5 @@
 // src/components/panels/TemplatesPanel/index.tsx
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FolderOpen, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -12,7 +12,8 @@ import {
   useUserFolders, 
   useToggleFolderPin,
   useTemplateActions,
-  useDeleteFolder
+  useDeleteFolder,
+  useCreateFolder
 } from '@/services/TemplateService';
 import { 
   FolderSection, 
@@ -58,6 +59,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   // Mutations
   const { mutate: togglePin } = useToggleFolderPin();
   const { mutate: deleteFolder } = useDeleteFolder();
+  const { mutate: createFolder } = useCreateFolder();
   
   // Template actions
   const { useTemplate, createTemplate } = useTemplateActions();
@@ -96,6 +98,40 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       setIsRefreshing(false);
     }
   };
+  
+  // Handle creating a new folder and immediately open template dialog
+  const handleCreateFolderAndTemplate = useCallback(async () => {
+    try {
+      // Open create folder dialog
+      if (window.dialogManager) {
+        window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
+          onSaveFolder: async (folderData) => {
+            // Create the folder
+            const result = await createFolder(folderData);
+            
+            if (result && result.success && result.folder) {
+              const newFolder = result.folder;
+              
+              // Wait a moment to ensure the folder is created
+              setTimeout(() => {
+                // Open create template dialog with the new folder selected
+                createTemplate(newFolder);
+              }, 100);
+            }
+            
+            return result;
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error in folder/template creation flow:', error);
+    }
+  }, [createFolder, createTemplate]);
+
+  // Handle creating a template directly
+  const handleCreateTemplate = useCallback(() => {
+    createTemplate();
+  }, [createTemplate]);
 
   // Error handling display
   if (error) {
@@ -150,7 +186,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={createTemplate}
+              onClick={handleCreateFolderAndTemplate}
               className="w-full"
             >
               {chrome.i18n.getMessage('createFirstTemplate') || 'Create Your First Template'}
@@ -225,7 +261,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           <FolderSection
             title={chrome.i18n.getMessage('myTemplates') || 'My Templates'}
             iconType="user"
-            onCreateTemplate={createTemplate}
+            onCreateTemplate={handleCreateTemplate}
             showCreateButton={true}
           >
             {userFolders?.length ? (
