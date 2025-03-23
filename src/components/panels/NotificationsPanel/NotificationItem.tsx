@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Info, AlertTriangle, CheckCircle, Bell, Clock } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { Notification } from './types';
+import { getMessage } from '@/core/utils/i18n';
 
 interface NotificationItemProps {
   notification: Notification;
@@ -66,7 +67,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                 onClick={(e) => onDismiss(notification, e)}
                 className="h-5 text-xs px-1.5"
               >
-                {chrome.i18n.getMessage('dismiss')}
+                {getMessage('dismiss', undefined, 'Dismiss')}
               </Button>
             )}
           </div>

@@ -4,7 +4,7 @@ import { FolderOpen, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-
+import { getMessage } from '@/core/utils/i18n';
 import BasePanel from '../BasePanel';
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
 import { 
@@ -137,7 +137,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   if (error) {
     return (
       <BasePanel
-        title={chrome.i18n.getMessage('templates') || "Templates"}
+        title={getMessage('templates', undefined, "Templates")}
         icon={FolderOpen}
         showBackButton={showBackButton}
         onBack={onBack}
@@ -166,7 +166,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   return (
     <BasePanel
-      title={chrome.i18n.getMessage('templates') || "Templates"}
+      title={getMessage('templates', undefined, "Templates")}
       icon={FolderOpen}
       showBackButton={showBackButton}
       onBack={onBack}
@@ -180,7 +180,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         <div className="py-8 px-4 text-center">
           <FolderOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
           <p className="text-sm text-muted-foreground mb-4">
-            {chrome.i18n.getMessage('noTemplates') || "No templates available"}
+            {getMessage('noTemplates', undefined, "No templates available")}
           </p>
           <div className="flex flex-col items-center gap-2">
             <Button 
@@ -189,7 +189,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               onClick={handleCreateFolderAndTemplate}
               className="w-full"
             >
-              {chrome.i18n.getMessage('createFirstTemplate') || 'Create Your First Template'}
+              {getMessage('createFirstTemplate', undefined, 'Create Your First Template')}
             </Button>
             <Button 
               variant="ghost" 
@@ -207,7 +207,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         <div className="space-y-4">
           {/* Official Templates Section */}
           <FolderSection
-            title={chrome.i18n.getMessage('officialTemplates') || 'Official Templates'}
+            title={getMessage('officialTemplates', undefined, 'Official Templates')}
             iconType="official"
             onBrowseMore={() => handleBrowseMore('official')}
             showBrowseMore={true}
@@ -223,8 +223,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               />
             ) : (
               <EmptyMessage>
-                {chrome.i18n.getMessage('noPinnedOfficialTemplates') || 
-                'No pinned official templates. Click Browse More to add some.'}
+                {getMessage('noPinnedOfficialTemplates', undefined, 'No pinned official templates. Click Browse More to add some.')}
               </EmptyMessage>
             )}
           </FolderSection>
@@ -233,7 +232,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           
           {/* Organization Templates Section */}
           <FolderSection
-            title={chrome.i18n.getMessage('organizationTemplates') || 'Organization Templates'}
+            title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
             iconType="organization"
             onBrowseMore={() => handleBrowseMore('organization')}
             showBrowseMore={true}
@@ -249,8 +248,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               />
             ) : (
               <EmptyMessage>
-                {chrome.i18n.getMessage('noPinnedOrganizationTemplates') || 
-                'No pinned organization templates. Click Browse More to add some.'}
+                {getMessage('noPinnedOrganizationTemplates', undefined, 'No pinned organization templates. Click Browse More to add some.')}
               </EmptyMessage>
             )}
           </FolderSection>
@@ -259,7 +257,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           
           {/* User Templates Section */}
           <FolderSection
-            title={chrome.i18n.getMessage('myTemplates') || 'My Templates'}
+            title={getMessage('myTemplates', undefined, 'My Templates')}
             iconType="user"
             onCreateTemplate={handleCreateTemplate}
             showCreateButton={true}
@@ -275,8 +273,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               />
             ) : (
               <EmptyMessage>
-                {chrome.i18n.getMessage('noUserTemplates') || 
-                'No user templates. Create a template to get started.'}
+                {getMessage('noUserTemplates', undefined, 'No user templates. Create a template to get started.')}
               </EmptyMessage>
             )}
           </FolderSection>

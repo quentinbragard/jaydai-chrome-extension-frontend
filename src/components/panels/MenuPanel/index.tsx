@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
 import BasePanel from '../BasePanel';
+import { getMessage } from '@/core/utils/i18n';
+import { toast } from 'sonner';
 
 interface MenuPanelProps {
   onClose: () => void;
@@ -27,14 +29,14 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   };
 
   // Handle settings click - open settings dialog
-const handleSettingsClick = () => {
-  if (window.dialogManager) {
-    window.dialogManager.openDialog('settings');
-  } else {
-    console.error('Dialog manager not available');
-    toast.error('Could not open settings. Please try again.');
-  }
-};
+  const handleSettingsClick = () => {
+    if (window.dialogManager) {
+      window.dialogManager.openDialog('settings');
+    } else {
+      console.error('Dialog manager not available');
+      toast.error('Could not open settings. Please try again.');
+    }
+  };
 
   // Handle AI news click - open external link
   const handleAiNewsClick = () => {
@@ -43,7 +45,7 @@ const handleSettingsClick = () => {
 
   return (
     <BasePanel
-      title={chrome.i18n.getMessage('menu') || "Menu"}
+      title={getMessage('menu', undefined, 'Menu')}
       icon={MenuIcon}
       onClose={onClose}
       className="w-56"
@@ -56,7 +58,8 @@ const handleSettingsClick = () => {
             className="justify-start" 
             onClick={() => handleNavigate('templates')}
           >
-            <FileText className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('templates') || 'Templates'}
+            <FileText className="mr-2 h-4 w-4" /> 
+            {getMessage('templates', undefined, 'Templates')}
           </Button>
           
           <Button 
@@ -65,7 +68,8 @@ const handleSettingsClick = () => {
             className="justify-start" 
             onClick={() => handleNavigate('stats')}
           >
-            <BarChart className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('aiStats') || 'AI Stats'}
+            <BarChart className="mr-2 h-4 w-4" /> 
+            {getMessage('aiStats', undefined, 'AI Stats')}
           </Button>
           
           <Button 
@@ -74,7 +78,8 @@ const handleSettingsClick = () => {
             className="justify-start" 
             onClick={() => handleNavigate('notifications')}
           >
-            <Bell className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('notifications') || 'Notifications'}
+            <Bell className="mr-2 h-4 w-4" /> 
+            {getMessage('notifications', undefined, 'Notifications')}
             {notificationCount > 0 && (
               <span className="ml-auto bg-primary text-primary-foreground rounded-full text-xs px-1.5 py-0.5">
                 {notificationCount}
@@ -88,7 +93,8 @@ const handleSettingsClick = () => {
             className="justify-start" 
             onClick={handleAiNewsClick}
           >
-            <Save className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('aiNews') || 'AI News'}
+            <Save className="mr-2 h-4 w-4" /> 
+            {getMessage('aiNews', undefined, 'AI News')}
           </Button>
           
           <Button 
@@ -97,7 +103,8 @@ const handleSettingsClick = () => {
             className="justify-start" 
             onClick={handleSettingsClick}
           >
-            <Settings className="mr-2 h-4 w-4" /> {chrome.i18n.getMessage('settings') || 'Settings'}
+            <Settings className="mr-2 h-4 w-4" /> 
+            {getMessage('settings', undefined, 'Settings')}
           </Button>
         </div>
       </Card>

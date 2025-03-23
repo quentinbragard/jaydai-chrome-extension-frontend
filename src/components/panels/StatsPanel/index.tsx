@@ -9,6 +9,7 @@ import StatsCard from './StatsCard';
 import StatsDetailRow from './StatsDetailRow';
 import BasePanel from '../BasePanel';
 import ErrorBoundary from '../../common/ErrorBoundary';
+import { getMessage } from '@/core/utils/i18n';
 
 interface StatsPanelProps {
   showBackButton?: boolean;
@@ -101,7 +102,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
   return (
     <ErrorBoundary>
       <BasePanel
-        title={chrome.i18n.getMessage('aiStats') || "AI Stats"}
+        title={getMessage('aiStats', undefined, "AI Stats")}
         icon={BarChart2}
         showBackButton={showBackButton}
         onBack={onBack}
@@ -164,7 +165,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
         {isExpanded && (
           <div className="px-2 py-3 border-t mt-2 animate-in fade-in slide-in-from-top-2 duration-300">
             <StatsDetailRow 
-              label={chrome.i18n.getMessage('energyInsights') || 'Energy Usage'}
+              label={getMessage('energyInsights', undefined, 'Energy Usage')}
               value={`${stats.energy.lastMonth} kWh`} 
               icon={<Zap className="h-3.5 w-3.5" />} 
               progress={stats.energy.lastMonth / (stats.energy.total * 0.2) * 100}
@@ -173,7 +174,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
             />
             
             <StatsDetailRow 
-              label={chrome.i18n.getMessage('messagingEfficiency') || 'Messages Per Conversation'} 
+              label={getMessage('messagingEfficiency', undefined, 'Messages Per Conversation')} 
               value={stats.avgMessagesPerChat.toFixed(1)} 
               icon={<MessageCircle className="h-3.5 w-3.5" />} 
               progress={Math.min(100, stats.avgMessagesPerChat * 5)}
@@ -182,7 +183,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
             />
             
             <StatsDetailRow 
-              label={chrome.i18n.getMessage('thinkingTime') || 'Average Response Time'} 
+              label={getMessage('thinkingTime', undefined, 'Average Response Time')} 
               value={`${stats.thinkingTime.average.toFixed(1)}s`} 
               icon={<Award className="h-3.5 w-3.5" />} 
               progress={Math.min(100, 100 - (stats.thinkingTime.average * 5))}

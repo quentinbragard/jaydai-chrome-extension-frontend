@@ -4,6 +4,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, X } from "lucide-react";
 import { cn } from "@/core/utils/classNames";
+import { getMessage } from '@/core/utils/i18n';
 
 interface PanelHeaderProps {
   title?: string;
@@ -26,8 +27,8 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   onClose,
   className
 }) => {
-  // Try to use i18n, fall back to provided title or default value
-  const displayTitle = chrome.i18n?.getMessage?.(title || '') || title || "";
+  // Use getMessage helper for better i18n handling
+  const displayTitle = getMessage(title || '', undefined, '');
   
   return (
     <div className={cn(

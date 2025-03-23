@@ -1,5 +1,6 @@
 // src/components/templates/LoadingState.tsx
 import React from 'react';
+import { getMessage } from '@/core/utils/i18n';
 
 interface LoadingStateProps {
   message?: string;
@@ -17,7 +18,7 @@ export function LoadingState({
     <div className={`py-8 text-center ${className}`}>
       <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
       <p className="text-sm text-muted-foreground mt-2">
-        {chrome.i18n.getMessage('loadingTemplates') || message}
+        {getMessage('loadingTemplates', undefined, message)}
       </p>
     </div>
   );

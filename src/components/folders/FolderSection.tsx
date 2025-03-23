@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react';
 import { BookTemplate, Users, Folder, PlusCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TemplateFolder } from '@/types/templates';
+import { getMessage } from '@/core/utils/i18n';
 
 interface FolderSectionProps {
   title: string;
@@ -56,7 +57,7 @@ export function FolderSection({
             onClick={onBrowseMore}
           >
             <ChevronDown className="h-3.5 w-3.5 mr-1" />
-            {chrome.i18n.getMessage('browseMore') || 'Browse More'}
+            {getMessage('browseMore', undefined, 'Browse More')}
           </Button>
         )}
         
@@ -67,7 +68,7 @@ export function FolderSection({
             size="sm"
             className="h-7 w-7 p-0"
             onClick={onCreateTemplate}
-            title={chrome.i18n.getMessage('newTemplate') || 'New Template'}
+            title={getMessage('newTemplate', undefined, 'New Template')}
           >
             <PlusCircle className="h-4 w-4" />
           </Button>

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import './popup.css';
+import { getMessage } from '@/core/utils/i18n';
 
 // AI Tool Configuration
 const AI_TOOLS = [
@@ -55,7 +56,7 @@ const ExtensionPopup: React.FC = () => {
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-yellow-500 text-center">
-            {chrome.i18n.getMessage('aiToolLauncher')}
+            {getMessage('aiToolLauncher', undefined, 'AI Tool Launcher')}
           </CardTitle>
         </CardHeader>
         <Separator />

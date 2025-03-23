@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { getMessage } from '@/core/utils/i18n';
 
 interface Settings {
   autoSave: boolean;
@@ -63,7 +64,7 @@ export const SettingsDialog: React.FC = () => {
     try {
       // Save settings to chrome storage
       chrome.storage.sync.set({ archimindSettings: settings }, () => {
-        toast.success(chrome.i18n.getMessage('saveChanges') || 'Settings saved');
+        toast.success(getMessage('saveChanges', undefined, 'Settings saved'));
         
         // Notify content script to apply changes
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -80,7 +81,7 @@ export const SettingsDialog: React.FC = () => {
       });
     } catch (error) {
       console.error('Failed to save settings:', error);
-      toast.error(chrome.i18n.getMessage('saveFailed') || 'Failed to save settings');
+      toast.error(getMessage('saveFailed', undefined, 'Failed to save settings'));
     }
   };
 
@@ -101,9 +102,9 @@ export const SettingsDialog: React.FC = () => {
     <Dialog {...dialogProps}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{chrome.i18n.getMessage('archimindSettings') || 'Settings'}</DialogTitle>
+          <DialogTitle>{getMessage('archimindSettings', undefined, 'Settings')}</DialogTitle>
           <DialogDescription>
-            {chrome.i18n.getMessage('configureArchimind') || 'Configure Archimind settings'}
+            {getMessage('configureArchimind', undefined, 'Configure Archimind settings')}
           </DialogDescription>
         </DialogHeader>
         
@@ -117,7 +118,7 @@ export const SettingsDialog: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium" htmlFor="auto-save">
-                    {chrome.i18n.getMessage('autoSaveConversations') || 'Auto-save conversations'}
+                    {getMessage('autoSaveConversations', undefined, 'Auto-save conversations')}
                   </label>
                   <input
                     id="auto-save"
@@ -131,7 +132,7 @@ export const SettingsDialog: React.FC = () => {
                 {settings.autoSave && (
                   <div className="flex items-center justify-between pl-4">
                     <label className="text-sm font-medium" htmlFor="auto-save-interval">
-                      {chrome.i18n.getMessage('autoSaveInterval') || 'Auto-save interval (seconds)'}
+                      {getMessage('autoSaveInterval', undefined, 'Auto-save interval (seconds)')}
                     </label>
                     <Input
                       id="auto-save-interval"
@@ -151,7 +152,7 @@ export const SettingsDialog: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium" htmlFor="sync-enabled">
-                    {chrome.i18n.getMessage('enableSync') || 'Enable synchronization'}
+                    {getMessage('enableSync', undefined, 'Enable synchronization')}
                   </label>
                   <input
                     id="sync-enabled"
@@ -164,7 +165,7 @@ export const SettingsDialog: React.FC = () => {
                 
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium" htmlFor="stats-visible">
-                    {chrome.i18n.getMessage('showStatsPanel') || 'Show stats panel'}
+                    {getMessage('showStatsPanel', undefined, 'Show stats panel')}
                   </label>
                   <input
                     id="stats-visible"
@@ -181,10 +182,10 @@ export const SettingsDialog: React.FC = () => {
         
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel}>
-            {chrome.i18n.getMessage('cancel') || 'Cancel'}
+            {getMessage('cancel', undefined, 'Cancel')}
           </Button>
           <Button onClick={saveSettings} disabled={loading}>
-            {chrome.i18n.getMessage('saveChanges') || 'Save Changes'}
+            {getMessage('saveChanges', undefined, 'Save Changes')}
           </Button>
         </DialogFooter>
       </DialogContent>

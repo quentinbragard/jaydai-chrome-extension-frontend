@@ -14,6 +14,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { toast } from "sonner";
+import { getMessage } from '@/core/utils/i18n';
 
 export interface AuthFormProps {
   initialMode?: 'signin' | 'signup';
@@ -41,7 +42,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<AuthMessage | null>(
     isSessionExpired 
-      ? { text: chrome.i18n.getMessage('sessionExpired') || 'Session expired', type: 'info' }
+      ? { text: getMessage('sessionExpired', undefined, 'Session expired'), type: 'info' }
       : null
   );
   const [signupSuccess, setSignupSuccess] = useState(false);
@@ -54,7 +55,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     // Set message when session expired flag changes
     if (isSessionExpired) {
       setMessage({ 
-        text: chrome.i18n.getMessage('sessionExpired') || 'Session expired', 
+        text: getMessage('sessionExpired', undefined, 'Session expired'), 
         type: 'info' 
       });
     }
@@ -76,7 +77,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   const validateSignInInputs = (): boolean => {
     if (!email.trim()) {
       setMessage({
-        text: chrome.i18n.getMessage('enterEmail') || 'Please enter your email', 
+        text: getMessage('enterEmail', undefined, 'Please enter your email'), 
         type: 'error'
       });
       return false;
@@ -84,7 +85,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     
     if (!password) {
       setMessage({
-        text: chrome.i18n.getMessage('enterPassword') || 'Please enter your password', 
+        text: getMessage('enterPassword', undefined, 'Please enter your password'), 
         type: 'error'
       });
       return false;
@@ -94,7 +95,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       setMessage({
-        text: chrome.i18n.getMessage('invalidEmail') || 'Invalid email address', 
+        text: getMessage('invalidEmail', undefined, 'Invalid email address'), 
         type: 'error'
       });
       return false;
@@ -110,7 +111,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     
     if (password.length < 8) {
       setMessage({
-        text: chrome.i18n.getMessage('passwordTooShort') || 'Password must be at least 8 characters', 
+        text: getMessage('passwordTooShort', undefined, 'Password must be at least 8 characters'), 
         type: 'error'
       });
       return false;
@@ -136,9 +137,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           
           if (response.success) {
             toast.success(
-              chrome.i18n.getMessage('signInSuccessful') || 'Sign-in successful', 
+              getMessage('signInSuccessful', undefined, 'Sign-in successful'), 
               {
-                description: chrome.i18n.getMessage('youCanNowAccess') || 'You can now access your conversations'
+                description: getMessage('youCanNowAccess', undefined, 'You can now access your conversations')
               }
             );
             
@@ -153,17 +154,17 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             // Handle specific error codes
             if (response.errorCode === 'INVALID_CREDENTIALS') {
               setMessage({
-                text: chrome.i18n.getMessage('invalidCredentials') || 'Invalid email or password', 
+                text: getMessage('invalidCredentials', undefined, 'Invalid email or password'), 
                 type: 'error'
               });
             } else if (response.errorCode === 'EMAIL_NOT_VERIFIED') {
               setMessage({
-                text: chrome.i18n.getMessage('emailNotVerified') || 'Email not verified', 
+                text: getMessage('emailNotVerified', undefined, 'Email not verified'), 
                 type: 'error'
               });
             } else {
               setMessage({
-                text: response.error || chrome.i18n.getMessage('unableToProcess') || 'Unable to process request', 
+                text: response.error || getMessage('unableToProcess', undefined, 'Unable to process request'), 
                 type: 'error'
               });
             }
@@ -173,7 +174,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     } catch (error) {
       setIsLoading(false);
       setMessage({
-        text: chrome.i18n.getMessage('unableToProcess') || 'Unable to process request', 
+        text: getMessage('unableToProcess', undefined, 'Unable to process request'), 
         type: 'error'
       });
       console.error('Auth form error:', error);
@@ -197,18 +198,18 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           if (response.success) {
             setSignupSuccess(true);
             setMessage({
-              text: chrome.i18n.getMessage('signUpSuccessful') || 'Sign-up successful', 
+              text: getMessage('signUpSuccessful', undefined, 'Sign-up successful'), 
               type: 'success'
             });
           } else {
             if (response.errorCode === 'EMAIL_IN_USE') {
               setMessage({
-                text: chrome.i18n.getMessage('emailAlreadyInUse') || 'Email already in use', 
+                text: getMessage('emailAlreadyInUse', undefined, 'Email already in use'), 
                 type: 'error'
               });
             } else {
               setMessage({
-                text: response.error || chrome.i18n.getMessage('signUpFailed') || 'Sign-up failed', 
+                text: response.error || getMessage('signUpFailed', undefined, 'Sign-up failed'), 
                 type: 'error'
               });
             }
@@ -218,7 +219,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     } catch (error) {
       setIsLoading(false);
       setMessage({
-        text: chrome.i18n.getMessage('unableToProcess') || 'Unable to process request', 
+        text: getMessage('unableToProcess', undefined, 'Unable to process request'), 
         type: 'error'
       });
       console.error('Auth form error:', error);
@@ -237,9 +238,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           
           if (response.success) {
             toast.success(
-              chrome.i18n.getMessage('signInSuccessful') || 'Sign-in successful', 
+              getMessage('signInSuccessful', undefined, 'Sign-in successful'), 
               {
-                description: chrome.i18n.getMessage('youCanNowAccess') || 'You can now access your conversations'
+                description: getMessage('youCanNowAccess', undefined, 'You can now access your conversations')
               }
             );
             
@@ -252,7 +253,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             }
           } else {
             setMessage({
-              text: response.error || chrome.i18n.getMessage('unableToProcess') || 'Unable to process request', 
+              text: response.error || getMessage('unableToProcess', undefined, 'Unable to process request'), 
               type: 'error'
             });
           }
@@ -261,7 +262,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     } catch (error) {
       setIsLoading(false);
       setMessage({
-        text: chrome.i18n.getMessage('unableToProcess') || 'Unable to process request', 
+        text: getMessage('unableToProcess', undefined, 'Unable to process request'), 
         type: 'error'
       });
       console.error('Auth form error:', error);
@@ -276,17 +277,17 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           <CheckCircle className="h-12 w-12 text-green-500" />
         </div>
         <h2 className="text-2xl font-medium text-white mb-3 font-heading">
-          {chrome.i18n.getMessage('emailVerificationSent') || 'Email Verification Sent'}
+          {getMessage('emailVerificationSent', undefined, 'Email Verification Sent')}
         </h2>
         <p className="text-gray-300 text-center mb-6 max-w-sm font-sans">
-          {chrome.i18n.getMessage('emailVerificationInstructions') || 
-            'Please check your email to verify your account.'}
+          {getMessage('emailVerificationInstructions', undefined, 
+            'Please check your email to verify your account.')}
         </p>
         <Button 
           onClick={onClose} 
           className="w-full font-heading bg-blue-600 hover:bg-blue-700"
         >
-          {chrome.i18n.getMessage('close') || 'Close'}
+          {getMessage('close', undefined, 'Close')}
         </Button>
       </div>
     );
@@ -306,14 +307,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             className="font-heading text-sm data-[state=active]:bg-blue-600 data-[state=active]:text-white"
           >
             <LogIn className="h-4 w-4 mr-2" />
-            {chrome.i18n.getMessage('signIn') || 'Sign In'}
+            {getMessage('signIn', undefined, 'Sign In')}
           </TabsTrigger>
           <TabsTrigger 
             value="signup" 
             className="font-heading text-sm data-[state=active]:bg-blue-600 data-[state=active]:text-white"
           >
             <UserPlus className="h-4 w-4 mr-2" />
-            {chrome.i18n.getMessage('signUp') || 'Sign Up'}
+              {getMessage('signUp', undefined, 'Sign Up')}
           </TabsTrigger>
         </TabsList>
         
@@ -342,7 +343,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           <div className="space-y-3">
             <div className="space-y-1">
               <Label htmlFor="email-signin" className="text-gray-300 font-sans">
-                {chrome.i18n.getMessage('email') || 'Email'}
+                {getMessage('email', undefined, 'Email')}
               </Label>
               <div className="relative">
                 <Input 
@@ -358,7 +359,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             </div>
             <div className="space-y-1">
               <Label htmlFor="password-signin" className="text-gray-300 font-sans">
-                {chrome.i18n.getMessage('password') || 'Password'}
+                {getMessage('password', undefined, 'Password')}
               </Label>
               <div className="relative">
                 <Input 
@@ -385,9 +386,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                {chrome.i18n.getMessage('signingIn') || 'Signing in...'}
+                {getMessage('signingIn', undefined, 'Signing in...')}
               </span>
-            ) : chrome.i18n.getMessage('signIn') || 'Sign In'}
+            ) : getMessage('signIn', undefined, 'Sign In')}
           </Button>
 
           <div className="relative my-4">
@@ -396,7 +397,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-gray-900 text-gray-400 font-sans">
-                {chrome.i18n.getMessage('or') || 'Or continue with'}
+                {getMessage('or', undefined, 'Or continue with')}
               </span>
             </div>
           </div>
@@ -408,7 +409,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             disabled={isLoading}
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
-            {chrome.i18n.getMessage('signInWith', ['Google']) || 'Sign in with Google'}
+            {getMessage('signInWith', ['Google']) || 'Sign in with Google'}
           </Button>
         </TabsContent>
         
@@ -416,7 +417,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           <div className="space-y-3">
             <div className="space-y-1">
               <Label htmlFor="name-signup" className="text-gray-300 font-sans">
-                {chrome.i18n.getMessage('name') || 'Name'}
+                {getMessage('name', undefined, 'Name')}
               </Label>
               <div className="relative">
                 <Input 
@@ -432,7 +433,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             </div>
             <div className="space-y-1">
               <Label htmlFor="email-signup" className="text-gray-300 font-sans">
-                {chrome.i18n.getMessage('email') || 'Email'}
+                {getMessage('email', undefined, 'Email')}
               </Label>
               <div className="relative">
                 <Input 
@@ -448,7 +449,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             </div>
             <div className="space-y-1">
               <Label htmlFor="password-signup" className="text-gray-300 font-sans">
-                {chrome.i18n.getMessage('password') || 'Password'}
+                {getMessage('password', undefined, 'Password')}
               </Label>
               <div className="relative">
                 <Input 
@@ -462,8 +463,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 <Lock className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
               <p className="text-xs text-gray-400 mt-1 font-sans">
-                {chrome.i18n.getMessage('passwordRequirements') || 
-                  'Password must be at least 8 characters with at least one letter and one number.'}
+                {getMessage('passwordRequirements', undefined, 
+                  'Password must be at least 8 characters with at least one letter and one number.')}
               </p>
             </div>
           </div>
@@ -479,14 +480,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                {chrome.i18n.getMessage('signingUp') || 'Creating account...'}
+                {getMessage('signingUp', undefined, 'Creating account...')}
               </span>
-            ) : chrome.i18n.getMessage('signUp') || 'Sign Up'}
+            ) : getMessage('signUp', undefined, 'Sign Up')}
           </Button>
           
           <p className="text-xs text-center text-gray-400 font-sans">
-            {chrome.i18n.getMessage('bySigningUp') || 
-              'By signing up, you agree to our Terms of Service and Privacy Policy.'}
+            {getMessage('bySigningUp', undefined, 
+              'By signing up, you agree to our Terms of Service and Privacy Policy.')}
           </p>
         </TabsContent>
       </Tabs>

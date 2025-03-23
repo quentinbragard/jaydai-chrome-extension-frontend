@@ -3,6 +3,7 @@
 import React from 'react';
 import { FileText, PlusCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getMessage } from '@/core/utils/i18n';
 
 interface EmptyStateProps {
   onCreateTemplate: () => void;
@@ -22,7 +23,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     <div className="py-8 px-4 text-center">
       <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
       <p className="text-sm text-muted-foreground">
-        {chrome.i18n.getMessage('noTemplates') || "No templates available"}
+        {getMessage('noTemplates', undefined, "No templates available")}
       </p>
       <div className="flex flex-col items-center justify-center gap-2 mt-4">
         <Button 
@@ -32,7 +33,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           className="flex items-center w-full"
         >
           <PlusCircle className="h-4 w-4 mr-1" />
-          {chrome.i18n.getMessage('createFirstTemplate') || 'Create Your First Template'}
+          {getMessage('createFirstTemplate', undefined, 'Create Your First Template')}
         </Button>
         <Button 
           variant="ghost" 

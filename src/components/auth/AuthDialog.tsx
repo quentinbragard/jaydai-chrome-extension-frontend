@@ -6,6 +6,7 @@ import {
 import { useDialog } from '@/core/hooks/useDialog';
 import { BaseDialog } from '../dialogs/BaseDialog';
 import AuthForm from './AuthForm';
+import { getMessage } from '@/core/utils/i18n';
 
 /**
  * AuthDialog component that uses the Dialog system
@@ -21,8 +22,8 @@ export const AuthDialog: React.FC = () => {
       <DialogHeader>
         <DialogTitle className="text-center text-2xl font-bold text-white font-heading mb-6">
           {initialMode === 'signin' 
-            ? chrome.i18n.getMessage('signIn') || 'Sign In'
-            : chrome.i18n.getMessage('signUp') || 'Sign Up'}
+            ? getMessage('signIn', undefined, 'Sign In')
+            : getMessage('signUp', undefined, 'Sign Up')}
         </DialogTitle>
       </DialogHeader>
       

@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import BasePanel from '../BasePanel';
 import { useNotifications } from './useNotifications';
 import NotificationItem from './NotificationItem';
+import { getMessage } from '@/core/utils/i18n';
 
 interface NotificationsPanelProps {
   showBackButton?: boolean;
@@ -36,7 +37,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
 
   return (
     <BasePanel
-      title={chrome.i18n.getMessage('notifications') || "Notifications"}
+      title={getMessage('notifications', undefined, "Notifications")}
       icon={Bell}
       showBackButton={showBackButton}
       onBack={onBack}
@@ -60,7 +61,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
             className="h-7 px-2 text-xs ml-auto"
           >
             <Check className="h-3.5 w-3.5 mr-1" />
-            {chrome.i18n.getMessage('markAllRead') || 'Mark all as read'}
+            {getMessage('markAllRead', undefined, 'Mark all as read')}
           </Button>
         )}
       </div>
@@ -71,12 +72,12 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
         {loading ? (
           <div className="py-8 text-center">
             <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
-            <p className="text-sm text-muted-foreground mt-2">{chrome.i18n.getMessage('loadingNotifications') || 'Loading notifications...'}</p>
+            <p className="text-sm text-muted-foreground mt-2">{getMessage('loadingNotifications', undefined, 'Loading notifications...')}</p>
           </div>
         ) : notifications.length === 0 ? (
           <div className="py-8 px-4 text-center">
             <Bell className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
-            <p className="text-sm text-muted-foreground">{chrome.i18n.getMessage('noNotifications') || 'No notifications'}</p>
+            <p className="text-sm text-muted-foreground">{getMessage('noNotifications', undefined, 'No notifications')}</p>
           </div>
         ) : (
           <ul className="divide-y divide-border">

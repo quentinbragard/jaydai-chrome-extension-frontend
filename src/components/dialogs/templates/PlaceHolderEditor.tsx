@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { getMessage } from '@/core/utils/i18n';
 
 interface Placeholder {
   key: string;
@@ -150,16 +151,16 @@ export const PlaceholderEditor: React.FC = () => {
         style={{ maxHeight: '90vh', overflow: 'auto' }}
       >
         <DialogDescription>
-          {chrome.i18n.getMessage('customizeTemplateDesc') || 'Customize the template by filling in the placeholders.'}
+          {getMessage('customizeTemplateDesc', undefined, 'Customize the template by filling in the placeholders.')}
         </DialogDescription>
         <DialogHeader>
-          <DialogTitle>{chrome.i18n.getMessage('customizeTemplate', ['Template']) || `Customize Template: ${templateTitle}`}</DialogTitle>
+          <DialogTitle>{getMessage('customizeTemplate', ['Template'], `Customize Template: ${templateTitle}`)}</DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4 flex-grow overflow-hidden">
           {/* Placeholders Section */}
           <div className="space-y-4 overflow-auto">
-            <h3 className="text-sm font-medium">{chrome.i18n.getMessage('replacePlaceholders') || 'Replace Placeholders'}</h3>
+            <h3 className="text-sm font-medium">{getMessage('replacePlaceholders', undefined, 'Replace Placeholders')}</h3>
 
             {placeholders.length > 0 ? (
               <ScrollArea className="h-[50vh]">
@@ -180,13 +181,13 @@ export const PlaceholderEditor: React.FC = () => {
                 </div>
               </ScrollArea>
             ) : (
-              <div className="text-muted-foreground text-center py-8">{chrome.i18n.getMessage('noPlaceholders') || 'No placeholders found in this template.'}</div>
+              <div className="text-muted-foreground text-center py-8">{getMessage('noPlaceholders', undefined, 'No placeholders found in this template.')}</div>
             )}
           </div>
 
           {/* Rich Text Editable Section */}
           <div className="border rounded-md p-4 overflow-hidden flex flex-col">
-            <h3 className="text-sm font-medium mb-2">{chrome.i18n.getMessage('editTemplate') || 'Edit Template'}</h3>
+            <h3 className="text-sm font-medium mb-2">{getMessage('editTemplate', undefined, 'Edit Template')}</h3>
             <div
               ref={editorRef}
               contentEditable
@@ -200,9 +201,9 @@ export const PlaceholderEditor: React.FC = () => {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)}>
-            {chrome.i18n.getMessage('cancel') || 'Cancel'}
+            {getMessage('cancel', undefined, 'Cancel')}
           </Button>
-          <Button onClick={handleComplete}>{chrome.i18n.getMessage('useTemplate') || 'Use Template'}</Button>
+          <Button onClick={handleComplete}>{getMessage('useTemplate', undefined, 'Use Template')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
