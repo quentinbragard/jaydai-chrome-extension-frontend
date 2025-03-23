@@ -195,6 +195,8 @@ async createTemplate(templateData: any) {
       folder_id: templateData.folder_id || null,
       type: templateData.type || 'user'
     };
+
+    console.log('requestBody', requestBody)
     
     // Only add folder_id if it's defined
     if (templateData.folder_id !== undefined && templateData.folder_id !== null) {

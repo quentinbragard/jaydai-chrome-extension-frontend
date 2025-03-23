@@ -1,7 +1,6 @@
 // src/services/api/UserApi.ts
 import { apiClient } from './ApiClient';
 
-
 export interface UserMetadata {
   email?: string;
   name?: string;
@@ -14,6 +13,7 @@ export interface UserMetadata {
   pinned_organization_folder_ids?: number[];
   preferences_metadata?: Record<string, any>;
 }
+
 export class UserApi {
   /**
    * Save user metadata
@@ -38,6 +38,20 @@ export class UserApi {
    */
   async getUserStats(): Promise<any> {
     return apiClient.request('/stats/user');
+  }
+
+  /**
+   * Get weekly conversation statistics
+   */
+  async getWeeklyConversationStats(): Promise<any> {
+    return apiClient.request('/stats/conversations/weekly');
+  }
+
+  /**
+   * Get message distribution statistics
+   */
+  async getMessageDistribution(): Promise<any> {
+    return apiClient.request('/stats/messages/distribution');
   }
 }
 

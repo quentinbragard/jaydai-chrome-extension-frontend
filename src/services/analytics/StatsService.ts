@@ -8,15 +8,21 @@ import { emitEvent, AppEvent } from '@/core/events/events';
 
 export interface Stats {
   totalChats: number;
+  recentChats: number; // Added field for recent chats (last 7 days)
   totalMessages: number;
   avgMessagesPerChat: number;
   messagesPerDay: Record<string, number>;
   efficiency?: number;
   tokenUsage: {
+    recent: number; // renamed from lastMonth to recent
+    recentInput: number; // New field
+    recentOutput: number; // New field
     total: number;
-    lastMonth: number;
+    totalInput: number; // New field
+    totalOutput: number; // New field
   };
-  energy: {
+  energyUsage: {
+    recent: number; // New field
     total: number;
     perMessage: number;
   };
@@ -24,6 +30,11 @@ export interface Stats {
     total: number;
     average: number;
   };
+  modelUsage?: Record<string, { // New field for model breakdown
+    count: number;
+    inputTokens: number;
+    outputTokens: number;
+  }>;
 }
 
 export interface ChartData {
@@ -37,14 +48,20 @@ export interface ChartData {
 export class StatsService extends AbstractBaseService {
   private stats: Stats = {
     totalChats: 0,
+    recentChats: 0,
     totalMessages: 0,
     avgMessagesPerChat: 0,
     messagesPerDay: {},
     tokenUsage: {
+      recent: 0,
+      recentInput: 0,
+      recentOutput: 0,
       total: 0,
-      lastMonth: 0
+      totalInput: 0,
+      totalOutput: 0
     },
-    energy: {
+    energyUsage: {
+      recent: 0,
       total: 0,
       perMessage: 0
     },
@@ -187,11 +204,34 @@ export class StatsService extends AbstractBaseService {
    * Get energy usage chart data
    */
   public getEnergyUsageChart(): ChartData {
-    // Example: Create chart data for energy usage (would depend on your data structure)
-    // In a real implementation, this would extract the appropriate data
     return {
-      labels: ['Current', 'Previous'],
-      values: [this.stats.energy.total, 0] // Would be actual comparative data
+      labels: ['Recent', 'Total'],
+      values: [this.stats.energyUsage.recent, this.stats.energyUsage.total]
+    };
+  }
+  
+  /**
+   * Get token usage chart data
+   */
+  public getTokenUsageChart(): ChartData {
+    return {
+      labels: ['Input', 'Output'],
+      values: [this.stats.tokenUsage.totalInput, this.stats.tokenUsage.totalOutput]
+    };
+  }
+  
+  /**
+   * Get model usage chart data
+   */
+  public getModelUsageChart(): ChartData {
+    if (!this.stats.modelUsage) {
+      return { labels: [], values: [] };
+    }
+    
+    const models = Object.keys(this.stats.modelUsage);
+    return {
+      labels: models,
+      values: models.map(model => this.stats.modelUsage?.[model].count || 0)
     };
   }
   
@@ -239,32 +279,37 @@ export class StatsService extends AbstractBaseService {
       const data = await userApi.getUserStats();
       
       if (data) {
-        // Merge backend stats with local tracking
+        // Map backend data to our Stats interface
         this.stats = {
           ...this.stats,
-          totalChats: data.total_chats || this.stats.totalChats,
-          totalMessages: data.total_messages || this.stats.totalMessages,
-          avgMessagesPerChat: data.avg_messages_per_chat || this.stats.avgMessagesPerChat,
-          efficiency: data.efficiency !== undefined ? data.efficiency : this.stats.efficiency,
+          totalChats: data.total_chats || 0,
+          recentChats: data.recent_chats || 0,
+          totalMessages: data.total_messages || 0,
+          avgMessagesPerChat: data.avg_messages_per_chat || 0,
+          efficiency: data.efficiency,
           tokenUsage: {
-            total: data.token_usage?.total || this.stats.tokenUsage.total,
-            lastMonth: data.token_usage?.last_month || this.stats.tokenUsage.lastMonth
+            recent: data.token_usage?.recent || 0,
+            recentInput: data.token_usage?.recent_input || 0,
+            recentOutput: data.token_usage?.recent_output || 0,
+            total: data.token_usage?.total || 0,
+            totalInput: data.token_usage?.total_input || 0,
+            totalOutput: data.token_usage?.total_output || 0
           },
-          energy: {
-            total: data.energy_usage?.total || this.stats.energy.total,
-            perMessage: data.energy_usage?.per_message || this.stats.energy.perMessage
+          energyUsage: {
+            recent: data.energy_usage?.recent || 0,
+            total: data.energy_usage?.total || 0,
+            perMessage: data.energy_usage?.per_message || 0
           },
           thinkingTime: {
-            total: data.thinking_time?.total || this.stats.thinkingTime.total,
-            average: data.thinking_time?.average || this.stats.thinkingTime.average
-          }
+            total: data.thinking_time?.total || 0,
+            average: data.thinking_time?.average || 0
+          },
+          modelUsage: data.model_usage || {}
         };
         
         // If backend provides daily message counts, merge them
         if (data.messages_per_day) {
-          for (const [day, count] of Object.entries(data.messages_per_day)) {
-            this.stats.messagesPerDay[day] = count as number;
-          }
+          this.stats.messagesPerDay = { ...data.messages_per_day };
         }
         
         debug('Stats updated from backend');
@@ -330,6 +375,34 @@ export class StatsService extends AbstractBaseService {
         );
       }
     });
+  }
+  
+  /**
+   * Get weekly conversation statistics
+   */
+  public async getWeeklyConversations(): Promise<any> {
+    try {
+      return await userApi.getWeeklyConversationStats();
+    } catch (error) {
+      errorReporter.captureError(
+        new AppError('Error getting weekly conversation stats', ErrorCode.API_ERROR, error)
+      );
+      return null;
+    }
+  }
+  
+  /**
+   * Get message distribution statistics
+   */
+  public async getMessageDistribution(): Promise<any> {
+    try {
+      return await userApi.getMessageDistribution();
+    } catch (error) {
+      errorReporter.captureError(
+        new AppError('Error getting message distribution', ErrorCode.API_ERROR, error)
+      );
+      return null;
+    }
   }
 }
 

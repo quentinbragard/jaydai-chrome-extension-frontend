@@ -141,46 +141,7 @@
   }
 }
 
-.stats-panel {
-  animation: float 6s ease-in-out infinite, pulse-glow 4s ease-in-out infinite;
-  transform: translateX(-50%);
-}
 
-.stats-panel .progress-indicator {
-  transition: width 1s cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-.stat-card-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  width: 100%;
-  gap: 0.5rem;
-}
-
-.stat-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  transform: scale(0.5);
-  z-index: 0;
-}
-
-.stat-card:hover::before {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 0.3s ease, transform 0.5s ease;
-}
 
 .expanded-details {
   animation: slide-up-fade-in 0.4s ease-out forwards;
