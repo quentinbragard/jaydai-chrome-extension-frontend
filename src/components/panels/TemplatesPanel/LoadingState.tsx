@@ -1,25 +1,24 @@
-// src/components/panels/TemplatesPanel/components/LoadingState.tsx
-
+// src/components/templates/LoadingState.tsx
 import React from 'react';
 
 interface LoadingStateProps {
   message?: string;
+  className?: string;
 }
 
 /**
- * Reusable loading state component
+ * Loading state component for folders and templates
  */
-const LoadingState: React.FC<LoadingStateProps> = ({
-  message = 'Loading templates...'
-}) => {
+export function LoadingState({
+  message = 'Loading templates...',
+  className = ''
+}: LoadingStateProps) {
   return (
-    <div className="py-8 text-center">
+    <div className={`py-8 text-center ${className}`}>
       <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
       <p className="text-sm text-muted-foreground mt-2">
         {chrome.i18n.getMessage('loadingTemplates') || message}
       </p>
     </div>
   );
-};
-
-export default LoadingState;
+}

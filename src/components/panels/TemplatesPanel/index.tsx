@@ -1,5 +1,4 @@
-// src/components/panels/TemplatesPanel/TemplatesPanel.tsx
-
+// src/components/panels/TemplatesPanel/index.tsx
 import React, { useState } from 'react';
 import { FolderOpen, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,11 +6,21 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 
 import BasePanel from '../BasePanel';
-import { useTemplates } from '@/hooks/templates';
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
-import FolderSection from './components/FolderSection';
-import LoadingState from './components/LoadingState';
-import EmptyState from './components/EmptyState';
+import { 
+  usePinnedFolders, 
+  useUserFolders, 
+  useToggleFolderPin,
+  useTemplateActions,
+  useDeleteFolder
+} from '@/services/TemplateService';
+import { 
+  FolderSection, 
+  FolderList, 
+} from '@/components/folders';
+
+import { LoadingState } from './LoadingState';
+import { EmptyMessage } from './EmptyMessage';
 
 interface TemplatesPanelProps {
   showBackButton?: boolean;
@@ -21,6 +30,7 @@ interface TemplatesPanelProps {
 
 /**
  * Panel for browsing and managing templates
+ * Simplified with React Query and smaller components
  */
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   showBackButton,
@@ -28,48 +38,62 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   onClose
 }) => {
   const { pushPanel } = usePanelNavigation();
-  const [refreshing, setRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
-  const {
-    loading,
-    pinnedOfficialFolders,
-    pinnedOrganizationFolders,
-    userFolders,
-    handleUseTemplate,
-    handleEditTemplate,
-    handleDeleteTemplate,
-    refreshFolders,
-    handleCreateTemplate,
-    error,
-    toggleFolderPin,
-    deleteFolder
-  } = useTemplates();
+  // Data fetching with React Query
+  const { 
+    data: pinnedFolders, 
+    isLoading: loadingPinned,
+    error: pinnedError,
+    refetch: refetchPinned
+  } = usePinnedFolders();
+  
+  const { 
+    data: userFolders, 
+    isLoading: loadingUser,
+    error: userError,
+    refetch: refetchUser
+  } = useUserFolders();
+  
+  // Mutations
+  const { mutate: togglePin } = useToggleFolderPin();
+  const { mutate: deleteFolder } = useDeleteFolder();
+  
+  // Template actions
+  const { useTemplate, createTemplate } = useTemplateActions();
+  
+  // Combined loading and error states
+  const isLoading = loadingPinned || loadingUser;
+  const error = pinnedError || userError;
+  
+  // Determine if we have no folders
+  const isEmpty = 
+    (!pinnedFolders?.official?.length && !pinnedFolders?.organization?.length && !userFolders?.length);
 
   // Handle browse more templates 
   const handleBrowseMore = (type: 'official' | 'organization') => {
     const folderIds = type === 'official' 
-      ? pinnedOfficialFolders.map(f => f.id)
-      : pinnedOrganizationFolders.map(f => f.id);
+      ? pinnedFolders?.official?.map(f => f.id) || []
+      : pinnedFolders?.organization?.map(f => f.id) || [];
       
     pushPanel({ 
       type: 'templatesBrowse', 
       props: { 
         folderType: type, 
-        pinnedFolderIds: folderIds,
-        onPinChange: (id: number, isPinned: boolean) => toggleFolderPin(id, isPinned, type)
+        pinnedFolderIds: folderIds
       } 
     });
   };
 
   // Handle refresh with loading state
   const handleRefresh = async () => {
-    setRefreshing(true);
+    setIsRefreshing(true);
     try {
-      await refreshFolders();
+      await Promise.all([refetchPinned(), refetchUser()]);
     } catch (error) {
       console.error('Failed to refresh templates:', error);
     } finally {
-      setRefreshing(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -86,16 +110,16 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         <Alert variant="destructive">
           <AlertDescription>
             <div className="flex flex-col items-center justify-center py-4">
-              <p className="mb-2">Failed to load templates: {error}</p>
+              <p className="mb-2">Failed to load templates: {error.message}</p>
               <Button 
                 variant="outline"
                 size="sm"
                 onClick={handleRefresh}
                 className="mt-2"
-                disabled={refreshing}
+                disabled={isRefreshing}
               >
-                <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                {refreshing ? 'Refreshing...' : 'Retry'}
+                <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? 'Refreshing...' : 'Retry'}
               </Button>
             </div>
           </AlertDescription>
@@ -103,11 +127,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       </BasePanel>
     );
   }
-
-  const isEmpty = 
-    (!pinnedOfficialFolders || pinnedOfficialFolders.length === 0) && 
-    (!pinnedOrganizationFolders || pinnedOrganizationFolders.length === 0) && 
-    (!userFolders || userFolders.length === 0);
 
   return (
     <BasePanel
@@ -119,30 +138,60 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       className="w-80"
       maxHeight="500px"
     >
-      {loading ? (
+      {isLoading ? (
         <LoadingState />
       ) : isEmpty ? (
-        <EmptyState 
-          onCreateTemplate={handleCreateTemplate} 
-          onRefresh={handleRefresh}
-          refreshing={refreshing}
-        />
+        <div className="py-8 px-4 text-center">
+          <FolderOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
+          <p className="text-sm text-muted-foreground mb-4">
+            {chrome.i18n.getMessage('noTemplates') || "No templates available"}
+          </p>
+          <div className="flex flex-col items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={createTemplate}
+              className="w-full"
+            >
+              {chrome.i18n.getMessage('createFirstTemplate') || 'Create Your First Template'}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="mt-2"
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            </Button>
+          </div>
+        </div>
       ) : (
         <div className="space-y-4">
           {/* Official Templates Section */}
           <FolderSection
             title={chrome.i18n.getMessage('officialTemplates') || 'Official Templates'}
             iconType="official"
-            folders={pinnedOfficialFolders}
-            type="official"
-            onUseTemplate={handleUseTemplate}
-            onEditTemplate={handleEditTemplate}
-            onDeleteTemplate={handleDeleteTemplate}
-            onTogglePin={(folderId, isPinned) => toggleFolderPin(folderId, isPinned, 'official')}
             onBrowseMore={() => handleBrowseMore('official')}
             showBrowseMore={true}
-            showPinControls={true}
-          />
+          >
+            {pinnedFolders?.official?.length ? (
+              <FolderList
+                folders={pinnedFolders.official}
+                type="official"
+                onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'official' })}
+                onUseTemplate={useTemplate}
+                showPinControls={true}
+                emptyMessage="No pinned official templates. Click Browse More to add some."
+              />
+            ) : (
+              <EmptyMessage>
+                {chrome.i18n.getMessage('noPinnedOfficialTemplates') || 
+                'No pinned official templates. Click Browse More to add some.'}
+              </EmptyMessage>
+            )}
+          </FolderSection>
 
           <Separator />
           
@@ -150,16 +199,25 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           <FolderSection
             title={chrome.i18n.getMessage('organizationTemplates') || 'Organization Templates'}
             iconType="organization"
-            folders={pinnedOrganizationFolders}
-            type="organization"
-            onUseTemplate={handleUseTemplate}
-            onEditTemplate={handleEditTemplate}
-            onDeleteTemplate={handleDeleteTemplate}
-            onTogglePin={(folderId, isPinned) => toggleFolderPin(folderId, isPinned, 'organization')}
             onBrowseMore={() => handleBrowseMore('organization')}
             showBrowseMore={true}
-            showPinControls={true}
-          />
+          >
+            {pinnedFolders?.organization?.length ? (
+              <FolderList
+                folders={pinnedFolders.organization}
+                type="organization"
+                onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'organization' })}
+                onUseTemplate={useTemplate}
+                showPinControls={true}
+                emptyMessage="No pinned organization templates. Click Browse More to add some."
+              />
+            ) : (
+              <EmptyMessage>
+                {chrome.i18n.getMessage('noPinnedOrganizationTemplates') || 
+                'No pinned organization templates. Click Browse More to add some.'}
+              </EmptyMessage>
+            )}
+          </FolderSection>
 
           <Separator />
           
@@ -167,16 +225,25 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           <FolderSection
             title={chrome.i18n.getMessage('myTemplates') || 'My Templates'}
             iconType="user"
-            folders={userFolders}
-            type="user"
-            onUseTemplate={handleUseTemplate}
-            onEditTemplate={handleEditTemplate}
-            onDeleteTemplate={handleDeleteTemplate}
-            onDeleteFolder={deleteFolder}
-            onCreateTemplate={handleCreateTemplate}
+            onCreateTemplate={createTemplate}
             showCreateButton={true}
-            showDeleteControls={true}
-          />
+          >
+            {userFolders?.length ? (
+              <FolderList
+                folders={userFolders}
+                type="user"
+                onDeleteFolder={deleteFolder}
+                onUseTemplate={useTemplate}
+                showDeleteControls={true}
+                emptyMessage="No user templates. Create a template to get started."
+              />
+            ) : (
+              <EmptyMessage>
+                {chrome.i18n.getMessage('noUserTemplates') || 
+                'No user templates. Create a template to get started.'}
+              </EmptyMessage>
+            )}
+          </FolderSection>
         </div>
       )}
     </BasePanel>

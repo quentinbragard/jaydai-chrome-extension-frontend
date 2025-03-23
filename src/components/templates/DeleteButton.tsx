@@ -1,8 +1,7 @@
-// src/components/panels/TemplatesPanel/components/DeleteButton.tsx
-
+// src/components/templates/DeleteButton.tsx
 import React, { useState } from 'react';
-import { Trash, MoreVertical, AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Trash, MoreVertical, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,13 +9,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 
 interface DeleteButtonProps {
   onDelete: () => Promise<void | boolean> | void;
@@ -24,18 +23,20 @@ interface DeleteButtonProps {
   showIcon?: boolean;
   stopPropagation?: boolean;
   className?: string;
+  disabled?: boolean;
 }
 
 /**
  * Reusable delete button component with confirmation dialog
  */
-const DeleteButton: React.FC<DeleteButtonProps> = ({
+export function DeleteButton({
   onDelete,
   itemType,
   showIcon = false,
   stopPropagation = false,
-  className = ''
-}) => {
+  className = '',
+  disabled = false
+}: DeleteButtonProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -69,6 +70,7 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({
             <Button
               variant="ghost"
               size="sm"
+              disabled={disabled}
               className={`h-6 w-6 p-0 flex-shrink-0 text-muted-foreground opacity-70 hover:opacity-100 ${className}`}
             >
               <MoreVertical className="h-4 w-4" />
@@ -91,6 +93,7 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({
           size="sm" 
           className={`h-6 w-6 p-0 text-destructive ${className}`}
           onClick={handleOpenDeleteDialog}
+          disabled={disabled}
         >
           <Trash className="h-3.5 w-3.5" />
         </Button>
@@ -131,6 +134,4 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({
       </Dialog>
     </>
   );
-};
-
-export default DeleteButton;
+}

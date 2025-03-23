@@ -1,7 +1,8 @@
 // src/components/panels/PanelManager.tsx
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { PanelNavigationProvider, usePanelNavigation, PanelType } from '@/core/contexts/PanelNavigationContext';
+import { QueryProvider } from '@/providers/QueryProvider';
 import MenuPanel from './MenuPanel';
 import TemplatesPanel from './TemplatesPanel';
 import NotificationsPanel from './NotificationsPanel';
@@ -83,6 +84,7 @@ const PanelContainer: React.FC<{ onClose: () => void, notificationCount: number 
 
 /**
  * Main panel manager component that controls panel navigation
+ * Now uses QueryProvider to enable React Query functionality
  */
 const PanelManager: React.FC<PanelManagerProps> = ({
   isOpen,
@@ -94,9 +96,11 @@ const PanelManager: React.FC<PanelManagerProps> = ({
 
   return (
     <div className="fixed bottom-24 right-6 z-50 animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-150">
-      <PanelNavigationProvider initialPanel={{ type: initialPanel }}>
-        <PanelContainer onClose={onClose} notificationCount={notificationCount} />
-      </PanelNavigationProvider>
+      <QueryProvider>
+        <PanelNavigationProvider initialPanel={{ type: initialPanel }}>
+          <PanelContainer onClose={onClose} notificationCount={notificationCount} />
+        </PanelNavigationProvider>
+      </QueryProvider>
     </div>
   );
 };

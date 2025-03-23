@@ -1,49 +1,31 @@
-// src/components/panels/TemplatesPanel/components/FolderSection.tsx
-
-import React from 'react';
+// src/components/templates/FolderSection.tsx
+import React, { ReactNode } from 'react';
 import { BookTemplate, Users, Folder, PlusCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Template, TemplateFolder } from '@/types/templates';
-import FolderTree from './FolderTree';
+import { TemplateFolder } from '@/types/templates';
 
 interface FolderSectionProps {
   title: string;
   iconType: 'official' | 'organization' | 'user';
-  folders: TemplateFolder[];
-  type: 'official' | 'organization' | 'user';
-  onUseTemplate: (template: Template) => void;
-  onEditTemplate: (template: Template) => void;
-  onDeleteTemplate: (template: Template, e: React.MouseEvent) => void;
-  onTogglePin?: (folderId: number, isPinned: boolean) => Promise<void>;
-  onDeleteFolder?: (folderId: number) => Promise<boolean>;
   onBrowseMore?: () => void;
   onCreateTemplate?: () => void;
   showBrowseMore?: boolean;
   showCreateButton?: boolean;
-  showPinControls?: boolean;
-  showDeleteControls?: boolean;
+  children: ReactNode;
 }
 
 /**
  * Component for rendering a section of template folders with appropriate controls
  */
-const FolderSection: React.FC<FolderSectionProps> = ({
+export function FolderSection({
   title,
   iconType,
-  folders,
-  type,
-  onUseTemplate,
-  onEditTemplate,
-  onDeleteTemplate,
-  onTogglePin,
-  onDeleteFolder,
   onBrowseMore,
   onCreateTemplate,
   showBrowseMore = false,
   showCreateButton = false,
-  showPinControls = false,
-  showDeleteControls = false
-}) => {
+  children
+}: FolderSectionProps) {
   // Select the appropriate icon based on the iconType
   const renderIcon = () => {
     switch (iconType) {
@@ -92,31 +74,8 @@ const FolderSection: React.FC<FolderSectionProps> = ({
         )}
       </div>
       
-      {folders && folders.length > 0 ? (
-        <FolderTree
-          folders={folders}
-          type={type}
-          onUseTemplate={onUseTemplate}
-          onEditTemplate={onEditTemplate}
-          onDeleteTemplate={onDeleteTemplate}
-          onTogglePin={onTogglePin}
-          onDeleteFolder={onDeleteFolder}
-          showPinControls={showPinControls}
-          showDeleteControls={showDeleteControls}
-        />
-      ) : (
-        <div className="text-center py-2 text-xs text-muted-foreground px-2">
-          {iconType === 'official' ? (
-            chrome.i18n.getMessage('noPinnedOfficialTemplates') || 'No pinned official templates. Click Browse More to add some.'
-          ) : iconType === 'organization' ? (
-            chrome.i18n.getMessage('noPinnedOrganizationTemplates') || 'No pinned organization templates. Click Browse More to add some.'
-          ) : (
-            chrome.i18n.getMessage('noUserTemplates') || 'No user templates. Create a template to get started.'
-          )}
-        </div>
-      )}
+      {/* Content (folder list or empty message) */}
+      {children}
     </div>
   );
-};
-
-export default FolderSection;
+}
