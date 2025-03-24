@@ -1,11 +1,11 @@
-// src/core/dialogs/core/DialogContext.tsx
+// src/components/dialogs/core/DialogContext.tsx
 import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode, useEffect } from 'react';
-import { DialogType, DialogProps, DIALOG_TYPES } from '@/core/dialogs/registry';
+import { DialogType, DialogProps, DIALOG_TYPES } from '@/types/dialog';
 
 // Define the Dialog Manager context type
 interface DialogManagerContextType {
   openDialogs: Record<DialogType, boolean>;
-  dialogData: Record<DialogType, any>;
+  dialogData: DialogProps;
   openDialog: <T extends DialogType>(type: T, data?: DialogProps[T]) => void;
   closeDialog: (type: DialogType) => void;
   isDialogOpen: (type: DialogType) => boolean;
@@ -37,8 +37,8 @@ export function useDialogManager(): DialogManagerContextType {
     if (typeof window !== 'undefined' && window.dialogManager) {
       // Return a minimal context that uses window.dialogManager
       return {
-        openDialogs: {},
-        dialogData: {},
+        openDialogs: {} as Record<DialogType, boolean>,
+        dialogData: {} as DialogProps,
         openDialog: window.dialogManager.openDialog,
         closeDialog: window.dialogManager.closeDialog,
         isDialogOpen: () => false,  // Fallback implementations
@@ -116,13 +116,18 @@ export function useOpenDialog() {
   };
 }
 
+// Interface for DialogManager Provider Props
+interface DialogManagerProviderProps {
+  children: ReactNode;
+}
+
 /**
  * Dialog Manager Provider component
  */
-export const DialogManagerProvider: React.FC<{children: ReactNode}> = ({ children }) => {
+export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ children }) => {
   // State for tracking open dialogs and their data
-  const [openDialogs, setOpenDialogs] = useState<Record<DialogType, boolean>>({} as any);
-  const [dialogData, setDialogData] = useState<Record<DialogType, any>>({} as any);
+  const [openDialogs, setOpenDialogs] = useState<Record<DialogType, boolean>>({} as Record<DialogType, boolean>);
+  const [dialogData, setDialogData] = useState<DialogProps>({} as DialogProps);
   
   // Dialog management functions
   const openDialog = useCallback(<T extends DialogType>(type: T, data?: DialogProps[T]) => {

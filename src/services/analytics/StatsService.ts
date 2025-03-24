@@ -5,6 +5,11 @@ import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { emitEvent, AppEvent } from '@/core/events/events';
+import { 
+  UserStatsResponse, 
+  WeeklyConversationsResponse, 
+  MessageDistributionResponse 
+} from '@/types/services/api';
 
 export interface Stats {
   totalChats: number;
@@ -40,6 +45,7 @@ export interface Stats {
 export interface ChartData {
   labels: string[];
   values: number[];
+  colors?: string[];
 }
 
 /**
@@ -162,7 +168,7 @@ export class StatsService extends AbstractBaseService {
   /**
    * Track when a user sends a message
    */
-  private trackMessageSent(data: any): void {
+  private trackMessageSent(data: Record<string, any>): void {
     // Local tracking could be implemented here
     // For example, increment a counter or add to local storage
     // This would be synced with the backend periodically
@@ -171,7 +177,7 @@ export class StatsService extends AbstractBaseService {
   /**
    * Track when an assistant message is received
    */
-  private trackMessageReceived(data: any): void {
+  private trackMessageReceived(data: Record<string, any>): void {
     // Track thinking time if available
     if (data.thinkingTime) {
       // Update local stats
@@ -380,7 +386,7 @@ export class StatsService extends AbstractBaseService {
   /**
    * Get weekly conversation statistics
    */
-  public async getWeeklyConversations(): Promise<any> {
+  public async getWeeklyConversations(): Promise<WeeklyConversationsResponse | null> {
     try {
       return await userApi.getWeeklyConversationStats();
     } catch (error) {
@@ -394,7 +400,7 @@ export class StatsService extends AbstractBaseService {
   /**
    * Get message distribution statistics
    */
-  public async getMessageDistribution(): Promise<any> {
+  public async getMessageDistribution(): Promise<MessageDistributionResponse | null> {
     try {
       return await userApi.getMessageDistribution();
     } catch (error) {

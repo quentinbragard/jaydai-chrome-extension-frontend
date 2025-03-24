@@ -4,28 +4,21 @@ import { notificationApi } from "@/services/api/NotificationApi";
 import { toast } from "sonner";
 import { emitEvent, AppEvent } from '@/core/events/events';
 import { debug } from '@/core/config';
-import { NotificationActionMetadata } from '@/types/notifications';
-export interface Notification {
-  id: string | number;
-  title: string;
-  body: string;
-  type: string;
-  metadata?: string | null;
-  created_at: string;
-  read_at?: string | null;
-  user_id?: string;
-}
+import { 
+  NotificationBase, 
+  NotificationActionMetadata,
+} from '@/types/services/notifications';
 
 /**
  * Service to manage notifications
  */
 export class NotificationService extends AbstractBaseService {
   private static instance: NotificationService;
-  private notifications: Notification[] = [];
+  private notifications: NotificationBase[] = [];
   private isLoading: boolean = false;
   private lastLoadTime: number = 0;
   private pollingInterval: number | null = null;
-  private updateCallbacks: ((notifications: Notification[]) => void)[] = [];
+  private updateCallbacks: ((notifications: NotificationBase[]) => void)[] = [];
   private unreadCount: number = 0;
   
   private constructor() {
@@ -73,7 +66,7 @@ export class NotificationService extends AbstractBaseService {
   /**
    * Load notifications from backend
    */
-  public async loadNotifications(forceRefresh = false): Promise<Notification[]> {
+  public async loadNotifications(forceRefresh = false): Promise<NotificationBase[]> {
     // Skip if we've loaded recently (within 1 minute) and not forcing refresh
     const now = Date.now();
     if (!forceRefresh && this.lastLoadTime > 0 && now - this.lastLoadTime < 600000) {
@@ -131,21 +124,21 @@ export class NotificationService extends AbstractBaseService {
   /**
    * Get all notifications
    */
-  public getNotifications(): Notification[] {
+  public getNotifications(): NotificationBase[] {
     return [...this.notifications];
   }
   
   /**
    * Get unread notifications
    */
-  public getUnreadNotifications(): Notification[] {
+  public getUnreadNotifications(): NotificationBase[] {
     return this.notifications.filter(n => !n.read_at);
   }
   
   /**
    * Get a notification by ID
    */
-  public getNotification(id: string | number): Notification | undefined {
+  public getNotification(id: string | number): NotificationBase | undefined {
     return this.notifications.find(n => n.id === id);
   }
   
@@ -170,7 +163,7 @@ export class NotificationService extends AbstractBaseService {
       emitEvent(AppEvent.NOTIFICATION_READ, { notificationId: id });
       
       // Call API to mark as read
-      await notificationApi.markNotificationRead(id);
+      await notificationApi.markNotificationRead(id.toString());
       
       return true;
     } catch (error) {
@@ -236,7 +229,7 @@ export class NotificationService extends AbstractBaseService {
       emitEvent(AppEvent.NOTIFICATION_DELETED, { notificationId: id });
       
       // Call API to delete notification
-      await notificationApi.deleteNotification(id);
+      await notificationApi.deleteNotification(id.toString());
       
       // Show success notification
       toast.success('Notification deleted');
@@ -309,7 +302,7 @@ export class NotificationService extends AbstractBaseService {
    * Register for notification updates
    * @returns Cleanup function
    */
-  public onNotificationsUpdate(callback: (notifications: Notification[]) => void): () => void {
+  public onNotificationsUpdate(callback: (notifications: NotificationBase[]) => void): () => void {
     this.updateCallbacks.push(callback);
     
     // Call immediately with current notifications
@@ -358,53 +351,61 @@ export class NotificationService extends AbstractBaseService {
   }
 
   /**
- * Validate notification action metadata
- */
-private validateMetadata(data: any): NotificationActionMetadata | null {
-  // Check if it has required fields
-  if (!data || typeof data !== 'object') {
-    return null;
+   * Validate notification action metadata
+   */
+  private validateMetadata(data: Record<string, unknown>): NotificationActionMetadata | null {
+    // Check if it has required fields
+    if (!data || typeof data !== 'object') {
+      return null;
+    }
+    
+    // Check for required fields
+    if (typeof data.action_type !== 'string' || 
+        typeof data.action_title_key !== 'string') {
+      return null;
+    }
+    
+    // Validate action_url for openUrl type
+    if (data.action_type === 'openUrl' && 
+        (!data.action_url || typeof data.action_url !== 'string')) {
+      debug('⚠️ openUrl action missing valid URL');
+      return null;
+    }
+    
+    // Return valid metadata
+    return {
+      action_type: data.action_type as string,
+      action_title_key: data.action_title_key as string,
+      action_url: data.action_url as string | undefined
+    };
   }
-  
-  // Check for required fields
-  if (typeof data.action_type !== 'string' || 
-      typeof data.action_title_key !== 'string') {
-    return null;
-  }
-  
-  // Validate action_url for openUrl type
-  if (data.action_type === 'openUrl' && 
-      (!data.action_url || typeof data.action_url !== 'string')) {
-    debug('⚠️ openUrl action missing valid URL');
-    return null;
-  }
-  
-  // Return valid metadata
-  return {
-    action_type: data.action_type,
-    action_title_key: data.action_title_key,
-    action_url: data.action_url || undefined
-  };
-}
 
-/**
- * Parse metadata string into structured object with validation
- */
-private parseMetadata(metadata: string | null): NotificationActionMetadata | null {
-  console.log("metadata", metadata);
-  console.log("typeof metadata", typeof metadata);
-  if (!metadata) return null;
+  /**
+   * Parse metadata string into structured object with validation
+   */
+  private parseMetadata(metadata: string | null): NotificationActionMetadata | null {
+    console.log("metadata", metadata);
+    console.log("typeof metadata", typeof metadata);
+    if (!metadata) return null;
 
-  try {
-    // Validate the structure
-    return this.validateMetadata(metadata);
-  } catch (error) {
-    debug('❌ Error parsing notification metadata:', error);
-    return null;
+    try {
+      // Parse metadata string to object
+      const parsedMetadata = typeof metadata === 'string' 
+        ? JSON.parse(metadata) as Record<string, unknown>
+        : metadata as Record<string, unknown>;
+        
+      // Validate the structure  
+      return this.validateMetadata(parsedMetadata);
+    } catch (error) {
+      debug('❌ Error parsing notification metadata:', error);
+      return null;
+    }
   }
-}
 
-public parseMetadataSafe(metadata: string | null): NotificationActionMetadata | null {
+  /**
+   * Parse metadata safely without throwing
+   */
+  public parseMetadataSafe(metadata: string | null): NotificationActionMetadata | null {
     try {
       return this.parseMetadata(metadata);
     } catch (error) {
@@ -412,109 +413,109 @@ public parseMetadataSafe(metadata: string | null): NotificationActionMetadata | 
     }
   }
 
-/**
- * Get action button details for a notification
- */
-public getActionButton(notification: Notification): { title: string; visible: boolean } | null {
-  console.log("notification", notification);
-  if (!notification.metadata) {
-    return null;
-  }
-  
-  const metadata = this.parseMetadata(notification.metadata);
-  console.log("metadata", metadata);
-  if (!metadata) {
-    return null;
-  }
-  
-  return {
-    title: metadata.action_title_key,
-    visible: true
-  };
-}
-
-/**
- * Handle a notification action based on metadata
- */
-public async handleNotificationAction(id: string | number): Promise<void> {
-  try {
-    // Find the notification
-    const notification = this.notifications.find(n => n.id === id);
-    if (!notification) {
-      return;
+  /**
+   * Get action button details for a notification
+   */
+  public getActionButton(notification: NotificationBase): { title: string; visible: boolean } | null {
+    console.log("notification", notification);
+    if (!notification.metadata) {
+      return null;
     }
     
-    // Mark as read first
-    await this.markAsRead(id);
-    
-    // Parse metadata if present
     const metadata = this.parseMetadata(notification.metadata);
+    console.log("metadata", metadata);
+    if (!metadata) {
+      return null;
+    }
     
-    // If we have metadata with action type, handle it accordingly
-    if (metadata && metadata.action_type) {
-      switch (metadata.action_type) {
-        case 'openUrl':
-          if (metadata.action_url) {
-            window.open(metadata.action_url, '_blank');
-          } else {
-            // If no URL provided, show an error
-            toast.error('No URL provided for openUrl action');
-          }
-          break;
+    return {
+      title: metadata.action_title_key,
+      visible: true
+    };
+  }
+
+  /**
+   * Handle a notification action based on metadata
+   */
+  public async handleNotificationAction(id: string | number): Promise<void> {
+    try {
+      // Find the notification
+      const notification = this.notifications.find(n => n.id === id);
+      if (!notification) {
+        return;
+      }
+      
+      // Mark as read first
+      await this.markAsRead(id);
+      
+      // Parse metadata if present
+      const metadata = this.parseMetadata(notification.metadata);
+      
+      // If we have metadata with action type, handle it accordingly
+      if (metadata && metadata.action_type) {
+        switch (metadata.action_type) {
+          case 'openUrl':
+            if (metadata.action_url) {
+              window.open(metadata.action_url, '_blank');
+            } else {
+              // If no URL provided, show an error
+              toast.error('No URL provided for openUrl action');
+            }
+            break;
         
-        case 'openChatGpt':
-          // Open ChatGPT
-          window.open('https://chat.openai.com/', '_blank');
+          case 'openChatGpt':
+            // Open ChatGPT
+            window.open('https://chat.openai.com/', '_blank');
+            break;
+            
+          case 'openSettings':
+            // Trigger settings panel open
+            document.dispatchEvent(new CustomEvent('archimind:open-settings'));
+            break;
+            
+          case 'showTemplates':
+            // Trigger templates panel open
+            document.dispatchEvent(new CustomEvent('archimind:open-templates'));
+            break;
+            
+          default:
+            // For unknown action types, log a warning
+            debug(`⚠️ Unknown action type: ${metadata.action_type}`);
+            toast.info(notification.title, {
+              description: notification.body
+            });
+            break;
+        }
+        return;
+      }
+      
+      // If no metadata or action type, fall back to type-based actions
+      switch (notification.type) {
+        case 'insight_prompt_length':
+        case 'insight_response_time':
+        case 'insight_conversation_quality':
+          // Show insight details
+          toast.info(notification.title, {
+            description: notification.body,
+            action: {
+              label: 'View',
+              onClick: () => window.open('https://chatgpt.com/', '_blank')
+            }
+          });
           break;
-          
-        case 'openSettings':
-          // Trigger settings panel open
-          document.dispatchEvent(new CustomEvent('archimind:open-settings'));
-          break;
-          
-        case 'showTemplates':
-          // Trigger templates panel open
-          document.dispatchEvent(new CustomEvent('archimind:open-templates'));
-          break;
-          
+            
         default:
-          // For unknown action types, log a warning
-          debug(`⚠️ Unknown action type: ${metadata.action_type}`);
+          // Generic toast with notification content
           toast.info(notification.title, {
             description: notification.body
           });
           break;
       }
-      return;
+    } catch (error) {
+      debug('❌ Error handling notification action:', error);
+      toast.error('Failed to process notification action');
     }
-    
-    // If no metadata or action type, fall back to type-based actions
-    switch (notification.type) {
-      case 'insight_prompt_length':
-      case 'insight_response_time':
-      case 'insight_conversation_quality':
-        // Show insight details
-        toast.info(notification.title, {
-          description: notification.body,
-          action: {
-            label: 'View',
-            onClick: () => window.open('https://chatgpt.com/', '_blank')
-          }
-        });
-        break;
-          
-      default:
-        // Generic toast with notification content
-        toast.info(notification.title, {
-          description: notification.body
-        });
-        break;
-    }
-  } catch (error) {
-    debug('❌ Error handling notification action:', error);
-    toast.error('Failed to process notification action');
   }
-}
   
   /**
    * Notify all update listeners

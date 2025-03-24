@@ -1,10 +1,11 @@
-// src/services/api/ApiClient.ts
+// src/services/api/ApiClient.ts - Updated with proper types
 import { AbstractBaseService } from '@/services/BaseService';
 import { serviceManager } from '@/core/managers/ServiceManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { ENV } from '@/core/env';
 import { debug } from '@/core/config';
+import { ApiResponse } from '@/types/services/api';
 
 /**
  * Request options interface
@@ -19,7 +20,7 @@ export interface RequestOptions extends RequestInit {
 export class ApiClient extends AbstractBaseService {
   private static instance: ApiClient;
   private baseUrl: string;
-  private pendingRequests: Map<string, Promise<any>>;
+  private pendingRequests: Map<string, Promise<ApiResponse<any>>>;
   
   private constructor(baseUrl?: string) {
     super();
@@ -69,7 +70,7 @@ export class ApiClient extends AbstractBaseService {
   /**
    * Make an API request with authentication and deduplication
    */
-  async request<T = any>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     const requestKey = `${endpoint}-${JSON.stringify(options)}`;
     
     // Check if this exact request is already pending
@@ -102,7 +103,7 @@ export class ApiClient extends AbstractBaseService {
     try {
       // Get auth token service from service manager
       const authService = serviceManager.getService('auth.state');
-      let token;
+      let token: string | null = null;
       
       if (!authService) {
         debug('Auth service not available');
@@ -267,7 +268,7 @@ export class ApiClient extends AbstractBaseService {
       // Parse response as JSON
       try {
         const data = await response.json();
-        return data;
+        return data as T;
       } catch (jsonError) {
         debug('Response was not JSON, returning success object');
         return { success: true, message: 'Request successful but response was not JSON' } as unknown as T;

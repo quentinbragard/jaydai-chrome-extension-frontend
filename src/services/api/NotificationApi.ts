@@ -7,7 +7,7 @@ import {
   NotificationReadResponse, 
   NotificationReadAllResponse, 
   NotificationDeleteResponse 
-} from '@/types/notifications';
+} from '@/types/services/notifications';
 
 export class NotificationApi {
   /**

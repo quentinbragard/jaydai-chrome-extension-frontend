@@ -1,94 +1,65 @@
 /**
- * Types related to statistics and analytics
+ * Types for Stats Service
  */
 
-// Basic stats shape
-export interface Stats {
-    totalChats: number;
-    totalMessages: number;
-    avgMessagesPerChat: number;
-    messagesPerDay: Record<string, number>;
-    tokenUsage: {
-      total: number;
-      lastMonth: number;
-    };
-    energy: {
-      total: number;
-      perMessage: number;
-    };
-    thinkingTime: {
-      total: number;
-      average: number;
-    };
-    efficiency?: number;
-  }
-  
-  // Data for a time-based chart
-  export interface TimeSeriesData {
-    date: string;
-    value: number;
-    label?: string;
-  }
-  
-  // Stats filtering options
-  export interface StatsFilterOptions {
-    timeRange?: 'day' | 'week' | 'month' | 'year' | 'all';
-    startDate?: Date;
-    endDate?: Date;
-    modelType?: string;
-    categories?: string[];
-  }
-  
-  // A single data point for charts
-  export interface DataPoint {
-    x: string | number;
-    y: number;
-    category?: string;
-  }
-  
-  // Message analytics data
-  export interface MessageAnalytics {
-    id: string;
-    timestamp: number;
-    wordCount: number;
-    characterCount: number;
-    tokenCount: number;
-    estimatedEnergy: number;
-    responseTime?: number;
-    model?: string;
-  }
-  
-  // Energy usage by model
-  export interface ModelEnergyUsage {
-    model: string;
-    energy: number;
-    requests: number;
-    percentage: number;
-  }
-  
-  // Session analytics
-  export interface SessionStats {
-    averageDuration: number;
-    sessionsCount: number;
-    sessionsPerDay: Record<string, number>;
-    averageMessagesPerSession: number;
-  }
-  
-  // Structure of analytics returned from the API
-  export interface ApiAnalyticsResponse {
-    success: boolean;
-    data: {
-      stats: Stats;
-      sessions: SessionStats;
-      messages: {
-        count: number;
-        byModel: Record<string, number>;
-        timeDistribution: Record<string, number>;
-      };
-      energy: {
-        total: number;
-        byModel: ModelEnergyUsage[];
-      };
-    };
-    error?: string;
-  }
+
+// Chart data structure
+export interface ChartData {
+  labels: string[];
+  values: number[];
+  colors?: string[];
+}
+
+// Weekly conversations data
+export interface WeeklyConversations {
+  weekly_conversations: number[];
+  dates: string[];
+}
+
+// Message distribution data
+export interface MessageDistribution {
+  user_messages: number;
+  ai_messages: number;
+  ratio: number;
+}
+
+// User stats API response
+export interface UserStatsResponse {
+  total_chats: number;
+  recent_chats: number;
+  total_messages: number;
+  avg_messages_per_chat: number;
+  efficiency?: number;
+  token_usage?: {
+    recent: number;
+    recent_input: number;
+    recent_output: number;
+    total: number;
+    total_input: number;
+    total_output: number;
+  };
+  energy_usage?: {
+    recent: number;
+    total: number;
+    per_message: number;
+  };
+  thinking_time?: {
+    total: number;
+    average: number;
+  };
+  model_usage?: Record<string, {
+    count: number;
+    inputTokens: number;
+    outputTokens: number;
+  }>;
+  messages_per_day?: Record<string, number>;
+}
+
+// Network event data for stats tracking
+export interface StatsNetworkEvent {
+  type: 'chatCompletion' | 'assistantResponse';
+  data: {
+    thinkingTime?: number;
+    isComplete?: boolean;
+  };
+}

@@ -21,6 +21,9 @@ export enum ErrorCode {
     // Extension-specific errors
     EXTENSION_ERROR = 'extension_error',
     INJECTION_ERROR = 'injection_error',
+
+    // Component errors
+    COMPONENT_ERROR = 'component_error',
     
     // Misc
     UNKNOWN_ERROR = 'unknown_error'

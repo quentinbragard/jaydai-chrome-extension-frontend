@@ -7,7 +7,7 @@ export interface NotificationBase {
   type: string;
   title: string;
   body: string;
-  action_button?: string;
+  metadata?: NotificationActionMetadata;
 }
 
 // Notification creation structure

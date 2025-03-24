@@ -2,7 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { errorReporter } from '@/core/errors/ErrorReporter';
-import { AppError } from '@/core/errors/AppError';
+import { AppError, ErrorCode } from '@/core/errors/AppError';
 
 interface Props {
   children: ReactNode;
@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Report the error
     errorReporter.captureError(
-      new AppError(error.message, 'component_error', error, {
+      new AppError(error.message, ErrorCode.COMPONENT_ERROR, error, {
         componentStack: errorInfo.componentStack
       })
     );
@@ -62,7 +62,7 @@ export class ErrorBoundary extends Component<Props, State> {
         if (typeof this.props.fallback === 'function' && this.state.error) {
           return this.props.fallback(this.state.error, this.resetErrorBoundary);
         }
-        return this.props.fallback;
+        return this.props.fallback as ReactNode;
       }
 
       // Default fallback UI
