@@ -1,6 +1,6 @@
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
@@ -12,10 +12,29 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export default defineConfig(function (_a) {
-    const envPrefix = 'VITE_';
-    const mode = _a.mode;
+export default defineConfig(({ mode }) => {
+    // Load environment variables from .env files
+    // mode can be 'development' or 'production'
+    const env = loadEnv(mode, process.cwd(), 'VITE_');
+    
     const isProduction = mode === 'production';
+    
+    // Get the API URL from env or use default values
+    const apiUrl = env.VITE_API_URL || (isProduction 
+        ? 'https://archimind-backend-32108269805.europe-west1.run.app'
+        : 'http://localhost:8000');
+    
+    // Get debug setting from env or default based on mode
+    const debug = env.VITE_DEBUG || (!isProduction).toString();
+    
+    // Get app version from env or default
+    const appVersion = env.VITE_APP_VERSION || '1.0.0';
+    
+    console.log(`🚀 Building for ${mode} environment`);
+    console.log(`🔌 API URL: ${apiUrl}`);
+    console.log(`🐞 Debug: ${debug}`);
+    console.log(`📦 Version: ${appVersion}`);
+
     return {
         plugins: [
             react(),
@@ -46,7 +65,6 @@ export default defineConfig(function (_a) {
                         src: '_locales',
                         dest: ''
                     }
-
                 ]
             })
         ],
@@ -67,7 +85,7 @@ export default defineConfig(function (_a) {
             rollupOptions: {
                 input: {
                     content: resolve(__dirname, 'src/extension/content/content.js'),
-                    'content-init': resolve(__dirname, 'src/extension/content/initializer.ts'), // We'll create this file
+                    'content-init': resolve(__dirname, 'src/extension/content/initializer.ts'),
                     background: resolve(__dirname, 'src/extension/background/background.js'),
                     popup: resolve(__dirname, 'src/extension/popup/popup.tsx'),
                     welcome: resolve(__dirname, 'src/extension/welcome/welcome.tsx'),
@@ -97,21 +115,17 @@ export default defineConfig(function (_a) {
             include: ['react', 'react-dom']
         },
         define: {
-            // This makes process.env.NODE_ENV available in your code
+            // Make environment variables available in the code
             'process.env.NODE_ENV': JSON.stringify(mode),
-            'process.env.VITE_API_URL': mode === 'production' 
-                ? JSON.stringify('https://api.yourproductiondomain.com')
-                : JSON.stringify('http://localhost:8000'),
-            'process.env.VITE_DEBUG': mode === 'production'
-                ? JSON.stringify('false')
-                : JSON.stringify('true'),
-            'process.env.VITE_APP_VERSION': JSON.stringify('1.0.0')
-          },
-          server: {
+            'process.env.VITE_API_URL': JSON.stringify(apiUrl),
+            'process.env.VITE_DEBUG': JSON.stringify(debug),
+            'process.env.VITE_APP_VERSION': JSON.stringify(appVersion)
+        },
+        server: {
             hmr: {
-              // This helps with HMR when developing
-              port: 3000
+                // This helps with HMR when developing
+                port: 3000
             }
-          }
+        }
     };
 });

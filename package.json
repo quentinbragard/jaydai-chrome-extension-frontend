@@ -4,11 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite build --mode development && node build-css.js",
-    "dev:watch": "node build-css.js && vite build --mode development --watch",
-    "build:dev": "vite build --mode dev && node build-css.js",
-    "build:prod": "tsc -b && vite build --mode production && node build-css.js",
-    "build": "tsc -b && vite build && node build-css.js",
+    "dev": "node build.js",
+    "dev:watch": "node build.js --watch",
+    "build": "node build.js --prod",
+    "build:zip": "node build.js --prod --zip",
     "lint": "eslint .",
     "preview": "vite preview",
     "type-check": "tsc --noEmit"

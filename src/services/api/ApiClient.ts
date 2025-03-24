@@ -3,6 +3,7 @@ import { AbstractBaseService } from '@/services/BaseService';
 import { serviceManager } from '@/core/managers/ServiceManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
+import { ENV } from '@/core/env';
 import { debug } from '@/core/config';
 
 /**
@@ -20,10 +21,14 @@ export class ApiClient extends AbstractBaseService {
   private baseUrl: string;
   private pendingRequests: Map<string, Promise<any>>;
   
-  private constructor(baseUrl = 'http://127.0.0.1:8000') {
+  private constructor(baseUrl?: string) {
     super();
-    this.baseUrl = baseUrl;
+    // Use the baseUrl parameter if provided, otherwise fall back to ENV.API_URL
+    this.baseUrl = baseUrl || ENV.API_URL;
     this.pendingRequests = new Map();
+    
+    // Log the API URL when instantiated (helps with debugging)
+    console.log(`🔌 API Client initialized with base URL: ${this.baseUrl}`);
   }
   
   /**
@@ -32,6 +37,10 @@ export class ApiClient extends AbstractBaseService {
   public static getInstance(baseUrl?: string): ApiClient {
     if (!ApiClient.instance) {
       ApiClient.instance = new ApiClient(baseUrl);
+    } else if (baseUrl && baseUrl !== ApiClient.instance.baseUrl) {
+      // If a new baseUrl is provided and it's different from the current one, update it
+      console.log(`🔄 Updating API base URL from ${ApiClient.instance.baseUrl} to ${baseUrl}`);
+      ApiClient.instance.setBaseUrl(baseUrl);
     }
     return ApiClient.instance;
   }
@@ -41,7 +50,12 @@ export class ApiClient extends AbstractBaseService {
    */
   protected async onInitialize(): Promise<void> {
     debug('Initializing API client...');
-    // Nothing specific to initialize
+    // Check if we're in production or development
+    if (ENV.NODE_ENV === 'production') {
+      debug(`Production mode: Using API URL ${this.baseUrl}`);
+    } else {
+      debug(`Development mode: Using API URL ${this.baseUrl}`);
+    }
   }
   
   /**
@@ -164,8 +178,11 @@ export class ApiClient extends AbstractBaseService {
       
       debug(`Requesting ${options.method || 'GET'} ${endpoint}`);
       
+      // Make sure endpoint starts with a slash
+      const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+      
       // Make request
-      const response = await fetch(`${this.baseUrl}${endpoint}`, fetchOptions);
+      const response = await fetch(`${this.baseUrl}${normalizedEndpoint}`, fetchOptions);
       
       // Handle unauthorized (token expired)
       if (response.status === 403 || response.status === 401) {
@@ -283,6 +300,7 @@ export class ApiClient extends AbstractBaseService {
    */
   public setBaseUrl(url: string): void {
     this.baseUrl = url;
+    debug(`API base URL set to: ${url}`);
   }
   
   /**
