@@ -5,23 +5,26 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Template } from '@/types/templates';
-import { useTemplateActions } from '@/services/TemplateService';
+import { useTemplateSelection } from '@/hooks/templates/useTemplateSelection';
 
 interface TemplateItemProps {
   template: Template;
   type?: 'official' | 'organization' | 'user';
-  onUseTemplate?: (templateId: number) => void;
+  onEditTemplate?: (template: Template) => void;
+  onDeleteTemplate?: (templateId: number) => Promise<boolean> | void;
 }
 
 /**
- * Component for rendering a single template item with usage stats
+ * Enhanced component for rendering a single template item with usage stats
  */
 export function TemplateItem({
   template,
   type = 'user',
-  onUseTemplate
+  onEditTemplate,
+  onDeleteTemplate
 }: TemplateItemProps) {
-  const { useTemplate, editTemplate } = useTemplateActions();
+  // Use our enhanced template selection hook
+  const { useTemplate, isProcessing } = useTemplateSelection();
   
   // Ensure we have a display name, falling back through various options
   const displayName = template.title || 'Untitled Template';
@@ -109,25 +112,31 @@ export function TemplateItem({
     );
   };
 
-  // Handle template click
-  const handleUseTemplate = () => {
-    if (onUseTemplate && template.id) {
-      onUseTemplate(template.id);
-    } else {
-      useTemplate(template);
-    }
+  // Handle template click to use it
+  const handleTemplateClick = () => {
+    useTemplate(template);
   };
   
   // Handle edit click (only for user templates)
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    editTemplate(template);
+    if (onEditTemplate) {
+      onEditTemplate(template);
+    }
+  };
+  
+  // Handle delete click
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDeleteTemplate && template.id) {
+      onDeleteTemplate(template.id);
+    }
   };
   
   return (
     <div 
-      className="flex items-center p-2 hover:bg-accent/60 rounded-sm cursor-pointer group"
-      onClick={handleUseTemplate}
+      className={`flex items-center p-2 hover:bg-accent/60 rounded-sm cursor-pointer group ${isProcessing ? 'opacity-50' : ''}`}
+      onClick={handleTemplateClick}
     >
       <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
       <div className="flex-1 min-w-0">
@@ -142,27 +151,29 @@ export function TemplateItem({
       {/* Only show edit/delete for user templates */}
       {type === "user" && (
         <div className="ml-2 flex opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-6 w-6 p-0"
-            onClick={handleEditClick}
-            title="Edit template"
-          >
-            <Edit className="h-3.5 w-3.5" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-6 w-6 p-0 text-destructive"
-            onClick={(e) => {
-              e.stopPropagation();
-              // Delete template logic (implemented in a separate component)
-            }}
-            title="Delete template"
-          >
-            <Trash className="h-3.5 w-3.5" />
-          </Button>
+          {onEditTemplate && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-6 w-6 p-0"
+              onClick={handleEditClick}
+              title="Edit template"
+            >
+              <Edit className="h-3.5 w-3.5" />
+            </Button>
+          )}
+          
+          {onDeleteTemplate && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-6 w-6 p-0 text-destructive"
+              onClick={handleDeleteClick}
+              title="Delete template"
+            >
+              <Trash className="h-3.5 w-3.5" />
+            </Button>
+          )}
         </div>
       )}
     </div>

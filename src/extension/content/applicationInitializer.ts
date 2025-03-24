@@ -7,7 +7,6 @@ import { eventManager } from '@/core/events/EventManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import Main from '@/components/Main';
-import { toast } from 'sonner';
 
 /**
  * Main application initializer
@@ -58,28 +57,8 @@ export class AppInitializer {
         throw new Error('Failed to initialize services');
       }
       
-      // Check if dialog manager is already available (should not be at this point)
-      if (window.dialogManager) {
-        console.log('⚠️ Dialog manager already exists during initialization:', window.dialogManager);
-      } else {
-        console.log('✅ Dialog manager not yet initialized, will be created by Main component');
-      }
-      
       // Inject UI components - Main component will set up the dialog system
       this.injectUIComponents();
-      
-      // Verify dialog manager after UI injection
-      setTimeout(() => {
-        if (window.dialogManager) {
-          console.log('✅ Dialog manager verification successful after initialization');
-        } else {
-          console.error('❌ Dialog manager not available after initialization');
-          errorReporter.captureError(
-            new AppError('Dialog manager initialization failed', ErrorCode.EXTENSION_ERROR)
-          );
-        }
-      }, 1000); // Give it a second to initialize
-      
       this.isInitialized = true;
       console.log('✅ Archimind application initialized successfully');
       return true;

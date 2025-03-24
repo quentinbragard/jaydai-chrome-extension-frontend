@@ -1,11 +1,9 @@
 // src/extension/content/ContentScript.ts
 
 import { errorReporter } from '@/core/errors/ErrorReporter';
-import { AppError, ErrorCode } from '@/core/errors/AppError';
+import { AppError } from '@/core/errors/AppError';
 import { emitEvent, AppEvent } from '@/core/events/events';
 import { config, debug } from '@/core/config';
-import { authService } from '@/services/auth/AuthService';
-import { chatService } from '@/services/chat/ChatNetworkService';
 import { componentInjector } from '@/core/utils/componentInjector';
 import Main from '@/components/Main';
 
@@ -40,16 +38,6 @@ export class ContentScript {
     
     try {
       debug('Initializing content script...');
-      
-      // Initialize authentication
-      const isAuthenticated = await authService.initialize();
-      if (!isAuthenticated) {
-        debug('User not authenticated');
-        return false;
-      }
-      
-      // Initialize services
-      await chatService.initialize();
       
       // Inject UI components
       this.injectUIComponents();
@@ -108,9 +96,6 @@ export class ContentScript {
     if (!this.isInitialized) {
       return;
     }
-    
-    // Clean up services
-    chatService.cleanup();
     
     // Remove UI components
     componentInjector.removeAll();

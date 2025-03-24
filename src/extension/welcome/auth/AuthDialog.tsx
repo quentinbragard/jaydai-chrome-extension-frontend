@@ -4,7 +4,7 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 import { useDialog } from '@/core/hooks/useDialog';
-import { BaseDialog } from '../dialogs/BaseDialog';
+import { BaseDialog } from '../../../components/dialogs/BaseDialog';
 import AuthForm from './AuthForm';
 import { getMessage } from '@/core/utils/i18n';
 

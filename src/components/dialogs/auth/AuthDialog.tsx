@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
-import AuthForm from '@/components/auth/AuthForm';
+import AuthForm from '@/extension/welcome/auth/AuthForm';
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getMessage } from '@/core/utils/i18n';
 
