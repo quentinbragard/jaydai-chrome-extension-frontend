@@ -1,0 +1,65 @@
+// src/components/NotificationsPanel/NotificationActionButton.tsx
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, AlertCircle } from 'lucide-react';
+import { Notification, notificationService } from '@/services/notifications/NotificationService';
+
+interface NotificationActionButtonProps {
+  notification: Notification;
+  onClick: (notification: Notification) => Promise<void>;
+  className?: string;
+}
+
+const NotificationActionButton: React.FC<NotificationActionButtonProps> = ({
+  notification,
+  onClick,
+  className = ''
+}) => {
+  // Get action button details from service
+  const actionButton = notificationService.getActionButton(notification);
+  
+  // If no action button details, don't render anything
+  if (!actionButton) {
+    return null;
+  }
+  
+  // Get metadata to determine which icon to use
+  const metadata = notificationService.parseMetadataSafe(notification.metadata);
+  
+  // Choose icon based on action type
+  const renderIcon = () => {
+    if (!metadata) return null;
+    
+    switch (metadata.action_type) {
+      case 'openUrl':
+        return <ExternalLink className="h-3.5 w-3.5 mr-1" />;
+      case 'showSettings':
+        return <svg className="h-3.5 w-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+        </svg>;
+      default:
+        return null;
+    }
+  };
+  
+  // Handle click
+  const handleClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await onClick(notification);
+  };
+  
+  return (
+    <Button
+      size="sm"
+      variant="secondary"
+      className={`text-xs px-3 py-1 h-7 flex items-center ${className}`}
+      onClick={handleClick}
+    >
+      {renderIcon()}
+      {actionButton.title}
+    </Button>
+  );
+};
+
+export default NotificationActionButton;

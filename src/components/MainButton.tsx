@@ -1,6 +1,5 @@
 // src/components/layout/MainButton.tsx
 
-import React from 'react';
 import { Toaster } from "sonner";
 import { Button } from '@/components/ui/button';
 import { X } from "lucide-react";
@@ -11,28 +10,15 @@ import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
 /**
  * Main floating button component that opens various panels
  */
-interface MainButtonProps {
-  onSettingsClick?: () => void;
-  onSaveClick?: () => void;
-}
 
-const MainButton: React.FC<MainButtonProps> = ({ 
-  onSettingsClick, 
-  onSaveClick 
-}) => {
+const MainButton = () => {
   const {
     isOpen,
     notificationCount,
-    imageLoaded,
     buttonRef,
-    menuRef,
     toggleMenu,
     handleClosePanel,
-    handleImageLoad,
-    handleImageError,
-    handleSaveClick,
-    handleSettingsClick
-  } = useMainButtonState({ onSettingsClick, onSaveClick });
+  } = useMainButtonState();
 
   return (
     <ErrorBoundary>
@@ -56,8 +42,6 @@ const MainButton: React.FC<MainButtonProps> = ({
                 src="https://gjszbwfzgnwblvdehzcq.supabase.co/storage/v1/object/public/chrome_extension_assets/archimind-logo.png" 
                 alt="Archimind Logo" 
                 className="w-full h-full object-cover"
-                onLoad={handleImageLoad}
-                onError={handleImageError}
               />
               
               {/* Optional overlay icon when open */}

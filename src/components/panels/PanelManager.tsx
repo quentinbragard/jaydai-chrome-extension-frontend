@@ -65,7 +65,6 @@ const PanelContainer: React.FC<{ onClose: () => void, notificationCount: number 
           showBackButton={panelStack.length > 1}
           onBack={popPanel}
           onClose={handlePanelClose}
-          compact
         />
       );
     case 'templatesBrowse':

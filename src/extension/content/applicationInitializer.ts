@@ -44,6 +44,8 @@ export class AppInitializer {
     
     try {
       console.log('🚀 Initializing Archimind application...');
+      // Inject UI components - Main component will set up the dialog system
+      this.injectUIComponents();
       
       // Initialize event manager first
       eventManager.initialize();
@@ -57,8 +59,7 @@ export class AppInitializer {
         throw new Error('Failed to initialize services');
       }
       
-      // Inject UI components - Main component will set up the dialog system
-      this.injectUIComponents();
+      
       this.isInitialized = true;
       console.log('✅ Archimind application initialized successfully');
       return true;

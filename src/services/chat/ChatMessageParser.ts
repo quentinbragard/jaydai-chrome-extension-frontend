@@ -151,5 +151,3 @@ export class ChatMessageParser extends AbstractBaseService {
     }
   }
 }
-
-export const chatMessageParser = ChatMessageParser.getInstance();

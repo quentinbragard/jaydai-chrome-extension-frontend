@@ -1,6 +1,6 @@
 // src/components/panels/PanelHeader.tsx
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, X } from "lucide-react";
 import { cn } from "@/core/utils/classNames";
@@ -13,6 +13,8 @@ interface PanelHeaderProps {
   onBack?: () => void;
   onClose?: () => void;
   className?: string;
+  extra?: ReactNode;
+  leftExtra?: ReactNode;
 }
 
 /**
@@ -25,7 +27,9 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   showBackButton = false,
   onBack,
   onClose,
-  className
+  className,
+  extra,
+  leftExtra
 }) => {
   // Use getMessage helper for better i18n handling
   const displayTitle = getMessage(title || '', undefined, '');
@@ -36,7 +40,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
       "dark:bg-gray-800 dark:text-white bg-gray-100 text-gray-900 rounded-t-md",
       className
     )}>
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
         {showBackButton && (
           <Button 
             variant="ghost" 
@@ -52,18 +56,22 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
           {Icon && <Icon className="h-4 w-4 mr-2" />}
           {displayTitle}
         </span>
+        {leftExtra}
       </div>
       
-      {onClose && (
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onClose}
-          className="h-8 w-8 p-0 dark:text-white dark:hover:bg-gray-700 text-gray-900 hover:bg-gray-200"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      )}
+      <div className="flex items-center gap-2">
+        {extra}
+        {onClose && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClose}
+            className="h-8 w-8 p-0 dark:text-white dark:hover:bg-gray-700 text-gray-900 hover:bg-gray-200"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

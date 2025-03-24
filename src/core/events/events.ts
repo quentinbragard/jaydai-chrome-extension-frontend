@@ -26,6 +26,7 @@ export enum AppEvent {
     
     // Notification events
     NOTIFICATION_RECEIVED = 'notification:received',
+    NOTIFICATION_DELETED = 'NOTIFICATION_DELETED',
     NOTIFICATION_READ = 'notification:read',
     NOTIFICATION_COUNT_UPDATED = 'notification:count:updated',
     

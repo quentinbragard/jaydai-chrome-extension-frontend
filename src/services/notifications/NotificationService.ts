@@ -3,18 +3,17 @@ import { AbstractBaseService } from '../BaseService';
 import { notificationApi } from "@/services/api/NotificationApi";
 import { toast } from "sonner";
 import { emitEvent, AppEvent } from '@/core/events/events';
-
+import { debug } from '@/core/config';
+import { NotificationActionMetadata } from '@/types/notifications';
 export interface Notification {
-  id: string;
+  id: string | number;
   title: string;
   body: string;
-  type: 'info' | 'warning' | 'success' | 'error' | 'welcome_first_conversation' | 
-         'insight_prompt_length' | 'insight_response_time' | 'insight_conversation_quality' | string;
-  action_button?: string;
+  type: string;
+  metadata?: string | null;
   created_at: string;
   read_at?: string | null;
-  seen_at?: string | null;
-  metadata?: Record<string, any>;
+  user_id?: string;
 }
 
 /**
@@ -47,7 +46,7 @@ export class NotificationService extends AbstractBaseService {
    * Initialize the notification service
    */
   protected async onInitialize(): Promise<void> {
-    console.log('🔔 Initializing notification service...');
+    debug('🔔 Initializing notification service...');
     
     // Load notifications immediately
     await this.loadNotifications();
@@ -55,7 +54,7 @@ export class NotificationService extends AbstractBaseService {
     // Start polling for new notifications
     this.startPolling();
     
-    console.log('✅ Notification service initialized');
+    debug('✅ Notification service initialized');
   }
   
   /**
@@ -68,17 +67,16 @@ export class NotificationService extends AbstractBaseService {
     }
     
     this.updateCallbacks = [];
-    console.log('✅ Notification service cleaned up');
+    debug('✅ Notification service cleaned up');
   }
   
   /**
    * Load notifications from backend
-   * @param forceRefresh - Force refresh even if recently loaded
    */
   public async loadNotifications(forceRefresh = false): Promise<Notification[]> {
     // Skip if we've loaded recently (within 1 minute) and not forcing refresh
     const now = Date.now();
-    if (!forceRefresh && this.lastLoadTime > 0 && now - this.lastLoadTime < 60000) {
+    if (!forceRefresh && this.lastLoadTime > 0 && now - this.lastLoadTime < 600000) {
       return [...this.notifications];
     }
     
@@ -88,24 +86,25 @@ export class NotificationService extends AbstractBaseService {
     }
     
     this.isLoading = true;
-    
+
+  
     try {
-      console.log('🔔 Loading notifications...');
+      debug('🔔 Loading notifications...');
       
       // Get previous unread count for comparison
       const previousUnreadCount = this.getUnreadCount();
       
       // Call API to get notifications
-      const data = await notificationApi.fetchNotifications();
+      const notifications = await notificationApi.fetchNotifications();
       
-      if (data) {
-        this.notifications = data || [];
+      if (notifications) {
+        this.notifications = notifications;
         this.lastLoadTime = now;
         
         // Calculate new unread count
         const newUnreadCount = this.getUnreadCount();
         
-        console.log(`✅ Loaded ${this.notifications.length} notifications (${newUnreadCount} unread)`);
+        debug(`✅ Loaded ${this.notifications.length} notifications (${newUnreadCount} unread)`);
         
         // If there are new unread notifications, show a toast
         if (newUnreadCount > previousUnreadCount) {
@@ -121,7 +120,7 @@ export class NotificationService extends AbstractBaseService {
         emitEvent(AppEvent.NOTIFICATION_COUNT_UPDATED, { count: newUnreadCount });
       }
     } catch (error) {
-      console.error('❌ Error loading notifications:', error);
+      debug('❌ Error loading notifications:', error);
     } finally {
       this.isLoading = false;
     }
@@ -146,14 +145,14 @@ export class NotificationService extends AbstractBaseService {
   /**
    * Get a notification by ID
    */
-  public getNotification(id: string): Notification | undefined {
+  public getNotification(id: string | number): Notification | undefined {
     return this.notifications.find(n => n.id === id);
   }
   
   /**
    * Mark a notification as read
    */
-  public async markAsRead(id: string): Promise<boolean> {
+  public async markAsRead(id: string | number): Promise<boolean> {
     try {
       const notification = this.notifications.find(n => n.id === id);
       if (!notification) {
@@ -175,7 +174,7 @@ export class NotificationService extends AbstractBaseService {
       
       return true;
     } catch (error) {
-      console.error('❌ Error marking notification as read:', error);
+      debug('❌ Error marking notification as read:', error);
       return false;
     }
   }
@@ -211,62 +210,48 @@ export class NotificationService extends AbstractBaseService {
       
       return true;
     } catch (error) {
-      console.error('❌ Error marking all notifications as read:', error);
+      debug('❌ Error marking all notifications as read:', error);
       return false;
     }
   }
   
   /**
-   * Handle a notification action
+   * Delete a notification
    */
-  public async handleNotificationAction(id: string): Promise<void> {
+  public async deleteNotification(id: string | number): Promise<boolean> {
     try {
-      // Find the notification
       const notification = this.notifications.find(n => n.id === id);
       if (!notification) {
-        return;
+        return false;
       }
       
-      // Mark as read first
-      await this.markAsRead(id);
+      // Update locally first for responsive UI
+      this.notifications = this.notifications.filter(n => n.id !== id);
       
-      // Handle different notification types
-      switch (notification.type) {
-        case 'welcome_first_conversation':
-          // Navigate to ChatGPT
-          window.open('https://chat.openai.com/', '_blank');
-          break;
-          
-        case 'insight_prompt_length':
-        case 'insight_response_time':
-        case 'insight_conversation_quality':
-          // Show insight details
-          toast.info(notification.title, {
-            description: notification.metadata?.details || 'View more details in your dashboard',
-            action: {
-              label: 'View',
-              onClick: () => window.open('https://chatgpt.com/', '_blank')
-            }
-          });
-          break;
-          
-        default:
-          // Generic action handling
-          if (notification.action_button) {
-            if (notification.metadata?.url) {
-              window.open(notification.metadata.url, '_blank');
-            }
-          }
-          break;
-      }
+      // Update badge and notify listeners
+      this.updateBadge();
+      this.notifyUpdateListeners();
+      
+      // Emit event
+      emitEvent(AppEvent.NOTIFICATION_DELETED, { notificationId: id });
+      
+      // Call API to delete notification
+      await notificationApi.deleteNotification(id);
+      
+      // Show success notification
+      toast.success('Notification deleted');
+      
+      return true;
     } catch (error) {
-      console.error('❌ Error handling notification action:', error);
+      debug('❌ Error deleting notification:', error);
+      return false;
     }
   }
   
+ 
+  
   /**
    * Create and show a new notification (client-side only)
-   * This is useful for transient notifications that don't need to be persisted
    */
   public showLocalNotification(notification: {
     title: string;
@@ -309,11 +294,15 @@ export class NotificationService extends AbstractBaseService {
   private startPolling(): void {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
     }
     
+    // Poll every 10 minutes
     this.pollingInterval = window.setInterval(() => {
       this.loadNotifications();
-    }, 60000); // Poll every minute
+    }, 600000);
+    
+    debug('Started polling for notifications');
   }
   
   /**
@@ -367,6 +356,165 @@ export class NotificationService extends AbstractBaseService {
       }
     });
   }
+
+  /**
+ * Validate notification action metadata
+ */
+private validateMetadata(data: any): NotificationActionMetadata | null {
+  // Check if it has required fields
+  if (!data || typeof data !== 'object') {
+    return null;
+  }
+  
+  // Check for required fields
+  if (typeof data.action_type !== 'string' || 
+      typeof data.action_title_key !== 'string') {
+    return null;
+  }
+  
+  // Validate action_url for openUrl type
+  if (data.action_type === 'openUrl' && 
+      (!data.action_url || typeof data.action_url !== 'string')) {
+    debug('⚠️ openUrl action missing valid URL');
+    return null;
+  }
+  
+  // Return valid metadata
+  return {
+    action_type: data.action_type,
+    action_title_key: data.action_title_key,
+    action_url: data.action_url || undefined
+  };
+}
+
+/**
+ * Parse metadata string into structured object with validation
+ */
+private parseMetadata(metadata: string | null): NotificationActionMetadata | null {
+  console.log("metadata", metadata);
+  console.log("typeof metadata", typeof metadata);
+  if (!metadata) return null;
+
+  try {
+    // Validate the structure
+    return this.validateMetadata(metadata);
+  } catch (error) {
+    debug('❌ Error parsing notification metadata:', error);
+    return null;
+  }
+}
+
+public parseMetadataSafe(metadata: string | null): NotificationActionMetadata | null {
+    try {
+      return this.parseMetadata(metadata);
+    } catch (error) {
+      return null;
+    }
+  }
+
+/**
+ * Get action button details for a notification
+ */
+public getActionButton(notification: Notification): { title: string; visible: boolean } | null {
+  console.log("notification", notification);
+  if (!notification.metadata) {
+    return null;
+  }
+  
+  const metadata = this.parseMetadata(notification.metadata);
+  console.log("metadata", metadata);
+  if (!metadata) {
+    return null;
+  }
+  
+  return {
+    title: metadata.action_title_key,
+    visible: true
+  };
+}
+
+/**
+ * Handle a notification action based on metadata
+ */
+public async handleNotificationAction(id: string | number): Promise<void> {
+  try {
+    // Find the notification
+    const notification = this.notifications.find(n => n.id === id);
+    if (!notification) {
+      return;
+    }
+    
+    // Mark as read first
+    await this.markAsRead(id);
+    
+    // Parse metadata if present
+    const metadata = this.parseMetadata(notification.metadata);
+    
+    // If we have metadata with action type, handle it accordingly
+    if (metadata && metadata.action_type) {
+      switch (metadata.action_type) {
+        case 'openUrl':
+          if (metadata.action_url) {
+            window.open(metadata.action_url, '_blank');
+          } else {
+            // If no URL provided, show an error
+            toast.error('No URL provided for openUrl action');
+          }
+          break;
+        
+        case 'openChatGpt':
+          // Open ChatGPT
+          window.open('https://chat.openai.com/', '_blank');
+          break;
+          
+        case 'openSettings':
+          // Trigger settings panel open
+          document.dispatchEvent(new CustomEvent('archimind:open-settings'));
+          break;
+          
+        case 'showTemplates':
+          // Trigger templates panel open
+          document.dispatchEvent(new CustomEvent('archimind:open-templates'));
+          break;
+          
+        default:
+          // For unknown action types, log a warning
+          debug(`⚠️ Unknown action type: ${metadata.action_type}`);
+          toast.info(notification.title, {
+            description: notification.body
+          });
+          break;
+      }
+      return;
+    }
+    
+    // If no metadata or action type, fall back to type-based actions
+    switch (notification.type) {
+      case 'insight_prompt_length':
+      case 'insight_response_time':
+      case 'insight_conversation_quality':
+        // Show insight details
+        toast.info(notification.title, {
+          description: notification.body,
+          action: {
+            label: 'View',
+            onClick: () => window.open('https://chatgpt.com/', '_blank')
+          }
+        });
+        break;
+          
+      default:
+        // Generic toast with notification content
+        toast.info(notification.title, {
+          description: notification.body
+        });
+        break;
+    }
+  } catch (error) {
+    debug('❌ Error handling notification action:', error);
+    toast.error('Failed to process notification action');
+  }
+}
   
   /**
    * Notify all update listeners
@@ -378,7 +526,7 @@ export class NotificationService extends AbstractBaseService {
       try {
         callback(notificationsCopy);
       } catch (error) {
-        console.error('❌ Error in notification update callback:', error);
+        debug('❌ Error in notification update callback:', error);
       }
     });
   }

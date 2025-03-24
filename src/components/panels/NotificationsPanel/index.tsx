@@ -1,13 +1,13 @@
-// src/components/panels/NotificationsPanel/index.tsx
-
-import React from 'react';
-import { Bell, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import BasePanel from '../BasePanel';
-import { useNotifications } from './useNotifications';
+// src/components/NotificationsPanel/NotificationsPanel.tsx
+import React, { useEffect } from 'react';
+import { useNotifications } from '@/hooks/notifications/useNotifications';
 import NotificationItem from './NotificationItem';
+import { Button } from '@/components/ui/button';
+import { Bell, RefreshCw, Loader2, CheckSquare } from 'lucide-react';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import BasePanel from '../BasePanel';
 import { getMessage } from '@/core/utils/i18n';
+import { cn } from '@/core/utils/classNames';
 
 interface NotificationsPanelProps {
   showBackButton?: boolean;
@@ -28,12 +28,62 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
   const {
     notifications,
     loading,
-    hasUnread,
     unreadCount,
     handleMarkAllAsRead,
     handleActionClick,
-    handleDismiss
+    handleDismiss,
+    handleDelete,
+    isRefreshing,
+    refresh,
   } = useNotifications();
+
+  // Listen for external open notification requests
+  useEffect(() => {
+    const handleOpenNotifications = () => {
+      // If there's an external request to open notifications,
+      // refresh the notifications
+      refresh();
+    };
+
+    document.addEventListener(
+      'archimind:open-notifications',
+      handleOpenNotifications
+    );
+
+    return () => {
+      document.removeEventListener(
+        'archimind:open-notifications',
+        handleOpenNotifications
+      );
+    };
+  }, [refresh]);
+
+  // Create header content
+  const headerLeftExtra = unreadCount > 0 ? (
+    <span className={cn(
+      "bg-red-500 text-white text-xs px-2 py-0.5 rounded-full",
+      "ml-2"
+    )}>
+      {unreadCount}
+    </span>
+  ) : null;
+
+  const headerRightContent = (
+    <Button
+      size="sm"
+      variant="ghost"
+      className="h-8 w-8 p-0 rounded-full flex items-center justify-center"
+      onClick={refresh}
+      disabled={isRefreshing || loading}
+      title="Refresh notifications"
+    >
+      {isRefreshing ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <RefreshCw className="h-4 w-4" />
+      )}
+    </Button>
+  );
 
   return (
     <BasePanel
@@ -44,54 +94,83 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
       onClose={onClose}
       className="w-80"
       maxHeight={maxHeight}
-      headerClassName="flex flex-row items-center justify-between"
+      headerClassName="flex items-center justify-between"
+      headerExtra={headerRightContent}
+      headerLeftExtra={headerLeftExtra}
     >
-      <div className="flex items-center justify-between mb-2">
-        {unreadCount > 0 && (
-          <span className="text-xs bg-primary rounded-full h-5 w-5 flex items-center justify-center text-primary-foreground">
-            {unreadCount}
-          </span>
-        )}
-        
-        {hasUnread && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
+      {/* Notification Controls */}
+      {unreadCount > 1 && (
+        <div className="flex items-center justify-start mb-4 pb-2 w-full px-4 border-b border-gray-200 dark:border-gray-700">
+          {/* Mark all read button */}
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs flex items-center gap-1 h-7"
             onClick={handleMarkAllAsRead}
-            className="h-7 px-2 text-xs ml-auto"
+            disabled={isRefreshing || loading}
+            title="Mark all as read"
           >
-            <Check className="h-3.5 w-3.5 mr-1" />
-            {getMessage('markAllRead', undefined, 'Mark all as read')}
+            <CheckSquare className="h-3.5 w-3.5" />
+            Mark all read
           </Button>
-        )}
-      </div>
-      
-      <Separator className="mb-2" />
-      
-      <div>
-        {loading ? (
-          <div className="py-8 text-center">
-            <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
-            <p className="text-sm text-muted-foreground mt-2">{getMessage('loadingNotifications', undefined, 'Loading notifications...')}</p>
+        </div>
+      )}
+
+      {/* Notification Content */}
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <LoadingSpinner size="md" message="Loading notifications..." />
+        </div>
+      ) : notifications.length === 0 ? (
+        <div className="flex flex-col justify-center items-center py-10 text-gray-500 dark:text-gray-400 p-4 text-center">
+          <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
+            <Bell className="h-8 w-8 text-gray-400 dark:text-gray-500" />
           </div>
-        ) : notifications.length === 0 ? (
-          <div className="py-8 px-4 text-center">
-            <Bell className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
-            <p className="text-sm text-muted-foreground">{getMessage('noNotifications', undefined, 'No notifications')}</p>
-          </div>
-        ) : (
-          <ul className="divide-y divide-border">
-            {notifications.map(notification => (
+          <p className="font-medium">No notifications</p>
+          <p className="text-xs mt-1 max-w-xs">
+            We'll notify you when there are new updates or important information
+          </p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="mt-4"
+            onClick={refresh}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                Checking...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                Check for notifications
+              </>
+            )}
+          </Button>
+        </div>
+      ) : (
+        <>
+          {/* Notification List */}
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {notifications.map((notification) => (
               <NotificationItem
                 key={notification.id}
                 notification={notification}
-                onActionClick={handleActionClick}
                 onDismiss={handleDismiss}
+                onDelete={handleDelete}
+                onActionClick={handleActionClick}
               />
             ))}
-          </ul>
-        )}
-      </div>
+          </div>
+          
+          {/* Footer count */}
+          <div className="mt-4 pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+            {notifications.length} notification{notifications.length !== 1 ? 's' : ''}
+          </div>
+        </>
+      )}
     </BasePanel>
   );
 };

@@ -102,7 +102,7 @@ export type Database = {
       }
       notifications: {
         Row: {
-          action_button: Json | null
+          metadata: Json | null
           body: string | null
           created_at: string
           id: number
@@ -112,7 +112,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          action_button?: Json | null
+          metadata?: Json | null
           body?: string | null
           created_at?: string
           id?: number
@@ -122,7 +122,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          action_button?: Json | null
+          metadata?: Json | null
           body?: string | null
           created_at?: string
           id?: number

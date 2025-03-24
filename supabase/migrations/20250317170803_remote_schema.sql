@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS "public"."notifications" (
     "type" "text",
     "title" "text",
     "body" "text",
-    "action_button" "jsonb"
+    "metadata" "jsonb"
 );
 
 

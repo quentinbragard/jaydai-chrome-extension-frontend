@@ -15,6 +15,8 @@ export interface BasePanelProps {
   contentClassName?: string;
   children: ReactNode;
   maxHeight?: string;
+  headerExtra?: ReactNode;
+  headerLeftExtra?: ReactNode;
 }
 
 /**
@@ -32,7 +34,9 @@ export const BasePanel: React.FC<BasePanelProps> = ({
   headerClassName,
   contentClassName,
   children,
-  maxHeight = '400px'
+  maxHeight = '400px',
+  headerExtra,
+  headerLeftExtra
 }) => {
   return (
     <div className={cn("panel-container rounded-md overflow-hidden shadow-lg", className)}>
@@ -43,6 +47,8 @@ export const BasePanel: React.FC<BasePanelProps> = ({
         onBack={onBack}
         onClose={onClose}
         className={headerClassName}
+        extra={headerExtra}
+        leftExtra={headerLeftExtra}
       />
       
       <div 
