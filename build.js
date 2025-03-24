@@ -62,7 +62,7 @@ try {
   
   // Display API URL
   const apiUrl = isProd 
-    ? 'https://archimind-backend-32108269805.europe-west1.run.app' 
+    ? 'https://archimind-api-sw5cmqbraq-uc.a.run.app/' 
     : 'http://localhost:8000';
   console.log(`\n🔌 API URL: ${apiUrl}`);
   
