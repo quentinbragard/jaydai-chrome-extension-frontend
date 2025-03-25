@@ -294,7 +294,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   }
 
   return (
-    <div className="space-y-4 py-2">
+    <div className="space-y-4 py-2 bg-background bg-opacity-100">
       <Tabs 
         defaultValue={activeTab} 
         value={activeTab} 
@@ -391,7 +391,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             ) : getMessage('signIn', undefined, 'Sign In')}
           </Button>
 
-          <div className="relative my-4">
+          {/*<div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-700"></div>
             </div>
@@ -410,7 +410,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
             {getMessage('signInWith', ['Google']) || 'Sign in with Google'}
-          </Button>
+          </Button>*/}
         </TabsContent>
         
         <TabsContent value="signup" className="space-y-4">

@@ -438,5 +438,107 @@
   "allFolders": {
     "message": "Tous les Dossiers",
     "description": "Titre de section Tous les dossiers"
+  },
+  "enterpriseFeature": {
+    "message": "Cette fonctionnalité n'est disponible que dans le plan Entreprise",
+    "description": "Message affiché lorsqu'une fonctionnalité est réservée à l'entreprise"
+  },
+  "contactForEnterprise": {
+    "message": "Contactez-nous pour en savoir plus sur notre plan Entreprise",
+    "description": "Call to action for enterprise plan"
+  },
+  "refreshing": {
+    "message": "Actualisation...",
+    "description": "Loading state text for refresh action"
+  },
+  "refresh": {
+    "message": "Actualiser",
+    "description": "Refresh button text"
+  },
+  "noPinnedOfficialTemplates": {
+    "message": "Aucun modèle officiel épinglé. Cliquez sur Parcourir pour en ajouter.",
+    "description": "Empty state message for official templates section"
+  },
+  "noUserTemplates": {
+    "message": "Aucun modèle utilisateur. Créez un modèle pour commencer.",
+    "description": "Empty state message for user templates section"
+  },
+  "confirmAction": {
+    "message": "Confirmer l'action",
+    "description": "Default title for confirmation dialog"
+  },
+  "confirmActionDescription": {
+    "message": "Êtes-vous sûr de vouloir continuer ?",
+    "description": "Default description for confirmation dialog"
+  },
+  "confirm": {
+    "message": "Confirmer",
+    "description": "Confirm button text"
+  },
+  "today": {
+    "message": "aujourd'hui",
+    "description": "Relative time for current day"
+  },
+  "yesterday": {
+    "message": "hier",
+    "description": "Relative time for previous day"
+  },
+  "daysAgo": {
+    "message": "il y a $1 jours",
+    "description": "Relative time for days ago",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "untitledTemplate": {
+    "message": "Modèle sans titre",
+    "description": "Default title for untitled templates"
+  },
+  "passwordTooShort": {
+    "message": "Le mot de passe doit contenir au moins 8 caractères",
+    "description": "Password validation error message"
+  },
+  "invalidCredentials": {
+    "message": "Email ou mot de passe invalide",
+    "description": "Authentication error message"
+  },
+  "emailNotVerified": {
+    "message": "Email non vérifié",
+    "description": "Email verification error message"
+  },
+  "emailAlreadyInUse": {
+    "message": "Cet email est déjà utilisé",
+    "description": "Sign up error message"
+  },
+  "sessionExpired": {
+    "message": "Session expirée. Veuillez vous reconnecter.",
+    "description": "Session expiration message"
+  },
+  "notAuthenticated": {
+    "message": "Non authentifié. Veuillez vous connecter.",
+    "description": "Authentication required message"
+  },
+  "networkError": {
+    "message": "Erreur réseau lors du rafraîchissement du token",
+    "description": "Network error message"
+  },
+  "googleAuthCanceled": {
+    "message": "L'authentification Google a été annulée",
+    "description": "Google auth cancellation message"
+  },
+  "noAuthData": {
+    "message": "Aucune donnée d'authentification reçue de Google",
+    "description": "Google auth error message"
+  },
+  "injectingUI": {
+    "message": "Injection des composants UI...",
+    "description": "UI injection log message"
+  },
+  "uiInjected": {
+    "message": "Composants UI injectés",
+    "description": "UI injection success message"
   }
 }

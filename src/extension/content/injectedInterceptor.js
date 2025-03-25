@@ -1,5 +1,5 @@
 // src/extension/content/injectedInterceptor.js
-// Updated to capture create_time and parent_message_id
+// Updated to capture create_time and parent_message_provider_id
 
 (function() {
   // Store original fetch method
@@ -40,7 +40,7 @@
 
   /**
    * Process streaming data from ChatGPT and organize into thinking steps
-   * Updated to handle create_time and parent_message_id
+   * Updated to handle create_time and parent_message_provider_id
    */
   function processStreamData(data, assistantData, thinkingSteps) {
     // Initialize assistantData if needed
@@ -81,7 +81,7 @@
         assistantData.createTime = data.v.message.create_time;
       }
       
-      // Extract parent_message_id if available in metadata
+      // Extract parent_message_provider_id if available in metadata
       if (data.v.message.metadata?.parent_id) {
         assistantData.parentMessageId = data.v.message.metadata.parent_id;
       }
@@ -302,9 +302,9 @@
         if (bodyText.trim().startsWith('{')) {
           requestBody = JSON.parse(bodyText);
           
-          // Additional logging for parent_message_id if present
-          if (requestBody.parent_message_id) {
-            console.log('🔗 Parent message ID detected:', requestBody.parent_message_id);
+          // Additional logging for parent_message_provider_id if present
+          if (requestBody.parent_message_provider_id) {
+            console.log('🔗 Parent message ID detected:', requestBody.parent_message_provider_id);
           }
         }
       } catch (e) {

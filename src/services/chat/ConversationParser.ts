@@ -5,6 +5,7 @@ import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { Conversation, Message } from '@/types';
+import { MessageApi } from '@/services/api/MessageApi';
 
 /**
  * Service that parses conversation data from network requests
@@ -50,11 +51,15 @@ export class ConversationParser extends AbstractBaseService {
    * Handle specific conversation data
    */
   private handleSpecificConversation = (data: any): void => {
+    console.log('handleSpecificConversation', data);
     try {
       if (!data?.responseBody?.conversation_id) return;
       
       const conversation = this.extractConversation(data.responseBody);
       const messages = this.extractMessagesFromConversation(data.responseBody);
+      console.log('messages', messages);
+      console.log('conversation', conversation);
+
       
       // Emit event with conversation and messages
       document.dispatchEvent(new CustomEvent('archimind:conversation-loaded', {
@@ -156,7 +161,7 @@ export class ConversationParser extends AbstractBaseService {
                 role,
                 model: node.message.metadata?.model_slug || 'unknown',
                 timestamp: node.message.create_time ? node.message.create_time * 1000 : Date.now(),
-                parent_message_id: node.parent
+                parent_message_provider_id: node.parent
               });
             }
           }

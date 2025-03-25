@@ -68,7 +68,7 @@ async function emailSignIn(email, password, sendResponse) {
     try {
       console.log("🔑 Attempting email sign-in for:", email);
       
-      const response = await fetch("http://127.0.0.1:8000/auth/sign_in", {
+      const response = await fetch(`${process.env.VITE_API_URL}/auth/sign_in`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -128,7 +128,7 @@ async function emailSignIn(email, password, sendResponse) {
     console.log("📝 Attempting sign-up for:", email);
     
     // Send request to our backend API
-    fetch("http://127.0.0.1:8000/auth/sign_up", {
+    fetch(`${process.env.VITE_API_URL}/auth/sign_up`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, name }),
@@ -158,9 +158,11 @@ async function emailSignIn(email, password, sendResponse) {
         storeAuthSession(data.session);
       }
       
+      // Open ChatGPT in a new tab
+      chrome.tabs.create({ url: 'https://chat.openai.com' });
+      
       sendResponse({ 
         success: true, 
-        message: "Signup successful. Please check your email to verify your account.",
         user: data.user
       });
     })
@@ -194,7 +196,7 @@ async function emailSignIn(email, password, sendResponse) {
         console.error("❌ Google Sign-In failed:", chrome.runtime.lastError);
         sendResponse({ 
           success: false, 
-          error: chrome.runtime.lastError.message || "Google authentication was canceled" 
+          error: chrome.runtime.lastError.message || chrome.i18n.getMessage('googleAuthCanceled', undefined, 'Google authentication was canceled')
         });
         return;
       }
@@ -203,7 +205,7 @@ async function emailSignIn(email, password, sendResponse) {
         console.error("❌ No redirect URL received");
         sendResponse({ 
           success: false, 
-          error: "No authentication data received from Google" 
+          error: chrome.i18n.getMessage('noAuthData', undefined, 'No authentication data received from Google')
         });
         return;
       }
@@ -224,7 +226,7 @@ async function emailSignIn(email, password, sendResponse) {
   
         console.log("🔹 Google ID Token received");
   
-        const response = await fetch("http://127.0.0.1:8000/auth/google", {
+        const response = await fetch(`${process.env.VITE_API_URL}/auth/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id_token: idToken }),
@@ -366,14 +368,14 @@ function sendAuthToken(sendResponse) {
         if (result.user && result.user.id) {
           sendResponse({ 
             success: false, 
-            error: "Session expired. Please sign in again.",
+            error: chrome.i18n.getMessage('sessionExpired', undefined, 'Session expired. Please sign in again.'),
             errorCode: "REFRESH_TOKEN_MISSING",
             needsReauth: true
           });
         } else {
           sendResponse({ 
             success: false, 
-            error: "Not authenticated. Please sign in.",
+            error: chrome.i18n.getMessage('notAuthenticated', undefined, 'Not authenticated. Please sign in.'),
             errorCode: "NOT_AUTHENTICATED",
             needsReauth: true
           });
@@ -383,7 +385,7 @@ function sendAuthToken(sendResponse) {
       
       try {
         console.log("🔄 Attempting to refresh token...");
-        const response = await fetch("http://127.0.0.1:8000/auth/refresh_token", {
+        const response = await fetch(`${process.env.VITE_API_URL}/auth/refresh_token`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refresh_token: result.refresh_token }),
@@ -398,14 +400,14 @@ function sendAuthToken(sendResponse) {
             
             sendResponse({ 
               success: false, 
-              error: "Session expired. Please sign in again.", 
+              error: chrome.i18n.getMessage('sessionExpired', undefined, 'Session expired. Please sign in again.'),
               errorCode: "INVALID_REFRESH_TOKEN",
               needsReauth: true
             });
           } else {
             sendResponse({ 
               success: false, 
-              error: "Failed to refresh token. Please try again.", 
+              error: chrome.i18n.getMessage('refreshFailed', undefined, 'Failed to refresh token. Please try again.'),
               errorCode: "REFRESH_FAILED"
             });
           }
@@ -432,7 +434,7 @@ function sendAuthToken(sendResponse) {
         console.error("❌ Error refreshing access token:", error);
         sendResponse({ 
           success: false, 
-          error: "Network error while refreshing token", 
+          error: chrome.i18n.getMessage('networkError', undefined, 'Network error while refreshing token'), 
           errorCode: "NETWORK_ERROR"
         });
       }

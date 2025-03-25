@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS "public"."chats" (
     "id" bigint NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "user_id" "uuid",
-    "provider_chat_id" "text",
+    "chat_provider_id" "text",
     "provider_name" "text",
     "title" "text"
 );

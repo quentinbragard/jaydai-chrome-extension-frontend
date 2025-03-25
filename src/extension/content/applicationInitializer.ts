@@ -85,7 +85,7 @@ export class AppInitializer {
    * Inject UI components
    */
   private injectUIComponents(): void {
-    console.log('🔧 Injecting UI components...');
+    console.log(chrome.i18n.getMessage('injectingUI'));
     
     // Inject the Main component which includes DialogProvider
     componentInjector.inject(Main, {}, {
@@ -96,7 +96,7 @@ export class AppInitializer {
       }
     });
     
-    console.log('✅ UI components injected');
+    console.log(chrome.i18n.getMessage('uiInjected'));
   }
   
   /**

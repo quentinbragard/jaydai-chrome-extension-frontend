@@ -1,6 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx
 import React, { useState, useCallback } from 'react';
-import { FolderOpen, RefreshCw } from "lucide-react";
+import { FolderOpen, RefreshCw, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -246,23 +246,29 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           <FolderSection
             title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
             iconType="organization"
-            onBrowseMore={() => handleBrowseMore('organization')}
-            showBrowseMore={true}
+            onBrowseMore={() => {}}
+            showBrowseMore={false}
           >
-            {typedOrgFolders?.length ? (
-              <FolderList
-                folders={typedOrgFolders}
-                type="organization"
-                onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'organization' })}
-                onUseTemplate={handleUseTemplate}
-                showPinControls={true}
-                emptyMessage="No pinned organization templates. Click Browse More to add some."
-              />
-            ) : (
-              <EmptyMessage>
-                {getMessage('noPinnedOrganizationTemplates', undefined, 'No pinned organization templates. Click Browse More to add some.')}
-              </EmptyMessage>
-            )}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg border border-blue-200 dark:border-blue-800 p-4 shadow-sm">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-full">
+                  <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h4 className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                  {getMessage('unlockTeamTemplates', undefined, 'Unlock Team Templates')}
+                </h4>
+                <p className="text-xs text-muted-foreground leading-tight max-w-[90%]">
+                  {getMessage('teamTemplatesDescription', undefined, 'Share prompt templates with your team, enforce standards, and track usage across your organization.')}
+                </p>
+                <Button 
+                  size="sm"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white border-none"
+                  onClick={() => window.open('mailto:contact@jayd.ai?subject=Enterprise%20Plan%20Inquiry', '_blank')}
+                >
+                  {getMessage('upgradeEnterprise', undefined, 'Upgrade to Enterprise')}
+                </Button>
+              </div>
+            </div>
           </FolderSection>
 
           <Separator />

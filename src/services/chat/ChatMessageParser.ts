@@ -118,7 +118,7 @@ export class ChatMessageParser extends AbstractBaseService {
         role: 'user',
         model: requestBody.model || 'unknown',
         timestamp: message.create_time ? message.create_time * 1000 : Date.now(),
-        parent_message_id: requestBody.parent_message_id
+        parent_message_provider_id: requestBody.parent_message_provider_id
       };
     } catch (error) {
       errorReporter.captureError(
@@ -141,7 +141,7 @@ export class ChatMessageParser extends AbstractBaseService {
         model: data.model || 'unknown',
         timestamp: data.createTime ? data.createTime * 1000 : Date.now(),
         thinkingTime: data.thinkingTime,
-        parent_message_id: data.parentMessageId
+        parent_message_provider_id: data.parentMessageId
       };
     } catch (error) {
       errorReporter.captureError(

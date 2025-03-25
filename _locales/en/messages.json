@@ -440,5 +440,107 @@
   "allFolders": {
     "message": "All Folders",
     "description": "All folders section title"
+  },
+  "enterpriseFeature": {
+    "message": "This feature is only available in the Enterprise plan",
+    "description": "Message shown when a feature is enterprise-only"
+  },
+  "contactForEnterprise": {
+    "message": "Contact us to learn more about our Enterprise plan",
+    "description": "Call to action for enterprise plan"
+  },
+  "refreshing": {
+    "message": "Refreshing...",
+    "description": "Loading state text for refresh action"
+  },
+  "refresh": {
+    "message": "Refresh",
+    "description": "Refresh button text"
+  },
+  "noPinnedOfficialTemplates": {
+    "message": "No pinned official templates. Click Browse More to add some.",
+    "description": "Empty state message for official templates section"
+  },
+  "noUserTemplates": {
+    "message": "No user templates. Create a template to get started.",
+    "description": "Empty state message for user templates section"
+  },
+  "confirmAction": {
+    "message": "Confirm Action",
+    "description": "Default title for confirmation dialog"
+  },
+  "confirmActionDescription": {
+    "message": "Are you sure you want to proceed?",
+    "description": "Default description for confirmation dialog"
+  },
+  "confirm": {
+    "message": "Confirm",
+    "description": "Confirm button text"
+  },
+  "today": {
+    "message": "today",
+    "description": "Relative time for current day"
+  },
+  "yesterday": {
+    "message": "yesterday",
+    "description": "Relative time for previous day"
+  },
+  "daysAgo": {
+    "message": "$1 days ago",
+    "description": "Relative time for days ago",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "untitledTemplate": {
+    "message": "Untitled Template",
+    "description": "Default title for untitled templates"
+  },
+  "passwordTooShort": {
+    "message": "Password must be at least 8 characters",
+    "description": "Password validation error message"
+  },
+  "invalidCredentials": {
+    "message": "Invalid email or password",
+    "description": "Authentication error message"
+  },
+  "emailNotVerified": {
+    "message": "Email not verified",
+    "description": "Email verification error message"
+  },
+  "emailAlreadyInUse": {
+    "message": "Email already in use",
+    "description": "Sign up error message"
+  },
+  "sessionExpired": {
+    "message": "Session expired. Please sign in again.",
+    "description": "Session expiration message"
+  },
+  "notAuthenticated": {
+    "message": "Not authenticated. Please sign in.",
+    "description": "Authentication required message"
+  },
+  "networkError": {
+    "message": "Network error while refreshing token",
+    "description": "Network error message"
+  },
+  "googleAuthCanceled": {
+    "message": "Google authentication was canceled",
+    "description": "Google auth cancellation message"
+  },
+  "noAuthData": {
+    "message": "No authentication data received from Google",
+    "description": "Google auth error message"
+  },
+  "injectingUI": {
+    "message": "Injecting UI components...",
+    "description": "UI injection log message"
+  },
+  "uiInjected": {
+    "message": "UI components injected",
+    "description": "UI injection success message"
   }
 }
