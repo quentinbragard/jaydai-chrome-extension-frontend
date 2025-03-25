@@ -1,4 +1,5 @@
-import React, { ComponentType } from 'react';
+// src/core/utils/componentInjector.tsx
+import { ComponentType } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 
 interface ComponentInstance {

@@ -1,11 +1,19 @@
-// src/services/api/ApiClient.ts - Updated with proper types
+// src/services/api/ApiClient.ts
 import { AbstractBaseService } from '@/services/BaseService';
 import { serviceManager } from '@/core/managers/ServiceManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { ENV } from '@/core/env';
 import { debug } from '@/core/config';
-import { ApiResponse } from '@/types/services/api';
+
+/**
+ * Interface for API responses
+ */
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
 
 /**
  * Request options interface
@@ -20,13 +28,12 @@ export interface RequestOptions extends RequestInit {
 export class ApiClient extends AbstractBaseService {
   private static instance: ApiClient;
   private baseUrl: string;
-  private pendingRequests: Map<string, Promise<ApiResponse<any>>>;
+  private pendingRequests: Map<string, Promise<any>> = new Map();
   
   private constructor(baseUrl?: string) {
     super();
     // Use the baseUrl parameter if provided, otherwise fall back to ENV.API_URL
     this.baseUrl = baseUrl || ENV.API_URL;
-    this.pendingRequests = new Map();
     
     // Log the API URL when instantiated (helps with debugging)
     console.log(`🔌 API Client initialized with base URL: ${this.baseUrl}`);
@@ -130,7 +137,7 @@ export class ApiClient extends AbstractBaseService {
           } else {
             // Use legacy auth service as fallback
             const legacyAuth = serviceManager.getService('auth');
-            if (legacyAuth) {
+            if (legacyAuth && typeof legacyAuth.getAuthToken === 'function') {
               const authTokenResponse = await legacyAuth.getAuthToken();
               if (authTokenResponse.success) {
                 token = authTokenResponse.token;
@@ -190,7 +197,7 @@ export class ApiClient extends AbstractBaseService {
         if (retryCount < 1) {
           try {
             const tokenService = serviceManager.getService('auth.token');
-            if (tokenService) {
+            if (tokenService && typeof tokenService.refreshToken === 'function') {
               const refreshSuccess = await tokenService.refreshToken();
               
               if (refreshSuccess) {
@@ -214,7 +221,7 @@ export class ApiClient extends AbstractBaseService {
             } else {
               // Try legacy auth service
               const legacyAuth = serviceManager.getService('auth');
-              if (legacyAuth) {
+              if (legacyAuth && typeof legacyAuth.refreshToken === 'function') {
                 const refreshSuccess = await legacyAuth.refreshToken();
                 
                 if (refreshSuccess) {

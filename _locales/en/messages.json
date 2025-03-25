@@ -4,7 +4,7 @@
     "description": "The name of the extension"
   },
   "appDesc": {
-    "message": "**Jaydai: Unlock the Full Potential of AI**\n\nJaydai is a powerful Chrome extension designed to help you maximize your generative AI experience. By providing access to a curated library of high-quality prompts, Jaydai ensures that you always have the right starting point for creative, efficient, and impactful interactions with AI tools like ChatGPT.\n\n### Why Install Jaydai?\n\n- **Boost Productivity**: Quickly find and deploy proven prompts that streamline your workflow and save time.\n  \n- **Enhance Creativity**: Explore a diverse prompt library that inspires innovative ideas and helps you achieve extraordinary results.\n  \n- **Personalized Experience**: Save and manage your favorite prompts for seamless, repeatable success every time you use AI.\n  \n- **Data-Driven Insights**: Monitor your prompt usage to continually refine your strategy and unlock even greater potential from your AI interactions.\n\nWith Jaydai, great prompts lead to great outcomes. Install Jaydai today and transform the way you harness AI, empowering you to achieve more every day.",
+    "message": "Jaydai: Maximize AI Potential. Jaydai is a Chrome extension offering a library of high-quality prompts.",
     "description": "The description of the extension"
   },
   "welcomeTitle": {

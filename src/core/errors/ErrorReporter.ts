@@ -1,6 +1,6 @@
 // src/core/errors/ErrorReporter.ts
 
-import { AppError } from './AppError';
+import { AppError, ErrorCode } from './AppError';
 import { config } from '../config';
 import { onEvent, AppEvent } from '../events/events';
 
@@ -29,7 +29,7 @@ export class ErrorReporter {
   private initializeEventListeners(): void {
     // Listen for extension errors
     onEvent(AppEvent.EXTENSION_ERROR, ({ message, stack }) => {
-      this.captureError(new AppError(message, 'extension_error', { stack }));
+      this.captureError(new AppError(message, ErrorCode.EXTENSION_ERROR, { stack }));
     });
     
     // Listen for unhandled errors and promises
@@ -38,7 +38,7 @@ export class ErrorReporter {
         this.captureError(
           new AppError(
             event.message || 'Unhandled error',
-            'unhandled_error',
+            ErrorCode.UNHANDLED_ERROR,
             { fileName: event.filename, lineNo: event.lineno, colNo: event.colno }
           )
         );
@@ -48,7 +48,7 @@ export class ErrorReporter {
         this.captureError(
           new AppError(
             event.reason?.message || 'Unhandled promise rejection',
-            'unhandled_rejection',
+            ErrorCode.UNHANDLED_REJECTION,
             event.reason
           )
         );
@@ -64,7 +64,7 @@ export class ErrorReporter {
     const appError = error instanceof AppError ? 
       error : 
       (typeof error === 'string' ? 
-        new AppError(error, 'unknown_error', undefined, metadata) : 
+        new AppError(error, ErrorCode.UNKNOWN_ERROR, undefined, metadata) : 
         AppError.from(error)
       );
     

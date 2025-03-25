@@ -4,14 +4,38 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useService } from '@/core/hooks/useService';
 import { StatsService } from '@/services/analytics/StatsService';
+import { Stats } from '@/services/analytics/StatsService';
+
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
+interface StatsServiceInterface {
+  getStats: () => Stats;
+  onUpdate: (callback: (newStats: Stats) => void) => () => void;
+  getWeeklyConversations: () => Promise<WeeklyConversations | null>;
+  getMessageDistribution: () => Promise<MessageDistribution | null>;
+}
+
+interface WeeklyConversations {
+  weekly_conversations: number[];
+}
+
+interface MessageDistribution {
+  user_messages: number;
+  ai_messages: number;
+}
+
+interface ModelUsage {
+  count: number;
+  input_tokens: number;
+  output_tokens: number;
+}
+
 const StatsDetailDashboard = () => {
-  const statsService = useService('stats');
-  const [stats, setStats] = useState(null);
-  const [weeklyConversations, setWeeklyConversations] = useState(null);
-  const [messageDistribution, setMessageDistribution] = useState(null);
+  const statsService = useService<StatsServiceInterface>('stats');
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [weeklyConversations, setWeeklyConversations] = useState<WeeklyConversations | null>(null);
+  const [messageDistribution, setMessageDistribution] = useState<MessageDistribution | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,6 +68,8 @@ const StatsDetailDashboard = () => {
         
         return unsubscribe;
       }
+      setLoading(false);
+      return () => {};
     };
     
     loadAllStats();
@@ -70,9 +96,9 @@ const StatsDetailDashboard = () => {
       count
     })) : [];
   
-  // Format data for model usage
+  // Format data for model usage - ensure we have the modelUsage property
   const modelUsageData = stats.modelUsage ? 
-    Object.entries(stats.modelUsage).map(([model, data]) => ({
+    Object.entries(stats.modelUsage as Record<string, ModelUsage>).map(([model, data]) => ({
       name: model,
       count: data.count
     })) : [];
@@ -183,12 +209,14 @@ const StatsDetailDashboard = () => {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }: { name: string; percent: number }) => 
+                          `${name}: ${(percent * 100).toFixed(0)}%`
+                        }
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
                       >
-                        {messageDistributionData.map((entry, index) => (
+                        {messageDistributionData.map((_entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
@@ -207,7 +235,7 @@ const StatsDetailDashboard = () => {
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                      data={Object.entries(stats.messagesPerDay).map(([date, count]) => ({ date, count }))}
+                      data={Object.entries(stats.messagesPerDay || {}).map(([date, count]) => ({ date, count }))}
                       margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
@@ -262,12 +290,14 @@ const StatsDetailDashboard = () => {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }: { name: string; percent: number }) => 
+                          `${name}: ${(percent * 100).toFixed(0)}%`
+                        }
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
                       >
-                        {tokenUsageData.map((entry, index) => (
+                        {tokenUsageData.map((_entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>

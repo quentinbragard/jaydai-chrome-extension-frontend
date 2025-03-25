@@ -1,8 +1,23 @@
-// src/hooks/templates/useTemplateFolders.ts
+// src/hooks/templates/useTemplateFolders.tsx
+
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { TemplateFolder } from '@/types/templates';
 import { promptApi } from '@/services/api/PromptApi';
+
+/**
+ * Interface for folder structure
+ */
+interface TemplateFolder {
+  id: number;
+  name: string;
+  path: string;
+  description?: string;
+  templates?: any[];
+  Folders?: any[];
+  is_pinned?: boolean;
+  created_at: string;
+  type: string;
+}
 
 /**
  * Hook for managing template folders
@@ -40,7 +55,8 @@ export function useTemplateFolders() {
         if (officialResponse.success) {
           officialFolders = officialResponse.folders.map(folder => ({
             ...folder,
-            is_pinned: true
+            is_pinned: true,
+            type: 'official'
           }));
         }
       }
@@ -53,7 +69,8 @@ export function useTemplateFolders() {
         if (organizationResponse.success) {
           organizationFolders = organizationResponse.folders.map(folder => ({
             ...folder,
-            is_pinned: true
+            is_pinned: true,
+            type: 'organization'
           }));
         }
       }
@@ -65,10 +82,16 @@ export function useTemplateFolders() {
         throw new Error(userResponse.error || 'Failed to load user folders');
       }
       
+      // Make sure each user folder has the type field
+      const userFoldersWithType = userResponse.folders.map(folder => ({
+        ...folder,
+        type: 'user'
+      }));
+      
       // Update state with loaded folders
       setPinnedOfficialFolders(officialFolders);
       setPinnedOrganizationFolders(organizationFolders);
-      setUserFolders(userResponse.folders);
+      setUserFolders(userFoldersWithType);
       
     } catch (err) {
       console.error('Error loading folders:', err);
@@ -90,7 +113,7 @@ export function useTemplateFolders() {
       // Make API call to toggle pin status
       const response = await promptApi.toggleFolderPin(folderId, isPinned, type);
       
-      if (!response.success) {
+      if (response.success === false) {
         throw new Error(response.error || `Failed to ${isPinned ? 'unpin' : 'pin'} folder`);
       }
       
@@ -103,8 +126,9 @@ export function useTemplateFolders() {
           } else {
             // Find folder in the response and add it
             if (response.pinned_folders) {
-              // Simplified - we should actually get the folder details from API
-              return [...prev, { id: folderId, is_pinned: true } as TemplateFolder];
+              // We can't immediately add the folder without full details,
+              // so we'll refresh folders to get the complete data
+              return prev;
             }
             return prev;
           }
@@ -117,8 +141,9 @@ export function useTemplateFolders() {
           } else {
             // Find folder in the response and add it
             if (response.pinned_folders) {
-              // Simplified - we should actually get the folder details from API
-              return [...prev, { id: folderId, is_pinned: true } as TemplateFolder];
+              // We can't immediately add the folder without full details,
+              // so we'll refresh folders to get the complete data
+              return prev;
             }
             return prev;
           }
@@ -130,9 +155,11 @@ export function useTemplateFolders() {
       
       toast.success(isPinned ? 'Folder unpinned' : 'Folder pinned');
       
+      return true;
     } catch (err) {
       console.error('Error toggling folder pin:', err);
       toast.error(err instanceof Error ? err.message : 'Failed to update folder');
+      return false;
     }
   }, [loadFolders]);
   
@@ -153,21 +180,25 @@ export function useTemplateFolders() {
         throw new Error(response.error || 'Failed to create folder');
       }
       
+      // Add the type field to the new folder
+      const folderWithType = {
+        ...response.folder,
+        templates: [],
+        type: 'user'
+      };
+      
       // Store the newly created folder for reference
-      setLastCreatedFolder(response.folder);
+      setLastCreatedFolder(folderWithType);
       
       // Add optimistic update to local state
-      setUserFolders(prev => [...prev, {
-        ...response.folder,
-        templates: []
-      }]);
+      setUserFolders(prev => [...prev, folderWithType]);
       
       // Refresh folders to ensure data consistency
       await loadFolders();
       
       toast.success('Folder created successfully');
       
-      return response.folder;
+      return folderWithType;
     } catch (err) {
       console.error('Error creating folder:', err);
       toast.error(err instanceof Error ? err.message : 'Failed to create folder');

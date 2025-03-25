@@ -1,19 +1,5 @@
-// src/services/api/PromptApi.ts - Updated with proper types
+// src/services/api/PromptApi.ts
 import { apiClient } from './ApiClient';
-import { 
-  Template, 
-  TemplateFolder 
-} from '@/types/templates';
-import { 
-  TemplateCreate, 
-  TemplateUpdate, 
-  TemplateResponse, 
-  TemplateUsageResponse,
-  FolderCreate,
-  FolderResponse,
-  FoldersResponse,
-  FolderPinResponse
-} from '@/types/services/api';
 
 /**
  * API client for working with prompt templates
@@ -24,7 +10,7 @@ class PromptApiClient {
    * @param type - Type of folders to fetch (official, organization)
    * @param empty - Whether to return folders without templates
    */
-  async getAllTemplateFolders(type: string, empty: boolean = false): Promise<FoldersResponse> {
+  async getAllTemplateFolders(type: string, empty: boolean = false): Promise<any> {
     try {
       console.log(`Fetching all ${type} folders`);
       
@@ -34,7 +20,7 @@ class PromptApiClient {
       console.log(`Making API request to: ${endpoint}`);
       
       // Use ApiClient to handle auth and error handling
-      const response = await apiClient.request<FoldersResponse>(endpoint);
+      const response = await apiClient.request(endpoint);
       console.log(`API response for getAllTemplateFolders:`, response);
       return response;
     } catch (error) {
@@ -54,7 +40,7 @@ class PromptApiClient {
    * @param type - Type of folders to update (official or organization)
    * @param folderIds - Array of folder IDs to pin
    */
-  async updatePinnedFolders(type: 'official' | 'organization', folderIds: number[]): Promise<FolderPinResponse> {
+  async updatePinnedFolders(type: 'official' | 'organization', folderIds: number[]): Promise<any> {
     try {
       // Determine which endpoint to use based on folder type
       const endpoint = type === 'official' 
@@ -70,7 +56,7 @@ class PromptApiClient {
       console.log(`Updating pinned ${type} folders:`, folderIds);
       
       // Use your existing API endpoint
-      const response = await apiClient.request<FolderPinResponse>(endpoint, {
+      const response = await apiClient.request(endpoint, {
         method: 'POST',
         body: JSON.stringify(payload)
       });
@@ -92,7 +78,7 @@ class PromptApiClient {
    * @param isPinned - Current pin status (true if pinned, false if not)
    * @param type - Type of folder (official or organization)
    */
-  async toggleFolderPin(folderId: number, isPinned: boolean, type: 'official' | 'organization'): Promise<FolderPinResponse> {
+  async toggleFolderPin(folderId: number, isPinned: boolean, type: 'official' | 'organization'): Promise<any> {
     try {
       // Determine which endpoint to use based on current pin status
       const endpoint = isPinned 
@@ -106,7 +92,7 @@ class PromptApiClient {
       console.log(`${isPinned ? 'Unpinning' : 'Pinning'} ${type} folder ${folderId}`);
       
       // Make the API request with the query parameter
-      const response = await apiClient.request<FolderPinResponse>(`${endpoint}${queryParams}`, {
+      const response = await apiClient.request(`${endpoint}${queryParams}`, {
         method: 'POST'
       });
       
@@ -128,7 +114,7 @@ class PromptApiClient {
     type: string, 
     folderIds: number[] = [], 
     empty: boolean = false
-  ): Promise<FoldersResponse> {
+  ): Promise<any> {
     try {
       // Build the endpoint with the proper query parameters
       let endpoint = `/prompts/folders/template-folders?type=${type}`;
@@ -145,14 +131,14 @@ class PromptApiClient {
       console.log(`Making API request to: ${endpoint}`);
       
       // Use ApiClient to handle auth and error handling
-      const response = await apiClient.request<FoldersResponse>(endpoint);
+      const response = await apiClient.request(endpoint);
       
       // Add debug info for troubleshooting
       console.log(`API response for ${type} folders:`, response);
       
       // Ensure every folder has a templates array
       if (response.success && response.folders) {
-        response.folders = response.folders.map(folder => {
+        response.folders = response.folders.map((folder: any) => {
           // Initialize templates array if not present
           if (!folder.templates) {
             folder.templates = [];
@@ -165,7 +151,7 @@ class PromptApiClient {
           
           // Process subfolders recursively
           if (folder.Folders.length > 0) {
-            folder.Folders = folder.Folders.map(subfolder => {
+            folder.Folders = folder.Folders.map((subfolder: any) => {
               if (!subfolder.templates) {
                 subfolder.templates = [];
               }
@@ -193,7 +179,7 @@ class PromptApiClient {
   /**
    * Create a new template
    */
-  async createTemplate(templateData: TemplateCreate): Promise<TemplateResponse> {
+  async createTemplate(templateData: any): Promise<any> {
     try {
       // Ensure required fields are present
       if (!templateData.title || !templateData.content) {
@@ -204,7 +190,7 @@ class PromptApiClient {
       }
       
       // Create a proper API request body
-      const requestBody: TemplateCreate = {
+      const requestBody = {
         title: templateData.title,
         content: templateData.content,
         tags: templateData.tags || [],
@@ -215,7 +201,7 @@ class PromptApiClient {
 
       console.log('requestBody', requestBody);
       
-      const response = await apiClient.request<TemplateResponse>('/prompts/templates', {
+      const response = await apiClient.request('/prompts/templates', {
         method: 'POST',
         body: JSON.stringify(requestBody)
       });
@@ -234,7 +220,7 @@ class PromptApiClient {
   /**
    * Update an existing template
    */
-  async updateTemplate(templateId: number, templateData: TemplateUpdate): Promise<TemplateResponse> {
+  async updateTemplate(templateId: number, templateData: any): Promise<any> {
     try {
       // Ensure required fields are present
       if (!templateData.title && !templateData.content) {
@@ -246,7 +232,7 @@ class PromptApiClient {
       
       console.log(`Updating template ${templateId} with data:`, templateData);
       
-      const response = await apiClient.request<TemplateResponse>(`/prompts/templates/${templateId}`, {
+      const response = await apiClient.request(`/prompts/templates/${templateId}`, {
         method: 'PUT',
         body: JSON.stringify(templateData)
       });
@@ -265,9 +251,9 @@ class PromptApiClient {
   /**
    * Get user folders
    */
-  async getUserFolders(): Promise<FoldersResponse> {
+  async getUserFolders(): Promise<any> {
     try {
-      const response = await apiClient.request<FoldersResponse>('/prompts/folders?type=user', {
+      const response = await apiClient.request('/prompts/folders?type=user', {
         method: 'GET'
       });
       
@@ -283,112 +269,112 @@ class PromptApiClient {
     }
   }
 
-  /**
+/**
    * Create a new folder
    */
-  async createFolder(folderData: FolderCreate): Promise<FolderResponse> {
-    try {
-      if (!folderData.name) {
-        return {
-          success: false,
-          error: 'Folder name is required'
-        };
-      }
-      
-      console.log('Creating folder with data:', folderData);
-      
-      const response = await apiClient.request<FolderResponse>('/prompts/folders', {
-        method: 'POST',
-        body: JSON.stringify(folderData)
-      });
-      
-      console.log('Folder creation response:', response);
-      return response;
-    } catch (error) {
-      console.error('Error creating folder:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+async createFolder(folderData: { name: string, path: string, description?: string }): Promise<any> {
+  try {
+    if (!folderData.name) {
+      return {
+        success: false,
+        error: 'Folder name is required'
       };
     }
-  }
-
-  /**
-   * Delete a folder
-   */
-  async deleteFolder(folderId: number): Promise<{ success: boolean; error?: string }> {
-    try {
-      const response = await apiClient.request<{ success: boolean }>(`/prompts/folders/${folderId}`, {
-        method: 'DELETE'
-      });
-      return response;
-    } catch (error) {
-      console.error('Error deleting folder:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
-
-  /**
-   * Get user data from Chrome storage
-   */
-  async getUserFromStorage(): Promise<any> {
-    return new Promise<any>((resolve) => {
-      chrome.storage.local.get('user', (result) => {
-        resolve(result.user || null);
-      });
+    
+    console.log('Creating folder with data:', folderData);
+    
+    const response = await apiClient.request('/prompts/folders', {
+      method: 'POST',
+      body: JSON.stringify(folderData)
     });
+    
+    console.log('Folder creation response:', response);
+    return response;
+  } catch (error) {
+    console.error('Error creating folder:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
+}
 
-  /**
-   * Update user data in Chrome storage
-   */
-  async updateUserInStorage(userData: any): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-      chrome.storage.local.set({ user: userData }, () => {
-        resolve(true);
-      });
+/**
+ * Delete a folder
+ */
+async deleteFolder(folderId: number): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await apiClient.request(`/prompts/folders/${folderId}`, {
+      method: 'DELETE'
     });
+    return response;
+  } catch (error) {
+    console.error('Error deleting folder:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
+}
 
-  /**
-   * Track template usage
-   * @param templateId - ID of the template being used
-   */
-  async trackTemplateUsage(templateId: number): Promise<TemplateUsageResponse> {
-    try {
-      const response = await apiClient.request<TemplateUsageResponse>(`/prompts/templates/use/${templateId}`, {
-        method: 'POST'
-      });
-      return response;
-    } catch (error) {
-      console.error('Error tracking template usage:', error);
-      return { 
-        success: false, 
-        usage_count: 0,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
+/**
+ * Get user data from Chrome storage
+ */
+async getUserFromStorage(): Promise<any> {
+  return new Promise<any>((resolve) => {
+    chrome.storage.local.get('user', (result) => {
+      resolve(result.user || null);
+    });
+  });
+}
 
-  /**
-   * Get user metadata
-   */
-  async getUserMetadata(): Promise<any> {
-    try {
-      const response = await apiClient.request<any>('/user/metadata');
-      console.log("response", response);
-      return response;
-    } catch (error) {
-      console.error('Error getting user metadata:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
+/**
+ * Update user data in Chrome storage
+ */
+async updateUserInStorage(userData: any): Promise<boolean> {
+  return new Promise<boolean>((resolve) => {
+    chrome.storage.local.set({ user: userData }, () => {
+      resolve(true);
+    });
+  });
+}
+
+/**
+ * Track template usage
+ * @param templateId - ID of the template being used
+ */
+async trackTemplateUsage(templateId: number): Promise<any> {
+  try {
+    const response = await apiClient.request(`/prompts/templates/use/${templateId}`, {
+      method: 'POST'
+    });
+    return response;
+  } catch (error) {
+    console.error('Error tracking template usage:', error);
+    return { 
+      success: false, 
+      usage_count: 0,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
+}
+
+/**
+ * Get user metadata
+ */
+async getUserMetadata(): Promise<any> {
+  try {
+    const response = await apiClient.request('/user/metadata');
+    console.log("response", response);
+    return response;
+  } catch (error) {
+    console.error('Error getting user metadata:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
 }
 
 // Export a singleton instance

@@ -7,6 +7,7 @@ export interface BaseDialogProps {
   title?: string;
   description?: string;
   className?: string;
+  children?: React.ReactNode;
 }
 
 /**
@@ -26,6 +27,8 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
         className={className} 
         onClick={(e) => e.stopPropagation()}
       >
+        {title && <h2 className="dialog-title">{title}</h2>}
+        {description && <p className="dialog-description">{description}</p>}
         {children}
       </DialogContent>
     </Dialog>

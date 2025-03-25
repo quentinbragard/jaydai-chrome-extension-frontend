@@ -1,3 +1,5 @@
+// src/core/events/EventManager.ts
+
 import { eventBus } from './EventBus';
 import { AppEvent, EventPayloads } from './events';
 

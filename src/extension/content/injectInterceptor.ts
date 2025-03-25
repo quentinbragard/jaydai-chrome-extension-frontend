@@ -1,8 +1,5 @@
 // src/extension/content/injectInterceptor.ts
-import { chatService } from '@/services/chat/ChatNetworkService';
-import { userInfoService } from '@/services/user/UserInfoService';
 
-import { messageService } from '@/services/MessageService';
 import { emitEvent, AppEvent } from '@/core/events/events';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
@@ -84,12 +81,16 @@ function setupInterceptListener(): void {
 function handleUserInfo(data: any): void {
   try {
     if (data && data.responseBody) {
-      // Use the userInfoService instead of userHandler
-      userInfoService.handleUserInfoCapture(data.responseBody);
-      
-      // Emit an event for other components
-      emitEvent(AppEvent.USER_INFO_UPDATED, {
-        email: data.responseBody.email
+      // Import dynamically to avoid direct dependency
+      import('@/services/user/UserProfileService').then(({ userProfileService }) => {
+        userProfileService.handleUserInfoCapture(data.responseBody);
+        
+        // Emit an event for other components
+        emitEvent(AppEvent.USER_INFO_UPDATED, {
+          email: data.responseBody.email
+        });
+      }).catch(error => {
+        console.error('Error importing UserProfileService:', error);
       });
     }
   } catch (error) {
@@ -105,17 +106,22 @@ function handleUserInfo(data: any): void {
 function handleConversationList(data: any): void {
   try {
     if (data && data.responseBody) {
-      // Process the conversation list data with chatService
+      // Process the conversation list data
       const conversations = extractConversations(data.responseBody);
       
-      // Add each conversation to the chat service
-      conversations.forEach(conversation => {
-        chatService.addConversation(conversation);
-      });
-      
-      // Emit an event for other components
-      emitEvent(AppEvent.CONVERSATION_LIST_UPDATED, {
-        count: conversations.length
+      // Use dynamic import to avoid direct dependency
+      import('@/services/chat/ChatNetworkService').then(({ chatService }) => {
+        // Add each conversation to the chat service
+        conversations.forEach(conversation => {
+          chatService.addConversation(conversation);
+        });
+        
+        // Emit an event for other components
+        document.dispatchEvent(new CustomEvent('conversation-list-updated', {
+          detail: { conversations }
+        }));
+      }).catch(error => {
+        console.error('Error importing ChatNetworkService:', error);
       });
     }
   } catch (error) {
@@ -147,22 +153,25 @@ function extractConversations(responseBody: any): any[] {
  */
 function handleSpecificConversation(data: any): void {
   try {
-    // We can keep using chatService temporarily
-    // until it's fully migrated to the chat service
-    chatService.processSpecificConversation(data);
-    
-    // Extract the conversation ID for current chat tracking
-    if (data && data.responseBody && data.responseBody.conversation_id) {
-      const conversationId = data.responseBody.conversation_id;
+    // Use dynamic import to avoid direct dependency
+    import('@/services/chat/ChatNetworkService').then(({ chatService }) => {
+      chatService.processSpecificConversation(data);
       
-      // Update the current conversation ID in the chat service
-      chatService.setCurrentConversationId(conversationId);
-      
-      // Emit an event about the conversation change
-      emitEvent(AppEvent.CHAT_CONVERSATION_CHANGED, {
-        conversationId
-      });
-    }
+      // Extract the conversation ID for current chat tracking
+      if (data && data.responseBody && data.responseBody.conversation_id) {
+        const conversationId = data.responseBody.conversation_id;
+        
+        // Update the current conversation ID in the chat service
+        chatService.setCurrentConversationId(conversationId);
+        
+        // Emit an event about the conversation change
+        emitEvent(AppEvent.CHAT_CONVERSATION_CHANGED, {
+          conversationId
+        });
+      }
+    }).catch(error => {
+      console.error('Error importing ChatNetworkService:', error);
+    });
   } catch (error) {
     errorReporter.captureError(
       new AppError('Error processing specific conversation', ErrorCode.API_ERROR, error)
@@ -182,27 +191,35 @@ async function handleChatCompletion(data: any): Promise<void> {
       const userMessage = extractUserMessage(requestBody);
       
       if (userMessage) {
-        // Use messageService to process the user message
-        messageService.processMessage({
-          messageId: userMessage.id,
-          conversationId: requestBody.conversation_id || null,
-          content: userMessage.content,
-          role: 'user',
-          timestamp: Date.now(),
-          model: requestBody.model || userMessage.model
+        // Use dynamic import to avoid direct dependency
+        import('@/services/MessageService').then(({ messageService }) => {
+          messageService.processMessage({
+            messageId: userMessage.id,
+            conversationId: requestBody.conversation_id || null,
+            content: userMessage.content,
+            role: 'user',
+            timestamp: Date.now(),
+            model: requestBody.model || userMessage.model
+          });
+          
+          // Emit an event for the sent message
+          emitEvent(AppEvent.CHAT_MESSAGE_SENT, {
+            messageId: userMessage.id,
+            content: userMessage.content,
+            conversationId: requestBody.conversation_id || null
+          });
+          
+          // Update current conversation ID if available
+          if (requestBody.conversation_id) {
+            import('@/services/chat/ChatNetworkService').then(({ chatService }) => {
+              chatService.setCurrentConversationId(requestBody.conversation_id);
+            }).catch(error => {
+              console.error('Error importing ChatNetworkService:', error);
+            });
+          }
+        }).catch(error => {
+          console.error('Error importing MessageService:', error);
         });
-        
-        // Emit an event for the sent message
-        emitEvent(AppEvent.CHAT_MESSAGE_SENT, {
-          messageId: userMessage.id,
-          content: userMessage.content,
-          conversationId: requestBody.conversation_id || null
-        });
-        
-        // Update current conversation ID if available
-        if (requestBody.conversation_id) {
-          chatService.setCurrentConversationId(requestBody.conversation_id);
-        }
       }
     }
   } catch (error) {
@@ -221,28 +238,36 @@ function handleAssistantResponse(data: any): void {
       return;
     }
     
-    // Use messageService to process the assistant response
-    messageService.processMessage({
-      messageId: data.messageId,
-      conversationId: data.conversationId || null,
-      content: data.content,
-      role: 'assistant',
-      timestamp: data.createTime || Date.now(),
-      model: data.model || 'unknown'
+    // Use dynamic import to avoid direct dependency
+    import('@/services/MessageService').then(({ messageService }) => {
+      messageService.processMessage({
+        messageId: data.messageId,
+        conversationId: data.conversationId || null,
+        content: data.content,
+        role: 'assistant',
+        timestamp: data.createTime || Date.now(),
+        model: data.model || 'unknown'
+      });
+      
+      // Emit an event for the received message
+      emitEvent(AppEvent.CHAT_MESSAGE_RECEIVED, {
+        messageId: data.messageId,
+        content: data.content,
+        role: 'assistant',
+        conversationId: data.conversationId || null
+      });
+      
+      // Update the current conversation ID if available
+      if (data.conversationId) {
+        import('@/services/chat/ChatNetworkService').then(({ chatService }) => {
+          chatService.setCurrentConversationId(data.conversationId);
+        }).catch(error => {
+          console.error('Error importing ChatNetworkService:', error);
+        });
+      }
+    }).catch(error => {
+      console.error('Error importing MessageService:', error);
     });
-    
-    // Emit an event for the received message
-    emitEvent(AppEvent.CHAT_MESSAGE_RECEIVED, {
-      messageId: data.messageId,
-      content: data.content,
-      role: 'assistant',
-      conversationId: data.conversationId || null
-    });
-    
-    // Update the current conversation ID if available
-    if (data.conversationId) {
-      chatService.setCurrentConversationId(data.conversationId);
-    }
   } catch (error) {
     errorReporter.captureError(
       new AppError('Error processing assistant response', ErrorCode.API_ERROR, error)

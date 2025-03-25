@@ -33,8 +33,7 @@ const StatsChart: React.FC<StatsChartProps> = ({
   type = 'bar',
   color = "#3b82f6",
   showLegend = false,
-  showGrid = true,
-  height = 300
+  showGrid = true
 }) => {
   // Format data for recharts
   const chartData = data.labels.map((label, index) => ({
@@ -154,9 +153,11 @@ const StatsChart: React.FC<StatsChartProps> = ({
                 innerRadius={type === 'doughnut' ? 40 : 0}
                 dataKey="value"
                 nameKey="name"
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }: { name: string; percent: number }) => 
+                  `${name}: ${(percent * 100).toFixed(0)}%`
+                }
               >
-                {chartData.map((entry, index) => (
+                {chartData.map((_entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
                     fill={colors[index % colors.length]} 

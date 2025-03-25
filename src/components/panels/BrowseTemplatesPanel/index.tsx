@@ -19,7 +19,6 @@ import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 
 interface BrowseTemplatesPanelProps {
   folderType: 'official' | 'organization';
-  pinnedFolderIds: number[];
   onPinChange?: (folderId: number, isPinned: boolean) => Promise<void>;
   onBackToTemplates: () => void;
   maxHeight?: string;
@@ -31,7 +30,6 @@ interface BrowseTemplatesPanelProps {
  */
 const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
   folderType,
-  pinnedFolderIds = [],
   onBackToTemplates,
   maxHeight = '400px'
 }) => {

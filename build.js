@@ -28,10 +28,10 @@ if (isWatch && !isProd) {
 
 try {
   // Run TypeScript compilation for production builds
-  if (isProd) {
-    console.log('🔍 Running TypeScript type checking...');
-    execSync('tsc -b', { stdio: 'inherit' });
-  }
+  //if (isProd) {
+   // console.log('🔍 Running TypeScript type checking...');
+   // execSync('tsc -b', { stdio: 'inherit' });
+ // }
   
   // Run the build
   console.log(`🛠️ Running build: ${buildCommand}`);

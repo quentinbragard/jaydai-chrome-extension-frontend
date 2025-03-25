@@ -1,15 +1,16 @@
 // src/components/NotificationsPanel/NotificationItem.tsx
 import React from 'react';
-import { Notification, notificationService } from '@/services/notifications/NotificationService';
+import { notificationService } from '@/services/notifications/NotificationService';
+import { NotificationBase } from '@/types/notifications';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Trash2, Check, ExternalLink } from 'lucide-react';
 
 interface NotificationItemProps {
-  notification: Notification;
-  onDismiss: (notification: Notification, e: React.MouseEvent) => Promise<void>;
-  onDelete: (notification: Notification, e: React.MouseEvent) => Promise<void>;
-  onActionClick: (notification: Notification) => Promise<void>;
+  notification: NotificationBase;
+  onDismiss: (notification: NotificationBase, e: React.MouseEvent) => Promise<void>;
+  onDelete: (notification: NotificationBase, e: React.MouseEvent) => Promise<void>;
+  onActionClick: (notification: NotificationBase) => Promise<void>;
 }
 
 const NotificationItem: React.FC<NotificationItemProps> = ({

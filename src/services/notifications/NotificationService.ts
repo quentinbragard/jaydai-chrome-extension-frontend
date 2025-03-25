@@ -1,24 +1,39 @@
-// src/services/notifications/NotificationService.ts
+// src/services/notifications/NotificationService.ts - partial fix for the most critical issues
+
 import { AbstractBaseService } from '../BaseService';
 import { notificationApi } from "@/services/api/NotificationApi";
 import { toast } from "sonner";
 import { emitEvent, AppEvent } from '@/core/events/events';
 import { debug } from '@/core/config';
-import { 
-  NotificationBase, 
-  NotificationActionMetadata,
-} from '@/types/services/notifications';
+
+// Interface for notifications
+export interface Notification {
+  id: string | number;
+  type: string;
+  title: string;
+  body: string;
+  metadata?: string | any;
+  created_at: string;
+  read_at?: string | null;
+}
+
+// Interface for notification action metadata
+export interface NotificationActionMetadata {
+  action_type: string;
+  action_title_key: string;
+  action_url?: string;
+}
 
 /**
  * Service to manage notifications
  */
 export class NotificationService extends AbstractBaseService {
   private static instance: NotificationService;
-  private notifications: NotificationBase[] = [];
+  private notifications: Notification[] = [];
   private isLoading: boolean = false;
   private lastLoadTime: number = 0;
   private pollingInterval: number | null = null;
-  private updateCallbacks: ((notifications: NotificationBase[]) => void)[] = [];
+  private updateCallbacks: ((notifications: Notification[]) => void)[] = [];
   private unreadCount: number = 0;
   
   private constructor() {
@@ -66,7 +81,7 @@ export class NotificationService extends AbstractBaseService {
   /**
    * Load notifications from backend
    */
-  public async loadNotifications(forceRefresh = false): Promise<NotificationBase[]> {
+  public async loadNotifications(forceRefresh = false): Promise<Notification[]> {
     // Skip if we've loaded recently (within 1 minute) and not forcing refresh
     const now = Date.now();
     if (!forceRefresh && this.lastLoadTime > 0 && now - this.lastLoadTime < 600000) {
@@ -80,7 +95,6 @@ export class NotificationService extends AbstractBaseService {
     
     this.isLoading = true;
 
-  
     try {
       debug('🔔 Loading notifications...');
       
@@ -124,21 +138,21 @@ export class NotificationService extends AbstractBaseService {
   /**
    * Get all notifications
    */
-  public getNotifications(): NotificationBase[] {
+  public getNotifications(): Notification[] {
     return [...this.notifications];
   }
   
   /**
    * Get unread notifications
    */
-  public getUnreadNotifications(): NotificationBase[] {
+  public getUnreadNotifications(): Notification[] {
     return this.notifications.filter(n => !n.read_at);
   }
   
   /**
    * Get a notification by ID
    */
-  public getNotification(id: string | number): NotificationBase | undefined {
+  public getNotification(id: string | number): Notification | undefined {
     return this.notifications.find(n => n.id === id);
   }
   
@@ -241,8 +255,6 @@ export class NotificationService extends AbstractBaseService {
     }
   }
   
- 
-  
   /**
    * Create and show a new notification (client-side only)
    */
@@ -302,7 +314,7 @@ export class NotificationService extends AbstractBaseService {
    * Register for notification updates
    * @returns Cleanup function
    */
-  public onNotificationsUpdate(callback: (notifications: NotificationBase[]) => void): () => void {
+  public onNotificationsUpdate(callback: (notifications: Notification[]) => void): () => void {
     this.updateCallbacks.push(callback);
     
     // Call immediately with current notifications
@@ -351,6 +363,27 @@ export class NotificationService extends AbstractBaseService {
   }
 
   /**
+   * Parse metadata safely without throwing
+   */
+  public parseMetadataSafe(metadata: string | null | any): NotificationActionMetadata | null {
+    try {
+      if (!metadata) return null;
+
+      // If metadata is already an object, validate it
+      if (typeof metadata === 'object') {
+        return this.validateMetadata(metadata);
+      }
+      
+      // Parse string metadata to object
+      const parsedMetadata = JSON.parse(metadata);
+      return this.validateMetadata(parsedMetadata);
+    } catch (error) {
+      debug('❌ Error parsing notification metadata:', error);
+      return null;
+    }
+  }
+
+  /**
    * Validate notification action metadata
    */
   private validateMetadata(data: Record<string, unknown>): NotificationActionMetadata | null {
@@ -381,49 +414,14 @@ export class NotificationService extends AbstractBaseService {
   }
 
   /**
-   * Parse metadata string into structured object with validation
-   */
-  private parseMetadata(metadata: string | null): NotificationActionMetadata | null {
-    console.log("metadata", metadata);
-    console.log("typeof metadata", typeof metadata);
-    if (!metadata) return null;
-
-    try {
-      // Parse metadata string to object
-      const parsedMetadata = typeof metadata === 'string' 
-        ? JSON.parse(metadata) as Record<string, unknown>
-        : metadata as Record<string, unknown>;
-        
-      // Validate the structure  
-      return this.validateMetadata(parsedMetadata);
-    } catch (error) {
-      debug('❌ Error parsing notification metadata:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Parse metadata safely without throwing
-   */
-  public parseMetadataSafe(metadata: string | null): NotificationActionMetadata | null {
-    try {
-      return this.parseMetadata(metadata);
-    } catch (error) {
-      return null;
-    }
-  }
-
-  /**
    * Get action button details for a notification
    */
-  public getActionButton(notification: NotificationBase): { title: string; visible: boolean } | null {
-    console.log("notification", notification);
+  public getActionButton(notification: Notification): { title: string; visible: boolean } | null {
     if (!notification.metadata) {
       return null;
     }
     
-    const metadata = this.parseMetadata(notification.metadata);
-    console.log("metadata", metadata);
+    const metadata = this.parseMetadataSafe(notification.metadata);
     if (!metadata) {
       return null;
     }
@@ -449,7 +447,7 @@ export class NotificationService extends AbstractBaseService {
       await this.markAsRead(id);
       
       // Parse metadata if present
-      const metadata = this.parseMetadata(notification.metadata);
+      const metadata = this.parseMetadataSafe(notification.metadata);
       
       // If we have metadata with action type, handle it accordingly
       if (metadata && metadata.action_type) {

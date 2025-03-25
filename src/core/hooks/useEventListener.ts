@@ -1,5 +1,4 @@
 // src/core/hooks/useEventListener.ts
-
 import { useEffect, useRef } from 'react';
 import { onEvent, AppEvent, EventPayloads } from '../events/events';
 
@@ -30,5 +29,6 @@ export function useEventListener<T extends AppEvent>(
     
     // Clean up
     return unsubscribe;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event, ...deps]);
 }

@@ -45,8 +45,9 @@ export interface Template {
   export interface TemplateFolder {
     id: number;
     name: string;
+    type: "official" | "organization" | "user";
     description?: string;
-    templates: Template[];
+    templates: Template[]; 
     Folders?: TemplateFolder[];
     is_pinned?: boolean;
     path?: string;

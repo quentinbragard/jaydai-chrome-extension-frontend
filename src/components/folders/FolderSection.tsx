@@ -1,8 +1,7 @@
 // src/components/templates/FolderSection.tsx
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { BookTemplate, Users, Folder, PlusCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TemplateFolder } from '@/types/templates';
 import { getMessage } from '@/core/utils/i18n';
 
 interface FolderSectionProps {

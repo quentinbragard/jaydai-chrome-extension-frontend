@@ -18,7 +18,7 @@ export const DialogManagerContext = createContext<DialogManagerContextType | nul
 // Define the global window interface to expose dialogManager
 declare global {
   interface Window {
-    dialogManager: {
+    dialogManager?: {
       openDialog: <T extends DialogType>(type: T, data?: DialogProps[T]) => void;
       closeDialog: (type: DialogType) => void;
     };
@@ -132,7 +132,7 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
   // Dialog management functions
   const openDialog = useCallback(<T extends DialogType>(type: T, data?: DialogProps[T]) => {
     console.log(`Opening dialog: ${type}`, data);
-    setOpenDialogs(prev => ({ ...prev, [type]: true }));
+    setOpenDialogs((prev: Record<DialogType, boolean>) => ({ ...prev, [type]: true }));
     if (data !== undefined) {
       setDialogData(prev => ({ ...prev, [type]: data }));
     }
@@ -140,7 +140,7 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
   
   const closeDialog = useCallback((type: DialogType) => {
     console.log(`Closing dialog: ${type}`);
-    setOpenDialogs(prev => ({ ...prev, [type]: false }));
+    setOpenDialogs((prev: Record<DialogType, boolean>) => ({ ...prev, [type]: false }));
   }, []);
   
   const isDialogOpen = useCallback((type: DialogType): boolean => {
@@ -184,7 +184,8 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
       if (window.dialogManager) {
         // Only delete if our functions were assigned
         if (window.dialogManager.openDialog === openDialog) {
-          delete window.dialogManager;
+          // Instead of deleting the object, set to undefined
+          window.dialogManager = undefined;
           console.log('window.dialogManager cleaned up');
         } else {
           console.log('Not cleaning up window.dialogManager as it was overridden');

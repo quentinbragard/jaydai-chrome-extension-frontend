@@ -1,7 +1,7 @@
 // src/components/panels/StatsPanel/index.tsx
 
 import React, { useState, useEffect } from 'react';
-import { BarChart2, Zap, MessageCircle, Award, RefreshCw, Activity, ChevronUp, ChevronDown } from "lucide-react";
+import { BarChart2, Zap, MessageCircle, Award, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useService } from '@/core/hooks/useService';
 import { Stats, StatsService } from '@/services/analytics/StatsService';
@@ -29,7 +29,6 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
   className, 
   maxHeight = '400px'
 }) => {
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const statsService = useService<StatsService>('stats');
   const [stats, setStats] = useState<Stats>({
     totalChats: 0,

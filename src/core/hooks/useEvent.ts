@@ -1,3 +1,4 @@
+// src/core/hooks/useEvent.ts
 import { useEffect } from 'react';
 import { eventManager } from '../events/EventManager';
 import { AppEvent, EventPayloads } from '../events/events';
@@ -16,7 +17,8 @@ export function useEvent<T extends AppEvent>(
     
     // Clean up subscription on unmount
     return unsubscribe;
-  }, [event, ...deps]); // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event, ...deps]); 
 }
 
 /**

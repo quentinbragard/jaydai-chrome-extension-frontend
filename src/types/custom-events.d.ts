@@ -4,16 +4,16 @@
  */
 
 interface ArchimindEventMap {
-    // Network and intercept events
     'archimind-network-intercept': CustomEvent<{
-      type: string;
-      data: any;
-    }>;
-    
-    // Message events
-    'archimind:message-extracted': CustomEvent<{
-      message: import('./services/message').Message;
-    }>;
+        type: string;
+        data: any;
+      }>;
+      
+      // Message events
+      'archimind:message-extracted': CustomEvent<{
+        message: import('./services/message').Message;
+      }>;
+      
     'archimind:queue-message': CustomEvent<{
       message: import('./services/message').Message;
     }>;

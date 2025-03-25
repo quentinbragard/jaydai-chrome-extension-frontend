@@ -32,7 +32,6 @@ export const TemplateDialog: React.FC = () => {
   
   // Get the appropriate data based on which dialog is open
   const data = createDialog.isOpen ? createDialog.data : editDialog.data;
-  const dialogType = createDialog.isOpen ? DIALOG_TYPES.CREATE_TEMPLATE : DIALOG_TYPES.EDIT_TEMPLATE;
   
   // Local state for form data 
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);

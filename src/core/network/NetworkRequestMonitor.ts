@@ -1,4 +1,4 @@
-// src/utils/NetworkRequestMonitor.ts
+// src/core/network/NetworkRequestMonitor.ts
 
 /**
  * Simple interface for network event listeners
@@ -61,10 +61,11 @@ export class NetworkRequestMonitor {
     // Also notify URL-pattern listeners if URL is present
     if (data?.url) {
       this.listeners.forEach((callbacks, pattern) => {
+        const patternObj = pattern as unknown;
         if (typeof pattern === 'string' && data.url.includes(pattern)) {
           this.notifyListeners(pattern, data);
-        } else if (pattern instanceof RegExp && pattern.test(data.url)) {
-          this.notifyListeners(pattern.toString(), data);
+        } else if (patternObj instanceof RegExp && patternObj.test(data.url)) {
+          this.notifyListeners(patternObj.toString(), data);
         }
       });
     }
@@ -117,7 +118,9 @@ export class NetworkRequestMonitor {
     if (!this.isInitialized) return;
     
     document.removeEventListener('archimind-network-intercept', this.boundEventHandler as EventListener);
-    chrome.runtime.sendMessage({ action: 'stop-network-monitoring' });
+    if (chrome && chrome.runtime) {
+      chrome.runtime.sendMessage({ action: 'stop-network-monitoring' });
+    }
     
     this.listeners.clear();
     this.isInitialized = false;

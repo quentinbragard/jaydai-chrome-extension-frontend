@@ -101,7 +101,6 @@ export function FolderItem({
         folder={folder}
         isExpanded={isExpanded}
         onToggle={toggleExpansion}
-        templateCount={templates.length}
         actionButtons={actionButtons}
       />
       
@@ -114,7 +113,6 @@ export function FolderItem({
               key={`template-${template.id}`}
               template={template}
               type={type}
-              onUseTemplate={onUseTemplate}
             />
           ))}
           

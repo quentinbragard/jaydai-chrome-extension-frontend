@@ -40,6 +40,10 @@ export enum AppEvent {
 
     // User info events
     USER_INFO_UPDATED = 'user:info:updated',
+
+    STATS_UPDATED = 'stats_updated',
+    CONVERSATION_LIST_UPDATED = 'conversation_list_updated',
+
   }
   
   /**
@@ -72,6 +76,9 @@ export enum AppEvent {
     [AppEvent.EXTENSION_ERROR]: { message: string; stack?: string };
 
     [AppEvent.USER_INFO_UPDATED]: { email: string; name?: string };
+
+    [AppEvent.STATS_UPDATED]: { stats: any };
+    [AppEvent.CONVERSATION_LIST_UPDATED]: { conversations: any[] };
   }
   
   /**

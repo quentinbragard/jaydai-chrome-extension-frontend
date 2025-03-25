@@ -1,12 +1,12 @@
 // src/components/NotificationsPanel/NotificationActionButton.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, AlertCircle } from 'lucide-react';
-import { Notification, notificationService } from '@/services/notifications/NotificationService';
+import { ExternalLink } from 'lucide-react';
+import { NotificationBase, notificationService } from '@/services/notifications/NotificationService';
 
 interface NotificationActionButtonProps {
-  notification: Notification;
-  onClick: (notification: Notification) => Promise<void>;
+  notification: NotificationBase;
+  onClick: (notification: NotificationBase) => Promise<void>;
   className?: string;
 }
 

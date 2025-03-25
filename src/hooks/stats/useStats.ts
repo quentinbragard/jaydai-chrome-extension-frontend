@@ -1,21 +1,21 @@
+// src/hooks/stats/useStats.ts
+
 import { useState, useEffect, useCallback } from 'react';
-import { Stats, StatsFilterOptions } from '@/types/stats';
 import { useService } from '@/core/hooks/useService';
-import { StatsService } from '@/services/analytics/StatsService';
 
 /**
  * Hook for accessing and manipulating stats data
  */
-export function useStats(defaultFilters?: StatsFilterOptions) {
-  const [stats, setStats] = useState<Stats | null>(null);
+export function useStats(defaultFilters?: any) {
+  const [stats, setStats] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<StatsFilterOptions>(defaultFilters || {
+  const [filters, setFilters] = useState<any>(defaultFilters || {
     timeRange: 'month'
   });
   
   // Get the stats service
-  const statsService = useService<StatsService>('stats');
+  const statsService = useService('stats');
 
   // Load stats initially and when filters change
   useEffect(() => {
@@ -30,7 +30,7 @@ export function useStats(defaultFilters?: StatsFilterOptions) {
     
     try {
       // Get current stats from service
-      const currentStats = statsService.getStats(filters);
+      const currentStats = statsService.getStats();
       setStats(currentStats);
       
       // Subscribe to updates
@@ -43,6 +43,7 @@ export function useStats(defaultFilters?: StatsFilterOptions) {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load stats');
       setLoading(false);
+      return () => {}; // Empty cleanup function
     }
   }, [statsService, filters]);
 
@@ -54,16 +55,16 @@ export function useStats(defaultFilters?: StatsFilterOptions) {
     
     setLoading(true);
     try {
-      await statsService.refreshStats(filters);
+      await statsService.refreshStats();
       setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to refresh stats');
       setLoading(false);
     }
-  }, [statsService, filters]);
+  }, [statsService]);
 
   // Update filters
-  const updateFilters = useCallback((newFilters: Partial<StatsFilterOptions>) => {
+  const updateFilters = useCallback((newFilters: any) => {
     setFilters(prev => ({
       ...prev,
       ...newFilters

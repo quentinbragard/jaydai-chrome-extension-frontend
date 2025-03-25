@@ -91,7 +91,7 @@ export class ErrorBoundary extends Component<Props, State> {
 }
 
 // Function component wrapper for easier use with hooks
-export function withErrorBoundary<P>(
+export function withErrorBoundary<P extends JSX.IntrinsicAttributes>(
   Component: React.ComponentType<P>,
   errorBoundaryProps: Omit<Props, 'children'>
 ): React.FC<P> {

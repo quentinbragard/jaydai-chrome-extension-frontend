@@ -1,5 +1,4 @@
 // src/components/templates/LoadingState.tsx
-import React from 'react';
 import { getMessage } from '@/core/utils/i18n';
 
 interface LoadingStateProps {

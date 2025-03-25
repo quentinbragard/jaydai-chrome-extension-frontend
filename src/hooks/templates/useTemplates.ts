@@ -1,9 +1,20 @@
+// src/hooks/templates/useTemplates.ts
+
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Template, TemplateFormData, DEFAULT_FORM_DATA } from '@/types/templates';
 import { useTemplateFolders } from './useTemplateFolders';
 import { useTemplateEditor } from './useTemplateEditor';
 import { toast } from 'sonner';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
+
+// Default form data with the correct structure
+const DEFAULT_FORM_DATA = {
+  name: '',
+  content: '',
+  description: '',
+  folder: '',
+  folder_id: undefined,
+  based_on_official_id: null
+};
 
 /**
  * Main templates hook that consolidates template functionality
@@ -11,8 +22,8 @@ import { DIALOG_TYPES } from '@/core/dialogs/registry';
  */
 export function useTemplates() {
   // State
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  const [templateFormData, setTemplateFormData] = useState<TemplateFormData>(DEFAULT_FORM_DATA);
+  const [selectedTemplate, setSelectedTemplate] = useState<any | null>(null);
+  const [templateFormData, setTemplateFormData] = useState(DEFAULT_FORM_DATA);
   
   // Use specialized hooks
   const folderManager = useTemplateFolders();
@@ -32,7 +43,7 @@ export function useTemplates() {
   }, [templateFormData]);
   
   // Function to update form data consistently
-  const updateFormData = useCallback((newData: TemplateFormData) => {
+  const updateFormData = useCallback((newData: any) => {
     console.log('🔄 updateFormData called with:', newData);
     setTemplateFormData(newData);
   }, []);
@@ -141,7 +152,7 @@ export function useTemplates() {
   }, [templateFormData, templateEditor, folderManager.loadFolders, updateFormData]);
   
   // Handle using a template (opening placeholder editor)
-  const handleUseTemplate = useCallback((template: Template) => {
+  const handleUseTemplate = useCallback((template: any) => {
     // Valid template check
     if (!template || !template.content) {
       console.error('❌ Invalid template selected');
@@ -198,7 +209,7 @@ export function useTemplates() {
   }, [folderManager.userFolders, updateFormData, handleSaveTemplate]);
   
   // Function to edit an existing template
-  const handleEditTemplate = useCallback((template: Template) => {
+  const handleEditTemplate = useCallback((template: any) => {
     // Valid template check
     if (!template) {
       console.error('❌ Invalid template for editing');
@@ -236,66 +247,50 @@ export function useTemplates() {
     }
   }, [folderManager.userFolders, updateFormData, handleSaveTemplate]);
 
-  // src/hooks/templates/useTemplates.ts - toggleFolderPin function with improved refresh
-
-/**
- * Toggle folder pin status with improved refresh logic
- */
-const toggleFolderPin = useCallback(async (
-  folderId: number, 
-  isPinned: boolean, 
-  type: 'official' | 'organization'
-) => {
-  try {
-    console.log(`Toggling pin for folder ${folderId}, currently ${isPinned ? 'pinned' : 'unpinned'}`);
-    
-    if (!folderId) {
-      console.error('Invalid folder ID');
-      toast.error('Invalid folder ID');
-      return false;
-    }
-    
-    // Validate folder type
-    if (type !== 'official' && type !== 'organization') {
-      console.error(`Invalid folder type: ${type}`);
-      toast.error('Invalid folder type');
-      return false;
-    }
-    
-    // Call the API via folderManager
-    const success = await folderManager.toggleFolderPin(folderId, isPinned, type);
-    
-    if (success) {
-      console.log(`Successfully ${isPinned ? 'unpinned' : 'pinned'} folder ${folderId}`);
+  /**
+   * Toggle folder pin status with improved refresh logic
+   */
+  const toggleFolderPin = useCallback(async (
+    folderId: number, 
+    isPinned: boolean, 
+    type: 'official' | 'organization'
+  ) => {
+    try {
+      console.log(`Toggling pin for folder ${folderId}, currently ${isPinned ? 'pinned' : 'unpinned'}`);
       
-      // Important: Reload folders to update UI with latest data from the server
-      await folderManager.loadFolders();
-      
-      // If we're unpinning a folder, we should update the local state immediately
-      // to ensure a more responsive UI
-      if (isPinned) {
-        if (type === 'official') {
-          setPinnedOfficialFolders(prev => 
-            prev.filter(folder => folder.id !== folderId)
-          );
-        } else if (type === 'organization') {
-          setPinnedOrganizationFolders(prev => 
-            prev.filter(folder => folder.id !== folderId)
-          );
-        }
+      if (!folderId) {
+        console.error('Invalid folder ID');
+        toast.error('Invalid folder ID');
+        return false;
       }
       
-      return true;
-    } else {
-      console.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder ${folderId}`);
+      // Validate folder type
+      if (type !== 'official' && type !== 'organization') {
+        console.error(`Invalid folder type: ${type}`);
+        toast.error('Invalid folder type');
+        return false;
+      }
+      
+      // Call the API via folderManager
+      const success = await folderManager.toggleFolderPin(folderId, isPinned, type);
+      
+      if (success) {
+        console.log(`Successfully ${isPinned ? 'unpinned' : 'pinned'} folder ${folderId}`);
+        
+        // Important: Reload folders to update UI with latest data from the server
+        await folderManager.loadFolders();
+        
+        return true;
+      } else {
+        console.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder ${folderId}`);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error in toggleFolderPin:', error);
+      toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return false;
     }
-  } catch (error) {
-    console.error('Error in toggleFolderPin:', error);
-    toast.error(`Failed to ${isPinned ? 'unpin' : 'pin'} folder: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    return false;
-  }
-}, [folderManager]);
+  }, [folderManager]);
 
   return {
     // Folders state from folderManager
@@ -322,7 +317,7 @@ const toggleFolderPin = useCallback(async (
     handleFinalizeTemplate,
     
     // Folder functions
-    toggleFolderPin: folderManager.toggleFolderPin,
+    toggleFolderPin,
     createFolder: folderManager.createFolder,
     deleteFolder: folderManager.deleteFolder,
     

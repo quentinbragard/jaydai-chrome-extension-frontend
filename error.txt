@@ -4,269 +4,109 @@
 
 🚀 Building extension in production mode...
 🔍 Running TypeScript type checking...
-src/components/common/ErrorBoundary.tsx(100,8): error TS2322: Type 'P' is not assignable to type 'IntrinsicAttributes & P'.
-  Type 'P' is not assignable to type 'IntrinsicAttributes'.
-src/components/dialogs/auth/AuthDialog.tsx(17,51): error TS2345: Argument of type '"auth"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/auth/AuthDialog.tsx(20,29): error TS2339: Property 'initialMode' does not exist on type '{}'.
-src/components/dialogs/auth/AuthDialog.tsx(21,34): error TS2339: Property 'isSessionExpired' does not exist on type '{}'.
-src/components/dialogs/auth/AuthDialog.tsx(22,27): error TS2339: Property 'onSuccess' does not exist on type '{}'.
-src/components/dialogs/BaseDialog.tsx(18,3): error TS6133: 'title' is declared but its value is never read.
-src/components/dialogs/BaseDialog.tsx(19,3): error TS6133: 'description' is declared but its value is never read.
-src/components/dialogs/BaseDialog.tsx(21,3): error TS2339: Property 'children' does not exist on type 'BaseDialogProps'.
-src/components/dialogs/common/ConfirmationDialog.tsx(20,51): error TS2345: Argument of type '"confirmation"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/common/ConfirmationDialog.tsx(23,23): error TS2339: Property 'title' does not exist on type '{}'.
-src/components/dialogs/common/ConfirmationDialog.tsx(24,29): error TS2339: Property 'description' does not exist on type '{}'.
-src/components/dialogs/common/ConfirmationDialog.tsx(25,29): error TS2339: Property 'confirmText' does not exist on type '{}'.
-src/components/dialogs/common/ConfirmationDialog.tsx(26,28): error TS2339: Property 'cancelText' does not exist on type '{}'.
-src/components/dialogs/common/ConfirmationDialog.tsx(27,27): error TS2339: Property 'onConfirm' does not exist on type '{}'.
-src/components/dialogs/common/ConfirmationDialog.tsx(28,26): error TS2339: Property 'onCancel' does not exist on type '{}'.
-src/components/dialogs/core/DialogContext.tsx(9,54): error TS2536: Type 'T' cannot be used to index type 'DialogProps'.
-src/components/dialogs/core/DialogContext.tsx(12,53): error TS2536: Type 'T' cannot be used to index type 'DialogProps'.
-src/components/dialogs/core/DialogContext.tsx(22,58): error TS2536: Type 'T' cannot be used to index type 'DialogProps'.
-src/components/dialogs/core/DialogContext.tsx(65,39): error TS2536: Type 'T' cannot be used to index type 'DialogProps'.
-src/components/dialogs/core/DialogContext.tsx(97,36): error TS2345: Argument of type '"settings"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/core/DialogContext.tsx(100,18): error TS2345: Argument of type '"createTemplate"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/core/DialogContext.tsx(103,18): error TS2345: Argument of type '"editTemplate"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/core/DialogContext.tsx(106,18): error TS2345: Argument of type '"createFolder"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/core/DialogContext.tsx(109,18): error TS2345: Argument of type '"auth"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/core/DialogContext.tsx(112,18): error TS2345: Argument of type '"placeholderEditor"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/core/DialogContext.tsx(115,18): error TS2345: Argument of type '"confirmation"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/core/DialogContext.tsx(133,73): error TS2536: Type 'T' cannot be used to index type 'DialogProps'.
-src/components/dialogs/core/DialogContext.tsx(150,70): error TS2536: Type 'T' cannot be used to index type 'DialogProps'.
-src/components/dialogs/core/DialogContext.tsx(151,12): error TS2536: Type 'T' cannot be used to index type 'DialogProps'.
-src/components/dialogs/core/DialogContext.tsx(151,32): error TS2536: Type 'T' cannot be used to index type 'DialogProps'.
-src/components/dialogs/core/DialogContext.tsx(187,18): error TS2790: The operand of a 'delete' operator must be optional.
-src/components/dialogs/index.tsx(6,35): error TS1261: Already included file name '/Users/quentinbragard/archimind/archimind-extension/src/components/dialogs/templates/PlaceholderEditor.tsx' differs from file name '/Users/quentinbragard/archimind/archimind-extension/src/components/dialogs/templates/PlaceHolderEditor.tsx' only in casing.
-  The file is in the program because:
-    Imported via './templates/PlaceholderEditor' from file '/Users/quentinbragard/archimind/archimind-extension/src/components/dialogs/index.tsx'
-    Imported via './templates/PlaceholderEditor' from file '/Users/quentinbragard/archimind/archimind-extension/src/components/dialogs/index.tsx'
-    Matched by include pattern 'src' in '/Users/quentinbragard/archimind/archimind-extension/tsconfig.app.json'
-src/components/dialogs/settings/SettingsDialog.tsx(30,45): error TS2345: Argument of type '"settings"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/templates/FolderDialog.tsx(22,51): error TS2345: Argument of type '"createFolder"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/templates/FolderDialog.tsx(37,30): error TS2339: Property 'onSaveFolder' does not exist on type '{}'.
-src/components/dialogs/templates/FolderDialog.tsx(38,33): error TS2339: Property 'onFolderCreated' does not exist on type '{}'.
-src/components/dialogs/templates/PlaceholderEditor.tsx(29,51): error TS2345: Argument of type '"placeholderEditor"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/templates/PlaceholderEditor.tsx(37,33): error TS2339: Property 'content' does not exist on type '{}'.
-src/components/dialogs/templates/PlaceholderEditor.tsx(38,31): error TS2339: Property 'title' does not exist on type '{}'.
-src/components/dialogs/templates/PlaceholderEditor.tsx(39,28): error TS2339: Property 'onComplete' does not exist on type '{}'.
-src/components/dialogs/templates/TemplateDialog.tsx(27,34): error TS2345: Argument of type '"createTemplate"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/templates/TemplateDialog.tsx(28,32): error TS2345: Argument of type '"editTemplate"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/dialogs/templates/TemplateDialog.tsx(35,9): error TS6133: 'dialogType' is declared but its value is never read.
-src/components/dialogs/templates/TemplateDialog.tsx(45,33): error TS2339: Property 'template' does not exist on type '{}'.
-src/components/dialogs/templates/TemplateDialog.tsx(46,33): error TS2339: Property 'formData' does not exist on type '{}'.
-src/components/dialogs/templates/TemplateDialog.tsx(47,30): error TS2339: Property 'onFormChange' does not exist on type '{}'.
-src/components/dialogs/templates/TemplateDialog.tsx(48,24): error TS2339: Property 'onSave' does not exist on type '{}'.
-src/components/dialogs/templates/TemplateDialog.tsx(49,29): error TS2339: Property 'userFolders' does not exist on type '{}'.
-src/components/dialogs/templates/TemplateDialog.tsx(50,32): error TS2339: Property 'selectedFolder' does not exist on type '{}'.
-src/components/dialogs/templates/TemplateDialog.tsx(162,41): error TS2345: Argument of type '"createFolder"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
+src/components/dialogs/core/DialogContext.tsx(21,5): error TS2687: All declarations of 'dialogManager' must have identical modifiers.
+src/components/dialogs/core/DialogContext.tsx(137,21): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/dialogs/templates/PlaceHolderEditor.tsx(168,28): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
+  Type 'CustomEvent<unknown>' is not assignable to type 'CustomEvent<{ type: string; data: any; }>'.
+    Type 'unknown' is not assignable to type '{ type: string; data: any; }'.
+src/components/dialogs/templates/PlaceHolderEditor.tsx(178,28): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
+  Type 'CustomEvent<unknown>' is not assignable to type 'CustomEvent<{ type: string; data: any; }>'.
+    Type 'unknown' is not assignable to type '{ type: string; data: any; }'.
+src/components/dialogs/templates/PlaceHolderEditor.tsx(189,32): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
+  Type 'CustomEvent<unknown>' is not assignable to type 'CustomEvent<{ type: string; data: any; }>'.
+    Type 'unknown' is not assignable to type '{ type: string; data: any; }'.
 src/components/folders/FolderItem.tsx(63,28): error TS6133: 'e' is declared but its value is never read.
-src/components/folders/FolderItem.tsx(104,9): error TS2322: Type '{ folder: TemplateFolder; isExpanded: boolean; onToggle: () => void; templateCount: number; actionButtons: Element; }' is not assignable to type 'IntrinsicAttributes & { folder: any; isExpanded: boolean; onToggle: () => void; actionButtons: ReactNode; }'.
-  Property 'templateCount' does not exist on type 'IntrinsicAttributes & { folder: any; isExpanded: boolean; onToggle: () => void; actionButtons: ReactNode; }'.
-src/components/folders/FolderItem.tsx(117,15): error TS2322: Type '{ key: string; template: Template; type: "user" | "official" | "organization"; onUseTemplate: ((templateId: number) => void) | undefined; }' is not assignable to type 'IntrinsicAttributes & TemplateItemProps'.
-  Property 'onUseTemplate' does not exist on type 'IntrinsicAttributes & TemplateItemProps'. Did you mean 'onEditTemplate'?
 src/components/folders/FolderList.tsx(2,1): error TS6133: 'React' is declared but its value is never read.
-src/components/folders/FolderSection.tsx(2,8): error TS6133: 'React' is declared but its value is never read.
-src/components/folders/FolderSection.tsx(5,1): error TS6133: 'TemplateFolder' is declared but its value is never read.
-src/components/folders/Folderutils.tsx(83,27): error TS2339: Property 'type' does not exist on type 'TemplateFolder'.
-src/components/panels/BrowseTemplatesPanel/index.tsx(34,3): error TS6133: 'pinnedFolderIds' is declared but its value is never read.
-src/components/panels/BrowseTemplatesPanel/index.tsx(51,23): error TS2345: Argument of type '{ is_pinned: any; id: number; name: string; path: string; description?: string | undefined; templates?: any[] | undefined; Folders?: any[] | undefined; created_at: string; }[]' is not assignable to parameter of type 'TemplateFolder[]'.
-  Type '{ is_pinned: any; id: number; name: string; path: string; description?: string; templates?: any[]; Folders?: any[]; created_at: string; }' is not assignable to type 'TemplateFolder'.
-    Types of property 'templates' are incompatible.
-      Type 'any[] | undefined' is not assignable to type 'Template[]'.
-        Type 'undefined' is not assignable to type 'Template[]'.
-src/components/panels/BrowseTemplatesPanel/index.tsx(102,13): error TS2322: Type '(template: Template) => void' is not assignable to type '(templateId: number) => void'.
+src/components/panels/BrowseTemplatesPanel/index.tsx(100,13): error TS2322: Type '(template: Template) => void' is not assignable to type '(templateId: number) => void'.
   Types of parameters 'template' and 'templateId' are incompatible.
     Type 'number' is not assignable to type 'Template'.
-src/components/panels/MenuPanel/index.tsx(34,39): error TS2345: Argument of type '"settings"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/panels/NotificationsPanel/NotificationActionButton.tsx(4,24): error TS6133: 'AlertCircle' is declared but its value is never read.
-src/components/panels/NotificationsPanel/NotificationActionButton.tsx(5,10): error TS2305: Module '"@/services/notifications/NotificationService"' has no exported member 'Notification'.
-src/components/panels/NotificationsPanel/NotificationItem.tsx(3,10): error TS2305: Module '"@/services/notifications/NotificationService"' has no exported member 'Notification'.
-src/components/panels/StatsPanel/index.tsx(4,48): error TS6133: 'RefreshCw' is declared but its value is never read.
-src/components/panels/StatsPanel/index.tsx(4,69): error TS6133: 'ChevronUp' is declared but its value is never read.
-src/components/panels/StatsPanel/index.tsx(4,80): error TS6133: 'ChevronDown' is declared but its value is never read.
-src/components/panels/StatsPanel/index.tsx(32,10): error TS6133: 'isRefreshing' is declared but its value is never read.
-src/components/panels/StatsPanel/index.tsx(32,24): error TS6133: 'setIsRefreshing' is declared but its value is never read.
-src/components/panels/StatsPanel/StatsChart.tsx(16,8): error TS2307: Cannot find module 'recharts' or its corresponding type declarations.
-src/components/panels/StatsPanel/StatsChart.tsx(37,3): error TS6133: 'height' is declared but its value is never read.
-src/components/panels/StatsPanel/StatsChart.tsx(157,27): error TS7031: Binding element 'name' implicitly has an 'any' type.
-src/components/panels/StatsPanel/StatsChart.tsx(157,33): error TS7031: Binding element 'percent' implicitly has an 'any' type.
-src/components/panels/StatsPanel/StatsChart.tsx(159,33): error TS6133: 'entry' is declared but its value is never read.
+src/components/panels/NotificationsPanel/NotificationActionButton.tsx(5,10): error TS2724: '"@/services/notifications/NotificationService"' has no exported member named 'NotificationBase'. Did you mean 'Notification'?
+src/components/panels/NotificationsPanel/NotificationItem.tsx(4,34): error TS2307: Cannot find module '@/types/notifications' or its corresponding type declarations.
+src/components/panels/PanelManager.tsx(74,11): error TS2322: Type '{ folderType: any; pinnedFolderIds: any; onPinChange: any; onBackToTemplates: () => void; }' is not assignable to type 'IntrinsicAttributes & BrowseTemplatesPanelProps'.
+  Property 'pinnedFolderIds' does not exist on type 'IntrinsicAttributes & BrowseTemplatesPanelProps'.
 src/components/panels/StatsPanel/StatsDetailDashboard.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(2,111): error TS2307: Cannot find module 'recharts' or its corresponding type declarations.
 src/components/panels/StatsPanel/StatsDetailDashboard.tsx(6,1): error TS6133: 'StatsService' is declared but its value is never read.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(21,31): error TS2339: Property 'getStats' does not exist on type 'BaseService'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(24,42): error TS2339: Property 'onUpdate' does not exist on type 'BaseService'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(24,52): error TS7006: Parameter 'newStats' implicitly has an 'any' type.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(30,49): error TS2339: Property 'getWeeklyConversations' does not exist on type 'BaseService'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(35,55): error TS2339: Property 'getMessageDistribution' does not exist on type 'BaseService'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(62,48): error TS2339: Property 'user_messages' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(63,46): error TS2339: Property 'ai_messages' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(68,25): error TS2339: Property 'weekly_conversations' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(68,51): error TS7006: Parameter 'count' implicitly has an 'any' type.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(68,58): error TS7006: Parameter 'index' implicitly has an 'any' type.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(74,32): error TS2339: Property 'modelUsage' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(75,26): error TS2339: Property 'modelUsage' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(77,14): error TS18046: 'data' is of type 'unknown'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(82,35): error TS2339: Property 'tokenUsage' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(83,36): error TS2339: Property 'tokenUsage' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(97,56): error TS2339: Property 'totalChats' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(99,22): error TS2339: Property 'recentChats' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(109,56): error TS2339: Property 'totalMessages' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(111,22): error TS2339: Property 'avgMessagesPerChat' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(121,56): error TS2339: Property 'energyUsage' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(123,22): error TS2339: Property 'energyUsage' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(133,56): error TS2339: Property 'efficiency' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(186,35): error TS7031: Binding element 'name' implicitly has an 'any' type.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(186,41): error TS7031: Binding element 'percent' implicitly has an 'any' type.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(191,55): error TS6133: 'entry' is declared but its value is never read.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(210,50): error TS2339: Property 'messagesPerDay' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(265,35): error TS7031: Binding element 'name' implicitly has an 'any' type.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(265,41): error TS7031: Binding element 'percent' implicitly has an 'any' type.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(270,46): error TS6133: 'entry' is declared but its value is never read.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(292,40): error TS2339: Property 'tokenUsage' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(293,41): error TS2339: Property 'tokenUsage' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(297,40): error TS2339: Property 'tokenUsage' does not exist on type 'never'.
-src/components/panels/StatsPanel/StatsDetailDashboard.tsx(298,41): error TS2339: Property 'tokenUsage' does not exist on type 'never'.
-src/components/panels/TemplatesPanel/EmptyMessage.tsx(2,8): error TS6133: 'React' is declared but its value is never read.
-src/components/panels/TemplatesPanel/index.tsx(107,41): error TS2304: Cannot find name 'DIALOG_TYPES'.
-src/components/panels/TemplatesPanel/index.tsx(108,32): error TS7006: Parameter 'folderData' implicitly has an 'any' type.
-src/components/panels/TemplatesPanel/index.tsx(112,17): error TS1345: An expression of type 'void' cannot be tested for truthiness.
-src/components/panels/TemplatesPanel/index.tsx(112,17): error TS1345: An expression of type 'void' cannot be tested for truthiness.
-src/components/panels/TemplatesPanel/index.tsx(112,17): error TS1345: An expression of type 'void' cannot be tested for truthiness.
-src/components/panels/TemplatesPanel/index.tsx(112,34): error TS2339: Property 'success' does not exist on type 'never'.
-src/components/panels/TemplatesPanel/index.tsx(112,52): error TS2339: Property 'folder' does not exist on type 'never'.
-src/components/panels/TemplatesPanel/index.tsx(113,40): error TS2339: Property 'folder' does not exist on type 'never'.
-src/components/panels/TemplatesPanel/index.tsx(220,17): error TS2322: Type '(template: Template) => void' is not assignable to type '(templateId: number) => void'.
+src/components/panels/StatsPanel/StatsDetailDashboard.tsx(35,35): error TS2344: Type 'StatsServiceInterface' does not satisfy the constraint 'BaseService'.
+  Type 'StatsServiceInterface' is missing the following properties from type 'BaseService': initialize, cleanup, isInitialized
+src/components/panels/StatsPanel/StatsDetailDashboard.tsx(101,20): error TS2352: Conversion of type 'Record<string, { count: number; inputTokens: number; outputTokens: number; }>' to type 'Record<string, ModelUsage>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  'string' index signatures are incompatible.
+    Type '{ count: number; inputTokens: number; outputTokens: number; }' is missing the following properties from type 'ModelUsage': input_tokens, output_tokens
+src/components/panels/TemplatesPanel/index.tsx(114,17): error TS1345: An expression of type 'void' cannot be tested for truthiness.
+src/components/panels/TemplatesPanel/index.tsx(114,17): error TS1345: An expression of type 'void' cannot be tested for truthiness.
+src/components/panels/TemplatesPanel/index.tsx(114,17): error TS1345: An expression of type 'void' cannot be tested for truthiness.
+src/components/panels/TemplatesPanel/index.tsx(114,34): error TS2339: Property 'success' does not exist on type 'never'.
+src/components/panels/TemplatesPanel/index.tsx(114,52): error TS2339: Property 'folder' does not exist on type 'never'.
+src/components/panels/TemplatesPanel/index.tsx(115,40): error TS2339: Property 'folder' does not exist on type 'never'.
+src/components/panels/TemplatesPanel/index.tsx(232,17): error TS2322: Type '(template: Template) => void' is not assignable to type '(templateId: number) => void'.
   Types of parameters 'template' and 'templateId' are incompatible.
     Type 'number' is not assignable to type 'Template'.
-src/components/panels/TemplatesPanel/index.tsx(245,17): error TS2322: Type '(template: Template) => void' is not assignable to type '(templateId: number) => void'.
+src/components/panels/TemplatesPanel/index.tsx(257,17): error TS2322: Type '(template: Template) => void' is not assignable to type '(templateId: number) => void'.
   Types of parameters 'template' and 'templateId' are incompatible.
     Type 'number' is not assignable to type 'Template'.
-src/components/panels/TemplatesPanel/index.tsx(267,17): error TS2322: Type '{ [key: string]: any; id: number; name: string; path: string; description?: string | undefined; templates?: any[] | undefined; Folders?: any[] | undefined; is_pinned?: boolean | undefined; created_at: string; }[]' is not assignable to type 'TemplateFolder[]'.
-  Type '{ [key: string]: any; id: number; name: string; path: string; description?: string | undefined; templates?: any[] | undefined; Folders?: any[] | undefined; is_pinned?: boolean | undefined; created_at: string; }' is not assignable to type 'TemplateFolder'.
-    Types of property 'templates' are incompatible.
-      Type 'any[] | undefined' is not assignable to type 'Template[]'.
-        Type 'undefined' is not assignable to type 'Template[]'.
-src/components/panels/TemplatesPanel/index.tsx(270,17): error TS2322: Type '(template: Template) => void' is not assignable to type '(templateId: number) => void'.
+src/components/panels/TemplatesPanel/index.tsx(282,17): error TS2322: Type '(template: Template) => void' is not assignable to type '(templateId: number) => void'.
   Types of parameters 'template' and 'templateId' are incompatible.
     Type 'number' is not assignable to type 'Template'.
-src/components/panels/TemplatesPanel/LoadingState.tsx(2,1): error TS6133: 'React' is declared but its value is never read.
+src/components/utils/DialogManagerHelper.ts(99,36): error TS2345: Argument of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"' is not assignable to parameter of type 'DialogType'.
+  Type '"SETTINGS"' is not assignable to type 'DialogType'. Did you mean '"settings"'?
 src/components/utils/DialogManagerHelper.ts(138,28): error TS2345: Argument of type '"placeholderEditor"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/components/utils/DialogManagerHelper.ts(176,35): error TS2345: Argument of type '"settings" | "createTemplate" | "editTemplate" | "createFolder" | "placeholderEditor" | "auth" | "confirmation"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-  Type '"settings"' is not assignable to type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'. Did you mean '"SETTINGS"'?
-src/core/errors/ErrorReporter.ts(32,47): error TS2345: Argument of type '"extension_error"' is not assignable to parameter of type 'ErrorCode | undefined'.
-src/core/errors/ErrorReporter.ts(41,13): error TS2345: Argument of type '"unhandled_error"' is not assignable to parameter of type 'ErrorCode | undefined'.
-src/core/errors/ErrorReporter.ts(51,13): error TS2345: Argument of type '"unhandled_rejection"' is not assignable to parameter of type 'ErrorCode | undefined'.
-src/core/errors/ErrorReporter.ts(67,29): error TS2345: Argument of type '"unknown_error"' is not assignable to parameter of type 'ErrorCode | undefined'.
-src/core/events/EventManager.ts(40,54): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
-src/core/events/EventManager.ts(49,63): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
-src/core/events/EventManager.ts(100,61): error TS6133: 'sendResponse' is declared but its value is never read.
-src/core/events/events.ts(80,68): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
-src/core/events/events.ts(88,77): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
-src/core/hooks/useEvent.ts(10,23): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
-src/core/hooks/useEvent.ts(27,51): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
-src/core/hooks/useEventListener.ts(11,23): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
-src/core/hooks/useEventListener.ts(24,31): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
-src/core/hooks/usePanelNavigation.tsx(2,10): error TS6133: 'PanelType' is declared but its value is never read.
-src/core/hooks/usePanelNavigation.tsx(2,33): error TS2865: Import 'PanelNavigationContext' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
+src/components/utils/DialogManagerHelper.ts(155,33): error TS2345: Argument of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"' is not assignable to parameter of type 'DialogType'.
+  Type '"SETTINGS"' is not assignable to type 'DialogType'. Did you mean '"settings"'?
+src/core/errors/ErrorReporter.ts(41,23): error TS2339: Property 'UNHANDLED_ERROR' does not exist on type 'typeof ErrorCode'.
+src/core/errors/ErrorReporter.ts(51,23): error TS2339: Property 'UNHANDLED_REJECTION' does not exist on type 'typeof ErrorCode'.
+src/core/events/EventManager.ts(42,54): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
+src/core/events/EventManager.ts(51,63): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
+src/core/events/EventManager.ts(102,61): error TS6133: 'sendResponse' is declared but its value is never read.
+src/core/events/events.ts(87,68): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
+src/core/events/events.ts(95,77): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
+src/core/hooks/useEvent.ts(11,23): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
+src/core/hooks/useEvent.ts(29,51): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
+src/core/hooks/useEventListener.ts(10,23): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
+src/core/hooks/useEventListener.ts(23,31): error TS2536: Type 'T' cannot be used to index type 'EventPayloads'.
+src/core/hooks/usePanelNavigation.tsx(3,10): error TS6133: 'PanelType' is declared but its value is never read.
+src/core/hooks/usePanelNavigation.tsx(3,33): error TS2865: Import 'PanelNavigationContext' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
 src/core/network/NetworkRequestMonitor.ts(63,31): error TS6133: 'callbacks' is declared but its value is never read.
-src/core/network/NetworkRequestMonitor.ts(66,20): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
-src/core/utils/componentInjector.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/extension/content/injectInterceptor.ts(2,29): error TS2307: Cannot find module '@/services/chat/ChatNetworkService' or its corresponding type declarations.
-src/extension/content/injectInterceptor.ts(3,33): error TS2307: Cannot find module '@/services/user/UserInfoService' or its corresponding type declarations.
-src/extension/content/injectInterceptor.ts(5,32): error TS2307: Cannot find module '@/services/MessageService' or its corresponding type declarations.
-src/extension/content/injectInterceptor.ts(44,12): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind-network-intercept"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => Promise<void>' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => Promise<void>' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/extension/content/injectInterceptor.ts(117,26): error TS2339: Property 'CONVERSATION_LIST_UPDATED' does not exist on type 'typeof AppEvent'.
-src/extension/welcome/auth/AuthDialog.tsx(6,27): error TS2307: Cannot find module '@/core/hooks/useDialog' or its corresponding type declarations.
-src/extension/welcome/auth/AuthDialog.tsx(16,11): error TS6133: 'isOpen' is declared but its value is never read.
-src/hooks/notifications/useNotifications.ts(3,10): error TS2305: Module '"@/services/notifications/NotificationService"' has no exported member 'Notification'.
+src/extension/content/injectInterceptor.ts(113,14): error TS2307: Cannot find module '@/services/chat/ChatNetworkService' or its corresponding type declarations.
+src/extension/content/injectInterceptor.ts(157,12): error TS2307: Cannot find module '@/services/chat/ChatNetworkService' or its corresponding type declarations.
+src/extension/content/injectInterceptor.ts(195,16): error TS2307: Cannot find module '@/services/MessageService' or its corresponding type declarations.
+src/extension/content/injectInterceptor.ts(214,20): error TS2307: Cannot find module '@/services/chat/ChatNetworkService' or its corresponding type declarations.
+src/extension/content/injectInterceptor.ts(242,12): error TS2307: Cannot find module '@/services/MessageService' or its corresponding type declarations.
+src/extension/content/injectInterceptor.ts(262,16): error TS2307: Cannot find module '@/services/chat/ChatNetworkService' or its corresponding type declarations.
 src/hooks/stats/index.tsx(9,3): error TS2305: Module '"@/types/stats"' has no exported member 'Stats'.
 src/hooks/stats/index.tsx(10,3): error TS2305: Module '"@/types/stats"' has no exported member 'StatsFilterOptions'.
 src/hooks/stats/index.tsx(11,3): error TS2305: Module '"@/types/stats"' has no exported member 'TimeSeriesData'.
 src/hooks/stats/index.tsx(12,3): error TS2305: Module '"@/types/stats"' has no exported member 'DataPoint'.
 src/hooks/stats/index.tsx(13,3): error TS2305: Module '"@/types/stats"' has no exported member 'ModelEnergyUsage'.
-src/hooks/stats/useStats.ts(2,10): error TS2305: Module '"@/types/stats"' has no exported member 'Stats'.
-src/hooks/stats/useStats.ts(2,17): error TS2305: Module '"@/types/stats"' has no exported member 'StatsFilterOptions'.
-src/hooks/stats/useStats.ts(33,50): error TS2554: Expected 0 arguments, but got 1.
-src/hooks/stats/useStats.ts(57,39): error TS2554: Expected 0 arguments, but got 1.
-src/hooks/stats/useStats.ts(67,16): error TS7006: Parameter 'prev' implicitly has an 'any' type.
-src/hooks/templates/useTemplateEditor.ts(1,33): error TS6133: 'useEffect' is declared but its value is never read.
-src/hooks/templates/useTemplateFolders.tsx(41,11): error TS2322: Type '{ is_pinned: true; id: number; name: string; path: string; description?: string | undefined; templates?: any[] | undefined; Folders?: any[] | undefined; created_at: string; }[]' is not assignable to type 'TemplateFolder[]'.
-  Type '{ is_pinned: true; id: number; name: string; path: string; description?: string; templates?: any[]; Folders?: any[]; created_at: string; }' is not assignable to type 'TemplateFolder'.
-    Types of property 'templates' are incompatible.
-      Type 'any[] | undefined' is not assignable to type 'Template[]'.
-        Type 'undefined' is not assignable to type 'Template[]'.
-src/hooks/templates/useTemplateFolders.tsx(54,11): error TS2322: Type '{ is_pinned: true; id: number; name: string; path: string; description?: string | undefined; templates?: any[] | undefined; Folders?: any[] | undefined; created_at: string; }[]' is not assignable to type 'TemplateFolder[]'.
-  Type '{ is_pinned: true; id: number; name: string; path: string; description?: string; templates?: any[]; Folders?: any[]; created_at: string; }' is not assignable to type 'TemplateFolder'.
-    Types of property 'templates' are incompatible.
-      Type 'any[] | undefined' is not assignable to type 'Template[]'.
-        Type 'undefined' is not assignable to type 'Template[]'.
-src/hooks/templates/useTemplateFolders.tsx(71,22): error TS2345: Argument of type '{ [key: string]: any; id: number; name: string; path: string; description?: string | undefined; templates?: any[] | undefined; Folders?: any[] | undefined; is_pinned?: boolean | undefined; created_at: string; }[]' is not assignable to parameter of type 'SetStateAction<TemplateFolder[]>'.
-  Type '{ [key: string]: any; id: number; name: string; path: string; description?: string | undefined; templates?: any[] | undefined; Folders?: any[] | undefined; is_pinned?: boolean | undefined; created_at: string; }[]' is not assignable to type 'TemplateFolder[]'.
-    Type '{ [key: string]: any; id: number; name: string; path: string; description?: string | undefined; templates?: any[] | undefined; Folders?: any[] | undefined; is_pinned?: boolean | undefined; created_at: string; }' is not assignable to type 'TemplateFolder'.
-      Types of property 'templates' are incompatible.
-        Type 'any[] | undefined' is not assignable to type 'Template[]'.
-          Type 'undefined' is not assignable to type 'Template[]'.
-src/hooks/templates/useTemplateFolders.tsx(94,34): error TS2339: Property 'error' does not exist on type 'FolderPinResponse'.
-src/hooks/templates/useTemplateFolders.tsx(157,28): error TS2345: Argument of type '{ [key: string]: any; id: number; name: string; path: string; description?: string | undefined; created_at: string; } | undefined' is not assignable to parameter of type 'SetStateAction<TemplateFolder | null>'.
-  Type 'undefined' is not assignable to type 'SetStateAction<TemplateFolder | null>'.
-src/hooks/templates/useTemplateFolders.tsx(160,22): error TS2345: Argument of type '(prev: TemplateFolder[]) => (TemplateFolder | { templates: never[]; id?: number | undefined; name?: string | undefined; path?: string | undefined; description?: string | undefined; created_at?: string | undefined; })[]' is not assignable to parameter of type 'SetStateAction<TemplateFolder[]>'.
-  Type '(prev: TemplateFolder[]) => (TemplateFolder | { templates: never[]; id?: number | undefined; name?: string | undefined; path?: string | undefined; description?: string | undefined; created_at?: string | undefined; })[]' is not assignable to type '(prevState: TemplateFolder[]) => TemplateFolder[]'.
-    Type '(TemplateFolder | { templates: never[]; id?: number | undefined; name?: string | undefined; path?: string | undefined; description?: string | undefined; created_at?: string | undefined; })[]' is not assignable to type 'TemplateFolder[]'.
-      Type 'TemplateFolder | { templates: never[]; id?: number | undefined; name?: string | undefined; path?: string | undefined; description?: string | undefined; created_at?: string | undefined; }' is not assignable to type 'TemplateFolder'.
-        Type '{ templates: never[]; id?: number | undefined; name?: string | undefined; path?: string | undefined; description?: string; created_at?: string | undefined; }' is not assignable to type 'TemplateFolder'.
-          Types of property 'id' are incompatible.
-            Type 'number | undefined' is not assignable to type 'number'.
-              Type 'undefined' is not assignable to type 'number'.
-src/hooks/templates/useTemplates.ts(22,11): error TS6133: 'isSubmitting' is declared but its value is never read.
-src/hooks/templates/useTemplates.ts(68,16): error TS2339: Property 'focus' does not exist on type 'Element'.
-src/hooks/templates/useTemplates.ts(80,42): error TS2345: Argument of type '"placeholderEditor"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/hooks/templates/useTemplates.ts(123,44): error TS2345: Argument of type '"createTemplate"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/hooks/templates/useTemplates.ts(124,44): error TS2345: Argument of type '"editTemplate"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/hooks/templates/useTemplates.ts(155,39): error TS2345: Argument of type '"placeholderEditor"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/hooks/templates/useTemplates.ts(188,39): error TS2345: Argument of type '"createTemplate"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/hooks/templates/useTemplates.ts(226,39): error TS2345: Argument of type '"editTemplate"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/hooks/templates/useTemplates.ts(244,7): error TS6133: 'toggleFolderPin' is declared but its value is never read.
-src/hooks/templates/useTemplates.ts(268,9): error TS1345: An expression of type 'void' cannot be tested for truthiness.
-src/hooks/templates/useTemplates.ts(278,11): error TS2304: Cannot find name 'setPinnedOfficialFolders'.
-src/hooks/templates/useTemplates.ts(278,36): error TS7006: Parameter 'prev' implicitly has an 'any' type.
-src/hooks/templates/useTemplates.ts(279,25): error TS7006: Parameter 'folder' implicitly has an 'any' type.
-src/hooks/templates/useTemplates.ts(282,11): error TS2304: Cannot find name 'setPinnedOrganizationFolders'.
-src/hooks/templates/useTemplates.ts(282,40): error TS7006: Parameter 'prev' implicitly has an 'any' type.
-src/hooks/templates/useTemplates.ts(283,25): error TS7006: Parameter 'folder' implicitly has an 'any' type.
-src/hooks/templates/useTemplates.ts(317,42): error TS2551: Property 'deleteTemplate' does not exist on type '{ selectedTemplate: Template | null; templateFormData: TemplateFormData; isSubmitting: boolean; error: string | null; validationErrors: { [key: string]: string; }; ... 4 more ...; createFolder: (folderName: string) => Promise<...>; }'. Did you mean 'selectedTemplate'?
-src/hooks/templates/useTemplateSelection.ts(48,39): error TS2345: Argument of type '"placeholderEditor"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
+src/hooks/stats/useStats.ts(33,41): error TS2339: Property 'getStats' does not exist on type 'BaseService'.
+src/hooks/stats/useStats.ts(37,40): error TS2339: Property 'onUpdate' does not exist on type 'BaseService'.
+src/hooks/stats/useStats.ts(37,50): error TS7006: Parameter 'newStats' implicitly has an 'any' type.
+src/hooks/stats/useStats.ts(58,26): error TS2339: Property 'refreshStats' does not exist on type 'BaseService'.
+src/hooks/stats/useStats.ts(68,16): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/hooks/templates/useTemplateFolders.tsx(56,58): error TS7006: Parameter 'folder' implicitly has an 'any' type.
+src/hooks/templates/useTemplateFolders.tsx(70,66): error TS7006: Parameter 'folder' implicitly has an 'any' type.
+src/hooks/templates/useTemplateFolders.tsx(86,60): error TS7006: Parameter 'folder' implicitly has an 'any' type.
+src/hooks/templates/useTemplates.ts(33,11): error TS6133: 'isSubmitting' is declared but its value is never read.
+src/hooks/templates/useTemplates.ts(79,16): error TS2339: Property 'focus' does not exist on type 'Element'.
 src/hooks/templates/useTemplateSelection.ts(109,16): error TS2339: Property 'focus' does not exist on type 'Element'.
 src/providers/QueryProvider.tsx(2,8): error TS6133: 'React' is declared but its value is never read.
 src/services/analytics/StatsService.ts(9,3): error TS6133: 'UserStatsResponse' is declared but its value is never read.
-src/services/analytics/StatsService.ts(139,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind-network-intercept"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
 src/services/analytics/StatsService.ts(171,28): error TS6133: 'data' is declared but its value is never read.
-src/services/analytics/StatsService.ts(327,28): error TS2339: Property 'STATS_UPDATED' does not exist on type 'typeof AppEvent'.
-src/services/api/ApiClient.ts(8,1): error TS6133: 'ApiResponse' is declared but its value is never read.
-src/services/api/ApiClient.ts(119,58): error TS2339: Property 'getAuthToken' does not exist on type 'BaseService'.
-src/services/api/ApiClient.ts(134,58): error TS2339: Property 'getAuthToken' does not exist on type 'BaseService'.
-src/services/api/ApiClient.ts(194,57): error TS2339: Property 'refreshToken' does not exist on type 'BaseService'.
-src/services/api/ApiClient.ts(197,62): error TS2339: Property 'getAuthToken' does not exist on type 'BaseService'.
-src/services/api/ApiClient.ts(218,57): error TS2339: Property 'refreshToken' does not exist on type 'BaseService'.
-src/services/api/ApiClient.ts(221,62): error TS2339: Property 'getAuthToken' does not exist on type 'BaseService'.
-src/services/api/PromptApi.ts(3,1): error TS6192: All imports in import declaration are unused.
-src/services/api/PromptApi.ts(84,9): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type 'FolderPinResponse'.
-src/services/api/PromptApi.ts(119,9): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type 'FolderPinResponse'.
-src/services/api/PromptApi.ts(371,9): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type 'TemplateUsageResponse'.
+src/services/api/ApiClient.ts(126,58): error TS2339: Property 'getAuthToken' does not exist on type 'BaseService'.
+src/services/api/ApiClient.ts(140,49): error TS2339: Property 'getAuthToken' does not exist on type 'BaseService'.
+src/services/api/ApiClient.ts(141,58): error TS2339: Property 'getAuthToken' does not exist on type 'BaseService'.
+src/services/api/ApiClient.ts(200,53): error TS2339: Property 'refreshToken' does not exist on type 'BaseService'.
+src/services/api/ApiClient.ts(201,57): error TS2339: Property 'refreshToken' does not exist on type 'BaseService'.
+src/services/api/ApiClient.ts(204,62): error TS2339: Property 'getAuthToken' does not exist on type 'BaseService'.
+src/services/api/ApiClient.ts(224,51): error TS2339: Property 'refreshToken' does not exist on type 'BaseService'.
+src/services/api/ApiClient.ts(225,57): error TS2339: Property 'refreshToken' does not exist on type 'BaseService'.
+src/services/api/ApiClient.ts(228,62): error TS2339: Property 'getAuthToken' does not exist on type 'BaseService'.
+src/services/api/PromptApi.ts(140,11): error TS18046: 'response' is of type 'unknown'.
+src/services/api/PromptApi.ts(140,31): error TS18046: 'response' is of type 'unknown'.
+src/services/api/PromptApi.ts(141,9): error TS18046: 'response' is of type 'unknown'.
+src/services/api/PromptApi.ts(141,28): error TS18046: 'response' is of type 'unknown'.
+src/services/api/PromptApi.ts(310,5): error TS2322: Type 'unknown' is not assignable to type '{ success: boolean; error?: string | undefined; }'.
+src/services/auth/AuthService/AuthNotifications.ts(17,34): error TS2345: Argument of type 'CustomEvent<{ mode: string; isSessionExpired: boolean; }>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
+  Type 'CustomEvent<{ mode: string; isSessionExpired: boolean; }>' is not assignable to type 'CustomEvent<{ type: string; data: any; }>'.
+    Type '{ mode: string; isSessionExpired: boolean; }' is missing the following properties from type '{ type: string; data: any; }': type, data
 src/services/auth/AuthService/AuthOperations.ts(2,10): error TS2305: Module '"@/types"' has no exported member 'AuthUser'.
 src/services/auth/AuthService/AuthStateManager.ts(2,10): error TS2305: Module '"@/types"' has no exported member 'AuthState'.
 src/services/auth/AuthService/index.ts(3,10): error TS2305: Module '"@/types"' has no exported member 'AuthState'.
@@ -278,239 +118,50 @@ src/services/chat/ChatMessageParser.ts(66,66): error TS2339: Property 'PARSING_E
 src/services/chat/ChatMessageParser.ts(90,69): error TS2339: Property 'PARSING_ERROR' does not exist on type 'typeof ErrorCode'.
 src/services/chat/ChatMessageParser.ts(125,65): error TS2339: Property 'PARSING_ERROR' does not exist on type 'typeof ErrorCode'.
 src/services/chat/ChatMessageParser.ts(148,70): error TS2339: Property 'PARSING_ERROR' does not exist on type 'typeof ErrorCode'.
-src/services/chat/ConversationManager.ts(36,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-loaded"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/chat/ConversationManager.ts(37,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-list"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/chat/ConversationManager.ts(42,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-loaded"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/chat/ConversationManager.ts(43,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-list"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
 src/services/chat/ConversationParser.ts(65,72): error TS2339: Property 'PARSING_ERROR' does not exist on type 'typeof ErrorCode'.
 src/services/chat/ConversationParser.ts(85,68): error TS2339: Property 'PARSING_ERROR' does not exist on type 'typeof ErrorCode'.
 src/services/chat/ConversationParser.ts(119,76): error TS2339: Property 'PARSING_ERROR' does not exist on type 'typeof ErrorCode'.
 src/services/chat/ConversationParser.ts(169,79): error TS2339: Property 'PARSING_ERROR' does not exist on type 'typeof ErrorCode'.
-src/services/chat/ConversationStorage.ts(30,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-loaded"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/chat/ConversationStorage.ts(34,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-loaded"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/messages/MessageManager.ts(29,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:message-extracted"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/messages/MessageManager.ts(30,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-loaded"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/messages/MessageManager.ts(34,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:message-extracted"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/messages/MessageManager.ts(35,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-loaded"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/messages/MessageQueue.ts(32,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:queue-message"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/messages/MessageQueue.ts(36,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:queue-message"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/messages/PendingMessageTracker.ts(27,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:message-extracted"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/messages/PendingMessageTracker.ts(28,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-changed"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/messages/PendingMessageTracker.ts(32,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:message-extracted"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/messages/PendingMessageTracker.ts(33,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-changed"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/notifications/NotificationService.ts(22,11): error TS6133: 'unreadCount' is declared but its value is never read.
-src/services/notifications/NotificationService.ts(135,46): error TS2339: Property 'read_at' does not exist on type 'NotificationBase'.
-src/services/notifications/NotificationService.ts(142,43): error TS2339: Property 'id' does not exist on type 'NotificationBase'.
-src/services/notifications/NotificationService.ts(150,59): error TS2339: Property 'id' does not exist on type 'NotificationBase'.
-src/services/notifications/NotificationService.ts(156,20): error TS2339: Property 'read_at' does not exist on type 'NotificationBase'.
-src/services/notifications/NotificationService.ts(163,47): error TS2322: Type 'string | number' is not assignable to type 'string'.
+src/services/notifications/NotificationService.ts(37,11): error TS6133: 'unreadCount' is declared but its value is never read.
+src/services/notifications/NotificationService.ts(177,47): error TS2322: Type 'string | number' is not assignable to type 'string'.
   Type 'number' is not assignable to type 'string'.
-src/services/notifications/NotificationService.ts(189,16): error TS2339: Property 'read_at' does not exist on type 'NotificationBase'.
-src/services/notifications/NotificationService.ts(190,13): error TS2339: Property 'read_at' does not exist on type 'NotificationBase'.
-src/services/notifications/NotificationService.ts(216,59): error TS2339: Property 'id' does not exist on type 'NotificationBase'.
-src/services/notifications/NotificationService.ts(222,61): error TS2339: Property 'id' does not exist on type 'NotificationBase'.
-src/services/notifications/NotificationService.ts(321,46): error TS2339: Property 'read_at' does not exist on type 'NotificationBase'.
-src/services/notifications/NotificationService.ts(425,41): error TS2345: Argument of type 'NotificationActionMetadata' is not assignable to parameter of type 'string'.
-src/services/notifications/NotificationService.ts(443,59): error TS2339: Property 'id' does not exist on type 'NotificationBase'.
-src/services/notifications/NotificationService.ts(452,43): error TS2345: Argument of type 'NotificationActionMetadata | undefined' is not assignable to parameter of type 'string | null'.
-  Type 'undefined' is not assignable to type 'string | null'.
-src/services/orchestration/ChatOrchestrator.ts(89,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:message-extracted"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/orchestration/ChatOrchestrator.ts(90,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-changed"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/orchestration/ChatOrchestrator.ts(94,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:message-extracted"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/orchestration/ChatOrchestrator.ts(95,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind:conversation-changed"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
+src/services/notifications/NotificationService.ts(359,34): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
+  Type 'CustomEvent<unknown>' is not assignable to type 'CustomEvent<{ type: string; data: any; }>'.
+    Type 'unknown' is not assignable to type '{ type: string; data: any; }'.
+src/services/notifications/NotificationService.ts(471,36): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
+  Type 'CustomEvent<unknown>' is not assignable to type 'CustomEvent<{ type: string; data: any; }>'.
+    Type 'unknown' is not assignable to type '{ type: string; data: any; }'.
+src/services/notifications/NotificationService.ts(476,36): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
+  Type 'CustomEvent<unknown>' is not assignable to type 'CustomEvent<{ type: string; data: any; }>'.
+    Type 'unknown' is not assignable to type '{ type: string; data: any; }'.
 src/services/orchestration/ChatOrchestrator.ts(110,69): error TS2339: Property 'ORCHESTRATION_ERROR' does not exist on type 'typeof ErrorCode'.
 src/services/orchestration/ChatOrchestrator.ts(126,70): error TS2339: Property 'ORCHESTRATION_ERROR' does not exist on type 'typeof ErrorCode'.
 src/services/TemplateService.tsx(34,9): error TS6133: 'queryClient' is declared but its value is never read.
-src/services/TemplateService.tsx(50,9): error TS2322: Type '{ is_pinned: true; id: number; name: string; path: string; description?: string | undefined; templates?: any[] | undefined; Folders?: any[] | undefined; created_at: string; }[]' is not assignable to type 'TemplateFolder[]'.
-  Type '{ is_pinned: true; id: number; name: string; path: string; description?: string; templates?: any[]; Folders?: any[]; created_at: string; }' is not assignable to type 'TemplateFolder'.
-    Types of property 'templates' are incompatible.
-      Type 'any[] | undefined' is not assignable to type 'Template[]'.
-        Type 'undefined' is not assignable to type 'Template[]'.
-src/services/TemplateService.tsx(64,9): error TS2322: Type '{ is_pinned: true; id: number; name: string; path: string; description?: string | undefined; templates?: any[] | undefined; Folders?: any[] | undefined; created_at: string; }[]' is not assignable to type 'TemplateFolder[]'.
-  Type '{ is_pinned: true; id: number; name: string; path: string; description?: string; templates?: any[]; Folders?: any[]; created_at: string; }' is not assignable to type 'TemplateFolder'.
-    Types of property 'templates' are incompatible.
-      Type 'any[] | undefined' is not assignable to type 'Template[]'.
-        Type 'undefined' is not assignable to type 'Template[]'.
-src/services/TemplateService.tsx(148,34): error TS2339: Property 'error' does not exist on type 'FolderPinResponse'.
+src/services/TemplateService.tsx(50,56): error TS7006: Parameter 'folder' implicitly has an 'any' type.
+src/services/TemplateService.tsx(64,46): error TS7006: Parameter 'folder' implicitly has an 'any' type.
+src/services/TemplateService.tsx(126,33): error TS7006: Parameter 'folder' implicitly has an 'any' type.
 src/services/TemplateService.tsx(248,7): error TS1117: An object literal cannot have multiple properties with the same name.
 src/services/TemplateService.tsx(248,17): error TS6133: 'err' is declared but its value is never read.
 src/services/TemplateService.tsx(248,22): error TS6133: 'newFolder' is declared but its value is never read.
 src/services/TemplateService.tsx(345,7): error TS1117: An object literal cannot have multiple properties with the same name.
 src/services/TemplateService.tsx(345,17): error TS6133: 'err' is declared but its value is never read.
 src/services/TemplateService.tsx(345,22): error TS6133: 'newTemplate' is declared but its value is never read.
-src/services/TemplateService.tsx(406,37): error TS2345: Argument of type '"placeholderEditor"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
 src/services/TemplateService.tsx(446,16): error TS2339: Property 'focus' does not exist on type 'Element'.
-src/services/TemplateService.tsx(450,42): error TS2345: Argument of type '"placeholderEditor"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-src/services/TemplateService.tsx(515,39): error TS2345: Argument of type '"createTemplate" | "editTemplate"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-  Type '"createTemplate"' is not assignable to type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'. Did you mean '"CREATE_TEMPLATE"'?
+src/services/TemplateService.tsx(515,7): error TS18048: 'window.dialogManager' is possibly 'undefined'.
 src/services/TemplateService.tsx(520,69): error TS2345: Argument of type 'Template | undefined' is not assignable to parameter of type 'Template | null'.
   Type 'undefined' is not assignable to type 'Template | null'.
-src/services/TemplateService.tsx(527,39): error TS2345: Argument of type '"createTemplate" | "editTemplate"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
-  Type '"createTemplate"' is not assignable to type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'. Did you mean '"CREATE_TEMPLATE"'?
+src/services/TemplateService.tsx(527,7): error TS18048: 'window.dialogManager' is possibly 'undefined'.
 src/services/TemplateService.tsx(532,69): error TS2345: Argument of type 'Template | undefined' is not assignable to parameter of type 'Template | null'.
   Type 'undefined' is not assignable to type 'Template | null'.
 src/services/user/UserProfileService.ts(18,11): error TS6133: 'fetchedUserInfo' is declared but its value is never read.
-src/services/user/UserProfileService.ts(51,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind-network-intercept"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
-src/services/user/UserProfileService.ts(63,14): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(type: keyof DocumentEventMap, listener: (this: Document, ev: Event | UIEvent | AnimationEvent | MouseEvent | InputEvent | ... 13 more ... | WheelEvent) => any, options?: boolean | ... 1 more ... | undefined): void', gave the following error.
-    Argument of type '"archimind-network-intercept"' is not assignable to parameter of type 'keyof DocumentEventMap'.
-  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
-    Argument of type '(event: CustomEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
-      Type '(event: CustomEvent) => void' is not assignable to type 'EventListener'.
-        Types of parameters 'event' and 'evt' are incompatible.
-          Type 'Event' is missing the following properties from type 'CustomEvent<any>': detail, initCustomEvent
 src/state/AuthContext.tsx(62,40): error TS2339: Property 'login' does not exist on type 'AuthService'.
 src/state/AuthContext.tsx(86,40): error TS2339: Property 'loginWithGoogle' does not exist on type 'AuthService'.
 src/state/AuthContext.tsx(110,40): error TS2551: Property 'signup' does not exist on type 'AuthService'. Did you mean 'signUp'?
 src/state/AuthContext.tsx(133,25): error TS2339: Property 'logout' does not exist on type 'AuthService'.
 src/state/AuthContext.tsx(143,9): error TS2741: Property 'openLoginDialog' is missing in type '{ user: User | null; isAuthenticated: boolean; isLoading: boolean; error: string | null; login: (email: string, password: string) => Promise<boolean>; loginWithGoogle: () => Promise<boolean>; signup: (email: string, password: string, name: string) => Promise<boolean>; logout: () => Promise<void>; }' but required in type 'AuthContextType'.
+src/types/dialog.ts(6,1): error TS6133: 'Template' is declared but its value is never read.
+src/types/dialog.ts(6,10): error TS2305: Module '"./services/api"' has no exported member 'Template'.
+src/types/dialog.ts(20,36): error TS2304: Cannot find name 'DialogDataMap'.
 src/types/services/index.ts(49,30): error TS2307: Cannot find module '../notifications' or its corresponding type declarations.
 src/types/services/index.ts(50,36): error TS2307: Cannot find module '../notifications' or its corresponding type declarations.
 src/types/services/index.ts(55,61): error TS2307: Cannot find module '../notifications' or its corresponding type declarations.

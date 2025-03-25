@@ -1,19 +1,31 @@
+// src/extension/welcome/auth/AuthDialog.tsx
+
 import React from 'react';
 import { 
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { useDialog } from '@/core/hooks/useDialog';
 import { BaseDialog } from '../../../components/dialogs/BaseDialog';
 import AuthForm from './AuthForm';
 import { getMessage } from '@/core/utils/i18n';
 
 /**
+ * Props for the AuthDialog component
+ */
+interface AuthDialogProps {
+  onClose?: () => void;
+  options?: {
+    initialMode?: 'signin' | 'signup';
+    isSessionExpired?: boolean;
+  };
+  dialogProps?: any;
+}
+
+/**
  * AuthDialog component that uses the Dialog system
  * This is a wrapper around the shared AuthForm component
  */
-export const AuthDialog: React.FC = () => {
-  const { isOpen, options, closeDialog, dialogProps } = useDialog('auth');
+export const AuthDialog: React.FC<AuthDialogProps> = ({ onClose, options, dialogProps }) => {
   const initialMode = options?.initialMode || 'signin';
   const isSessionExpired = options?.isSessionExpired || false;
   
@@ -30,10 +42,10 @@ export const AuthDialog: React.FC = () => {
       <AuthForm
         initialMode={initialMode}
         isSessionExpired={isSessionExpired}
-        onClose={closeDialog}
+        onClose={onClose}
         onSuccess={() => {
           // Any additional dialog-specific success handling
-          closeDialog();
+          if (onClose) onClose();
         }}
       />
     </BaseDialog>

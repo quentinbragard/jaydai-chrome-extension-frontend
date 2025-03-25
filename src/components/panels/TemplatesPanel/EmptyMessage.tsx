@@ -1,5 +1,5 @@
 // src/components/templates/EmptyMessage.tsx
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 interface EmptyMessageProps {
   children: ReactNode;

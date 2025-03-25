@@ -1,5 +1,6 @@
+// src/core/hooks/usePanelNavigation.tsx
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { PanelType, PanelState, PanelNavigationContext } from '@/types/panel';
+import { PanelType, PanelState, PanelNavigationContext } from '../../types/panel';
 
 // Default initial panel
 const DEFAULT_PANEL: PanelState = { type: 'menu' };

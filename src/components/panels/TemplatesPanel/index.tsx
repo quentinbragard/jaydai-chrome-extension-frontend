@@ -19,6 +19,8 @@ import {
   FolderSection, 
   FolderList, 
 } from '@/components/folders';
+import { Template, TemplateFolder } from '@/types/templates';
+import { DIALOG_TYPES } from '@/types/dialog';
 
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
@@ -105,7 +107,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       // Open create folder dialog
       if (window.dialogManager) {
         window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
-          onSaveFolder: async (folderData) => {
+          onSaveFolder: async (folderData: { name: string; path: string; description: string }) => {
             // Create the folder
             const result = await createFolder(folderData);
             
@@ -115,7 +117,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               // Wait a moment to ensure the folder is created
               setTimeout(() => {
                 // Open create template dialog with the new folder selected
-                createTemplate(newFolder);
+                createTemplate(newFolder as Template);
               }, 100);
             }
             
@@ -163,6 +165,16 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       </BasePanel>
     );
   }
+
+  // Create typed folders to satisfy TypeScript
+  const typedUserFolders: TemplateFolder[] = userFolders || [];
+  const typedOfficialFolders: TemplateFolder[] = pinnedFolders?.official || [];
+  const typedOrgFolders: TemplateFolder[] = pinnedFolders?.organization || [];
+
+  // Helper function to handle useTemplate with correct type
+  const handleUseTemplate = (template: Template) => {
+    useTemplate(template);
+  };
 
   return (
     <BasePanel
@@ -212,12 +224,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             onBrowseMore={() => handleBrowseMore('official')}
             showBrowseMore={true}
           >
-            {pinnedFolders?.official?.length ? (
+            {typedOfficialFolders?.length ? (
               <FolderList
-                folders={pinnedFolders.official}
+                folders={typedOfficialFolders}
                 type="official"
                 onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'official' })}
-                onUseTemplate={useTemplate}
+                onUseTemplate={handleUseTemplate}
                 showPinControls={true}
                 emptyMessage="No pinned official templates. Click Browse More to add some."
               />
@@ -237,12 +249,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             onBrowseMore={() => handleBrowseMore('organization')}
             showBrowseMore={true}
           >
-            {pinnedFolders?.organization?.length ? (
+            {typedOrgFolders?.length ? (
               <FolderList
-                folders={pinnedFolders.organization}
+                folders={typedOrgFolders}
                 type="organization"
                 onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'organization' })}
-                onUseTemplate={useTemplate}
+                onUseTemplate={handleUseTemplate}
                 showPinControls={true}
                 emptyMessage="No pinned organization templates. Click Browse More to add some."
               />
@@ -262,12 +274,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             onCreateTemplate={handleCreateTemplate}
             showCreateButton={true}
           >
-            {userFolders?.length ? (
+            {typedUserFolders?.length ? (
               <FolderList
-                folders={userFolders}
+                folders={typedUserFolders}
                 type="user"
                 onDeleteFolder={deleteFolder}
-                onUseTemplate={useTemplate}
+                onUseTemplate={handleUseTemplate}
                 showDeleteControls={true}
                 emptyMessage="No user templates. Create a template to get started."
               />
