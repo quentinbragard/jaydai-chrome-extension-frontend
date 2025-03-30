@@ -1,6 +1,6 @@
 {
  "appName": {
-    "message": "Extension Chrome Jaydai",
+    "message": "Extension Chrome Archimind",
     "description": "Le nom de l'extension"
   },
   "appDesc": {
@@ -8,7 +8,7 @@
     "description": "La description de l'extension"
   },
   "welcomeTitle": {
-    "message": "Bienvenue sur Jaydai",
+    "message": "Bienvenue sur Archimind",
     "description": "Titre de la page d'accueil"
   },
   "yourAICompanion": {
@@ -96,7 +96,7 @@
     "description": "Sous-titre de la page d'accueil"
   },
   "howItWorks": {
-    "message": "Comment Jaydai Vous Donne du Pouvoir",
+    "message": "Comment Archimind Vous Donne du Pouvoir",
     "description": "Titre de section"
   },
   "aiUsageTracking": {
@@ -128,7 +128,7 @@
     "description": "Titre CTA"
   },
   "readyToUnlockDesc": {
-    "message": "Jaydai vous aide à exploiter la puissance de l'IA tout en maintenant votre expertise humaine unique.",
+    "message": "Archimind vous aide à exploiter la puissance de l'IA tout en maintenant votre expertise humaine unique.",
     "description": "Description CTA"
   },
   "name": {

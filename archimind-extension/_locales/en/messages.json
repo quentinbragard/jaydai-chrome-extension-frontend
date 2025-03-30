@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Jaydai Chrome Extension",
+    "message": "Archimind Chrome Extension",
     "description": "The name of the extension"
   },
   "appDesc": {
@@ -130,7 +130,7 @@
     "description": "CTA title"
   },
   "readyToUnlockDesc": {
-    "message": "Jaydai helps you harness the power of AI while maintaining your unique human expertise.",
+    "message": "Archimind helps you harness the power of AI while maintaining your unique human expertise.",
     "description": "CTA description"
   },
   "name": {
@@ -360,7 +360,7 @@
     "description": "Create button"
   },
   "archimindSettings": {
-    "message": "Jaydai Settings",
+    "message": "Archimind Settings",
     "description": "Settings dialog title"
   },
   "configureArchimind": {

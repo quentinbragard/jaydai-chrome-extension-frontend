@@ -39,7 +39,7 @@ const MainButton = () => {
               className="bg-transparent w-full h-full rounded-full shadow-lg p-0 overflow-hidden flex items-center justify-center"
             >
               <img 
-                src="https://gjszbwfzgnwblvdehzcq.supabase.co/storage/v1/object/public/chrome_extension_assets/archimind-logo.png" 
+                src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images/jaydai-extension-logo.png" 
                 alt="Archimind Logo" 
                 className="w-full h-full object-cover"
               />
