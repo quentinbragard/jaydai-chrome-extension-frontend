@@ -11,6 +11,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const actions = {
         // Auth actions
         googleSignIn: () => googleSignIn(sendResponse),
+        linkedinSignIn: () => linkedinSignIn(sendResponse),
+        linkedinSignUp: () => linkedinSignUp(sendResponse),
         emailSignIn: () => emailSignIn(request.email, request.password, sendResponse),
         signUp: () => signUp(request.email, request.password, request.name, sendResponse),
         getAuthToken: () => sendAuthToken(sendResponse),
@@ -327,6 +329,167 @@ async function emailSignIn(email, password, sendResponse) {
       }
     });
   }
+
+  /* ==========================================
+ 🔹 LINKEDIN AUTH FUNCTIONS
+========================================== */
+function linkedinSignIn(sendResponse) {
+  console.log("🔍 Starting LinkedIn (OIDC) sign-in flow");
+  
+  // We'll use Supabase's built-in support for LinkedIn OIDC
+  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+  
+  // Construct redirect URL for the Chrome extension
+  const redirectUri = `https://${chrome.runtime.id}.chromiumapp.org/auth/callback`;
+  
+  // Generate a random state for CSRF protection
+  const state = crypto.randomUUID();
+  
+  // Store state in local storage for verification later
+  chrome.storage.local.set({ 'linkedin_oauth_state': state });
+  
+  // Construct the Supabase OAuth URL for LinkedIn
+  const authUrl = new URL(`${supabaseUrl}/auth/v1/authorize`);
+  authUrl.searchParams.set('provider', 'linkedin_oidc');
+  authUrl.searchParams.set('redirect_to', redirectUri);
+  authUrl.searchParams.set('state', state);
+  
+  console.log("LinkedIn Auth URL:", authUrl.href);
+  console.log("Redirect URI:", redirectUri);
+
+  chrome.identity.launchWebAuthFlow({ 
+    url: authUrl.href, 
+    interactive: true 
+  }, async (redirectedUrl) => {
+    if (chrome.runtime.lastError) {
+      console.error("❌ LinkedIn Sign-In failed:", chrome.runtime.lastError);
+      sendResponse({ 
+        success: false, 
+        error: chrome.runtime.lastError.message || "LinkedIn authentication was canceled" 
+      });
+      return;
+    }
+
+    if (!redirectedUrl) {
+      console.error("❌ No redirect URL received");
+      sendResponse({ 
+        success: false, 
+        error: "No authentication data received from LinkedIn" 
+      });
+      return;
+    }
+
+    try {
+      const url = new URL(redirectedUrl);
+      
+      // Extract the authorization code and state
+      const code = url.searchParams.get("code");
+      const returnedState = url.searchParams.get("state");
+      
+      // Verify state to prevent CSRF attacks
+      chrome.storage.local.get(['linkedin_oauth_state'], async (result) => {
+        const storedState = result.linkedin_oauth_state;
+        
+        if (returnedState !== storedState) {
+          console.error("❌ OAuth state mismatch - possible CSRF attack");
+          sendResponse({
+            success: false,
+            error: "Authentication failed - security error"
+          });
+          return;
+        }
+        
+        console.log("🔹 LinkedIn Authorization Code received");
+
+        if (!code) {
+          console.error("❌ No authorization code in redirect URL");
+          sendResponse({ 
+            success: false, 
+            error: "LinkedIn authentication didn't return a code" 
+          });
+          return;
+        }
+
+        // Exchange the authorization code for a session using Supabase's API
+        const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=authorization_code&code=${code}`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "apikey": supabaseKey
+          }
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          console.error("❌ Supabase session exchange failed:", data);
+          sendResponse({ 
+            success: false, 
+            error: data.error_description || data.error || "Authentication failed" 
+          });
+          return;
+        }
+        
+        // Validate required data
+        if (!data.access_token || !data.refresh_token) {
+          console.error("❌ Invalid response from Supabase (missing token data):", data);
+          sendResponse({ 
+            success: false, 
+            error: "Server returned invalid authentication data" 
+          });
+          return;
+        }
+        
+        console.log("✅ LinkedIn authentication successful");
+        
+        // Store the session in our extension storage
+        const session = {
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          expires_at: Math.floor(Date.now() / 1000) + data.expires_in
+        };
+        
+        storeAuthSession(session);
+        
+        // Fetch user data
+        const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
+          headers: {
+            "Authorization": `Bearer ${data.access_token}`,
+            "apikey": supabaseKey
+          }
+        });
+        
+        const userData = await userResponse.json();
+        
+        if (userResponse.ok && userData) {
+          storeUser(userData);
+          storeUserId(userData.id);
+        }
+        
+        sendResponse({ 
+          success: true, 
+          user: userData, 
+          access_token: data.access_token 
+        });
+      });
+    } catch (error) {
+      console.error("❌ Error processing LinkedIn authentication:", error);
+      sendResponse({ 
+        success: false, 
+        error: error.message || "Failed to process LinkedIn authentication" 
+      });
+    }
+  });
+  
+  return true; // Keep channel open for async response
+}
+
+function linkedinSignUp(sendResponse) {
+  // For LinkedIn, the sign-up and sign-in flows are identical
+  // Supabase will automatically handle new vs returning users
+  return linkedinSignIn(sendResponse);
+}
 
 /* ==========================================
  🔹 AUTH TOKEN MANAGEMENT

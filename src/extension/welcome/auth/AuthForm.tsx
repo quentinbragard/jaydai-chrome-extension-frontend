@@ -269,6 +269,57 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     }
   };
 
+  // LinkedIn authentication handlers - using Supabase's OIDC provider
+  const handleLinkedInSignIn = () => {
+    setIsLoading(true);
+    setMessage(null);
+    
+    try {
+      chrome.runtime.sendMessage(
+        { action: "linkedinSignIn" }, 
+        (response) => {
+          setIsLoading(false);
+          
+          if (response.success) {
+            toast.success(
+              getMessage('signInSuccessful', undefined, 'Sign-in successful'), 
+              {
+                description: getMessage('youCanNowAccess', undefined, 'You can now access your conversations')
+              }
+            );
+            
+            if (onSuccess) {
+              onSuccess();
+            }
+            
+            if (onClose) {
+              onClose();
+            }
+          } else {
+            setMessage({
+              text: response.error || getMessage('unableToProcess', undefined, 'Unable to process request'), 
+              type: 'error'
+            });
+          }
+        }
+      );
+    } catch (error) {
+      setIsLoading(false);
+      setMessage({
+        text: getMessage('unableToProcess', undefined, 'Unable to process request'), 
+        type: 'error'
+      });
+      console.error('LinkedIn auth error:', error);
+    }
+  };
+
+  // For LinkedIn, sign up and sign in use the same flow through Supabase
+  const handleLinkedInSignUp = () => {
+    // Using the same handler for sign-up since Supabase handles 
+    // the distinction between new and existing users
+    handleLinkedInSignIn();
+  };
+
   // If signup is successful, show confirmation message
   if (signupSuccess) {
     return (
@@ -402,15 +453,27 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             </div>
           </div>
 
-          <Button 
-            variant="outline" 
-            onClick={handleGoogleSignIn} 
-            className="w-full font-heading border-gray-700 text-white hover:bg-gray-800"
-            disabled={isLoading}
-          >
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
-            {getMessage('signInWith', ['Google']) || 'Sign in with Google'}
-          </Button>
+          <div className="grid gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleGoogleSignIn} 
+              className="w-full font-heading border-gray-700 text-white hover:bg-gray-800"
+              disabled={isLoading}
+            >
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
+              {getMessage('signInWith', ['Google']) || 'Sign in with Google'}
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={handleLinkedInSignIn}
+              className="w-full font-heading border-gray-700 text-white hover:bg-gray-800"
+              disabled={isLoading}
+            >
+              <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/linkedin/linkedin-original.svg" alt="LinkedIn" className="h-5 w-5 mr-2" />
+              {getMessage('signInWith', ['LinkedIn']) || 'Sign in with LinkedIn'}
+            </Button>
+          </div>
         </TabsContent>
         
         <TabsContent value="signup" className="space-y-4">
@@ -484,6 +547,39 @@ export const AuthForm: React.FC<AuthFormProps> = ({
               </span>
             ) : getMessage('signUp', undefined, 'Sign Up')}
           </Button>
+          
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-700"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gray-900 text-gray-400 font-sans">
+                {getMessage('or', undefined, 'Or sign up with')}
+              </span>
+            </div>
+          </div>
+          
+          <div className="grid gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleGoogleSignIn}
+              className="w-full font-heading border-gray-700 text-white hover:bg-gray-800"
+              disabled={isLoading}
+            >
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
+              {getMessage('signUpWith', ['Google']) || 'Sign up with Google'}
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={handleLinkedInSignUp}
+              className="w-full font-heading border-gray-700 text-white hover:bg-gray-800"
+              disabled={isLoading}
+            >
+              <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/linkedin/linkedin-original.svg" alt="LinkedIn" className="h-5 w-5 mr-2" />
+              {getMessage('signUpWith', ['LinkedIn']) || 'Sign up with LinkedIn'}
+            </Button>
+          </div>
           
           <p className="text-xs text-center text-gray-400 font-sans">
             {getMessage('bySigningUp', undefined, 
