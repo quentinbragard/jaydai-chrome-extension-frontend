@@ -71,10 +71,6 @@
     "message": "Get Started",
     "description": "CTA button"
   },
-  "startConversation": {
-    "message": "Start Conversation",
-    "description": "Start conversation button"
-  },
   "signIn": {
     "message": "Sign In",
     "description": "Sign in button"
@@ -556,5 +552,85 @@
   "uiInjected": {
     "message": "UI components injected",
     "description": "UI injection success message"
+  },
+  "welcome_notification_title": {
+    "message": "Welcome to ArchiMind!",
+    "description": "Title for the welcome notification"
+  },
+  "welcome_notification_body": {
+    "message": "Thank you for joining us. Follow our LinkedIn page to stay updated on our latest features and announcements.",
+    "description": "Body text for the welcome notification"
+  },
+  "followOnLinkedIn": {
+    "message": "Follow on LinkedIn",
+    "description": "Button text to follow on LinkedIn"
+  },
+  "first_conversation_title": {
+    "message": "Analyze Your First Conversation",
+    "description": "Title for the first conversation notification"
+  },
+  "first_conversation_body": {
+    "message": "Start your AI analytics journey by sending your first message to ChatGPT or loading a past conversation.",
+    "description": "Body text for the first conversation notification"
+  },
+  "startConversation": {
+    "message": "Start Conversation",
+    "description": "Button text to start a conversation"
+  },
+  "prompt_length_insight_title": {
+    "message": "Prompt Length Insight",
+    "description": "Title for prompt length insight notification"
+  },
+  "response_time_insight_title": {
+    "message": "Response Time Insight",
+    "description": "Title for response time insight notification"
+  },
+  "conversation_quality_insight_title": {
+    "message": "Conversation Quality Insight",
+    "description": "Title for conversation quality insight notification"
+  },
+  "new_insight_title": {
+    "message": "New Insight Available",
+    "description": "Title for new insight notification"
+  },
+  "notifications_marked_read": {
+    "message": "Marked {{count}} notifications as read",
+    "description": "Message shown when notifications are marked as read",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "notification_deleted": {
+    "message": "Notification deleted",
+    "description": "Message shown when a notification is deleted"
+  },
+  "new_notifications_title": {
+    "message": "{{count}} New{{#if plural}}s{{/if}} Notification{{#if plural}}s{{/if}}",
+    "description": "Title for new notifications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "new_notifications_description": {
+    "message": "Click to view your notifications",
+    "description": "Description for new notifications"
+  },
+  "view_action": {
+    "message": "View",
+    "description": "Text for view action button"
+  },
+  "no_url_error": {
+    "message": "No URL provided for action",
+    "description": "Error message when URL is missing for an action"
+  },
+  "action_error": {
+    "message": "Failed to process notification action",
+    "description": "Error message when notification action fails"
   }
 }

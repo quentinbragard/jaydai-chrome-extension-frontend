@@ -71,10 +71,6 @@
     "message": "Commencer",
     "description": "Bouton CTA"
   },
-  "startConversation": {
-    "message": "Commencer une conversation",
-    "description": "Bouton de début de conversation"
-  },
   "signIn": {
     "message": "Se Connecter",
     "description": "Bouton de connexion"
@@ -544,5 +540,85 @@
   "uiInjected": {
     "message": "Composants UI injectés",
     "description": "UI injection success message"
+  },
+  "welcome_notification_title": {
+    "message": "Bienvenue sur ArchiMind !",
+    "description": "Titre de la notification de bienvenue"
+  },
+  "welcome_notification_body": {
+    "message": "Merci de nous avoir rejoint. Suivez notre page LinkedIn pour rester informé de nos dernières fonctionnalités et annonces.",
+    "description": "Texte de la notification de bienvenue"
+  },
+  "followOnLinkedIn": {
+    "message": "Suivre sur LinkedIn",
+    "description": "Texte du bouton pour suivre sur LinkedIn"
+  },
+  "first_conversation_title": {
+    "message": "Analysez Votre Première Conversation",
+    "description": "Titre de la notification de première conversation"
+  },
+  "first_conversation_body": {
+    "message": "Commencez votre voyage d'analyse IA en envoyant votre premier message à ChatGPT ou en chargeant une conversation passée.",
+    "description": "Texte de la notification de première conversation"
+  },
+  "startConversation": {
+    "message": "Démarrer la Conversation",
+    "description": "Texte du bouton pour démarrer une conversation"
+  },
+  "prompt_length_insight_title": {
+    "message": "Analyse de la Longueur des Prompts",
+    "description": "Titre de la notification d'analyse de longueur des prompts"
+  },
+  "response_time_insight_title": {
+    "message": "Analyse du Temps de Réponse",
+    "description": "Titre de la notification d'analyse du temps de réponse"
+  },
+  "conversation_quality_insight_title": {
+    "message": "Analyse de la Qualité de la Conversation",
+    "description": "Titre de la notification d'analyse de qualité de conversation"
+  },
+  "new_insight_title": {
+    "message": "Nouvelle Analyse Disponible",
+    "description": "Titre de la notification de nouvelle analyse"
+  },
+  "notifications_marked_read": {
+    "message": "{{count}} notification{{#if plural}}s{{/if}} marquée{{#if plural}}s{{/if}} comme lue{{#if plural}}s{{/if}}",
+    "description": "Message affiché lorsque les notifications sont marquées comme lues",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "notification_deleted": {
+    "message": "Notification supprimée",
+    "description": "Message affiché lorsqu'une notification est supprimée"
+  },
+  "new_notifications_title": {
+    "message": "{{count}} New Notification{{#if plural}}s{{/if}}",
+    "description": "Title for new notifications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "new_notifications_description": {
+    "message": "Cliquez pour voir vos notifications",
+    "description": "Description for new notifications"
+  },
+  "view_action": {
+    "message": "Voir",
+    "description": "Texte du bouton d'action voir"
+  },
+  "no_url_error": {
+    "message": "Aucune URL fournie pour l'action",
+    "description": "Message d'erreur lorsqu'une URL est manquante pour une action"
+  },
+  "action_error": {
+    "message": "Échec du traitement de l'action de notification",
+    "description": "Message d'erreur lorsqu'une action de notification échoue"
   }
 }
