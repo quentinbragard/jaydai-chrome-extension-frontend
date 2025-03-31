@@ -596,10 +596,10 @@
     "description": "Message affiché lorsqu'une notification est supprimée"
   },
   "new_notifications_title": {
-    "message": "{{count}} New Notification{{#if plural}}s{{/if}}",
-    "description": "Title for new notifications",
+    "message": "$COUNT$ nouvelle(s) notification(s)",
+    "description": "Titre pour les nouvelles notifications",
     "placeholders": {
-      "count": {
+      "COUNT": {
         "content": "$1",
         "example": "3"
       }

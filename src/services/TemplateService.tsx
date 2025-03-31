@@ -4,6 +4,7 @@ import { promptApi } from './api/PromptApi';
 import { toast } from 'sonner';
 import { Template, TemplateFolder, TemplateFormData } from '@/types/templates';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { getCurrentLanguage } from '@/core/utils/i18n';
 
 // Key constants for query caching
 const QUERY_KEYS = {
@@ -32,6 +33,8 @@ export function useUserMetadata() {
  */
 export function usePinnedFolders() {
   const queryClient = useQueryClient();
+  // Get the user's current language
+  const userLocale = getCurrentLanguage();
   
   return useQuery(QUERY_KEYS.PINNED_FOLDERS, async () => {
     // First get user metadata to find pinned folder IDs
@@ -40,12 +43,12 @@ export function usePinnedFolders() {
       throw new Error(metadata.error || 'Failed to get user metadata');
     }
     
-    // Get official pinned folders
+    // Get official pinned folders with locale filtering
     const officialIds = metadata.data?.pinned_official_folder_ids || [];
     let officialFolders: TemplateFolder[] = [];
     
     if (officialIds.length > 0) {
-      const officialResponse = await promptApi.getPromptTemplatesFolders('official', officialIds);
+      const officialResponse = await promptApi.getPromptTemplatesFolders('official', officialIds, false, userLocale);
       if (officialResponse.success) {
         officialFolders = officialResponse.folders.map(folder => ({
           ...folder,
@@ -54,12 +57,12 @@ export function usePinnedFolders() {
       }
     }
     
-    // Get organization pinned folders
+    // Get organization pinned folders with locale filtering
     const orgIds = metadata.data?.pinned_organization_folder_ids || [];
     let orgFolders: TemplateFolder[] = [];
     
     if (orgIds.length > 0) {
-      const orgResponse = await promptApi.getPromptTemplatesFolders('organization', orgIds);
+      const orgResponse = await promptApi.getPromptTemplatesFolders('organization', orgIds, false, userLocale);
       if (orgResponse.success) {
         orgFolders = orgResponse.folders.map(folder => ({
           ...folder,
@@ -83,30 +86,15 @@ export function usePinnedFolders() {
 }
 
 /**
- * Get all user folders
- */
-export function useUserFolders() {
-  return useQuery(QUERY_KEYS.USER_FOLDERS, async () => {
-    const response = await promptApi.getPromptTemplatesFolders('user');
-    if (!response.success) {
-      throw new Error(response.error || 'Failed to load user folders');
-    }
-    return response.folders;
-  }, {
-    refetchOnWindowFocus: false,
-    onError: (error: any) => {
-      toast.error(`Failed to load user folders: ${error.message}`);
-    }
-  });
-}
-
-/**
  * Get all folders of a specific type (for browsing)
  */
 export function useAllFoldersOfType(type: 'official' | 'organization') {
+  // Get the user's current language
+  const userLocale = getCurrentLanguage();
+  
   return useQuery([QUERY_KEYS.ALL_FOLDERS, type], async () => {
-    // Load all folders of the specified type
-    const response = await promptApi.getAllTemplateFolders(type, true);
+    // Load all folders of the specified type with locale filtering
+    const response = await promptApi.getAllTemplateFolders(type, true, userLocale);
     if (!response.success) {
       throw new Error(response.error || `Failed to load ${type} folders`);
     }
@@ -134,6 +122,25 @@ export function useAllFoldersOfType(type: 'official' | 'organization') {
     }
   });
 }
+
+/**
+ * Get all user folders
+ */
+export function useUserFolders() {
+  return useQuery(QUERY_KEYS.USER_FOLDERS, async () => {
+    const response = await promptApi.getPromptTemplatesFolders('user');
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to load user folders');
+    }
+    return response.folders;
+  }, {
+    refetchOnWindowFocus: false,
+    onError: (error: any) => {
+      toast.error(`Failed to load user folders: ${error.message}`);
+    }
+  });
+}
+
 
 /**
  * Pin or unpin a folder
@@ -259,6 +266,7 @@ export function useCreateFolder() {
  */
 export function useCreateTemplate() {
   const queryClient = useQueryClient();
+  const userLocale = getCurrentLanguage();
   console.log('useCreateTemplate');
   
   return useMutation(
@@ -271,7 +279,7 @@ export function useCreateTemplate() {
         description: templateData.description,
         folder_id: templateData.folder_id,
         tags: [],
-        locale: chrome.i18n?.getUILanguage() || 'en'
+        locale: userLocale
       };
       
       const response = await promptApi.createTemplate(apiTemplateData);

@@ -1,4 +1,5 @@
 // src/services/api/PromptApi.ts
+import { getCurrentLanguage } from '@/core/utils/i18n';
 import { apiClient } from './ApiClient';
 
 /**
@@ -10,12 +11,15 @@ class PromptApiClient {
    * @param type - Type of folders to fetch (official, organization)
    * @param empty - Whether to return folders without templates
    */
-  async getAllTemplateFolders(type: string, empty: boolean = false): Promise<any> {
+  async getAllTemplateFolders(type: string, empty: boolean = false, locale?: string): Promise<any> {
     try {
       console.log(`Fetching all ${type} folders`);
       
-      // Use the same endpoint but without folder_ids to get all folders
-      const endpoint = `/prompts/folders?type=${type}&empty=${empty ? 'true' : 'false'}`;
+      // Get user locale or fallback to default
+      const userLocale = locale || getCurrentLanguage();
+      
+      // Use the same endpoint but add locale parameter
+      const endpoint = `/prompts/folders?type=${type}&empty=${empty ? 'true' : 'false'}&locale=${userLocale}`;
       
       console.log(`Making API request to: ${endpoint}`);
       
@@ -25,6 +29,82 @@ class PromptApiClient {
       return response;
     } catch (error) {
       console.error(`Error fetching ${type} folders:`, error);
+      
+      // Return a safe default value
+      return { 
+        success: false, 
+        folders: [], 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+  
+  /**
+   * Get template folders by type and optional folder IDs
+   */
+  async getPromptTemplatesFolders(
+    type: string, 
+    folderIds: number[] = [], 
+    empty: boolean = false,
+    locale?: string
+  ): Promise<any> {
+    try {
+      // Get user locale or fallback to default
+      const userLocale = locale || getCurrentLanguage();
+      
+      // Build the endpoint with the proper query parameters
+      let endpoint = `/prompts/folders/template-folders?type=${type}`;
+      
+      // Add folder_ids as a comma-separated string if provided
+      if (folderIds && folderIds.length > 0) {
+        endpoint += `&folder_ids=${folderIds.join(',')}`;
+      }
+      
+      if (empty) {
+        endpoint += '&empty=true';
+      }
+      
+      // Add locale parameter for filtering templates by language
+      endpoint += `&locale=${userLocale}`;
+      
+      console.log(`Making API request to: ${endpoint}`);
+      
+      // Use ApiClient to handle auth and error handling
+      const response = await apiClient.request(endpoint);
+      
+      // Add debug info for troubleshooting
+      console.log(`API response for ${type} folders with locale ${userLocale}:`, response);
+      
+      // Ensure every folder has a templates array
+      if (response.success && response.folders) {
+        response.folders = response.folders.map((folder: any) => {
+          // Initialize templates array if not present
+          if (!folder.templates) {
+            folder.templates = [];
+          }
+          
+          // Ensure Folders array exists
+          if (!folder.Folders) {
+            folder.Folders = [];
+          }
+          
+          // Process subfolders recursively
+          if (folder.Folders.length > 0) {
+            folder.Folders = folder.Folders.map((subfolder: any) => {
+              if (!subfolder.templates) {
+                subfolder.templates = [];
+              }
+              return subfolder;
+            });
+          }
+          
+          return folder;
+        });
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error fetching template folders:', error);
       
       // Return a safe default value
       return { 
@@ -107,74 +187,7 @@ class PromptApiClient {
     }
   }
 
-  /**
-   * Get template folders by type and optional folder IDs
-   */
-  async getPromptTemplatesFolders(
-    type: string, 
-    folderIds: number[] = [], 
-    empty: boolean = false
-  ): Promise<any> {
-    try {
-      // Build the endpoint with the proper query parameters
-      let endpoint = `/prompts/folders/template-folders?type=${type}`;
-      
-      // Add folder_ids as a comma-separated string if provided
-      if (folderIds && folderIds.length > 0) {
-        endpoint += `&folder_ids=${folderIds.join(',')}`;
-      }
-      
-      if (empty) {
-        endpoint += '&empty=true';
-      }
-      
-      console.log(`Making API request to: ${endpoint}`);
-      
-      // Use ApiClient to handle auth and error handling
-      const response = await apiClient.request(endpoint);
-      
-      // Add debug info for troubleshooting
-      console.log(`API response for ${type} folders:`, response);
-      
-      // Ensure every folder has a templates array
-      if (response.success && response.folders) {
-        response.folders = response.folders.map((folder: any) => {
-          // Initialize templates array if not present
-          if (!folder.templates) {
-            folder.templates = [];
-          }
-          
-          // Ensure Folders array exists
-          if (!folder.Folders) {
-            folder.Folders = [];
-          }
-          
-          // Process subfolders recursively
-          if (folder.Folders.length > 0) {
-            folder.Folders = folder.Folders.map((subfolder: any) => {
-              if (!subfolder.templates) {
-                subfolder.templates = [];
-              }
-              return subfolder;
-            });
-          }
-          
-          return folder;
-        });
-      }
-      
-      return response;
-    } catch (error) {
-      console.error('Error fetching template folders:', error);
-      
-      // Return a safe default value
-      return { 
-        success: false, 
-        folders: [], 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
+  
   
   /**
    * Create a new template

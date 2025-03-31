@@ -608,15 +608,15 @@
     "description": "Message shown when a notification is deleted"
   },
   "new_notifications_title": {
-    "message": "{{count}} New{{#if plural}}s{{/if}} Notification{{#if plural}}s{{/if}}",
-    "description": "Title for new notifications",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
+  "message": "$COUNT$ new notification(s)",
+  "description": "Title for new notifications",
+  "placeholders": {
+    "COUNT": {
+      "content": "$1",
+      "example": "3"
     }
-  },
+  }
+},
   "new_notifications_description": {
     "message": "Click to view your notifications",
     "description": "Description for new notifications"

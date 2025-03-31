@@ -52,7 +52,14 @@ export function getMessage(key: string, substitutions?: string | string[], defau
    */
   export function getCurrentLanguage(): string {
     if (isI18nAvailable() && chrome.i18n.getUILanguage) {
-      return chrome.i18n.getUILanguage();
+      const language = chrome.i18n.getUILanguage();
+      if (language.startsWith("en-")) {
+        return "en";
+      }
+      if (language.startsWith("fr-")) {
+        return "fr";
+      }
+      return language;
     }
     
     // Fallback to browser language or English
