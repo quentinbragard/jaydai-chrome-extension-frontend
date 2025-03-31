@@ -1,5 +1,6 @@
 // src/components/layout/MainButton.tsx
 
+import { useEffect } from 'react';
 import { Toaster } from "sonner";
 import { Button } from '@/components/ui/button';
 import { X } from "lucide-react";
@@ -14,11 +15,41 @@ import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
 const MainButton = () => {
   const {
     isOpen,
+    panelType,
+    setPanelType,
     notificationCount,
     buttonRef,
     toggleMenu,
     handleClosePanel,
   } = useMainButtonState();
+
+  // Listen for panel toggle events
+  useEffect(() => {
+    const handleTogglePanel = (event: CustomEvent) => {
+      const { panel } = event.detail;
+      if (panel) {
+        // Open the menu if it's not already open
+        if (!isOpen) {
+          toggleMenu();
+        }
+        // Set the active panel
+        setPanelType(panel);
+      }
+    };
+
+    // Add event listener
+    document.addEventListener(
+      'archimind:toggle-panel',
+      handleTogglePanel as EventListener
+    );
+
+    return () => {
+      document.removeEventListener(
+        'archimind:toggle-panel',
+        handleTogglePanel as EventListener
+      );
+    };
+  }, [isOpen, toggleMenu, setPanelType]);
 
   return (
     <ErrorBoundary>
@@ -29,6 +60,7 @@ const MainButton = () => {
             isOpen={isOpen}
             onClose={handleClosePanel}
             notificationCount={notificationCount}
+            activePanelType={panelType}
           />
 
           {/* Main Button with logo */}

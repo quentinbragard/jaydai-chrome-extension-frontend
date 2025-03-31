@@ -1,72 +1,76 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import { useNotifications } from '@/hooks/notifications/useNotifications';
+// src/hooks/ui/useMainButtonState.ts
 
-/**
- * Hook to manage the state of the main button and its panel
- */
-export function useMainButtonState() {
+import { useState, useRef, useEffect } from 'react';
+
+export type PanelType = 'menu' | 'notifications' | 'templates' | 'stats';
+
+export const useMainButtonState = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [panelType, setPanelType] = useState<PanelType>('menu');
+  const [notificationCount, setNotificationCount] = useState(0);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  
-  // Get notification count directly from useNotifications hook
-  const { unreadCount } = useNotifications();
 
-  // Handle clicks outside to close menu
+  // Listen for notification count changes
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        isOpen &&
-        menuRef.current &&
-        buttonRef.current &&
-        !menuRef.current.contains(e.target as Node) &&
-        !buttonRef.current.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-      }
+    const handleNotificationCountChanged = (event: CustomEvent) => {
+      const { unreadCount } = event.detail;
+      setNotificationCount(unreadCount);
     };
-  
-    document.addEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener(
+      'archimind:notification-count-changed',
+      handleNotificationCountChanged as EventListener
+    );
+
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener(
+        'archimind:notification-count-changed',
+        handleNotificationCountChanged as EventListener
+      );
     };
-  }, [isOpen]);
-
-  // UI event handlers
-  const toggleMenu = useCallback(() => {
-    setIsOpen(prevIsOpen => !prevIsOpen);
   }, []);
 
-  const handleClosePanel = useCallback(() => {
+  // Listen for open notifications requests
+  useEffect(() => {
+    const handleOpenNotifications = () => {
+      setIsOpen(true);
+      setPanelType('notifications');
+    };
+
+    document.addEventListener(
+      'archimind:open-notifications',
+      handleOpenNotifications
+    );
+
+    return () => {
+      document.removeEventListener(
+        'archimind:open-notifications',
+        handleOpenNotifications
+      );
+    };
+  }, []);
+
+  // Toggle menu open/closed
+  const toggleMenu = () => {
+    setIsOpen(prev => !prev);
+    // Reset to menu panel when toggling
+    if (!isOpen) {
+      setPanelType('menu');
+    }
+  };
+
+  // Close panel
+  const handleClosePanel = () => {
     setIsOpen(false);
-  }, []);
-
-  const handleImageLoad = useCallback(() => {
-    setImageLoaded(true);
-  }, []);
-
-  const handleImageError = useCallback(() => {
-    setImageLoaded(false);
-    console.error("Failed to load logo image");
-  }, []);
+  };
 
   return {
-    // State
     isOpen,
-    notificationCount: unreadCount, // Use the count from useNotifications
-    imageLoaded,
-    
-    // Refs
+    panelType,
+    setPanelType,
+    notificationCount,
     buttonRef,
-    menuRef,
-    
-    // Event handlers
     toggleMenu,
     handleClosePanel,
-    handleImageLoad,
-    handleImageError
   };
-}
-
-export default useMainButtonState;
+};

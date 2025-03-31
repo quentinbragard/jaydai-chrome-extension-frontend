@@ -157,8 +157,8 @@
     "message": "Ou continuer avec",
     "description": "Texte séparateur"
   },
-  "signInToArchimind": {
-    "message": "Connexion à Archimind",
+  "signInToJaydai": {
+    "message": "Connexion à Jaydai",
     "description": "Titre de dialogue de connexion"
   },
   "enterEmailPassword": {
@@ -357,12 +357,12 @@
     "message": "Créer",
     "description": "Bouton Créer"
   },
-  "archimindSettings": {
-    "message": "Paramètres d'Archimind",
+  "jaydaiSettings": {
+    "message": "Paramètres d'Jaydai",
     "description": "Titre de dialogue Paramètres"
   },
-  "configureArchimind": {
-    "message": "Configurez le fonctionnement d'Archimind avec ChatGPT",
+  "configureJaydai": {
+    "message": "Configurez le fonctionnement d'Jaydai avec ChatGPT",
     "description": "Description du dialogue Paramètres"
   },
   "autoSaveConversations": {
@@ -542,7 +542,7 @@
     "description": "UI injection success message"
   },
   "welcome_notification_title": {
-    "message": "Bienvenue sur ArchiMind !",
+    "message": "Bienvenue sur Jaydai !",
     "description": "Titre de la notification de bienvenue"
   },
   "welcome_notification_body": {
@@ -644,5 +644,25 @@
         "example": "aujourd'hui"
       }
     }
+  },
+  "organization_templates_title": {
+    "message": "Modèles d'Entreprise",
+    "description": "Titre de la section des modèles d'organisation"
+  },
+  "organization_templates_description": {
+    "message": "L'accès aux modèles d'organisation est une fonctionnalité d'entreprise. Contactez-nous pour l'activer pour votre équipe.",
+    "description": "Description de la section des modèles d'organisation"
+  },
+  "contact_enterprise_sales": {
+    "message": "Contacter les Ventes",
+    "description": "Texte du bouton pour contacter les ventes entreprise"
+  },
+  "official_folders_empty": {
+    "message": "Aucun dossier officiel disponible.",
+    "description": "Message d'état vide pour la section des dossiers officiels"
+  },
+  "user_folders_empty": {
+    "message": "Aucun dossier utilisateur disponible. Créez un dossier pour commencer.",
+    "description": "Message d'état vide pour la section des dossiers utilisateur"
   }
 }

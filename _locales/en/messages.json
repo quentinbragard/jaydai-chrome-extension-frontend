@@ -8,7 +8,7 @@
     "description": "The description of the extension"
   },
   "welcomeTitle": {
-    "message": "Welcome to Archimind",
+    "message": "Welcome to Jaydai",
     "description": "Welcome page title"
   },
   "yourAICompanion": {
@@ -98,7 +98,7 @@
   },
   
   "howItWorks": {
-    "message": "How Archimind Empowers You",
+    "message": "How Jaydai Empowers You",
     "description": "Section title"
   },
   "aiUsageTracking": {
@@ -169,8 +169,8 @@
     "message": "Or continue with",
     "description": "Separator text"
   },
-  "signInToArchimind": {
-    "message": "Sign In to Archimind",
+  "signInToJaydai": {
+    "message": "Sign In to Jaydai",
     "description": "Sign in dialog title"
   },
   "enterEmailPassword": {
@@ -369,12 +369,12 @@
     "message": "Create",
     "description": "Create button"
   },
-  "archimindSettings": {
+  "jaydaiSettings": {
     "message": "Jaydai Settings",
     "description": "Settings dialog title"
   },
-  "configureArchimind": {
-    "message": "Configure how Archimind works with ChatGPT",
+  "configureJaydai": {
+    "message": "Configure how Jaydai works with ChatGPT",
     "description": "Settings dialog description"
   },
   "autoSaveConversations": {
@@ -554,7 +554,7 @@
     "description": "UI injection success message"
   },
   "welcome_notification_title": {
-    "message": "Welcome to ArchiMind!",
+    "message": "Welcome to Jaydai!",
     "description": "Title for the welcome notification"
   },
   "welcome_notification_body": {
@@ -656,5 +656,25 @@
         "example": "today"
       }
     }
+  },
+  "organization_templates_title": {
+    "message": "Enterprise Templates",
+    "description": "Title for organization templates section"
+  },
+  "organization_templates_description": {
+    "message": "Access to organization templates is an enterprise feature. Contact us to enable this for your team.",
+    "description": "Description for organization templates section"
+  },
+  "contact_enterprise_sales": {
+    "message": "Contact Sales",
+    "description": "Button text to contact enterprise sales"
+  },
+  "official_folders_empty": {
+    "message": "No official folders available.",
+    "description": "Empty state message for official folders section"
+  },
+  "user_folders_empty": {
+    "message": "No user folders available. Create a folder to get started.",
+    "description": "Empty state message for user folders section"
   }
 }

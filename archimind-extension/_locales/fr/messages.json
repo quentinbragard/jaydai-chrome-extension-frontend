@@ -157,7 +157,7 @@
     "message": "Ou continuer avec",
     "description": "Texte séparateur"
   },
-  "signInToArchimind": {
+  "signInToJaydai": {
     "message": "Connexion à Archimind",
     "description": "Titre de dialogue de connexion"
   },
@@ -357,11 +357,11 @@
     "message": "Créer",
     "description": "Bouton Créer"
   },
-  "archimindSettings": {
+  "jaydaiSettings": {
     "message": "Paramètres d'Archimind",
     "description": "Titre de dialogue Paramètres"
   },
-  "configureArchimind": {
+  "configureJaydai": {
     "message": "Configurez le fonctionnement d'Archimind avec ChatGPT",
     "description": "Description du dialogue Paramètres"
   },

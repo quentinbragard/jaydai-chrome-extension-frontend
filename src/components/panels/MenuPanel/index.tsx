@@ -97,7 +97,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
             {getMessage('aiNews', undefined, 'AI News')}
           </Button>
           
-          <Button 
+         {/*} <Button 
             variant="ghost" 
             size="sm" 
             className="justify-start" 
@@ -105,7 +105,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
           >
             <Settings className="mr-2 h-4 w-4" /> 
             {getMessage('settings', undefined, 'Settings')}
-          </Button>
+          </Button> */}
         </div>
       </Card>
     </BasePanel>
