@@ -243,28 +243,28 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           <Separator />
           
            {/* Organization Templates Section */}
-           <FolderSection
-            title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
-            iconType="organization"
-            onBrowseMore={() => handleBrowseMore('organization')}
-            showBrowseMore={true}
-          >
-            {typedOrgFolders?.length ? (
-              <FolderList
-                folders={typedOrgFolders}
-                type="organization"
-                onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'organization' })}
-                onUseTemplate={handleUseTemplate}
-                showPinControls={true}
-                emptyMessage="No pinned organization templates. Click Browse More to add some."
-              />
-            ) : (
-              <EmptyMessage>
-                {getMessage('noPinnedOrganizationTemplates', undefined, 'No pinned organization templates. Click Browse More to add some.')}
-              </EmptyMessage>
-            )}
-          </FolderSection>
-
+            <FolderSection
+              title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
+              iconType="organization"
+              onBrowseMore={() => handleBrowseMore('organization')}
+              showBrowseMore={false}
+              isEmpty={true} // Add this to always show the CTA
+            >
+              {typedOrgFolders?.length ? (
+                <FolderList
+                  folders={typedOrgFolders}
+                  type="organization"
+                  onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'organization' })}
+                  onUseTemplate={handleUseTemplate}
+                  showPinControls={true}
+                  emptyMessage="No pinned organization templates. Click Browse More to add some."
+                />
+              ) : (
+                <EmptyMessage>
+                  {getMessage('noPinnedOrganizationTemplates', undefined, 'No pinned organization templates. Click Browse More to add some.')}
+                </EmptyMessage>
+              )}
+            </FolderSection>
           <Separator />
           
           {/* User Templates Section */}

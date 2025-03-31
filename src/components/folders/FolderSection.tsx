@@ -51,15 +51,15 @@ export function FolderSection({
   const renderOrganizationCTA = () => {
     if (iconType === 'organization' && isEmpty) {
       return (
-        <div className="flex flex-col items-center justify-center py-6 px-4 text-center space-y-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg my-2 mx-2">
-          <div className="rounded-full bg-gray-100 dark:bg-gray-800 p-3">
-            <Building2 className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+        <div className="flex flex-col items-center justify-center py-3 px-3 text-center space-y-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg my-1 mx-1">
+          <div className="rounded-full bg-gray-100 dark:bg-gray-800 p-2">
+            <Building2 className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           </div>
-          <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 text-xs font-medium">
-            <Lock className="h-3.5 w-3.5" />
+          <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-xs font-medium">
+            <Lock className="h-3 w-3" />
             {getMessage('enterprise_feature', undefined, 'Enterprise Feature')}
           </div>
-          <h3 className="text-base font-medium">
+          <h3 className="text-sm font-medium">
             {getMessage('organization_templates_title', undefined, 'Enterprise Templates')}
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs">
@@ -69,10 +69,10 @@ export function FolderSection({
           <Button 
             variant="outline"
             size="sm"
-            className="mt-2 flex items-center gap-1.5 text-xs"
+            className="mt-1 flex items-center gap-1 text-xs py-1"
             onClick={handleContactSales}
           >
-            <Mail className="h-3.5 w-3.5" />
+            <Mail className="h-3 w-3" />
             {getMessage('contact_enterprise_sales', undefined, 'Contact Sales')}
           </Button>
         </div>
@@ -80,7 +80,7 @@ export function FolderSection({
     }
     return null;
   };
-
+  
   return (
     <div>
       <div className="flex items-center justify-between text-sm font-medium text-muted-foreground mb-2 px-2">
