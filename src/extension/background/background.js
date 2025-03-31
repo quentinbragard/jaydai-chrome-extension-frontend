@@ -97,6 +97,7 @@ async function emailSignIn(email, password, sendResponse) {
       
       console.log("✅ Email Sign-In successful");
       
+      
       // Store session data first (tokens)
       storeAuthSession(data.session);
       
@@ -106,6 +107,8 @@ async function emailSignIn(email, password, sendResponse) {
       } else {
         console.warn("⚠️ No user data returned from sign-in endpoint");
       }
+
+      chrome.tabs.create({ url: 'https://chat.openai.com' });
       
       // Response should be sent after storage operations
       sendResponse({ 
@@ -181,13 +184,18 @@ async function emailSignIn(email, password, sendResponse) {
     console.log("🔍 Starting Google sign-in flow");
     
     const manifest = chrome.runtime.getManifest();
-    const authUrl = new URL("https://accounts.google.com/o/oauth2/auth");
-  
-    authUrl.searchParams.set("client_id", manifest.oauth2.client_id);
-    authUrl.searchParams.set("response_type", "id_token");
-    authUrl.searchParams.set("redirect_uri", `https://${chrome.runtime.id}.chromiumapp.org`);
-    authUrl.searchParams.set("scope", manifest.oauth2.scopes.join(" "));
-  
+    const redirectUri = `https://${chrome.runtime.id}.chromiumapp.org`
+    
+    const authUrl = new URL('https://accounts.google.com/o/oauth2/auth');
+    authUrl.searchParams.set('client_id', manifest.oauth2.client_id);
+    authUrl.searchParams.set('response_type', 'id_token');
+    authUrl.searchParams.set('access_type', 'offline');
+    authUrl.searchParams.set('redirect_uri', redirectUri);
+    authUrl.searchParams.set('scope', manifest.oauth2.scopes.join(' '));
+    authUrl.searchParams.set('prompt', 'consent');
+
+    console.log("Redirect URI:", redirectUri);
+
     chrome.identity.launchWebAuthFlow({ 
       url: authUrl.href, 
       interactive: true 
@@ -196,7 +204,7 @@ async function emailSignIn(email, password, sendResponse) {
         console.error("❌ Google Sign-In failed:", chrome.runtime.lastError);
         sendResponse({ 
           success: false, 
-          error: chrome.runtime.lastError.message || chrome.i18n.getMessage('googleAuthCanceled', undefined, 'Google authentication was canceled')
+          error: chrome.runtime.lastError.message || "Google authentication was canceled" 
         });
         return;
       }
@@ -205,18 +213,22 @@ async function emailSignIn(email, password, sendResponse) {
         console.error("❌ No redirect URL received");
         sendResponse({ 
           success: false, 
-          error: chrome.i18n.getMessage('noAuthData', undefined, 'No authentication data received from Google')
+          error: "No authentication data received from Google" 
         });
         return;
       }
   
       try {
         const url = new URL(redirectedUrl);
-        const params = new URLSearchParams(url.hash.replace("#", "?"));
+        const params = new URLSearchParams(url.hash.replace("#", "?"))
         const idToken = params.get("id_token");
+
+        console.log("url", url);
+        console.log("params", params);
+        console.log("🔹 Google ID Token:", idToken);
   
         if (!idToken) {
-          console.error("❌ No ID token in redirect URL");
+          console.error("❌ No id_token in redirect URL");
           sendResponse({ 
             success: false, 
             error: "Google authentication didn't return an ID token" 
@@ -226,10 +238,16 @@ async function emailSignIn(email, password, sendResponse) {
   
         console.log("🔹 Google ID Token received");
   
-        const response = await fetch(`${process.env.VITE_API_URL}/auth/google`, {
+        const response = await fetch("http://127.0.0.1:8000/auth/sign_in_with_google", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id_token: idToken }),
+          headers: { 
+            "Content-Type": "application/json",
+            "Origin": chrome.runtime.getURL('') // Helps with CORS
+          },
+          body: JSON.stringify({ 
+            id_token: idToken
+          }),
+          credentials: 'include'  // Allows sending credentials across origins
         });
   
         const data = await response.json();
@@ -278,7 +296,7 @@ async function emailSignIn(email, password, sendResponse) {
     });
     
     return true; // Keep channel open for async response
-  }
+}
   
   function storeUser(user) {
     if (!user) {
