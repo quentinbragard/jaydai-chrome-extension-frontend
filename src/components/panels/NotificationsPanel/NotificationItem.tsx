@@ -29,6 +29,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   
   // Get action button details from metadata
   const actionButton = notificationService.getActionButton(notification);
+  console.log("actionbutton", actionButton);
   
   // Handle notification click
   const handleClick = async () => {

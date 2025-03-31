@@ -71,6 +71,10 @@
     "message": "Get Started",
     "description": "CTA button"
   },
+  "startConversation": {
+    "message": "Start Conversation",
+    "description": "Start conversation button"
+  },
   "signIn": {
     "message": "Sign In",
     "description": "Sign in button"
@@ -140,6 +144,16 @@
   "signInWith": {
     "message": "Sign In with $PROVIDER$",
     "description": "Sign in with provider button",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "signUpWith": {
+    "message": "Sign Up with $PROVIDER$",
+    "description": "Sign up with provider button",
     "placeholders": {
       "provider": {
         "content": "$1",

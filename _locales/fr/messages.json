@@ -71,6 +71,10 @@
     "message": "Commencer",
     "description": "Bouton CTA"
   },
+  "startConversation": {
+    "message": "Commencer une conversation",
+    "description": "Bouton de début de conversation"
+  },
   "signIn": {
     "message": "Se Connecter",
     "description": "Bouton de connexion"

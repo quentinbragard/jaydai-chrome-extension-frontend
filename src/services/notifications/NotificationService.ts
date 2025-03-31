@@ -5,7 +5,7 @@ import { notificationApi } from "@/services/api/NotificationApi";
 import { toast } from "sonner";
 import { emitEvent, AppEvent } from '@/core/events/events';
 import { debug } from '@/core/config';
-
+import { getMessage } from '@/core/utils/i18n';
 // Interface for notifications
 export interface Notification {
   id: string | number;
@@ -425,9 +425,9 @@ export class NotificationService extends AbstractBaseService {
     if (!metadata) {
       return null;
     }
-    
+    console.log("metadata", metadata);
     return {
-      title: metadata.action_title_key,
+      title: getMessage(metadata.action_title_key || ''),
       visible: true
     };
   }
