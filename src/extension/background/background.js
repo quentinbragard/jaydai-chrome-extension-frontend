@@ -11,8 +11,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const actions = {
         // Auth actions
         googleSignIn: () => googleSignIn(sendResponse),
-        linkedinSignIn: () => linkedinSignIn(sendResponse),
-        linkedinSignUp: () => linkedinSignUp(sendResponse),
         emailSignIn: () => emailSignIn(request.email, request.password, sendResponse),
         signUp: () => signUp(request.email, request.password, request.name, sendResponse),
         getAuthToken: () => sendAuthToken(sendResponse),
@@ -182,22 +180,33 @@ async function emailSignIn(email, password, sendResponse) {
     return true; // Keep channel open for async response
   }
   
+  // In src/extension/background/background.js
   function googleSignIn(sendResponse) {
     console.log("🔍 Starting Google sign-in flow");
     
     const manifest = chrome.runtime.getManifest();
-    const redirectUri = `https://${chrome.runtime.id}.chromiumapp.org`
+    const redirectUri = `https://${chrome.runtime.id}.chromiumapp.org`;
+    
+    // Ensure required configuration is present
+    if (!manifest.oauth2 || !manifest.oauth2.client_id) {
+      console.error("❌ Missing Google OAuth client ID in manifest");
+      sendResponse({ 
+        success: false, 
+        error: "Google OAuth is not properly configured"
+      });
+      return true;
+    }
     
     const authUrl = new URL('https://accounts.google.com/o/oauth2/auth');
     authUrl.searchParams.set('client_id', manifest.oauth2.client_id);
     authUrl.searchParams.set('response_type', 'id_token');
     authUrl.searchParams.set('access_type', 'offline');
     authUrl.searchParams.set('redirect_uri', redirectUri);
-    authUrl.searchParams.set('scope', manifest.oauth2.scopes.join(' '));
+    authUrl.searchParams.set('scope', (manifest.oauth2.scopes || ['email', 'profile']).join(' '));
     authUrl.searchParams.set('prompt', 'consent');
-
+  
     console.log("Redirect URI:", redirectUri);
-
+  
     chrome.identity.launchWebAuthFlow({ 
       url: authUrl.href, 
       interactive: true 
@@ -222,12 +231,8 @@ async function emailSignIn(email, password, sendResponse) {
   
       try {
         const url = new URL(redirectedUrl);
-        const params = new URLSearchParams(url.hash.replace("#", "?"))
+        const params = new URLSearchParams(url.hash.replace("#", "?"));
         const idToken = params.get("id_token");
-
-        console.log("url", url);
-        console.log("params", params);
-        console.log("🔹 Google ID Token:", idToken);
   
         if (!idToken) {
           console.error("❌ No id_token in redirect URL");
@@ -240,16 +245,18 @@ async function emailSignIn(email, password, sendResponse) {
   
         console.log("🔹 Google ID Token received");
   
-        const response = await fetch("http://127.0.0.1:8000/auth/sign_in_with_google", {
+        // Use environment variable for the API endpoint
+        const apiUrl = process.env.VITE_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${apiUrl}/auth/sign_in_with_google`, {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
-            "Origin": chrome.runtime.getURL('') // Helps with CORS
+            "Origin": chrome.runtime.getURL('') 
           },
           body: JSON.stringify({ 
             id_token: idToken
           }),
-          credentials: 'include'  // Allows sending credentials across origins
+          credentials: 'include'
         });
   
         const data = await response.json();
@@ -280,13 +287,15 @@ async function emailSignIn(email, password, sendResponse) {
         
         if (data.user) {
           storeUser(data.user);
-          storeUserId(data.user.id);
         }
+        
+        // Open ChatGPT in a new tab (success case)
+        chrome.tabs.create({ url: 'https://chat.openai.com' });
         
         sendResponse({ 
           success: true, 
           user: data.user, 
-          access_token: data.session.access_token 
+          session: data.session
         });
       } catch (error) {
         console.error("❌ Error processing Google authentication:", error);
@@ -298,8 +307,11 @@ async function emailSignIn(email, password, sendResponse) {
     });
     
     return true; // Keep channel open for async response
-}
+  }
   
+  /**
+   * Store user data
+   */
   function storeUser(user) {
     if (!user) {
       console.error("❌ Attempted to store undefined/null user");
@@ -314,6 +326,7 @@ async function emailSignIn(email, password, sendResponse) {
       }
     });
   }
+  
   
   function storeUserId(userId) {
     if (!userId) {
@@ -330,155 +343,37 @@ async function emailSignIn(email, password, sendResponse) {
     });
   }
 
-/* ==========================================
- 🔹 LINKEDIN AUTH IMPLEMENTATION (Backend API)
-========================================== */
-function linkedinSignIn(sendResponse) {
-  console.log("🔍 Starting LinkedIn (OIDC) sign-in flow");
-  console.log("🔹 LinkedIn Client ID:", process.env.VITE_LINKEDIN_CLIENT_ID);
-  
-  // Construct redirect URI for the Chrome extension
-  const redirectUri = `https://${chrome.runtime.id}.chromiumapp.org/auth/callback`;
-  
-  // Generate a cryptographically secure state
-  const state = crypto.randomUUID();
-  
-  // Store state in local storage for CSRF protection
-  chrome.storage.local.set({ 'linkedin_oauth_state': state });
-  
-  // Construct the LinkedIn OAuth authorization URL
-  const authUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
-  authUrl.searchParams.set('response_type', 'code');
-  authUrl.searchParams.set('client_id', process.env.VITE_LINKEDIN_CLIENT_ID);
-  authUrl.searchParams.set('redirect_uri', redirectUri);
-  authUrl.searchParams.set('state', state);
-  
-  // Recommended scopes
-  const scopes = ['openid', 'profile', 'email'].join(' ');
-  authUrl.searchParams.set('scope', scopes);
-  
-  console.log("LinkedIn Auth URL:", authUrl.href);
-  console.log("Redirect URI:", redirectUri);
 
-  chrome.identity.launchWebAuthFlow({ 
-    url: authUrl.href, 
-    interactive: true 
-  }, async (redirectedUrl) => {
+
+/**
+ * Store authentication session
+ */
+function storeAuthSession(session) {
+  if (!session) {
+    console.error("❌ Attempted to store undefined/null session");
+    return;
+  }
+
+  if (!session.access_token || !session.refresh_token) {
+    console.error("❌ Incomplete session data:", session);
+    return;
+  }
+
+  console.log("🔄 Storing auth session. Expires at:", session.expires_at);
+  
+  chrome.storage.local.set({
+    access_token: session.access_token,
+    refresh_token: session.refresh_token,
+    token_expires_at: session.expires_at,
+  }, () => {
     if (chrome.runtime.lastError) {
-      console.error("❌ LinkedIn Sign-In failed:", chrome.runtime.lastError);
-      sendResponse({ 
-        success: false, 
-        error: chrome.runtime.lastError.message || "LinkedIn authentication was canceled" 
-      });
-      return;
-    }
-
-    if (!redirectedUrl) {
-      console.error("❌ No redirect URL received");
-      sendResponse({ 
-        success: false, 
-        error: "No authentication data received from LinkedIn" 
-      });
-      return;
-    }
-
-    try {
-      const url = new URL(redirectedUrl);
-      const code = url.searchParams.get("code");
-      const returnedState = url.searchParams.get("state");
-      
-      // Verify state to prevent CSRF attacks
-      const storedStateResult = await new Promise((resolve) => {
-        chrome.storage.local.get(['linkedin_oauth_state'], (result) => {
-          resolve(result.linkedin_oauth_state);
-        });
-      });
-      
-      if (returnedState !== storedStateResult) {
-        console.error("❌ OAuth state mismatch - possible CSRF attack");
-        sendResponse({
-          success: false,
-          error: "Authentication failed - security error"
-        });
-        return;
-      }
-      
-      if (!code) {
-        console.error("❌ No authorization code in redirect URL");
-        sendResponse({ 
-          success: false, 
-          error: "LinkedIn authentication didn't return a code" 
-        });
-        return;
-      }
-
-      // Call backend API to complete LinkedIn authentication
-      const response = await fetch(`${process.env.VITE_API_URL}/auth/sign_in_with_linkedin`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Origin": chrome.runtime.getURL('') // Helps with CORS
-        },
-        body: JSON.stringify({ 
-          code: code,
-          redirect_uri: redirectUri
-        }),
-        credentials: 'include'  // Allows sending credentials across origins
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        console.error("❌ Backend authentication failed:", data);
-        sendResponse({ 
-          success: false, 
-          error: data.detail || data.error || "Authentication failed" 
-        });
-        return;
-      }
-      
-      // Validate required data
-      if (!data.session || !data.session.access_token || !data.session.refresh_token) {
-        console.error("❌ Invalid response from backend (missing session data):", data);
-        sendResponse({ 
-          success: false, 
-          error: "Server returned invalid authentication data" 
-        });
-        return;
-      }
-      
-      console.log("✅ LinkedIn authentication successful");
-      
-      // Store authentication data
-      storeAuthSession(data.session);
-      
-      // Store user data
-      if (data.user) {
-        storeUser(data.user);
-        storeUserId(data.user.id);
-      }
-      
-      sendResponse({ 
-        success: true, 
-        user: data.user, 
-        access_token: data.session.access_token 
-      });
-    } catch (error) {
-      console.error("❌ Error processing LinkedIn authentication:", error);
-      sendResponse({ 
-        success: false, 
-        error: error.message || "Failed to process LinkedIn authentication" 
-      });
+      console.error("❌ Error storing auth session:", chrome.runtime.lastError);
+    } else {
+      console.log("✅ Auth session stored successfully");
     }
   });
-  
-  return true; // Keep channel open for async response
 }
 
-// For LinkedIn, sign up is the same as sign in due to OIDC
-function linkedinSignUp(sendResponse) {
-  return linkedinSignIn(sendResponse);
-}
 
 /* ==========================================
  🔹 AUTH TOKEN MANAGEMENT
@@ -612,34 +507,7 @@ function sendAuthToken(sendResponse) {
     return true; // Keep channel open for async response
   }
   
-  /**
-   * Stores authentication session.
-   */
-  function storeAuthSession(session) {
-    if (!session) {
-      console.error("❌ Attempted to store undefined/null session");
-      return;
-    }
   
-    if (!session.access_token || !session.refresh_token) {
-      console.error("❌ Incomplete session data:", session);
-      return;
-    }
-  
-    console.log("🔄 Storing auth session. Expires at:", session.expires_at);
-    
-    chrome.storage.local.set({
-      access_token: session.access_token,
-      refresh_token: session.refresh_token,
-      token_expires_at: session.expires_at,
-    }, () => {
-      if (chrome.runtime.lastError) {
-        console.error("❌ Error storing auth session:", chrome.runtime.lastError);
-      } else {
-        console.log("✅ Auth session stored successfully");
-      }
-    });
-  }
   
   /**
    * Clear authentication data - useful for sign out or when tokens become invalid
