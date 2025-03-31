@@ -632,5 +632,29 @@
   "action_error": {
     "message": "Failed to process notification action",
     "description": "Error message when notification action fails"
+  },
+  "popular": {
+    "message": "Popular",
+    "description": "Label for popular items section"
+  },
+  "used_times": {
+    "message": "Used {{count}} times",
+    "description": "Message showing how many times a template has been used",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "last_used": {
+    "message": "Last used {{date}}",
+    "description": "Message showing when a template was last used",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "today"
+      }
+    }
   }
 }

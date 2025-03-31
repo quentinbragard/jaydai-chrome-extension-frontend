@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Template } from '@/types/templates';
 import { useTemplateSelection } from '@/hooks/templates/useTemplateSelection';
+import { getMessage } from '@/core/utils/i18n';
 
 interface TemplateItemProps {
   template: Template;
@@ -66,8 +67,13 @@ export function TemplateItem({
   
   const lastUsedText = formatDate(template.last_used_at);
   
-  // Render usage indicator based on frequency
+  // Render usage indicator based on frequency - only for user templates
   const renderUsageIndicator = () => {
+    // Don't show usage indicators for non-user templates
+    if (type !== 'user') {
+      return null;
+    }
+    
     if (usageCount === 0) {
       return null;
     }
@@ -80,14 +86,14 @@ export function TemplateItem({
             <TooltipTrigger asChild>
               <div className="flex items-center text-xs text-primary">
                 <Activity className="h-3 w-3 mr-1 text-primary" />
-                <span>Popular</span>
+                <span>{getMessage('popular')}</span>
                 <Badge variant="outline" className="ml-1 h-4 px-1 py-0 text-xs">
                   {usageCount}
                 </Badge>
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Used {usageCount} times</p>
+              <p>{getMessage('used_times', { count: usageCount })}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -99,7 +105,7 @@ export function TemplateItem({
       return (
         <div className="flex items-center text-xs text-muted-foreground">
           <Clock className="h-3 w-3 mr-1" />
-          <span>Last used {lastUsedText}</span>
+          <span>{getMessage('last_used', { date: lastUsedText })}</span>
         </div>
       );
     }
@@ -107,7 +113,7 @@ export function TemplateItem({
     // Default usage count
     return (
       <div className="text-xs text-muted-foreground">
-        Used {usageCount} {usageCount === 1 ? 'time' : 'times'}
+        <p>{getMessage('used_times', { count: usageCount })}</p>
       </div>
     );
   };

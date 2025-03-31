@@ -620,5 +620,29 @@
   "action_error": {
     "message": "Échec du traitement de l'action de notification",
     "description": "Message d'erreur lorsqu'une action de notification échoue"
+  },
+  "popular": {
+    "message": "Populaire",
+    "description": "Étiquette pour la section des éléments populaires"
+  },
+  "used_times": {
+    "message": "Utilisé {{count}} fois",
+    "description": "Message indiquant combien de fois un template a été utilisé",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "last_used": {
+    "message": "Dernière utilisation {{date}}",
+    "description": "Message indiquant quand un template a été utilisé pour la dernière fois",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "aujourd'hui"
+      }
+    }
   }
 }
