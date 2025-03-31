@@ -330,30 +330,32 @@ async function emailSignIn(email, password, sendResponse) {
     });
   }
 
-  /* ==========================================
- 🔹 LINKEDIN AUTH FUNCTIONS
+/* ==========================================
+ 🔹 LINKEDIN AUTH IMPLEMENTATION (Backend API)
 ========================================== */
 function linkedinSignIn(sendResponse) {
   console.log("🔍 Starting LinkedIn (OIDC) sign-in flow");
+  console.log("🔹 LinkedIn Client ID:", process.env.VITE_LINKEDIN_CLIENT_ID);
   
-  // We'll use Supabase's built-in support for LinkedIn OIDC
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
-  
-  // Construct redirect URL for the Chrome extension
+  // Construct redirect URI for the Chrome extension
   const redirectUri = `https://${chrome.runtime.id}.chromiumapp.org/auth/callback`;
   
-  // Generate a random state for CSRF protection
+  // Generate a cryptographically secure state
   const state = crypto.randomUUID();
   
-  // Store state in local storage for verification later
+  // Store state in local storage for CSRF protection
   chrome.storage.local.set({ 'linkedin_oauth_state': state });
   
-  // Construct the Supabase OAuth URL for LinkedIn
-  const authUrl = new URL(`${supabaseUrl}/auth/v1/authorize`);
-  authUrl.searchParams.set('provider', 'linkedin_oidc');
-  authUrl.searchParams.set('redirect_to', redirectUri);
+  // Construct the LinkedIn OAuth authorization URL
+  const authUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
+  authUrl.searchParams.set('response_type', 'code');
+  authUrl.searchParams.set('client_id', process.env.VITE_LINKEDIN_CLIENT_ID);
+  authUrl.searchParams.set('redirect_uri', redirectUri);
   authUrl.searchParams.set('state', state);
+  
+  // Recommended scopes
+  const scopes = ['openid', 'profile', 'email'].join(' ');
+  authUrl.searchParams.set('scope', scopes);
   
   console.log("LinkedIn Auth URL:", authUrl.href);
   console.log("Redirect URI:", redirectUri);
@@ -382,96 +384,84 @@ function linkedinSignIn(sendResponse) {
 
     try {
       const url = new URL(redirectedUrl);
-      
-      // Extract the authorization code and state
       const code = url.searchParams.get("code");
       const returnedState = url.searchParams.get("state");
       
       // Verify state to prevent CSRF attacks
-      chrome.storage.local.get(['linkedin_oauth_state'], async (result) => {
-        const storedState = result.linkedin_oauth_state;
-        
-        if (returnedState !== storedState) {
-          console.error("❌ OAuth state mismatch - possible CSRF attack");
-          sendResponse({
-            success: false,
-            error: "Authentication failed - security error"
-          });
-          return;
-        }
-        
-        console.log("🔹 LinkedIn Authorization Code received");
-
-        if (!code) {
-          console.error("❌ No authorization code in redirect URL");
-          sendResponse({ 
-            success: false, 
-            error: "LinkedIn authentication didn't return a code" 
-          });
-          return;
-        }
-
-        // Exchange the authorization code for a session using Supabase's API
-        const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=authorization_code&code=${code}`, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "apikey": supabaseKey
-          }
+      const storedStateResult = await new Promise((resolve) => {
+        chrome.storage.local.get(['linkedin_oauth_state'], (result) => {
+          resolve(result.linkedin_oauth_state);
         });
-
-        const data = await response.json();
-        
-        if (!response.ok) {
-          console.error("❌ Supabase session exchange failed:", data);
-          sendResponse({ 
-            success: false, 
-            error: data.error_description || data.error || "Authentication failed" 
-          });
-          return;
-        }
-        
-        // Validate required data
-        if (!data.access_token || !data.refresh_token) {
-          console.error("❌ Invalid response from Supabase (missing token data):", data);
-          sendResponse({ 
-            success: false, 
-            error: "Server returned invalid authentication data" 
-          });
-          return;
-        }
-        
-        console.log("✅ LinkedIn authentication successful");
-        
-        // Store the session in our extension storage
-        const session = {
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-          expires_at: Math.floor(Date.now() / 1000) + data.expires_in
-        };
-        
-        storeAuthSession(session);
-        
-        // Fetch user data
-        const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
-          headers: {
-            "Authorization": `Bearer ${data.access_token}`,
-            "apikey": supabaseKey
-          }
+      });
+      
+      if (returnedState !== storedStateResult) {
+        console.error("❌ OAuth state mismatch - possible CSRF attack");
+        sendResponse({
+          success: false,
+          error: "Authentication failed - security error"
         });
-        
-        const userData = await userResponse.json();
-        
-        if (userResponse.ok && userData) {
-          storeUser(userData);
-          storeUserId(userData.id);
-        }
-        
+        return;
+      }
+      
+      if (!code) {
+        console.error("❌ No authorization code in redirect URL");
         sendResponse({ 
-          success: true, 
-          user: userData, 
-          access_token: data.access_token 
+          success: false, 
+          error: "LinkedIn authentication didn't return a code" 
         });
+        return;
+      }
+
+      // Call backend API to complete LinkedIn authentication
+      const response = await fetch(`${process.env.VITE_API_URL}/auth/sign_in_with_linkedin`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Origin": chrome.runtime.getURL('') // Helps with CORS
+        },
+        body: JSON.stringify({ 
+          code: code,
+          redirect_uri: redirectUri
+        }),
+        credentials: 'include'  // Allows sending credentials across origins
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error("❌ Backend authentication failed:", data);
+        sendResponse({ 
+          success: false, 
+          error: data.detail || data.error || "Authentication failed" 
+        });
+        return;
+      }
+      
+      // Validate required data
+      if (!data.session || !data.session.access_token || !data.session.refresh_token) {
+        console.error("❌ Invalid response from backend (missing session data):", data);
+        sendResponse({ 
+          success: false, 
+          error: "Server returned invalid authentication data" 
+        });
+        return;
+      }
+      
+      console.log("✅ LinkedIn authentication successful");
+      
+      // Store authentication data
+      storeAuthSession(data.session);
+      
+      // Store user data
+      if (data.user) {
+        storeUser(data.user);
+        storeUserId(data.user.id);
+      }
+      
+      sendResponse({ 
+        success: true, 
+        user: data.user, 
+        access_token: data.session.access_token 
       });
     } catch (error) {
       console.error("❌ Error processing LinkedIn authentication:", error);
@@ -485,9 +475,8 @@ function linkedinSignIn(sendResponse) {
   return true; // Keep channel open for async response
 }
 
+// For LinkedIn, sign up is the same as sign in due to OIDC
 function linkedinSignUp(sendResponse) {
-  // For LinkedIn, the sign-up and sign-in flows are identical
-  // Supabase will automatically handle new vs returning users
   return linkedinSignIn(sendResponse);
 }
 

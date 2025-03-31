@@ -13,32 +13,28 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export default defineConfig(({ mode }) => {
-    // Load environment variables from .env files
-    // mode can be 'development' or 'production'
+    // Load ALL environment variables that start with VITE_
     const env = loadEnv(mode, process.cwd(), 'VITE_');
     
     const isProduction = mode === 'production';
     
-    // Get the API URL from env or use default values
-    const apiUrl = env.VITE_API_URL || (isProduction 
-        ? 'https://api-prod-sw5cmqbraq-od.a.run.app//'
-        : 'http://localhost:8000');
+    // Explicitly define all required environment variables
+    const apiUrl = env.VITE_API_URL ;
     
-    // Get debug setting from env or default based on mode
-    const debug = env.VITE_DEBUG || (!isProduction).toString();
-    
-    // Get app version from env or default
-    const appVersion = env.VITE_APP_VERSION || '1.0.0';
-    
+    const debug = env.VITE_DEBUG;
+    const appVersion = env.VITE_APP_VERSION;
+    const linkedinClientId = env.VITE_LINKEDIN_CLIENT_ID;
+
     console.log(`🚀 Building for ${mode} environment`);
     console.log(`🔌 API URL: ${apiUrl}`);
     console.log(`🐞 Debug: ${debug}`);
     console.log(`📦 Version: ${appVersion}`);
+    console.log(`🔹 LinkedIn Client ID: ${linkedinClientId}`);
 
     return {
         plugins: [
             react(),
-            tsconfigPaths(), // Add this to resolve path aliases correctly
+            tsconfigPaths(),
             cssInjectedByJs(),
             viteStaticCopy({
                 targets: [
@@ -46,7 +42,6 @@ export default defineConfig(({ mode }) => {
                         src: 'public/*',
                         dest: ''
                     },
-                    // Copy HTML files from their source locations to the dist folder
                     {
                         src: 'src/extension/popup/popup.html',
                         dest: '',
@@ -76,7 +71,6 @@ export default defineConfig(({ mode }) => {
                 ],
             },
         },
-        // Prevent code splitting for extension entry points
         build: {
             emptyOutDir: true,
             outDir: 'dist',
@@ -99,9 +93,9 @@ export default defineConfig(({ mode }) => {
                     entryFileNames: '[name].js',
                     chunkFileNames: 'assets/[name].[hash].js',
                     assetFileNames: 'assets/[name].[ext]',
-                    manualChunks: undefined // Disable chunk optimization for extension entry points
+                    manualChunks: undefined
                 },
-                preserveEntrySignatures: 'strict' // Helps prevent tree-shaking of exports
+                preserveEntrySignatures: 'strict'
             }
         },
         resolve: {
@@ -110,20 +104,25 @@ export default defineConfig(({ mode }) => {
                 '@components': resolve(__dirname, './src/components')
             }
         },
-        // Improve handling of external dependencies
         optimizeDeps: {
             include: ['react', 'react-dom']
         },
         define: {
-            // Make environment variables available in the code
+            // IMPORTANT: Define ALL environment variables explicitly
             'process.env.NODE_ENV': JSON.stringify(mode),
             'process.env.VITE_API_URL': JSON.stringify(apiUrl),
             'process.env.VITE_DEBUG': JSON.stringify(debug),
-            'process.env.VITE_APP_VERSION': JSON.stringify(appVersion)
+            'process.env.VITE_APP_VERSION': JSON.stringify(appVersion),
+            'process.env.VITE_LINKEDIN_CLIENT_ID': JSON.stringify(linkedinClientId),
+            
+            // Add any other environment variables you need
+            ...Object.keys(env).reduce((acc, key) => {
+                acc[`process.env.${key}`] = JSON.stringify(env[key]);
+                return acc;
+            }, {})
         },
         server: {
             hmr: {
-                // This helps with HMR when developing
                 port: 3000
             }
         }
