@@ -1,5 +1,5 @@
 // src/components/folders/FolderItem.tsx
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 import { TemplateFolder } from '@/types/templates';
 import { FolderHeader } from './FolderHeader';
 import { TemplateItem } from '@/components/templates/TemplateItem';
@@ -21,7 +21,7 @@ interface FolderItemProps {
 /**
  * Component for rendering a single folder with its templates and subfolders
  */
-export function FolderItem({
+const FolderItem: React.FC<FolderItemProps> = ({
   folder,
   type,
   onTogglePin,
@@ -31,10 +31,10 @@ export function FolderItem({
   showDeleteControls = false,
   level = 0,
   initialExpanded = false
-}: FolderItemProps) {
+}) => {
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   
-  // Add defensive checks for folder validity
+  // Skip rendering if folder is invalid
   if (!folder || !folder.id || !folder.name) {
     return null;
   }
@@ -46,8 +46,6 @@ export function FolderItem({
   
   // Ensure folder.templates is an array
   const allTemplates = Array.isArray(folder.templates) ? folder.templates : [];
-
-  // Filter out templates with null folder_id as they'll be shown separately
   const templates = allTemplates.filter(template => template.folder_id !== null);
   
   // Ensure folder.Folders is an array
@@ -57,32 +55,33 @@ export function FolderItem({
   const hasTemplates = templates.length > 0;
   const hasSubfolders = subfolders.length > 0;
   
-  // Toggle folder expansion
-  const toggleExpansion = () => {
+  // Toggle folder expansion - memoized to prevent unnecessary re-renders
+  const toggleExpansion = useCallback(() => {
     setIsExpanded(prev => !prev);
-  };
+  }, []);
   
-  // Handle pin toggle
-  const handleTogglePin = (e: React.MouseEvent) => {
+  // Handle pin toggle - memoized to prevent unnecessary re-renders
+  const handleTogglePin = useCallback((e: React.MouseEvent) => {
     if (onTogglePin) {
+      e.stopPropagation();
       onTogglePin(folder.id, isPinned);
     }
-  };
+  }, [folder.id, isPinned, onTogglePin]);
   
-  // Handle folder deletion
-  const handleDeleteFolder = async () => {
+  // Handle folder deletion - memoized to prevent unnecessary re-renders
+  const handleDeleteFolder = useCallback(async () => {
     if (onDeleteFolder) {
       return await onDeleteFolder(folder.id);
     }
     return false;
-  };
+  }, [folder.id, onDeleteFolder]);
   
   // Create action buttons based on folder type
   const actionButtons = (
     <div className="flex items-center gap-1">
       {/* Pin button for official and organization folders */}
       {showPinControls && onTogglePin && (type === 'official' || type === 'organization') && (
-        <PinButton isPinned={isPinned} onClick={handleTogglePin} />
+        <PinButton isPinned={isPinned} onClick={handleTogglePin} className="" />
       )}
       
       {/* Delete button for user folders */}
@@ -116,6 +115,7 @@ export function FolderItem({
               key={`template-${template.id}`}
               template={template}
               type={type}
+              onUseTemplate={onUseTemplate ? () => onUseTemplate(template.id) : undefined}
             />
           ))}
           
@@ -137,4 +137,10 @@ export function FolderItem({
       )}
     </div>
   );
-}
+};
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(FolderItem);
+
+// Also export a named export for compatibility
+export { FolderItem };

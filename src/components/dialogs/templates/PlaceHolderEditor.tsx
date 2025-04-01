@@ -1,5 +1,5 @@
-// src/components/dialogs/templates/PlaceholderEditor.tsx
-import React, { useState, useEffect, useRef } from "react";
+// src/components/dialogs/templates/PlaceHolderEditor.tsx
+import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -25,7 +25,7 @@ interface Placeholder {
 /**
  * Dialog for editing template placeholders
  */
-export const PlaceholderEditor: React.FC = () => {
+const PlaceholderEditor = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
   const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
   const [modifiedContent, setModifiedContent] = useState('');
@@ -38,16 +38,10 @@ export const PlaceholderEditor: React.FC = () => {
   const templateTitle = data?.title || 'Template';
   const onComplete = data?.onComplete || (() => {});
   
-  console.log("PlaceholderEditor opened with:", { 
-    templateTitle, 
-    contentLength: templateContent?.length || 0,
-    hasCallback: !!onComplete
-  });
-  
   /**
    * Extract placeholders from template content
    */
-  const extractPlaceholders = (content: string) => {
+  const extractPlaceholders = useCallback((content: string) => {
     const placeholderRegex = /\[(.*?)\]/g;
     const matches = [...content.matchAll(placeholderRegex)];
 
@@ -69,19 +63,19 @@ export const PlaceholderEditor: React.FC = () => {
     }
 
     return uniquePlaceholders;
-  };
+  }, [placeholders]);
 
   /**
-   * Function to highlight placeholders inside the content with improved formatting
+   * Function to highlight placeholders inside the content
    */
-  const highlightPlaceholders = (content: string) => {
+  const highlightPlaceholders = useCallback((content: string) => {
     return content
       .replace(/\n/g, '<br>')  // Convert newlines to <br> for proper display
       .replace(
         /\[(.*?)\]/g, 
         `<span class="bg-yellow-300 text-yellow-900 font-bold px-1 rounded inline-block my-0.5">${"$&"}</span>`
       );
-  };
+  }, []);
 
   // Initialize content and placeholders when dialog opens or content changes
   useEffect(() => {
@@ -92,9 +86,6 @@ export const PlaceholderEditor: React.FC = () => {
       try {
         const extractedPlaceholders = extractPlaceholders(templateContent);
         setPlaceholders(extractedPlaceholders);
-        
-        // Log for debugging
-        console.log(`Extracted ${extractedPlaceholders.length} placeholders from template`);
         
         setTimeout(() => {
           if (editorRef.current) {
@@ -107,7 +98,7 @@ export const PlaceholderEditor: React.FC = () => {
         setError("Failed to process template. Please try again.");
       }
     }
-  }, [isOpen, templateContent]);
+  }, [isOpen, templateContent, extractPlaceholders, highlightPlaceholders]);
 
   // Handle changes inside contentEditable div
   useEffect(() => {
@@ -131,52 +122,42 @@ export const PlaceholderEditor: React.FC = () => {
   /**
    * Update placeholder values and reflect changes in the editor
    */
-  const updatePlaceholder = (index: number, value: string) => {
-    const updatedPlaceholders = [...placeholders];
-    updatedPlaceholders[index].value = value;
-    setPlaceholders(updatedPlaceholders);
-
-    let newContent = templateContent;
-    updatedPlaceholders.forEach(({ key, value }) => {
-      const regex = new RegExp(escapeRegExp(key), "g");
-      newContent = newContent.replace(regex, value || key);
+  const updatePlaceholder = useCallback((index: number, value: string) => {
+    setPlaceholders(prevPlaceholders => {
+      const updatedPlaceholders = [...prevPlaceholders];
+      updatedPlaceholders[index].value = value;
+      
+      let newContent = templateContent;
+      updatedPlaceholders.forEach(({ key, value }) => {
+        if (value) {
+          // Escape special regex characters in the key
+          const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const regex = new RegExp(escapedKey, "g");
+          newContent = newContent.replace(regex, value);
+        }
+      });
+      
+      setModifiedContent(newContent);
+      
+      if (editorRef.current) {
+        editorRef.current.innerHTML = highlightPlaceholders(newContent);
+      }
+      
+      return updatedPlaceholders;
     });
-
-    setModifiedContent(newContent);
-
-    if (editorRef.current) {
-      editorRef.current.innerHTML = highlightPlaceholders(newContent);
-    }
-  };
-
-  /**
-   * Helper function to escape regex characters
-   */
-  const escapeRegExp = (string: string) => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  };
+  }, [templateContent, highlightPlaceholders]);
 
   /**
    * Handle template completion
    */
-  const handleComplete = () => {
+  const handleComplete = useCallback(() => {
     // Call the callback with the modified content
     onComplete(modifiedContent);
     // Close the dialog
     dialogProps.onOpenChange(false);
     // Dispatch an event to notify that the editor is closed
     document.dispatchEvent(new CustomEvent('archimind:placeholder-editor-closed'));
-  };
-  
-  /**
-   * Handle dialog close
-   */
-  const handleClose = () => {
-    // Close dialog
-    dialogProps.onOpenChange(false);
-    // Also dispatch close event
-    document.dispatchEvent(new CustomEvent('archimind:placeholder-editor-closed'));
-  };
+  }, [modifiedContent, onComplete, dialogProps]);
 
   if (!isOpen) return null;
 
@@ -253,7 +234,7 @@ export const PlaceholderEditor: React.FC = () => {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
+          <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)}>
             {getMessage('cancel', undefined, 'Cancel')}
           </Button>
           <Button onClick={handleComplete}>{getMessage('useTemplate', undefined, 'Use Template')}</Button>
@@ -262,3 +243,6 @@ export const PlaceholderEditor: React.FC = () => {
     </Dialog>
   );
 };
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(PlaceholderEditor);

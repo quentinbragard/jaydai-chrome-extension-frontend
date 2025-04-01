@@ -1,6 +1,5 @@
 // src/components/dialogs/templates/TemplateDialog.tsx
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -22,7 +21,7 @@ import { promptApi } from '@/services/api/PromptApi';
 /**
  * Unified Template Dialog for both creating and editing templates
  */
-export const TemplateDialog: React.FC = () => {
+const TemplateDialog = () => {
   // Get create and edit dialog states
   const createDialog = useDialog(DIALOG_TYPES.CREATE_TEMPLATE);
   const editDialog = useDialog(DIALOG_TYPES.EDIT_TEMPLATE);
@@ -76,7 +75,6 @@ export const TemplateDialog: React.FC = () => {
     };
     
     const flattenedFolders = flattenFolderHierarchy(userFolders);
-    console.log('Processed user folders:', flattenedFolders);
     setUserFoldersList(flattenedFolders);
   }, [userFolders]);
   
@@ -87,7 +85,6 @@ export const TemplateDialog: React.FC = () => {
       setValidationErrors({});
       
       if (initialFormData) {
-        console.log('Setting initial form data:', initialFormData);
         setFormData(initialFormData);
         
         // Set selected folder ID
@@ -103,7 +100,6 @@ export const TemplateDialog: React.FC = () => {
 
       // If there's a selectedFolder from folder creation, set it
       if (selectedFolder) {
-        console.log('Auto-selecting folder from creation:', selectedFolder);
         setSelectedFolderId(selectedFolder.id.toString());
         handleFormChange('folder_id', selectedFolder.id);
         handleFormChange('folder', selectedFolder.name);
@@ -112,7 +108,7 @@ export const TemplateDialog: React.FC = () => {
   }, [isOpen, initialFormData, processUserFolders, selectedFolder]);
   
   // Handle dialog close
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (createDialog.isOpen) {
       createDialog.close();
     } else {
@@ -123,10 +119,10 @@ export const TemplateDialog: React.FC = () => {
     setFormData(DEFAULT_FORM_DATA);
     setSelectedFolderId('');
     setValidationErrors({});
-  };
+  }, [createDialog, editDialog]);
   
   // Form field change handler with validation
-  const handleFormChange = (field: string, value: any) => {
+  const handleFormChange = useCallback((field: string, value: any) => {
     // Clear validation error for this field
     if (validationErrors[field]) {
       setValidationErrors(prev => {
@@ -145,24 +141,37 @@ export const TemplateDialog: React.FC = () => {
       
       // Call the external change handler if provided
       if (onFormChange) {
-        console.log(`Updating form field ${field}:`, value);
         onFormChange(newData);
       }
       
       return newData;
     });
-  };
+  }, [validationErrors, onFormChange]);
   
   // Handle folder selection
-  const handleFolderSelect = (folderId: string) => {
+  const handleFolderSelect = useCallback((folderId: string) => {
     if (folderId === 'new') {
       // Open create folder dialog and pass callback to handle newly created folder
       if (window.dialogManager) {
         window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
-          onSaveFolder: handleCreateFolder,
+          onSaveFolder: async (folderData: { name: string; path: string; description: string }) => {
+            try {
+              const result = await promptApi.createFolder(folderData);
+              
+              if (result.success && result.folder) {
+                return result;
+              } else {
+                toast.error(`Failed to create folder: ${result.error || 'Unknown error'}`);
+                return false;
+              }
+            } catch (error) {
+              console.error('Error creating folder:', error);
+              toast.error('Error creating folder');
+              return false;
+            }
+          },
           onFolderCreated: (folder: any) => {
             // When folder is created, update the form with the new folder
-            console.log('New folder created, updating selection:', folder);
             setSelectedFolderId(folder.id.toString());
             handleFormChange('folder_id', folder.id);
             handleFormChange('folder', folder.name);
@@ -196,31 +205,10 @@ export const TemplateDialog: React.FC = () => {
     if (selectedFolder) {
       handleFormChange('folder', selectedFolder.fullPath);
     }
-  };
-  
-  // Handler for folder creation
-  const handleCreateFolder = async (folderData: { name: string; path: string; description: string }) => {
-    try {
-      console.log('Creating folder:', folderData);
-      
-      const result = await promptApi.createFolder(folderData);
-      
-      if (result.success && result.folder) {
-        // Note: We don't need to select the folder here, as the onFolderCreated callback will handle it
-        return result;
-      } else {
-        toast.error(`Failed to create folder: ${result.error || 'Unknown error'}`);
-        return false;
-      }
-    } catch (error) {
-      console.error('Error creating folder:', error);
-      toast.error('Error creating folder');
-      return false;
-    }
-  };
+  }, [userFoldersList, handleFormChange]);
   
   // Validate form before saving
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const errors: {[key: string]: string} = {};
     
     if (!formData.name?.trim()) {
@@ -233,10 +221,10 @@ export const TemplateDialog: React.FC = () => {
     
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
-  };
+  }, [formData]);
   
   // Save template
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     // Validate form
     if (!validateForm()) {
       // Show toast for validation errors
@@ -250,7 +238,6 @@ export const TemplateDialog: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      console.log('Saving template with data:', formData);
       const success = await onSave(formData);
       if (success) {
         handleClose();
@@ -263,7 +250,7 @@ export const TemplateDialog: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [validateForm, validationErrors, onSave, formData, handleClose]);
   
   if (!isOpen) return null;
   
@@ -375,3 +362,6 @@ export const TemplateDialog: React.FC = () => {
     </Dialog>
   );
 };
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(TemplateDialog);

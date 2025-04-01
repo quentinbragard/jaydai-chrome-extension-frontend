@@ -1,5 +1,5 @@
-// src/hooks/useFolderSearch.ts
-import { useState, useEffect, useMemo } from 'react';
+// src/hooks/templates/useFolderSearch.ts
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { TemplateFolder } from '@/types/templates';
 
 /**
@@ -16,44 +16,71 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
     }
   }, [searchQuery]);
   
-  // Filter folders based on search query
+  // Memoized function to check if a folder or any of its contents match the query
+  const folderMatchesQuery = useCallback((folder: TemplateFolder, query: string): boolean => {
+    // Check if folder name matches
+    if (folder.name && folder.name.toLowerCase().includes(query)) {
+      return true;
+    }
+    
+    // Check if any templates in this folder match
+    if (folder.templates && folder.templates.length > 0) {
+      const matchingTemplate = folder.templates.some(template => 
+        (template.title && template.title.toLowerCase().includes(query)) ||
+        (template.description && template.description.toLowerCase().includes(query))
+      );
+      if (matchingTemplate) return true;
+    }
+    
+    // Check if any subfolders match
+    if (folder.Folders && folder.Folders.length > 0) {
+      return folder.Folders.some(subfolder => folderMatchesQuery(subfolder, query));
+    }
+    
+    return false;
+  }, []);
+  
+  // Filter folders based on search query - memoized to prevent unnecessary recalculation
   const filteredFolders = useMemo(() => {
+    // If no search query, return all folders
     if (!searchQuery.trim()) {
       return folders;
     }
     
     const query = searchQuery.toLowerCase();
     
-    // Helper function to check if a folder or any of its subfolders match the query
-    const folderMatchesQuery = (folder: TemplateFolder): boolean => {
-      // Check if this folder's name matches
-      if (folder.name && folder.name.toLowerCase().includes(query)) {
-        return true;
+    // Auto-expand all matching folders
+    const newExpandedFolders = new Set<number>();
+    
+    // Helper function to collect all folder IDs that should be expanded
+    const collectExpandedFolderIds = (folder: TemplateFolder): void => {
+      if (folder.id && folderMatchesQuery(folder, query)) {
+        newExpandedFolders.add(folder.id);
       }
       
-      // Check if any templates in this folder match
-      if (folder.templates && folder.templates.length > 0) {
-        const matchingTemplate = folder.templates.some(template => 
-          (template.title && template.title.toLowerCase().includes(query)) ||
-          (template.description && template.description.toLowerCase().includes(query))
-        );
-        if (matchingTemplate) return true;
-      }
-      
-      // Check if any of its subfolders match
+      // Process subfolders recursively
       if (folder.Folders && folder.Folders.length > 0) {
-        return folder.Folders.some(subfolder => folderMatchesQuery(subfolder));
+        folder.Folders.forEach(subfolder => {
+          if (folderMatchesQuery(subfolder, query)) {
+            if (folder.id) newExpandedFolders.add(folder.id); // Expand parent too
+            collectExpandedFolderIds(subfolder);
+          }
+        });
       }
-      
-      return false;
     };
     
+    // Process all top-level folders
+    folders.forEach(folder => collectExpandedFolderIds(folder));
+    
+    // Update expanded folders set
+    setExpandedFolders(newExpandedFolders);
+    
     // Filter top-level folders
-    return folders.filter(folder => folderMatchesQuery(folder));
-  }, [folders, searchQuery]);
+    return folders.filter(folder => folderMatchesQuery(folder, query));
+  }, [folders, searchQuery, folderMatchesQuery]);
   
-  // Toggle folder expansion
-  const toggleFolder = (folderId: number) => {
+  // Toggle folder expansion - memoized to maintain reference stability
+  const toggleFolder = useCallback((folderId: number) => {
     setExpandedFolders(prev => {
       const next = new Set(prev);
       if (next.has(folderId)) {
@@ -63,13 +90,13 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
       }
       return next;
     });
-  };
+  }, []);
   
-  // Clear search
-  const clearSearch = () => {
+  // Clear search - memoized to maintain reference stability
+  const clearSearch = useCallback(() => {
     setSearchQuery('');
     setExpandedFolders(new Set());
-  };
+  }, []);
   
   return {
     searchQuery,
@@ -77,6 +104,7 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
     expandedFolders,
     toggleFolder,
     filteredFolders,
-    clearSearch
+    clearSearch,
+    isExpanded: (folderId: number) => expandedFolders.has(folderId)
   };
 }

@@ -1,33 +1,29 @@
 // src/components/panels/TemplatesPanel/index.tsx
-
-import React, { useState, useCallback, useEffect } from 'react';
-import { FolderOpen, RefreshCw, Users } from "lucide-react";
+import React, { useCallback, memo } from 'react';
+import { FolderOpen, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { getMessage } from '@/core/utils/i18n';
 import BasePanel from '../BasePanel';
-import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
+
+// Import optimized components & hooks
 import { 
   usePinnedFolders, 
   useUserFolders, 
   useUnorganizedTemplates,
   useToggleFolderPin,
-  useTemplateActions,
   useDeleteFolder,
-  useCreateFolder,
-  useDeleteTemplate
+  useDeleteTemplate,
+  useTemplateActions
 } from '@/services/TemplateService';
+
 import { 
   FolderSection, 
-  FolderList, 
+  FolderList 
 } from '@/components/folders';
-import { 
-  TemplateItem,
-} from '@/components/templates';
-import { Template, TemplateFolder } from '@/types/templates';
-import { DIALOG_TYPES } from '@/types/dialog';
 
+import { DIALOG_TYPES } from '@/types/dialog';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
 
@@ -45,11 +41,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   onBack,
   onClose
 }) => {
-  const { pushPanel } = usePanelNavigation();
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [hasTemplateChanged, setHasTemplateChanged] = useState(false);
-
-  // Data fetching with React Query
+  // Fetch data with React Query hooks
   const { 
     data: pinnedFolders, 
     isLoading: loadingPinned,
@@ -64,7 +56,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     refetch: refetchUser
   } = useUserFolders();
 
-  // Fetch unorganized templates directly from API
   const {
     data: unorganizedTemplates = [],
     isLoading: loadingUnorganized,
@@ -72,62 +63,13 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     refetch: refetchUnorganized
   } = useUnorganizedTemplates();
   
-  // Mutations
+  // Get mutations
   const { mutate: togglePin } = useToggleFolderPin();
   const { mutate: deleteFolder } = useDeleteFolder();
-  const { mutate: createFolder } = useCreateFolder();
   const { mutate: deleteTemplate } = useDeleteTemplate();
   
   // Get template actions
-  const templateActionsOriginal = useTemplateActions();
-  
-  // Effect to refresh data when templates change
-  useEffect(() => {
-    if (hasTemplateChanged) {
-      const refreshData = async () => {
-        console.log('Refreshing data due to template changes');
-        setIsRefreshing(true);
-        try {
-          await Promise.all([
-            refetchPinned(),
-            refetchUser(),
-            refetchUnorganized()
-          ]);
-        } catch (error) {
-          console.error('Error refreshing data:', error);
-        } finally {
-          setIsRefreshing(false);
-          setHasTemplateChanged(false);
-        }
-      };
-      
-      refreshData();
-    }
-  }, [hasTemplateChanged, refetchPinned, refetchUser, refetchUnorganized]);
-
-  // Wrap template actions to trigger refresh
-  const wrapTemplateAction = useCallback((action: Function, ...args: any[]) => {
-    const result = action(...args);
-    // Set flag to refresh data after template operations
-    setTimeout(() => setHasTemplateChanged(true), 300);
-    return result;
-  }, []);
-
-  // Wrapped template actions
-  const useTemplate = useCallback(
-    (template: Template) => wrapTemplateAction(templateActionsOriginal.useTemplate, template),
-    [templateActionsOriginal.useTemplate, wrapTemplateAction]
-  );
-  
-  const createTemplate = useCallback(
-    (folder?: any) => wrapTemplateAction(templateActionsOriginal.createTemplate, folder),
-    [templateActionsOriginal.createTemplate, wrapTemplateAction]
-  );
-  
-  const editTemplate = useCallback(
-    (template: Template) => wrapTemplateAction(templateActionsOriginal.editTemplate, template),
-    [templateActionsOriginal.editTemplate, wrapTemplateAction]
-  );
+  const { useTemplate, createTemplate, editTemplate } = useTemplateActions();
   
   // Combined loading and error states
   const isLoading = loadingPinned || loadingUser || loadingUnorganized;
@@ -141,24 +83,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
      !unorganizedTemplates?.length)
   );
 
-  // Handle browse more templates 
-  const handleBrowseMore = (type: 'official' | 'organization') => {
-    const folderIds = type === 'official' 
-      ? pinnedFolders?.official?.map(f => f.id) || []
-      : pinnedFolders?.organization?.map(f => f.id) || [];
-      
-    pushPanel({ 
-      type: 'templatesBrowse', 
-      props: { 
-        folderType: type, 
-        pinnedFolderIds: folderIds
-      } 
-    });
-  };
-
   // Handle refresh with loading state
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
+  const handleRefresh = useCallback(async () => {
     try {
       await Promise.all([
         refetchPinned(), 
@@ -167,42 +93,31 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       ]);
     } catch (error) {
       console.error('Failed to refresh templates:', error);
-    } finally {
-      setIsRefreshing(false);
     }
-  };
-  
+  }, [refetchPinned, refetchUser, refetchUnorganized]);
+
   // Handle creating a new folder and immediately open template dialog
-  const handleCreateFolderAndTemplate = useCallback(async () => {
+  const handleCreateFolderAndTemplate = useCallback(() => {
     try {
       // Open create folder dialog
       if (window.dialogManager) {
         window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
           onSaveFolder: async (folderData: { name: string; path: string; description: string }) => {
-            // Create the folder
-            const result = await createFolder(folderData);
-            
-            if (result && result.success && result.folder) {
-              const newFolder = result.folder;
-              
-              // Wait a moment to ensure the folder is created
-              setTimeout(() => {
-                // Open create template dialog with the new folder selected
-                createTemplate(newFolder as Template);
-                
-                // Set flag to refresh data after folder creation
-                setHasTemplateChanged(true);
-              }, 100);
-            }
-            
-            return result;
+            // Return the folder data for folder creation
+            return folderData;
+          },
+          onFolderCreated: (newFolder: any) => {
+            // Open create template dialog with the new folder selected
+            setTimeout(() => {
+              createTemplate(newFolder);
+            }, 100);
           }
         });
       }
     } catch (error) {
       console.error('Error in folder/template creation flow:', error);
     }
-  }, [createFolder, createTemplate]);
+  }, [createTemplate]);
 
   // Handle creating a template directly
   const handleCreateTemplate = useCallback(() => {
@@ -212,14 +127,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   // Handle template deletion
   const handleDeleteTemplate = useCallback((templateId: number) => {
     if (window.dialogManager) {
-      window.dialogManager.openDialog(DIALOG_TYPES.DELETE_CONFIRMATION, {
+      window.dialogManager.openDialog(DIALOG_TYPES.CONFIRMATION, {
         title: getMessage('deleteTemplate', undefined, 'Delete Template'),
-        message: getMessage('deleteTemplateConfirmation', undefined, 'Are you sure you want to delete this template? This action cannot be undone.'),
+        description: getMessage('deleteTemplateConfirmation', undefined, 'Are you sure you want to delete this template? This action cannot be undone.'),
         onConfirm: async () => {
           try {
             await deleteTemplate(templateId);
-            // Set flag to refresh data after template deletion
-            setHasTemplateChanged(true);
             return true;
           } catch (error) {
             console.error('Error deleting template:', error);
@@ -249,10 +162,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 size="sm"
                 onClick={handleRefresh}
                 className="mt-2"
-                disabled={isRefreshing}
               >
-                <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                {isRefreshing ? 'Refreshing...' : 'Retry'}
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Retry
               </Button>
             </div>
           </AlertDescription>
@@ -260,11 +172,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       </BasePanel>
     );
   }
-
-  // Create typed folders to satisfy TypeScript
-  const typedUserFolders: TemplateFolder[] = userFolders || [];
-  const typedOfficialFolders: TemplateFolder[] = pinnedFolders?.official || [];
-  const typedOrgFolders: TemplateFolder[] = pinnedFolders?.organization || [];
 
   return (
     <BasePanel
@@ -297,64 +204,57 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               variant="ghost" 
               size="sm" 
               onClick={handleRefresh}
-              disabled={isRefreshing}
               className="mt-2"
             >
-              <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh
             </Button>
           </div>
         </div>
       ) : (
         <div className="space-y-4">
           {/* Official Templates Section */}
+          {pinnedFolders?.official?.length > 0 && (
+            <>
+              <FolderSection
+                title={getMessage('officialTemplates', undefined, 'Official Templates')}
+                iconType="official"
+                showBrowseMore={true}
+              >
+                <FolderList
+                  folders={pinnedFolders.official}
+                  type="official"
+                  onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'official' })}
+                  onUseTemplate={useTemplate}
+                  showPinControls={true}
+                  emptyMessage="No pinned official templates."
+                />
+              </FolderSection>
+              <Separator />
+            </>
+          )}
+          
+          {/* Organization Templates Section */}
           <FolderSection
-            title={getMessage('officialTemplates', undefined, 'Official Templates')}
-            iconType="official"
-            onBrowseMore={() => handleBrowseMore('official')}
-            showBrowseMore={true}
+            title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
+            iconType="organization"
+            isEmpty={!pinnedFolders?.organization?.length}
           >
-            {typedOfficialFolders?.length ? (
+            {pinnedFolders?.organization?.length > 0 ? (
               <FolderList
-                folders={typedOfficialFolders}
-                type="official"
-                onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'official' })}
+                folders={pinnedFolders.organization}
+                type="organization"
+                onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'organization' })}
                 onUseTemplate={useTemplate}
                 showPinControls={true}
-                emptyMessage="No pinned official templates. Click Browse More to add some."
+                emptyMessage="No pinned organization templates."
               />
             ) : (
               <EmptyMessage>
-                {getMessage('noPinnedOfficialTemplates', undefined, 'No pinned official templates. Click Browse More to add some.')}
+                {getMessage('noPinnedOrganizationTemplates', undefined, 'No pinned organization templates.')}
               </EmptyMessage>
             )}
           </FolderSection>
-
-          <Separator />
-          
-           {/* Organization Templates Section */}
-            <FolderSection
-              title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
-              iconType="organization"
-              onBrowseMore={() => handleBrowseMore('organization')}
-              showBrowseMore={false}
-              isEmpty={true} // Add this to always show the CTA
-            >
-              {typedOrgFolders?.length ? (
-                <FolderList
-                  folders={typedOrgFolders}
-                  type="organization"
-                  onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'organization' })}
-                  onUseTemplate={useTemplate}
-                  showPinControls={true}
-                  emptyMessage="No pinned organization templates. Click Browse More to add some."
-                />
-              ) : (
-                <EmptyMessage>
-                  {getMessage('noPinnedOrganizationTemplates', undefined, 'No pinned organization templates. Click Browse More to add some.')}
-                </EmptyMessage>
-              )}
-            </FolderSection>
           <Separator />
           
           {/* User Templates Section */}
@@ -364,12 +264,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             onCreateTemplate={handleCreateTemplate}
             showCreateButton={true}
           >
-            {typedUserFolders?.length || unorganizedTemplates?.length ? (
+            {userFolders?.length || unorganizedTemplates?.length ? (
               <>
                 {/* Display user folders if any */}
-                {typedUserFolders?.length > 0 && (
+                {userFolders?.length > 0 && (
                   <FolderList
-                    folders={typedUserFolders}
+                    folders={userFolders}
                     type="user"
                     onDeleteFolder={deleteFolder}
                     onUseTemplate={useTemplate}
@@ -385,13 +285,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       {getMessage('unorganizedTemplates', undefined, 'Unorganized Templates')}
                     </div>
                     <div className="space-y-1">
-                      {unorganizedTemplates.map((template: Template) => (
+                      {unorganizedTemplates.map((template) => (
                         <TemplateItem
                           key={`template-${template.id}`}
                           template={template}
                           type="user"
                           onEditTemplate={editTemplate}
                           onDeleteTemplate={handleDeleteTemplate}
+                          onUseTemplate={useTemplate}
                         />
                       ))}
                     </div>
@@ -410,4 +311,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   );
 };
 
-export default TemplatesPanel;
+// Wrap with memo to prevent unnecessary re-renders
+export default memo(TemplatesPanel);
+
+// Also provide a named import for compatibility
+import { TemplateItem } from '@/components/templates/TemplateItem';

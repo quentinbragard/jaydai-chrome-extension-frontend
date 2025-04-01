@@ -1,5 +1,4 @@
 // src/hooks/templates/useTemplateSelection.ts
-
 import { useState, useCallback } from 'react';
 import { Template } from '@/types/templates';
 import { toast } from 'sonner';
@@ -9,7 +8,6 @@ import { DIALOG_TYPES } from '@/core/dialogs/registry';
  * Hook for handling template selection and usage
  */
 export function useTemplateSelection() {
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   /**
@@ -18,27 +16,20 @@ export function useTemplateSelection() {
   const useTemplate = useCallback((template: Template) => {
     // Validate template
     if (!template) {
-      console.error('❌ Invalid template - cannot use undefined/null template');
       toast.error('Could not use template: Invalid template data');
       return;
     }
 
     if (!template.content) {
-      console.error('❌ Template has no content:', template.id);
       toast.error('Could not use template: Template has no content');
       return;
     }
 
-    console.log('🔍 Using template:', template.id, template.title);
-    setSelectedTemplate(template);
     setIsProcessing(true);
 
     try {
-      
-
       // Make sure we have window.dialogManager
       if (!window.dialogManager) {
-        console.error('❌ dialogManager not available');
         toast.error('Could not open template editor: System not initialized');
         setIsProcessing(false);
         return;
@@ -51,8 +42,6 @@ export function useTemplateSelection() {
         onComplete: handleTemplateFinalized
       });
 
-      console.log('✅ Template editor opened successfully');
-
       // Record template usage in background (don't await)
       if (template.id) {
         import('@/services/api/PromptApi').then(({ promptApi }) => {
@@ -62,76 +51,63 @@ export function useTemplateSelection() {
         });
       }
     } catch (error) {
-      console.error('❌ Error opening template editor:', error);
       toast.error('Failed to open template editor');
     } finally {
       setIsProcessing(false);
     }
   }, []);
 
-/**
- * Handle finalizing a template after placeholder replacement
- */
-const handleTemplateFinalized = useCallback((finalContent: string) => {
-  if (!finalContent) {
-    console.warn('⚠️ Finalized template has no content');
-    return;
-  }
-
-  try {
-    console.log('✅ Template finalized with content length:', finalContent.length);
-    
-    // Find the textarea to insert the content into
-    const textarea = document.querySelector('#prompt-textarea');
-    if (!textarea) {
-      console.error('❌ Could not find prompt textarea');
-      toast.error('Could not apply template: Input area not found');
+  /**
+   * Handle finalizing a template after placeholder replacement
+   */
+  const handleTemplateFinalized = useCallback((finalContent: string) => {
+    if (!finalContent) {
       return;
     }
 
-    // Normalize line endings
-    const normalizedContent = finalContent.replace(/\r\n/g, '\n');
-    
-    // Split by newlines and wrap each paragraph with <p> tags
-    const paragraphs = normalizedContent.split('\n');
-    const htmlContent = paragraphs.map(para => `<p>${para}</p>`).join('');
-    
-    // Insert the HTML content
-    if (textarea instanceof HTMLTextAreaElement) {
-      // For standard textareas
-      textarea.value = htmlContent;
-      textarea.dispatchEvent(new Event('input', { bubbles: true }));
-    } else if (textarea.isContentEditable) {
-      // For contenteditable divs like in ChatGPT interface
-      // This is key - use innerHTML instead of textContent
-      textarea.innerHTML = htmlContent;
-      textarea.dispatchEvent(new Event('input', { bubbles: true }));
-    } else {
-      textarea.textContent = htmlContent;
-      textarea.dispatchEvent(new Event('input', { bubbles: true }));
-    }
+    try {
+      // Find the textarea to insert the content into
+      const textarea = document.querySelector('#prompt-textarea');
+      if (!textarea) {
+        toast.error('Could not apply template: Input area not found');
+        return;
+      }
 
-    // Focus the textarea and set cursor at the end
-    textarea.focus();
-    if ('setSelectionRange' in textarea) {
-      (textarea as HTMLTextAreaElement).setSelectionRange(
-        htmlContent.length,
-        htmlContent.length
-      );
-    }
+      // Normalize content for insertion
+      const normalizedContent = finalContent.replace(/\r\n/g, '\n');
+      
+      // Insert the content
+      if (textarea instanceof HTMLTextAreaElement) {
+        // For standard textareas
+        textarea.value = normalizedContent;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      } else if (textarea.isContentEditable) {
+        // For contenteditable divs like in ChatGPT interface
+        textarea.textContent = normalizedContent;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      } else {
+        textarea.textContent = normalizedContent;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      }
 
-    toast.success('Template applied successfully');
-    
-    // Reset selected template
-    setSelectedTemplate(null);
-  } catch (error) {
-    console.error('❌ Error applying template:', error);
-    toast.error('Failed to apply template');
-  }
-}, []);
+      // Focus the textarea and set cursor at the end
+      textarea.focus();
+      if ('setSelectionRange' in textarea) {
+        (textarea as HTMLTextAreaElement).setSelectionRange(
+          normalizedContent.length,
+          normalizedContent.length
+        );
+      }
+
+      toast.success('Template applied successfully');
+      
+    } catch (error) {
+      console.error('Error applying template:', error);
+      toast.error('Failed to apply template');
+    }
+  }, []);
 
   return {
-    selectedTemplate,
     isProcessing,
     useTemplate,
     handleTemplateFinalized

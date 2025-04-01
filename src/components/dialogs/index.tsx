@@ -1,9 +1,9 @@
 // src/components/dialogs/index.tsx
 import React, { useEffect } from 'react';
 import { DialogManagerProvider } from './core/DialogContext';
-import { TemplateDialog } from './templates/TemplateDialog';
+import TemplateDialog from './templates/TemplateDialog';
 import { FolderDialog } from './templates/FolderDialog';
-import { PlaceholderEditor } from './templates/PlaceHolderEditor';
+import PlaceholderEditor from './templates/PlaceHolderEditor';
 import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
