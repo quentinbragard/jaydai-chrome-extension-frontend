@@ -50,6 +50,13 @@ export const TemplateDialog: React.FC = () => {
   
   // Process user folders for the select dropdown
   const processUserFolders = useCallback(() => {
+    // Safely validate and transform user folders
+    if (!userFolders || !Array.isArray(userFolders)) {
+      console.log('No valid user folders found');
+      setUserFoldersList([]);
+      return;
+    }
+    
     // Helper function to flatten folder hierarchy
     const flattenFolderHierarchy = (
       folders: any[], 
@@ -57,7 +64,11 @@ export const TemplateDialog: React.FC = () => {
       result: {id: number, name: string, fullPath: string}[] = []
     ) => {
       folders.forEach(folder => {
-        if (!folder || !folder.id || !folder.name) return;
+        // Extra validation to ensure folder is valid
+        if (!folder || typeof folder.id !== 'number' || !folder.name) {
+          console.warn('Invalid folder encountered:', folder);
+          return;
+        }
         
         const folderPath = path ? `${path} / ${folder.name}` : folder.name;
         
@@ -67,7 +78,8 @@ export const TemplateDialog: React.FC = () => {
           fullPath: folderPath
         });
         
-        if (folder.Folders && folder.Folders.length > 0) {
+        // Recursively process subfolders if they exist
+        if (folder.Folders && Array.isArray(folder.Folders) && folder.Folders.length > 0) {
           flattenFolderHierarchy(folder.Folders, folderPath, result);
         }
       });
@@ -85,23 +97,22 @@ export const TemplateDialog: React.FC = () => {
     if (isOpen) {
       // Reset validation errors
       setValidationErrors({});
+  
+      // Initialize form data only once when dialog opens
+      console.log('Setting initial form data:', initialFormData);
+      setFormData(initialFormData);
       
-      if (initialFormData) {
-        console.log('Setting initial form data:', initialFormData);
-        setFormData(initialFormData);
-        
-        // Set selected folder ID
-        if (initialFormData.folder_id) {
-          setSelectedFolderId(initialFormData.folder_id.toString());
-        } else {
-          setSelectedFolderId('');
-        }
+      // Set selected folder ID from form data if available
+      if (initialFormData.folder_id) {
+        setSelectedFolderId(initialFormData.folder_id.toString());
+      } else {
+        setSelectedFolderId('');
       }
       
       // Process user folders
       processUserFolders();
-
-      // If there's a selectedFolder from folder creation, set it
+      
+      // If there's a pre-selected folder, update the form accordingly
       if (selectedFolder) {
         console.log('Auto-selecting folder from creation:', selectedFolder);
         setSelectedFolderId(selectedFolder.id.toString());
@@ -109,7 +120,9 @@ export const TemplateDialog: React.FC = () => {
         handleFormChange('folder', selectedFolder.name);
       }
     }
-  }, [isOpen, initialFormData, processUserFolders, selectedFolder]);
+    // Run this effect only when dialog open state changes
+  }, [isOpen]);
+  
   
   // Handle dialog close
   const handleClose = () => {
@@ -250,7 +263,7 @@ export const TemplateDialog: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      console.log('Saving template with data:', formData);
+      console.log('Saviiiiing template with data:', formData);
       const success = await onSave(formData);
       if (success) {
         handleClose();
