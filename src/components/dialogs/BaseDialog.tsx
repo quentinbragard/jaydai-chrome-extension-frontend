@@ -25,7 +25,6 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         className={className} 
-        onClick={(e) => e.stopPropagation()}
       >
         {title && <h2 className="dialog-title">{title}</h2>}
         {description && <p className="dialog-description">{description}</p>}

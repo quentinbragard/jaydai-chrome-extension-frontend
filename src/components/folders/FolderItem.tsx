@@ -1,6 +1,6 @@
 // src/components/folders/FolderItem.tsx
 import React, { useState, memo, useCallback } from 'react';
-import { TemplateFolder } from '@/types/prompts/templates';
+import { Template, TemplateFolder } from '@/types/prompts/templates';
 import { FolderHeader } from './FolderHeader';
 import { TemplateItem } from '@/components/templates/TemplateItem';
 import { PinButton } from './PinButton';
@@ -11,7 +11,7 @@ interface FolderItemProps {
   type: 'official' | 'organization' | 'user';
   onTogglePin?: (folderId: number, isPinned: boolean) => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
-  onUseTemplate?: (templateId: number) => void;
+  onUseTemplate?: (template: Template) => void;
   showPinControls?: boolean;
   showDeleteControls?: boolean;
   level?: number;
@@ -115,7 +115,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
               key={`template-${template.id}`}
               template={template}
               type={type}
-              onUseTemplate={onUseTemplate ? () => onUseTemplate(template.id) : undefined}
+              onUseTemplate={onUseTemplate ? () => onUseTemplate(template) : undefined}
             />
           ))}
           
