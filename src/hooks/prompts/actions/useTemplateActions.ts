@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { Template } from '@/types/prompts/templates';
 import { DIALOG_TYPES } from '@/core/dialogs/registry'; // Updated import path
 import { useTemplateMutations } from './useTemplateMutations';
-
+import { promptApi } from '@/services/api/PromptApi';
 /**
  * Hook that provides high-level template actions such as using, editing, creating templates
  */
@@ -115,11 +115,12 @@ export function useTemplateActions() {
    * Open template editor to create a new template
    */
   const createTemplate = useCallback((initialFolder?: any) => {
+    console.log('createTemplate===============\n\n\======================\n\n');
     if (!window.dialogManager) {
       toast.error('System not initialized');
       return;
     }
-
+  
     window.dialogManager.openDialog(DIALOG_TYPES.CREATE_TEMPLATE, {
       formData: {
         name: '',
@@ -128,9 +129,28 @@ export function useTemplateActions() {
         folder: initialFolder?.name || '',
         folder_id: initialFolder?.id || undefined
       },
-      onSave: (templateData: any) => {
-        // The actual saving will be handled by the dialog's internal logic
-        // This is just for any additional actions after save
+      onSave: async (templateData: any) => {
+        try {
+          // Use promptApi to create the template
+          const response = await promptApi.createTemplate({
+            title: templateData.name,
+            content: templateData.content,
+            description: templateData.description,
+            folder_id: templateData.folder_id
+          });
+  
+          if (response.success) {
+            toast.success('Template created successfully');
+            return true; // This will close the dialog
+          } else {
+            toast.error(response.error || 'Failed to create template');
+            return false; // Keep the dialog open
+          }
+        } catch (error) {
+          console.error('Error creating template:', error);
+          toast.error('An unexpected error occurred');
+          return false;
+        }
       }
     });
   }, []);
