@@ -644,25 +644,5 @@
         "example": "aujourd'hui"
       }
     }
-  },
-  "organization_templates_title": {
-    "message": "Modèles d'Entreprise",
-    "description": "Titre de la section des modèles d'organisation"
-  },
-  "organization_templates_description": {
-    "message": "L'accès aux modèles d'organisation est une fonctionnalité d'entreprise. Contactez-nous pour l'activer pour votre équipe.",
-    "description": "Description de la section des modèles d'organisation"
-  },
-  "contact_enterprise_sales": {
-    "message": "Contacter les Ventes",
-    "description": "Texte du bouton pour contacter les ventes entreprise"
-  },
-  "official_folders_empty": {
-    "message": "Aucun dossier officiel disponible.",
-    "description": "Message d'état vide pour la section des dossiers officiels"
-  },
-  "user_folders_empty": {
-    "message": "Aucun dossier utilisateur disponible. Créez un dossier pour commencer.",
-    "description": "Message d'état vide pour la section des dossiers utilisateur"
   }
 }

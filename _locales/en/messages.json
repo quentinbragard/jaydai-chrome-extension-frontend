@@ -656,25 +656,5 @@
         "example": "today"
       }
     }
-  },
-  "organization_templates_title": {
-    "message": "Enterprise Templates",
-    "description": "Title for organization templates section"
-  },
-  "organization_templates_description": {
-    "message": "Access to organization templates is an enterprise feature. Contact us to enable this for your team.",
-    "description": "Description for organization templates section"
-  },
-  "contact_enterprise_sales": {
-    "message": "Contact Sales",
-    "description": "Button text to contact enterprise sales"
-  },
-  "official_folders_empty": {
-    "message": "No official folders available.",
-    "description": "Empty state message for official folders section"
-  },
-  "user_folders_empty": {
-    "message": "No user folders available. Create a folder to get started.",
-    "description": "Empty state message for user folders section"
   }
 }

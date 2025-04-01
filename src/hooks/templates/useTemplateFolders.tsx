@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api/PromptApi';
+import { userApi } from '@/services/api/UserApi';
 
 /**
  * Interface for folder structure
@@ -37,7 +38,7 @@ export function useTemplateFolders() {
     
     try {
       // Get user metadata for pinned folder IDs
-      const metadataResponse = await promptApi.getUserMetadata();
+      const metadataResponse = await userApi.getUserMetadata();
       
       if (!metadataResponse.success) {
         throw new Error(metadataResponse.error || 'Failed to load user metadata');
