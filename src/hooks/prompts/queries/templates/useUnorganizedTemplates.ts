@@ -1,9 +1,13 @@
+// src/hooks/prompts/queries/templates/useUnorganizedTemplates.ts
 import { useQuery } from 'react-query';
 import { promptApi } from '@/services/api';
 import { toast } from 'sonner';
-import { QUERY_KEYS } from '@/services/templates/queryKeys';
-import { Template } from '@/types/templates';
+import { QUERY_KEYS } from '@/constants/queryKeys'; // Updated import
+import { Template } from '@/types/prompts/templates';
 
+/**
+ * Hook to fetch templates without a folder assignment
+ */
 export function useUnorganizedTemplates() {
   return useQuery(QUERY_KEYS.UNORGANIZED_TEMPLATES, async () => {
     const response = await promptApi.getUserTemplates();
@@ -17,4 +21,4 @@ export function useUnorganizedTemplates() {
       toast.error(`Failed to load unorganized templates: ${error.message}`);
     }
   });
-} 
+}

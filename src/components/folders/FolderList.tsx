@@ -69,6 +69,7 @@ const FolderList: React.FC<FolderListProps> = ({
             showPinControls={showPinControls}
             showDeleteControls={showDeleteControls}
             initialExpanded={initialExpanded}
+            level={0}
           />
         );
       })}

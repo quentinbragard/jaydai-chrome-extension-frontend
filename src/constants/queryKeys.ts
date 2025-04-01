@@ -1,25 +1,23 @@
 // src/constants/queryKeys.ts
-// Centralized query keys for React Query
+
+/**
+ * Query keys for React Query
+ * Centralizing these prevents typos and makes refactoring easier
+ */
 
 export const QUERY_KEYS = {
-    // Folder-related keys
-    FOLDERS: 'folders',
+    // Template and folder related queries
     USER_FOLDERS: 'userFolders',
-    PINNED_FOLDERS: 'pinnedFolders',
     ALL_FOLDERS: 'allFolders',
-    
-    // Template-related keys
-    TEMPLATES: 'templates',
     USER_TEMPLATES: 'userTemplates',
     UNORGANIZED_TEMPLATES: 'unorganizedTemplates',
-    TEMPLATE_BY_ID: 'templateById',
+    PINNED_FOLDERS: 'pinnedFolders',
     
-    // User-related keys
-    USER: 'user',
+    // User related queries
     USER_METADATA: 'userMetadata',
-  };
-  
-  // Helper function to create query keys with proper structure
-  export const createQueryKey = (base: string, ...parts: any[]): any[] => {
-    return [base, ...parts];
+    USER_PROFILE: 'userProfile',
+    
+    // Stats related queries
+    USER_STATS: 'userStats',
+    WEEKLY_STATS: 'weeklyStats',
   };

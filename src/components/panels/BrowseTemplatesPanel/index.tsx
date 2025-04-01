@@ -1,3 +1,4 @@
+// src/components/panels/BrowseTemplatesPanel/index.tsx
 import React, { useCallback, memo } from 'react';
 import { FolderOpen } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -29,7 +30,7 @@ interface BrowseTemplatesPanelProps {
  */
 const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
   folderType,
-  pinnedFolderIds,
+  pinnedFolderIds = [],
   onPinChange,
   onBackToTemplates,
   maxHeight = '400px'
@@ -64,6 +65,16 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
       onPinChange(folderId, isPinned);
     }
   }, [toggleFolderPin, folderType, onPinChange]);
+
+  // Add pinned status to folders
+  const foldersWithPinStatus = React.useMemo(() => {
+    if (!folders?.length) return [];
+    
+    return folders.map(folder => ({
+      ...folder,
+      is_pinned: pinnedFolderIds.includes(folder.id)
+    }));
+  }, [folders, pinnedFolderIds]);
 
   return (
     <BasePanel

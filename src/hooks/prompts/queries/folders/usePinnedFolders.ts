@@ -1,9 +1,10 @@
+// src/hooks/prompts/queries/folders/usePinnedFolders.ts
 import { useQuery } from 'react-query';
 import { promptApi, userApi } from '@/services/api';
 import { toast } from 'sonner';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { QUERY_KEYS } from '@/services/templates/queryKeys';
-import { TemplateFolder } from '@/types/templates';
+import { QUERY_KEYS } from '@/constants/queryKeys'; // Updated import
+import { TemplateFolder } from '@/types/prompts/templates';
 
 export function usePinnedFolders() {
   const userLocale = getCurrentLanguage();

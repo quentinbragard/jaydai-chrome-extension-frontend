@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { getMessage } from '@/core/utils/i18n';
 import BasePanel from '../BasePanel';
+import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
 
 // Import hooks with the new structure
 import { 
@@ -23,7 +24,7 @@ import {
 } from '@/components/folders';
 
 import { TemplateItem } from '@/components/templates/TemplateItem';
-import { DIALOG_TYPES } from '@/types/dialog';
+import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
 
@@ -41,6 +42,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   onBack,
   onClose
 }) => {
+  // Use Panel Navigation hook for moving between panels
+  const { pushPanel } = usePanelNavigation();
+
   // Fetch data with React Query hooks
   const { 
     data: pinnedFolders = { official: [], organization: [] }, 
@@ -63,12 +67,47 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     refetch: refetchUnorganized
   } = useUnorganizedTemplates();
   
-  // Get mutations from the new hooks
+  // Get mutations from the hooks
   const { toggleFolderPin, deleteFolder } = useFolderMutations();
   const { deleteTemplate } = useTemplateMutations();
   
   // Get template actions
   const { useTemplate, createTemplate, editTemplate, createFolderAndTemplate } = useTemplateActions();
+  
+  // Handle navigation to browse panels
+  const handleBrowseOfficialTemplates = useCallback(() => {
+    pushPanel({ 
+      type: 'templatesBrowse',
+      props: {
+        folderType: 'official',
+        pinnedFolderIds: pinnedFolders.official.map(folder => folder.id),
+        onPinChange: async (folderId, isPinned) => {
+          await toggleFolderPin.mutateAsync({ 
+            folderId, 
+            isPinned, 
+            type: 'official' 
+          });
+        }
+      }
+    });
+  }, [pushPanel, pinnedFolders.official, toggleFolderPin]);
+
+  const handleBrowseOrganizationTemplates = useCallback(() => {
+    pushPanel({
+      type: 'templatesBrowse',
+      props: {
+        folderType: 'organization',
+        pinnedFolderIds: pinnedFolders.organization.map(folder => folder.id),
+        onPinChange: async (folderId, isPinned) => {
+          await toggleFolderPin.mutateAsync({ 
+            folderId, 
+            isPinned, 
+            type: 'organization' 
+          });
+        }
+      }
+    });
+  }, [pushPanel, pinnedFolders.organization, toggleFolderPin]);
   
   // Memoize combined loading and error states to prevent unnecessary renders
   const { isLoading, hasError, errorMessage } = useMemo(() => ({
@@ -233,6 +272,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               title={getMessage('officialTemplates', undefined, 'Official Templates')}
               iconType="official"
               showBrowseMore={true}
+              onBrowseMore={handleBrowseOfficialTemplates}
             >
               <FolderList
                 folders={pinnedFolders.official}
@@ -254,6 +294,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
           iconType="organization"
           isEmpty={!pinnedFolders?.organization?.length}
+          showBrowseMore={true}
+          onBrowseMore={handleBrowseOrganizationTemplates}
         >
           {pinnedFolders?.organization?.length > 0 ? (
             <FolderList

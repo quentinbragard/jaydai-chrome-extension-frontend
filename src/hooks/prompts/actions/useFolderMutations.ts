@@ -2,12 +2,18 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
-import { QUERY_KEYS } from '@/constants/queryKeys';
+import { QUERY_KEYS } from '@/constants/queryKeys'; // Updated import
 
 interface FolderData {
   name: string;
   path: string;
   description?: string;
+}
+
+interface TogglePinParams {
+  folderId: number;
+  isPinned: boolean;
+  type: 'official' | 'organization';
 }
 
 /**
@@ -90,8 +96,8 @@ export function useFolderMutations() {
   
   // Toggle folder pin status
   const toggleFolderPin = useMutation(
-    async ({ folderId, isPinned, type }: { folderId: number; isPinned: boolean; type: 'official' | 'organization' }) => {
-      const response = await promptApi.toggleFolderPin(folderId, !isPinned, type);
+    async ({ folderId, isPinned, type }: TogglePinParams) => {
+      const response = await promptApi.toggleFolderPin(folderId, isPinned, type);
       if (!response.success) {
         throw new Error(response.error || 'Failed to update pin status');
       }

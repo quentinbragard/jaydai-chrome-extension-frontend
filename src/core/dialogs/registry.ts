@@ -1,69 +1,69 @@
 // src/core/dialogs/registry.ts
 
 /**
- * Registry of all dialog types in the application
+ * Registry of dialog types for the application
+ * Used to reference dialogs consistently throughout the app
  */
-export const DIALOG_TYPES = {
-  SETTINGS: 'settings',
-  CREATE_TEMPLATE: 'createTemplate',
-  EDIT_TEMPLATE: 'editTemplate',
-  CREATE_FOLDER: 'createFolder',
-  AUTH: 'auth',
-  PLACEHOLDER_EDITOR: 'placeholderEditor',
-  CONFIRMATION: 'confirmation',
-} as const;
-
-export type DialogType = typeof DIALOG_TYPES[keyof typeof DIALOG_TYPES];
-
-// Template dialog props
-export interface TemplateDialogProps {
-  template?: any;
-  formData?: any;
-  onFormChange?: (formData: any) => void;
-  onSave?: () => Promise<boolean>;
-  userFolders?: any[];
+export enum DIALOG_TYPES {
+  CREATE_TEMPLATE = 'createTemplate',
+  EDIT_TEMPLATE = 'editTemplate',
+  CREATE_FOLDER = 'createFolder',
+  SETTINGS = 'settings',
+  AUTH = 'auth',
+  PLACEHOLDER_EDITOR = 'placeholderEditor',
+  CONFIRMATION = 'confirmation'
 }
 
-// Folder dialog props
-export interface FolderDialogProps {
-  onSaveFolder: (folderData: { 
-    name: string; 
-    path: string; 
-    description: string 
-  }) => Promise<boolean>;
-}
+/**
+ * Type for dialog types
+ */
+export type DialogType = keyof typeof DIALOG_TYPES;
 
-// Placeholder editor props
-export interface PlaceholderEditorProps {
-  content: string;
-  title?: string;
-  onComplete: (modifiedContent: string) => void;
-}
-
-// Confirmation dialog props
-export interface ConfirmationDialogProps {
-  title: string;
-  description: string;
-  confirmText?: string;
-  cancelText?: string;
-  onConfirm: () => void;
-  onCancel?: () => void;
-}
-
-// Auth dialog props
-export interface AuthDialogProps {
-  initialMode?: 'signin' | 'signup';
-  isSessionExpired?: boolean;
-  onSuccess?: () => void;
-}
-
-// Define all dialog props by type
+/**
+ * Props for each dialog type
+ */
 export interface DialogProps {
-  [DIALOG_TYPES.SETTINGS]: Record<string, never>;
-  [DIALOG_TYPES.CREATE_TEMPLATE]: TemplateDialogProps;
-  [DIALOG_TYPES.EDIT_TEMPLATE]: TemplateDialogProps;
-  [DIALOG_TYPES.CREATE_FOLDER]: FolderDialogProps;
-  [DIALOG_TYPES.AUTH]: AuthDialogProps;
-  [DIALOG_TYPES.PLACEHOLDER_EDITOR]: PlaceholderEditorProps;
-  [DIALOG_TYPES.CONFIRMATION]: ConfirmationDialogProps;
+  [DIALOG_TYPES.CREATE_TEMPLATE]: {
+    formData?: any;
+    userFolders?: any[];
+    selectedFolder?: any;
+    onFormChange?: (formData: any) => void;
+    onSave?: (formData: any) => Promise<boolean>;
+  };
+  
+  [DIALOG_TYPES.EDIT_TEMPLATE]: {
+    template: any;
+    formData?: any;
+    userFolders?: any[];
+    onFormChange?: (formData: any) => void;
+    onSave?: (formData: any) => Promise<boolean>;
+  };
+  
+  [DIALOG_TYPES.CREATE_FOLDER]: {
+    onSaveFolder?: (folderData: any) => Promise<any>;
+    onFolderCreated?: (folder: any) => void;
+  };
+  
+  [DIALOG_TYPES.SETTINGS]: {};
+  
+  [DIALOG_TYPES.AUTH]: {
+    initialMode?: 'signin' | 'signup';
+    isSessionExpired?: boolean;
+    onSuccess?: () => void;
+  };
+  
+  [DIALOG_TYPES.PLACEHOLDER_EDITOR]: {
+    title?: string;
+    content: string;
+    onComplete: (content: string) => void;
+  };
+  
+  [DIALOG_TYPES.CONFIRMATION]: {
+    title?: string;
+    description?: string;
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm?: () => void;
+    onCancel?: () => void;
+  };
 }

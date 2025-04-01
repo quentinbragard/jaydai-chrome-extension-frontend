@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Template } from '@/types/prompts/templates';
-import { DIALOG_TYPES } from '@/types/dialog';
+import { DIALOG_TYPES } from '@/core/dialogs/registry'; // Updated import path
 import { useTemplateMutations } from './useTemplateMutations';
 
 /**
@@ -121,7 +121,13 @@ export function useTemplateActions() {
     }
 
     window.dialogManager.openDialog(DIALOG_TYPES.CREATE_TEMPLATE, {
-      initialFolder,
+      formData: {
+        name: '',
+        content: '',
+        description: '',
+        folder: initialFolder?.name || '',
+        folder_id: initialFolder?.id || undefined
+      },
       onSave: (templateData: any) => {
         // The actual saving will be handled by the dialog's internal logic
         // This is just for any additional actions after save
@@ -170,6 +176,13 @@ export function useTemplateActions() {
 
     window.dialogManager.openDialog(DIALOG_TYPES.EDIT_TEMPLATE, {
       template,
+      formData: {
+        name: template.title || '',
+        content: template.content || '',
+        description: template.description || '',
+        folder: template.folder || '',
+        folder_id: template.folder_id
+      },
       onSave: (templateData: any) => {
         // The actual saving will be handled by the dialog's internal logic
       }

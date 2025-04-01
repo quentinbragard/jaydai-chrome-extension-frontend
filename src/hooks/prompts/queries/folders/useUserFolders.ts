@@ -1,12 +1,13 @@
+// src/hooks/prompts/queries/folders/useUserFolders.ts
 import { useQuery } from 'react-query';
 import { promptApi } from '@/services/api';
 import { toast } from 'sonner';
-import { QUERY_KEYS } from '@/services/templates/queryKeys';
-import { TemplateFolder } from '@/types/templates';
+import { QUERY_KEYS } from '@/constants/queryKeys'; // Updated import
+import { TemplateFolder } from '@/types/prompts/templates';
 
 export function useUserFolders() {
   return useQuery(QUERY_KEYS.USER_FOLDERS, async () => {
-    const response = await promptApi.getAllFolders('user', true);
+    const response = await promptApi.getUserFolders();
     if (!response.success) {
       throw new Error(response.error || 'Failed to load user folders');
     }
@@ -48,4 +49,4 @@ export function useUserFolders() {
       toast.error(`Failed to load user folders: ${error.message}`);
     }
   });
-} 
+}

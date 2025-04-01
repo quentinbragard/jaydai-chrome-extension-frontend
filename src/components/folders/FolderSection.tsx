@@ -1,4 +1,4 @@
-// src/components/templates/FolderSection.tsx
+// src/components/folders/FolderSection.tsx
 import { ReactNode, useState } from 'react';
 import { BookTemplate, Users, Folder, PlusCircle, ChevronDown, Building2, Mail, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,6 @@ export function FolderSection({
   isEmpty = false,
   children
 }: FolderSectionProps) {
-  console.log('FolderSection', { title, iconType, onBrowseMore, onCreateTemplate, showBrowseMore, showCreateButton, isEmpty, children });
   // Select the appropriate icon based on the iconType
   const renderIcon = () => {
     switch (iconType) {
