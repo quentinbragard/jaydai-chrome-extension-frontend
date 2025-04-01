@@ -1,8 +1,8 @@
 import { useQuery } from 'react-query';
 import { promptApi } from '@/services/api';
 import { toast } from 'sonner';
-import { QUERY_KEYS } from '../queryKeys';
-import { TemplateFolder } from '@/types/prompts/templates';
+import { QUERY_KEYS } from '@/services/templates/queryKeys';
+import { TemplateFolder } from '@/types/templates';
 
 export function useUserFolders() {
   return useQuery(QUERY_KEYS.USER_FOLDERS, async () => {

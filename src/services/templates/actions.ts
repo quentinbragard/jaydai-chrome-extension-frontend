@@ -3,7 +3,7 @@ import { promptApi } from '@/services/api';
 import { toast } from 'sonner';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { QUERY_KEYS } from './queryKeys';
-import { Template, TemplateFolder } from '@/types/templates';
+import { Template, TemplateFolder } from '@/types/prompts/templates';
 import { TemplateFormData } from './types';
 
 export function useTemplateActions() {

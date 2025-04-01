@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { getMessage } from '@/core/utils/i18n';
 import BasePanel from '../BasePanel';
 
-// Import optimized components & hooks
+// Updated imports directly from hooks instead of TemplateService
 import { 
   usePinnedFolders, 
   useUserFolders, 
@@ -16,7 +16,7 @@ import {
   useDeleteFolder,
   useDeleteTemplate,
   useTemplateActions
-} from '@/services/TemplateService';
+} from '@/hooks/prompts';
 
 import { 
   FolderSection, 
@@ -43,14 +43,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 }) => {
   // Fetch data with React Query hooks
   const { 
-    data: pinnedFolders, 
+    data: pinnedFolders = { official: [], organization: [] }, 
     isLoading: loadingPinned,
     error: pinnedError,
     refetch: refetchPinned
   } = usePinnedFolders();
   
   const { 
-    data: userFolders, 
+    data: userFolders = [], 
     isLoading: loadingUser,
     error: userError,
     refetch: refetchUser

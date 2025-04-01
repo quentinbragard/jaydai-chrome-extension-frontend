@@ -1,6 +1,6 @@
 // src/components/templates/UnorganizedTemplates.tsx
 import React from 'react';
-import { Template } from '@/types/templates';
+import { Template } from '@/types/prompts/templates';
 import { TemplateItem } from './TemplateItem';
 import { getMessage } from '@/core/utils/i18n';
 

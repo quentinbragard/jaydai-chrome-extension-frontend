@@ -1,6 +1,6 @@
 // src/components/folders/FolderItem.tsx
 import React, { useState, memo, useCallback } from 'react';
-import { TemplateFolder } from '@/types/templates';
+import { TemplateFolder } from '@/types/prompts/templates';
 import { FolderHeader } from './FolderHeader';
 import { TemplateItem } from '@/components/templates/TemplateItem';
 import { PinButton } from './PinButton';

@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { promptApi } from '@/services/api';
 import { toast } from 'sonner';
 import { QUERY_KEYS } from '../queryKeys';
-import { TemplateFolder } from '@/types/templates';
+import { TemplateFolder } from '@/types/prompts/templates';
 
 export function useToggleFolderPin() {
   const queryClient = useQueryClient();

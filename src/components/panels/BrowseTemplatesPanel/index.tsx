@@ -3,12 +3,13 @@ import React from 'react';
 import { FolderOpen } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import BasePanel from '../BasePanel';
-import { useFolderSearch } from '@/hooks/templates/useFolderSearch';
 import { 
+  // Import all hooks directly from the templates hooks module
+  useFolderSearch,
   useAllFoldersOfType, 
   useToggleFolderPin,
   useTemplateActions
-} from '@/services/TemplateService';
+} from '@/hooks/prompts';
 import { 
   FolderList,
   FolderSearch

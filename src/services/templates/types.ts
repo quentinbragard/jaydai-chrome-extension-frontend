@@ -1,4 +1,4 @@
-import { Template, TemplateFolder } from '@/types/templates';
+import { Template, TemplateFolder } from '@/types/prompts/templates';
 
 export interface TemplateFormData {
   name: string;

@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { FolderPlus } from 'lucide-react';
-import { DEFAULT_FORM_DATA } from '@/types/templates';
+import { DEFAULT_FORM_DATA } from '@/types/prompts/templates';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api/PromptApi';
 

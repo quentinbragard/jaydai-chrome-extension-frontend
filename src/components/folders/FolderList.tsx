@@ -1,6 +1,6 @@
 // src/components/folders/FolderList.tsx
 import React, { memo } from 'react';
-import { TemplateFolder } from '@/types/templates';
+import { TemplateFolder } from '@/types/prompts/templates';
 import { FolderItem } from './FolderItem';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 

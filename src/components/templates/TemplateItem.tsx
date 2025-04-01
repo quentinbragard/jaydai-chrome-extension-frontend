@@ -1,11 +1,11 @@
 // src/components/templates/TemplateItem.tsx
 import React from 'react';
-import { FileText, Edit, Trash, Clock, Activity } from 'lucide-react';
+import { FileText, Edit, Clock, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Template } from '@/types/templates';
-import { useTemplateSelection } from '@/hooks/templates/useTemplateSelection';
+import { Template } from '@/types/prompts/templates';
+import { useTemplateActions } from '@/hooks/prompts'; // Updated import from hooks directly
 import { getMessage } from '@/core/utils/i18n';
 import { DeleteButton } from './DeleteButton';
 
@@ -14,6 +14,7 @@ interface TemplateItemProps {
   type?: 'official' | 'organization' | 'user';
   onEditTemplate?: (template: Template) => void;
   onDeleteTemplate?: (templateId: number) => Promise<boolean> | void;
+  onUseTemplate?: (template: Template) => void;
 }
 
 /**
@@ -23,10 +24,14 @@ export function TemplateItem({
   template,
   type = 'user',
   onEditTemplate,
-  onDeleteTemplate
+  onDeleteTemplate,
+  onUseTemplate
 }: TemplateItemProps) {
-  // Use our enhanced template selection hook
-  const { useTemplate, isProcessing } = useTemplateSelection();
+  // Use our template actions hook
+  const { isProcessing, useTemplate: defaultUseTemplate } = useTemplateActions();
+  
+  // Use the provided use function or fall back to the hook's function
+  const handleUseTemplate = onUseTemplate || defaultUseTemplate;
   
   // Ensure we have a display name, falling back through various options
   const displayName = template.title || 'Untitled Template';
@@ -121,7 +126,7 @@ export function TemplateItem({
 
   // Handle template click to use it
   const handleTemplateClick = () => {
-    useTemplate(template);
+    handleUseTemplate(template);
   };
   
   // Handle edit click (only for user templates)

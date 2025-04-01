@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { Placeholder } from '@/types/templates';
+import { Placeholder } from '@/types/prompts/templates';
 
 /**
  * Hook for managing template placeholders and content

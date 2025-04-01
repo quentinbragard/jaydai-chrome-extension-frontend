@@ -2,7 +2,7 @@ import { useQuery } from 'react-query';
 import { promptApi } from '@/services/api';
 import { toast } from 'sonner';
 import { QUERY_KEYS } from '../queryKeys';
-import { Template } from '@/types/templates';
+import { Template } from '@/types/prompts/templates';
 
 export function useUnorganizedTemplates() {
   return useQuery(

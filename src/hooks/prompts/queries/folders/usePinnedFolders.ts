@@ -2,8 +2,8 @@ import { useQuery } from 'react-query';
 import { promptApi, userApi } from '@/services/api';
 import { toast } from 'sonner';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { QUERY_KEYS } from '../queryKeys';
-import { TemplateFolder } from '@/types/prompts/templates';
+import { QUERY_KEYS } from '@/services/templates/queryKeys';
+import { TemplateFolder } from '@/types/templates';
 
 export function usePinnedFolders() {
   const userLocale = getCurrentLanguage();
@@ -57,4 +57,4 @@ export function usePinnedFolders() {
       toast.error(`Failed to load pinned folders: ${error.message}`);
     }
   });
-} 
+}

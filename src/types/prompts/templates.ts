@@ -20,8 +20,6 @@ export interface Template {
     organization_id?: number;
   }
   
-  /
-  
   /**
    * Template form data for creation/editing
    */
