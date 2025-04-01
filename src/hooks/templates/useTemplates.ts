@@ -50,7 +50,7 @@ export function useTemplates() {
   
   // Handle finalizing and applying a template
   const handleFinalizeTemplate = useCallback((finalContent: string, onClose?: () => void) => {
-    const textarea = document.querySelector('#prompt-textarea');
+    const textarea = document.querySelector('#prompt-textareaa');
     if (!textarea) {
       console.error('❌ Could not find input area');
       return;

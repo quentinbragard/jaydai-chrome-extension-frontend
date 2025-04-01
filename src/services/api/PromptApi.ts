@@ -282,6 +282,75 @@ class PromptApiClient {
     }
   }
 
+  // Add this to the PromptApi class in src/services/api/PromptApi.ts
+/**
+ * Delete a template
+ */
+async deleteTemplate(templateId: number): Promise<any> {
+  try {
+    const response = await apiClient.request(`/prompts/templates/${templateId}`, {
+      method: 'DELETE'
+    });
+    
+    console.log('Template deletion response:', response);
+    return response;
+  } catch (error) {
+    console.error('Error deleting template:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+/**
+ * Get templates with null folder_id (unorganized templates)
+ */
+async getUnorganizedTemplates(): Promise<any> {
+  try {
+    // Endpoint specifically for templates without a folder
+    const response = await apiClient.request('/prompts/templates/unorganized', {
+      method: 'GET'
+    });
+    
+    console.log('Unorganized templates response:', response);
+    return response;
+  } catch (error) {
+    console.error('Error fetching unorganized templates:', error);
+    return { 
+      success: false, 
+      templates: [],
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+  /**
+ * Get all templates for the user
+ * This allows us to explicitly handle templates with null folder_id
+ */
+async getUserTemplates(): Promise<any> {
+  try {
+    const response = await apiClient.request('/prompts/templates', {
+      method: 'GET'
+    });
+    
+    console.log('User templates response:', response);
+    
+    return {
+      success: true,
+      templates: response.templates || []
+    };
+  } catch (error) {
+    console.error('Error fetching user templates:', error);
+    return { 
+      success: false, 
+      templates: [],
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
 /**
    * Create a new folder
    */

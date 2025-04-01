@@ -45,7 +45,10 @@ export function FolderItem({
   }
   
   // Ensure folder.templates is an array
-  const templates = Array.isArray(folder.templates) ? folder.templates : [];
+  const allTemplates = Array.isArray(folder.templates) ? folder.templates : [];
+
+  // Filter out templates with null folder_id as they'll be shown separately
+  const templates = allTemplates.filter(template => template.folder_id !== null);
   
   // Ensure folder.Folders is an array
   const subfolders = Array.isArray(folder.Folders) ? folder.Folders : [];

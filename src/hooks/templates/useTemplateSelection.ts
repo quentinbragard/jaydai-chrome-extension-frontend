@@ -69,60 +69,66 @@ export function useTemplateSelection() {
     }
   }, []);
 
-  /**
-   * Handle finalizing a template after placeholder replacement
-   */
-  const handleTemplateFinalized = useCallback((finalContent: string) => {
-    if (!finalContent) {
-      console.warn('⚠️ Finalized template has no content');
+/**
+ * Handle finalizing a template after placeholder replacement
+ */
+const handleTemplateFinalized = useCallback((finalContent: string) => {
+  if (!finalContent) {
+    console.warn('⚠️ Finalized template has no content');
+    return;
+  }
+
+  try {
+    console.log('✅ Template finalized with content length:', finalContent.length);
+    
+    // Find the textarea to insert the content into
+    const textarea = document.querySelector('#prompt-textarea');
+    if (!textarea) {
+      console.error('❌ Could not find prompt textarea');
+      toast.error('Could not apply template: Input area not found');
       return;
     }
 
-    try {
-      console.log('✅ Template finalized with content length:', finalContent.length);
-      
-      // Find the textarea to insert the content into
-      const textarea = document.querySelector('#prompt-textarea');
-      if (!textarea) {
-        console.error('❌ Could not find prompt textarea');
-        toast.error('Could not apply template: Input area not found');
-        return;
-      }
-
-      // Normalize the content
-      const normalizedContent = finalContent
-        .replace(/\r\n/g, '\n')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
-
-      // Insert the content
-      if (textarea instanceof HTMLTextAreaElement) {
-        textarea.value = normalizedContent;
-        textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      } else {
-        // For contenteditable divs or other inputs
-        textarea.textContent = normalizedContent;
-        textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-
-      // Focus the textarea and set cursor at the end
-      textarea.focus();
-      if ('setSelectionRange' in textarea) {
-        (textarea as HTMLTextAreaElement).setSelectionRange(
-          normalizedContent.length,
-          normalizedContent.length
-        );
-      }
-
-      toast.success('Template applied successfully');
-      
-      // Reset selected template
-      setSelectedTemplate(null);
-    } catch (error) {
-      console.error('❌ Error applying template:', error);
-      toast.error('Failed to apply template');
+    // Normalize line endings
+    const normalizedContent = finalContent.replace(/\r\n/g, '\n');
+    
+    // Split by newlines and wrap each paragraph with <p> tags
+    const paragraphs = normalizedContent.split('\n');
+    const htmlContent = paragraphs.map(para => `<p>${para}</p>`).join('');
+    
+    // Insert the HTML content
+    if (textarea instanceof HTMLTextAreaElement) {
+      // For standard textareas
+      textarea.value = htmlContent;
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    } else if (textarea.isContentEditable) {
+      // For contenteditable divs like in ChatGPT interface
+      // This is key - use innerHTML instead of textContent
+      textarea.innerHTML = htmlContent;
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    } else {
+      textarea.textContent = htmlContent;
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
     }
-  }, []);
+
+    // Focus the textarea and set cursor at the end
+    textarea.focus();
+    if ('setSelectionRange' in textarea) {
+      (textarea as HTMLTextAreaElement).setSelectionRange(
+        htmlContent.length,
+        htmlContent.length
+      );
+    }
+
+    toast.success('Template applied successfully');
+    
+    // Reset selected template
+    setSelectedTemplate(null);
+  } catch (error) {
+    console.error('❌ Error applying template:', error);
+    toast.error('Failed to apply template');
+  }
+}, []);
 
   return {
     selectedTemplate,

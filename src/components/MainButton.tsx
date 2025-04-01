@@ -71,7 +71,9 @@ const MainButton = () => {
               className="bg-transparent w-full h-full rounded-full shadow-lg p-0 overflow-hidden flex items-center justify-center"
             >
               <img 
-                src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images/jaydai-extension-logo.png" 
+                src={document.documentElement.classList.contains('dark') 
+                  ? "https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images/jaydai-extension-logo.png" 
+                  : "https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images/jaydai-extension-logo-dark.png"} 
                 alt="Archimind Logo" 
                 className="w-full h-full object-cover"
               />
@@ -83,7 +85,6 @@ const MainButton = () => {
                 </div>
               )}
             </Button>
-            
             {/* Notification Badge */}
             {notificationCount > 0 && !isOpen && (
               <span 

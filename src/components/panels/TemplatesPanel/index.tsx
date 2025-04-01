@@ -1,5 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx
-import React, { useState, useCallback } from 'react';
+
+import React, { useState, useCallback, useEffect } from 'react';
 import { FolderOpen, RefreshCw, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -10,15 +11,20 @@ import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
 import { 
   usePinnedFolders, 
   useUserFolders, 
+  useUnorganizedTemplates,
   useToggleFolderPin,
   useTemplateActions,
   useDeleteFolder,
-  useCreateFolder
+  useCreateFolder,
+  useDeleteTemplate
 } from '@/services/TemplateService';
 import { 
   FolderSection, 
   FolderList, 
 } from '@/components/folders';
+import { 
+  TemplateItem,
+} from '@/components/templates';
 import { Template, TemplateFolder } from '@/types/templates';
 import { DIALOG_TYPES } from '@/types/dialog';
 
@@ -33,7 +39,6 @@ interface TemplatesPanelProps {
 
 /**
  * Panel for browsing and managing templates
- * Simplified with React Query and smaller components
  */
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   showBackButton,
@@ -42,7 +47,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 }) => {
   const { pushPanel } = usePanelNavigation();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+  const [hasTemplateChanged, setHasTemplateChanged] = useState(false);
+
   // Data fetching with React Query
   const { 
     data: pinnedFolders, 
@@ -57,22 +63,83 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     error: userError,
     refetch: refetchUser
   } = useUserFolders();
+
+  // Fetch unorganized templates directly from API
+  const {
+    data: unorganizedTemplates = [],
+    isLoading: loadingUnorganized,
+    error: unorganizedError,
+    refetch: refetchUnorganized
+  } = useUnorganizedTemplates();
   
   // Mutations
   const { mutate: togglePin } = useToggleFolderPin();
   const { mutate: deleteFolder } = useDeleteFolder();
   const { mutate: createFolder } = useCreateFolder();
+  const { mutate: deleteTemplate } = useDeleteTemplate();
   
-  // Template actions
-  const { useTemplate, createTemplate } = useTemplateActions();
+  // Get template actions
+  const templateActionsOriginal = useTemplateActions();
+  
+  // Effect to refresh data when templates change
+  useEffect(() => {
+    if (hasTemplateChanged) {
+      const refreshData = async () => {
+        console.log('Refreshing data due to template changes');
+        setIsRefreshing(true);
+        try {
+          await Promise.all([
+            refetchPinned(),
+            refetchUser(),
+            refetchUnorganized()
+          ]);
+        } catch (error) {
+          console.error('Error refreshing data:', error);
+        } finally {
+          setIsRefreshing(false);
+          setHasTemplateChanged(false);
+        }
+      };
+      
+      refreshData();
+    }
+  }, [hasTemplateChanged, refetchPinned, refetchUser, refetchUnorganized]);
+
+  // Wrap template actions to trigger refresh
+  const wrapTemplateAction = useCallback((action: Function, ...args: any[]) => {
+    const result = action(...args);
+    // Set flag to refresh data after template operations
+    setTimeout(() => setHasTemplateChanged(true), 300);
+    return result;
+  }, []);
+
+  // Wrapped template actions
+  const useTemplate = useCallback(
+    (template: Template) => wrapTemplateAction(templateActionsOriginal.useTemplate, template),
+    [templateActionsOriginal.useTemplate, wrapTemplateAction]
+  );
+  
+  const createTemplate = useCallback(
+    (folder?: any) => wrapTemplateAction(templateActionsOriginal.createTemplate, folder),
+    [templateActionsOriginal.createTemplate, wrapTemplateAction]
+  );
+  
+  const editTemplate = useCallback(
+    (template: Template) => wrapTemplateAction(templateActionsOriginal.editTemplate, template),
+    [templateActionsOriginal.editTemplate, wrapTemplateAction]
+  );
   
   // Combined loading and error states
-  const isLoading = loadingPinned || loadingUser;
-  const error = pinnedError || userError;
+  const isLoading = loadingPinned || loadingUser || loadingUnorganized;
+  const error = pinnedError || userError || unorganizedError;
   
-  // Determine if we have no folders
-  const isEmpty = 
-    (!pinnedFolders?.official?.length && !pinnedFolders?.organization?.length && !userFolders?.length);
+  // Determine if we have no folders and no unorganized templates
+  const isEmpty = (
+    (!pinnedFolders?.official?.length && 
+     !pinnedFolders?.organization?.length && 
+     !userFolders?.length &&
+     !unorganizedTemplates?.length)
+  );
 
   // Handle browse more templates 
   const handleBrowseMore = (type: 'official' | 'organization') => {
@@ -93,7 +160,11 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await Promise.all([refetchPinned(), refetchUser()]);
+      await Promise.all([
+        refetchPinned(), 
+        refetchUser(),
+        refetchUnorganized()
+      ]);
     } catch (error) {
       console.error('Failed to refresh templates:', error);
     } finally {
@@ -118,6 +189,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               setTimeout(() => {
                 // Open create template dialog with the new folder selected
                 createTemplate(newFolder as Template);
+                
+                // Set flag to refresh data after folder creation
+                setHasTemplateChanged(true);
               }, 100);
             }
             
@@ -134,6 +208,27 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const handleCreateTemplate = useCallback(() => {
     createTemplate();
   }, [createTemplate]);
+
+  // Handle template deletion
+  const handleDeleteTemplate = useCallback((templateId: number) => {
+    if (window.dialogManager) {
+      window.dialogManager.openDialog(DIALOG_TYPES.DELETE_CONFIRMATION, {
+        title: getMessage('deleteTemplate', undefined, 'Delete Template'),
+        message: getMessage('deleteTemplateConfirmation', undefined, 'Are you sure you want to delete this template? This action cannot be undone.'),
+        onConfirm: async () => {
+          try {
+            await deleteTemplate(templateId);
+            // Set flag to refresh data after template deletion
+            setHasTemplateChanged(true);
+            return true;
+          } catch (error) {
+            console.error('Error deleting template:', error);
+            return false;
+          }
+        }
+      });
+    }
+  }, [deleteTemplate]);
 
   // Error handling display
   if (error) {
@@ -171,11 +266,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const typedOfficialFolders: TemplateFolder[] = pinnedFolders?.official || [];
   const typedOrgFolders: TemplateFolder[] = pinnedFolders?.organization || [];
 
-  // Helper function to handle useTemplate with correct type
-  const handleUseTemplate = (template: Template) => {
-    useTemplate(template);
-  };
-
   return (
     <BasePanel
       title={getMessage('templates', undefined, "Templates")}
@@ -184,7 +274,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       onBack={onBack}
       onClose={onClose}
       className="w-80"
-      maxHeight="500px"
+      maxHeight="750px"
     >
       {isLoading ? (
         <LoadingState />
@@ -229,7 +319,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 folders={typedOfficialFolders}
                 type="official"
                 onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'official' })}
-                onUseTemplate={handleUseTemplate}
+                onUseTemplate={useTemplate}
                 showPinControls={true}
                 emptyMessage="No pinned official templates. Click Browse More to add some."
               />
@@ -255,7 +345,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                   folders={typedOrgFolders}
                   type="organization"
                   onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'organization' })}
-                  onUseTemplate={handleUseTemplate}
+                  onUseTemplate={useTemplate}
                   showPinControls={true}
                   emptyMessage="No pinned organization templates. Click Browse More to add some."
                 />
@@ -274,15 +364,40 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             onCreateTemplate={handleCreateTemplate}
             showCreateButton={true}
           >
-            {typedUserFolders?.length ? (
-              <FolderList
-                folders={typedUserFolders}
-                type="user"
-                onDeleteFolder={deleteFolder}
-                onUseTemplate={handleUseTemplate}
-                showDeleteControls={true}
-                emptyMessage="No user templates. Create a template to get started."
-              />
+            {typedUserFolders?.length || unorganizedTemplates?.length ? (
+              <>
+                {/* Display user folders if any */}
+                {typedUserFolders?.length > 0 && (
+                  <FolderList
+                    folders={typedUserFolders}
+                    type="user"
+                    onDeleteFolder={deleteFolder}
+                    onUseTemplate={useTemplate}
+                    showDeleteControls={true}
+                    emptyMessage="No user templates. Create a template to get started."
+                  />
+                )}
+                
+                {/* Display unorganized templates section if any */}
+                {unorganizedTemplates?.length > 0 && (
+                  <div className="mt-2">
+                    <div className="text-xs text-muted-foreground mb-1 px-2">
+                      {getMessage('unorganizedTemplates', undefined, 'Unorganized Templates')}
+                    </div>
+                    <div className="space-y-1">
+                      {unorganizedTemplates.map((template: Template) => (
+                        <TemplateItem
+                          key={`template-${template.id}`}
+                          template={template}
+                          type="user"
+                          onEditTemplate={editTemplate}
+                          onDeleteTemplate={handleDeleteTemplate}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               <EmptyMessage>
                 {getMessage('noUserTemplates', undefined, 'No user templates. Create a template to get started.')}

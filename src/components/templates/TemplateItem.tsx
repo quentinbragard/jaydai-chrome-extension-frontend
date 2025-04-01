@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Template } from '@/types/templates';
 import { useTemplateSelection } from '@/hooks/templates/useTemplateSelection';
 import { getMessage } from '@/core/utils/i18n';
+import { DeleteButton } from './DeleteButton';
 
 interface TemplateItemProps {
   template: Template;
@@ -86,14 +87,14 @@ export function TemplateItem({
             <TooltipTrigger asChild>
               <div className="flex items-center text-xs text-primary">
                 <Activity className="h-3 w-3 mr-1 text-primary" />
-                <span>{getMessage('popular')}</span>
+                <span>{getMessage('popular', undefined, 'Popular')}</span>
                 <Badge variant="outline" className="ml-1 h-4 px-1 py-0 text-xs">
                   {usageCount}
                 </Badge>
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{getMessage('used_times', { count: usageCount })}</p>
+              <p>{getMessage('used_times', {count: usageCount}, `Used ${usageCount} times`)}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -105,7 +106,7 @@ export function TemplateItem({
       return (
         <div className="flex items-center text-xs text-muted-foreground">
           <Clock className="h-3 w-3 mr-1" />
-          <span>{getMessage('last_used', { date: lastUsedText })}</span>
+          <span>{getMessage('last_used', {date: lastUsedText}, `Last used ${lastUsedText}`)}</span>
         </div>
       );
     }
@@ -113,7 +114,7 @@ export function TemplateItem({
     // Default usage count
     return (
       <div className="text-xs text-muted-foreground">
-        <p>{getMessage('used_times', { count: usageCount })}</p>
+        <p>{getMessage('used_times', {count: usageCount}, `Used ${usageCount} times`)}</p>
       </div>
     );
   };
@@ -132,12 +133,13 @@ export function TemplateItem({
   };
   
   // Handle delete click
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteClick = async () => {
     if (onDeleteTemplate && template.id) {
-      onDeleteTemplate(template.id);
+      return await onDeleteTemplate(template.id);
     }
+    return false;
   };
+  
   
   return (
     <div 
@@ -146,7 +148,10 @@ export function TemplateItem({
     >
       <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
       <div className="flex-1 min-w-0">
-        <div className="text-sm truncate">{displayName}</div>
+        <div className="text-sm truncate">
+          {displayName}
+          
+        </div>
         {template.description && (
           <div className="text-xs text-muted-foreground truncate">{template.description}</div>
         )}
@@ -170,15 +175,13 @@ export function TemplateItem({
           )}
           
           {onDeleteTemplate && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-6 w-6 p-0 text-destructive"
-              onClick={handleDeleteClick}
-              title="Delete template"
-            >
-              <Trash className="h-3.5 w-3.5" />
-            </Button>
+            <DeleteButton
+              onDelete={handleDeleteClick}
+              itemType="template"
+              showIcon={true}
+              stopPropagation={true}
+              className="h-6 w-6 p-0"
+            />
           )}
         </div>
       )}

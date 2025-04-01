@@ -12,9 +12,9 @@ const QUERY_KEYS = {
   USER_FOLDERS: 'userFolders',
   ALL_FOLDERS: 'allFolders',
   USER_TEMPLATES: 'userTemplates',
+  UNORGANIZED_TEMPLATES: 'unorganizedTemplates', // Add this new key
   USER_METADATA: 'userMetadata'
 };
-
 /**
  * Get user metadata including pinned folder IDs
  */
@@ -124,14 +124,59 @@ export function useAllFoldersOfType(type: 'official' | 'organization') {
 }
 
 /**
- * Get all user folders
+ * Get all user folders and include root templates
  */
 export function useUserFolders() {
   return useQuery(QUERY_KEYS.USER_FOLDERS, async () => {
-    const response = await promptApi.getPromptTemplatesFolders('user');
+    const response = await promptApi.getPromptTemplatesFolders('user', [], true);
     if (!response.success) {
       throw new Error(response.error || 'Failed to load user folders');
     }
+    
+    // Also fetch user templates to properly handle templates with null folder_id
+    const templatesResponse = await promptApi.getUserTemplates();
+    
+    if (templatesResponse.success && templatesResponse.templates) {
+      // Create a map of folder ID to folder for easy lookup
+      const folderMap = new Map();
+      response.folders.forEach(folder => {
+        folderMap.set(folder.id, folder);
+        
+        // Initialize templates array if not present
+        if (!folder.templates) {
+          folder.templates = [];
+        }
+      });
+      
+      // Process all templates
+      templatesResponse.templates.forEach(template => {
+        if (template.folder_id === null) {
+          // For templates with null folder_id, add to a virtual root folder
+          // We'll create a virtual root folder if it doesn't exist yet
+          if (!folderMap.has('root')) {
+            const rootFolder = {
+              id: 'root',
+              name: 'Root',
+              path: '/',
+              templates: [],
+              Folders: [],
+              type: 'user'
+            };
+            folderMap.set('root', rootFolder);
+            response.folders.push(rootFolder);
+          }
+          
+          // Add the template to the root folder
+          const rootFolder = folderMap.get('root');
+          rootFolder.templates.push(template);
+        } else if (folderMap.has(template.folder_id)) {
+          // For templates with a valid folder_id, add to the corresponding folder
+          const folder = folderMap.get(template.folder_id);
+          folder.templates.push(template);
+        }
+      });
+    }
+    
     return response.folders;
   }, {
     refetchOnWindowFocus: false,
@@ -141,6 +186,27 @@ export function useUserFolders() {
   });
 }
 
+/**
+ * Get all templates with null folder_id (unorganized templates)
+ */
+export function useUnorganizedTemplates() {
+  return useQuery(
+    [QUERY_KEYS.USER_TEMPLATES, 'unorganized'], 
+    async () => {
+      const response = await promptApi.getUnorganizedTemplates();
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to load unorganized templates');
+      }
+      return response.templates || [];
+    }, 
+    {
+      refetchOnWindowFocus: false,
+      onError: (error: any) => {
+        toast.error(`Failed to load unorganized templates: ${error.message}`);
+      }
+    }
+  );
+}
 
 /**
  * Pin or unpin a folder
@@ -261,9 +327,6 @@ export function useCreateFolder() {
   );
 }
 
-/**
- * Create a template
- */
 export function useCreateTemplate() {
   const queryClient = useQueryClient();
   const userLocale = getCurrentLanguage();
@@ -292,76 +355,20 @@ export function useCreateTemplate() {
       onSuccess: () => {
         toast.success('Template created successfully');
         
-        // Invalidate affected queries
+        // Invalidate all affected queries to ensure everything is refreshed
         queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
+        queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES);
+        
+        // If you have a specific templates query, invalidate that too
+        queryClient.invalidateQueries(QUERY_KEYS.USER_TEMPLATES);
       },
       onError: (error: any) => {
         toast.error(`Failed to create template: ${error.message}`);
-      },
-      // Add optimistic update
-      onMutate: async (newTemplate) => {
-        // Cancel any outgoing refetches
-        await queryClient.cancelQueries(QUERY_KEYS.USER_FOLDERS);
-        
-        // Snapshot the previous value
-        const previousFolders = queryClient.getQueryData(QUERY_KEYS.USER_FOLDERS);
-        
-        // Optimistically update to the new value
-        queryClient.setQueryData(QUERY_KEYS.USER_FOLDERS, (old: any) => {
-          if (!old) return old;
-          
-          const updatedFolders = [...old];
-          
-          // Create a temporary template
-          const tempTemplate = {
-            id: Date.now(), // Temporary ID
-            title: newTemplate.name,
-            content: newTemplate.content,
-            description: newTemplate.description,
-            type: 'user',
-            folder_id: newTemplate.folder_id,
-            tags: []
-          };
-          
-          // If template has no folder, add to the first folder or create a root folder
-          if (!newTemplate.folder_id) {
-            // Add to the first folder if available
-            if (updatedFolders.length > 0) {
-              if (!updatedFolders[0].templates) {
-                updatedFolders[0].templates = [];
-              }
-              updatedFolders[0].templates.push(tempTemplate);
-            }
-          } else {
-            // Find the folder and add the template to it
-            const folderIndex = updatedFolders.findIndex(f => f.id === newTemplate.folder_id);
-            if (folderIndex >= 0) {
-              if (!updatedFolders[folderIndex].templates) {
-                updatedFolders[folderIndex].templates = [];
-              }
-              updatedFolders[folderIndex].templates.push(tempTemplate);
-            }
-          }
-          
-          return updatedFolders;
-        });
-        
-        // Return a context object with the snapshotted value
-        return { previousFolders };
-      },
-      // If the mutation fails, use the context returned from onMutate to roll back
-      onError: (err, newTemplate, context) => {
-        if (context?.previousFolders) {
-          queryClient.setQueryData(QUERY_KEYS.USER_FOLDERS, context.previousFolders);
-        }
       }
     }
   );
 }
 
-/**
- * Update a template
- */
 export function useUpdateTemplate() {
   const queryClient = useQueryClient();
   
@@ -386,8 +393,10 @@ export function useUpdateTemplate() {
       onSuccess: () => {
         toast.success('Template updated successfully');
         
-        // Invalidate affected queries
+        // Invalidate all affected queries for a complete refresh
         queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
+        queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES);
+        queryClient.invalidateQueries(QUERY_KEYS.USER_TEMPLATES);
       },
       onError: (error: any) => {
         toast.error(`Failed to update template: ${error.message}`);
@@ -397,12 +406,42 @@ export function useUpdateTemplate() {
 }
 
 /**
- * Handle using a template
+ * Delete a template with improved cache invalidation
+ */
+export function useDeleteTemplate() {
+  const queryClient = useQueryClient();
+  
+  return useMutation(
+    async (templateId: number) => {
+      const response = await promptApi.deleteTemplate(templateId);
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to delete template');
+      }
+      return response;
+    },
+    {
+      onSuccess: () => {
+        toast.success('Template deleted successfully');
+        
+        // Invalidate all affected queries for a complete refresh
+        queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
+        queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES);
+        queryClient.invalidateQueries(QUERY_KEYS.USER_TEMPLATES);
+      },
+      onError: (error: any) => {
+        toast.error(`Failed to delete template: ${error.message}`);
+      }
+    }
+  );
+}
+/**
+ * Handle using a template with improved cache management
  */
 export function useTemplateActions() {
   const queryClient = useQueryClient();
   const createTemplateMutation = useCreateTemplate();
   const updateTemplateMutation = useUpdateTemplate();
+  const deleteTemplateMutation = useDeleteTemplate();
 
   // Helper to handle opening the placeholder editor dialog
   const openPlaceholderEditor = (template: Template) => {
@@ -461,6 +500,10 @@ export function useTemplateActions() {
       if (onClose) onClose();
       
       toast.success('Template applied successfully');
+      
+      // Refresh usage information
+      queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
+      queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES);
     } catch (error) {
       console.error('Template application error:', error);
       toast.error('Error applying template');
@@ -481,12 +524,36 @@ export function useTemplateActions() {
         await createTemplateMutation.mutateAsync(formData);
       }
       
-      // Invalidate folders query to refresh UI
-      queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
+      // Ensure fresh data by triggering refetches after a short delay
+      // to allow the backend to process the changes
+      setTimeout(() => {
+        queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
+        queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES);
+        queryClient.invalidateQueries(QUERY_KEYS.USER_TEMPLATES);
+      }, 300);
       
       return true;
     } catch (error) {
       console.error('Error saving template:', error);
+      return false;
+    }
+  };
+
+  // Helper to handle deleting a template
+  const deleteTemplate = async (templateId: number) => {
+    try {
+      await deleteTemplateMutation.mutateAsync(templateId);
+      
+      // Ensure fresh data
+      setTimeout(() => {
+        queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
+        queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES);
+        queryClient.invalidateQueries(QUERY_KEYS.USER_TEMPLATES);
+      }, 300);
+      
+      return true;
+    } catch (error) {
+      console.error('Error deleting template:', error);
       return false;
     }
   };
@@ -548,6 +615,7 @@ export function useTemplateActions() {
     editTemplate: (template: Template) => openTemplateEditor(template),
     createTemplate: (selectedFolder?: any) => openTemplateEditor(undefined, selectedFolder),
     finalizeTemplate: handleFinalizeTemplate,
-    saveTemplate
+    saveTemplate,
+    deleteTemplate
   };
 }

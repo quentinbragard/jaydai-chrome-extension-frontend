@@ -391,8 +391,20 @@ export class NotificationService extends AbstractBaseService {
       action: {
         label: getMessage('view_action', undefined, 'View'),
         onClick: () => {
-          // Dispatch event to open notifications panel
+          // Emit an application event
+          emitEvent(AppEvent.NOTIFICATION_RECEIVED, { 
+            notificationId: '', 
+            title: '', 
+            body: '' 
+          });
+          
+          // Dispatch custom event to open notifications panel
           document.dispatchEvent(new CustomEvent('archimind:open-notifications'));
+          
+          // If we're using the main button/panel system, trigger it to open the notifications panel
+          document.dispatchEvent(new CustomEvent('archimind:toggle-panel', { 
+            detail: { panel: 'notifications' } 
+          }));
         }
       }
     });
