@@ -3,7 +3,7 @@ import { promptApi } from '@/services/api';
 import { toast } from 'sonner';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { QUERY_KEYS } from '@/services/templates/queryKeys';
-import { TemplateFolder } from '@/types/templates';
+import { TemplateFolder } from '@/types/prompts/templates';
 
 export function useAllFolders() {
   const userLocale = getCurrentLanguage();

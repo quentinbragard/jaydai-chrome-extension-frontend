@@ -1,20 +1,19 @@
 // src/components/panels/TemplatesPanel/index.tsx
-import React, { useCallback, memo } from 'react';
-import { FolderOpen, RefreshCw } from "lucide-react";
+import React, { useCallback, memo, useMemo } from 'react';
+import { FolderOpen, RefreshCw, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { getMessage } from '@/core/utils/i18n';
 import BasePanel from '../BasePanel';
 
-// Updated imports directly from hooks instead of TemplateService
+// Import hooks with the new structure
 import { 
   usePinnedFolders, 
   useUserFolders, 
   useUnorganizedTemplates,
-  useToggleFolderPin,
-  useDeleteFolder,
-  useDeleteTemplate,
+  useFolderMutations,
+  useTemplateMutations,
   useTemplateActions
 } from '@/hooks/prompts';
 
@@ -23,6 +22,7 @@ import {
   FolderList 
 } from '@/components/folders';
 
+import { TemplateItem } from '@/components/templates/TemplateItem';
 import { DIALOG_TYPES } from '@/types/dialog';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
@@ -34,7 +34,7 @@ interface TemplatesPanelProps {
 }
 
 /**
- * Panel for browsing and managing templates
+ * Panel for browsing and managing templates with optimized rendering
  */
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   showBackButton,
@@ -63,27 +63,37 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     refetch: refetchUnorganized
   } = useUnorganizedTemplates();
   
-  // Get mutations
-  const { mutate: togglePin } = useToggleFolderPin();
-  const { mutate: deleteFolder } = useDeleteFolder();
-  const { mutate: deleteTemplate } = useDeleteTemplate();
+  // Get mutations from the new hooks
+  const { toggleFolderPin, deleteFolder } = useFolderMutations();
+  const { deleteTemplate } = useTemplateMutations();
   
   // Get template actions
-  const { useTemplate, createTemplate, editTemplate } = useTemplateActions();
+  const { useTemplate, createTemplate, editTemplate, createFolderAndTemplate } = useTemplateActions();
   
-  // Combined loading and error states
-  const isLoading = loadingPinned || loadingUser || loadingUnorganized;
-  const error = pinnedError || userError || unorganizedError;
+  // Memoize combined loading and error states to prevent unnecessary renders
+  const { isLoading, hasError, errorMessage } = useMemo(() => ({
+    isLoading: loadingPinned || loadingUser || loadingUnorganized,
+    hasError: !!pinnedError || !!userError || !!unorganizedError,
+    errorMessage: (pinnedError || userError || unorganizedError)?.message || 'Unknown error'
+  }), [
+    loadingPinned, loadingUser, loadingUnorganized,
+    pinnedError, userError, unorganizedError
+  ]);
   
-  // Determine if we have no folders and no unorganized templates
-  const isEmpty = (
+  // Memoize isEmpty check to prevent recalculation on every render
+  const isEmpty = useMemo(() => (
     (!pinnedFolders?.official?.length && 
      !pinnedFolders?.organization?.length && 
      !userFolders?.length &&
      !unorganizedTemplates?.length)
-  );
+  ), [
+    pinnedFolders?.official?.length,
+    pinnedFolders?.organization?.length, 
+    userFolders?.length,
+    unorganizedTemplates?.length
+  ]);
 
-  // Handle refresh with loading state
+  // Handle refresh with loading state - memoized to prevent recreation on render
   const handleRefresh = useCallback(async () => {
     try {
       await Promise.all([
@@ -96,35 +106,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     }
   }, [refetchPinned, refetchUser, refetchUnorganized]);
 
-  // Handle creating a new folder and immediately open template dialog
-  const handleCreateFolderAndTemplate = useCallback(() => {
-    try {
-      // Open create folder dialog
-      if (window.dialogManager) {
-        window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
-          onSaveFolder: async (folderData: { name: string; path: string; description: string }) => {
-            // Return the folder data for folder creation
-            return folderData;
-          },
-          onFolderCreated: (newFolder: any) => {
-            // Open create template dialog with the new folder selected
-            setTimeout(() => {
-              createTemplate(newFolder);
-            }, 100);
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Error in folder/template creation flow:', error);
-    }
-  }, [createTemplate]);
-
-  // Handle creating a template directly
-  const handleCreateTemplate = useCallback(() => {
-    createTemplate();
-  }, [createTemplate]);
-
-  // Handle template deletion
+  // Handle template deletion with confirmation dialog
   const handleDeleteTemplate = useCallback((templateId: number) => {
     if (window.dialogManager) {
       window.dialogManager.openDialog(DIALOG_TYPES.CONFIRMATION, {
@@ -132,7 +114,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         description: getMessage('deleteTemplateConfirmation', undefined, 'Are you sure you want to delete this template? This action cannot be undone.'),
         onConfirm: async () => {
           try {
-            await deleteTemplate(templateId);
+            await deleteTemplate.mutateAsync(templateId);
             return true;
           } catch (error) {
             console.error('Error deleting template:', error);
@@ -144,7 +126,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }, [deleteTemplate]);
 
   // Error handling display
-  if (error) {
+  if (hasError) {
     return (
       <BasePanel
         title={getMessage('templates', undefined, "Templates")}
@@ -156,7 +138,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         <Alert variant="destructive">
           <AlertDescription>
             <div className="flex flex-col items-center justify-center py-4">
-              <p className="mb-2">Failed to load templates: {error.message}</p>
+              <p className="mb-2">Failed to load templates: {errorMessage}</p>
               <Button 
                 variant="outline"
                 size="sm"
@@ -173,19 +155,35 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     );
   }
 
-  return (
-    <BasePanel
-      title={getMessage('templates', undefined, "Templates")}
-      icon={FolderOpen}
-      showBackButton={showBackButton}
-      onBack={onBack}
-      onClose={onClose}
-      className="w-80"
-      maxHeight="750px"
-    >
-      {isLoading ? (
+  // Render loading state
+  if (isLoading) {
+    return (
+      <BasePanel
+        title={getMessage('templates', undefined, "Templates")}
+        icon={FolderOpen}
+        showBackButton={showBackButton}
+        onBack={onBack}
+        onClose={onClose}
+        className="w-80"
+        maxHeight="750px"
+      >
         <LoadingState />
-      ) : isEmpty ? (
+      </BasePanel>
+    );
+  }
+
+  // Render empty state
+  if (isEmpty) {
+    return (
+      <BasePanel
+        title={getMessage('templates', undefined, "Templates")}
+        icon={FolderOpen}
+        showBackButton={showBackButton}
+        onBack={onBack}
+        onClose={onClose}
+        className="w-80"
+        maxHeight="750px"
+      >
         <div className="py-8 px-4 text-center">
           <FolderOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
           <p className="text-sm text-muted-foreground mb-4">
@@ -195,9 +193,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={handleCreateFolderAndTemplate}
+              onClick={createFolderAndTemplate}
               className="w-full"
             >
+              <PlusCircle className="mr-2 h-4 w-4" />
               {getMessage('createFirstTemplate', undefined, 'Create Your First Template')}
             </Button>
             <Button 
@@ -211,108 +210,122 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </Button>
           </div>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {/* Official Templates Section */}
-          {pinnedFolders?.official?.length > 0 && (
-            <>
-              <FolderSection
-                title={getMessage('officialTemplates', undefined, 'Official Templates')}
-                iconType="official"
-                showBrowseMore={true}
-              >
-                <FolderList
-                  folders={pinnedFolders.official}
-                  type="official"
-                  onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'official' })}
-                  onUseTemplate={useTemplate}
-                  showPinControls={true}
-                  emptyMessage="No pinned official templates."
-                />
-              </FolderSection>
-              <Separator />
-            </>
-          )}
-          
-          {/* Organization Templates Section */}
-          <FolderSection
-            title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
-            iconType="organization"
-            isEmpty={!pinnedFolders?.organization?.length}
-          >
-            {pinnedFolders?.organization?.length > 0 ? (
+      </BasePanel>
+    );
+  }
+
+  // Main content render with templates and folders
+  return (
+    <BasePanel
+      title={getMessage('templates', undefined, "Templates")}
+      icon={FolderOpen}
+      showBackButton={showBackButton}
+      onBack={onBack}
+      onClose={onClose}
+      className="w-80"
+      maxHeight="750px"
+    >
+      <div className="space-y-4">
+        {/* Official Templates Section */}
+        {pinnedFolders?.official?.length > 0 && (
+          <>
+            <FolderSection
+              title={getMessage('officialTemplates', undefined, 'Official Templates')}
+              iconType="official"
+              showBrowseMore={true}
+            >
               <FolderList
-                folders={pinnedFolders.organization}
-                type="organization"
-                onTogglePin={(folderId, isPinned) => togglePin({ folderId, isPinned, type: 'organization' })}
+                folders={pinnedFolders.official}
+                type="official"
+                onTogglePin={(folderId, isPinned) => 
+                  toggleFolderPin.mutate({ folderId, isPinned, type: 'official' })
+                }
                 onUseTemplate={useTemplate}
                 showPinControls={true}
-                emptyMessage="No pinned organization templates."
+                emptyMessage="No pinned official templates."
               />
-            ) : (
-              <EmptyMessage>
-                {getMessage('noPinnedOrganizationTemplates', undefined, 'No pinned organization templates.')}
-              </EmptyMessage>
-            )}
-          </FolderSection>
-          <Separator />
-          
-          {/* User Templates Section */}
-          <FolderSection
-            title={getMessage('myTemplates', undefined, 'My Templates')}
-            iconType="user"
-            onCreateTemplate={handleCreateTemplate}
-            showCreateButton={true}
-          >
-            {userFolders?.length || unorganizedTemplates?.length ? (
-              <>
-                {/* Display user folders if any */}
-                {userFolders?.length > 0 && (
-                  <FolderList
-                    folders={userFolders}
-                    type="user"
-                    onDeleteFolder={deleteFolder}
-                    onUseTemplate={useTemplate}
-                    showDeleteControls={true}
-                    emptyMessage="No user templates. Create a template to get started."
-                  />
-                )}
-                
-                {/* Display unorganized templates section if any */}
-                {unorganizedTemplates?.length > 0 && (
-                  <div className="mt-2">
-                    <div className="text-xs text-muted-foreground mb-1 px-2">
-                      {getMessage('unorganizedTemplates', undefined, 'Unorganized Templates')}
-                    </div>
-                    <div className="space-y-1">
-                      {unorganizedTemplates.map((template) => (
-                        <TemplateItem
-                          key={`template-${template.id}`}
-                          template={template}
-                          type="user"
-                          onEditTemplate={editTemplate}
-                          onDeleteTemplate={handleDeleteTemplate}
-                          onUseTemplate={useTemplate}
-                        />
-                      ))}
-                    </div>
+            </FolderSection>
+            <Separator />
+          </>
+        )}
+        
+        {/* Organization Templates Section */}
+        <FolderSection
+          title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
+          iconType="organization"
+          isEmpty={!pinnedFolders?.organization?.length}
+        >
+          {pinnedFolders?.organization?.length > 0 ? (
+            <FolderList
+              folders={pinnedFolders.organization}
+              type="organization"
+              onTogglePin={(folderId, isPinned) => 
+                toggleFolderPin.mutate({ folderId, isPinned, type: 'organization' })
+              }
+              onUseTemplate={useTemplate}
+              showPinControls={true}
+              emptyMessage="No pinned organization templates."
+            />
+          ) : (
+            <EmptyMessage>
+              {getMessage('noPinnedOrganizationTemplates', undefined, 'No pinned organization templates.')}
+            </EmptyMessage>
+          )}
+        </FolderSection>
+        <Separator />
+        
+        {/* User Templates Section */}
+        <FolderSection
+          title={getMessage('myTemplates', undefined, 'My Templates')}
+          iconType="user"
+          onCreateTemplate={createTemplate}
+          showCreateButton={true}
+        >
+          {userFolders?.length || unorganizedTemplates?.length ? (
+            <>
+              {/* Display user folders if any */}
+              {userFolders?.length > 0 && (
+                <FolderList
+                  folders={userFolders}
+                  type="user"
+                  onDeleteFolder={(folderId) => deleteFolder.mutateAsync(folderId)}
+                  onUseTemplate={useTemplate}
+                  showDeleteControls={true}
+                  emptyMessage="No user templates. Create a template to get started."
+                />
+              )}
+              
+              {/* Display unorganized templates section if any */}
+              {unorganizedTemplates?.length > 0 && (
+                <div className="mt-2">
+                  <div className="text-xs text-muted-foreground mb-1 px-2">
+                    {getMessage('unorganizedTemplates', undefined, 'Unorganized Templates')}
                   </div>
-                )}
-              </>
-            ) : (
-              <EmptyMessage>
-                {getMessage('noUserTemplates', undefined, 'No user templates. Create a template to get started.')}
-              </EmptyMessage>
-            )}
-          </FolderSection>
-        </div>
-      )}
+                  <div className="space-y-1">
+                    {unorganizedTemplates.map((template) => (
+                      <TemplateItem
+                        key={`template-${template.id}`}
+                        template={template}
+                        type="user"
+                        onEditTemplate={editTemplate}
+                        onDeleteTemplate={handleDeleteTemplate}
+                        onUseTemplate={useTemplate}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <EmptyMessage>
+              {getMessage('noUserTemplates', undefined, 'No user templates. Create a template to get started.')}
+            </EmptyMessage>
+          )}
+        </FolderSection>
+      </div>
     </BasePanel>
   );
 };
 
-// Wrap with memo to prevent unnecessary re-renders
+// Export with memo to prevent unnecessary re-renders
 export default memo(TemplatesPanel);
-
-// Also provide a named import for compatibility
-import { TemplateItem } from '@/components/templates/TemplateItem';

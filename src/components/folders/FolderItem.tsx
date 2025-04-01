@@ -4,7 +4,7 @@ import { TemplateFolder } from '@/types/prompts/templates';
 import { FolderHeader } from './FolderHeader';
 import { TemplateItem } from '@/components/templates/TemplateItem';
 import { PinButton } from './PinButton';
-import { DeleteButton } from '@/components/templates/DeleteButton';
+import { DeleteButton } from '@/components/common';
 
 interface FolderItemProps {
   folder: TemplateFolder;

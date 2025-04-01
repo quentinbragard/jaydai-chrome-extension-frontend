@@ -1,15 +1,16 @@
-// src/hooks/templates/useTemplateActions.ts
+// src/hooks/prompts/actions/useTemplateActions.ts
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Template } from '@/types/prompts/templates';
-import { promptApi } from '@/services/api/PromptApi';
 import { DIALOG_TYPES } from '@/types/dialog';
+import { useTemplateMutations } from './useTemplateMutations';
 
 /**
- * Hook that provides template actions such as using, editing, and loading templates
+ * Hook that provides high-level template actions such as using, editing, creating templates
  */
 export function useTemplateActions() {
   const [isProcessing, setIsProcessing] = useState(false);
+  const { trackTemplateUsage } = useTemplateMutations();
 
   /**
    * Use a template by opening the placeholder editor
@@ -45,9 +46,7 @@ export function useTemplateActions() {
 
       // Track template usage in background (don't await)
       if (template.id) {
-        promptApi.trackTemplateUsage(template.id).catch(err => {
-          console.error('Failed to track template usage:', err);
-        });
+        trackTemplateUsage.mutate(template.id);
       }
     } catch (error) {
       console.error('Error using template:', error);
@@ -55,7 +54,7 @@ export function useTemplateActions() {
     } finally {
       setIsProcessing(false);
     }
-  }, []);
+  }, [trackTemplateUsage]);
 
   /**
    * Apply finalized template content to prompt input area
@@ -131,6 +130,31 @@ export function useTemplateActions() {
   }, []);
 
   /**
+   * Create a folder then immediately open template creation dialog
+   */
+  const createFolderAndTemplate = useCallback(() => {
+    try {
+      // Open create folder dialog
+      if (window.dialogManager) {
+        window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
+          onSaveFolder: async (folderData: { name: string; path: string; description: string }) => {
+            return folderData;
+          },
+          onFolderCreated: (newFolder: any) => {
+            // Open create template dialog with the new folder selected
+            setTimeout(() => {
+              createTemplate(newFolder);
+            }, 100);
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error in folder/template creation flow:', error);
+      toast.error('Failed to create folder');
+    }
+  }, [createTemplate]);
+
+  /**
    * Open template editor to edit an existing template
    */
   const editTemplate = useCallback((template: Template) => {
@@ -148,7 +172,6 @@ export function useTemplateActions() {
       template,
       onSave: (templateData: any) => {
         // The actual saving will be handled by the dialog's internal logic
-        // This is just for any additional actions after save
       }
     });
   }, []);
@@ -157,6 +180,7 @@ export function useTemplateActions() {
     isProcessing,
     useTemplate,
     createTemplate,
+    createFolderAndTemplate,
     editTemplate
   };
 }
