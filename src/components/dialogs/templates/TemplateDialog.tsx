@@ -1,5 +1,4 @@
 // src/components/dialogs/templates/TemplateDialog.tsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Dialog, 
@@ -17,10 +16,11 @@ import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { FolderPlus } from 'lucide-react';
 import { DEFAULT_FORM_DATA } from '@/types/prompts/templates';
 import { toast } from 'sonner';
-import { promptApi } from '@/services/api/PromptApi';
+import { promptApi } from '@/services/api';
 
 /**
  * Unified Template Dialog for both creating and editing templates
+ * This version doesn't directly import React Query hooks to avoid errors
  */
 export const TemplateDialog: React.FC = () => {
   // Get create and edit dialog states
@@ -89,7 +89,7 @@ export const TemplateDialog: React.FC = () => {
     
     const flattenedFolders = flattenFolderHierarchy(userFolders);
     console.log('Processed user folders:', flattenedFolders);
-    setUserFoldersList(flattenedFolders);
+    setUserFoldersList(flattenedFolders || []);
   }, [userFolders]);
   
   // Initialize form state when dialog opens or data changes
@@ -120,9 +120,8 @@ export const TemplateDialog: React.FC = () => {
         handleFormChange('folder', selectedFolder.name);
       }
     }
-    // Run this effect only when dialog open state changes
-  }, [isOpen]);
-  
+    // Run this effect when dialog open state changes or when user folders update
+  }, [isOpen, userFolders, selectedFolder, initialFormData, processUserFolders]);
   
   // Handle dialog close
   const handleClose = () => {
@@ -172,7 +171,22 @@ export const TemplateDialog: React.FC = () => {
       // Open create folder dialog and pass callback to handle newly created folder
       if (window.dialogManager) {
         window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
-          onSaveFolder: handleCreateFolder,
+          onSaveFolder: async (folderData: { name: string; path: string; description: string }) => {
+            try {
+              // Direct API call fallback
+              const response = await promptApi.createFolder(folderData);
+              
+              if (response.success && response.folder) {
+                return { success: true, folder: response.folder };
+              } else {
+                toast.error(response.error || 'Failed to create folder');
+                return { success: false, error: response.error || 'Unknown error' };
+              }
+            } catch (error) {
+              console.error('Error creating folder:', error);
+              return { success: false, error: 'Failed to create folder' };
+            }
+          },
           onFolderCreated: (folder: any) => {
             // When folder is created, update the form with the new folder
             console.log('New folder created, updating selection:', folder);
@@ -181,11 +195,19 @@ export const TemplateDialog: React.FC = () => {
             handleFormChange('folder', folder.name);
             
             // Add the new folder to the list immediately for better UX
-            setUserFoldersList(prev => [...prev, {
-              id: folder.id,
-              name: folder.name,
-              fullPath: folder.name
-            }]);
+            setUserFoldersList(prev => {
+              // Check if folder is already in the list
+              if (prev.some(f => f.id === folder.id)) {
+                return prev;
+              }
+              
+              // Add the new folder to the list
+              return [...prev, {
+                id: folder.id,
+                name: folder.name,
+                fullPath: folder.name
+              }];
+            });
           }
         });
       }
@@ -208,27 +230,6 @@ export const TemplateDialog: React.FC = () => {
     const selectedFolder = userFoldersList.find(f => f.id.toString() === folderId);
     if (selectedFolder) {
       handleFormChange('folder', selectedFolder.fullPath);
-    }
-  };
-  
-  // Handler for folder creation
-  const handleCreateFolder = async (folderData: { name: string; path: string; description: string }) => {
-    try {
-      console.log('Creating folder:', folderData);
-      
-      const result = await promptApi.createFolder(folderData);
-      
-      if (result.success && result.folder) {
-        // Note: We don't need to select the folder here, as the onFolderCreated callback will handle it
-        return result;
-      } else {
-        toast.error(`Failed to create folder: ${result.error || 'Unknown error'}`);
-        return false;
-      }
-    } catch (error) {
-      console.error('Error creating folder:', error);
-      toast.error('Error creating folder');
-      return false;
     }
   };
   
@@ -263,12 +264,43 @@ export const TemplateDialog: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      console.log('Saviiiiing template with data:', formData);
-      const success = await onSave(formData);
-      if (success) {
-        handleClose();
+      console.log('Saving template with data:', formData);
+      
+      // If onSave is provided (custom handling), use it
+      if (onSave) {
+        const success = await onSave(formData);
+        if (success) {
+          handleClose();
+          return success;
+        }
+      } else {
+        // Otherwise use direct API calls
+        const templateData = {
+          title: formData.name,
+          content: formData.content,
+          description: formData.description,
+          folder_id: formData.folder_id
+        };
+        
+        let response;
+        if (currentTemplate?.id) {
+          // Update existing template
+          response = await promptApi.updateTemplate(currentTemplate.id, templateData);
+        } else {
+          // Create new template
+          response = await promptApi.createTemplate(templateData);
+        }
+        
+        if (response.success) {
+          toast.success(currentTemplate ? 'Template updated successfully' : 'Template created successfully');
+          handleClose();
+          return true;
+        } else {
+          toast.error(response.error || 'Failed to save template');
+          return false;
+        }
       }
-      return success;
+      return false;
     } catch (error) {
       console.error('Error saving template:', error);
       toast.error('Error saving template');
