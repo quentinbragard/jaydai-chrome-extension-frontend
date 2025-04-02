@@ -53,6 +53,7 @@ export function getMessage(key: string, substitutions?: string | string[], defau
   export function getCurrentLanguage(): string {
     if (isI18nAvailable() && chrome.i18n.getUILanguage) {
       const language = chrome.i18n.getUILanguage();
+      console.log('language', language);
       if (language.startsWith("en-")) {
         return "en";
       }

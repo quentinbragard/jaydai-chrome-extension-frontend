@@ -246,7 +246,7 @@ async function emailSignIn(email, password, sendResponse) {
         console.log("🔹 Google ID Token received");
   
         // Use environment variable for the API endpoint
-        const apiUrl = process.env.VITE_API_URL || 'http://localhost:8000';
+        const apiUrl = process.env.VITE_API_URL;
         const response = await fetch(`${apiUrl}/auth/sign_in_with_google`, {
           method: "POST",
           headers: { 
