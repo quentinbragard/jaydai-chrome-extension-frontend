@@ -147,6 +147,7 @@ function extractConversations(responseBody: any): any[] {
   return [];
 }
 
+
 /**
  * Handle intercepted specific conversation data
  * This contains the complete conversation with all messages

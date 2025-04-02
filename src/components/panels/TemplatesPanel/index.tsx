@@ -204,7 +204,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         onBack={onBack}
         onClose={onClose}
         className="w-80"
-        maxHeight="750px"
       >
         <LoadingState />
       </BasePanel>
@@ -221,7 +220,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         onBack={onBack}
         onClose={onClose}
         className="w-80"
-        maxHeight="750px"
       >
         <div className="py-8 px-4 text-center">
           <FolderOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
@@ -262,7 +260,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       onBack={onBack}
       onClose={onClose}
       className="w-80"
-      maxHeight="750px"
     >
       <div className="space-y-4">
         {/* Official Templates Section */}
@@ -294,7 +291,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
           iconType="organization"
           isEmpty={!pinnedFolders?.organization?.length}
-          showBrowseMore={true}
+          showBrowseMore={false}
           onBrowseMore={handleBrowseOrganizationTemplates}
         >
           {pinnedFolders?.organization?.length > 0 ? (
@@ -339,11 +336,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               
               {/* Display unorganized templates section if any */}
               {unorganizedTemplates?.length > 0 && (
-                <div className="mt-2">
-                  <div className="text-xs text-muted-foreground mb-1 px-2">
+                <div className="mt-4">
+                  <div className="text-xs font-medium text-muted-foreground mb-1 px-2 flex items-center">
+                    <FolderOpen className="h-3.5 w-3.5 mr-1 text-muted-foreground/70" />
                     {getMessage('unorganizedTemplates', undefined, 'Unorganized Templates')}
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 mt-2">
                     {unorganizedTemplates.map((template) => (
                       <TemplateItem
                         key={`template-${template.id}`}

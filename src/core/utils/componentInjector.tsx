@@ -53,7 +53,7 @@ class ComponentInjector {
       const inlineStyle = document.createElement('style');
       inlineStyle.textContent = `
         #archimind-root, #archimind-root * {
-          z-index: 999999;
+          z-index: 1;
         }
       `;
       inlineStyle.id = 'archimind-inline-styles';

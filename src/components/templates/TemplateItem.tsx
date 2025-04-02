@@ -1,13 +1,12 @@
-// src/components/templates/TemplateItem.tsx
+// src/components/templates/TemplateItem.tsx (Consistent styling)
 import React from 'react';
-import { FileText, Edit, Clock, Activity } from 'lucide-react';
+import { FileText, Edit, Clock, Activity, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Template } from '@/types/prompts/templates';
 import { useTemplateActions } from '@/hooks/prompts'; // Updated import from hooks directly
 import { getMessage } from '@/core/utils/i18n';
-import { DeleteButton } from './DeleteButton';
 
 interface TemplateItemProps {
   template: Template;
@@ -18,7 +17,7 @@ interface TemplateItemProps {
 }
 
 /**
- * Enhanced component for rendering a single template item with usage stats
+ * Enhanced component for rendering a single template item with usage stats and colored action buttons
  */
 export function TemplateItem({
   template,
@@ -138,13 +137,13 @@ export function TemplateItem({
   };
   
   // Handle delete click
-  const handleDeleteClick = async () => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onDeleteTemplate && template.id) {
-      return await onDeleteTemplate(template.id);
+      // Call the delete handler
+      onDeleteTemplate(template.id);
     }
-    return false;
   };
-  
   
   return (
     <div 
@@ -155,7 +154,6 @@ export function TemplateItem({
       <div className="flex-1 min-w-0">
         <div className="text-sm truncate">
           {displayName}
-          
         </div>
         {template.description && (
           <div className="text-xs text-muted-foreground truncate">{template.description}</div>
@@ -164,29 +162,49 @@ export function TemplateItem({
         {renderUsageIndicator()}
       </div>
       
-      {/* Only show edit/delete for user templates */}
+      {/* Only show action buttons for user templates */}
       {type === "user" && (
-        <div className="ml-2 flex opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="ml-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Edit Button with blue accent */}
           {onEditTemplate && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-6 w-6 p-0"
-              onClick={handleEditClick}
-              title="Edit template"
-            >
-              <Edit className="h-3.5 w-3.5" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-7 w-7 p-0 text-blue-800 bg-transparent  rounded hover:text-white hover:bg-blue-600 dark:text-blue-200 dark:bg-transparent  dark:hover:text-black dark:hover:bg-blue-200"
+                    onClick={handleEditClick}
+                  >
+                    <Edit className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Edit template</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
           
+          {/* Delete Button with red accent */}
           {onDeleteTemplate && (
-            <DeleteButton
-              onDelete={handleDeleteClick}
-              itemType="template"
-              showIcon={true}
-              stopPropagation={true}
-              className="h-6 w-6 p-0"
-            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                    onClick={handleDeleteClick}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Delete template</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       )}

@@ -2,7 +2,7 @@ import { useQuery } from 'react-query';
 import { promptApi } from '@/services/api';
 import { toast } from 'sonner';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { QUERY_KEYS } from '@/services/templates/queryKeys';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 import { TemplateFolder } from '@/types/prompts/templates';
 
 export function useAllFolders() {

@@ -233,6 +233,32 @@ export const TemplateDialog: React.FC = () => {
     }
   };
   
+  // Function to truncate folder name with ellipsis
+  const truncateFolderPath = (path: string, maxLength: number = 35) => {
+    if (!path || path.length <= maxLength) return path;
+    
+    // For paths with slashes, try to preserve the last part
+    if (path.includes('/')) {
+      const parts = path.split('/');
+      const lastPart = parts[parts.length - 1].trim();
+      const firstParts = parts.slice(0, -1).join('/');
+      
+      // If the last part is already too long, truncate it
+      if (lastPart.length >= maxLength - 3) {
+        return lastPart.substring(0, maxLength - 3) + '...';
+      }
+      
+      // Otherwise, try to keep the last part intact and truncate the beginning
+      const availableLength = maxLength - lastPart.length - 3 - 3; // 3 for ellipsis, 3 for " / "
+      if (availableLength > 5) { // Only if we can show a meaningful portion
+        return '...' + firstParts.substring(firstParts.length - availableLength) + ' / ' + lastPart;
+      }
+    }
+    
+    // Simple truncation for other cases
+    return path.substring(0, maxLength - 3) + '...';
+  };
+  
   // Validate form before saving
   const validateForm = () => {
     const errors: {[key: string]: string} = {};
@@ -360,15 +386,28 @@ export const TemplateDialog: React.FC = () => {
               onValueChange={handleFolderSelect}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a folder" />
+                <SelectValue placeholder="Select a folder">
+                  {selectedFolderId === 'root' ? (
+                    <span className="text-muted-foreground">No folder (root)</span>
+                  ) : selectedFolderId ? (
+                    <span className="truncate" title={formData.folder}>
+                      {truncateFolderPath(formData.folder)}
+                    </span>
+                  ) : null}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-80">
                 <SelectItem value="root">
                   <span className="text-muted-foreground">No folder (root)</span>
                 </SelectItem>
                 
                 {userFoldersList.map(folder => (
-                  <SelectItem key={folder.id} value={folder.id.toString()}>
+                  <SelectItem 
+                    key={folder.id} 
+                    value={folder.id.toString()}
+                    className="truncate"
+                    title={folder.fullPath} // Show full path on hover
+                  >
                     {folder.fullPath}
                   </SelectItem>
                 ))}

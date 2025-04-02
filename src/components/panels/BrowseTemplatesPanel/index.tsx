@@ -33,7 +33,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
   pinnedFolderIds = [],
   onPinChange,
   onBackToTemplates,
-  maxHeight = '400px'
+  maxHeight = '75vh'
 }) => {
   // Fetch all folders of this type using React Query
   const {

@@ -24,7 +24,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
   onBack,
   onClose, 
   className, 
-  maxHeight = '400px'
+  maxHeight = '75vh'
 }) => {
   const statsService = useService<StatsService>('stats');
   const [stats, setStats] = useState<Stats>({

@@ -43,7 +43,7 @@ export function FolderSection({
 
   // Handle contact sales click
   const handleContactSales = () => {
-    window.open('https://www.jayd.ai/#contact', '_blank');
+    window.open('https://www.jayd.ai/#Contact', '_blank');
   };
 
   // Render organization CTA if it's an organization section and it's empty

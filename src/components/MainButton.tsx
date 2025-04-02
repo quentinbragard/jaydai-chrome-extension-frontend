@@ -53,7 +53,7 @@ const MainButton = () => {
 
   return (
     <ErrorBoundary>
-      <div className="fixed bottom-6 right-2 z-[9999]">
+      <div className="fixed bottom-6 right-8 z-[9999]">
         <div className="relative">
           {/* Panel Manager */}
           <PanelManager
@@ -68,7 +68,7 @@ const MainButton = () => {
             <Button 
               ref={buttonRef}
               onClick={toggleMenu}
-              className="bg-transparent w-full h-full rounded-full shadow-lg p-0 overflow-hidden flex items-center justify-center"
+              className="bg-transparent hover:bg-transparent hover:scale-125  transition-all duration-300 w-full h-full rounded-full p-0 overflow-hidden flex items-center justify-center"
             >
               <img 
                 src={document.documentElement.classList.contains('dark') 

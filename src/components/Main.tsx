@@ -6,7 +6,7 @@ import MainButton from '@/components/MainButton';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { DialogProvider } from '@/components/dialogs';
 import { QueryProvider } from '@/providers/QueryProvider';
-
+import { ThemeProvider } from '@/components/theme-provider';
 /**
  * Main app component that brings everything together
  * Handles providers, global UI elements, and lazy-loaded components
@@ -41,7 +41,14 @@ const Main: React.FC = () => {
         <QueryProvider>
           <DialogProvider>
             {/* UI Components */}
-            <MainButton />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <MainButton />
+            </ThemeProvider>
             
             {/* Toast notifications */}
             <Toaster richColors position="top-right" />

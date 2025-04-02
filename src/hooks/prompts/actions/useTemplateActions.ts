@@ -33,6 +33,72 @@ const safelyOpenDialog = <T extends string>(type: T, data?: any): void => {
 };
 
 /**
+ * Insert content into a ProseMirror-based contenteditable div
+ * Handles multi-paragraph content and preserves ProseMirror-specific structure
+ */
+export const insertTemplateContent = (finalContent: string) => {
+  if (!finalContent) {
+    return;
+  }
+
+  try {
+    // Find the textarea/contenteditable area
+    const textarea = document.querySelector('#prompt-textarea');
+    if (!textarea || !textarea.classList.contains('ProseMirror')) {
+      toast.error('Could not find input area');
+      return;
+    }
+
+    // Clean up the content
+    const normalizedContent = finalContent.replace(/\r\n/g, '\n').trim();
+
+    // Split content into paragraphs
+    const paragraphs = normalizedContent.split('\n').filter(p => p.trim() !== '');
+
+    // Generate ProseMirror-compatible HTML
+    const paragraphsHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+    
+    // Prepare full HTML with trailing break
+    const fullHTML = paragraphsHTML 
+      ? paragraphsHTML + '<p><br class="ProseMirror-trailingBreak"></p>' 
+      : '<p><br class="ProseMirror-trailingBreak"></p>';
+
+    // Create a mutation observer to wait for DOM update
+    const observer = new MutationObserver((mutations, obs) => {
+      const proseMirrorInstance = (textarea as any).__prosemirror;
+      
+      if (proseMirrorInstance) {
+        // Use ProseMirror's setContent method if available
+        proseMirrorInstance.setContent(fullHTML, { parseOptions: { preserveWhitespace: true } });
+        
+        // Focus the editor
+        textarea.dispatchEvent(new Event('focus'));
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // Disconnect the observer
+        obs.disconnect();
+      }
+    });
+
+    // Observe changes to the textarea
+    observer.observe(textarea, { 
+      childList: true, 
+      subtree: true 
+    });
+
+    // Fallback direct innerHTML method
+    textarea.innerHTML = fullHTML;
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+    toast.success('Template applied successfully');
+  } catch (error) {
+    console.error('Error applying template:', error);
+    toast.error('Failed to apply template');
+  }
+};
+
+
+/**
  * Hook that provides high-level template actions such as using, editing, creating templates
  */
 export function useTemplateActions() {
@@ -89,61 +155,26 @@ export function useTemplateActions() {
   }, [trackTemplateUsage, dialogManager]);
 
   /**
-   * Apply finalized template content to prompt input area
-   */
-  const handleTemplateFinalized = useCallback((finalContent: string) => {
-    if (!finalContent) {
-      return;
-    }
+ * Insert template content into a ProseMirror-style contenteditable div
+ * @param finalContent The finalized template content to insert
+ */
+/**
+ * Insert template content into a ProseMirror-style contenteditable div
+ * @param finalContent The finalized template content to insert
+ */
 
-    try {
-      // Find the textarea to insert content into
-      const textarea = document.querySelector('#prompt-textarea');
-      if (!textarea) {
-        toast.error('Could not find input area');
-        return;
-      }
+const handleTemplateFinalized = useCallback((finalContent: string) => {
+  insertTemplateContent(finalContent);
+  
+  // Close the dialog
+  if (dialogManager) {
+    dialogManager.closeDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
+  } else if (window.dialogManager) {
+    window.dialogManager.closeDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
+  }
+}, [dialogManager]);
 
-      // Clean up the content
-      const normalizedContent = finalContent.replace(/\r\n/g, '\n');
-      
-      // Insert content based on element type
-      if (textarea instanceof HTMLTextAreaElement) {
-        // Standard textarea
-        textarea.value = normalizedContent;
-        textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      } else if (textarea.isContentEditable) {
-        // ContentEditable div (like ChatGPT)
-        textarea.textContent = normalizedContent;
-        textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      } else {
-        // Fallback for other element types
-        textarea.textContent = normalizedContent;
-        textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-
-      // Focus the textarea and set cursor at the end
-      textarea.focus();
-      if ('setSelectionRange' in textarea) {
-        (textarea as HTMLTextAreaElement).setSelectionRange(
-          normalizedContent.length,
-          normalizedContent.length
-        );
-      }
-
-      // Close the dialog
-      if (dialogManager) {
-        dialogManager.closeDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
-      } else if (window.dialogManager) {
-        window.dialogManager.closeDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
-      }
-
-      toast.success('Template applied successfully');
-    } catch (error) {
-      console.error('Error applying template:', error);
-      toast.error('Failed to apply template');
-    }
-  }, [dialogManager]);
+  
 
   /**
    * Open template editor to create a new template
@@ -174,7 +205,6 @@ export function useTemplateActions() {
             queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES);
             queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
             
-            toast.success('Template created successfully');
             return true; // This will close the dialog
           } else {
             toast.error('Failed to create template');

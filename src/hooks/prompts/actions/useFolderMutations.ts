@@ -59,7 +59,6 @@ export function useFolderMutations() {
         {
           onSuccess: () => {
             invalidateFolderQueries();
-            toast.success('Folder created successfully');
           },
           onError: (error: Error) => {
             console.error('Error creating folder:', error);
@@ -77,7 +76,6 @@ export function useFolderMutations() {
             if (!response.success) {
               throw new Error(response.error || 'Failed to create folder');
             }
-            toast.success('Folder created successfully');
             return response.folder;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -109,7 +107,6 @@ export function useFolderMutations() {
               queryClient.invalidateQueries(QUERY_KEYS.PINNED_FOLDERS);
               queryClient.invalidateQueries(QUERY_KEYS.USER_METADATA);
             }
-            toast.success('Folder pin status updated');
           },
           onError: (error: Error) => {
             console.error('Error toggling pin status:', error);
@@ -126,7 +123,6 @@ export function useFolderMutations() {
             if (!response.success) {
               throw new Error(response.error || 'Failed to update pin status');
             }
-            toast.success('Folder pin status updated');
             return response.data;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -160,7 +156,6 @@ export function useFolderMutations() {
               queryClient.invalidateQueries(QUERY_KEYS.USER_TEMPLATES);
               queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES);
             }
-            toast.success('Folder deleted successfully');
           },
           onError: (error: Error) => {
             console.error('Error deleting folder:', error);
@@ -177,7 +172,6 @@ export function useFolderMutations() {
             if (!response.success) {
               throw new Error(response.error || 'Failed to delete folder');
             }
-            toast.success('Folder deleted successfully');
             return id;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';

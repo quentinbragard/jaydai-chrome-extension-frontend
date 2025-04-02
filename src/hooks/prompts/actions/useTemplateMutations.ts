@@ -58,7 +58,6 @@ export function useTemplateMutations() {
         {
           onSuccess: () => {
             invalidateTemplateQueries();
-            toast.success('Template created successfully');
           },
           onError: (error: Error) => {
             console.error('Error creating template:', error);
@@ -76,7 +75,6 @@ export function useTemplateMutations() {
             if (!response.success) {
               throw new Error(response.error || 'Failed to create template');
             }
-            toast.success('Template created successfully');
             return response.template;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -105,7 +103,6 @@ export function useTemplateMutations() {
         {
           onSuccess: () => {
             invalidateTemplateQueries();
-            toast.success('Template updated successfully');
           },
           onError: (error: Error) => {
             console.error('Error updating template:', error);
@@ -122,7 +119,6 @@ export function useTemplateMutations() {
             if (!response.success) {
               throw new Error(response.error || 'Failed to update template');
             }
-            toast.success('Template updated successfully');
             return response.template;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -151,7 +147,6 @@ export function useTemplateMutations() {
         {
           onSuccess: () => {
             invalidateTemplateQueries();
-            toast.success('Template deleted successfully');
           },
           onError: (error: Error) => {
             console.error('Error deleting template:', error);
@@ -168,7 +163,6 @@ export function useTemplateMutations() {
             if (!response.success) {
               throw new Error(response.error || 'Failed to delete template');
             }
-            toast.success('Template deleted successfully');
             return id;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';

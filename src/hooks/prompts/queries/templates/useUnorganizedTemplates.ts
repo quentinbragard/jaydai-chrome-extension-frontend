@@ -10,7 +10,7 @@ import { Template } from '@/types/prompts/templates';
  */
 export function useUnorganizedTemplates() {
   return useQuery(QUERY_KEYS.UNORGANIZED_TEMPLATES, async () => {
-    const response = await promptApi.getUserTemplates();
+    const response = await promptApi.getUnorganizedTemplates();
     if (!response.success) {
       throw new Error(response.error || 'Failed to fetch unorganized templates');
     }

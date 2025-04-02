@@ -23,7 +23,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
   showBackButton,
   onBack,
   onClose, 
-  maxHeight = '400px' 
+  maxHeight = '75vh' 
 }) => {
   const {
     notifications,
