@@ -136,7 +136,7 @@ export const PlaceholderEditor: React.FC = () => {
     updatedPlaceholders[index].value = value;
     setPlaceholders(updatedPlaceholders);
 
-    let newContent = templateContent;
+    let newContent = modifiedContent;
     updatedPlaceholders.forEach(({ key, value }) => {
       const regex = new RegExp(escapeRegExp(key), "g");
       newContent = newContent.replace(regex, value || key);
@@ -160,6 +160,8 @@ export const PlaceholderEditor: React.FC = () => {
    * Handle template completion
    */
   const handleComplete = () => {
+
+    console.log('modifiedContent', modifiedContent);
     // Call the callback with the modified content
     onComplete(modifiedContent);
     // Close the dialog

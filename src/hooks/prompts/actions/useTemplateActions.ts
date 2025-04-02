@@ -32,9 +32,16 @@ const safelyOpenDialog = <T extends string>(type: T, data?: any): void => {
   }, 100);
 };
 
+
 /**
  * Insert content into a ProseMirror-based contenteditable div
- * Handles multi-paragraph content and preserves ProseMirror-specific structure
+ * Handles multi-paragraph content and ensures clean insertion
+ */
+import { toast } from 'sonner';
+
+/**
+ * Insert content into a ProseMirror-based contenteditable div
+ * Handles multi-paragraph content and ensures clean insertion
  */
 export const insertTemplateContent = (finalContent: string) => {
   if (!finalContent) {
@@ -63,41 +70,94 @@ export const insertTemplateContent = (finalContent: string) => {
       ? paragraphsHTML + '<p><br class="ProseMirror-trailingBreak"></p>' 
       : '<p><br class="ProseMirror-trailingBreak"></p>';
 
-    // Create a mutation observer to wait for DOM update
-    const observer = new MutationObserver((mutations, obs) => {
-      const proseMirrorInstance = (textarea as any).__prosemirror;
+    // Multiple strategies for content insertion
+    const insertStrategies = [
+      // Strategy 1: Direct ProseMirror view manipulation
+      () => {
+        const proseMirrorInstance = (textarea as any).__prosemirror;
+        if (proseMirrorInstance?.view) {
+          const { state, dispatch } = proseMirrorInstance.view;
+          
+          // Create a new document fragment
+          const fragment = state.schema.parseFragment(
+            new DOMParser().parseFromString(fullHTML, 'text/html').body
+          );
+          
+          // Create a transaction to replace all content
+          const tr = state.tr.replaceWith(0, state.doc.content.size, fragment);
+          
+          // Dispatch the transaction
+          dispatch(tr);
+          
+          // Move cursor to end and focus
+          const endPos = state.doc.content.size - 1;
+          const newTr = state.tr.setSelection(
+            state.selection.constructor.near(state.doc.resolve(endPos))
+          );
+          dispatch(newTr);
+          
+          proseMirrorInstance.view.focus();
+          
+          return true;
+        }
+        return false;
+      },
       
-      if (proseMirrorInstance) {
-        // Use ProseMirror's setContent method if available
-        proseMirrorInstance.setContent(fullHTML, { parseOptions: { preserveWhitespace: true } });
+      // Strategy 2: Programmatic DOM manipulation
+      () => {
+        // Clear existing content
+        textarea.innerHTML = fullHTML;
         
-        // Focus the editor
-        textarea.dispatchEvent(new Event('focus'));
+        // Trigger input event
         textarea.dispatchEvent(new Event('input', { bubbles: true }));
         
-        // Disconnect the observer
-        obs.disconnect();
+        // Focus the textarea
+        textarea.focus();
+        
+        return true;
+      },
+      
+      // Strategy 3: Direct browser selection API
+      () => {
+        // Clear content
+        textarea.innerHTML = fullHTML;
+        
+        // Use browser selection API to place cursor at end
+        const range = document.createRange();
+        const selection = window.getSelection();
+        
+        // Select the last paragraph
+        const lastParagraph = textarea.lastElementChild;
+        if (lastParagraph) {
+          range.selectNodeContents(lastParagraph);
+          range.collapse(false);
+          
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+        
+        // Trigger input event
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        return true;
       }
-    });
+    ];
 
-    // Observe changes to the textarea
-    observer.observe(textarea, { 
-      childList: true, 
-      subtree: true 
-    });
+    // Try insertion strategies in sequence
+    for (const strategy of insertStrategies) {
+      if (strategy()) {
+        toast.success('Template applied successfully');
+        return;
+      }
+    }
 
-    // Fallback direct innerHTML method
-    textarea.innerHTML = fullHTML;
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
-
-    toast.success('Template applied successfully');
+    // If all strategies fail
+    toast.error('Failed to insert template content');
   } catch (error) {
     console.error('Error applying template:', error);
     toast.error('Failed to apply template');
   }
 };
-
-
 /**
  * Hook that provides high-level template actions such as using, editing, creating templates
  */
@@ -164,7 +224,10 @@ export function useTemplateActions() {
  */
 
 const handleTemplateFinalized = useCallback((finalContent: string) => {
-  insertTemplateContent(finalContent);
+  // Small delay to ensure DOM is ready
+  setTimeout(() => {
+    insertTemplateContent(finalContent);
+  }, 50);
   
   // Close the dialog
   if (dialogManager) {
@@ -173,6 +236,7 @@ const handleTemplateFinalized = useCallback((finalContent: string) => {
     window.dialogManager.closeDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
   }
 }, [dialogManager]);
+
 
   
 
