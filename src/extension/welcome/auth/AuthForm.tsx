@@ -46,7 +46,6 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       ? { text: getMessage('sessionExpired', undefined, 'Session expired'), type: 'info' }
       : null
   );
-  const [signupSuccess, setSignupSuccess] = useState(false);
 
   useEffect(() => {
     setActiveTab(initialMode);
@@ -166,6 +165,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           }
         );
         
+        // Open ChatGPT in a new tab
+        window.open('https://chat.openai.com', '_blank');
+        
         if (onClose) {
           onClose();
         }
@@ -194,11 +196,20 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       const success = await authService.signUp(email.trim(), password, name.trim());
       
       if (success) {
-        setSignupSuccess(true);
-        setMessage({
-          text: getMessage('signUpSuccessful', undefined, 'Sign-up successful'), 
-          type: 'success'
-        });
+        toast.success(
+          getMessage('signUpSuccessful', undefined, 'Sign-up successful'), 
+          {
+            description: getMessage('redirectingToChatGPT', undefined, 'Redirecting to ChatGPT...')
+          }
+        );
+        
+        // Open ChatGPT in a new tab
+        window.open('https://chat.openai.com', '_blank');
+        
+        // Close the dialog
+        if (onClose) {
+          onClose();
+        }
       }
       // If not successful, the AuthService subscription will update the message
     } catch (error) {
@@ -227,6 +238,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           }
         );
         
+        // Open ChatGPT in a new tab
+        window.open('https://chat.openai.com', '_blank');
+        
         if (onClose) {
           onClose();
         }
@@ -242,30 +256,6 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       setIsLoading(false);
     }
   };
-
-  // UI rendering - unchanged
-  if (signupSuccess) {
-    return (
-      <div className="py-6 flex flex-col items-center">
-        <div className="bg-green-600/10 rounded-full p-3 mb-4">
-          <CheckCircle className="h-12 w-12 text-green-500" />
-        </div>
-        <h2 className="text-2xl font-medium text-white mb-3 font-heading">
-          {getMessage('emailVerificationSent', undefined, 'Email Verification Sent')}
-        </h2>
-        <p className="text-gray-300 text-center mb-6 max-w-sm font-sans">
-          {getMessage('emailVerificationInstructions', undefined, 
-            'Please check your email to verify your account.')}
-        </p>
-        <Button 
-          onClick={onClose} 
-          className="w-full font-heading bg-blue-600 hover:bg-blue-700"
-        >
-          {getMessage('close', undefined, 'Close')}
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4 py-2 bg-background bg-opacity-100">
@@ -386,74 +376,102 @@ export const AuthForm: React.FC<AuthFormProps> = ({
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
               {getMessage('signInWith', ['Google']) || 'Sign in with Google'}
             </Button>
-            
-            
           </div>
         </TabsContent>
         
         <TabsContent value="signup" className="space-y-4">
-          {/* Sign Up Form Fields - just showing name field for brevity */}
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="name-signup" className="text-gray-300 font-sans">
-                {getMessage('name', undefined, 'Name')}
-              </Label>
-              <div className="relative">
-                <Input 
-                  id="name-signup"
-                  type="text" 
-                  placeholder="John Doe" 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="pl-10 bg-gray-800 border-gray-700 text-white font-sans focus:border-blue-500 focus:ring-blue-500"
-                />
-                <User className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              </div>
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <Label htmlFor="name-signup" className="text-gray-300 font-sans">
+              {getMessage('name', undefined, 'Name')}
+            </Label>
+            <div className="relative">
+              <Input 
+                id="name-signup"
+                type="text" 
+                placeholder="John Doe" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="pl-10 bg-gray-800 border-gray-700 text-white font-sans focus:border-blue-500 focus:ring-blue-500"
+              />
+              <User className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
-            
-            {/* Email and password fields (similar to sign-in) */}
           </div>
           
+          <div className="space-y-1">
+            <Label htmlFor="email-signup" className="text-gray-300 font-sans">
+              {getMessage('email', undefined, 'Email')}
+            </Label>
+            <div className="relative">
+              <Input 
+                id="email-signup"
+                type="email" 
+                placeholder="you@example.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-10 bg-gray-800 border-gray-700 text-white font-sans focus:border-blue-500 focus:ring-blue-500"
+              />
+              <Mail className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
+          
+          <div className="space-y-1">
+            <Label htmlFor="password-signup" className="text-gray-300 font-sans">
+              {getMessage('password', undefined, 'Password')}
+            </Label>
+            <div className="relative">
+              <Input 
+                id="password-signup"
+                type="password" 
+                placeholder="••••••••" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pl-10 bg-gray-800 border-gray-700 text-white font-sans focus:border-blue-500 focus:ring-blue-500"
+              />
+              <Lock className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
+        </div>
+        
+        <Button 
+          onClick={handleSignUp} 
+          className="w-full font-heading bg-blue-600 hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <span className="flex items-center">
+              <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {getMessage('signingUp', undefined, 'Creating account...')}
+            </span>
+          ) : getMessage('signUp', undefined, 'Sign Up')}
+        </Button>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-700"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-gray-900 text-gray-400 font-sans">
+              {getMessage('or', undefined, 'Or sign up with')}
+            </span>
+          </div>
+        </div>
+        
+        <div className="grid gap-2">
           <Button 
-            onClick={handleSignUp} 
-            className="w-full font-heading bg-blue-600 hover:bg-blue-700"
+            variant="outline" 
+            onClick={handleGoogleSignIn}
+            className="w-full font-heading border-gray-700 text-white hover:bg-gray-800"
             disabled={isLoading}
           >
-            {isLoading ? (
-              <span className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {getMessage('signingUp', undefined, 'Creating account...')}
-              </span>
-            ) : getMessage('signUp', undefined, 'Sign Up')}
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
+            {getMessage('signUpWith', ['Google']) || 'Sign up with Google'}
           </Button>
-          
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-700"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-900 text-gray-400 font-sans">
-                {getMessage('or', undefined, 'Or sign up with')}
-              </span>
-            </div>
-          </div>
-          
-          <div className="grid gap-2">
-            <Button 
-              variant="outline" 
-              onClick={handleGoogleSignIn}
-              className="w-full font-heading border-gray-700 text-white hover:bg-gray-800"
-              disabled={isLoading}
-            >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
-              {getMessage('signUpWith', ['Google']) || 'Sign up with Google'}
-            </Button>
-            
-          </div>
-        </TabsContent>
+        </div>
+      </TabsContent>
       </Tabs>
     </div>
   );
