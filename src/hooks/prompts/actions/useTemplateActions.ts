@@ -10,156 +10,8 @@ import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useDialogManager } from '@/components/dialogs/core/DialogContext';
 
 /**
- * Helper function to safely access dialog manager
- */
-const safelyOpenDialog = <T extends string>(type: T, data?: any): void => {
-  // Check if dialog manager is ready
-  if (window.dialogManager && window.dialogManager.isInitialized) {
-    window.dialogManager.openDialog(type, data);
-    return;
-  }
-  
-  // Otherwise use a timeout to retry after dialog manager is initialized
-  console.log(`Dialog manager not fully initialized. Will retry opening ${type} dialog...`);
-  setTimeout(() => {
-    if (window.dialogManager) {
-      window.dialogManager.openDialog(type, data);
-      console.log(`Successfully opened ${type} dialog after delay`);
-    } else {
-      console.error(`Failed to open ${type} dialog: dialog manager still not available`);
-      toast.error('System not initialized properly. Please refresh the page.');
-    }
-  }, 100);
-};
-
-
-/**
- * Insert content into a ProseMirror-based contenteditable div
- * Handles multi-paragraph content and ensures clean insertion
- */
-import { toast } from 'sonner';
-
-/**
- * Insert content into a ProseMirror-based contenteditable div
- * Handles multi-paragraph content and ensures clean insertion
- */
-export const insertTemplateContent = (finalContent: string) => {
-  if (!finalContent) {
-    return;
-  }
-
-  try {
-    // Find the textarea/contenteditable area
-    const textarea = document.querySelector('#prompt-textarea');
-    if (!textarea || !textarea.classList.contains('ProseMirror')) {
-      toast.error('Could not find input area');
-      return;
-    }
-
-    // Clean up the content
-    const normalizedContent = finalContent.replace(/\r\n/g, '\n').trim();
-
-    // Split content into paragraphs
-    const paragraphs = normalizedContent.split('\n').filter(p => p.trim() !== '');
-
-    // Generate ProseMirror-compatible HTML
-    const paragraphsHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
-    
-    // Prepare full HTML with trailing break
-    const fullHTML = paragraphsHTML 
-      ? paragraphsHTML + '<p><br class="ProseMirror-trailingBreak"></p>' 
-      : '<p><br class="ProseMirror-trailingBreak"></p>';
-
-    // Multiple strategies for content insertion
-    const insertStrategies = [
-      // Strategy 1: Direct ProseMirror view manipulation
-      () => {
-        const proseMirrorInstance = (textarea as any).__prosemirror;
-        if (proseMirrorInstance?.view) {
-          const { state, dispatch } = proseMirrorInstance.view;
-          
-          // Create a new document fragment
-          const fragment = state.schema.parseFragment(
-            new DOMParser().parseFromString(fullHTML, 'text/html').body
-          );
-          
-          // Create a transaction to replace all content
-          const tr = state.tr.replaceWith(0, state.doc.content.size, fragment);
-          
-          // Dispatch the transaction
-          dispatch(tr);
-          
-          // Move cursor to end and focus
-          const endPos = state.doc.content.size - 1;
-          const newTr = state.tr.setSelection(
-            state.selection.constructor.near(state.doc.resolve(endPos))
-          );
-          dispatch(newTr);
-          
-          proseMirrorInstance.view.focus();
-          
-          return true;
-        }
-        return false;
-      },
-      
-      // Strategy 2: Programmatic DOM manipulation
-      () => {
-        // Clear existing content
-        textarea.innerHTML = fullHTML;
-        
-        // Trigger input event
-        textarea.dispatchEvent(new Event('input', { bubbles: true }));
-        
-        // Focus the textarea
-        textarea.focus();
-        
-        return true;
-      },
-      
-      // Strategy 3: Direct browser selection API
-      () => {
-        // Clear content
-        textarea.innerHTML = fullHTML;
-        
-        // Use browser selection API to place cursor at end
-        const range = document.createRange();
-        const selection = window.getSelection();
-        
-        // Select the last paragraph
-        const lastParagraph = textarea.lastElementChild;
-        if (lastParagraph) {
-          range.selectNodeContents(lastParagraph);
-          range.collapse(false);
-          
-          selection?.removeAllRanges();
-          selection?.addRange(range);
-        }
-        
-        // Trigger input event
-        textarea.dispatchEvent(new Event('input', { bubbles: true }));
-        
-        return true;
-      }
-    ];
-
-    // Try insertion strategies in sequence
-    for (const strategy of insertStrategies) {
-      if (strategy()) {
-        toast.success('Template applied successfully');
-        return;
-      }
-    }
-
-    // If all strategies fail
-    toast.error('Failed to insert template content');
-  } catch (error) {
-    console.error('Error applying template:', error);
-    toast.error('Failed to apply template');
-  }
-};
-/**
- * Hook that provides high-level template actions such as using, editing, creating templates
+ * A completely redesigned template action hook with improved reliability
+ * and cleaner content flow
  */
 export function useTemplateActions() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -167,7 +19,199 @@ export function useTemplateActions() {
   const { createFolder: createFolderMutation } = useFolderMutations();
   const queryClient = useQueryClient();
   const dialogManager = useDialogManager();
-
+  
+  /**
+   * Safely open a dialog with fallback mechanisms
+   */
+  const openDialog = useCallback((dialogType, dialogData = {}) => {
+    try {
+      // Try dialog manager from context first
+      if (dialogManager && typeof dialogManager.openDialog === 'function') {
+        console.log(`Opening ${dialogType} dialog via context`);
+        dialogManager.openDialog(dialogType, dialogData);
+        return true;
+      }
+      
+      // Fall back to window.dialogManager
+      if (window.dialogManager && typeof window.dialogManager.openDialog === 'function') {
+        console.log(`Opening ${dialogType} dialog via window`);
+        window.dialogManager.openDialog(dialogType, dialogData);
+        return true;
+      }
+      
+      // If both approaches fail, try with a delay
+      console.log(`Dialog manager not fully initialized, retrying ${dialogType} dialog...`);
+      setTimeout(() => {
+        if (window.dialogManager && typeof window.dialogManager.openDialog === 'function') {
+          window.dialogManager.openDialog(dialogType, dialogData);
+          console.log(`Successfully opened ${dialogType} dialog after delay`);
+        } else {
+          console.error(`Failed to open ${dialogType} dialog: dialog manager not available`);
+          toast.error('System not initialized properly. Please refresh the page.');
+        }
+      }, 150);
+      
+      return true;
+    } catch (error) {
+      console.error(`Error opening ${dialogType} dialog:`, error);
+      toast.error('Failed to open dialog');
+      return false;
+    }
+  }, [dialogManager]);
+  
+  /**
+   * Insert template content directly into the ChatGPT textarea
+   */
+  const insertContentIntoChat = useCallback((content: string) => {
+    if (!content) {
+      console.error('No content to insert');
+      return false;
+    }
+    
+    console.log(`Attempting to insert content (${content.length} chars)`);
+    
+    try {
+      // Find the textarea
+      const textarea = document.querySelector('#prompt-textarea');
+      if (!textarea) {
+        console.error('Could not find #prompt-textarea element');
+        toast.error('Could not find input area');
+        return false;
+      }
+      
+      // Normalize content
+      const normalizedContent = content.replace(/\r\n/g, '\n').trim();
+      console.log('Content normalized');
+      
+      // ---- Method 1: Event-based insertion ----
+      try {
+        // Make sure textarea is in focus
+        textarea.focus();
+        
+        // For regular textareas
+        if (textarea instanceof HTMLTextAreaElement) {
+          console.log('Using HTMLTextAreaElement approach');
+          textarea.value = normalizedContent;
+          textarea.dispatchEvent(new Event('input', { bubbles: true }));
+          return true;
+        }
+        
+        // For contenteditable divs
+        if (textarea instanceof HTMLElement) {
+          console.log('Using contenteditable approach');
+          
+          // Generate HTML paragraphs
+          const paragraphs = normalizedContent.split('\n').filter(p => p.trim() !== '');
+          const paragraphsHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+          
+          // Set content directly
+          textarea.innerHTML = paragraphsHTML;
+          
+          // Trigger input event
+          textarea.dispatchEvent(new Event('input', { bubbles: true }));
+          
+          // Set selection at the end
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(textarea);
+          range.collapse(false);
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+          
+          return true;
+        }
+      } catch (e) {
+        console.warn('Method 1 failed:', e);
+        // Continue to next method
+      }
+      
+      // ---- Method 2: Data transfer/clipboard approach ----
+      try {
+        console.log('Trying clipboard data transfer approach');
+        
+        // Create a data transfer to simulate paste
+        const dataTransfer = new DataTransfer();
+        dataTransfer.setData('text/plain', normalizedContent);
+        
+        // Create and dispatch events
+        const pasteEvent = new ClipboardEvent('paste', {
+          clipboardData: dataTransfer,
+          bubbles: true,
+          cancelable: true
+        });
+        
+        textarea.dispatchEvent(pasteEvent);
+        
+        // Check if the event was handled
+        if (!pasteEvent.defaultPrevented) {
+          throw new Error('Paste event not handled');
+        }
+        
+        return true;
+      } catch (e) {
+        console.warn('Method 2 failed:', e);
+        // Continue to next method
+      }
+      
+      // ---- Method 3: Command insertion ----
+      try {
+        console.log('Trying document.execCommand approach');
+        
+        // Fallback to execCommand (though deprecated)
+        document.execCommand('insertText', false, normalizedContent);
+        return true;
+      } catch (e) {
+        console.warn('Method 3 failed:', e);
+        // Continue to next method
+      }
+      
+      // ---- Method 4: Basic innerHTML approach ----
+      try {
+        console.log('Trying basic innerHTML approach');
+        
+        if (textarea instanceof HTMLElement) {
+          // Generate clean HTML
+          const paragraphs = normalizedContent.split('\n').filter(p => p.trim() !== '');
+          const paragraphsHTML = paragraphs.length > 0
+            ? paragraphs.map(p => `<p>${p}</p>`).join('')
+            : '<p><br></p>';
+          
+          // Set content directly
+          textarea.innerHTML = paragraphsHTML;
+          
+          // Trigger synthetic input events
+          ['input', 'change'].forEach(eventType => {
+            textarea.dispatchEvent(new Event(eventType, { bubbles: true }));
+          });
+          
+          return true;
+        }
+      } catch (e) {
+        console.warn('Method 4 failed:', e);
+      }
+      
+      console.error('All insertion methods failed');
+      toast.error('Could not insert template content');
+      return false;
+    } catch (error) {
+      console.error('Error inserting template content:', error);
+      toast.error('Failed to apply template');
+      return false;
+    }
+  }, []);
+  
+  /**
+   * Handle template content after editing in the placeholder editor
+   */
+  const handleTemplateComplete = useCallback((finalContent: string) => {
+    console.log('Template editing completed, content length:', finalContent?.length);
+    
+    // Insert the content with a small delay to ensure dialog is fully closed
+    setTimeout(() => {
+      insertContentIntoChat(finalContent);
+    }, 50);
+  }, [insertContentIntoChat]);
+  
   /**
    * Use a template by opening the placeholder editor
    */
@@ -177,69 +221,35 @@ export function useTemplateActions() {
       toast.error('Invalid template data');
       return;
     }
-
+    
     if (!template.content) {
       toast.error('Template has no content');
       return;
     }
-
+    
+    console.log(`Using template: ${template.title || 'Untitled'}`);
     setIsProcessing(true);
-
+    
     try {
-      // Use dialog manager from context first
-      if (dialogManager) {
-        dialogManager.openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
-          content: template.content,
-          title: template.title || 'Untitled Template',
-          onComplete: handleTemplateFinalized
-        });
-      } else {
-        // Fall back to window.dialogManager
-        safelyOpenDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
-          content: template.content,
-          title: template.title || 'Untitled Template',
-          onComplete: handleTemplateFinalized
-        });
-      }
-
-      // Track template usage in background (don't await)
+      // Open the placeholder editor dialog
+      openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
+        content: template.content,
+        title: template.title || 'Untitled Template',
+        onComplete: handleTemplateComplete
+      });
+      
+      // Track template usage (don't await)
       if (template.id) {
         trackTemplateUsage.mutate(template.id);
       }
     } catch (error) {
       console.error('Error using template:', error);
-      toast.error('Failed to use template');
+      toast.error('Failed to open template editor');
     } finally {
       setIsProcessing(false);
     }
-  }, [trackTemplateUsage, dialogManager]);
-
-  /**
- * Insert template content into a ProseMirror-style contenteditable div
- * @param finalContent The finalized template content to insert
- */
-/**
- * Insert template content into a ProseMirror-style contenteditable div
- * @param finalContent The finalized template content to insert
- */
-
-const handleTemplateFinalized = useCallback((finalContent: string) => {
-  // Small delay to ensure DOM is ready
-  setTimeout(() => {
-    insertTemplateContent(finalContent);
-  }, 50);
+  }, [openDialog, handleTemplateComplete, trackTemplateUsage]);
   
-  // Close the dialog
-  if (dialogManager) {
-    dialogManager.closeDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
-  } else if (window.dialogManager) {
-    window.dialogManager.closeDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
-  }
-}, [dialogManager]);
-
-
-  
-
   /**
    * Open template editor to create a new template
    */
@@ -252,27 +262,26 @@ const handleTemplateFinalized = useCallback((finalContent: string) => {
         folder: initialFolder?.name || '',
         folder_id: initialFolder?.id || undefined
       },
-      userFolders: queryClient.getQueryData(QUERY_KEYS.USER_FOLDERS) || [], // Pass the current folder data
+      userFolders: queryClient.getQueryData(QUERY_KEYS.USER_FOLDERS) || [],
       onSave: async (templateData: any) => {
         try {
-          // Use the mutation instead of calling API directly
           const result = await createTemplateMutation.mutateAsync({
             title: templateData.name,
             content: templateData.content,
             description: templateData.description,
             folder_id: templateData.folder_id
           });
-  
+          
           if (result) {
             // Force refresh templates
             queryClient.invalidateQueries(QUERY_KEYS.USER_TEMPLATES);
             queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES);
             queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
             
-            return true; // This will close the dialog
+            return true; // Close dialog
           } else {
             toast.error('Failed to create template');
-            return false; // Keep the dialog open
+            return false; // Keep dialog open
           }
         } catch (error) {
           console.error('Error creating template:', error);
@@ -281,24 +290,18 @@ const handleTemplateFinalized = useCallback((finalContent: string) => {
         }
       }
     };
+    
+    openDialog(DIALOG_TYPES.CREATE_TEMPLATE, dialogData);
+  }, [openDialog, createTemplateMutation, queryClient]);
   
-    // Use dialog manager from context first, then fall back to window
-    if (dialogManager) {
-      dialogManager.openDialog(DIALOG_TYPES.CREATE_TEMPLATE, dialogData);
-    } else {
-      safelyOpenDialog(DIALOG_TYPES.CREATE_TEMPLATE, dialogData);
-    }
-  }, [createTemplateMutation, queryClient, dialogManager]);
-
   /**
-   * Create a folder then immediately open template creation dialog
+   * Create a folder and then open template creation
    */
   const createFolderAndTemplate = useCallback(() => {
     try {
       const folderDialogData = {
         onSaveFolder: async (folderData: { name: string; path: string; description: string }) => {
           try {
-            // Use the mutation instead of calling API directly
             const result = await createFolderMutation.mutateAsync(folderData);
             return { success: true, folder: result };
           } catch (error) {
@@ -317,18 +320,13 @@ const handleTemplateFinalized = useCallback((finalContent: string) => {
         }
       };
       
-      // Use dialog manager from context first, then fall back to window
-      if (dialogManager) {
-        dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, folderDialogData);
-      } else {
-        safelyOpenDialog(DIALOG_TYPES.CREATE_FOLDER, folderDialogData);
-      }
+      openDialog(DIALOG_TYPES.CREATE_FOLDER, folderDialogData);
     } catch (error) {
       console.error('Error in folder/template creation flow:', error);
       toast.error('Failed to create folder');
     }
-  }, [createTemplate, createFolderMutation, queryClient, dialogManager]);
-
+  }, [createTemplate, createFolderMutation, queryClient, openDialog]);
+  
   /**
    * Open template editor to edit an existing template
    */
@@ -337,7 +335,7 @@ const handleTemplateFinalized = useCallback((finalContent: string) => {
       toast.error('Invalid template');
       return;
     }
-
+    
     const dialogData = {
       template,
       formData: {
@@ -347,20 +345,13 @@ const handleTemplateFinalized = useCallback((finalContent: string) => {
         folder: template.folder || '',
         folder_id: template.folder_id
       },
-      userFolders: queryClient.getQueryData(QUERY_KEYS.USER_FOLDERS) || [], // Pass current folder data
-      onSave: (templateData: any) => {
-        // The actual saving will be handled by the dialog's internal logic
-      }
+      userFolders: queryClient.getQueryData(QUERY_KEYS.USER_FOLDERS) || []
+      // The saving will be handled by the dialog's internal logic
     };
-
-    // Use dialog manager from context first, then fall back to window
-    if (dialogManager) {
-      dialogManager.openDialog(DIALOG_TYPES.EDIT_TEMPLATE, dialogData);
-    } else {
-      safelyOpenDialog(DIALOG_TYPES.EDIT_TEMPLATE, dialogData);
-    }
-  }, [queryClient, dialogManager]);
-
+    
+    openDialog(DIALOG_TYPES.EDIT_TEMPLATE, dialogData);
+  }, [openDialog, queryClient]);
+  
   return {
     isProcessing,
     useTemplate,

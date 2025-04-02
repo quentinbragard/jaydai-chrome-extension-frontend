@@ -26,23 +26,34 @@ interface Placeholder {
  * Dialog for editing template placeholders
  */
 export const PlaceholderEditor: React.FC = () => {
+  // Get dialog data whenever component renders to ensure fresh data
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
   const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
   const [modifiedContent, setModifiedContent] = useState('');
   const [contentMounted, setContentMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
+  const initializedRef = useRef(false);
+
+  // Reset all state when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      // Reset state for fresh start
+      initializedRef.current = false;
+      setPlaceholders([]);
+      setModifiedContent('');
+      setContentMounted(false);
+      setError(null);
+      
+      // Mark this render cycle as initialized
+      initializedRef.current = true;
+    }
+  }, [isOpen]);
 
   // Safe extraction of dialog data with defaults
   const templateContent = data?.content || '';
   const templateTitle = data?.title || 'Template';
   const onComplete = data?.onComplete || (() => {});
-  
-  console.log("PlaceholderEditor opened with:", { 
-    templateTitle, 
-    contentLength: templateContent?.length || 0,
-    hasCallback: !!onComplete
-  });
   
   /**
    * Extract placeholders from template content
@@ -60,11 +71,9 @@ export const PlaceholderEditor: React.FC = () => {
       if (uniqueKeys.has(placeholder)) continue;
       uniqueKeys.add(placeholder);
 
-      const existingPlaceholder = placeholders.find((p) => p.key === placeholder);
-
       uniquePlaceholders.push({
         key: placeholder,
-        value: existingPlaceholder ? existingPlaceholder.value : "",
+        value: "",
       });
     }
 
@@ -85,7 +94,7 @@ export const PlaceholderEditor: React.FC = () => {
 
   // Initialize content and placeholders when dialog opens or content changes
   useEffect(() => {
-    if (isOpen && templateContent) {
+    if (isOpen && templateContent && initializedRef.current) {
       setError(null);
       setModifiedContent(templateContent);
       
@@ -107,7 +116,7 @@ export const PlaceholderEditor: React.FC = () => {
         setError("Failed to process template. Please try again.");
       }
     }
-  }, [isOpen, templateContent]);
+  }, [isOpen, templateContent, initializedRef.current]);
 
   // Handle changes inside contentEditable div
   useEffect(() => {
@@ -160,14 +169,16 @@ export const PlaceholderEditor: React.FC = () => {
    * Handle template completion
    */
   const handleComplete = () => {
-
-    console.log('modifiedContent', modifiedContent);
+    // Get the current content from the editor
+    const finalContent = modifiedContent;
+    
+    console.log('Submitting content for insertion:', finalContent);
+    
     // Call the callback with the modified content
-    onComplete(modifiedContent);
+    onComplete(finalContent);
+    
     // Close the dialog
     dialogProps.onOpenChange(false);
-    // Dispatch an event to notify that the editor is closed
-    document.dispatchEvent(new CustomEvent('archimind:placeholder-editor-closed'));
   };
   
   /**
@@ -176,8 +187,6 @@ export const PlaceholderEditor: React.FC = () => {
   const handleClose = () => {
     // Close dialog
     dialogProps.onOpenChange(false);
-    // Also dispatch close event
-    document.dispatchEvent(new CustomEvent('archimind:placeholder-editor-closed'));
   };
 
   if (!isOpen) return null;
@@ -187,10 +196,6 @@ export const PlaceholderEditor: React.FC = () => {
       {...dialogProps}
       onOpenChange={(open) => {
         dialogProps.onOpenChange(open);
-        // Dispatch events for opening and closing
-        document.dispatchEvent(new CustomEvent(
-          open ? 'archimind:placeholder-editor-opened' : 'archimind:placeholder-editor-closed'
-        ));
       }}
     >
       <DialogContent
@@ -221,7 +226,7 @@ export const PlaceholderEditor: React.FC = () => {
               <ScrollArea className="h-[50vh]">
                 <div className="space-y-4 pr-4">
                   {placeholders.map((placeholder, idx) => (
-                    <div key={placeholder.key + idx} className="space-y-1">
+                    <div key={`${placeholder.key}-${idx}`} className="space-y-1">
                       <label className="text-sm font-medium flex items-center">
                         <span className="bg-primary/10 px-2 py-1 rounded">{placeholder.key}</span>
                       </label>
