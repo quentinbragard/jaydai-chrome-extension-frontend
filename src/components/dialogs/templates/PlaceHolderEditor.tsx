@@ -26,34 +26,23 @@ interface Placeholder {
  * Dialog for editing template placeholders
  */
 export const PlaceholderEditor: React.FC = () => {
-  // Get dialog data whenever component renders to ensure fresh data
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
   const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
   const [modifiedContent, setModifiedContent] = useState('');
   const [contentMounted, setContentMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
-  const initializedRef = useRef(false);
-
-  // Reset all state when dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      // Reset state for fresh start
-      initializedRef.current = false;
-      setPlaceholders([]);
-      setModifiedContent('');
-      setContentMounted(false);
-      setError(null);
-      
-      // Mark this render cycle as initialized
-      initializedRef.current = true;
-    }
-  }, [isOpen]);
 
   // Safe extraction of dialog data with defaults
   const templateContent = data?.content || '';
   const templateTitle = data?.title || 'Template';
   const onComplete = data?.onComplete || (() => {});
+  
+  console.log("PlaceholderEditor opened with:", { 
+    templateTitle, 
+    contentLength: templateContent?.length || 0,
+    hasCallback: !!onComplete
+  });
   
   /**
    * Extract placeholders from template content
@@ -71,9 +60,11 @@ export const PlaceholderEditor: React.FC = () => {
       if (uniqueKeys.has(placeholder)) continue;
       uniqueKeys.add(placeholder);
 
+      const existingPlaceholder = placeholders.find((p) => p.key === placeholder);
+
       uniquePlaceholders.push({
         key: placeholder,
-        value: "",
+        value: existingPlaceholder ? existingPlaceholder.value : "",
       });
     }
 
@@ -82,81 +73,117 @@ export const PlaceholderEditor: React.FC = () => {
 
   /**
    * Function to highlight placeholders inside the content with improved formatting
+   * with single newline handling
    */
   const highlightPlaceholders = (content: string) => {
-    return content
-      .replace(/\n/g, '<br>')  // Convert newlines to <br> for proper display
-      .replace(
-        /\[(.*?)\]/g, 
-        `<span class="bg-yellow-300 text-yellow-900 font-bold px-1 rounded inline-block my-0.5">${"$&"}</span>`
-      );
+    // First, normalize the content to ensure consistent line breaks
+    const normalizedContent = content.replace(/\r\n/g, '\n');
+    
+    // Escape HTML entities to prevent XSS and preserve content
+    const escapedContent = normalizedContent
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+    
+    // Then handle newlines by converting them to <br> tags
+    // This is a direct replacement, not adding extra breaks
+    const withLineBreaks = escapedContent.replace(/\n/g, '<br>');
+    
+    // Finally, highlight placeholders
+    return withLineBreaks.replace(
+      /\[(.*?)\]/g, 
+      `<span class="bg-yellow-300 text-yellow-900 font-bold px-1 rounded inline-block my-0.5">[$1]</span>`
+    );
   };
 
   // Initialize content and placeholders when dialog opens or content changes
   useEffect(() => {
-    if (isOpen && templateContent && initializedRef.current) {
+    if (isOpen && templateContent) {
       setError(null);
-      setModifiedContent(templateContent);
+      
+      // Normalize template content to ensure consistent line breaks
+      const normalizedContent = templateContent.replace(/\r\n/g, '\n');
+      setModifiedContent(normalizedContent);
       
       try {
-        const extractedPlaceholders = extractPlaceholders(templateContent);
+        const extractedPlaceholders = extractPlaceholders(normalizedContent);
         setPlaceholders(extractedPlaceholders);
         
         // Log for debugging
         console.log(`Extracted ${extractedPlaceholders.length} placeholders from template`);
+        console.log('Original line breaks count:', (normalizedContent.match(/\n/g) || []).length);
         
+        // Use a short timeout to ensure the ref is available
         setTimeout(() => {
           if (editorRef.current) {
-            editorRef.current.innerHTML = highlightPlaceholders(templateContent);
+            // Apply the highlighting with proper newline handling
+            editorRef.current.innerHTML = highlightPlaceholders(normalizedContent);
+            
+            // Debug the resulting HTML to check for doubled line breaks
+            console.log('HTML line breaks count:', (editorRef.current.innerHTML.match(/<br>/g) || []).length);
+            
             setContentMounted(true);
           }
-        }, 0);
+        }, 10);
       } catch (err) {
         console.error("Error processing template:", err);
         setError("Failed to process template. Please try again.");
       }
+    } else {
+      // Reset states when dialog closes
+      setContentMounted(false);
     }
-  }, [isOpen, templateContent, initializedRef.current]);
+  }, [isOpen, templateContent]);
 
   // Handle changes inside contentEditable div
   useEffect(() => {
     if (!contentMounted || !editorRef.current) return;
 
     const observer = new MutationObserver(() => {
-      // Replace <br> back to \n when getting text
-      const cleanedContent = editorRef.current?.innerHTML
-        .replace(/<br>/g, '\n')
-        .replace(/<\/?span[^>]*>/g, '')  // Remove span tags
-        .replace(/&nbsp;/g, ' ');  // Replace non-breaking spaces
-
-      setModifiedContent(cleanedContent || "");
+      if (!editorRef.current) return;
+      
+      // Get the HTML content
+      const htmlContent = editorRef.current.innerHTML;
+      
+      // First, normalize <br> tags to ensure consistent processing
+      // Replace any series of <br> tags with a single standardized one
+      const normalizedHtml = htmlContent
+        .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')  // Replace double <br>s
+        .replace(/<div><br><\/div>/gi, '<br>')         // Replace div-wrapped <br>s
+        .replace(/<p><br><\/p>/gi, '<br>');            // Replace p-wrapped <br>s
+      
+      // Process the normalized content:
+      // 1. Replace all <br> tags with a single newline character
+      // 2. Remove all other HTML tags
+      // 3. Decode HTML entities
+      const textContent = normalizedHtml
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<div\s*\/?>/gi, '')
+        .replace(/<\/div>/gi, '')
+        .replace(/<p\s*\/?>/gi, '')
+        .replace(/<\/p>/gi, '')
+        .replace(/<\/?span[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&amp;/g, '&');
+      
+      setModifiedContent(textContent);
     });
 
-    observer.observe(editorRef.current, { childList: true, subtree: true, characterData: true });
+    observer.observe(editorRef.current, { 
+      childList: true, 
+      subtree: true, 
+      characterData: true,
+      attributes: false 
+    });
 
     return () => observer.disconnect();
   }, [contentMounted]);
-
-  /**
-   * Update placeholder values and reflect changes in the editor
-   */
-  const updatePlaceholder = (index: number, value: string) => {
-    const updatedPlaceholders = [...placeholders];
-    updatedPlaceholders[index].value = value;
-    setPlaceholders(updatedPlaceholders);
-
-    let newContent = modifiedContent;
-    updatedPlaceholders.forEach(({ key, value }) => {
-      const regex = new RegExp(escapeRegExp(key), "g");
-      newContent = newContent.replace(regex, value || key);
-    });
-
-    setModifiedContent(newContent);
-
-    if (editorRef.current) {
-      editorRef.current.innerHTML = highlightPlaceholders(newContent);
-    }
-  };
 
   /**
    * Helper function to escape regex characters
@@ -166,19 +193,49 @@ export const PlaceholderEditor: React.FC = () => {
   };
 
   /**
+   * Update placeholder values and reflect changes in the editor
+   * with single newline handling
+   */
+  const updatePlaceholder = (index: number, value: string) => {
+    const updatedPlaceholders = [...placeholders];
+    updatedPlaceholders[index].value = value;
+    setPlaceholders(updatedPlaceholders);
+
+    // Start with the original template content
+    let newContent = templateContent.replace(/\r\n/g, '\n');
+    
+    // Replace placeholders with their values
+    updatedPlaceholders.forEach(({ key, value }) => {
+      if (value) {
+        const regex = new RegExp(escapeRegExp(key), "g");
+        newContent = newContent.replace(regex, value);
+      }
+    });
+
+    // Update state with the new content
+    setModifiedContent(newContent);
+
+    // Update the editor display with proper highlighting
+    if (editorRef.current) {
+      // Make sure the HTML we set doesn't have doubled line breaks
+      editorRef.current.innerHTML = highlightPlaceholders(newContent);
+      
+      // Log for debugging
+      console.log('Updated content line breaks:', (newContent.match(/\n/g) || []).length);
+      console.log('Updated HTML line breaks:', (editorRef.current.innerHTML.match(/<br>/g) || []).length);
+    }
+  };
+
+  /**
    * Handle template completion
    */
   const handleComplete = () => {
-    // Get the current content from the editor
-    const finalContent = modifiedContent;
-    
-    console.log('Submitting content for insertion:', finalContent);
-    
     // Call the callback with the modified content
-    onComplete(finalContent);
-    
+    onComplete(modifiedContent);
     // Close the dialog
     dialogProps.onOpenChange(false);
+    // Dispatch an event to notify that the editor is closed
+    document.dispatchEvent(new CustomEvent('archimind:placeholder-editor-closed'));
   };
   
   /**
@@ -187,6 +244,8 @@ export const PlaceholderEditor: React.FC = () => {
   const handleClose = () => {
     // Close dialog
     dialogProps.onOpenChange(false);
+    // Also dispatch close event
+    document.dispatchEvent(new CustomEvent('archimind:placeholder-editor-closed'));
   };
 
   if (!isOpen) return null;
@@ -196,6 +255,10 @@ export const PlaceholderEditor: React.FC = () => {
       {...dialogProps}
       onOpenChange={(open) => {
         dialogProps.onOpenChange(open);
+        // Dispatch events for opening and closing
+        document.dispatchEvent(new CustomEvent(
+          open ? 'archimind:placeholder-editor-opened' : 'archimind:placeholder-editor-closed'
+        ));
       }}
     >
       <DialogContent
@@ -226,7 +289,7 @@ export const PlaceholderEditor: React.FC = () => {
               <ScrollArea className="h-[50vh]">
                 <div className="space-y-4 pr-4">
                   {placeholders.map((placeholder, idx) => (
-                    <div key={`${placeholder.key}-${idx}`} className="space-y-1">
+                    <div key={placeholder.key + idx} className="space-y-1">
                       <label className="text-sm font-medium flex items-center">
                         <span className="bg-primary/10 px-2 py-1 rounded">{placeholder.key}</span>
                       </label>
