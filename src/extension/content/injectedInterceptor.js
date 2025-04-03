@@ -20,12 +20,17 @@
     const pathname = url.startsWith('http') 
       ? new URL(url).pathname 
       : url.split('?')[0];
+    console.log('getEndpointType-----------', pathname);
     
     if (ENDPOINTS.SPECIFIC_CONVERSATION.test(pathname)) {
       return 'specificConversation';
     }
     if (pathname === ENDPOINTS.USER_INFO) return 'userInfo';
-    if (pathname.startsWith(ENDPOINTS.CONVERSATIONS_LIST)) return 'conversationList';
+    if (pathname.startsWith(ENDPOINTS.CONVERSATIONS_LIST))
+      {
+        console.log('==============conversationList', pathname);
+        return 'conversationList';
+      }
     if (pathname.startsWith(ENDPOINTS.CHAT_COMPLETION)) return 'chatCompletion';
     
     return null;
@@ -288,33 +293,41 @@
     
     // Skip irrelevant endpoints
     if (!endpointType) {
+      console.log('-------------------kip irrelevant endpoints', url);
       return originalFetch.apply(this, arguments);
     }
     
     // Extract request body
     let requestBody = null;
-    if (init && init.body) {
+    console.log('☺️ init', init);
+    console.log('☺️ init.body', init.body);
+    if (init) {
       try {
-        const bodyText = typeof init.body === 'string' 
-          ? init.body 
-          : new TextDecoder().decode(init.body);
-          
+        if (init.body) {
+          const bodyText = typeof init.body === 'string' 
+            ? init.body 
+            : new TextDecoder().decode(init.body);
+            
         if (bodyText.trim().startsWith('{')) {
           requestBody = JSON.parse(bodyText);
+          console.log('☺️ requestBody', requestBody);
           
           // Additional logging for parent_message_provider_id if present
           if (requestBody.parent_message_provider_id) {
             console.log('🔗 Parent message ID detected:', requestBody.parent_message_provider_id);
+            }
           }
         }
       } catch (e) {
         // Silent fail on parse errors
       }
     }
+    console.log('☺️☺️☺️☺️☺️☺️☺️☺️☺️', arguments );
     
     // Call original fetch
     const response = await originalFetch.apply(this, arguments);
-    
+    console.log("*************************8")
+    console.log('☺️☺️☺️ response', response);
     // Skip non-successful responses
     if (!response.ok) return response;
     

@@ -40,7 +40,7 @@ export function injectNetworkInterceptor(): void {
 function setupInterceptListener(): void {
   document.addEventListener('archimind-network-intercept', async (event: CustomEvent) => {
     const { type, data } = event.detail;
-    
+    console.log('==============setupInterceptListener', type, data);
     try {
       switch (type) {
         case 'userInfo':
@@ -48,6 +48,7 @@ function setupInterceptListener(): void {
           break;
           
         case 'conversationList':
+          console.log('==============handleConversationList', data);
           handleConversationList(data);
           break;
           
@@ -104,6 +105,7 @@ function handleUserInfo(data: any): void {
  * Handle intercepted conversation list data
  */
 function handleConversationList(data: any): void {
+  console.log('handleConversationList', data);
   try {
     if (data && data.responseBody) {
       // Process the conversation list data
