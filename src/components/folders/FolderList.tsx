@@ -1,6 +1,6 @@
 // src/components/folders/FolderList.tsx
 import React, { memo, useMemo } from 'react';
-import { TemplateFolder } from '@/types/prompts/templates';
+import { Template, TemplateFolder } from '@/types/prompts/templates';
 import FolderItem from './FolderItem';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 
@@ -9,7 +9,9 @@ interface FolderListProps {
   type: 'official' | 'organization' | 'user';
   onTogglePin?: (folderId: number, isPinned: boolean) => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
-  onUseTemplate?: (templateId: number) => void;
+  onUseTemplate?: (template: Template) => void;
+  onEditTemplate?: (template: Template) => void;
+  onDeleteTemplate?: (templateId: number) => Promise<boolean> | void;
   showPinControls?: boolean;
   showDeleteControls?: boolean;
   emptyMessage?: string;
@@ -27,6 +29,8 @@ const FolderList: React.FC<FolderListProps> = ({
   onTogglePin,
   onDeleteFolder,
   onUseTemplate,
+  onEditTemplate,
+  onDeleteTemplate,
   showPinControls = false,
   showDeleteControls = false,
   emptyMessage,
@@ -66,6 +70,8 @@ const FolderList: React.FC<FolderListProps> = ({
             onTogglePin={onTogglePin}
             onDeleteFolder={onDeleteFolder}
             onUseTemplate={onUseTemplate}
+            onEditTemplate={onEditTemplate}
+            onDeleteTemplate={onDeleteTemplate}
             showPinControls={showPinControls}
             showDeleteControls={showDeleteControls}
             initialExpanded={initialExpanded}

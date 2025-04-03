@@ -27,6 +27,7 @@ import { TemplateItem } from '@/components/templates/TemplateItem';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
+import { Template, TemplateFolder } from '@/types/prompts/templates';
 
 interface TemplatesPanelProps {
   showBackButton?: boolean;
@@ -145,7 +146,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     }
   }, [refetchPinned, refetchUser, refetchUnorganized]);
 
-  // Handle template deletion with confirmation dialog
+  // Template delete handler - works for all templates
   const handleDeleteTemplate = useCallback((templateId: number) => {
     if (window.dialogManager) {
       window.dialogManager.openDialog(DIALOG_TYPES.CONFIRMATION, {
@@ -154,6 +155,11 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         onConfirm: async () => {
           try {
             await deleteTemplate.mutateAsync(templateId);
+            // Refresh data after deletion
+            await Promise.all([
+              refetchUser(),
+              refetchUnorganized()
+            ]);
             return true;
           } catch (error) {
             console.error('Error deleting template:', error);
@@ -162,7 +168,35 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         }
       });
     }
-  }, [deleteTemplate]);
+  }, [deleteTemplate, refetchUser, refetchUnorganized]);
+
+  // Folder delete handler
+  const handleDeleteFolder = useCallback((folderId: number) => {
+    if (window.dialogManager) {
+      window.dialogManager.openDialog(DIALOG_TYPES.CONFIRMATION, {
+        title: getMessage('deleteFolder', undefined, 'Delete Folder'),
+        description: getMessage('deleteFolderConfirmation', undefined, 'Are you sure you want to delete this folder and all its templates? This action cannot be undone.'),
+        onConfirm: async () => {
+          try {
+            await deleteFolder.mutateAsync(folderId);
+            // Refresh user folders after deletion
+            await refetchUser();
+            return true;
+          } catch (error) {
+            console.error('Error deleting folder:', error);
+            return false;
+          }
+        }
+      });
+    }
+    return Promise.resolve(false);
+  }, [deleteFolder, refetchUser]);
+
+  // Template edit handler - works for all templates
+  const handleEditTemplate = useCallback((template: Template) => {
+    // Use the existing editTemplate function from templateActions
+    editTemplate(template);
+  }, [editTemplate]);
 
   // Error handling display
   if (hasError) {
@@ -313,7 +347,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         </FolderSection>
         <Separator />
         
-        {/* User Templates Section */}
+        {/* User Templates Section - With edit/delete capabilities */}
         <FolderSection
           title={getMessage('myTemplates', undefined, 'My Templates')}
           iconType="user"
@@ -327,7 +361,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 <FolderList
                   folders={userFolders}
                   type="user"
-                  onDeleteFolder={(folderId) => deleteFolder.mutateAsync(folderId)}
+                  onDeleteFolder={handleDeleteFolder}
+                  onEditTemplate={handleEditTemplate}
+                  onDeleteTemplate={handleDeleteTemplate}
                   onUseTemplate={useTemplate}
                   showDeleteControls={true}
                   emptyMessage="No user templates. Create a template to get started."
@@ -347,7 +383,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                         key={`template-${template.id}`}
                         template={template}
                         type="user"
-                        onEditTemplate={editTemplate}
+                        onEditTemplate={handleEditTemplate}
                         onDeleteTemplate={handleDeleteTemplate}
                         onUseTemplate={useTemplate}
                       />

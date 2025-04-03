@@ -44,7 +44,7 @@ export const TemplateDialog: React.FC = () => {
   const currentTemplate = data?.template || null;
   const initialFormData = data?.formData || DEFAULT_FORM_DATA;
   const onFormChange = data?.onFormChange;
-  const onSave = data?.onSave || (() => Promise.resolve(false));
+  const onSave = data?.onSave
   const userFolders = data?.userFolders || [];
   const selectedFolder = data?.selectedFolder; // New: pre-selected folder from folder creation
   
@@ -318,12 +318,20 @@ export const TemplateDialog: React.FC = () => {
         }
         
         if (response.success) {
-          toast.success(currentTemplate ? 'Template updated successfully' : 'Template created successfully');
+          // Show success message
+          toast.success(currentTemplate ? 'Template updated successfully, refreshing page...' : 'Template created successfully');
+          
+          // Set a short timeout to allow the toast to be visible before refresh
+          if (currentTemplate) {
+            setTimeout(() => {
+              // Refresh the page to get updated data
+              window.location.reload();
+            }, 1000); // 1-second delay so user can see the success message
+          }
+          
+          // Close the dialog
           handleClose();
           return true;
-        } else {
-          toast.error(response.error || 'Failed to save template');
-          return false;
         }
       }
       return false;

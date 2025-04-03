@@ -1,4 +1,4 @@
-// src/components/folders/FolderItem.tsx (Consistent styling)
+// src/components/folders/FolderItem.tsx
 import React, { useState, memo, useCallback, useRef } from 'react';
 import { Template, TemplateFolder } from '@/types/prompts/templates';
 import { FolderHeader } from './FolderHeader';
@@ -8,21 +8,22 @@ import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+// Number of items to display per page
+const ITEMS_PER_PAGE = 5;
+
 interface FolderItemProps {
   folder: TemplateFolder;
   type: 'official' | 'organization' | 'user';
   onTogglePin?: (folderId: number, isPinned: boolean) => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
   onUseTemplate?: (template: Template) => void;
-  onEditFolder?: (folder: TemplateFolder) => void;
+  onEditTemplate?: (template: Template) => void; // Optional prop for template editing
+  onDeleteTemplate?: (templateId: number) => Promise<boolean> | void; // Optional prop for template deletion
   showPinControls?: boolean;
   showDeleteControls?: boolean;
   level?: number;
   initialExpanded?: boolean;
 }
-
-// Number of items to display per page
-const ITEMS_PER_PAGE = 5;
 
 /**
  * Component for rendering a single folder with its templates and subfolders
@@ -33,7 +34,8 @@ const FolderItem: React.FC<FolderItemProps> = ({
   onTogglePin,
   onDeleteFolder,
   onUseTemplate,
-  onEditFolder,
+  onEditTemplate, // Received from props
+  onDeleteTemplate, // Received from props
   showPinControls = false,
   showDeleteControls = false,
   level = 0,
@@ -118,14 +120,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
     }
   }, [folder.id, isPinned, onTogglePin]);
   
-  // Handle folder edit
-  const handleEditFolder = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onEditFolder) {
-      onEditFolder(folder);
-    }
-  }, [folder, onEditFolder]);
-  
   // Handle folder deletion
   const handleDeleteFolder = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -150,27 +144,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
       {/* Action buttons for user folders - only visible on hover */}
       {type === 'user' && (
         <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          {/* Edit button for user folders - with green accent */}
-          {onEditFolder && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-7 w-7 p-0 text-green-500 hover:text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30"
-                    onClick={handleEditFolder}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>Edit folder</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-          
           {/* Delete button for user folders - with red accent */}
           {showDeleteControls && onDeleteFolder && (
             <TooltipProvider>
@@ -219,6 +192,12 @@ const FolderItem: React.FC<FolderItemProps> = ({
                   template={template}
                   type={type}
                   onUseTemplate={onUseTemplate ? () => onUseTemplate(template) : undefined}
+                  // Only pass the edit function if it exists
+                  onEditTemplate={onEditTemplate ? () => onEditTemplate(template) : undefined}
+                  // Only pass the delete function if it exists and template has an id
+                  onDeleteTemplate={template.id && onDeleteTemplate ? 
+                    () => onDeleteTemplate(template.id as number) : undefined
+                  }
                 />
               );
             } else {
@@ -230,8 +209,10 @@ const FolderItem: React.FC<FolderItemProps> = ({
                   type={type}
                   onTogglePin={onTogglePin}
                   onDeleteFolder={onDeleteFolder}
-                  onEditFolder={onEditFolder}
                   onUseTemplate={onUseTemplate}
+                  // Pass through the edit and delete handlers, but only if they exist
+                  onEditTemplate={onEditTemplate}
+                  onDeleteTemplate={onDeleteTemplate}
                   showPinControls={showPinControls}
                   showDeleteControls={showDeleteControls}
                   level={level + 1}
