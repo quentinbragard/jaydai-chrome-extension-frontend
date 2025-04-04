@@ -128,7 +128,6 @@ export class AuthService extends AbstractBaseService {
    */
   public async signInWithEmail(email: string, password: string): Promise<boolean> {
     const response = await AuthOperations.signInWithEmail(email, password);
-    
     if (response.success) {
       this.stateManager.updateState({
         isAuthenticated: true,

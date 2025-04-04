@@ -143,14 +143,11 @@ export class NotificationService extends AbstractBaseService {
   private localizeNotifications(notifications: NotificationBase[]): NotificationBase[] {
     return notifications.map(notification => {
       // Check if title is a localization key
-      const localizedTitle = notification.title.startsWith('_') || notification.title.includes('_title') || notification.title.includes('_notification')
-        ? getMessage(notification.title, undefined, notification.title)
-        : notification.title;
+      const localizedTitle = getMessage(notification.title, undefined, notification.title)
+
         
       // Check if body is a localization key
-      const localizedBody = notification.body.startsWith('_') || notification.body.includes('_body')
-        ? getMessage(notification.body, undefined, notification.body)
-        : notification.body;
+      const localizedBody = getMessage(notification.body, undefined, notification.body)
         
       return {
         ...notification,
