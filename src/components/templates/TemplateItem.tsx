@@ -158,13 +158,13 @@ export function TemplateItem({
         {template.description && (
           <div className="text-xs text-muted-foreground truncate">{template.description}</div>
         )}
-        {/* Usage indicator */}
-        {renderUsageIndicator()}
+        {/* Usage indicator  {renderUsageIndicator()}*/}
+        
       </div>
       
       {/* Only show action buttons for user templates */}
       {type === "user" && (
-        <div className="ml-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="ml-2 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
           {/* Edit Button with blue accent */}
           {onEditTemplate && (
             <TooltipProvider>

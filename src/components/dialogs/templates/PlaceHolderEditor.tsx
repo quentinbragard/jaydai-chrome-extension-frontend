@@ -226,27 +226,32 @@ export const PlaceholderEditor: React.FC = () => {
     }
   };
 
-  /**
-   * Handle template completion
-   */
-  const handleComplete = () => {
-    // Call the callback with the modified content
-    onComplete(modifiedContent);
-    // Close the dialog
-    dialogProps.onOpenChange(false);
-    // Dispatch an event to notify that the editor is closed
-    document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
-  };
+/**
+* Handle template completion
+*/
+const handleComplete = () => {
+  // Call the callback with the modified content
+  onComplete(modifiedContent);
   
-  /**
-   * Handle dialog close
-   */
-  const handleClose = () => {
-    // Close dialog
-    dialogProps.onOpenChange(false);
-    // Also dispatch close event
-    document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
-  };
+  // Close the dialog
+  dialogProps.onOpenChange(false);
+  
+  // Dispatch events to notify that the editor is closed and to close all panels
+  document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
+  document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+};
+
+/**
+* Handle dialog close
+*/
+const handleClose = () => {
+  // Close dialog
+  dialogProps.onOpenChange(false);
+  
+  // Also dispatch close events
+  document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
+  document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+};
 
   if (!isOpen) return null;
 
@@ -255,7 +260,6 @@ export const PlaceholderEditor: React.FC = () => {
       {...dialogProps}
       onOpenChange={(open) => {
         dialogProps.onOpenChange(open);
-        // Dispatch events for opening and closing
         document.dispatchEvent(new CustomEvent(
           open ? 'jaydai:placeholder-editor-opened' : 'jaydai:placeholder-editor-closed'
         ));
@@ -267,9 +271,9 @@ export const PlaceholderEditor: React.FC = () => {
         style={{ maxHeight: '90vh', overflow: 'auto' }}
       >
         <DialogHeader>
-          <DialogTitle>{getMessage('customizeTemplate', [templateTitle], `Customize Template: ${templateTitle}`)}</DialogTitle>
+          <DialogTitle>{getMessage('customizeTemplate', [templateTitle])}</DialogTitle>
           <DialogDescription>
-            {getMessage('customizeTemplateDesc', undefined, 'Customize the template by filling in the placeholders.')}
+            {getMessage('customizeTemplateDesc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -283,7 +287,7 @@ export const PlaceholderEditor: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4 flex-grow overflow-hidden">
           {/* Placeholders Section */}
           <div className="space-y-4 overflow-auto">
-            <h3 className="text-sm font-medium">{getMessage('replacePlaceholders', undefined, 'Replace Placeholders')}</h3>
+            <h3 className="text-sm font-medium">{getMessage('replacePlaceholders')}</h3>
 
             {placeholders.length > 0 ? (
               <ScrollArea className="h-[50vh]">
@@ -296,7 +300,7 @@ export const PlaceholderEditor: React.FC = () => {
                       <Input
                         value={placeholder.value}
                         onChange={(e) => updatePlaceholder(idx, e.target.value)}
-                        placeholder={`Enter value for ${placeholder.key}`}
+                        placeholder={getMessage('enterValueFor', [placeholder.key])}
                         className="w-full"
                       />
                     </div>
@@ -304,13 +308,13 @@ export const PlaceholderEditor: React.FC = () => {
                 </div>
               </ScrollArea>
             ) : (
-              <div className="text-muted-foreground text-center py-8">{getMessage('noPlaceholders', undefined, 'No placeholders found in this template.')}</div>
+              <div className="text-muted-foreground text-center py-8">{getMessage('noPlaceholders')}</div>
             )}
           </div>
 
           {/* Rich Text Editable Section */}
           <div className="border rounded-md p-4 overflow-hidden flex flex-col">
-            <h3 className="text-sm font-medium mb-2">{getMessage('editTemplate', undefined, 'Edit Template')}</h3>
+            <h3 className="text-sm font-medium mb-2">{getMessage('editTemplate')}</h3>
             <div
               ref={editorRef}
               contentEditable
@@ -324,9 +328,9 @@ export const PlaceholderEditor: React.FC = () => {
 
         <DialogFooter>
           <Button variant="outline" onClick={handleClose}>
-            {getMessage('cancel', undefined, 'Cancel')}
+            {getMessage('cancel')}
           </Button>
-          <Button onClick={handleComplete}>{getMessage('useTemplate', undefined, 'Use Template')}</Button>
+          <Button onClick={handleComplete}>{getMessage('useTemplate')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

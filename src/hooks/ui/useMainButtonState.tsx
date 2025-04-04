@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export type PanelType = 'menu' | 'notifications' | 'templates' | 'stats';
+export type PanelType = 'menu' | 'notifications' | 'templates' | 'stats' | 'templatesBrowse';
 
 export const useMainButtonState = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,51 +10,62 @@ export const useMainButtonState = () => {
   const [notificationCount, setNotificationCount] = useState(0);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Listen for notification count changes
+  // Combined event handling for improved coordination
   useEffect(() => {
+    // Handle notification count changes
     const handleNotificationCountChanged = (event: CustomEvent) => {
       const { unreadCount } = event.detail;
       setNotificationCount(unreadCount);
     };
 
-    document.addEventListener(
-      'jaydai:notification-count-changed',
-      handleNotificationCountChanged as EventListener
-    );
-
-    return () => {
-      document.removeEventListener(
-        'jaydai:notification-count-changed',
-        handleNotificationCountChanged as EventListener
-      );
-    };
-  }, []);
-
-  // Listen for open notifications requests
-  useEffect(() => {
+    // Handle specific request to open notifications panel
     const handleOpenNotifications = () => {
-      setIsOpen(true);
+      console.log('Opening notifications panel');
+      // Important: Set panel type first, then open
       setPanelType('notifications');
+      setIsOpen(true);
     };
 
-    document.addEventListener(
-      'jaydai:open-notifications',
-      handleOpenNotifications
-    );
+    // Handle toggle panel event for any panel type
+    const handleTogglePanel = (event: CustomEvent) => {
+      const { panel } = event.detail;
+      if (panel) {
+        console.log(`Toggle panel requested: ${panel}`);
+        // Set the requested panel type
+        setPanelType(panel as PanelType);
+        // Only open if not already open
+        if (!isOpen) {
+          setIsOpen(true);
+        }
+      }
+    };
 
+    // Handle close all panels event - NEW!
+    const handleCloseAllPanels = () => {
+      console.log('Closing all panels');
+      setIsOpen(false);
+    };
+
+    // Register all event listeners
+    document.addEventListener('jaydai:notification-count-changed', handleNotificationCountChanged as EventListener);
+    document.addEventListener('jaydai:open-notifications', handleOpenNotifications);
+    document.addEventListener('jaydai:toggle-panel', handleTogglePanel as EventListener);
+    document.addEventListener('jaydai:close-all-panels', handleCloseAllPanels);
+
+    // Cleanup function
     return () => {
-      document.removeEventListener(
-        'jaydai:open-notifications',
-        handleOpenNotifications
-      );
+      document.removeEventListener('jaydai:notification-count-changed', handleNotificationCountChanged as EventListener);
+      document.removeEventListener('jaydai:open-notifications', handleOpenNotifications);
+      document.removeEventListener('jaydai:toggle-panel', handleTogglePanel as EventListener);
+      document.removeEventListener('jaydai:close-all-panels', handleCloseAllPanels);
     };
-  }, []);
+  }, [isOpen]); // Include isOpen in dependencies for toggling logic
 
-  // Toggle menu open/closed
+  // Toggle menu open/closed without resetting panel type
   const toggleMenu = () => {
     setIsOpen(prev => !prev);
-    // Reset to menu panel when toggling
-    if (!isOpen) {
+    // Only reset to menu panel when opening and no specific panel is active
+    if (!isOpen && panelType === 'menu') {
       setPanelType('menu');
     }
   };
@@ -62,6 +73,8 @@ export const useMainButtonState = () => {
   // Close panel
   const handleClosePanel = () => {
     setIsOpen(false);
+    // Optionally reset panel type when closing
+    // setPanelType('menu');
   };
 
   return {

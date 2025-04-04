@@ -379,34 +379,125 @@ export class NotificationService extends AbstractBaseService {
     }));
   }
   
-  /**
-   * Show toast for new notifications
-   */
-  private showNewNotificationsToast(count: number): void {
-    toast.info(getMessage('new_notifications_title', {count}, `${count} New Notification${count > 1 ? 's' : ''}`), {
-      description: getMessage('new_notifications_description', undefined, 'Click to view your notifications'),
-      action: {
-        label: getMessage('view_action', undefined, 'View'),
-        onClick: () => {
-          // Emit an application event
-          emitEvent(AppEvent.NOTIFICATION_RECEIVED, { 
-            notificationId: '', 
-            title: '', 
-            body: '' 
-          });
-          
-          // Dispatch custom event to open notifications panel
-          document.dispatchEvent(new CustomEvent('jaydai:open-notifications'));
-          
-          // If we're using the main button/panel system, trigger it to open the notifications panel
-          document.dispatchEvent(new CustomEvent('jaydai:toggle-panel', { 
-            detail: { panel: 'notifications' } 
-          }));
-        }
-      }
-    });
-  }
 
+private showNewNotificationsToast(count: number): void {
+  toast.info(getMessage('new_notifications_title', {count}, `${count} New Notification${count > 1 ? 's' : ''}`), {
+    description: getMessage('new_notifications_description', undefined, 'Click to view your notifications'),
+    action: {
+      label: getMessage('view_action', undefined, 'View'),
+      onClick: () => {
+        // Log that the view action was clicked
+        console.log('Notification view action clicked');
+        
+        // First dispatch the open-notifications event (specific handler)
+        // This ensures the notifications panel will be shown
+        document.dispatchEvent(new CustomEvent('jaydai:open-notifications'));
+        
+        // Then emit the app event for tracking
+        emitEvent(AppEvent.NOTIFICATION_RECEIVED, { 
+          notificationId: '', 
+          title: '', 
+          body: '' 
+        });
+      }
+    }
+  });
+}
+
+/**
+ * Handle a notification action based on metadata
+ */
+public async handleNotificationAction(id: string | number): Promise<void> {
+  try {
+    // Find the notification
+    const notification = this.notifications.find(n => n.id === id);
+    if (!notification) {
+      return;
+    }
+    
+    // Mark as read first
+    await this.markAsRead(id);
+    
+    // Parse metadata if present
+    const metadata = this.parseMetadataSafe(notification.metadata);
+    
+    // If we have metadata with action type, handle it accordingly
+    if (metadata && metadata.action_type) {
+      switch (metadata.action_type) {
+        case 'openUrl':
+        case 'openLinkedIn':
+          if (metadata.action_url) {
+            window.open(metadata.action_url, '_blank');
+          } else {
+            // If no URL provided, show an error
+            toast.error(getMessage('no_url_error', undefined, 'No URL provided for action'));
+          }
+          break;
+      
+        case 'openChatGpt':
+          // Open ChatGPT
+          window.open('https://chat.openai.com/', '_blank');
+          break;
+          
+        case 'openSettings':
+          // Trigger settings panel open
+          document.dispatchEvent(new CustomEvent('jaydai:toggle-panel', {
+            detail: { panel: 'menu' }
+          }));
+          // Then open settings dialog
+          document.dispatchEvent(new CustomEvent('jaydai:open-settings'));
+          break;
+          
+        case 'showTemplates':
+          // Trigger templates panel open
+          document.dispatchEvent(new CustomEvent('jaydai:toggle-panel', {
+            detail: { panel: 'templates' }
+          }));
+          break;
+
+        case 'start_conversation':
+          // Open ChatGPT to start a conversation
+          window.open('https://chatgpt.com/', '_blank');
+          break;
+          
+        default:
+          // For unknown action types, log a warning
+          debug(`⚠️ Unknown action type: ${metadata.action_type}`);
+          toast.info(notification.title, {
+            description: notification.body
+          });
+          break;
+      }
+      return;
+    }
+    
+    // If no metadata or action type, fall back to type-based actions
+    switch (notification.type) {
+      case 'insight_prompt_length':
+      case 'insight_response_time':
+      case 'insight_conversation_quality':
+        // Show insight details
+        toast.info(notification.title, {
+          description: notification.body,
+          action: {
+            label: getMessage('view_action', undefined, 'View'),
+            onClick: () => window.open('https://chatgpt.com/', '_blank')
+          }
+        });
+        break;
+          
+      default:
+        // Generic toast with notification content
+        toast.info(notification.title, {
+          description: notification.body
+        });
+        break;
+    }
+  } catch (error) {
+    debug('❌ Error handling notification action:', error);
+    toast.error(getMessage('action_error', undefined, 'Failed to process notification action'));
+  }
+}
   /**
    * Parse metadata safely without throwing
    */
@@ -479,95 +570,6 @@ export class NotificationService extends AbstractBaseService {
     };
   }
 
-  /**
-   * Handle a notification action based on metadata
-   */
-  public async handleNotificationAction(id: string | number): Promise<void> {
-    try {
-      // Find the notification
-      const notification = this.notifications.find(n => n.id === id);
-      if (!notification) {
-        return;
-      }
-      
-      // Mark as read first
-      await this.markAsRead(id);
-      
-      // Parse metadata if present
-      const metadata = this.parseMetadataSafe(notification.metadata);
-      
-      // If we have metadata with action type, handle it accordingly
-      if (metadata && metadata.action_type) {
-        switch (metadata.action_type) {
-          case 'openUrl':
-          case 'openLinkedIn':
-            if (metadata.action_url) {
-              window.open(metadata.action_url, '_blank');
-            } else {
-              // If no URL provided, show an error
-              toast.error(getMessage('no_url_error', undefined, 'No URL provided for action'));
-            }
-            break;
-        
-          case 'openChatGpt':
-            // Open ChatGPT
-            window.open('https://chat.openai.com/', '_blank');
-            break;
-            
-          case 'openSettings':
-            // Trigger settings panel open
-            document.dispatchEvent(new CustomEvent('jaydai:open-settings'));
-            break;
-            
-          case 'showTemplates':
-            // Trigger templates panel open
-            document.dispatchEvent(new CustomEvent('jaydai:open-templates'));
-            break;
-
-          case 'start_conversation':
-            // Open ChatGPT to start a conversation
-            window.open('https://chatgpt.com/', '_blank');
-            break;
-            
-          default:
-            // For unknown action types, log a warning
-            debug(`⚠️ Unknown action type: ${metadata.action_type}`);
-            toast.info(notification.title, {
-              description: notification.body
-            });
-            break;
-        }
-        return;
-      }
-      
-      // If no metadata or action type, fall back to type-based actions
-      switch (notification.type) {
-        case 'insight_prompt_length':
-        case 'insight_response_time':
-        case 'insight_conversation_quality':
-          // Show insight details
-          toast.info(notification.title, {
-            description: notification.body,
-            action: {
-              label: getMessage('view_action', undefined, 'View'),
-              onClick: () => window.open('https://chatgpt.com/', '_blank')
-            }
-          });
-          break;
-            
-        default:
-          // Generic toast with notification content
-          toast.info(notification.title, {
-            description: notification.body
-          });
-          break;
-      }
-    } catch (error) {
-      debug('❌ Error handling notification action:', error);
-      toast.error(getMessage('action_error', undefined, 'Failed to process notification action'));
-    }
-  }
-  
   /**
    * Notify all update listeners
    */

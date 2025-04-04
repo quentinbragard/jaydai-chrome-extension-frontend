@@ -111,6 +111,11 @@ const FolderItem: React.FC<FolderItemProps> = ({
       
       // Call the actual toggle function
       Promise.resolve(onTogglePin(folder.id, isPinned))
+        .catch(err => {
+          // Revert UI state if the operation fails
+          console.error('Pin operation failed:', err);
+          setIsPinned(isPinned); // Revert to original state
+        })
         .finally(() => {
           // Reset the operation flag after a delay
           setTimeout(() => {

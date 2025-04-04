@@ -20,23 +20,23 @@
     "description": "Prefix for the changing tasks in the welcome page"
   },
   "aiTask1": {
-    "message": "write professional emails",
+    "message": " write professional emails",
     "description": "AI task example 1"
   },
   "aiTask2": {
-    "message": "organize complex data",
+    "message": " organize complex data",
     "description": "AI task example 2"
   }, 
   "aiTask3": {
-    "message": "create compelling content",
+    "message": " create compelling content",
     "description": "AI task example 3"
   },
   "aiTask4": {
-    "message": "summarize long documents",
+    "message": " summarize long documents",
     "description": "AI task example 4"
   },
   "aiTask5": {
-    "message": "draft technical reports",
+    "message": " draft technical reports",
     "description": "AI task example 5"
   },
   "welcomeDescription": {
@@ -259,7 +259,7 @@
   },
   "cancel": {
     "message": "Cancel",
-    "description": "Cancel button"
+    "description": "Button text to cancel an action"
   },
   "save": {
     "message": "Save",
@@ -346,8 +346,8 @@
     "description": "Create template dialog title"
   },
   "templateName": {
-    "message": "Name",
-    "description": "Template name label"
+    "message": "Template Name",
+    "description": "Label for template name field"
   },
   "templateDescription": {
     "message": "Description (optional)",
@@ -363,11 +363,11 @@
   },
   "update": {
     "message": "Update",
-    "description": "Update button"
+    "description": "Button text to update an item"
   },
   "create": {
     "message": "Create",
-    "description": "Create button"
+    "description": "Button text to create an item"
   },
   "jaydaiSettings": {
     "message": "Jaydai Settings",
@@ -395,7 +395,7 @@
   },
   "customizeTemplate": {
     "message": "Customize Template: $TEMPLATE_NAME$",
-    "description": "Customize template dialog title",
+    "description": "Title for template customization dialog",
     "placeholders": {
       "template_name": {
         "content": "$1",
@@ -404,24 +404,104 @@
     }
   },
   "customizeTemplateDesc": {
-    "message": "Customize the template to your needs",
-    "description": "Customize template dialog description"
+    "message": "Customize the template by filling in the placeholders.",
+    "description": "Description for template customization dialog"
   },
   "replacePlaceholders": {
     "message": "Replace Placeholders",
-    "description": "Replace placeholders section title"
+    "description": "Title for placeholder replacement section"
   },
   "editTemplate": {
     "message": "Edit Template",
-    "description": "Edit template section title"
+    "description": "Title for template editing section"
+  },
+  "createNewTemplate": {
+    "message": "Create New Template",
+    "description": "Title for create template dialog"
+  },
+  "editTemplateDescription": {
+    "message": "Edit your template details below.",
+    "description": "Description for edit template dialog"
+  },
+  "createTemplateDescription": {
+    "message": "Create a new template to use with AI conversations.",
+    "description": "Description for create template dialog"
+  },
+  "enterTemplateName": {
+    "message": "Enter template name",
+    "description": "Placeholder for template name input"
+  },
+  "templateNameRequired": {
+    "message": "Template name is required",
+    "description": "Validation error for template name"
+  },
+  "description": {
+    "message": "Description",
+    "description": "Label for description field"
+  },
+  "templateDescriptionPlaceholder": {
+    "message": "Brief description of this template",
+    "description": "Placeholder for template description input"
+  },
+  "folder": {
+    "message": "Folder",
+    "description": "Label for folder field"
+  },
+  "selectFolder": {
+    "message": "Select a folder",
+    "description": "Placeholder for folder selection"
+  },
+  "noFolder": {
+    "message": "No folder (root)",
+    "description": "Option for no folder selection"
+  },
+  "createNewFolder": {
+    "message": "Create new folder...",
+    "description": "Option to create a new folder"
+  },
+  "content": {
+    "message": "Content",
+    "description": "Label for content field"
+  },
+  "enterTemplateContent": {
+    "message": "Enter your template content here",
+    "description": "Placeholder for template content input"
+  },
+  "templateContentRequired": {
+    "message": "Template content is required",
+    "description": "Validation error for template content"
+  },
+  "updating": {
+    "message": "Updating...",
+    "description": "Text shown while updating template"
+  },
+  "creating": {
+    "message": "Creating...",
+    "description": "Text shown while creating template"
+  },
+  "templateUpdated": {
+    "message": "Template updated successfully, refreshing page...",
+    "description": "Success message when template is updated"
+  },
+  "templateCreated": {
+    "message": "Template created successfully",
+    "description": "Success message when template is created"
+  },
+  "errorSavingTemplate": {
+    "message": "Error saving template",
+    "description": "Error message when saving template fails"
+  },
+  "failedToCreateFolder": {
+    "message": "Failed to create folder",
+    "description": "Error message when folder creation fails"
   },
   "noPlaceholders": {
-    "message": "No placeholders found in this template",
-    "description": "No placeholders message"
+    "message": "No placeholders found in this template.",
+    "description": "Message shown when no placeholders are found"
   },
   "useTemplate": {
     "message": "Use Template",
-    "description": "Use template button"
+    "description": "Button text to use template"
   },
   "browseMore": {
     "message": "Browse More",
@@ -477,11 +557,11 @@
   },
   "confirmAction": {
     "message": "Confirm Action",
-    "description": "Default title for confirmation dialog"
+    "description": "Title for confirmation dialog"
   },
   "confirmActionDescription": {
     "message": "Are you sure you want to proceed?",
-    "description": "Default description for confirmation dialog"
+    "description": "Description for confirmation dialog"
   },
   "confirm": {
     "message": "Confirm",
@@ -608,15 +688,15 @@
     "description": "Message shown when a notification is deleted"
   },
   "new_notifications_title": {
-  "message": "$COUNT$ new notification(s)",
-  "description": "Title for new notifications",
-  "placeholders": {
-    "COUNT": {
-      "content": "$1",
-      "example": "3"
+    "message": "$COUNT$ new notification(s)",
+    "description": "Title for new notifications",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1",
+        "example": "3"
+      }
     }
-  }
-},
+  },
   "new_notifications_description": {
     "message": "Click to view your notifications",
     "description": "Description for new notifications"
@@ -1070,5 +1150,169 @@
   "energyEquivalentHelp": {
     "message": "This shows what your AI energy usage is equivalent to in everyday terms",
     "description": "Help text explaining the energy equivalent feature"
+  },
+  "delete": {
+    "message": "Delete",
+    "description": "Delete button text"
+  },
+  "deleteItem": {
+    "message": "Delete $ITEM_TYPE$",
+    "description": "Delete item button text",
+    "placeholders": {
+      "item_type": {
+        "content": "$1",
+        "example": "Folder"
+      }
+    }
+  },
+  "deleteConfirmTitle": {
+    "message": "Delete $ITEM_TYPE$",
+    "description": "Delete confirmation dialog title",
+    "placeholders": {
+      "item_type": {
+        "content": "$1",
+        "example": "Folder"
+      }
+    }
+  },
+  "deleteConfirmMessage": {
+    "message": "This will permanently delete $ITEM_TYPE$ \"$ITEM_NAME$\".",
+    "description": "Delete confirmation message with item name",
+    "placeholders": {
+      "item_type": {
+        "content": "$1",
+        "example": "folder"
+      },
+      "item_name": {
+        "content": "$2",
+        "example": "My Folder"
+      }
+    }
+  },
+  "deleteConfirmMessageNoName": {
+    "message": "This will permanently delete this $ITEM_TYPE$.",
+    "description": "Delete confirmation message without item name",
+    "placeholders": {
+      "item_type": {
+        "content": "$1",
+        "example": "folder"
+      }
+    }
+  },
+  "deleteFolderWarning": {
+    "message": "All templates inside this folder will also be deleted.",
+    "description": "Warning about deleting folder contents"
+  },
+  "deleteActionWarning": {
+    "message": "This action cannot be undone.",
+    "description": "Warning about action being irreversible"
+  },
+  "deleting": {
+    "message": "Deleting...",
+    "description": "Text shown while deletion is in progress"
+  },
+  "loadingTemplates": {
+    "message": "Loading templates...",
+    "description": "Text shown when loading templates"
+  },
+  "unorganizedTemplates": {
+    "message": "Unorganized Templates",
+    "description": "Unorganized templates title"
+  },
+  "deleteTemplate": {
+    "message": "Delete Template",
+    "description": "Title for template deletion dialog"
+  },
+  "deleteTemplateConfirmation": {
+    "message": "Are you sure you want to delete this template? This action cannot be undone.",
+    "description": "Confirmation message for template deletion"
+  },
+  "deleteFolder": {
+    "message": "Delete Folder",
+    "description": "Title for folder deletion dialog"
+  },
+  "deleteFolderConfirmation": {
+    "message": "Are you sure you want to delete this folder and all its templates? This action cannot be undone.",
+    "description": "Confirmation message for folder deletion"
+  },
+  "organizationTemplates": {
+    "message": "Organization Templates",
+    "description": "Title for organization templates section"
+  },
+  "noPinnedOrganizationTemplates": {
+    "message": "No pinned organization templates.",
+    "description": "Message shown when no organization templates are pinned"
+  },
+  "organization_templates_title": {
+    "message": "Enterprise Templates",
+    "description": "Title for enterprise templates section"
+  },
+  "enterprise_feature": {
+    "message": "Enterprise Feature",
+    "description": "Label for enterprise-only features"
+  },
+  "organization_templates_description": {
+    "message": "Access to organization templates is an enterprise feature. Contact us to enable this for your team.",
+    "description": "Description for enterprise templates feature"
+  },
+  "contact_enterprise_sales": {
+    "message": "Contact Sales",
+    "description": "Button text to contact sales for enterprise features"
+  },
+  "searchOfficialFolders": {
+    "message": "Search official folders...",
+    "description": "Placeholder text for searching official folders"
+  },
+  "searchOrganizationFolders": {
+    "message": "Search organization folders...",
+    "description": "Placeholder text for searching organization folders"
+  },
+  "loadingFolders": {
+    "message": "Loading $FOLDER_TYPE$ folders...",
+    "description": "Loading message for folders",
+    "placeholders": {
+      "folder_type": {
+        "content": "$1",
+        "example": "official"
+      }
+    }
+  },
+  "errorLoadingFolders": {
+    "message": "Error loading folders",
+    "description": "Error message when folders fail to load"
+  },
+  "unknownError": {
+    "message": "Unknown error",
+    "description": "Generic error message"
+  },
+  "noMatchingFolders": {
+    "message": "No folders matching \"$SEARCH_QUERY$\"",
+    "description": "Message shown when no folders match search query",
+    "placeholders": {
+      "search_query": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "noFoldersAvailable": {
+    "message": "No $FOLDER_TYPE$ folders available",
+    "description": "Message shown when no folders are available",
+    "placeholders": {
+      "folder_type": {
+        "content": "$1",
+        "example": "official"
+      }
+    }
+  },
+  "enterValueFor": {
+    "message": "Enter value for $PLACEHOLDER$",
+    "description": "Placeholder text for placeholder input field",
+    "placeholders": {
+      "placeholder": {
+        "content": "$1",
+        "example": "[NAME]"
+      }
+    }
   }
 }

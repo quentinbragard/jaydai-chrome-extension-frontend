@@ -47,7 +47,7 @@ const WelcomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center font-sans">
-      <div className="w-full max-w-6xl mx-auto px-4">
+      <div className="w-full mx-auto px-4">
         <div className="flex flex-col items-center py-16">
           {/* Logo */}
           <div className="logo-container bg-gray-900 border border-gray-800 mb-8">
@@ -64,8 +64,8 @@ const WelcomePage: React.FC = () => {
           </h1>
           
           {/* Animation Section with Single Line */}
-          <div className="animation-container mb-10">
-            <div className="text-3xl md:text-4xl text-blue-500 font-semibold whitespace-nowrap font-heading">
+          <div className="animation-container mb-10 w-full">
+            <div className="w-full text-3xl md:text-4xl text-blue-500 font-semibold whitespace-nowrap font-heading flex justify-center">
               <span>{getMessage('useAIToPrefix', undefined, 'Use AI to')} </span>
               <span className="relative inline-block min-w-60 text-left">
                 {tasks.map((task, index) => (
@@ -93,7 +93,7 @@ const WelcomePage: React.FC = () => {
           </p>
           
           {/* Feature Cards */}
-          <div className="grid md:grid-cols-3 gap-6 w-full mb-12">
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-12">
             <div className="bg-gray-900 rounded-lg border border-gray-800 shadow-md p-6 text-left feature-card">
               <div className="flex items-start mb-4">
                 <Zap className="h-6 w-6 text-blue-500 mr-4 mt-0.5 flex-shrink-0" />

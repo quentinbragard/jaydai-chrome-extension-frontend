@@ -20,23 +20,23 @@
     "description": "Préfixe pour les tâches changeantes dans la page d'accueil"
   },
   "aiTask1": {
-    "message": "rédiger des emails professionnels",
+    "message": " rédiger des emails professionnels",
     "description": "Exemple de tâche IA 1"
   },
   "aiTask2": {
-    "message": "organiser des données complexes",
+    "message": " organiser des données complexes",
     "description": "Exemple de tâche IA 2"
   }, 
   "aiTask3": {
-    "message": "créer du contenu convaincant",
+    "message": " créer du contenu convaincant",
     "description": "Exemple de tâche IA 3"
   },
   "aiTask4": {
-    "message": "résumer de longs documents",
+    "message": " résumer de longs documents",
     "description": "Exemple de tâche IA 4"
   },
   "aiTask5": {
-    "message": "rédiger des rapports techniques",
+    "message": " rédiger des rapports techniques",
     "description": "Exemple de tâche IA 5"
   },
   "welcomeDescription": {
@@ -72,12 +72,12 @@
     "description": "Bouton CTA"
   },
   "signIn": {
-    "message": "Se Connecter",
-    "description": "Bouton de connexion"
+    "message": "Se connecter",
+    "description": "Title for sign in dialog"
   },
   "signUp": {
     "message": "S'inscrire",
-    "description": "Bouton d'inscription"
+    "description": "Title for sign up dialog"
   },
   "emailConfirmationRequired": {
     "message": "Vérification par e-mail requise après l'inscription",
@@ -231,23 +231,31 @@
   },
   "menu": {
     "message": "Menu",
-    "description": "Élément de menu Menu"
+    "description": "Title for menu panel"
+  },
+  "templates": {
+    "message": "Modèles",
+    "description": "Menu item for templates"
+  },
+  "aiStats": {
+    "message": "Statistiques IA",
+    "description": "Menu item for AI stats"
   },
   "notifications": {
     "message": "Notifications",
-    "description": "Élément de menu Notifications"
+    "description": "Menu item for notifications"
   },
   "aiNews": {
-    "message": "News IA",
-    "description": "Élément de menu AI News"
+    "message": "Actualités IA",
+    "description": "Menu item for AI news"
   },
   "settings": {
     "message": "Paramètres",
-    "description": "Élément de menu Paramètres"
+    "description": "Menu item for settings"
   },
   "cancel": {
     "message": "Annuler",
-    "description": "Bouton Annuler"
+    "description": "Texte du bouton pour annuler une action"
   },
   "save": {
     "message": "Enregistrer",
@@ -260,10 +268,6 @@
   "back": {
     "message": "Retour",
     "description": "Bouton Retour"
-  },
-  "aiStats": {
-    "message": "Statistiques IA",
-    "description": "Étiquette des statistiques IA"
   },
   "noActiveConversation": {
     "message": "Aucune Conversation Active",
@@ -318,16 +322,16 @@
     "description": "Titre de section Mes templates"
   },
   "noTemplates": {
-    "message": "Aucun template trouvé",
-    "description": "Message d'état vide"
+    "message": "Aucun modèle disponible",
+    "description": "Message shown when no templates are available"
   },
   "createTemplate": {
     "message": "Créer un template",
     "description": "Bouton Créer un template"
   },
   "createFirstTemplate": {
-    "message": "Créer votre premier template",
-    "description": "Bouton Créer votre premier template"
+    "message": "Créer votre premier modèle",
+    "description": "Button text to create first template"
   },
   "createTemplateTitle": {
     "message": "Créer un template",
@@ -351,11 +355,11 @@
   },
   "update": {
     "message": "Mettre à jour",
-    "description": "Bouton Mettre à jour"
+    "description": "Texte du bouton pour mettre à jour un élément"
   },
   "create": {
     "message": "Créer",
-    "description": "Bouton Créer"
+    "description": "Texte du bouton pour créer un élément"
   },
   "jaydaiSettings": {
     "message": "Paramètres d'Jaydai",
@@ -382,34 +386,35 @@
     "description": "Option de paramètres"
   },
   "customizeTemplate": {
-    "message": "Personnaliser le template: $TEMPLATE_NAME$",
-    "description": "Titre de dialogue Personnaliser le template",
+    "message": "Personnaliser le Modèle : $TEMPLATE_NAME$",
+    "description": "Titre pour la boîte de dialogue de personnalisation de modèle",
     "placeholders": {
-      "Template_name": {
+      "template_name": {
         "content": "$1",
-        "example": "Mon template"
+        "example": "Mon Modèle"
       }
     }
   },
   "customizeTemplateDesc": {
-    "message": "Personnalisez le template selon vos besoins",
-    "description": "Description du dialogue Personnaliser le template"
+    "message": "Personnalisez le modèle en remplissant les espaces réservés.",
+    "description": "Description pour la boîte de dialogue de personnalisation de modèle"
   },
   "replacePlaceholders": {
     "message": "Remplacer les Espaces Réservés",
-    "description": "Titre de section Remplacer les espaces réservés"
+    "message": "Remplacer les espaces réservés",
+    "description": "Title for placeholder replacement section"
   },
   "editTemplate": {
-    "message": "Modifier le template",
-    "description": "Titre de section Modifier le template"
+    "message": "Modifier le Modèle",
+    "description": "Titre pour la boîte de dialogue de modification de modèle"
   },
   "noPlaceholders": {
-    "message": "Aucun espace réservé trouvé dans ce template",
-    "description": "Message Aucun espace réservé"
+    "message": "Aucun espace réservé trouvé dans ce modèle.",
+    "description": "Message shown when no placeholders are found"
   },
   "useTemplate": {
-    "message": "Utiliser le template",
-    "description": "Bouton Utiliser le template"
+    "message": "Utiliser le modèle",
+    "description": "Button text to use template"
   },
   "browseMore": {
     "message": "Parcourir Plus",
@@ -449,11 +454,11 @@
   },
   "refreshing": {
     "message": "Actualisation...",
-    "description": "Loading state text for refresh action"
+    "description": "Text shown when refreshing templates"
   },
   "refresh": {
     "message": "Actualiser",
-    "description": "Refresh button text"
+    "description": "Button text to refresh templates"
   },
   "noPinnedOfficialTemplates": {
     "message": "Aucun modèle officiel épinglé. Cliquez sur Parcourir pour en ajouter.",
@@ -461,15 +466,15 @@
   },
   "noUserTemplates": {
     "message": "Aucun modèle utilisateur. Créez un modèle pour commencer.",
-    "description": "Empty state message for user templates section"
+    "description": "Message shown when no user templates exist"
   },
   "confirmAction": {
     "message": "Confirmer l'action",
-    "description": "Default title for confirmation dialog"
+    "description": "Title for confirmation dialog"
   },
   "confirmActionDescription": {
     "message": "Êtes-vous sûr de vouloir continuer ?",
-    "description": "Default description for confirmation dialog"
+    "description": "Description for confirmation dialog"
   },
   "confirm": {
     "message": "Confirmer",
@@ -655,7 +660,7 @@
   },
   "questionsFeedback": {
     "message": "Questions ou commentaires ?",
-    "description": "Label pour les questions et commentaires"
+    "description": "Text for questions and feedback"
   },
   "comingSoon": {
     "message": "Bientôt Disponible !",
@@ -673,11 +678,11 @@
   },
   "followUsLinkedIn": {
     "message": "Suivez-nous sur LinkedIn",
-    "description": "Appel à l'action pour LinkedIn"
+    "description": "Button text to follow on LinkedIn"
   },
   "rateUs": {
-    "message": "Notez-nous 5 Étoiles",
-    "description": "Appel à l'action pour la notation"
+    "message": "Évaluez-nous 5 étoiles",
+    "description": "Button text to rate the extension"
   },
   "enhancedAiAnalytics": {
     "message": "Analytique IA Avancée",
@@ -692,8 +697,8 @@
     "description": "Titre de l'onglet aperçu"
   },
   "usageMetrics": {
-    "message": "Métriques d'Utilisation",
-    "description": "Titre de la section métriques d'utilisation"
+    "message": "Métriques d'utilisation",
+    "description": "Title for usage metrics"
   },
   "efficiency": {
     "message": "Efficacité",
@@ -764,8 +769,8 @@
     "description": "Label du graphique d'utilisation des modèles"
   },
   "energyDetails": {
-    "message": "Détails de Consommation d'Énergie",
-    "description": "Label du graphique des détails d'énergie"
+    "message": "Détails de la consommation d'énergie",
+    "description": "Title for energy consumption details"
   },
   "tokenDetails": {
     "message": "Détails d'Utilisation des Tokens",
@@ -792,20 +797,20 @@
     "description": "Label récent vs total"
   },
   "totalEnergy": {
-    "message": "Énergie Totale",
-    "description": "Label d'énergie totale"
+    "message": "Énergie totale",
+    "description": "Label for total energy consumption"
   },
   "recentEnergy": {
     "message": "Récent (7 jours)",
     "description": "Label d'énergie récente"
   },
   "perMessage": {
-    "message": "Par Message",
-    "description": "Label par message"
+    "message": "Par message",
+    "description": "Label for energy per message"
   },
   "equivalent": {
     "message": "Équivalent à",
-    "description": "Label équivalent à"
+    "description": "Label for energy equivalent"
   },
   "input": {
     "message": "Entrée",
@@ -1058,5 +1063,243 @@
   "energyEquivalentHelp": {
     "message": "Ceci montre à quoi équivaut votre consommation d'énergie IA en termes quotidiens",
     "description": "Texte d'aide expliquant la fonctionnalité d'équivalent énergétique"
+  },
+  "delete": {
+    "message": "Supprimer",
+    "description": "Button text to delete"
+  },
+  "deleteItem": {
+    "message": "Supprimer $ITEM_TYPE$",
+    "description": "Texte du bouton supprimer un élément",
+    "placeholders": {
+      "item_type": {
+        "content": "$1",
+        "example": "Dossier"
+      }
+    }
+  },
+  "deleteConfirmTitle": {
+    "message": "Supprimer $ITEM_TYPE$",
+    "description": "Titre de la boîte de dialogue de confirmation de suppression",
+    "placeholders": {
+      "item_type": {
+        "content": "$1",
+        "example": "Dossier"
+      }
+    }
+  },
+  "deleteConfirmMessage": {
+    "message": "Cela supprimera définitivement $ITEM_TYPE$ \"$ITEM_NAME$\".",
+    "description": "Message de confirmation de suppression avec nom de l'élément",
+    "placeholders": {
+      "item_type": {
+        "content": "$1",
+        "example": "dossier"
+      },
+      "item_name": {
+        "content": "$2",
+        "example": "Mon Dossier"
+      }
+    }
+  },
+  "deleteConfirmMessageNoName": {
+    "message": "Cela supprimera définitivement ce $ITEM_TYPE$.",
+    "description": "Message de confirmation de suppression sans nom d'élément",
+    "placeholders": {
+      "item_type": {
+        "content": "$1",
+        "example": "dossier"
+      }
+    }
+  },
+  "deleteFolderWarning": {
+    "message": "Tous les modèles dans ce dossier seront également supprimés.",
+    "description": "Avertissement concernant la suppression du contenu du dossier"
+  },
+  "deleteActionWarning": {
+    "message": "Cette action ne peut pas être annulée.",
+    "description": "Avertissement concernant l'action irréversible"
+  },
+  "deleting": {
+    "message": "Suppression...",
+    "description": "Text shown when deleting"
+  },
+  "loadingTemplates": {
+    "message": "Chargement des modèles...",
+    "description": "Text shown when loading templates"
+  },
+  "deleteTemplate": {
+    "message": "Supprimer le Modèle",
+    "description": "Titre pour la boîte de dialogue de suppression de modèle"
+  },
+  "deleteTemplateConfirmation": {
+    "message": "Êtes-vous sûr de vouloir supprimer ce modèle ? Cette action ne peut pas être annulée.",
+    "description": "Message de confirmation pour la suppression de modèle"
+  },
+  "deleteFolder": {
+    "message": "Supprimer le Dossier",
+    "description": "Titre pour la boîte de dialogue de suppression de dossier"
+  },
+  "deleteFolderConfirmation": {
+    "message": "Êtes-vous sûr de vouloir supprimer ce dossier et tous ses modèles ? Cette action ne peut pas être annulée.",
+    "description": "Message de confirmation pour la suppression de dossier"
+  },
+  "organizationTemplates": {
+    "message": "Modèles de l'Organisation",
+    "description": "Titre pour la section des modèles de l'organisation"
+  },
+  "noPinnedOrganizationTemplates": {
+    "message": "Aucun modèle d'organisation épinglé.",
+    "description": "Message affiché lorsqu'aucun modèle d'organisation n'est épinglé"
+  },
+  "unorganizedTemplates": {
+    "message": "Modèles Non Organisés",
+    "description": "Titre pour la section des modèles non organisés"
+  },
+  "organization_templates_title": {
+    "message": "Modèles Entreprise",
+    "description": "Titre pour la section des modèles entreprise"
+  },
+  "enterprise_feature": {
+    "message": "Fonctionnalité Entreprise",
+    "description": "Étiquette pour les fonctionnalités réservées à l'entreprise"
+  },
+  "organization_templates_description": {
+    "message": "L'accès aux modèles d'organisation est une fonctionnalité entreprise. Contactez-nous pour l'activer pour votre équipe.",
+    "description": "Description pour la fonctionnalité des modèles entreprise"
+  },
+  "contact_enterprise_sales": {
+    "message": "Contacter les Ventes",
+    "description": "Texte du bouton pour contacter les ventes pour les fonctionnalités entreprise"
+  },
+  "searchOfficialFolders": {
+    "message": "Rechercher des dossiers officiels...",
+    "description": "Texte d'espace réservé pour la recherche de dossiers officiels"
+  },
+  "searchOrganizationFolders": {
+    "message": "Rechercher des dossiers d'organisation...",
+    "description": "Texte d'espace réservé pour la recherche de dossiers d'organisation"
+  },
+  "loadingFolders": {
+    "message": "Chargement des dossiers $FOLDER_TYPE$...",
+    "description": "Message de chargement pour les dossiers",
+    "placeholders": {
+      "folder_type": {
+        "content": "$1",
+        "example": "officiels"
+      }
+    }
+  },
+  "errorLoadingFolders": {
+    "message": "Erreur lors du chargement des dossiers",
+    "description": "Message d'erreur lorsque le chargement des dossiers échoue"
+  },
+  "unknownError": {
+    "message": "Erreur inconnue",
+    "description": "Message d'erreur générique"
+  },
+  "noMatchingFolders": {
+    "message": "Aucun dossier correspondant à \"$SEARCH_QUERY$\"",
+    "description": "Message affiché lorsqu'aucun dossier ne correspond à la recherche",
+    "placeholders": {
+      "search_query": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "noFoldersAvailable": {
+    "message": "Aucun dossier $FOLDER_TYPE$ disponible",
+    "description": "Message affiché lorsqu'aucun dossier n'est disponible",
+    "placeholders": {
+      "folder_type": {
+        "content": "$1",
+        "example": "officiel"
+      }
+    }
+  },
+  "createNewTemplate": {
+    "message": "Créer un Nouveau Modèle",
+    "description": "Titre pour la boîte de dialogue de création de modèle"
+  },
+  "editTemplateDescription": {
+    "message": "Modifiez les détails de votre modèle ci-dessous.",
+    "description": "Description pour la boîte de dialogue de modification de modèle"
+  },
+  "createTemplateDescription": {
+    "message": "Créez un nouveau modèle à utiliser avec les conversations IA.",
+    "description": "Description pour la boîte de dialogue de création de modèle"
+  },
+  "templateName": {
+    "message": "Nom du Modèle",
+    "description": "Étiquette pour le champ de nom du modèle"
+  },
+  "enterTemplateName": {
+    "message": "Entrez le nom du modèle",
+    "description": "Espace réservé pour la saisie du nom du modèle"
+  },
+  "templateNameRequired": {
+    "message": "Le nom du modèle est requis",
+    "description": "Message d'erreur de validation pour le nom du modèle"
+  },
+  "description": {
+    "message": "Description",
+    "description": "Étiquette pour le champ de description"
+  },
+  "templateDescriptionPlaceholder": {
+    "message": "Brève description de ce modèle",
+    "description": "Espace réservé pour la saisie de la description du modèle"
+  },
+  "folder": {
+    "message": "Dossier",
+    "description": "Étiquette pour le champ de dossier"
+  },
+  "selectFolder": {
+    "message": "Sélectionnez un dossier",
+    "description": "Espace réservé pour la sélection de dossier"
+  },
+  "noFolder": {
+    "message": "Aucun dossier (racine)",
+    "description": "Option pour aucune sélection de dossier"
+  },
+  "createNewFolder": {
+    "message": "Créer un nouveau dossier...",
+    "description": "Option pour créer un nouveau dossier"
+  },
+  "content": {
+    "message": "Contenu",
+    "description": "Étiquette pour le champ de contenu"
+  },
+  "enterTemplateContent": {
+    "message": "Entrez le contenu de votre modèle ici",
+    "description": "Espace réservé pour la saisie du contenu du modèle"
+  },
+  "templateContentRequired": {
+    "message": "Le contenu du modèle est requis",
+    "description": "Message d'erreur de validation pour le contenu du modèle"
+  },
+  "updating": {
+    "message": "Mise à jour...",
+    "description": "Texte affiché pendant la mise à jour du modèle"
+  },
+  "creating": {
+    "message": "Création...",
+    "description": "Texte affiché pendant la création du modèle"
+  },
+  "templateUpdated": {
+    "message": "Modèle mis à jour avec succès, actualisation de la page...",
+    "description": "Message de succès lorsque le modèle est mis à jour"
+  },
+  "templateCreated": {
+    "message": "Modèle créé avec succès",
+    "description": "Message de succès lorsque le modèle est créé"
+  },
+  "errorSavingTemplate": {
+    "message": "Erreur lors de l'enregistrement du modèle",
+    "description": "Message d'erreur lorsque l'enregistrement du modèle échoue"
+  },
+  "failedToCreateFolder": {
+    "message": "Échec de la création du dossier",
+    "description": "Message d'erreur lorsque la création du dossier échoue"
   }
 }

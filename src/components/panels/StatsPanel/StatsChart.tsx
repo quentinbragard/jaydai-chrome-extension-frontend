@@ -15,6 +15,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { ChartData } from '@/services/analytics/StatsService';
+import { getMessage } from '@/core/utils/i18n';
 
 interface StatsChartProps {
   data: ChartData;
@@ -188,7 +189,7 @@ const StatsChart: React.FC<StatsChartProps> = ({
         );
         
       default:
-        return <div>Unsupported chart type</div>;
+        return <div>{getMessage('unsupportedChartType', undefined, 'Unsupported chart type')}</div>;
     }
   };
 

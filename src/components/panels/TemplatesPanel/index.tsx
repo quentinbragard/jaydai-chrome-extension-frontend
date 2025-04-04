@@ -83,16 +83,25 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         folderType: 'official',
         pinnedFolderIds: pinnedFolders.official.map(folder => folder.id),
         onPinChange: async (folderId, isPinned) => {
-          await toggleFolderPin.mutateAsync({ 
-            folderId, 
-            isPinned, 
-            type: 'official' 
-          });
+          try {
+            // Call the mutation
+            await toggleFolderPin.mutateAsync({ 
+              folderId, 
+              isPinned, 
+              type: 'official' 
+            });
+            
+            // Trigger a refetch of pinned folders to update the UI
+            await refetchPinned();
+          } catch (error) {
+            console.error('Error in pin change:', error);
+            // Show error notification if needed
+          }
         }
       }
     });
-  }, [pushPanel, pinnedFolders.official, toggleFolderPin]);
-
+  }, [pushPanel, pinnedFolders.official, toggleFolderPin, refetchPinned]);
+  
   const handleBrowseOrganizationTemplates = useCallback(() => {
     pushPanel({
       type: 'templatesBrowse',
@@ -100,15 +109,24 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         folderType: 'organization',
         pinnedFolderIds: pinnedFolders.organization.map(folder => folder.id),
         onPinChange: async (folderId, isPinned) => {
-          await toggleFolderPin.mutateAsync({ 
-            folderId, 
-            isPinned, 
-            type: 'organization' 
-          });
+          try {
+            // Call the mutation
+            await toggleFolderPin.mutateAsync({ 
+              folderId, 
+              isPinned, 
+              type: 'organization' 
+            });
+            
+            // Trigger a refetch of pinned folders to update the UI
+            await refetchPinned();
+          } catch (error) {
+            console.error('Error in pin change:', error);
+            // Show error notification if needed
+          }
         }
       }
     });
-  }, [pushPanel, pinnedFolders.organization, toggleFolderPin]);
+  }, [pushPanel, pinnedFolders.organization, toggleFolderPin, refetchPinned]);
   
   // Memoize combined loading and error states to prevent unnecessary renders
   const { isLoading, hasError, errorMessage } = useMemo(() => ({

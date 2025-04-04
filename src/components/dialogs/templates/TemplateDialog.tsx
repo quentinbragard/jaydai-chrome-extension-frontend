@@ -17,6 +17,7 @@ import { FolderPlus } from 'lucide-react';
 import { DEFAULT_FORM_DATA } from '@/types/prompts/templates';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
+import { getMessage } from '@/core/utils/i18n';
 
 /**
  * Unified Template Dialog for both creating and editing templates
@@ -179,12 +180,12 @@ export const TemplateDialog: React.FC = () => {
               if (response.success && response.folder) {
                 return { success: true, folder: response.folder };
               } else {
-                toast.error(response.error || 'Failed to create folder');
-                return { success: false, error: response.error || 'Unknown error' };
+                toast.error(response.error || getMessage('failedToCreateFolder'));
+                return { success: false, error: response.error || getMessage('unknownError') };
               }
             } catch (error) {
               console.error('Error creating folder:', error);
-              return { success: false, error: 'Failed to create folder' };
+              return { success: false, error: getMessage('failedToCreateFolder') };
             }
           },
           onFolderCreated: (folder: any) => {
@@ -264,11 +265,11 @@ export const TemplateDialog: React.FC = () => {
     const errors: {[key: string]: string} = {};
     
     if (!formData.name?.trim()) {
-      errors.name = 'Template name is required';
+      errors.name = getMessage('templateNameRequired');
     }
     
     if (!formData.content?.trim()) {
-      errors.content = 'Template content is required';
+      errors.content = getMessage('templateContentRequired');
     }
     
     setValidationErrors(errors);
@@ -319,7 +320,7 @@ export const TemplateDialog: React.FC = () => {
         
         if (response.success) {
           // Show success message
-          toast.success(currentTemplate ? 'Template updated successfully, refreshing page...' : 'Template created successfully');
+          toast.success(currentTemplate ? getMessage('templateUpdated') : getMessage('templateCreated'));
           
           // Set a short timeout to allow the toast to be visible before refresh
           if (currentTemplate) {
@@ -337,7 +338,7 @@ export const TemplateDialog: React.FC = () => {
       return false;
     } catch (error) {
       console.error('Error saving template:', error);
-      toast.error('Error saving template');
+      toast.error(getMessage('errorSavingTemplate'));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -351,22 +352,22 @@ export const TemplateDialog: React.FC = () => {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {currentTemplate ? 'Edit Template' : 'Create New Template'}
+            {currentTemplate ? getMessage('editTemplate') : getMessage('createNewTemplate')}
           </DialogTitle>
           <DialogDescription>
             {currentTemplate 
-              ? 'Edit your template details below.' 
-              : 'Create a new template to use with AI conversations.'}
+              ? getMessage('editTemplateDescription')
+              : getMessage('createTemplateDescription')}
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-2">
           <div>
-            <label className="text-sm font-medium">Template Name</label>
+            <label className="text-sm font-medium">{getMessage('templateName')}</label>
             <Input 
               value={formData.name || ''} 
               onChange={(e) => handleFormChange('name', e.target.value)}
-              placeholder="Enter template name"
+              placeholder={getMessage('enterTemplateName')}
               className={`mt-1 ${validationErrors.name ? 'border-red-500' : ''}`}
             />
             {validationErrors.name && (
@@ -375,18 +376,18 @@ export const TemplateDialog: React.FC = () => {
           </div>
           
           <div>
-            <label className="text-sm font-medium">Description</label>
+            <label className="text-sm font-medium">{getMessage('description')}</label>
             <Input 
               value={formData.description || ''} 
               onChange={(e) => handleFormChange('description', e.target.value)}
-              placeholder="Brief description of this template"
+              placeholder={getMessage('templateDescriptionPlaceholder')}
               className="mt-1"
             />
           </div>
           
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-sm font-medium">Folder</label>
+              <label className="text-sm font-medium">{getMessage('folder')}</label>
             </div>
             
             <Select 
@@ -394,9 +395,9 @@ export const TemplateDialog: React.FC = () => {
               onValueChange={handleFolderSelect}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a folder">
+                <SelectValue placeholder={getMessage('selectFolder')}>
                   {selectedFolderId === 'root' ? (
-                    <span className="text-muted-foreground">No folder (root)</span>
+                    <span className="text-muted-foreground">{getMessage('noFolder')}</span>
                   ) : selectedFolderId ? (
                     <span className="truncate" title={formData.folder}>
                       {truncateFolderPath(formData.folder)}
@@ -406,7 +407,7 @@ export const TemplateDialog: React.FC = () => {
               </SelectTrigger>
               <SelectContent className="max-h-80">
                 <SelectItem value="root">
-                  <span className="text-muted-foreground">No folder (root)</span>
+                  <span className="text-muted-foreground">{getMessage('noFolder')}</span>
                 </SelectItem>
                 
                 {userFoldersList.map(folder => (
@@ -424,7 +425,7 @@ export const TemplateDialog: React.FC = () => {
                 <SelectItem value="new" className="text-primary font-medium">
                   <div className="flex items-center">
                     <FolderPlus className="h-4 w-4 mr-2" />
-                    Create new folder...
+                    {getMessage('createNewFolder')}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -432,7 +433,7 @@ export const TemplateDialog: React.FC = () => {
           </div>
           
           <div>
-            <label className="text-sm font-medium">Content</label>
+            <label className="text-sm font-medium">{getMessage('content')}</label>
             <textarea 
               className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm mt-1 ${
                 validationErrors.content ? 'border-red-500' : ''
@@ -440,7 +441,7 @@ export const TemplateDialog: React.FC = () => {
               rows={6}
               value={formData.content || ''} 
               onChange={(e) => handleFormChange('content', e.target.value)}
-              placeholder="Enter your template content here"
+              placeholder={getMessage('enterTemplateContent')}
             />
             {validationErrors.content && (
               <p className="text-xs text-red-500 mt-1">{validationErrors.content}</p>
@@ -450,16 +451,16 @@ export const TemplateDialog: React.FC = () => {
         
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-            Cancel
+            {getMessage('cancel')}
           </Button>
           <Button onClick={handleSave} disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin rounded-full inline-block mr-2"></div>
-                {currentTemplate ? 'Updating...' : 'Creating...'}
+                {currentTemplate ? getMessage('updating') : getMessage('creating')}
               </>
             ) : (
-              currentTemplate ? 'Update' : 'Create'
+              currentTemplate ? getMessage('update') : getMessage('create')
             )}
           </Button>
         </DialogFooter>

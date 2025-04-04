@@ -228,7 +228,7 @@ const insertContentIntoChat = useCallback((content: string) => {
   
 /**
  * Handle template content after editing in the placeholder editor
- * with improved content processing
+ * with improved content processing and panel closing
  */
 const handleTemplateComplete = useCallback((finalContent: string) => {
   console.log('Template editing completed, content length:', finalContent?.length);
@@ -248,45 +248,52 @@ const handleTemplateComplete = useCallback((finalContent: string) => {
   // Insert the content with a small delay to ensure dialog is fully closed
   setTimeout(() => {
     insertContentIntoChat(normalizedContent);
+    
+    // Dispatch an event to close the main button and panels
+    document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
   }, 50);
 }, [insertContentIntoChat]);
-  /**
-   * Use a template by opening the placeholder editor
-   */
-  const useTemplate = useCallback((template: Template) => {
-    // Validation
-    if (!template) {
-      toast.error('Invalid template data');
-      return;
+
+// Also update the useTemplate function to make sure panels are closed when template is used
+const useTemplate = useCallback((template: Template) => {
+  // Validation
+  if (!template) {
+    toast.error('Invalid template data');
+    return;
+  }
+  
+  if (!template.content) {
+    toast.error('Template has no content');
+    return;
+  }
+  
+  console.log(`Using template: ${template.title || 'Untitled'}`);
+  setIsProcessing(true);
+  
+  try {
+    // Open the placeholder editor dialog
+    openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
+      content: template.content,
+      title: template.title || 'Untitled Template',
+      onComplete: handleTemplateComplete
+    });
+    
+    // Track template usage (don't await)
+    if (template.id) {
+      trackTemplateUsage.mutate(template.id);
     }
     
-    if (!template.content) {
-      toast.error('Template has no content');
-      return;
-    }
-    
-    console.log(`Using template: ${template.title || 'Untitled'}`);
-    setIsProcessing(true);
-    
-    try {
-      // Open the placeholder editor dialog
-      openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
-        content: template.content,
-        title: template.title || 'Untitled Template',
-        onComplete: handleTemplateComplete
-      });
-      
-      // Track template usage (don't await)
-      if (template.id) {
-        trackTemplateUsage.mutate(template.id);
-      }
-    } catch (error) {
-      console.error('Error using template:', error);
-      toast.error('Failed to open template editor');
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [openDialog, handleTemplateComplete, trackTemplateUsage]);
+    // Close all panels when template is used
+    // Note: We're closing panels here even before template editing completes
+    // because the template dialog will be visible instead
+    document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+  } catch (error) {
+    console.error('Error using template:', error);
+    toast.error('Failed to open template editor');
+  } finally {
+    setIsProcessing(false);
+  }
+}, [openDialog, handleTemplateComplete, trackTemplateUsage]);
   
   /**
    * Open template editor to create a new template

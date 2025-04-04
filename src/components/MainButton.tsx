@@ -1,4 +1,4 @@
-// src/components/layout/MainButton.tsx
+// src/components/MainButton.tsx
 
 import { useEffect } from 'react';
 import { Toaster } from "sonner";
@@ -7,11 +7,11 @@ import { X } from "lucide-react";
 import PanelManager from '@/components/panels/PanelManager';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
+import { getMessage } from '@/core/utils/i18n';
 
 /**
  * Main floating button component that opens various panels
  */
-
 const MainButton = () => {
   const {
     isOpen,
@@ -23,33 +23,15 @@ const MainButton = () => {
     handleClosePanel,
   } = useMainButtonState();
 
-  // Listen for panel toggle events
+  // We don't need this event listener anymore because it's handled in useMainButtonState
+  // But keeping the component structure for reference
   useEffect(() => {
-    const handleTogglePanel = (event: CustomEvent) => {
-      const { panel } = event.detail;
-      if (panel) {
-        // Open the menu if it's not already open
-        if (!isOpen) {
-          toggleMenu();
-        }
-        // Set the active panel
-        setPanelType(panel);
-      }
-    };
-
-    // Add event listener
-    document.addEventListener(
-      'jaydai:toggle-panel',
-      handleTogglePanel as EventListener
-    );
-
+    // Any additional component-specific initialization can go here
+    
     return () => {
-      document.removeEventListener(
-        'jaydai:toggle-panel',
-        handleTogglePanel as EventListener
-      );
+      // Cleanup if needed
     };
-  }, [isOpen, toggleMenu, setPanelType]);
+  }, []);
 
   return (
     <ErrorBoundary>
@@ -68,13 +50,13 @@ const MainButton = () => {
             <Button 
               ref={buttonRef}
               onClick={toggleMenu}
-              className="bg-transparent hover:bg-transparent hover:scale-125  transition-all duration-300 w-full h-full rounded-full p-0 overflow-hidden flex items-center justify-center"
+              className="bg-transparent hover:bg-transparent hover:scale-125 transition-all duration-300 w-full h-full rounded-full p-0 overflow-hidden flex items-center justify-center"
             >
               <img 
                 src={document.documentElement.classList.contains('dark') 
                   ? "https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images/jaydai-extension-logo.png" 
                   : "https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images/jaydai-extension-logo-dark.png"} 
-                alt="Archimind Logo" 
+                alt={getMessage('appName', undefined, 'Jaydai Chrome Extension')} 
                 className="w-full h-full object-cover"
               />
               
@@ -85,6 +67,7 @@ const MainButton = () => {
                 </div>
               )}
             </Button>
+            
             {/* Notification Badge */}
             {notificationCount > 0 && !isOpen && (
               <span 

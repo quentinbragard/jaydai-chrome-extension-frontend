@@ -175,7 +175,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       // If not successful, the AuthService subscription will update the message
     } catch (error) {
       setMessage({
-        text: "Invalid email or password",
+        text: getMessage('invalidCredentials', undefined, 'Invalid email or password'),
         type: 'error'
       });
       console.error('Auth form error:', error);
