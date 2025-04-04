@@ -57,7 +57,7 @@ export class ChatMessageParser extends AbstractBaseService {
       const message = this.extractUserMessage(data.requestBody);
       if (message) {
         // Emit event with extracted message
-        document.dispatchEvent(new CustomEvent('archimind:message-extracted', {
+        document.dispatchEvent(new CustomEvent('jaydai:message-extracted', {
           detail: { message }
         }));
       }
@@ -80,7 +80,7 @@ export class ChatMessageParser extends AbstractBaseService {
         const message = this.extractAssistantMessage(data);
         if (message) {
           // Emit event with extracted message
-          document.dispatchEvent(new CustomEvent('archimind:message-extracted', {
+          document.dispatchEvent(new CustomEvent('jaydai:message-extracted', {
             detail: { message }
           }));
         }

@@ -35,14 +35,14 @@ export class ConversationManager extends AbstractBaseService {
     this.checkUrlForConversationId(); // Check current URL
     
     // Listen for conversation data events
-    document.addEventListener('archimind:conversation-loaded', this.handleConversationLoaded);
-    document.addEventListener('archimind:conversation-list', this.handleConversationList);
+    document.addEventListener('jaydai:conversation-loaded', this.handleConversationLoaded);
+    document.addEventListener('jaydai:conversation-list', this.handleConversationList);
   }
   
   protected onCleanup(): void {
     window.removeEventListener('popstate', this.checkUrlForConversationId);
-    document.removeEventListener('archimind:conversation-loaded', this.handleConversationLoaded);
-    document.removeEventListener('archimind:conversation-list', this.handleConversationList);
+    document.removeEventListener('jaydai:conversation-loaded', this.handleConversationLoaded);
+    document.removeEventListener('jaydai:conversation-list', this.handleConversationList);
     debug('ConversationManager cleaned up');
   }
   

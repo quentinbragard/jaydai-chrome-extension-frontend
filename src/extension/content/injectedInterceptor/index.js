@@ -3,7 +3,7 @@
 
 // Import from the modular structure
 import { initFetchInterceptor } from './fetchInterceptor';
-import { sendInjectionComplete } from './messageHandler';
+import { sendInjectionComplete } from './interceptedEventsHanlder';
 
 /**
  * Self-executing function to initialize the interceptor

@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
     
     // Get the API URL from env or use default values
     const apiUrl = env.VITE_API_URL || (isProduction 
-        ? 'https://archimind-api-sw5cmqbraq-uc.a.run.app/'
+        ? 'https://jaydai-api-sw5cmqbraq-uc.a.run.app/'
         : 'http://localhost:8000');
     
     // Get debug setting from env or default based on mode

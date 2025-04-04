@@ -90,7 +90,7 @@ export class AppInitializer {
     
     // Inject the Main component which includes DialogProvider
     componentInjector.inject(Main, {}, {
-      id: 'archimind-main-component',
+      id: 'jaydai-main-component',
       position: {
         type: 'fixed',
         zIndex: '9999'

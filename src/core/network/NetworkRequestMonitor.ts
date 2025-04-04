@@ -36,7 +36,7 @@ export class NetworkRequestMonitor {
     
     try {
       // Start listening for network interception events
-      document.addEventListener('archimind-network-intercept', this.boundEventHandler as EventListener);
+      document.addEventListener('jaydai:network-intercept', this.boundEventHandler as EventListener);
             
       this.isInitialized = true;
       return true;
@@ -117,7 +117,7 @@ export class NetworkRequestMonitor {
   public cleanup(): void {
     if (!this.isInitialized) return;
     
-    document.removeEventListener('archimind-network-intercept', this.boundEventHandler as EventListener);
+    document.removeEventListener('jaydai:network-intercept', this.boundEventHandler as EventListener);
     if (chrome && chrome.runtime) {
       chrome.runtime.sendMessage({ action: 'stop-network-monitoring' });
     }

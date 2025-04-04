@@ -62,7 +62,7 @@ export class ConversationParser extends AbstractBaseService {
 
       
       // Emit event with conversation and messages
-      document.dispatchEvent(new CustomEvent('archimind:conversation-loaded', {
+      document.dispatchEvent(new CustomEvent('jaydai:conversation-loaded', {
         detail: { conversation, messages }
       }));
     } catch (error) {
@@ -82,7 +82,7 @@ export class ConversationParser extends AbstractBaseService {
       const conversations = this.extractConversationsFromList(data.responseBody);
       
       // Emit event with conversations
-      document.dispatchEvent(new CustomEvent('archimind:conversation-list', {
+      document.dispatchEvent(new CustomEvent('jaydai:conversation-list', {
         detail: { conversations }
       }));
     } catch (error) {

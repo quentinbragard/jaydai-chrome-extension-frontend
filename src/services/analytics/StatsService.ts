@@ -137,15 +137,15 @@ export class StatsService extends AbstractBaseService {
  */
 private setupEventListeners(): void {
   // Main network intercept listener
-  document.addEventListener('archimind-network-intercept', this.handleNetworkEvent);
+  document.addEventListener('jaydai:network-intercept', this.handleNetworkEvent);
   
   // Listen for message-specific events
-  document.addEventListener('archimind:message-extracted', this.handleMessageExtracted);
+  document.addEventListener('jaydai:message-extracted', this.handleMessageExtracted);
   
   // Listen for conversation changes
-  document.addEventListener('archimind:conversation-loaded', this.handleConversationLoaded);
-  document.addEventListener('archimind:conversation-list', this.handleConversationList);
-  document.addEventListener('archimind:conversation-changed', this.handleConversationChanged);
+  document.addEventListener('jaydai:conversation-loaded', this.handleConversationLoaded);
+  document.addEventListener('jaydai:conversation-list', this.handleConversationList);
+  document.addEventListener('jaydai:conversation-changed', this.handleConversationChanged);
   
   // Listen for internal events from our app
   document.addEventListener(AppEvent.CHAT_MESSAGE_SENT, this.handleChatMessageSent);

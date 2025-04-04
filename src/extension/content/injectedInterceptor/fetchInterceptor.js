@@ -2,7 +2,7 @@
 // Core fetch override functionality
 
 import { getEndpointType, extractRequestBody } from './endpointDetector';
-import { sendToExtension } from './messageHandler';
+import { sendToExtension } from './interceptedEventsHanlder';
 import { processStreamingResponse } from './streamProcessor';
 import { DATA_TYPES } from './constants';
 

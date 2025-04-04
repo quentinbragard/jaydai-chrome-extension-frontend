@@ -377,7 +377,7 @@ export class NotificationService extends AbstractBaseService {
     this.unreadCount = unreadCount;
     
     // Dispatch an event that UI components can listen for
-    document.dispatchEvent(new CustomEvent('archimind:notification-count-changed', {
+    document.dispatchEvent(new CustomEvent('jaydai:notification-count-changed', {
       detail: { unreadCount }
     }));
   }
@@ -399,10 +399,10 @@ export class NotificationService extends AbstractBaseService {
           });
           
           // Dispatch custom event to open notifications panel
-          document.dispatchEvent(new CustomEvent('archimind:open-notifications'));
+          document.dispatchEvent(new CustomEvent('jaydai:open-notifications'));
           
           // If we're using the main button/panel system, trigger it to open the notifications panel
-          document.dispatchEvent(new CustomEvent('archimind:toggle-panel', { 
+          document.dispatchEvent(new CustomEvent('jaydai:toggle-panel', { 
             detail: { panel: 'notifications' } 
           }));
         }
@@ -519,12 +519,12 @@ export class NotificationService extends AbstractBaseService {
             
           case 'openSettings':
             // Trigger settings panel open
-            document.dispatchEvent(new CustomEvent('archimind:open-settings'));
+            document.dispatchEvent(new CustomEvent('jaydai:open-settings'));
             break;
             
           case 'showTemplates':
             // Trigger templates panel open
-            document.dispatchEvent(new CustomEvent('archimind:open-templates'));
+            document.dispatchEvent(new CustomEvent('jaydai:open-templates'));
             break;
 
           case 'start_conversation':

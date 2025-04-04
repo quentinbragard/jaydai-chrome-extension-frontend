@@ -29,11 +29,11 @@ export class ConversationStorage extends AbstractBaseService {
     debug('Initializing ConversationStorage');
     
     // Listen for events that should trigger conversation saving
-    document.addEventListener('archimind:conversation-loaded', this.handleConversationLoaded);
+    document.addEventListener('jaydai:conversation-loaded', this.handleConversationLoaded);
   }
   
   protected onCleanup(): void {
-    document.removeEventListener('archimind:conversation-loaded', this.handleConversationLoaded);
+    document.removeEventListener('jaydai:conversation-loaded', this.handleConversationLoaded);
     debug('ConversationStorage cleaned up');
   }
   

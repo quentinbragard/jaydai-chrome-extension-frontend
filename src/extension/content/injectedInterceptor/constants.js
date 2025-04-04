@@ -16,8 +16,7 @@ export const ENDPOINTS = {
    * Event names used for communication
    */
   export const EVENTS = {
-    NETWORK_INTERCEPT: 'archimind-network-intercept',
-    CONVERSATION_LIST: 'archimind:conversation-list'
+    NETWORK_INTERCEPT: 'jaydai:network-intercept',
   };
   
   /**

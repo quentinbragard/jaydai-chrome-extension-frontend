@@ -2,7 +2,7 @@
 // Functions for processing streaming responses
 
 import { DATA_TYPES } from './constants';
-import { sendToExtension } from './messageHandler';
+import { sendToExtension } from './interceptedEventsHanlder';
 
 /**
  * Process streaming data from ChatGPT and organize into thinking steps

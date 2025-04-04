@@ -29,11 +29,11 @@ export class MessageQueue extends AbstractBaseService {
   
   protected async onInitialize(): Promise<void> {
     debug('Initializing MessageQueue');
-    document.addEventListener('archimind:queue-message', this.handleQueueMessage);
+    document.addEventListener('jaydai:queue-message', this.handleQueueMessage);
   }
   
   protected onCleanup(): void {
-    document.removeEventListener('archimind:queue-message', this.handleQueueMessage);
+    document.removeEventListener('jaydai:queue-message', this.handleQueueMessage);
     if (this.timer !== null) {
       clearTimeout(this.timer);
       this.timer = null;

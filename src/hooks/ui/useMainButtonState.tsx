@@ -18,13 +18,13 @@ export const useMainButtonState = () => {
     };
 
     document.addEventListener(
-      'archimind:notification-count-changed',
+      'jaydai:notification-count-changed',
       handleNotificationCountChanged as EventListener
     );
 
     return () => {
       document.removeEventListener(
-        'archimind:notification-count-changed',
+        'jaydai:notification-count-changed',
         handleNotificationCountChanged as EventListener
       );
     };
@@ -38,13 +38,13 @@ export const useMainButtonState = () => {
     };
 
     document.addEventListener(
-      'archimind:open-notifications',
+      'jaydai:open-notifications',
       handleOpenNotifications
     );
 
     return () => {
       document.removeEventListener(
-        'archimind:open-notifications',
+        'jaydai:open-notifications',
         handleOpenNotifications
       );
     };

@@ -40,7 +40,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
 
   // Handle AI news click - open external link
   const handleAiNewsClick = () => {
-    window.open('https://thetunnel.substack.com/?utm_source=archimind-extension', '_blank');
+    window.open('https://thetunnel.substack.com/?utm_source=jaydai-extension', '_blank');
   };
 
   return (

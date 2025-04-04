@@ -48,7 +48,7 @@ export class UserProfileService extends AbstractBaseService {
     this.setupNetworkListeners();
     
     // Add event listener for user data from injected script
-    document.addEventListener('archimind-network-intercept', this.handleInterceptEvent);
+    document.addEventListener('jaydai:network-intercept', this.handleInterceptEvent);
   }
   
   /**
@@ -60,7 +60,7 @@ export class UserProfileService extends AbstractBaseService {
     this.cleanupListeners = [];
     
     // Remove event listener
-    document.removeEventListener('archimind-network-intercept', this.handleInterceptEvent);
+    document.removeEventListener('jaydai:network-intercept', this.handleInterceptEvent);
     
     debug('UserProfileService cleaned up');
   }

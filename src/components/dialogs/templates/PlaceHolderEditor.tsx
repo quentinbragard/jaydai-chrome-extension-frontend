@@ -235,7 +235,7 @@ export const PlaceholderEditor: React.FC = () => {
     // Close the dialog
     dialogProps.onOpenChange(false);
     // Dispatch an event to notify that the editor is closed
-    document.dispatchEvent(new CustomEvent('archimind:placeholder-editor-closed'));
+    document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
   };
   
   /**
@@ -245,7 +245,7 @@ export const PlaceholderEditor: React.FC = () => {
     // Close dialog
     dialogProps.onOpenChange(false);
     // Also dispatch close event
-    document.dispatchEvent(new CustomEvent('archimind:placeholder-editor-closed'));
+    document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
   };
 
   if (!isOpen) return null;
@@ -257,7 +257,7 @@ export const PlaceholderEditor: React.FC = () => {
         dialogProps.onOpenChange(open);
         // Dispatch events for opening and closing
         document.dispatchEvent(new CustomEvent(
-          open ? 'archimind:placeholder-editor-opened' : 'archimind:placeholder-editor-closed'
+          open ? 'jaydai:placeholder-editor-opened' : 'jaydai:placeholder-editor-closed'
         ));
       }}
     >

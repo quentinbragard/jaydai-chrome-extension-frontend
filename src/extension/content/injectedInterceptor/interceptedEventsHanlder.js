@@ -9,13 +9,6 @@ import { EVENTS, DATA_TYPES } from './constants';
  * @param {Object} data - The data to send
  */
 export function sendToExtension(type, data) {
-  // Special handling for conversation list to maintain backwards compatibility
-  if (type === DATA_TYPES.CONVERSATIONS_LIST) {
-    console.log('🚀 Sending conversation list data to extension', data);
-    document.dispatchEvent(new CustomEvent(EVENTS.CONVERSATION_LIST, {
-      detail: { type, data, timestamp: Date.now() }
-    }));
-  } else {
     // Standard handling for all other event types
     document.dispatchEvent(new CustomEvent(EVENTS.NETWORK_INTERCEPT, {
       detail: { type, data, timestamp: Date.now() }

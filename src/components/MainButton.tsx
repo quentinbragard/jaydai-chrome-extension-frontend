@@ -39,13 +39,13 @@ const MainButton = () => {
 
     // Add event listener
     document.addEventListener(
-      'archimind:toggle-panel',
+      'jaydai:toggle-panel',
       handleTogglePanel as EventListener
     );
 
     return () => {
       document.removeEventListener(
-        'archimind:toggle-panel',
+        'jaydai:toggle-panel',
         handleTogglePanel as EventListener
       );
     };

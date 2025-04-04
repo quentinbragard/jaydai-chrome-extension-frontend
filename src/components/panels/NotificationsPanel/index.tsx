@@ -46,13 +46,13 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
     };
 
     document.addEventListener(
-      'archimind:open-notifications',
+      'jaydai:open-notifications',
       handleOpenNotifications
     );
 
     return () => {
       document.removeEventListener(
-        'archimind:open-notifications',
+        'jaydai:open-notifications',
         handleOpenNotifications
       );
     };
