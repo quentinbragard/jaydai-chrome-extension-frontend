@@ -1,21 +1,31 @@
 // src/core/network/NetworkRequestMonitor.ts
+// Legacy compatibility layer for the NetworkRequestMonitor
+// This file provides backward compatibility for code that depends on the old NetworkRequestMonitor
 
 /**
  * Simple interface for network event listeners
  */
 export type NetworkEventListener = (data: any) => void;
 
+// Legacy event type to specific event mapping
+const TYPE_TO_EVENT = {
+  'userInfo': 'jaydai:user-info',
+  'conversationList': 'jaydai:conversation-list',
+  'specificConversation': 'jaydai:specific-conversation',
+  'chatCompletion': 'jaydai:chat-completion',
+  'assistantResponse': 'jaydai:assistant-response'
+};
+
 /**
- * Simplified network request monitor
+ * Simplified network request monitor - now just a compatibility layer
+ * This version uses direct event listeners instead of the previous implementation
  */
 export class NetworkRequestMonitor {
   private static instance: NetworkRequestMonitor;
   private isInitialized: boolean = false;
-  private listeners: Map<string, Set<NetworkEventListener>> = new Map();
-  private boundEventHandler: (event: CustomEvent) => void;
   
   private constructor() {
-    this.boundEventHandler = this.handleCapturedRequest.bind(this);
+    console.warn('NetworkRequestMonitor is deprecated. Use direct event listeners instead.');
   }
   
   /**
@@ -33,96 +43,39 @@ export class NetworkRequestMonitor {
    */
   public initialize(): boolean {
     if (this.isInitialized) return true;
-    
-    try {
-      // Start listening for network interception events
-      document.addEventListener('jaydai:network-intercept', this.boundEventHandler as EventListener);
-            
-      this.isInitialized = true;
-      return true;
-    } catch (error) {
-      console.error('Network monitor initialization error:', error);
-      return false;
-    }
+    this.isInitialized = true;
+    return true;
   }
   
   /**
-   * Handle a captured request
-   */
-  private handleCapturedRequest(event: CustomEvent): void {
-    const detail = event.detail;
-    if (!detail) return;
-    
-    const { type, data } = detail;
-    
-    // Notify type-specific listeners
-    this.notifyListeners(type, data);
-    
-    // Also notify URL-pattern listeners if URL is present
-    if (data?.url) {
-      this.listeners.forEach((callbacks, pattern) => {
-        const patternObj = pattern as unknown;
-        if (typeof pattern === 'string' && data.url.includes(pattern)) {
-          this.notifyListeners(pattern, data);
-        } else if (patternObj instanceof RegExp && patternObj.test(data.url)) {
-          this.notifyListeners(patternObj.toString(), data);
-        }
-      });
-    }
-  }
-  
-  /**
-   * Notify registered listeners for a specific pattern
-   */
-  private notifyListeners(pattern: string, data: any): void {
-    const listeners = this.listeners.get(pattern);
-    if (!listeners || listeners.size === 0) return;
-    
-    listeners.forEach(callback => {
-      try {
-        callback(data);
-      } catch (error) {
-        console.error(`Listener error for ${pattern}:`, error);
-      }
-    });
-  }
-  
-  /**
-   * Register a listener for a specific URL pattern or event type
+   * Register a listener for a specific pattern or event type
+   * Now this converts to a direct event listener
    */
   public addListener(pattern: string | RegExp, callback: NetworkEventListener): () => void {
-    const patternKey = pattern instanceof RegExp ? pattern.toString() : pattern;
+    const eventName = typeof pattern === 'string' && pattern in TYPE_TO_EVENT 
+      ? TYPE_TO_EVENT[pattern as keyof typeof TYPE_TO_EVENT]
+      : null;
     
-    if (!this.listeners.has(patternKey)) {
-      this.listeners.set(patternKey, new Set());
+    if (eventName) {
+      // We have a direct event mapping
+      const wrappedCallback = (event: CustomEvent) => callback(event.detail);
+      document.addEventListener(eventName, wrappedCallback as EventListener);
+      
+      // Return cleanup function
+      return () => {
+        document.removeEventListener(eventName, wrappedCallback as EventListener);
+      };
+    } else {
+      console.warn(`NetworkRequestMonitor: No direct event mapping for pattern "${pattern}"`);
+      // Return a no-op cleanup function
+      return () => {};
     }
-    
-    this.listeners.get(patternKey)!.add(callback);
-    
-    // Return a function to remove this listener
-    return () => {
-      const callbacks = this.listeners.get(patternKey);
-      if (callbacks) {
-        callbacks.delete(callback);
-        if (callbacks.size === 0) {
-          this.listeners.delete(patternKey);
-        }
-      }
-    };
   }
   
   /**
    * Clean up resources
    */
   public cleanup(): void {
-    if (!this.isInitialized) return;
-    
-    document.removeEventListener('jaydai:network-intercept', this.boundEventHandler as EventListener);
-    if (chrome && chrome.runtime) {
-      chrome.runtime.sendMessage({ action: 'stop-network-monitoring' });
-    }
-    
-    this.listeners.clear();
     this.isInitialized = false;
   }
 }

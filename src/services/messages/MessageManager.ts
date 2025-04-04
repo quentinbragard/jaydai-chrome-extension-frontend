@@ -25,7 +25,7 @@ export class MessageManager extends AbstractBaseService {
   protected async onInitialize(): Promise<void> {
     debug('Initializing MessageManager');
     
-    // Listen for messages from various sources
+    // Listen for messages from various sources - direct event listeners
     document.addEventListener('jaydai:message-extracted', this.handleExtractedMessage);
     document.addEventListener('jaydai:conversation-loaded', this.handleConversationMessages);
   }

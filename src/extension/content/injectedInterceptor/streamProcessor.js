@@ -1,8 +1,8 @@
 // src/extension/content/injectedInterceptor/streamProcessor.js
 // Functions for processing streaming responses
 
-import { DATA_TYPES } from './constants';
-import { sendToExtension } from './interceptedEventsHanlder';
+import { EVENTS } from './constants';
+import { dispatchEvent } from './eventsHandler';
 
 /**
  * Process streaming data from ChatGPT and organize into thinking steps
@@ -194,7 +194,7 @@ export async function processStreamingResponse(response, requestBody) {
           console.log("Received [DONE] message, finalizing response");
           if (assistantData.messageId && assistantData.content.length > 0) {
             assistantData.isComplete = true;
-            sendToExtension(DATA_TYPES.ASSISTANT_RESPONSE, assistantData);
+            dispatchEvent(EVENTS.ASSISTANT_RESPONSE, assistantData);
           }
           continue; // Skip JSON parsing for this message
         }
@@ -208,7 +208,7 @@ export async function processStreamingResponse(response, requestBody) {
             if (assistantData.messageId) {
               assistantData.isComplete = true;
               console.log("Stream processing complete");
-              sendToExtension(DATA_TYPES.ASSISTANT_RESPONSE, assistantData);
+              dispatchEvent(EVENTS.ASSISTANT_RESPONSE, assistantData);
             }
             continue;
           }
@@ -224,7 +224,7 @@ export async function processStreamingResponse(response, requestBody) {
               assistantData.content.length > 0 && 
               assistantData.content.length % 500 === 0) {
             // Send interim update with isComplete=false
-            sendToExtension(DATA_TYPES.ASSISTANT_RESPONSE, {
+            dispatchEvent(EVENTS.ASSISTANT_RESPONSE, {
               ...assistantData,
               isComplete: false
             });
@@ -240,7 +240,7 @@ export async function processStreamingResponse(response, requestBody) {
     if (assistantData.messageId && assistantData.content.length > 0 && !assistantData.isComplete) {
       console.log("Stream ended without completion signal, sending final data");
       assistantData.isComplete = true;
-      sendToExtension(DATA_TYPES.ASSISTANT_RESPONSE, assistantData);
+      dispatchEvent(EVENTS.ASSISTANT_RESPONSE, assistantData);
     }
   } catch (error) {
     console.error('Error processing stream:', error);
@@ -249,7 +249,7 @@ export async function processStreamingResponse(response, requestBody) {
     if (assistantData.messageId && assistantData.content.length > 0) {
       console.log("Salvaging partial response after error");
       assistantData.isComplete = true;
-      sendToExtension(DATA_TYPES.ASSISTANT_RESPONSE, assistantData);
+      dispatchEvent(EVENTS.ASSISTANT_RESPONSE, assistantData);
     }
   }
 }

@@ -1,18 +1,15 @@
 // src/services/chat/ConversationParser.ts
 import { AbstractBaseService } from '../BaseService';
-import { networkRequestMonitor } from '@/core/network/NetworkRequestMonitor';
 import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { Conversation, Message } from '@/types';
-import { MessageApi } from '@/services/api/MessageApi';
 
 /**
  * Service that parses conversation data from network requests
  */
 export class ConversationParser extends AbstractBaseService {
   private static instance: ConversationParser;
-  private cleanupListeners: (() => void)[] = [];
   
   private constructor() {
     super();
@@ -28,35 +25,27 @@ export class ConversationParser extends AbstractBaseService {
   protected async onInitialize(): Promise<void> {
     debug('Initializing ConversationParser');
     
-    // Ensure NetworkRequestMonitor is initialized
-    networkRequestMonitor.initialize();
-    
-    // Add listeners for conversation-related network events
-    this.cleanupListeners.push(
-      networkRequestMonitor.addListener('specificConversation', this.handleSpecificConversation)
-    );
-    
-    this.cleanupListeners.push(
-      networkRequestMonitor.addListener('conversationList', this.handleConversationList)
-    );
+    // Add listeners for specific conversation-related events
+    document.addEventListener('jaydai:specific-conversation', this.handleSpecificConversation);
+    document.addEventListener('jaydai:conversation-list', this.handleConversationList);
   }
   
   protected onCleanup(): void {
-    this.cleanupListeners.forEach(cleanup => cleanup());
-    this.cleanupListeners = [];
+    document.removeEventListener('jaydai:specific-conversation', this.handleSpecificConversation);
+    document.removeEventListener('jaydai:conversation-list', this.handleConversationList);
     debug('ConversationParser cleaned up');
   }
   
   /**
    * Handle specific conversation data
    */
-  private handleSpecificConversation = (data: any): void => {
-    console.log('handleSpecificConversation', data);
+  private handleSpecificConversation = (event: CustomEvent): void => {
+    console.log('handleSpecificConversation', event.detail);
     try {
-      if (!data?.responseBody?.conversation_id) return;
+      if (!event.detail?.responseBody?.conversation_id) return;
       
-      const conversation = this.extractConversation(data.responseBody);
-      const messages = this.extractMessagesFromConversation(data.responseBody);
+      const conversation = this.extractConversation(event.detail.responseBody);
+      const messages = this.extractMessagesFromConversation(event.detail.responseBody);
       console.log('messages', messages);
       console.log('conversation', conversation);
 
@@ -75,11 +64,13 @@ export class ConversationParser extends AbstractBaseService {
   /**
    * Handle conversation list data
    */
-  private handleConversationList = (data: any): void => {
+  private handleConversationList = (event: CustomEvent): void => {
+    console.log('handleConversationList===========', event.detail);
     try {
-      if (!data?.responseBody?.items) return;
+      if (!event.detail?.responseBody?.items) return;
       
-      const conversations = this.extractConversationsFromList(data.responseBody);
+      const conversations = this.extractConversationsFromList(event.detail.responseBody);
+      console.log('conversations', conversations);
       
       // Emit event with conversations
       document.dispatchEvent(new CustomEvent('jaydai:conversation-list', {
@@ -129,7 +120,6 @@ export class ConversationParser extends AbstractBaseService {
   
   /**
    * Extract messages from conversation data
-   * Simplified implementation - actual implementation would be more detailed
    */
   public extractMessagesFromConversation(conversation: any): Message[] {
     try {

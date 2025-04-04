@@ -13,20 +13,37 @@ export const ENDPOINTS = {
   };
   
   /**
-   * Event names used for communication
+   * Event names used for communication - using specific events for each data type
    */
   export const EVENTS = {
-    NETWORK_INTERCEPT: 'jaydai:network-intercept',
+    USER_INFO: 'jaydai:user-info',
+    CONVERSATIONS_LIST: 'jaydai:conversation-list',
+    SPECIFIC_CONVERSATION: 'jaydai:specific-conversation',
+    CHAT_COMPLETION: 'jaydai:chat-completion',
+    ASSISTANT_RESPONSE: 'jaydai:assistant-response',
+    MESSAGE_EXTRACTED: 'jaydai:message-extracted',
+    CONVERSATION_LOADED: 'jaydai:conversation-loaded',
+    CONVERSATION_CHANGED: 'jaydai:conversation-changed',
+    QUEUE_MESSAGE: 'jaydai:queue-message',
+    NOTIFICATION_COUNT_CHANGED: 'jaydai:notification-count-changed',
+    OPEN_NOTIFICATIONS: 'jaydai:open-notifications',
+    TOGGLE_PANEL: 'jaydai:toggle-panel',
+    SHOW_AUTH_MODAL: 'jaydai:show-auth-modal',
+    AUTH_ERROR: 'jaydai:auth-error',
+    OPEN_SETTINGS: 'jaydai:open-settings',
+    OPEN_TEMPLATES: 'jaydai:open-templates',
+    INJECTION_COMPLETE: 'jaydai:injection-complete'
   };
   
   /**
-   * Data types that can be intercepted
+   * Legacy backward-compatibility mapping 
+   * This maps the old data types to their corresponding event names
    */
-  export const DATA_TYPES = {
-    USER_INFO: 'userInfo',
-    CONVERSATIONS_LIST: 'conversationList',
-    SPECIFIC_CONVERSATION: 'specificConversation',
-    CHAT_COMPLETION: 'chatCompletion',
-    ASSISTANT_RESPONSE: 'assistantResponse',
-    INJECTION_COMPLETE: 'injectionComplete'
+  export const LEGACY_TYPE_TO_EVENT = {
+    'userInfo': EVENTS.USER_INFO,
+    'conversationList': EVENTS.CONVERSATIONS_LIST,
+    'specificConversation': EVENTS.SPECIFIC_CONVERSATION,
+    'chatCompletion': EVENTS.CHAT_COMPLETION,
+    'assistantResponse': EVENTS.ASSISTANT_RESPONSE,
+    'injectionComplete': EVENTS.INJECTION_COMPLETE
   };

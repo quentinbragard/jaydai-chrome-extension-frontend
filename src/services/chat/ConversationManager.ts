@@ -5,8 +5,8 @@ import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { emitEvent, AppEvent } from '@/core/events/events';
-import { apiClient } from '../api/ApiClient';
-import { SaveChatParams } from '../api/MessageApi';
+import { SaveChatParams, messageApi } from '../api/MessageApi';
+
 
 /**
  * Manages conversation data and current conversation state
@@ -34,7 +34,7 @@ export class ConversationManager extends AbstractBaseService {
     window.addEventListener('popstate', this.checkUrlForConversationId);
     this.checkUrlForConversationId(); // Check current URL
     
-    // Listen for conversation data events
+    // Listen for conversation data events - using direct event listeners
     document.addEventListener('jaydai:conversation-loaded', this.handleConversationLoaded);
     document.addEventListener('jaydai:conversation-list', this.handleConversationList);
   }
@@ -78,6 +78,9 @@ export class ConversationManager extends AbstractBaseService {
     }
   };
 
+  /**
+   * Map conversations to chat parameters for saving
+   */
   private mapConversationsToChatParams(conversations: any[]): SaveChatParams[] {
     return conversations.map(chat => ({
       chat_provider_id: chat.id,
@@ -94,24 +97,36 @@ export class ConversationManager extends AbstractBaseService {
    * Save a batch of chats
    */
   async saveChatBatch(chats: SaveChatParams[]): Promise<any> {
-    return apiClient.request('/save/batch/chat', {
-      method: 'POST',
-      body: JSON.stringify({
-        chats: this.mapConversationsToChatParams(chats)
-      })
-    });
+    const processedChats = this.mapConversationsToChatParams(chats);
+    return messageApi.saveChatBatch(processedChats);
   }
   
   /**
    * Handle conversation list data
    */
   private handleConversationList = (event: CustomEvent): void => {
-    console.log('🚀🚀🚀🚀🚀=================== handleConversationList', event);
-    const { data } = event.detail;
-    const conversations = data.responseBody.items;
-    console.log('🚀🚀🚀🚀🚀=================== conversations', conversations);
-    if (conversations && Array.isArray(conversations)) {
-      this.saveChatBatch(conversations);
+    try {
+      // The format might have changed with the new event system
+      // Now we expect conversations directly in detail.conversations, or
+      // we fallback to the old format looking for responseBody.items
+      
+      const { conversations, data } = event.detail;
+      
+      // Try to get conversations from the new format first
+      let conversationItems = conversations;
+      
+      // If not found, try the old format
+      if (!conversationItems && data?.responseBody?.items) {
+        conversationItems = data.responseBody.items;
+      }
+      
+      if (conversationItems && Array.isArray(conversationItems)) {
+        this.saveChatBatch(conversationItems);
+      }
+    } catch (error) {
+      errorReporter.captureError(
+        new AppError('Error handling conversation list', ErrorCode.API_ERROR, error)
+      );
     }
   };
   
@@ -130,8 +145,13 @@ export class ConversationManager extends AbstractBaseService {
     
     this.currentConversationId = conversationId;
     
-    // Emit event for conversation change
+    // Emit event for conversation change - both new app event and custom event
     emitEvent(AppEvent.CHAT_CONVERSATION_CHANGED, { conversationId });
+    
+    // Also dispatch custom event for components that listen to it directly
+    document.dispatchEvent(new CustomEvent('jaydai:conversation-changed', {
+      detail: { conversationId }
+    }));
   }
   
   /**

@@ -1,13 +1,11 @@
-// src/extension/content/injectedInterceptor.js
-// Bridge file that maintains the original path while using our modular code
+// src/extension/content/injectedInterceptor/index.js
+// Main entry point for the injected interceptor
 
-// Import from the modular structure
 import { initFetchInterceptor } from './fetchInterceptor';
-import { sendInjectionComplete } from './interceptedEventsHanlder';
+import { sendInjectionComplete } from './eventsHandler';
 
 /**
  * Self-executing function to initialize the interceptor
- * This maintains the exact same initialization as before
  */
 (function() {
   try {
@@ -17,10 +15,8 @@ import { sendInjectionComplete } from './interceptedEventsHanlder';
     // Notify that injection is complete
     sendInjectionComplete();
     
-    console.log('✅ Archimind network interceptor initialized successfully');
+    console.log('✅ Jaydai network interceptor initialized successfully');
   } catch (error) {
     console.error('❌ Error initializing network interceptor:', error);
   }
 })();
-
-// We don't need to export anything from this file since it's self-executing

@@ -28,7 +28,7 @@ export class ConversationStorage extends AbstractBaseService {
   protected async onInitialize(): Promise<void> {
     debug('Initializing ConversationStorage');
     
-    // Listen for events that should trigger conversation saving
+    // Listen for direct conversation-loaded events
     document.addEventListener('jaydai:conversation-loaded', this.handleConversationLoaded);
   }
   

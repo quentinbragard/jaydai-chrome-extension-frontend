@@ -29,6 +29,7 @@ export class MessageQueue extends AbstractBaseService {
   
   protected async onInitialize(): Promise<void> {
     debug('Initializing MessageQueue');
+    // Use direct event listener
     document.addEventListener('jaydai:queue-message', this.handleQueueMessage);
   }
   

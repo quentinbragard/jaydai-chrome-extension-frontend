@@ -1,10 +1,11 @@
 // src/extension/content/injectedInterceptor/fetchInterceptor.js
 // Core fetch override functionality
 
-import { getEndpointType, extractRequestBody } from './endpointDetector';
-import { sendToExtension } from './interceptedEventsHanlder';
+import { getEndpointEvent } from './endpointDetector';
+import { extractRequestBody } from './endpointDetector';
+import { dispatchEvent, sendLegacyEvent } from './eventsHandler';
 import { processStreamingResponse } from './streamProcessor';
-import { DATA_TYPES } from './constants';
+import { EVENTS } from './constants';
 
 /**
  * Store the original fetch method
@@ -21,10 +22,10 @@ export function initFetchInterceptor() {
   // Override fetch to intercept network requests
   window.fetch = async function(input, init) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
-    const endpointType = getEndpointType(url);
+    const eventName = getEndpointEvent(url);
     
     // Skip irrelevant endpoints
-    if (!endpointType) {
+    if (!eventName) {
       return originalFetch.apply(this, arguments);
     }
     
@@ -45,9 +46,12 @@ export function initFetchInterceptor() {
     try {
       const isStreaming = response.headers.get('content-type')?.includes('text/event-stream') || false;
       
-      if (endpointType === DATA_TYPES.CHAT_COMPLETION) {
-        // Send request info
-        sendToExtension(DATA_TYPES.CHAT_COMPLETION, { requestBody });
+      if (eventName === EVENTS.CHAT_COMPLETION) {
+        // Dispatch chat completion event
+        dispatchEvent(EVENTS.CHAT_COMPLETION, { requestBody });
+        
+        // Also send legacy event for backward compatibility
+        sendLegacyEvent('chatCompletion', { requestBody });
         
         // Process streaming responses
         if (isStreaming && requestBody?.messages?.[0]?.author?.role === "user") {
@@ -58,12 +62,28 @@ export function initFetchInterceptor() {
         // For non-streaming endpoints, clone and process response
         const responseData = await response.clone().json().catch(() => null);
         if (responseData) {
-          sendToExtension(endpointType, {
+          // Dispatch specialized event
+          dispatchEvent(eventName, {
             url,
             requestBody,
             responseBody: responseData,
             method: init?.method || 'GET'
           });
+          
+          // For backward compatibility, also send legacy event format
+          // This allows services to gradually migrate to the new event system
+          const legacyType = eventName === EVENTS.USER_INFO ? 'userInfo' :
+                            eventName === EVENTS.CONVERSATIONS_LIST ? 'conversationList' :
+                            eventName === EVENTS.SPECIFIC_CONVERSATION ? 'specificConversation' : null;
+                            
+          if (legacyType) {
+            sendLegacyEvent(legacyType, {
+              url,
+              requestBody,
+              responseBody: responseData,
+              method: init?.method || 'GET'
+            });
+          }
         }
       }
     } catch (error) {
