@@ -13,28 +13,32 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export default defineConfig(({ mode }) => {
-    // Load ALL environment variables that start with VITE_
+    // Load environment variables from .env files
+    // mode can be 'development' or 'production'
     const env = loadEnv(mode, process.cwd(), 'VITE_');
     
     const isProduction = mode === 'production';
     
-    // Explicitly define all required environment variables
-    const apiUrl = env.VITE_API_URL ;
+    // Get the API URL from env or use default values
+    const apiUrl = env.VITE_API_URL || (isProduction 
+        ? 'https://archimind-api-sw5cmqbraq-uc.a.run.app/'
+        : 'http://localhost:8000');
     
-    const debug = env.VITE_DEBUG;
-    const appVersion = env.VITE_APP_VERSION;
-    const linkedinClientId = env.VITE_LINKEDIN_CLIENT_ID;
-
+    // Get debug setting from env or default based on mode
+    const debug = env.VITE_DEBUG || (!isProduction).toString();
+    
+    // Get app version from env or default
+    const appVersion = env.VITE_APP_VERSION || '1.0.0';
+    
     console.log(`🚀 Building for ${mode} environment`);
     console.log(`🔌 API URL: ${apiUrl}`);
     console.log(`🐞 Debug: ${debug}`);
     console.log(`📦 Version: ${appVersion}`);
-    console.log(`🔹 LinkedIn Client ID: ${linkedinClientId}`);
 
     return {
         plugins: [
             react(),
-            tsconfigPaths(),
+            tsconfigPaths(), // Add this to resolve path aliases correctly
             cssInjectedByJs(),
             viteStaticCopy({
                 targets: [
@@ -42,6 +46,7 @@ export default defineConfig(({ mode }) => {
                         src: 'public/*',
                         dest: ''
                     },
+                    // Copy HTML files from their source locations to the dist folder
                     {
                         src: 'src/extension/popup/popup.html',
                         dest: '',
@@ -71,6 +76,7 @@ export default defineConfig(({ mode }) => {
                 ],
             },
         },
+        // Prevent code splitting for extension entry points
         build: {
             emptyOutDir: true,
             outDir: 'dist',
@@ -83,7 +89,7 @@ export default defineConfig(({ mode }) => {
                     background: resolve(__dirname, 'src/extension/background/background.js'),
                     popup: resolve(__dirname, 'src/extension/popup/popup.tsx'),
                     welcome: resolve(__dirname, 'src/extension/welcome/welcome.tsx'),
-                    'injectedInterceptor': resolve(__dirname, 'src/extension/content/injectedInterceptor.js'),
+                    'injectedInterceptor': resolve(__dirname, 'src/extension/content/injectedInterceptor/index.js'),
                     'applicationInitializer': resolve(__dirname, 'src/extension/content/applicationInitializer.ts'),
                     'popup-styles': resolve(__dirname, 'src/extension/popup/popup.css'),
                     'welcome-styles': resolve(__dirname, 'src/extension/welcome/welcome.css'),
@@ -93,9 +99,9 @@ export default defineConfig(({ mode }) => {
                     entryFileNames: '[name].js',
                     chunkFileNames: 'assets/[name].[hash].js',
                     assetFileNames: 'assets/[name].[ext]',
-                    manualChunks: undefined
+                    manualChunks: undefined // Disable chunk optimization for extension entry points
                 },
-                preserveEntrySignatures: 'strict'
+                preserveEntrySignatures: 'strict' // Helps prevent tree-shaking of exports
             }
         },
         resolve: {
@@ -104,25 +110,20 @@ export default defineConfig(({ mode }) => {
                 '@components': resolve(__dirname, './src/components')
             }
         },
+        // Improve handling of external dependencies
         optimizeDeps: {
             include: ['react', 'react-dom']
         },
         define: {
-            // IMPORTANT: Define ALL environment variables explicitly
+            // Make environment variables available in the code
             'process.env.NODE_ENV': JSON.stringify(mode),
             'process.env.VITE_API_URL': JSON.stringify(apiUrl),
             'process.env.VITE_DEBUG': JSON.stringify(debug),
-            'process.env.VITE_APP_VERSION': JSON.stringify(appVersion),
-            'process.env.VITE_LINKEDIN_CLIENT_ID': JSON.stringify(linkedinClientId),
-            
-            // Add any other environment variables you need
-            ...Object.keys(env).reduce((acc, key) => {
-                acc[`process.env.${key}`] = JSON.stringify(env[key]);
-                return acc;
-            }, {})
+            'process.env.VITE_APP_VERSION': JSON.stringify(appVersion)
         },
         server: {
             hmr: {
+                // This helps with HMR when developing
                 port: 3000
             }
         }
