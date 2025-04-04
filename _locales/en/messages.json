@@ -656,5 +656,419 @@
         "example": "today"
       }
     }
+  },
+  "betaFeatureWarning": {
+    "message": "Beta Feature Warning",
+    "description": "Warning title for beta features"
+  },
+  "betaFeatureWarningMessage": {
+    "message": "We are still building and refining our analytics features. If you encounter any issues, please email us at",
+    "description": "Warning message for beta features"
+  },
+  "questionsFeedback": {
+    "message": "Questions or feedback?",
+    "description": "Label for questions and feedback"
+  },
+  "comingSoon": {
+    "message": "Coming Soon!",
+    "description": "Title for upcoming features"
+  },
+  "featureInDevelopment": {
+    "message": "We're still building this exciting $FEATURE$ feature! Your support gives us energy to build faster.",
+    "description": "Message for features in development",
+    "placeholders": {
+      "feature": {
+        "content": "$1",
+        "example": "analytics"
+      }
+    }
+  },
+  "followUsLinkedIn": {
+    "message": "Follow Us on LinkedIn",
+    "description": "Call to action for LinkedIn"
+  },
+  "rateUs": {
+    "message": "Rate Us 5 Stars",
+    "description": "Call to action for rating"
+  },
+  "enhancedAiAnalytics": {
+    "message": "Enhanced AI Analytics",
+    "description": "Title for enhanced analytics"
+  },
+  "analyticsDescription": {
+    "message": "Detailed insights about your AI interactions and usage patterns",
+    "description": "Description of analytics features"
+  },
+  "overview": {
+    "message": "Overview",
+    "description": "Overview tab title"
+  },
+  "usageMetrics": {
+    "message": "Usage Metrics",
+    "description": "Usage metrics section title"
+  },
+  "efficiency": {
+    "message": "Efficiency",
+    "description": "Efficiency section title"
+  },
+  "insights": {
+    "message": "Insights",
+    "description": "Insights section title"
+  },
+  "totalConversations": {
+    "message": "Total Conversations",
+    "description": "Total conversations metric"
+  },
+  "messagesExchanged": {
+    "message": "Messages Exchanged",
+    "description": "Messages exchanged metric"
+  },
+  "efficiencyScore": {
+    "message": "Efficiency Score",
+    "description": "Efficiency score metric"
+  },
+  "avgResponseTime": {
+    "message": "Avg. Response Time",
+    "description": "Average response time metric"
+  },
+  "energyUsage": {
+    "message": "Energy Usage",
+    "description": "Energy usage metric"
+  },
+  "tokensProcessed": {
+    "message": "Tokens Processed",
+    "description": "Tokens processed metric"
+  },
+  "lastWeek": {
+    "message": "last week",
+    "description": "Time period indicator"
+  },
+  "perChat": {
+    "message": "per chat",
+    "description": "Per chat indicator"
+  },
+  "seconds": {
+    "message": "seconds",
+    "description": "Time unit"
+  },
+  "consumptionEquivalent": {
+    "message": "Consumption equivalent",
+    "description": "Consumption equivalent label"
+  },
+  "inputOutput": {
+    "message": "Input + Output",
+    "description": "Input and output label"
+  },
+  "basedOnUsage": {
+    "message": "Based on your usage patterns",
+    "description": "Usage pattern indicator"
+  },
+  "dailyActivity": {
+    "message": "Daily Activity",
+    "description": "Daily activity chart label"
+  },
+  "tokenDistribution": {
+    "message": "Token Distribution",
+    "description": "Token distribution chart label"
+  },
+  "modelUsage": {
+    "message": "Model Usage",
+    "description": "Model usage chart label"
+  },
+  "energyDetails": {
+    "message": "Energy Consumption Details",
+    "description": "Energy details chart label"
+  },
+  "tokenDetails": {
+    "message": "Token Usage Details",
+    "description": "Token details chart label"
+  },
+  "inputTokens": {
+    "message": "Input Tokens",
+    "description": "Input tokens label"
+  },
+  "outputTokens": {
+    "message": "Output Tokens",
+    "description": "Output tokens label"
+  },
+  "ratios": {
+    "message": "Ratios",
+    "description": "Ratios label"
+  },
+  "outputToInput": {
+    "message": "Output/Input",
+    "description": "Output to input ratio label"
+  },
+  "recentVsTotal": {
+    "message": "Recent/Total",
+    "description": "Recent vs total label"
+  },
+  "totalEnergy": {
+    "message": "Total Energy",
+    "description": "Total energy label"
+  },
+  "recentEnergy": {
+    "message": "Recent (7 days)",
+    "description": "Recent energy label"
+  },
+  "perMessage": {
+    "message": "Per Message",
+    "description": "Per message label"
+  },
+  "equivalent": {
+    "message": "Equivalent to",
+    "description": "Equivalent to label"
+  },
+  "input": {
+    "message": "Input",
+    "description": "Input label"
+  },
+  "output": {
+    "message": "Output",
+    "description": "Output label"
+  },
+  "unknown": {
+    "message": "Unknown",
+    "description": "Unknown label"
+  },
+  "total": {
+    "message": "Total",
+    "description": "Total label"
+  },
+  "recent": {
+    "message": "Recent",
+    "description": "Recent label"
+  },
+  "efficiencyDescription": {
+    "message": "How effectively you use AI based on various metrics",
+    "description": "Efficiency description"
+  },
+  "conversationMetrics": {
+    "message": "Conversation Metrics",
+    "description": "Conversation metrics title"
+  },
+  "avgMessagesPerChat": {
+    "message": "Avg. Messages Per Chat",
+    "description": "Average messages per chat metric"
+  },
+  "responseTime": {
+    "message": "Response Time",
+    "description": "Response time metric"
+  },
+  "resourceEfficiency": {
+    "message": "Resource Efficiency",
+    "description": "Resource efficiency metric"
+  },
+  "outputInputRatio": {
+    "message": "Output/Input Ratio",
+    "description": "Output/input ratio metric"
+  },
+  "energyPerMessage": {
+    "message": "Energy Per Message",
+    "description": "Energy per message metric"
+  },
+  "idealRange": {
+    "message": "Ideal range",
+    "description": "Ideal range label"
+  },
+  "fasterBetter": {
+    "message": "Faster is better",
+    "description": "Faster is better indicator"
+  },
+  "higherBetter": {
+    "message": "Higher is better - getting more output for your input",
+    "description": "Higher is better indicator"
+  },
+  "lowerBetter": {
+    "message": "Lower is better - more energy efficient",
+    "description": "Lower is better indicator"
+  },
+  "expertLevel": {
+    "message": "Expert AI user - highly efficient",
+    "description": "Expert level description"
+  },
+  "advancedLevel": {
+    "message": "Advanced AI user - good conversation flow",
+    "description": "Advanced level description"
+  },
+  "proficientLevel": {
+    "message": "Proficient AI user - effective usage",
+    "description": "Proficient level description"
+  },
+  "developingLevel": {
+    "message": "Developing AI user - learning patterns",
+    "description": "Developing level description"
+  },
+  "noviceLevel": {
+    "message": "Novice AI user - beginning your journey",
+    "description": "Novice level description"
+  },
+  "usageInsights": {
+    "message": "Usage Insights",
+    "description": "Usage insights title"
+  },
+  "insightsDescription": {
+    "message": "AI-generated insights based on your usage patterns",
+    "description": "Insights description"
+  },
+  "conversationPatterns": {
+    "message": "Conversation Patterns",
+    "description": "Conversation patterns title"
+  },
+  "tokenEfficiency": {
+    "message": "Token Efficiency",
+    "description": "Token efficiency title"
+  },
+  "energyAwareness": {
+    "message": "Energy Awareness",
+    "description": "Energy awareness title"
+  },
+  "usageFrequency": {
+    "message": "Usage Frequency",
+    "description": "Usage frequency title"
+  },
+  "deepEngagement": {
+    "message": "You engage in deep, thorough conversations with AI. This approach is excellent for complex topics and detailed explanations.",
+    "description": "Deep engagement insight"
+  },
+  "balancedEngagement": {
+    "message": "You maintain a balanced conversation flow with AI. This approach works well for most queries.",
+    "description": "Balanced engagement insight"
+  },
+  "briefInteractions": {
+    "message": "You prefer brief interactions with AI. Consider extended conversations for more complex topics.",
+    "description": "Brief interactions insight"
+  },
+  "highEfficiency": {
+    "message": "Your input/output ratio is excellent. You receive substantial AI responses relative to your prompts.",
+    "description": "High efficiency insight"
+  },
+  "goodEfficiency": {
+    "message": "Your input/output ratio is good. You get good value from your interactions.",
+    "description": "Good efficiency insight"
+  },
+  "improvableEfficiency": {
+    "message": "Your input/output ratio could be improved. Consider using more specific, focused prompts.",
+    "description": "Improvable efficiency insight"
+  },
+  "energyInsight": {
+    "message": "Your AI usage has consumed",
+    "description": "Energy insight prefix"
+  },
+  "ofEnergy": {
+    "message": "of energy",
+    "description": "Energy insight suffix"
+  },
+  "recentActivity": {
+    "message": "Your recent activity shows",
+    "description": "Recent activity prefix"
+  },
+  "conversationsInWeek": {
+    "message": "conversations in the past week",
+    "description": "Conversations in week suffix"
+  },
+  "highFrequency": {
+    "message": "You are a frequent AI user, making it a regular part of your workflow.",
+    "description": "High frequency insight"
+  },
+  "moderateFrequency": {
+    "message": "You use AI moderately, balancing it with other tools.",
+    "description": "Moderate frequency insight"
+  },
+  "lowFrequency": {
+    "message": "You use AI occasionally. Consider exploring more use cases to increase productivity.",
+    "description": "Low frequency insight"
+  },
+  "improvementSuggestions": {
+    "message": "Improvement Suggestions",
+    "description": "Improvement suggestions title"
+  },
+  "efficiencyTip": {
+    "message": "Efficiency Tip",
+    "description": "Efficiency tip title"
+  },
+  "efficiencyTipDesc": {
+    "message": "Try using more specific prompts to get more focused responses and improve your efficiency score.",
+    "description": "Efficiency tip description"
+  },
+  "outputRatioTip": {
+    "message": "Output Ratio Tip",
+    "description": "Output ratio tip title"
+  },
+  "outputRatioTipDesc": {
+    "message": "Your AI responses are relatively short compared to your inputs. Consider asking for more detailed or comprehensive answers.",
+    "description": "Output ratio tip description"
+  },
+  "responseTimeTip": {
+    "message": "Response Time Tip",
+    "description": "Response time tip title"
+  },
+  "responseTimeTipDesc": {
+    "message": "Your average response time is a bit high. Consider breaking complex questions into smaller parts for faster responses.",
+    "description": "Response time tip description"
+  },
+  "aiUsageProfile": {
+    "message": "Your AI Usage Profile",
+    "description": "AI usage profile title"
+  },
+  "expertDesc": {
+    "message": "You use AI with exceptional efficiency and effectiveness.",
+    "description": "Expert description"
+  },
+  "advancedDesc": {
+    "message": "You are skilled at getting valuable results from AI.",
+    "description": "Advanced description"
+  },
+  "proficientDesc": {
+    "message": "You use AI effectively with good results.",
+    "description": "Proficient description"
+  },
+  "developingDesc": {
+    "message": "You are learning to use AI more effectively.",
+    "description": "Developing description"
+  },
+  "noviceDesc": {
+    "message": "You are beginning your journey with AI.",
+    "description": "Novice description"
+  },
+  "usageOverview": {
+    "message": "Usage Overview",
+    "description": "Usage overview title"
+  },
+  "keyMetricsDesc": {
+    "message": "Key metrics about your AI usage",
+    "description": "Key metrics description"
+  },
+  "messages": {
+    "message": "messages",
+    "description": "Messages label"
+  },
+  "tokenRatios": {
+    "message": "Token Distribution",
+    "description": "Token ratios title"
+  },
+  "noModelData": {
+    "message": "No model usage data available",
+    "description": "No model data message"
+  },
+  "noEquivalent": {
+    "message": "No equivalent available",
+    "description": "No equivalent message"
+  },
+  "updated": {
+    "message": "Updated",
+    "description": "Updated label"
+  },
+  "viewEnhancedStats": {
+    "message": "View Enhanced Analytics",
+    "description": "View enhanced stats button label"
+  },
+  "energyEquivalent": {
+    "message": "Energy Equivalent",
+    "description": "Title for energy equivalent section"
+  },
+  "energyEquivalentHelp": {
+    "message": "This shows what your AI energy usage is equivalent to in everyday terms",
+    "description": "Help text explaining the energy equivalent feature"
   }
 }

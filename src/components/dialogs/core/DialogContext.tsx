@@ -119,6 +119,7 @@ export function useDialog<T extends DialogType>(type: T) {
   };
 }
 
+
 /**
  * Hook for opening dialogs with type safety
  */
@@ -145,6 +146,9 @@ export function useOpenDialog() {
     
     openConfirmation: (props: DialogProps[typeof DIALOG_TYPES.CONFIRMATION]) => 
       openDialog(DIALOG_TYPES.CONFIRMATION, props),
+      
+    // Add the enhanced stats dialog opener
+    openEnhancedStats: () => openDialog(DIALOG_TYPES.ENHANCED_STATS, {}),
   };
 }
 

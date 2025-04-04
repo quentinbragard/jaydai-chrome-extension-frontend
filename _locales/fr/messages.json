@@ -644,5 +644,419 @@
         "example": "aujourd'hui"
       }
     }
+  },
+  "betaFeatureWarning": {
+    "message": "Avertissement de Fonctionnalité Bêta",
+    "description": "Titre d'avertissement pour les fonctionnalités bêta"
+  },
+  "betaFeatureWarningMessage": {
+    "message": "Nous développons et améliorons encore nos fonctionnalités d'analyse. Si vous rencontrez des problèmes, veuillez nous envoyer un email à",
+    "description": "Message d'avertissement pour les fonctionnalités bêta"
+  },
+  "questionsFeedback": {
+    "message": "Questions ou commentaires ?",
+    "description": "Label pour les questions et commentaires"
+  },
+  "comingSoon": {
+    "message": "Bientôt Disponible !",
+    "description": "Titre pour les fonctionnalités à venir"
+  },
+  "featureInDevelopment": {
+    "message": "Nous construisons encore cette fonctionnalité passionnante de $FEATURE$ ! Votre soutien nous donne l'énergie pour construire plus rapidement.",
+    "description": "Message pour les fonctionnalités en développement",
+    "placeholders": {
+      "feature": {
+        "content": "$1",
+        "example": "analytique"
+      }
+    }
+  },
+  "followUsLinkedIn": {
+    "message": "Suivez-nous sur LinkedIn",
+    "description": "Appel à l'action pour LinkedIn"
+  },
+  "rateUs": {
+    "message": "Notez-nous 5 Étoiles",
+    "description": "Appel à l'action pour la notation"
+  },
+  "enhancedAiAnalytics": {
+    "message": "Analytique IA Avancée",
+    "description": "Titre pour l'analytique avancée"
+  },
+  "analyticsDescription": {
+    "message": "Aperçus détaillés de vos interactions et modèles d'utilisation de l'IA",
+    "description": "Description des fonctionnalités d'analytique"
+  },
+  "overview": {
+    "message": "Aperçu",
+    "description": "Titre de l'onglet aperçu"
+  },
+  "usageMetrics": {
+    "message": "Métriques d'Utilisation",
+    "description": "Titre de la section métriques d'utilisation"
+  },
+  "efficiency": {
+    "message": "Efficacité",
+    "description": "Titre de la section efficacité"
+  },
+  "insights": {
+    "message": "Perspectives",
+    "description": "Titre de la section perspectives"
+  },
+  "totalConversations": {
+    "message": "Conversations Totales",
+    "description": "Métrique des conversations totales"
+  },
+  "messagesExchanged": {
+    "message": "Messages Échangés",
+    "description": "Métrique des messages échangés"
+  },
+  "efficiencyScore": {
+    "message": "Score d'Efficacité",
+    "description": "Métrique du score d'efficacité"
+  },
+  "avgResponseTime": {
+    "message": "Temps de Réponse Moyen",
+    "description": "Métrique du temps de réponse moyen"
+  },
+  "energyUsage": {
+    "message": "Consommation d'Énergie",
+    "description": "Métrique de la consommation d'énergie"
+  },
+  "tokensProcessed": {
+    "message": "Tokens Traités",
+    "description": "Métrique des tokens traités"
+  },
+  "lastWeek": {
+    "message": "dernière semaine",
+    "description": "Indicateur de période"
+  },
+  "perChat": {
+    "message": "par conversation",
+    "description": "Indicateur par conversation"
+  },
+  "seconds": {
+    "message": "secondes",
+    "description": "Unité de temps"
+  },
+  "consumptionEquivalent": {
+    "message": "Équivalent de consommation",
+    "description": "Label d'équivalent de consommation"
+  },
+  "inputOutput": {
+    "message": "Entrée + Sortie",
+    "description": "Label d'entrée et sortie"
+  },
+  "basedOnUsage": {
+    "message": "Basé sur vos habitudes d'utilisation",
+    "description": "Indicateur de modèle d'utilisation"
+  },
+  "dailyActivity": {
+    "message": "Activité Quotidienne",
+    "description": "Label du graphique d'activité quotidienne"
+  },
+  "tokenDistribution": {
+    "message": "Distribution des Tokens",
+    "description": "Label du graphique de distribution des tokens"
+  },
+  "modelUsage": {
+    "message": "Utilisation des Modèles",
+    "description": "Label du graphique d'utilisation des modèles"
+  },
+  "energyDetails": {
+    "message": "Détails de Consommation d'Énergie",
+    "description": "Label du graphique des détails d'énergie"
+  },
+  "tokenDetails": {
+    "message": "Détails d'Utilisation des Tokens",
+    "description": "Label du graphique des détails des tokens"
+  },
+  "inputTokens": {
+    "message": "Tokens d'Entrée",
+    "description": "Label des tokens d'entrée"
+  },
+  "outputTokens": {
+    "message": "Tokens de Sortie",
+    "description": "Label des tokens de sortie"
+  },
+  "ratios": {
+    "message": "Ratios",
+    "description": "Label des ratios"
+  },
+  "outputToInput": {
+    "message": "Sortie/Entrée",
+    "description": "Label du ratio sortie/entrée"
+  },
+  "recentVsTotal": {
+    "message": "Récent/Total",
+    "description": "Label récent vs total"
+  },
+  "totalEnergy": {
+    "message": "Énergie Totale",
+    "description": "Label d'énergie totale"
+  },
+  "recentEnergy": {
+    "message": "Récent (7 jours)",
+    "description": "Label d'énergie récente"
+  },
+  "perMessage": {
+    "message": "Par Message",
+    "description": "Label par message"
+  },
+  "equivalent": {
+    "message": "Équivalent à",
+    "description": "Label équivalent à"
+  },
+  "input": {
+    "message": "Entrée",
+    "description": "Label d'entrée"
+  },
+  "output": {
+    "message": "Sortie",
+    "description": "Label de sortie"
+  },
+  "unknown": {
+    "message": "Inconnu",
+    "description": "Label inconnu"
+  },
+  "total": {
+    "message": "Total",
+    "description": "Label total"
+  },
+  "recent": {
+    "message": "Récent",
+    "description": "Label récent"
+  },
+  "efficiencyDescription": {
+    "message": "Comment vous utilisez efficacement l'IA selon diverses métriques",
+    "description": "Description de l'efficacité"
+  },
+  "conversationMetrics": {
+    "message": "Métriques de Conversation",
+    "description": "Titre des métriques de conversation"
+  },
+  "avgMessagesPerChat": {
+    "message": "Moy. Messages Par Conversation",
+    "description": "Métrique moyenne des messages par conversation"
+  },
+  "responseTime": {
+    "message": "Temps de Réponse",
+    "description": "Métrique du temps de réponse"
+  },
+  "resourceEfficiency": {
+    "message": "Efficacité des Ressources",
+    "description": "Métrique d'efficacité des ressources"
+  },
+  "outputInputRatio": {
+    "message": "Ratio Sortie/Entrée",
+    "description": "Métrique du ratio sortie/entrée"
+  },
+  "energyPerMessage": {
+    "message": "Énergie Par Message",
+    "description": "Métrique d'énergie par message"
+  },
+  "idealRange": {
+    "message": "Plage idéale",
+    "description": "Label de plage idéale"
+  },
+  "fasterBetter": {
+    "message": "Plus rapide est mieux",
+    "description": "Indicateur plus rapide est mieux"
+  },
+  "higherBetter": {
+    "message": "Plus élevé est mieux - obtenir plus de sortie pour votre entrée",
+    "description": "Indicateur plus élevé est mieux"
+  },
+  "lowerBetter": {
+    "message": "Plus bas est mieux - plus économe en énergie",
+    "description": "Indicateur plus bas est mieux"
+  },
+  "expertLevel": {
+    "message": "Utilisateur expert de l'IA - très efficace",
+    "description": "Description du niveau expert"
+  },
+  "advancedLevel": {
+    "message": "Utilisateur avancé de l'IA - bon flux de conversation",
+    "description": "Description du niveau avancé"
+  },
+  "proficientLevel": {
+    "message": "Utilisateur compétent de l'IA - utilisation efficace",
+    "description": "Description du niveau compétent"
+  },
+  "developingLevel": {
+    "message": "Utilisateur en développement de l'IA - apprentissage des modèles",
+    "description": "Description du niveau en développement"
+  },
+  "noviceLevel": {
+    "message": "Utilisateur novice de l'IA - début de votre parcours",
+    "description": "Description du niveau novice"
+  },
+  "usageInsights": {
+    "message": "Aperçus d'Utilisation",
+    "description": "Titre des aperçus d'utilisation"
+  },
+  "insightsDescription": {
+    "message": "Perspectives générées par l'IA basées sur vos modèles d'utilisation",
+    "description": "Description des perspectives"
+  },
+  "conversationPatterns": {
+    "message": "Modèles de Conversation",
+    "description": "Titre des modèles de conversation"
+  },
+  "tokenEfficiency": {
+    "message": "Efficacité des Tokens",
+    "description": "Titre de l'efficacité des tokens"
+  },
+  "energyAwareness": {
+    "message": "Conscience Énergétique",
+    "description": "Titre de la conscience énergétique"
+  },
+  "usageFrequency": {
+    "message": "Fréquence d'Utilisation",
+    "description": "Titre de la fréquence d'utilisation"
+  },
+  "deepEngagement": {
+    "message": "Vous vous engagez dans des conversations profondes et détaillées avec l'IA. Cette approche est excellente pour les sujets complexes et les explications détaillées.",
+    "description": "Perspective d'engagement profond"
+  },
+  "balancedEngagement": {
+    "message": "Vous maintenez un flux de conversation équilibré avec l'IA. Cette approche fonctionne bien pour la plupart des requêtes.",
+    "description": "Perspective d'engagement équilibré"
+  },
+  "briefInteractions": {
+    "message": "Vous préférez des interactions brèves avec l'IA. Envisagez des conversations plus longues pour des sujets plus complexes.",
+    "description": "Perspective d'interactions brèves"
+  },
+  "highEfficiency": {
+    "message": "Votre ratio entrée/sortie est excellent. Vous recevez des réponses substantielles de l'IA par rapport à vos invites.",
+    "description": "Perspective de haute efficacité"
+  },
+  "goodEfficiency": {
+    "message": "Votre ratio entrée/sortie est bon. Vous obtenez une bonne valeur de vos interactions.",
+    "description": "Perspective de bonne efficacité"
+  },
+  "improvableEfficiency": {
+    "message": "Votre ratio entrée/sortie pourrait être amélioré. Envisagez d'utiliser des invites plus spécifiques et ciblées.",
+    "description": "Perspective d'efficacité améliorable"
+  },
+  "energyInsight": {
+    "message": "Votre utilisation de l'IA a consommé",
+    "description": "Préfixe de la perspective énergétique"
+  },
+  "ofEnergy": {
+    "message": "d'énergie",
+    "description": "Suffixe de la perspective énergétique"
+  },
+  "recentActivity": {
+    "message": "Votre activité récente montre",
+    "description": "Préfixe de l'activité récente"
+  },
+  "conversationsInWeek": {
+    "message": "conversations au cours de la semaine dernière",
+    "description": "Suffixe des conversations de la semaine"
+  },
+  "highFrequency": {
+    "message": "Vous êtes un utilisateur fréquent de l'IA, ce qui en fait une partie régulière de votre flux de travail.",
+    "description": "Perspective de haute fréquence"
+  },
+  "moderateFrequency": {
+    "message": "Vous utilisez l'IA modérément, en l'équilibrant avec d'autres outils.",
+    "description": "Perspective de fréquence modérée"
+  },
+  "lowFrequency": {
+    "message": "Vous utilisez l'IA occasionnellement. Envisagez d'explorer plus de cas d'utilisation pour augmenter la productivité.",
+    "description": "Perspective de basse fréquence"
+  },
+  "improvementSuggestions": {
+    "message": "Suggestions d'Amélioration",
+    "description": "Titre des suggestions d'amélioration"
+  },
+  "efficiencyTip": {
+    "message": "Conseil d'Efficacité",
+    "description": "Titre du conseil d'efficacité"
+  },
+  "efficiencyTipDesc": {
+    "message": "Essayez d'utiliser des invites plus spécifiques pour obtenir des réponses plus ciblées et améliorer votre score d'efficacité.",
+    "description": "Description du conseil d'efficacité"
+  },
+  "outputRatioTip": {
+    "message": "Conseil de Ratio de Sortie",
+    "description": "Titre du conseil de ratio de sortie"
+  },
+  "outputRatioTipDesc": {
+    "message": "Vos réponses d'IA sont relativement courtes par rapport à vos entrées. Pensez à demander des réponses plus détaillées ou complètes.",
+    "description": "Description du conseil de ratio de sortie"
+  },
+  "responseTimeTip": {
+    "message": "Conseil de Temps de Réponse",
+    "description": "Titre du conseil de temps de réponse"
+  },
+  "responseTimeTipDesc": {
+    "message": "Votre temps de réponse moyen est un peu élevé. Envisagez de décomposer les questions complexes en parties plus petites pour des réponses plus rapides.",
+    "description": "Description du conseil de temps de réponse"
+  },
+  "aiUsageProfile": {
+    "message": "Votre Profil d'Utilisation de l'IA",
+    "description": "Titre du profil d'utilisation de l'IA"
+  },
+  "expertDesc": {
+    "message": "Vous utilisez l'IA avec une efficacité et une efficience exceptionnelles.",
+    "description": "Description expert"
+  },
+  "advancedDesc": {
+    "message": "Vous êtes habile à obtenir des résultats précieux de l'IA.",
+    "description": "Description avancée"
+  },
+  "proficientDesc": {
+    "message": "Vous utilisez l'IA efficacement avec de bons résultats.",
+    "description": "Description compétente"
+  },
+  "developingDesc": {
+    "message": "Vous apprenez à utiliser l'IA plus efficacement.",
+    "description": "Description en développement"
+  },
+  "noviceDesc": {
+    "message": "Vous commencez votre parcours avec l'IA.",
+    "description": "Description novice"
+  },
+  "usageOverview": {
+    "message": "Aperçu d'Utilisation",
+    "description": "Titre de l'aperçu d'utilisation"
+  },
+  "keyMetricsDesc": {
+    "message": "Indicateurs clés sur votre utilisation de l'IA",
+    "description": "Description des indicateurs clés"
+  },
+  "messages": {
+    "message": "messages",
+    "description": "Label des messages"
+  },
+  "tokenRatios": {
+    "message": "Distribution des Tokens",
+    "description": "Titre des ratios de tokens"
+  },
+  "noModelData": {
+    "message": "Aucune donnée d'utilisation de modèle disponible",
+    "description": "Message d'absence de données de modèle"
+  },
+  "noEquivalent": {
+    "message": "Aucun équivalent disponible",
+    "description": "Message d'absence d'équivalent"
+  },
+  "updated": {
+    "message": "Mis à jour",
+    "description": "Label mis à jour"
+  },
+  "viewEnhancedStats": {
+    "message": "Voir Analytique Avancée",
+    "description": "Label du bouton voir analytique avancée"
+  },
+  "energyEquivalent": {
+    "message": "Équivalent Énergétique",
+    "description": "Titre pour la section équivalent énergétique"
+  },
+  "energyEquivalentHelp": {
+    "message": "Ceci montre à quoi équivaut votre consommation d'énergie IA en termes quotidiens",
+    "description": "Texte d'aide expliquant la fonctionnalité d'équivalent énergétique"
   }
 }

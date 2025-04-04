@@ -7,6 +7,7 @@ import { PlaceholderEditor } from './templates/PlaceHolderEditor';
 import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
+import { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
 
 // Create a global dialog manager initialization flag
 let initializationAttempted = false;
@@ -73,6 +74,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <AuthDialog />
       <SettingsDialog />
       <ConfirmationDialog />
+      <EnhancedStatsDialog />
     </DialogManagerProvider>
   );
 };
@@ -86,3 +88,4 @@ export { PlaceholderEditor } from './templates/PlaceHolderEditor';
 export { AuthDialog } from './auth/AuthDialog';
 export { SettingsDialog } from './settings/SettingsDialog';
 export { ConfirmationDialog } from './common/ConfirmationDialog';
+export { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
