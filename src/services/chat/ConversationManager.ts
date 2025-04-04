@@ -5,6 +5,8 @@ import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { emitEvent, AppEvent } from '@/core/events/events';
+import { apiClient } from '../api/ApiClient';
+import { SaveChatParams } from '../api/MessageApi';
 
 /**
  * Manages conversation data and current conversation state
@@ -75,16 +77,41 @@ export class ConversationManager extends AbstractBaseService {
       this.addConversation(conversation);
     }
   };
+
+  private mapConversationsToChatParams(conversations: any[]): SaveChatParams[] {
+    return conversations.map(chat => ({
+      chat_provider_id: chat.id,
+      title: chat.title || 'Unnamed Conversation',
+      provider_name: 'ChatGPT'  // Explicitly set to ChatGPT
+    })).filter(chat => 
+      // Filter out any chats with missing or invalid chat_provider_id
+      chat.chat_provider_id && 
+      chat.chat_provider_id.trim() !== ''
+    );
+  }
+
+  /**
+   * Save a batch of chats
+   */
+  async saveChatBatch(chats: SaveChatParams[]): Promise<any> {
+    return apiClient.request('/save/batch/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        chats: this.mapConversationsToChatParams(chats)
+      })
+    });
+  }
   
   /**
    * Handle conversation list data
    */
   private handleConversationList = (event: CustomEvent): void => {
-    const { conversations } = event.detail;
+    console.log('🚀🚀🚀🚀🚀=================== handleConversationList', event);
+    const { data } = event.detail;
+    const conversations = data.responseBody.items;
+    console.log('🚀🚀🚀🚀🚀=================== conversations', conversations);
     if (conversations && Array.isArray(conversations)) {
-      conversations.forEach(conversation => {
-        this.addConversation(conversation);
-      });
+      this.saveChatBatch(conversations);
     }
   };
   

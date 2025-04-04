@@ -46,12 +46,13 @@ export class AppInitializer {
       console.log('🚀 Initializing Archimind application...');
       // Inject UI components - Main component will set up the dialog system
       this.injectUIComponents();
+       // Register all services
+       registerServices();
       
       // Initialize event manager first
       eventManager.initialize();
       
-      // Register all services
-      registerServices();
+     
       
       // Initialize services
       const servicesInitialized = await serviceManager.initializeAll();

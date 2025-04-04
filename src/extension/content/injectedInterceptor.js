@@ -38,9 +38,17 @@
   
   // Send intercepted data to extension
   function sendToExtension(type, data) {
-    document.dispatchEvent(new CustomEvent('archimind-network-intercept', {
-      detail: { type, data, timestamp: Date.now() }
-    }));
+    if (type === 'conversationList') {
+      console.log('🚀🚀🚀🚀🚀 conversationList', data);
+      document.dispatchEvent(new CustomEvent('archimind:conversation-list', {
+        detail: { type, data, timestamp: Date.now() }
+      }));
+    }
+    else {
+      document.dispatchEvent(new CustomEvent('archimind-network-intercept', {
+        detail: { type, data, timestamp: Date.now() }
+      }));
+    }
   }
 
   /**
