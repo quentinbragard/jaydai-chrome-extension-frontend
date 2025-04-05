@@ -13,18 +13,19 @@ import {
 
 export interface Stats {
   totalChats: number;
-  recentChats: number; // Added field for recent chats (last 7 days)
+  recentChats: number;
   totalMessages: number;
   avgMessagesPerChat: number;
   messagesPerDay: Record<string, number>;
+  chatsPerDay: Record<string, number>;  // Add this property
   efficiency?: number;
   tokenUsage: {
-    recent: number; // renamed from lastMonth to recent
-    recentInput: number; // New field
-    recentOutput: number; // New field
+    recent: number;
+    recentInput: number;
+    recentOutput: number;
     total: number;
-    totalInput: number; // New field
-    totalOutput: number; // New field
+    totalInput: number;
+    totalOutput: number;
   };
   energyUsage: {
     recentWh: number;
@@ -36,7 +37,7 @@ export interface Stats {
     total: number;
     average: number;
   };
-  modelUsage?: Record<string, { // New field for model breakdown
+  modelUsage?: Record<string, {
     count: number;
     inputTokens: number;
     outputTokens: number;
@@ -59,6 +60,7 @@ export class StatsService extends AbstractBaseService {
     totalMessages: 0,
     avgMessagesPerChat: 0,
     messagesPerDay: {},
+    chatsPerDay: {},  // Add this
     tokenUsage: {
       recent: 0,
       recentInput: 0,
@@ -68,9 +70,9 @@ export class StatsService extends AbstractBaseService {
       totalOutput: 0
     },
     energyUsage: {
-      recent: 0,
-      total: 0,
-      perMessage: 0
+      recentWh: 0,
+      totalWh: 0,
+      perMessageWh: 0
     },
     thinkingTime: {
       total: 0,

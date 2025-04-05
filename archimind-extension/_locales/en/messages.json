@@ -40,31 +40,35 @@
     "description": "AI task example 5"
   },
   "welcomeDescription": {
-    "message": "Your Intelligent AI Usage Companion. Our goal is to help you harness the power of AI while maintaining your unique human expertise.",
+    "message": "Maximize your generative AI experience with Jaydai, the free Chrome extension that transforms how you use ChatGPT",
     "description": "Welcome page description"
   },
+  "browseOfficialTemplates": {
+    "message": "Browse Official Templates",
+    "description": "Browse official templates button"
+  },
   "energyInsights": {
-    "message": "Energy Insights",
+    "message": "Unlock the full potential of AI",
     "description": "Feature card title"
   },
   "energyInsightsDesc": {
-    "message": "Track and optimize your AI usage with real-time energy consumption metrics.",
+    "message": "Access our library of prompts created by experts and organized by topic",
     "description": "Feature card description"
   },
   "smartTemplates": {
-    "message": "Smart Templates",
+    "message": "Boost your productivity",
     "description": "Feature card title"
   },
   "smartTemplatesDesc": {
-    "message": "Access a library of curated prompt templates to enhance your AI interactions.",
+    "message": "Access our library of prompts created by experts and organized by topic",
     "description": "Feature card description"
   },
   "skillDevelopment": {
-    "message": "Skill Development",
+    "message": "Measure your impact",
     "description": "Feature card title"
   },
   "skillDevelopmentDesc": {
-    "message": "Receive personalized recommendations to upskill and maintain human expertise.",
+    "message": "Get detailed analytics on your usage and energy footprint",
     "description": "Feature card description"
   },
   "getStarted": {

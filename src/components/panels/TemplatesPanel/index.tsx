@@ -273,14 +273,17 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         onClose={onClose}
         className="w-80"
       >
-        <div className="py-8 px-4 text-center">
-          <FolderOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
-          <p className="text-sm text-muted-foreground mb-4">
-            {getMessage('noTemplates', undefined, "No templates available")}
+        <div className="py-8 px-4 text-center space-y-6">
+          <FolderOpen className="h-8 w-8 text-muted-foreground mx-auto opacity-40" />
+          
+          <p className="text-sm text-muted-foreground">
+            {getMessage('noTemplates', undefined, "You don’t have any templates yet.")}
           </p>
-          <div className="flex flex-col items-center gap-2">
+  
+          {/* CTA: Create */}
+          <div className="space-y-2">
             <Button 
-              variant="outline" 
+              variant="default" 
               size="sm" 
               onClick={createFolderAndTemplate}
               className="w-full"
@@ -288,20 +291,33 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <PlusCircle className="mr-2 h-4 w-4" />
               {getMessage('createFirstTemplate', undefined, 'Create Your First Template')}
             </Button>
+  
+            {/* CTA: Browse Official Templates */}
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="sm" 
-              onClick={handleRefresh}
-              className="mt-2"
+              onClick={handleBrowseOfficialTemplates}
+              className="w-full"
             >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
+              <FolderOpen className="mr-2 h-4 w-4" />
+              {getMessage('browseOfficialTemplates', undefined, 'Browse Official Templates')}
             </Button>
           </div>
+  
+          {/* Refresh */}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleRefresh}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            {getMessage('refresh', undefined, 'Refresh')}
+          </Button>
         </div>
       </BasePanel>
     );
   }
+  
 
   // Main content render with templates and folders
   return (
@@ -315,7 +331,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     >
       <div className="space-y-4">
         {/* Official Templates Section */}
-        {pinnedFolders?.official?.length > 0 && (
+        {pinnedFolders?.official?.length > 0 ? (
           <>
             <FolderSection
               title={getMessage('officialTemplates', undefined, 'Official Templates')}
@@ -336,8 +352,18 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </FolderSection>
             <Separator />
           </>
+        ) : (
+          <FolderSection
+          title={getMessage('officialTemplates', undefined, 'Official Templates')}
+          iconType="official"
+          showBrowseMore={true}
+          onBrowseMore={handleBrowseOfficialTemplates}
+        >
+            <EmptyMessage>
+              {getMessage('noPinnedOfficialTemplates', undefined, 'No pinned official templates.')}
+            </EmptyMessage>
+          </FolderSection>
         )}
-        
         {/* Organization Templates Section */}
         <FolderSection
           title={getMessage('organizationTemplates', undefined, 'Organization Templates')}

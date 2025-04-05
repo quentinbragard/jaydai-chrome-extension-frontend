@@ -135,9 +135,9 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
             <>
               {/* Top cards */}
               <div className="flex items-center justify-between mb-4 px-8 gap-4 w-full">
-                <StatsCard 
+              <StatsCard 
                   icon={<MessageCircle className="h-3.5 w-3.5" />} 
-                  value={stats.totalChats} 
+                  value={stats.totalChats > 20 ? "20+" : stats.totalChats} 
                   color="text-blue-500"
                   title="Conversations"
                 />

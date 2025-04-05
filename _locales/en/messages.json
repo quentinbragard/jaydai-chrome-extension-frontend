@@ -318,8 +318,8 @@
     "description": "Dismiss button"
   },
   "newTemplate": {
-    "message": "New",
-    "description": "New template button"
+    "message": "New Template",
+    "description": "Button text to create a new template"
   },
   "officialTemplates": {
     "message": "Official Templates",
@@ -505,7 +505,7 @@
   },
   "browseMore": {
     "message": "Browse More",
-    "description": "Browse more button text"
+    "description": "Button text to browse more items"
   },
   "browseMoreTitle": {
     "message": "Browse Templates",
@@ -1249,11 +1249,11 @@
   },
   "enterprise_feature": {
     "message": "Enterprise Feature",
-    "description": "Label for enterprise-only features"
+    "description": "Label indicating an enterprise feature"
   },
   "organization_templates_description": {
     "message": "Access to organization templates is an enterprise feature. Contact us to enable this for your team.",
-    "description": "Description for enterprise templates feature"
+    "description": "Description text for enterprise templates feature"
   },
   "contact_enterprise_sales": {
     "message": "Contact Sales",

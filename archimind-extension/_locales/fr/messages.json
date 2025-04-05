@@ -11,6 +11,10 @@
     "message": "Bienvenue sur Archimind",
     "description": "Titre de la page d'accueil"
   },
+  "browseOfficialTemplates": {
+    "message": "Parcourir les templates officiels",
+    "description": "Bouton Parcourir les templates officiels"
+  },
   "yourAICompanion": {
     "message": "Votre compagnon IA",
     "description": "Sous-titre de la page d'accueil"
@@ -40,31 +44,31 @@
     "description": "Exemple de tâche IA 5"
   },
   "welcomeDescription": {
-    "message": "Votre Compagnon Intelligent d'Utilisation de l'IA. Notre objectif est de vous aider à exploiter la puissance de l'IA tout en maintenant votre expertise humaine unique.",
+    "message": "Maximisez votre expérience avec l'IA générative grâce à Jaydai, l'extension Chrome gratuite qui transforme votre utilisation de ChatGPT",
     "description": "Description de la page d'accueil"
   },
   "energyInsights": {
-    "message": "Analyses Énergétiques",
+    "message": "Débloquez le potentiel de l'IA",
     "description": "Titre de carte de fonctionnalité"
   },
   "energyInsightsDesc": {
-    "message": "Suivez et optimisez votre utilisation de l'IA avec des métriques de consommation d'énergie en temps réel.",
+    "message": "Accèder à notre bibliothèque de prompts rédigés par des experts et classés par thématique",
     "description": "Description de carte de fonctionnalité"
   },
   "smartTemplates": {
-    "message": "Templates Intelligents",
+    "message": "Boostez votre productivité",
     "description": "Titre de carte de fonctionnalité"
   },
   "smartTemplatesDesc": {
-    "message": "Accédez à une bibliothèque de templates d'invite soigneusement sélectionnés pour améliorer vos interactions avec l'IA.",
+    "message": "Sauvegardez tous vos prompts personnalisés pour un accès instantané",
     "description": "Description de carte de fonctionnalité"
   },
   "skillDevelopment": {
-    "message": "Développement de Compétences",
+    "message": "Mesurez votre impact",
     "description": "Titre de carte de fonctionnalité"
   },
   "skillDevelopmentDesc": {
-    "message": "Recevez des recommandations personnalisées pour améliorer vos compétences et maintenir votre expertise humaine.",
+    "message": "Retrouvez des analyses détaillées sur votre utilisation et votre empreinte énergétique",
     "description": "Description de carte de fonctionnalité"
   },
   "getStarted": {
@@ -78,6 +82,16 @@
   "signUp": {
     "message": "S'inscrire",
     "description": "Bouton d'inscription"
+  },
+  "signUpWith": {
+    "message": "S'inscrire avec $PROVIDER$",
+    "description": "Bouton d'inscription avec fournisseur",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
   },
   "emailConfirmationRequired": {
     "message": "Vérification par e-mail requise après l'inscription",

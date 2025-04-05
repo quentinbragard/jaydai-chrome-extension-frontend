@@ -310,8 +310,8 @@
     "description": "Bouton Ignorer"
   },
   "newTemplate": {
-    "message": "Nouveau",
-    "description": "Bouton Nouveau template"
+    "message": "Nouveau Modèle",
+    "description": "Button text to create a new template"
   },
   "officialTemplates": {
     "message": "Templates Officiels",
@@ -417,8 +417,8 @@
     "description": "Button text to use template"
   },
   "browseMore": {
-    "message": "Parcourir Plus",
-    "description": "Texte du bouton Parcourir plus"
+    "message": "Voir Plus",
+    "description": "Button text to browse more items"
   },
   "browseMoreTitle": {
     "message": "Parcourir les Templates",
@@ -1158,19 +1158,19 @@
   },
   "organization_templates_title": {
     "message": "Modèles Entreprise",
-    "description": "Titre pour la section des modèles entreprise"
+    "description": "Title for enterprise templates section"
   },
   "enterprise_feature": {
     "message": "Fonctionnalité Entreprise",
-    "description": "Étiquette pour les fonctionnalités réservées à l'entreprise"
+    "description": "Label indicating an enterprise feature"
   },
   "organization_templates_description": {
     "message": "L'accès aux modèles d'organisation est une fonctionnalité entreprise. Contactez-nous pour l'activer pour votre équipe.",
-    "description": "Description pour la fonctionnalité des modèles entreprise"
+    "description": "Description text for enterprise templates feature"
   },
   "contact_enterprise_sales": {
     "message": "Contacter les Ventes",
-    "description": "Texte du bouton pour contacter les ventes pour les fonctionnalités entreprise"
+    "description": "Button text to contact sales for enterprise features"
   },
   "searchOfficialFolders": {
     "message": "Rechercher des dossiers officiels...",
@@ -1297,9 +1297,5 @@
   "errorSavingTemplate": {
     "message": "Erreur lors de l'enregistrement du modèle",
     "description": "Message d'erreur lorsque l'enregistrement du modèle échoue"
-  },
-  "failedToCreateFolder": {
-    "message": "Échec de la création du dossier",
-    "description": "Message d'erreur lorsque la création du dossier échoue"
   }
 }

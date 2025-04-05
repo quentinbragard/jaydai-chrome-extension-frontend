@@ -331,7 +331,7 @@ const ExtensionPopup: React.FC = () => {
               </div>
             )}
             
-            <div className="space-y-2">
+            <div className="space-y-2 text-white">
               <Label htmlFor="email-signin" className="text-white font-medium text-sm">
                 {getMessage('email', undefined, 'Email')}
               </Label>
@@ -351,7 +351,7 @@ const ExtensionPopup: React.FC = () => {
               </div>
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-2 text-white">
               <div className="flex justify-between items-center">
                 <Label htmlFor="password-signin" className="text-white font-medium text-sm">
                   {getMessage('password', undefined, 'Password')}
@@ -425,7 +425,7 @@ const ExtensionPopup: React.FC = () => {
                 <div className="p-1.5 bg-white rounded-full shadow-sm mr-3 group-hover:shadow group-hover:scale-110 transition-all duration-300">
                   <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-4 w-4" />
                 </div>
-                <span className="font-medium">{getMessage('signInWith', ['Google'], 'Sign in with Google')}</span>
+                <span className="font-medium text-white">{getMessage('signInWith', ['Google'], 'Sign in with Google')}</span>
               </span>
             </Button>
             

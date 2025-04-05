@@ -109,8 +109,8 @@ const StatsDetailDashboard = () => {
     { name: 'Output', value: stats.tokenUsage.totalOutput }
   ];
 
-  // Format data for daily message volume, sorted chronologically (oldest to newest)
-  const dailyMessageData = Object.entries(stats.messagesPerDay || {})
+  // Format data for daily chat volume, sorted chronologically (oldest to newest)
+  const dailyChatData = Object.entries(stats.chatsPerDay || {})
     .map(([date, count]) => ({ date, count }))
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   
@@ -134,7 +134,7 @@ const StatsDetailDashboard = () => {
             <CardTitle className="text-sm font-medium">Total Conversations</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold">{stats.totalChats.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{stats.totalChats > 20 ? "20+" : stats.totalChats.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
               {stats.recentChats} in the last 7 days
             </p>
@@ -158,9 +158,9 @@ const StatsDetailDashboard = () => {
             <CardTitle className="text-sm font-medium">Energy Usage</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold">{stats.energyUsage.total.toFixed(2)} kWh</div>
+            <div className="text-2xl font-bold">{stats.energyUsage.totalWh.toFixed(2)} kWh</div>
             <p className="text-xs text-muted-foreground">
-              {stats.energyUsage.recent.toFixed(2)} kWh in the last 7 days
+              {stats.energyUsage.recentWh.toFixed(2)} kWh in the last 7 days
             </p>
           </CardContent>
         </Card>
@@ -260,27 +260,27 @@ const StatsDetailDashboard = () => {
             
             <Card>
               <CardHeader>
-                <CardTitle>Daily Message Volume</CardTitle>
+                <CardTitle>Daily Chat Volume</CardTitle>
               </CardHeader>
               <CardContent>
-                {dailyMessageData.length === 0 ? (
+                {dailyChatData.length === 0 ? (
                   <EmptyState 
                     icon={<BarChart2 className="h-12 w-12 text-muted-foreground opacity-30" />}
-                    message="No daily message data available" 
-                    submessage="Daily message volume will appear here as you exchange messages" 
+                    message="No daily chat data available" 
+                    submessage="Daily chat volume will appear here as you start conversations" 
                   />
                 ) : (
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
-                        data={dailyMessageData}
+                        data={dailyChatData}
                         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
                         <YAxis />
                         <Tooltip />
-                        <Bar dataKey="count" fill="#10b981" />
+                        <Bar dataKey="count" fill="#8b5cf6" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
