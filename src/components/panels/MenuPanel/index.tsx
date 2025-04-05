@@ -81,7 +81,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
             <Bell className="mr-2 h-4 w-4" /> 
             {getMessage('notifications', undefined, 'Notifications')}
             {notificationCount > 0 && (
-              <span className="ml-auto bg-primary text-primary-foreground rounded-full text-xs px-1.5 py-0.5">
+              <span className="ml-auto  bg-red-500 text-white rounded-full text-xs px-1.5 py-0.5">
                 {notificationCount}
               </span>
             )}

@@ -24,7 +24,6 @@ export const useMainButtonState = () => {
     const handleOpenNotifications = () => {
       console.log('Opening notifications panel');
       // Important: Set panel type first, then open
-      setPanelType('notifications');
       setIsOpen(true);
     };
 
