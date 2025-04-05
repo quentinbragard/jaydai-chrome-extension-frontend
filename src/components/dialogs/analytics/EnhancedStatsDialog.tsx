@@ -65,7 +65,7 @@ const ComingSoonCard: React.FC<{ title: string }> = ({ title }) => {
     // For Chrome Store
     const isChrome = navigator.userAgent.indexOf("Chrome") !== -1;
     if (isChrome) {
-      window.open('https://chrome.google.com/webstore/detail/your-extension-id/rate', '_blank');
+      window.open('https://chromewebstore.google.com/detail/jaydai-chrome-extension/enfcjmbdbldomiobfndablekgdkmcipd/reviews', '_blank');
     } else {
       // For Firefox Add-ons
       window.open('https://addons.mozilla.org/firefox/addon/your-addon-id/reviews/', '_blank');
@@ -91,7 +91,7 @@ const ComingSoonCard: React.FC<{ title: string }> = ({ title }) => {
       <div className="flex flex-col sm:flex-row gap-4 mt-2 mb-6">
         <Button 
           variant="outline" 
-          className="flex items-center gap-2 bg-background border-primary text-primary hover:bg-primary/10" 
+          className="flex items-center gap-2 bg-background border-primary text-primary-foreground hover:bg-primary/10" 
           onClick={openLinkedIn}
         >
           <LinkedinIcon className="h-4 w-4" />
@@ -420,7 +420,7 @@ export const EnhancedStatsDialog: React.FC = () => {
                   <h4 className="text-sm font-semibold mb-2">
                     {getMessage('equivalent', undefined, 'Equivalent to')}
                   </h4>
-                  <div className="flex p-4 bg-green-100 dark:bg-green-900/20 rounded-md">
+                  <div className="flex p-4 bg-green-100 dark:bg-green-900/20 text-background rounded-md">
                     <Zap className="h-5 w-5 mr-2 text-green-600 dark:text-green-400 flex-shrink-0" />
                     <p className="text-base text-green-800 dark:text-green-300">
                       {energyEquivalent}

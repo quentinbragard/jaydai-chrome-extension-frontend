@@ -402,7 +402,7 @@ private extractUserMessage(requestBody: any): { id: string, content: string } | 
 
 // Add debounce mechanism to prevent too many API calls
 private refreshTimeout: number | null = null;
-private debounceRefresh(delay: number = 3000): void {
+private debounceRefresh(delay: number = 1000): void {
   if (this.refreshTimeout !== null) {
     window.clearTimeout(this.refreshTimeout);
   }
@@ -412,6 +412,7 @@ private debounceRefresh(delay: number = 3000): void {
     this.loadStats();
   }, delay);
 }
+
   
   /**
    * Get current stats
@@ -424,7 +425,10 @@ private debounceRefresh(delay: number = 3000): void {
    * Get chart data for messages per day
    */
   public getMessagesPerDayChart(): ChartData {
-    const sortedDays = Object.keys(this.stats.messagesPerDay).sort();
+    // Sort days chronologically (oldest to newest)
+    const sortedDays = Object.keys(this.stats.messagesPerDay)
+      .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    
     return {
       labels: sortedDays,
       values: sortedDays.map(day => this.stats.messagesPerDay[day])
