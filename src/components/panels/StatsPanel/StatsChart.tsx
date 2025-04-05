@@ -67,6 +67,7 @@ const StatsChart: React.FC<StatsChartProps> = ({
     
     switch (type) {
       case 'bar':
+        console.log("chartData", chartData);
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart

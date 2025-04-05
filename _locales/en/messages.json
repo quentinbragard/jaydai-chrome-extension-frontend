@@ -1314,5 +1314,9 @@
         "example": "[NAME]"
       }
     }
+  },
+  "templateProcessingError": {
+    "message": "Failed to process template. Please try again.",
+    "description": "Error message when template processing fails"
   }
 }
