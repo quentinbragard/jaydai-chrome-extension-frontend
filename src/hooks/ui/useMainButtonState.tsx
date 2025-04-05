@@ -12,9 +12,11 @@ export const useMainButtonState = () => {
 
   // Combined event handling for improved coordination
   useEffect(() => {
+    console.log('🔁 useMainButtonState mounted');
     // Handle notification count changes
     const handleNotificationCountChanged = (event: CustomEvent) => {
       const { unreadCount } = event.detail;
+      console.log("unreadCount 👀👀👀👀", unreadCount);
       setNotificationCount(unreadCount);
     };
 

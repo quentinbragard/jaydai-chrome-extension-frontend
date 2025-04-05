@@ -374,6 +374,7 @@ export class NotificationService extends AbstractBaseService {
     this.unreadCount = unreadCount;
     
     // Dispatch an event that UI components can listen for
+    console.log("unreadCoun============t", unreadCount);
     document.dispatchEvent(new CustomEvent('jaydai:notification-count-changed', {
       detail: { unreadCount }
     }));
