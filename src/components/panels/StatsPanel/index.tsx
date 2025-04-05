@@ -219,7 +219,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
               </span>
               
               <Button 
-                className="text-[10px] text-primary hover:underline p-0 h-auto bg-transparent flex items-center gap-1"
+                className="text-[10px] text-blue-500 px-1 hover:underline p-0 h-auto bg-transparent flex items-center gap-1"
                 variant="ghost"
                 onClick={handleOpenEnhancedStats}
               >

@@ -71,7 +71,7 @@ const WelcomePage: React.FC = () => {
                 {tasks.map((task, index) => (
                   <motion.span
                     key={index}
-                    className="absolute left-0 whitespace-nowrap"
+                    className="absolute left-0 whitespace-nowrap ml-1"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ 
                       opacity: taskIndex === index ? 1 : 0,
