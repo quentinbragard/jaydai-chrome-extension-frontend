@@ -170,7 +170,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                   tooltip="Conversations in the last 7 days"
                 />
                 
-                {/* Improved Energy Equivalent Display */}
+                {/* Improved Energy Equivalent Display 
                 {stats.energyUsage?.equivalent && (
                   <div className="mb-3 last:mb-1 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-900/20 rounded-md px-3 py-2.5">
                     <div className="flex items-start">
@@ -196,6 +196,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                     </div>
                   </div>
                 )}
+                  */}
                 
                 <StatsDetailRow 
                   label={getMessage('messagingEfficiency', undefined, 'Messages Per Conversation')} 

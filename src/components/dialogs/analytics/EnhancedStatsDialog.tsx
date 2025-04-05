@@ -189,10 +189,10 @@ export const EnhancedStatsDialog: React.FC = () => {
     {
       icon: <Award className="h-5 w-5" />,
       title: getMessage('efficiencyScore', undefined, 'Efficiency Score'),
-      value: Math.round(stats.efficiency || 0),
+      value: Math.min(Math.round(stats.efficiency || 0), 100),
       suffix: '/100',
       description: getMessage('basedOnUsage', undefined, 'Based on your usage patterns'),
-      progress: stats.efficiency || 0,
+      progress: Math.min(stats.efficiency || 0, 100),
       progressColor: 
         (stats.efficiency || 0) >= 80 ? '#22c55e' : 
         (stats.efficiency || 0) >= 60 ? '#eab308' : '#ef4444',
@@ -415,7 +415,7 @@ export const EnhancedStatsDialog: React.FC = () => {
                 </div>
                 
                 <Separator className="my-4" />
-                
+                {/*
                 <div className="mt-4">
                   <h4 className="text-sm font-semibold mb-2">
                     {getMessage('equivalent', undefined, 'Equivalent to')}
@@ -427,6 +427,7 @@ export const EnhancedStatsDialog: React.FC = () => {
                     </p>
                   </div>
                 </div>
+                */}
               </CardContent>
             </Card>
           </TabsContent>
