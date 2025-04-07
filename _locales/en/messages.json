@@ -1319,5 +1319,59 @@
   "templateProcessingError": {
     "message": "Failed to process template. Please try again.",
     "description": "Error message when template processing fails"
+  },
+  "welcomeBack": {
+    "message": "Welcome Back!",
+    "description": "Welcome message for returning users"
+  },
+  "accountReady": {
+    "message": "Your AI companion is ready!",
+    "description": "Message shown when user's account is ready"
+  },
+  "loggedInAs": {
+    "message": "You're logged in as $1$. You can now launch AI tools with enhanced capabilities.",
+    "description": "Message showing the logged in user's email or name",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "loading": {
+    "message": "Loading...",
+    "description": "Generic loading message"
+  },
+  "signedOut": {
+    "message": "Signed out successfully",
+    "description": "Message shown when user signs out successfully"
+  },
+  "logoutFailed": {
+    "message": "Failed to sign out",
+    "description": "Error message when sign out fails"
+  },
+  "loginFailed": {
+    "message": "Login failed. Please try again.",
+    "description": "Error message when login fails"
+  },
+  "createAccount": {
+    "message": "Create Account",
+    "description": "Button text to create a new account"
+  },
+  "signOut": {
+    "message": "Sign Out",
+    "description": "Button text for sign out"
+  },
+  "signedInAs": {
+    "message": "Signed in as",
+    "description": "Text shown before the user's email/name"
+  },
+  "loadingTools": {
+    "message": "Loading your AI tools",
+    "description": "Text shown while loading tools"
+  },
+  "online": {
+    "message": "Online",
+    "description": "Status indicator for authenticated users"
   }
 }

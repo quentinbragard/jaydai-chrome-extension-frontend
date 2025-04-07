@@ -1,7 +1,69 @@
-/* src/popup/popup.css */
+/* src/extension/popup/popup.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
 
 /* Base popup styles */
 body {
@@ -9,35 +71,20 @@ body {
   min-height: 300px;
   overflow-x: hidden;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: transparent;
-  @apply bg-background;
+  @apply bg-background text-foreground;
   margin: 0;
   padding: 0;
 }
 
 /* Better focus styles for accessibility */
 :focus-visible {
-  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline: 2px solid hsl(var(--ring) / 0.5);
   outline-offset: 2px;
-}
-
-/* Global rounded corners */
-.rounded-lg {
-  border-radius: 0.5rem;
 }
 
 /* Add perspective for 3D effects */
 .perspective {
   perspective: 1000px;
-}
-
-/* Card styling */
-.card {
-  @apply backdrop-blur-sm;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
-              0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.2s ease-in-out;
 }
 
 /* Modern spinner animation */
@@ -59,7 +106,7 @@ body {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: #3b82f6;
+  background-color: hsl(var(--primary));
   opacity: 0.6;
   position: absolute;
   top: 0;
@@ -84,18 +131,9 @@ body {
   }
 }
 
-/* Input styling enhancements */
-input {
-  @apply transition-all duration-200;
-}
-
-input:focus {
-  @apply border-blue-500 ring-2 ring-blue-500/20;
-}
-
-/* Tool button card effects */
+/* Tool button card effects - ensure NO border */
 .ai-tool-button {
-  @apply rounded-lg transition-all duration-300;
+  @apply rounded-lg transition-all duration-300 border-none;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
@@ -129,150 +167,6 @@ input:focus {
 
 .animate-pulse-slow {
   animation: pulse-slow 3s infinite;
-}
-
-/* Gradient text effects */
-.text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
-}
-
-/* Button hover effects */
-button:not(.no-hover-effect) {
-  position: relative;
-  overflow: hidden;
-}
-
-button:not(.no-hover-effect)::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 5px;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.3);
-  opacity: 0;
-  border-radius: 100%;
-  transform: scale(1, 1) translate(-50%);
-  transform-origin: 50% 50%;
-}
-
-button:not(.no-hover-effect):active::after {
-  opacity: 1;
-  width: 200px;
-  height: 200px;
-  border-radius: 100%;
-  transform: scale(0, 0) translate(-50%);
-  transition: transform 0.4s, opacity 0.6s;
-}
-
-/* Toast notification styling */
-.toast-container {
-  z-index: 9999;
-}
-
-/* Responsive height adjustments */
-@media (max-height: 600px) {
-  .card-content {
-    max-height: 400px;
-    overflow-y: auto;
-  }
-}
-
-/* 3D Card hover effect for AI tools */
-.card-3d {
-  transform-style: preserve-3d;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card-3d:hover {
-  transform: translateY(-5px) rotateX(2deg);
-  box-shadow: 0 15px 25px -10px rgba(0, 0, 0, 0.15);
-}
-
-/* Glassmorphism effect */
-.glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.dark .glass {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-/* Tool icon container */
-.tool-icon {
-  @apply rounded-md bg-gradient-to-br p-2 shadow-sm;
-  transition: all 0.2s ease;
-}
-
-.tool-icon:hover {
-  @apply shadow-md;
-  transform: scale(1.05);
-}
-
-/* Frosted glass effect for cards */
-.frosted-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.dark .frosted-card {
-  background: rgba(30, 41, 59, 0.7);
-}
-
-/* Smooth hover transitions */
-.hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
-}
-
-/* Make sure the button icons are aligned */
-button svg,
-button img {
-  flex-shrink: 0;
-}
-
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #0f172a;
-  }
-  
-  input {
-    background-color: rgba(30, 41, 59, 0.8);
-    border-color: rgba(71, 85, 105, 0.5);
-  }
-  
-  .spinner .double-bounce1,
-  .spinner .double-bounce2 {
-    background-color: #3b82f6;
-  }
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.5);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.7);
 }
 
 /* Subtle background animation */
@@ -309,4 +203,61 @@ button img {
   100% {
     box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
   }
+}
+
+/* 3D Card hover effect for AI tools */
+.card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  @apply border-none;
+}
+
+.card-3d:hover {
+  transform: translateY(-5px) rotateX(2deg);
+  box-shadow: 0 15px 25px -10px rgba(0, 0, 0, 0.15);
+}
+
+/* Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.dark .glass {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Tool icon container */
+.tool-icon {
+  @apply rounded-md bg-gradient-to-br p-2 shadow-sm;
+  transition: all 0.2s ease;
+}
+
+.tool-icon:hover {
+  @apply shadow-md;
+  transform: scale(1.05);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted/50 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted/70;
+}
+
+/* Override for buttons to ensure no borders */
+button {
+  @apply border-none shadow-none;
 }

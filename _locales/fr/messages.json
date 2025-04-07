@@ -347,10 +347,6 @@
     "message": "Créer un template",
     "description": "Titre de dialogue Créer un template"
   },
-  "TemplateName": {
-    "message": "Nom",
-    "description": "Étiquette Nom du template"
-  },
   "TemplateDescription": {
     "message": "Description (optionnel)",
     "description": "Étiquette Description du template"
@@ -1307,5 +1303,59 @@
   "errorSavingTemplate": {
     "message": "Erreur lors de l'enregistrement du template",
     "description": "Message d'erreur lorsque l'enregistrement du template échoue"
+  },
+  "welcomeBack": {
+    "message": "Bienvenue !",
+    "description": "Welcome message for returning users"
+  },
+  "accountReady": {
+    "message": "Votre compagnon IA est prêt !",
+    "description": "Message shown when user's account is ready"
+  },
+  "loggedInAs": {
+    "message": "Vous êtes connecté en tant que $1$. Vous pouvez maintenant lancer des outils d'IA avec des capacités améliorées.",
+    "description": "Message showing the logged in user's email or name",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "loading": {
+    "message": "Chargement...",
+    "description": "Generic loading message"
+  },
+  "signedOut": {
+    "message": "Déconnexion réussie",
+    "description": "Message shown when user signs out successfully"
+  },
+  "logoutFailed": {
+    "message": "Échec de la déconnexion",
+    "description": "Error message when sign out fails"
+  },
+  "loginFailed": {
+    "message": "Échec de la connexion. Veuillez réessayer.",
+    "description": "Error message when login fails"
+  },
+  "createAccount": {
+    "message": "Créer un compte",
+    "description": "Button text to create a new account"
+  },
+  "signOut": {
+    "message": "Se déconnecter",
+    "description": "Button text for sign out"
+  },
+  "signedInAs": {
+    "message": "Connecté en tant que",
+    "description": "Text shown before the user's email/name"
+  },
+  "loadingTools": {
+    "message": "Chargement de vos outils IA",
+    "description": "Text shown while loading tools"
+  },
+  "online": {
+    "message": "En ligne",
+    "description": "Status indicator for authenticated users"
   }
 }
