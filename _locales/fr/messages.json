@@ -40,31 +40,31 @@
     "description": "Exemple de tâche IA 5"
   },
   "welcomeDescription": {
-    "message": "Votre Compagnon Intelligent d'Utilisation de l'IA. Notre objectif est de vous aider à exploiter la puissance de l'IA tout en maintenant votre expertise humaine unique.",
+    "message": "Maximisez votre expérience avec l'IA générative grâce à Jaydai, l'extension Chrome gratuite qui transforme votre utilisation de ChatGPT.",
     "description": "Description de la page d'accueil"
   },
   "energyInsights": {
-    "message": "Analyses Énergétiques",
+    "message": "Débloquez le potentiel de l'IA",
     "description": "Titre de carte de fonctionnalité"
   },
   "energyInsightsDesc": {
-    "message": "Suivez et optimisez votre utilisation de l'IA avec des métriques de consommation d'énergie en temps réel.",
+    "message": "Accèder à notre bibliothèque de prompts rédigés par des experts et classés par thématique.",
     "description": "Description de carte de fonctionnalité"
   },
   "smartTemplates": {
-    "message": "Templates Intelligents",
+    "message": "Boostez votre productivité",
     "description": "Titre de carte de fonctionnalité"
   },
   "smartTemplatesDesc": {
-    "message": "Accédez à une bibliothèque de templates d'invite soigneusement sélectionnés pour améliorer vos interactions avec l'IA.",
+    "message": "Sauvegardez tous vos prompts personnalisés pour un accès instantané.",
     "description": "Description de carte de fonctionnalité"
   },
   "skillDevelopment": {
-    "message": "Développement de Compétences",
+    "message": "Mesurez votre impact",
     "description": "Titre de carte de fonctionnalité"
   },
   "skillDevelopmentDesc": {
-    "message": "Recevez des recommandations personnalisées pour améliorer vos compétences et maintenir votre expertise humaine.",
+    "message": "Retrouvez des analyses détaillées sur votre utilisation et votre empreinte énergétique.",
     "description": "Description de carte de fonctionnalité"
   },
   "getStarted": {
@@ -78,6 +78,16 @@
   "signUp": {
     "message": "S'inscrire",
     "description": "Title for sign up dialog"
+  },
+  "signUpWith": {
+    "message": "S'inscrire avec $PROVIDER$",
+    "description": "Bouton de connexion avec fournisseur",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
   },
   "emailConfirmationRequired": {
     "message": "Vérification par e-mail requise après l'inscription",
@@ -233,8 +243,8 @@
     "message": "Menu",
     "description": "Title for menu panel"
   },
-  "templates": {
-    "message": "Modèles",
+  "Templates": {
+    "message": "Templates",
     "description": "Menu item for templates"
   },
   "aiStats": {
@@ -310,7 +320,7 @@
     "description": "Bouton Ignorer"
   },
   "newTemplate": {
-    "message": "Nouveau Modèle",
+    "message": "Nouveau template",
     "description": "Button text to create a new template"
   },
   "officialTemplates": {
@@ -322,7 +332,7 @@
     "description": "Titre de section Mes templates"
   },
   "noTemplates": {
-    "message": "Aucun modèle disponible",
+    "message": "Aucun template disponible",
     "description": "Message shown when no templates are available"
   },
   "createTemplate": {
@@ -330,7 +340,7 @@
     "description": "Bouton Créer un template"
   },
   "createFirstTemplate": {
-    "message": "Créer votre premier modèle",
+    "message": "Créer votre premier template",
     "description": "Button text to create first template"
   },
   "createTemplateTitle": {
@@ -386,18 +396,18 @@
     "description": "Option de paramètres"
   },
   "customizeTemplate": {
-    "message": "Personnaliser le Modèle : $TEMPLATE_NAME$",
-    "description": "Titre pour la boîte de dialogue de personnalisation de modèle",
+    "message": "Personnaliser le template : $TEMPLATE_NAME$",
+    "description": "Titre pour la boîte de dialogue de personnalisation de template",
     "placeholders": {
-      "template_name": {
+      "Template_name": {
         "content": "$1",
-        "example": "Mon Modèle"
+        "example": "Mon template"
       }
     }
   },
   "customizeTemplateDesc": {
-    "message": "Personnalisez le modèle en remplissant les espaces réservés.",
-    "description": "Description pour la boîte de dialogue de personnalisation de modèle"
+    "message": "Personnalisez le template en remplissant les espaces réservés.",
+    "description": "Description pour la boîte de dialogue de personnalisation de template"
   },
   "replacePlaceholders": {
     "message": "Remplacer les Espaces Réservés",
@@ -405,15 +415,15 @@
     "description": "Title for placeholder replacement section"
   },
   "editTemplate": {
-    "message": "Modifier le Modèle",
-    "description": "Titre pour la boîte de dialogue de modification de modèle"
+    "message": "Modifier le template",
+    "description": "Titre pour la boîte de dialogue de modification de template"
   },
   "noPlaceholders": {
-    "message": "Aucun espace réservé trouvé dans ce modèle.",
+    "message": "Aucun espace réservé trouvé dans ce template.",
     "description": "Message shown when no placeholders are found"
   },
   "useTemplate": {
-    "message": "Utiliser le modèle",
+    "message": "Utiliser le template",
     "description": "Button text to use template"
   },
   "browseMore": {
@@ -461,11 +471,11 @@
     "description": "Button text to refresh templates"
   },
   "noPinnedOfficialTemplates": {
-    "message": "Aucun modèle officiel épinglé. Cliquez sur Parcourir pour en ajouter.",
+    "message": "Aucun template officiel épinglé. Cliquez sur Parcourir pour en ajouter.",
     "description": "Empty state message for official templates section"
   },
   "noUserTemplates": {
-    "message": "Aucun modèle utilisateur. Créez un modèle pour commencer.",
+    "message": "Aucun template utilisateur. Créez un template pour commencer.",
     "description": "Message shown when no user templates exist"
   },
   "confirmAction": {
@@ -499,7 +509,7 @@
     }
   },
   "untitledTemplate": {
-    "message": "Modèle sans titre",
+    "message": "Template sans titre",
     "description": "Default title for untitled templates"
   },
   "passwordTooShort": {
@@ -689,7 +699,7 @@
     "description": "Titre pour l'analytique avancée"
   },
   "analyticsDescription": {
-    "message": "Aperçus détaillés de vos interactions et modèles d'utilisation de l'IA",
+    "message": "Aperçus détaillés de vos interactions et templates d'utilisation de l'IA",
     "description": "Description des fonctionnalités d'analytique"
   },
   "overview": {
@@ -754,7 +764,7 @@
   },
   "basedOnUsage": {
     "message": "Basé sur vos habitudes d'utilisation",
-    "description": "Indicateur de modèle d'utilisation"
+    "description": "Indicateur de template d'utilisation"
   },
   "dailyActivity": {
     "message": "Activité Quotidienne",
@@ -765,8 +775,8 @@
     "description": "Label du graphique de distribution des tokens"
   },
   "modelUsage": {
-    "message": "Utilisation des Modèles",
-    "description": "Label du graphique d'utilisation des modèles"
+    "message": "Utilisation des templates",
+    "description": "Label du graphique d'utilisation des templates"
   },
   "energyDetails": {
     "message": "Détails de la consommation d'énergie",
@@ -889,7 +899,7 @@
     "description": "Description du niveau compétent"
   },
   "developingLevel": {
-    "message": "Utilisateur en développement de l'IA - apprentissage des modèles",
+    "message": "Utilisateur en développement de l'IA - apprentissage des templates",
     "description": "Description du niveau en développement"
   },
   "noviceLevel": {
@@ -901,12 +911,12 @@
     "description": "Titre des aperçus d'utilisation"
   },
   "insightsDescription": {
-    "message": "Perspectives générées par l'IA basées sur vos modèles d'utilisation",
+    "message": "Perspectives générées par l'IA basées sur vos templates d'utilisation",
     "description": "Description des perspectives"
   },
   "conversationPatterns": {
-    "message": "Modèles de Conversation",
-    "description": "Titre des modèles de conversation"
+    "message": "Templates de Conversation",
+    "description": "Titre des templates de conversation"
   },
   "tokenEfficiency": {
     "message": "Efficacité des Tokens",
@@ -1041,8 +1051,8 @@
     "description": "Titre des ratios de tokens"
   },
   "noModelData": {
-    "message": "Aucune donnée d'utilisation de modèle disponible",
-    "description": "Message d'absence de données de modèle"
+    "message": "Aucune donnée d'utilisation de template disponible",
+    "description": "Message d'absence de données de template"
   },
   "noEquivalent": {
     "message": "Aucun équivalent disponible",
@@ -1113,7 +1123,7 @@
     }
   },
   "deleteFolderWarning": {
-    "message": "Tous les modèles dans ce dossier seront également supprimés.",
+    "message": "Tous les templates dans ce dossier seront également supprimés.",
     "description": "Avertissement concernant la suppression du contenu du dossier"
   },
   "deleteActionWarning": {
@@ -1125,39 +1135,39 @@
     "description": "Text shown when deleting"
   },
   "loadingTemplates": {
-    "message": "Chargement des modèles...",
+    "message": "Chargement des templates...",
     "description": "Text shown when loading templates"
   },
   "deleteTemplate": {
-    "message": "Supprimer le Modèle",
-    "description": "Titre pour la boîte de dialogue de suppression de modèle"
+    "message": "Supprimer le template",
+    "description": "Titre pour la boîte de dialogue de suppression de template"
   },
   "deleteTemplateConfirmation": {
-    "message": "Êtes-vous sûr de vouloir supprimer ce modèle ? Cette action ne peut pas être annulée.",
-    "description": "Message de confirmation pour la suppression de modèle"
+    "message": "Êtes-vous sûr de vouloir supprimer ce template ? Cette action ne peut pas être annulée.",
+    "description": "Message de confirmation pour la suppression de template"
   },
   "deleteFolder": {
     "message": "Supprimer le Dossier",
     "description": "Titre pour la boîte de dialogue de suppression de dossier"
   },
   "deleteFolderConfirmation": {
-    "message": "Êtes-vous sûr de vouloir supprimer ce dossier et tous ses modèles ? Cette action ne peut pas être annulée.",
+    "message": "Êtes-vous sûr de vouloir supprimer ce dossier et tous ses templates ? Cette action ne peut pas être annulée.",
     "description": "Message de confirmation pour la suppression de dossier"
   },
   "organizationTemplates": {
-    "message": "Modèles de l'Organisation",
-    "description": "Titre pour la section des modèles de l'organisation"
+    "message": "Templates de l'Organisation",
+    "description": "Titre pour la section des templates de l'organisation"
   },
   "noPinnedOrganizationTemplates": {
-    "message": "Aucun modèle d'organisation épinglé.",
-    "description": "Message affiché lorsqu'aucun modèle d'organisation n'est épinglé"
+    "message": "Aucun template d'organisation épinglé.",
+    "description": "Message affiché lorsqu'aucun template d'organisation n'est épinglé"
   },
   "unorganizedTemplates": {
-    "message": "Modèles Non Organisés",
-    "description": "Titre pour la section des modèles non organisés"
+    "message": "Templates Non Organisés",
+    "description": "Titre pour la section des templates non organisés"
   },
   "organization_templates_title": {
-    "message": "Modèles Entreprise",
+    "message": "Templates Entreprise",
     "description": "Title for enterprise templates section"
   },
   "enterprise_feature": {
@@ -1165,7 +1175,7 @@
     "description": "Label indicating an enterprise feature"
   },
   "organization_templates_description": {
-    "message": "L'accès aux modèles d'organisation est une fonctionnalité entreprise. Contactez-nous pour l'activer pour votre équipe.",
+    "message": "L'accès aux templates d'organisation est une fonctionnalité entreprise. Contactez-nous pour l'activer pour votre équipe.",
     "description": "Description text for enterprise templates feature"
   },
   "contact_enterprise_sales": {
@@ -1219,36 +1229,36 @@
     }
   },
   "createNewTemplate": {
-    "message": "Créer un Nouveau Modèle",
-    "description": "Titre pour la boîte de dialogue de création de modèle"
+    "message": "Créer un Nouveau template",
+    "description": "Titre pour la boîte de dialogue de création de template"
   },
   "editTemplateDescription": {
-    "message": "Modifiez les détails de votre modèle ci-dessous.",
-    "description": "Description pour la boîte de dialogue de modification de modèle"
+    "message": "Modifiez les détails de votre template ci-dessous.",
+    "description": "Description pour la boîte de dialogue de modification de template"
   },
   "createTemplateDescription": {
-    "message": "Créez un nouveau modèle à utiliser avec les conversations IA.",
-    "description": "Description pour la boîte de dialogue de création de modèle"
+    "message": "Créez un nouveau template à utiliser avec les conversations IA.",
+    "description": "Description pour la boîte de dialogue de création de template"
   },
-  "templateName": {
-    "message": "Nom du Modèle",
-    "description": "Étiquette pour le champ de nom du modèle"
+  "TemplateName": {
+    "message": "Nom du template",
+    "description": "Étiquette pour le champ de nom du template"
   },
   "enterTemplateName": {
-    "message": "Entrez le nom du modèle",
-    "description": "Espace réservé pour la saisie du nom du modèle"
+    "message": "Entrez le nom du template",
+    "description": "Espace réservé pour la saisie du nom du template"
   },
-  "templateNameRequired": {
-    "message": "Le nom du modèle est requis",
-    "description": "Message d'erreur de validation pour le nom du modèle"
+  "TemplateNameRequired": {
+    "message": "Le nom du template est requis",
+    "description": "Message d'erreur de validation pour le nom du template"
   },
   "description": {
     "message": "Description",
     "description": "Étiquette pour le champ de description"
   },
-  "templateDescriptionPlaceholder": {
-    "message": "Brève description de ce modèle",
-    "description": "Espace réservé pour la saisie de la description du modèle"
+  "TemplateDescriptionPlaceholder": {
+    "message": "Brève description de ce template",
+    "description": "Espace réservé pour la saisie de la description du template"
   },
   "folder": {
     "message": "Dossier",
@@ -1271,31 +1281,31 @@
     "description": "Étiquette pour le champ de contenu"
   },
   "enterTemplateContent": {
-    "message": "Entrez le contenu de votre modèle ici",
-    "description": "Espace réservé pour la saisie du contenu du modèle"
+    "message": "Entrez le contenu de votre template ici",
+    "description": "Espace réservé pour la saisie du contenu du template"
   },
-  "templateContentRequired": {
-    "message": "Le contenu du modèle est requis",
-    "description": "Message d'erreur de validation pour le contenu du modèle"
+  "TemplateContentRequired": {
+    "message": "Le contenu du template est requis",
+    "description": "Message d'erreur de validation pour le contenu du template"
   },
   "updating": {
     "message": "Mise à jour...",
-    "description": "Texte affiché pendant la mise à jour du modèle"
+    "description": "Texte affiché pendant la mise à jour du template"
   },
   "creating": {
     "message": "Création...",
-    "description": "Texte affiché pendant la création du modèle"
+    "description": "Texte affiché pendant la création du template"
   },
-  "templateUpdated": {
-    "message": "Modèle mis à jour avec succès, actualisation de la page...",
-    "description": "Message de succès lorsque le modèle est mis à jour"
+  "TemplateUpdated": {
+    "message": "Template mis à jour avec succès, actualisation de la page...",
+    "description": "Message de succès lorsque le template est mis à jour"
   },
-  "templateCreated": {
-    "message": "Modèle créé avec succès",
-    "description": "Message de succès lorsque le modèle est créé"
+  "TemplateCreated": {
+    "message": "Template créé avec succès",
+    "description": "Message de succès lorsque le template est créé"
   },
   "errorSavingTemplate": {
-    "message": "Erreur lors de l'enregistrement du modèle",
-    "description": "Message d'erreur lorsque l'enregistrement du modèle échoue"
+    "message": "Erreur lors de l'enregistrement du template",
+    "description": "Message d'erreur lorsque l'enregistrement du template échoue"
   }
 }
