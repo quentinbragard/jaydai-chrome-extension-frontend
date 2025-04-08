@@ -45,7 +45,6 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
 
   return (
     <BasePanel
-      title={getMessage('menu', undefined, 'Menu')}
       icon={MenuIcon}
       onClose={onClose}
       className="w-56"

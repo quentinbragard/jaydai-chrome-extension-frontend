@@ -13,6 +13,9 @@ import { getMessage } from '@/core/utils/i18n';
 import { authService } from '@/services/auth/AuthService';
 import { AuthState } from '@/types';
 
+// Current extension version
+const EXTENSION_VERSION = "1.0.0";
+
 const ExtensionPopup: React.FC = () => {
   // Auth state
   const [authState, setAuthState] = useState<AuthState>({
@@ -60,6 +63,16 @@ const ExtensionPopup: React.FC = () => {
     chrome.tabs.create({ url: 'welcome.html' });
   };
 
+  // Open settings page
+  const openSettings = () => {
+    chrome.tabs.create({ url: 'options.html' });
+  };
+  
+  // Open help page
+  const openHelp = () => {
+    chrome.tabs.create({ url: 'https://archimind.ai/help' });
+  };
+
   // Loading state
   if (authState.isLoading) {
     return <LoadingState />;
@@ -85,7 +98,9 @@ const ExtensionPopup: React.FC = () => {
             />
           )}
           
-          <AppFooter />
+          <AppFooter 
+            version={EXTENSION_VERSION}
+          />
         </Card>
       </div>
     </ThemeProvider>

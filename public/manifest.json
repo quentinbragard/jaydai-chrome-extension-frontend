@@ -42,7 +42,8 @@
         "assets/*",
         "content-init.js",
         "injectedInterceptor.js",
-        "applicationInitializer.js"
+        "applicationInitializer.js",
+        "images/*"
       ],
       "matches": ["<all_urls>"]
     }

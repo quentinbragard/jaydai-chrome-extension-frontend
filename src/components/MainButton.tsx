@@ -33,6 +33,9 @@ const MainButton = () => {
     };
   }, []);
 
+  const darkLogo = chrome.runtime.getURL('images/letter-logo-white.png');
+  const lightLogo = chrome.runtime.getURL('images/letter-logo-dark.png');
+
   return (
     <ErrorBoundary>
       <div className="fixed bottom-6 right-8 z-[9999]">
@@ -54,8 +57,8 @@ const MainButton = () => {
             >
               <img 
                 src={document.documentElement.classList.contains('dark') 
-                  ? "https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images/jaydai-extension-logo.png" 
-                  : "https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images/jaydai-extension-logo-dark.png"} 
+                  ? darkLogo 
+                  : lightLogo} 
                 alt={getMessage('appName', undefined, 'Jaydai Chrome Extension')} 
                 className="w-full h-full object-cover"
               />

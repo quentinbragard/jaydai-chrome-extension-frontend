@@ -19,7 +19,7 @@ export interface BasePanelProps {
   headerLeftExtra?: ReactNode;
 }
 
-/**
+/*
  * Base Panel component that all panels should extend.
  * Provides consistent layout, header with title and navigation,
  * and content area with optional max height.

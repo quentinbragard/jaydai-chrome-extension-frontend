@@ -4,7 +4,7 @@ import React, { ReactNode } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, X } from "lucide-react";
 import { cn } from "@/core/utils/classNames";
-import { getMessage } from '@/core/utils/i18n';
+import { useTheme } from 'next-themes';
 
 interface PanelHeaderProps {
   title?: string;
@@ -31,8 +31,8 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   extra,
   leftExtra
 }) => {
-  // Use getMessage helper for better i18n handling
-  const displayTitle = getMessage(title || '', undefined, '');
+  const darkLogo = chrome.runtime.getURL('images/full-logo-white.png');
+  const lightLogo = chrome.runtime.getURL('images/full-logo-dark.png');
   
   return (
     <div className={cn(
@@ -54,7 +54,22 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
         
         <span className="font-semibold text-sm flex items-center">
           {Icon && <Icon className="h-4 w-4 mr-2" />}
-          {displayTitle}
+          {title ? (
+            title
+          ) : (
+            <>
+              <img 
+                src={darkLogo} 
+                alt="Jaydai Logo" 
+                className="h-6 hidden dark:block"
+              />
+              <img 
+                src={lightLogo} 
+                alt="Jaydai Logo" 
+                className="h-6 block dark:hidden"
+              />
+            </>
+          )}
         </span>
         {leftExtra}
       </div>
