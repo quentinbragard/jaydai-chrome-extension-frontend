@@ -5,8 +5,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Basic resets with font families */
-body {
+/* Scope all styles to the welcome page container */
+.jaydai-welcome {
+  /* Basic resets */
   margin: 0;
   padding: 0;
   width: 100%;
@@ -16,68 +17,73 @@ body {
   color: #f9fafb;
 }
 
-/* Apply Poppins to all headings */
-h1, h2, h3, h4, h5, h6 {
+/* Typography */
+.jaydai-welcome h1, 
+.jaydai-welcome h2, 
+.jaydai-welcome h3, 
+.jaydai-welcome h4, 
+.jaydai-welcome h5, 
+.jaydai-welcome h6 {
   font-family: 'Poppins', sans-serif;
   letter-spacing: -0.025em;
 }
 
-/* Dark theme background */
-.bg-gray-950 {
+/* Background colors */
+.jd-bg-gray-950 {
   background-color: #0a0a0a;
 }
 
-.bg-gray-900 {
+.jd-bg-gray-900 {
   background-color: #111827;
 }
 
-.bg-gray-800 {
+.jd-bg-gray-800 {
   background-color: #1f2937;
 }
 
-/* Text colors for dark theme */
-.text-white {
+/* Text colors */
+.jd-text-white {
   color: #f9fafb;
 }
 
-.text-gray-300 {
+.jd-text-gray-300 {
   color: #d1d5db;
 }
 
-.text-gray-500 {
+.jd-text-gray-500 {
   color: #6b7280;
 }
 
-.text-blue-500 {
+.jd-text-blue-500 {
   color: #3b82f6;
 }
 
-/* Feature card styling for dark theme */
-.feature-card {
+/* Feature card */
+.jd-feature-card {
   transition: all 0.2s ease-in-out;
   background-color: #111827;
   border: 1px solid #1f2937;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.feature-card:hover {
+.jd-feature-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   border-color: #3b82f6;
 }
 
-/* Button styling */
-.btn-transition {
+/* Button transitions */
+.jd-btn-transition {
   transition: all 0.2s ease;
 }
 
-.btn-transition:hover {
+.jd-btn-transition:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-/* Logo styling */
-.logo-container {
+/* Logo container */
+.jd-logo-container {
   background-color: #111827;
   border-radius: 9999px;
   padding: 0.5rem;
@@ -92,12 +98,12 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #1f2937;
 }
 
-.logo-container img {
+.jd-logo-container img {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-/* Animation container to ensure proper spacing */
-.animation-container {
+/* Animation container */
+.jd-animation-container {
   height: 3.5rem;
   position: relative;
   display: flex;
@@ -106,42 +112,40 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1.5rem;
 }
 
-/* Make the animation text use Poppins too */
-.animation-container div {
+/* Text styling */
+.jd-animation-container div {
   font-family: 'Poppins', sans-serif;
 }
 
 @media (max-width: 768px) {
-  .animation-container {
+  .jd-animation-container {
     height: 4rem;
   }
 }
 
-/* Ensure text stays on a single line */
-.whitespace-nowrap {
+/* Text utilities */
+.jd-whitespace-nowrap {
   white-space: nowrap;
 }
 
-/* Fixed-width container for consistent animation */
-.min-w-60 {
+.jd-min-w-60 {
   min-width: 15rem;
 }
 
-/* Better typography for dark theme */
-p {
+/* Typography */
+.jaydai-welcome p {
   font-family: 'Roboto', sans-serif;
   line-height: 1.7;
   font-weight: 400;
 }
 
-/* Button text should use Poppins */
-button {
+.jaydai-welcome button {
   font-family: 'Poppins', sans-serif;
   font-weight: 500;
 }
 
-/* Dialog styling for dark theme */
-.dialog-content {
+/* Dialog */
+.jd-dialog-content {
   background-color: #111827;
   border: 1px solid #1f2937;
   color: #f9fafb;
@@ -149,59 +153,55 @@ button {
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
-  h1 {
+  .jaydai-welcome h1 {
     font-size: 2.5rem;
   }
   
-  .text-3xl {
+  .jd-text-3xl {
     font-size: 1.5rem;
   }
   
-  .min-w-60 {
+  .jd-min-w-60 {
     min-width: 12rem;
   }
 }
 
 /* Font classes */
-.font-heading {
+.jd-font-heading {
   font-family: 'Poppins', sans-serif;
 }
 
-.font-sans {
+.jd-font-sans {
   font-family: 'Roboto', sans-serif;
 }
 
-/* Input styling for dark theme */
-.input {
+/* Inputs */
+.jd-input {
   background-color: #1f2937;
   border-color: #374151;
   color: #f9fafb;
 }
 
-/* Animation for loading spinner */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Animations */
+@keyframes jd-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+.jd-animate-spin {
+  animation: jd-spin 1s linear infinite;
 }
 
-/* Welcome page spinner animation */
-.spinner-welcome {
+/* Spinner */
+.jd-spinner-welcome {
   width: 60px;
   height: 60px;
   position: relative;
   margin: 20px auto;
 }
 
-.spinner-welcome .double-bounce1, 
-.spinner-welcome .double-bounce2 {
+.jd-spinner-welcome .jd-double-bounce1, 
+.jd-spinner-welcome .jd-double-bounce2 {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -210,23 +210,20 @@ button {
   position: absolute;
   top: 0;
   left: 0;
-  animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: jd-sk-bounce 2.0s infinite ease-in-out;
 }
 
-.spinner-welcome .double-bounce2 {
+.jd-spinner-welcome .jd-double-bounce2 {
   animation-delay: -1.0s;
 }
 
-@keyframes sk-bounce {
-  0%, 100% { 
-    transform: scale(0.0);
-  } 50% { 
-    transform: scale(1.0);
-  }
+@keyframes jd-sk-bounce {
+  0%, 100% { transform: scale(0.0); } 
+  50% { transform: scale(1.0); }
 }
 
-/* Focus styles for better accessibility in dark mode */
-*:focus-visible {
+/* Focus styles */
+.jaydai-welcome *:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }

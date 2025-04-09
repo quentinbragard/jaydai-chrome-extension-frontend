@@ -3,70 +3,73 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+/* Create a scoped context for our styles */
+.jaydai-popup {
+  @layer base {
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 222.2 84% 4.9%;
+      
+      --card: 0 0% 100%;
+      --card-foreground: 222.2 84% 4.9%;
+      
+      --popover: 0 0% 100%;
+      --popover-foreground: 222.2 84% 4.9%;
+      
+      --primary: 222.2 47.4% 11.2%;
+      --primary-foreground: 210 40% 98%;
+      
+      --secondary: 210 40% 96.1%;
+      --secondary-foreground: 222.2 47.4% 11.2%;
+      
+      --muted: 210 40% 96.1%;
+      --muted-foreground: 215.4 16.3% 46.9%;
+      
+      --accent: 210 40% 96.1%;
+      --accent-foreground: 222.2 47.4% 11.2%;
+      
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-  }
+      --border: 214.3 31.8% 91.4%;
+      --input: 214.3 31.8% 91.4%;
+      --ring: 222.2 84% 4.9%;
+    }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    .dark {
+      --background: 222.2 84% 4.9%;
+      --foreground: 210 40% 98%;
+      
+      --card: 222.2 84% 4.9%;
+      --card-foreground: 210 40% 98%;
+      
+      --popover: 222.2 84% 4.9%;
+      --popover-foreground: 210 40% 98%;
+      
+      --primary: 210 40% 98%;
+      --primary-foreground: 222.2 47.4% 11.2%;
+      
+      --secondary: 217.2 32.6% 17.5%;
+      --secondary-foreground: 210 40% 98%;
+      
+      --muted: 217.2 32.6% 17.5%;
+      --muted-foreground: 215 20.2% 65.1%;
+      
+      --accent: 217.2 32.6% 17.5%;
+      --accent-foreground: 210 40% 98%;
+      
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 210 40% 98%;
+      
+      --border: 217.2 32.6% 17.5%;
+      --input: 217.2 32.6% 17.5%;
+      --ring: 212.7 26.8% 83.9%;
+    }
   }
 }
 
-/* Base popup styles */
-body {
+/* Popup body styles */
+.jaydai-popup body {
   min-width: 320px;
   min-height: 300px;
   overflow-x: hidden;
@@ -76,33 +79,33 @@ body {
   padding: 0;
 }
 
-/* Better focus styles for accessibility */
-:focus-visible {
+/* Focus styles */
+.jaydai-popup :focus-visible {
   outline: 2px solid hsl(var(--ring) / 0.5);
   outline-offset: 2px;
 }
 
-/* Add perspective for 3D effects */
-.perspective {
+/* Perspective */
+.jd-perspective {
   perspective: 1000px;
 }
 
-/* Modern spinner animation */
-.spinner {
+/* Spinner animation */
+.jd-spinner {
   width: 40px;
   height: 40px;
   position: relative;
   margin: 20px auto;
 }
 
-.spinner-sm {
+.jd-spinner-sm {
   width: 18px;
   height: 18px;
   position: relative;
   display: inline-block;
 }
 
-.double-bounce1, .double-bounce2 {
+.jd-double-bounce1, .jd-double-bounce2 {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -111,19 +114,19 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: jd-sk-bounce 2.0s infinite ease-in-out;
 }
 
-.spinner-sm .double-bounce1, 
-.spinner-sm .double-bounce2 {
+.jd-spinner-sm .jd-double-bounce1, 
+.jd-spinner-sm .jd-double-bounce2 {
   background-color: white;
 }
 
-.double-bounce2 {
+.jd-double-bounce2 {
   animation-delay: -1.0s;
 }
 
-@keyframes sk-bounce {
+@keyframes jd-sk-bounce {
   0%, 100% { 
     transform: scale(0.0);
   } 50% { 
@@ -131,133 +134,115 @@ body {
   }
 }
 
-/* Tool button card effects - ensure NO border */
-.ai-tool-button {
+/* Tool button effects */
+.jd-ai-tool-button {
   @apply jd-rounded-lg jd-transition-all jd-duration-300 jd-border-none;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
 
-.ai-tool-button:hover:not(:disabled) {
+.jd-ai-tool-button:hover:not(:disabled) {
   transform: translateY(-2px);
   @apply jd-shadow-lg;
 }
 
-.ai-tool-button:active:not(:disabled) {
+.jd-ai-tool-button:active:not(:disabled) {
   transform: translateY(0);
   @apply jd-shadow-sm;
 }
 
 /* Badge styling */
-.coming-soon-badge {
+.jd-coming-soon-badge {
   @apply jd-z-10;
 }
 
-@keyframes pulse-slow {
-  0% {
-    opacity: 0.7;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.7;
-  }
+@keyframes jd-pulse-slow {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
 }
 
-.animate-pulse-slow {
-  animation: pulse-slow 3s infinite;
+.jd-animate-pulse-slow {
+  animation: jd-pulse-slow 3s infinite;
 }
 
-/* Subtle background animation */
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+/* Background animation */
+@keyframes jd-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.bg-animate {
+.jd-bg-animate {
   background-size: 200% 200%;
-  animation: gradient-shift 15s ease infinite;
+  animation: jd-gradient-shift 15s ease infinite;
 }
 
-/* Coming soon badge glow effect */
-.badge-glow {
+/* Badge glow */
+.jd-badge-glow {
   box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-  animation: badge-pulse 3s infinite;
+  animation: jd-badge-pulse 3s infinite;
 }
 
-@keyframes badge-pulse {
-  0% {
-    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
-  }
-  100% {
-    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
-  }
+@keyframes jd-badge-pulse {
+  0% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
+  100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.3); }
 }
 
-/* 3D Card hover effect for AI tools */
-.card-3d {
+/* 3D Card effect */
+.jd-card-3d {
   transform-style: preserve-3d;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   @apply jd-border-none;
 }
 
-.card-3d:hover {
+.jd-card-3d:hover {
   transform: translateY(-5px) rotateX(2deg);
   box-shadow: 0 15px 25px -10px rgba(0, 0, 0, 0.15);
 }
 
-/* Glassmorphism effect */
-.glass {
+/* Glassmorphism */
+.jd-glass {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
-.dark .glass {
+.dark .jd-glass {
   background: rgba(0, 0, 0, 0.2);
 }
 
 /* Tool icon container */
-.tool-icon {
+.jd-tool-icon {
   @apply jd-rounded-md jd-bg-gradient-to-br jd-p-2 jd-shadow-sm;
   transition: all 0.2s ease;
 }
 
-.tool-icon:hover {
+.jd-tool-icon:hover {
   @apply jd-shadow-md;
   transform: scale(1.05);
 }
 
 /* Custom scrollbar */
-::-webkit-scrollbar {
+.jaydai-popup ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
+.jaydai-popup ::-webkit-scrollbar-track {
   background: transparent;
 }
 
-::-webkit-scrollbar-thumb {
+.jaydai-popup ::-webkit-scrollbar-thumb {
   @apply jd-bg-muted/50 jd-rounded;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.jaydai-popup ::-webkit-scrollbar-thumb:hover {
   @apply jd-bg-muted/70;
 }
 
-/* Override for buttons to ensure no borders */
-button {
+/* Button border override */
+.jaydai-popup button {
   @apply jd-border-none jd-shadow-none;
 }
