@@ -1357,5 +1357,21 @@
   "online": {
     "message": "En ligne",
     "description": "Status indicator for authenticated users"
+  },
+  "tryAgain": {
+    "message": "Réessayer",
+    "description": "Button text for retrying an action"
+  },
+  "edit_template": {
+    "message": "Modifier le template",
+    "description": "Edit template button text"
+  },
+  "delete_template": {
+    "message": "Supprimer le template",
+    "description": "Delete template button text"
+  },
+  "popular_template": {
+    "message": "Ce template est fréquemment utilisé",
+    "description": "Popular template text"
   }
 }

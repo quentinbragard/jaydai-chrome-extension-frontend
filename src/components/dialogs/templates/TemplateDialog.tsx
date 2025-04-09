@@ -349,7 +349,7 @@ export const TemplateDialog: React.FC = () => {
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="jd-sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
             {currentTemplate ? getMessage('editTemplate') : getMessage('createNewTemplate')}
@@ -361,60 +361,60 @@ export const TemplateDialog: React.FC = () => {
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 py-2">
+        <div className="jd-space-y-4 jd-py-2">
           <div>
-            <label className="text-sm font-medium">{getMessage('templateName')}</label>
+            <label className="jd-text-sm jd-font-medium">{getMessage('templateName')}</label>
             <Input 
               value={formData.name || ''} 
               onChange={(e) => handleFormChange('name', e.target.value)}
               placeholder={getMessage('enterTemplateName')}
-              className={`mt-1 ${validationErrors.name ? 'border-red-500' : ''}`}
+              className={`jd-mt-1 ${validationErrors.name ? 'jd-border-red-500' : ''}`}
             />
             {validationErrors.name && (
-              <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>
+              <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.name}</p>
             )}
           </div>
           
           <div>
-            <label className="text-sm font-medium">{getMessage('description')}</label>
+            <label className="jd-text-sm jd-font-medium">{getMessage('description')}</label>
             <Input 
               value={formData.description || ''} 
               onChange={(e) => handleFormChange('description', e.target.value)}
               placeholder={getMessage('templateDescriptionPlaceholder')}
-              className="mt-1"
+              className="jd-mt-1"
             />
           </div>
           
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-sm font-medium">{getMessage('folder')}</label>
+            <div className="jd-flex jd-items-center jd-justify-between jd-mb-1">
+              <label className="jd-text-sm jd-font-medium">{getMessage('folder')}</label>
             </div>
             
             <Select 
               value={selectedFolderId || 'root'} 
               onValueChange={handleFolderSelect}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="jd-w-full">
                 <SelectValue placeholder={getMessage('selectFolder')}>
                   {selectedFolderId === 'root' ? (
-                    <span className="text-muted-foreground">{getMessage('noFolder')}</span>
+                    <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
                   ) : selectedFolderId ? (
-                    <span className="truncate" title={formData.folder}>
+                    <span className="jd-truncate" title={formData.folder}>
                       {truncateFolderPath(formData.folder)}
                     </span>
                   ) : null}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="max-h-80">
+              <SelectContent className="jd-max-h-80">
                 <SelectItem value="root">
-                  <span className="text-muted-foreground">{getMessage('noFolder')}</span>
+                  <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
                 </SelectItem>
                 
                 {userFoldersList.map(folder => (
                   <SelectItem 
                     key={folder.id} 
                     value={folder.id.toString()}
-                    className="truncate"
+                    className="jd-truncate"
                     title={folder.fullPath} // Show full path on hover
                   >
                     {folder.fullPath}
@@ -422,9 +422,9 @@ export const TemplateDialog: React.FC = () => {
                 ))}
                 
                 {/* Option to create a new folder */}
-                <SelectItem value="new" className="text-primary font-medium">
-                  <div className="flex items-center">
-                    <FolderPlus className="h-4 w-4 mr-2" />
+                <SelectItem value="new" className="jd-text-primary jd-font-medium">
+                  <div className="jd-flex jd-items-center">
+                    <FolderPlus className="jd-h-4 jd-w-4 jd-mr-2" />
                     {getMessage('createNewFolder')}
                   </div>
                 </SelectItem>
@@ -433,10 +433,10 @@ export const TemplateDialog: React.FC = () => {
           </div>
           
           <div>
-            <label className="text-sm font-medium">{getMessage('content')}</label>
+            <label className="jd-text-sm jd-font-medium">{getMessage('content')}</label>
             <textarea 
-              className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm mt-1 ${
-                validationErrors.content ? 'border-red-500' : ''
+              className={`jd-flex jd-w-full jd-rounded-md jd-border jd-border-input jd-bg-background jd-px-3 jd-py-2 jd-text-sm jd-shadow-sm jd-mt-1 ${
+                validationErrors.content ? 'jd-border-red-500' : ''
               }`}
               rows={6}
               value={formData.content || ''} 
@@ -444,7 +444,7 @@ export const TemplateDialog: React.FC = () => {
               placeholder={getMessage('enterTemplateContent')}
             />
             {validationErrors.content && (
-              <p className="text-xs text-red-500 mt-1">{validationErrors.content}</p>
+              <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.content}</p>
             )}
           </div>
         </div>
@@ -456,7 +456,7 @@ export const TemplateDialog: React.FC = () => {
           <Button onClick={handleSave} disabled={isSubmitting}>
             {isSubmitting ? (
               <>
-                <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin rounded-full inline-block mr-2"></div>
+                <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-inline-block jd-mr-2"></div>
                 {currentTemplate ? getMessage('updating') : getMessage('creating')}
               </>
             ) : (

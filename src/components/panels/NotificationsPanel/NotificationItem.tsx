@@ -42,84 +42,84 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   return (
     <div 
       className={`
-        group relative flex flex-col p-3 border-b border-gray-700 
-        ${isRead ? 'bg-background' : 'bg-background/50'} 
-        hover:bg-gray-700 
-        transition-colors duration-200 cursor-pointer
+        jd-group jd-relative jd-flex jd-flex-col jd-p-3 jd-border-b jd-border-gray-700 
+        ${isRead ? 'jd-bg-background' : 'jd-bg-background/50'} 
+        jd-hover:jd-bg-gray-700 
+        jd-transition-colors jd-duration-200 jd-cursor-pointer
       `}
     >
       {/* Main notification content */}
-      <div className="flex items-start gap-2" onClick={handleClick}>
+      <div className="jd-flex jd-items-start jd-gap-2" onClick={handleClick}>
         {/* Notification status indicator */}
         {!isRead && (
-          <div className="mt-1.5 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
+          <div className="jd-mt-1.5 jd-w-2 jd-h-2 jd-rounded-full jd-bg-blue-500 jd-flex-shrink-0" />
         )}
         
         {/* Notification content */}
-        <div className="flex-1">
+        <div className="jd-flex-1">
           {/* Title row with timestamp */}
-          <div className="flex justify-between items-start mb-1">
-            <h4 className={`text-sm font-medium pr-12 ${isRead ? 'text-gray-300' : 'text-white'}`}>
+          <div className="jd-flex jd-justify-between jd-items-start jd-mb-1">
+            <h4 className={`jd-text-sm jd-font-medium jd-pr-12 ${isRead ? 'jd-text-gray-300' : 'jd-text-white'}`}>
               {notification.title}
             </h4>
-            <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
+            <span className="jd-text-xs jd-text-gray-500 jd-whitespace-nowrap jd-flex-shrink-0">
               {timeAgo}
             </span>
           </div>
           
           {/* Message body */}
-          <p className={`text-sm mt-1 ${isRead ? 'text-gray-400' : 'text-gray-300'}`}>
+          <p className={`jd-text-sm jd-mt-1 ${isRead ? 'jd-text-gray-400' : 'jd-text-gray-300'}`}>
             {notification.body}
           </p>
           
           {/* Bottom row with action buttons */}
-          <div className="mt-2 flex justify-between items-center">
+          <div className="jd-mt-2 jd-flex jd-justify-between jd-items-center">
             {/* Action button (if available) from metadata */}
-            <div className="flex-1">
+            <div className="jd-flex-1">
               {actionButton && (
                 <Button
                   size="sm"
                   variant="secondary"
-                  className="text-xs px-3 py-1 h-7 flex items-center gap-1"
+                  className="jd-text-xs jd-px-3 jd-py-1 jd-h-7 jd-flex jd-items-center jd-gap-1"
                   onClick={(e) => {
                     e.stopPropagation();
                     onActionClick(notification);
                   }}
                 >
-                  <ExternalLink className="h-3 w-3" />
+                  <ExternalLink className="jd-h-3 jd-w-3" />
                   {actionButton.title}
                 </Button>
               )}
             </div>
             
             {/* Action icons (mark as read/delete) */}
-            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <div className="jd-flex jd-gap-1 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
               {!isRead && (
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-7 w-7 p-0 rounded-full bg-green-900/20 hover:bg-green-800/30"
+                  className="jd-h-7 jd-w-7 jd-p-0 jd-rounded-full jd-bg-green-900/20 jd-hover:jd-bg-green-800/30"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDismiss(notification, e);
                   }}
                   title="Mark as read"
                 >
-                  <Check className="h-3.5 w-3.5 text-green-400" />
+                  <Check className="jd-h-3.5 jd-w-3.5 jd-text-green-400" />
                 </Button>
               )}
               
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-7 w-7 p-0 rounded-full bg-red-900/20 hover:bg-red-800/30"
+                className="jd-h-7 jd-w-7 jd-p-0 jd-rounded-full jd-bg-red-900/20 jd-hover:jd-bg-red-800/30"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete(notification, e);
                 }}
                 title="Delete notification"
               >
-                <Trash2 className="h-3.5 w-3.5 text-red-400" />
+                <Trash2 className="jd-h-3.5 jd-w-3.5 jd-text-red-400" />
               </Button>
             </div>
           </div>

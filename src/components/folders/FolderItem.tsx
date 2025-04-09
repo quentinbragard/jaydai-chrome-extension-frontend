@@ -148,7 +148,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
       
       {/* Action buttons for user folders - only visible on hover */}
       {type === 'user' && (
-        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="jd-flex jd-items-center jd-gap-1.5 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity">
           {/* Delete button for user folders - with red accent */}
           {showDeleteControls && onDeleteFolder && (
             <TooltipProvider>
@@ -157,10 +157,10 @@ const FolderItem: React.FC<FolderItemProps> = ({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-red-500 jd-hover:jd-text-red-600 jd-hover:jd-bg-red-100 jd-dark:jd-hover:jd-bg-red-900/30"
                     onClick={handleDeleteFolder}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="jd-h-3.5 jd-w-3.5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
@@ -175,7 +175,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
   );
 
   return (
-    <div className="folder-container mb-1 group">
+    <div className="jd-folder-container jd-mb-1 jd-group">
       {/* Folder header */}
       <FolderHeader
         folder={folder}
@@ -186,7 +186,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
       
       {/* Expanded content (templates and subfolders) */}
       {isExpanded && (
-        <div className="folder-content pl-6 mt-1">
+        <div className="jd-folder-content jd-pl-6 jd-mt-1">
           {/* Render current page of items */}
           {currentItems.map((item, index) => {
             if (item.type === 'template') {
@@ -228,30 +228,30 @@ const FolderItem: React.FC<FolderItemProps> = ({
           
           {/* Pagination controls */}
           {hasMoreItems && (
-            <div className="flex justify-end mt-2 pr-1">
-              <div className="flex items-center space-x-1 bg-background/80 border border-border/30 rounded px-1">
+            <div className="jd-flex jd-justify-end jd-mt-2 jd-pr-1">
+              <div className="jd-flex jd-items-center jd-space-x-1 jd-bg-background/80 jd-border jd-border-border/30 jd-rounded jd-px-1">
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-6 w-6 p-0"
+                  className="jd-h-6 jd-w-6 jd-p-0"
                   onClick={goToPrevPage}
                   disabled={currentPage === 0}
                   title="Previous items"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="jd-h-4 jd-w-4" />
                 </Button>
-                <span className="text-xs text-muted-foreground px-1">
+                <span className="jd-text-xs jd-text-muted-foreground jd-px-1">
                   {currentPage + 1}/{totalPages}
                 </span>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-6 w-6 p-0"
+                  className="jd-h-6 jd-w-6 jd-p-0"
                   onClick={goToNextPage}
                   disabled={currentPage === totalPages - 1}
                   title="Next items"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="jd-h-4 jd-w-4" />
                 </Button>
               </div>
             </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { AlertTriangle, RefreshCw, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
+import { getMessage } from '@/core/utils/i18n';
 interface ErrorMessageProps {
   message: string;
   detail?: string;
@@ -23,12 +23,12 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
   const getIcon = () => {
     switch (variant) {
       case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
+        return <AlertTriangle className="jd-h-5 jd-w-5 jd-text-amber-500" />;
       case 'info':
-        return <AlertCircle className="h-5 w-5 text-blue-500" />;
+        return <AlertCircle className="jd-h-5 jd-w-5 jd-text-blue-500" />;
       case 'error':
       default:
-        return <AlertTriangle className="h-5 w-5 text-red-500" />;
+        return <AlertTriangle className="jd-h-5 jd-w-5 jd-text-red-500" />;
     }
   };
   
@@ -36,23 +36,23 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
   const alertVariant = variant === 'error' ? 'destructive' : 'default';
   
   return (
-    <Alert variant={alertVariant} className="my-2">
-      <div className="flex items-start gap-2">
+    <Alert variant={alertVariant} className="jd-my-2">
+      <div className="jd-flex jd-items-start jd-gap-2">
         {getIcon()}
-        <AlertDescription className="flex-1">
-          <div className="font-medium">{message}</div>
-          {detail && <div className="text-sm opacity-80 mt-1">{detail}</div>}
+        <AlertDescription className="jd-flex-1">
+          <div className="jd-font-medium">{message}</div>
+          {detail && <div className="jd-text-sm jd-opacity-80 jd-mt-1">{detail}</div>}
           
           {onRetry && (
-            <div className="mt-3">
+            <div className="jd-mt-3">
               <Button 
                 variant={variant === 'error' ? 'secondary' : 'outline'} 
                 size="sm"
                 onClick={onRetry}
-                className="flex items-center gap-1"
+                className="jd-flex jd-items-center jd-gap-1"
               >
-                <RefreshCw className="h-3.5 w-3.5" />
-                <span>Try Again</span>
+                <RefreshCw className="jd-h-3.5 jd-w-3.5" />
+                <span>{getMessage('tryAgain')}</span>
               </Button>
             </div>
           )}

@@ -5,25 +5,25 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/core/utils/classNames"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "jd-inline-flex jd-items-center jd-justify-center jd-whitespace-nowrap jd-rounded-md jd-text-sm jd-font-medium jd-ring-offset-background jd-transition-colors jd-focus-visible:outline-none jd-focus-visible:ring-2 jd-focus-visible:ring-ring jd-focus-visible:ring-offset-2 jd-disabled:pointer-events-none jd-disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "jd-bg-destructive jd-text-destructive-foreground hover:jd-bg-destructive/90",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "jd-border jd-border-input jd-bg-background hover:jd-bg-accent hover:jd-text-accent-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "jd-bg-secondary jd-text-secondary-foreground hover:jd-bg-secondary/80",
+        ghost: "hover:jd-bg-accent hover:jd-text-accent-foreground",
+        link: "jd-text-primary jd-underline-offset-4 hover:jd-underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "jd-h-10 jd-px-4 jd-py-2",
+        sm: "jd-h-9 jd-rounded-md jd-px-3",
+        lg: "jd-h-11 jd-rounded-md jd-px-8",
+        icon: "jd-h-10 jd-w-10",
       },
     },
     defaultVariants: {

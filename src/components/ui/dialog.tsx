@@ -19,7 +19,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "jd-fixed jd-inset-0 jd-z-50 jd-bg-black/80  jd-data-[state=open]:jd-animate-in jd-data-[state=closed]:jd-animate-out jd-data-[state=closed]:jd-fade-out-0 jd-data-[state=open]:jd-fade-in-0",
       className
     )}
     {...props}
@@ -36,15 +36,15 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+        "jd-fixed jd-left-[50%] jd-top-[50%] jd-z-50 jd-grid jd-w-full jd-max-w-lg jd-translate-x-[-50%] jd-translate-y-[-50%] jd-gap-4 jd-border jd-bg-background jd-p-6 jd-shadow-lg jd-duration-200 jd-data-[state=open]:jd-animate-in jd-data-[state=closed]:jd-animate-out jd-data-[state=closed]:jd-fade-out-0 jd-data-[state=open]:jd-fade-in-0 jd-data-[state=closed]:jd-zoom-out-95 jd-data-[state=open]:jd-zoom-in-95 jd-data-[state=closed]:jd-slide-out-to-left-1/2 jd-data-[state=closed]:jd-slide-out-to-top-[48%] jd-data-[state=open]:jd-slide-in-from-left-1/2 jd-data-[state=open]:jd-slide-in-from-top-[48%] jd-sm:jd-rounded-lg",
         className
       )}
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
+      <DialogPrimitive.Close className="jd-absolute jd-right-4 jd-top-4 jd-rounded-sm jd-opacity-70 jd-ring-offset-background jd-transition-opacity jd-hover:jd-opacity-100 jd-focus:jd-outline-none jd-focus:jd-ring-2 jd-focus:jd-ring-ring jd-focus:jd-ring-offset-2 jd-disabled:jd-pointer-events-none jd-data-[state=open]:jd-bg-accent jd-data-[state=open]:jd-text-muted-foreground">
+        <X className="jd-h-4 jd-w-4" />
+        <span className="jd-sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
@@ -57,7 +57,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left",
+      "jd-flex jd-flex-col jd-space-y-1.5 jd-text-center jd-sm:jd-text-left",
       className
     )}
     {...props}
@@ -71,7 +71,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      "jd-flex jd-flex-col-reverse jd-sm:jd-flex-row jd-sm:jd-justify-end jd-sm:jd-space-x-2",
       className
     )}
     {...props}
@@ -86,7 +86,7 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-lg font-semibold leading-none tracking-tight",
+      "jd-text-lg jd-font-semibold jd-leading-none jd-tracking-tight",
       className
     )}
     {...props}
@@ -100,7 +100,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("jd-text-sm jd-text-muted-foreground", className)}
     {...props}
   />
 ))

@@ -21,57 +21,57 @@ const UserInsightCard: React.FC<UserInsightCardProps> = ({
   // Map color prop to Tailwind classes
   const colorClasses = {
     blue: {
-      bg: 'bg-blue-50 dark:bg-blue-900/20',
-      text: 'text-blue-900 dark:text-blue-200',
-      description: 'text-blue-700 dark:text-blue-300',
-      icon: 'text-blue-600 dark:text-blue-400'
+      bg: 'jd-bg-blue-50 jd-dark:jd-bg-blue-900/20',
+      text: 'jd-text-blue-900 jd-dark:jd-text-blue-200',
+      description: 'jd-text-blue-700 jd-dark:jd-text-blue-300',
+      icon: 'jd-text-blue-600 jd-dark:jd-text-blue-400'
     },
     green: {
-      bg: 'bg-green-50 dark:bg-green-900/20',
-      text: 'text-green-900 dark:text-green-200',
-      description: 'text-green-700 dark:text-green-300',
-      icon: 'text-green-600 dark:text-green-400'
+      bg: 'jd-bg-green-50 jd-dark:jd-bg-green-900/20',
+      text: 'jd-text-green-900 jd-dark:jd-text-green-200',
+      description: 'jd-text-green-700 jd-dark:jd-text-green-300',
+      icon: 'jd-text-green-600 jd-dark:jd-text-green-400'
     },
     amber: {
-      bg: 'bg-amber-50 dark:bg-amber-900/20',
-      text: 'text-amber-900 dark:text-amber-200',
-      description: 'text-amber-700 dark:text-amber-300',
-      icon: 'text-amber-600 dark:text-amber-400'
+      bg: 'jd-bg-amber-50 jd-dark:jd-bg-amber-900/20',
+      text: 'jd-text-amber-900 jd-dark:jd-text-amber-200',
+      description: 'jd-text-amber-700 jd-dark:jd-text-amber-300',
+      icon: 'jd-text-amber-600 jd-dark:jd-text-amber-400'
     },
     purple: {
-      bg: 'bg-purple-50 dark:bg-purple-900/20',
-      text: 'text-purple-900 dark:text-purple-200',
-      description: 'text-purple-700 dark:text-purple-300',
-      icon: 'text-purple-600 dark:text-purple-400'
+      bg: 'jd-bg-purple-50 jd-dark:jd-bg-purple-900/20',
+      text: 'jd-text-purple-900 jd-dark:jd-text-purple-200',
+      description: 'jd-text-purple-700 jd-dark:jd-text-purple-300',
+      icon: 'jd-text-purple-600 jd-dark:jd-text-purple-400'
     },
     rose: {
-      bg: 'bg-rose-50 dark:bg-rose-900/20',
-      text: 'text-rose-900 dark:text-rose-200',
-      description: 'text-rose-700 dark:text-rose-300',
-      icon: 'text-rose-600 dark:text-rose-400'
+      bg: 'jd-bg-rose-50 jd-dark:jd-bg-rose-900/20',
+      text: 'jd-text-rose-900 jd-dark:jd-text-rose-200',
+      description: 'jd-text-rose-700 jd-dark:jd-text-rose-300',
+      icon: 'jd-text-rose-600 jd-dark:jd-text-rose-400'
     },
     indigo: {
-      bg: 'bg-indigo-50 dark:bg-indigo-900/20',
-      text: 'text-indigo-900 dark:text-indigo-200',
-      description: 'text-indigo-700 dark:text-indigo-300',
-      icon: 'text-indigo-600 dark:text-indigo-400'
+      bg: 'jd-bg-indigo-50 jd-dark:jd-bg-indigo-900/20',
+      text: 'jd-text-indigo-900 jd-dark:jd-text-indigo-200',
+      description: 'jd-text-indigo-700 jd-dark:jd-text-indigo-300',
+      icon: 'jd-text-indigo-600 jd-dark:jd-text-indigo-400'
     }
   };
 
   const classes = colorClasses[color];
 
   return (
-    <Card className={`${classes.bg} border-0 shadow-none`}>
-      <CardContent className="p-4">
-        <div className="flex">
-          <div className={`flex-shrink-0 mr-3 ${classes.icon}`}>
+    <Card className={`${classes.bg} jd-border-0 jd-shadow-none`}>
+      <CardContent className="jd-p-4">
+        <div className="jd-flex">
+          <div className={`jd-flex-shrink-0 jd-mr-3 ${classes.icon}`}>
             {icon}
           </div>
           <div>
-            <h4 className={`font-medium ${classes.text} mb-1`}>
+            <h4 className={`jd-font-medium ${classes.text} jd-mb-1`}>
               {title}
             </h4>
-            <p className={`text-sm ${classes.description}`}>
+            <p className={`jd-text-sm ${classes.description}`}>
               {description}
             </p>
           </div>

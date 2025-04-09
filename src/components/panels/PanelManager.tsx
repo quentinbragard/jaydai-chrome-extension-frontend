@@ -104,7 +104,7 @@ const PanelManager: React.FC<PanelManagerProps> = ({
   const panelToShow = activePanelType || initialPanel;
 
   return (
-    <div className="fixed bottom-24 right-6 z-50 animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-150">
+    <div className="jd-fixed jd-bottom-24 jd-right-6 jd-z-50 jd-animate-in jd-fade-in jd-zoom-in-95 jd-slide-in-from-bottom-2 jd-duration-150">
       <QueryProvider>
         <PanelNavigationProvider initialPanel={{ type: panelToShow }}>
           <PanelContainer 

@@ -24,8 +24,8 @@ export function UnorganizedTemplates({
   }
 
   return (
-    <div className="mt-2">
-      <div className="space-y-1">
+    <div className="jd-mt-2">
+      <div className="jd-space-y-1">
         {templates.map(template => (
           <TemplateItem
             key={`template-${template.id}`}

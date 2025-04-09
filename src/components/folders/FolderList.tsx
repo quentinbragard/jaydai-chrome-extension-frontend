@@ -55,7 +55,7 @@ const FolderList: React.FC<FolderListProps> = ({
   }
   
   return (
-    <div className="space-y-1 px-2">
+    <div className="jd-space-y-1 jd-px-2">
       {validFolders.map(folder => {
         // Determine if folder should be expanded when a search term is present
         const initialExpanded = searchTerm 

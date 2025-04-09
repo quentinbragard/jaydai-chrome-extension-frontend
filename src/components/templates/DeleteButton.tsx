@@ -72,17 +72,17 @@ export function DeleteButton({
               variant="ghost"
               size="sm"
               disabled={disabled}
-              className={`h-6 w-6 p-0 flex-shrink-0 text-muted-foreground opacity-70 hover:opacity-100 ${className}`}
+              className={`jd-h-6 jd-w-6 jd-p-0 jd-flex-shrink-0 jd-text-muted-foreground jd-opacity-70 jd-hover:jd-opacity-100 ${className}`}
             >
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="jd-h-4 jd-w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem 
               onClick={handleOpenDeleteDialog} 
-              className="text-destructive cursor-pointer"
+              className="jd-text-destructive jd-cursor-pointer"
             >
-              <Trash className="h-4 w-4 mr-2" />
+              <Trash className="jd-h-4 jd-w-4 jd-mr-2" />
               {getMessage('deleteItem', [itemType === 'folder' ? getMessage('folder', undefined, 'Folder') : getMessage('template', undefined, 'Template')], `Delete ${itemType === 'folder' ? 'Folder' : 'Template'}`)}
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -92,11 +92,11 @@ export function DeleteButton({
         <Button 
           variant="ghost" 
           size="sm" 
-          className={`h-6 w-6 p-0 text-destructive ${className}`}
+          className={`jd-h-6 jd-w-6 jd-p-0 jd-text-destructive ${className}`}
           onClick={handleOpenDeleteDialog}
           disabled={disabled}
         >
-          <Trash className="h-3.5 w-3.5" />
+          <Trash className="jd-h-3.5 jd-w-3.5" />
         </Button>
       )}
 
@@ -110,13 +110,13 @@ export function DeleteButton({
             <DialogDescription>
               {getMessage('deleteConfirmMessageNoName', [itemType === 'folder' ? getMessage('folder', undefined, 'folder') : getMessage('template', undefined, 'template')], `This will permanently delete this ${itemType}.`)}
               {itemType === 'folder' && (
-                <div className="mt-2 text-amber-600 dark:text-amber-400 flex items-start">
-                  <AlertTriangle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                <div className="jd-mt-2 jd-text-amber-600 jd-dark:jd-text-amber-400 jd-flex jd-items-start">
+                  <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2 jd-mt-0.5 jd-flex-shrink-0" />
                   <span>{getMessage('deleteFolderWarning', undefined, 'All templates inside this folder will also be deleted.')}</span>
                 </div>
               )}
-              <div className="mt-2 text-amber-600 dark:text-amber-400 flex items-start">
-                <AlertTriangle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+              <div className="jd-mt-2 jd-text-amber-600 jd-dark:jd-text-amber-400 jd-flex jd-items-start">
+                <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2 jd-mt-0.5 jd-flex-shrink-0" />
                 <span>{getMessage('deleteActionWarning', undefined, 'This action cannot be undone.')}</span>
               </div>
             </DialogDescription>

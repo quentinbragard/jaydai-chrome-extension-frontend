@@ -10,14 +10,14 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', ...props }, ref) => {
     // Base classes
-    const baseClasses = 'rounded-lg';
+    const baseClasses = 'jd-rounded-lg';
     
     // Variant classes
     const variantClasses = {
-      default: 'bg-card text-card-foreground shadow',
-      bordered: 'bg-card text-card-foreground border border-border',
-      elevated: 'bg-card text-card-foreground shadow-lg',
-      ghost: 'bg-transparent text-card-foreground',
+      default: 'jd-bg-card jd-text-card-foreground jd-shadow',
+      bordered: 'jd-bg-card jd-text-card-foreground jd-border jd-border-border',
+      elevated: 'jd-bg-card jd-text-card-foreground jd-shadow-lg',
+      ghost: 'jd-bg-transparent jd-text-card-foreground',
     };
     
     return (
@@ -42,7 +42,7 @@ export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('flex flex-col space-y-1.5 p-6', className)}
+      className={cn('jd-flex jd-flex-col jd-space-y-1.5 jd-p-6', className)}
       {...props}
     />
   )
@@ -58,7 +58,7 @@ export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ className, as: Tag = 'h3', ...props }, ref) => (
     <Tag
       ref={ref}
-      className={cn('font-semibold leading-none tracking-tight', className)}
+      className={cn('jd-font-semibold jd-leading-none jd-tracking-tight', className)}
       {...props}
     />
   )
@@ -72,7 +72,7 @@ export const CardDescription = forwardRef<HTMLParagraphElement, CardDescriptionP
   ({ className, ...props }, ref) => (
     <p
       ref={ref}
-      className={cn('text-sm text-muted-foreground', className)}
+      className={cn('jd-text-sm jd-text-muted-foreground', className)}
       {...props}
     />
   )
@@ -88,7 +88,7 @@ export const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
   ({ className, paddingless = false, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(paddingless ? '' : 'p-6 pt-0', className)}
+      className={cn(paddingless ? '' : 'jd-p-6 jd-pt-0', className)}
       {...props}
     />
   )
@@ -102,7 +102,7 @@ export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('flex items-center p-6 pt-0', className)}
+      className={cn('jd-flex jd-items-center jd-p-6 jd-pt-0', className)}
       {...props}
     />
   )

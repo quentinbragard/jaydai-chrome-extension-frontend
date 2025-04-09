@@ -266,7 +266,7 @@ const handleClose = () => {
       }}
     >
       <DialogContent
-        className="max-w-3xl max-h-[90vh] flex flex-col z-[10001] border-primary/10 shadow-2xl"
+        className="jd-max-w-3xl jd-max-h-[90vh] jd-flex jd-flex-col jd-z-[10001] jd-border-primary/10 jd-shadow-2xl"
         onClick={(e) => e.stopPropagation()}
         style={{ maxHeight: '90vh', overflow: 'auto' }}
       >
@@ -278,48 +278,48 @@ const handleClose = () => {
         </DialogHeader>
 
         {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTriangle className="h-4 w-4 mr-2" />
+          <Alert variant="destructive" className="jd-mb-4">
+            <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4 flex-grow overflow-hidden">
+        <div className="jd-grid jd-grid-cols-1 jd-md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden">
           {/* Placeholders Section */}
-          <div className="space-y-4 overflow-auto">
-            <h3 className="text-sm font-medium">{getMessage('replacePlaceholders')}</h3>
+          <div className="jd-space-y-4 jd-overflow-auto">
+            <h3 className="jd-text-sm jd-font-medium">{getMessage('replacePlaceholders')}</h3>
 
             {placeholders.length > 0 ? (
-              <ScrollArea className="h-[50vh]">
-                <div className="space-y-4 pr-4">
+              <ScrollArea className="jd-h-[50vh]">
+                <div className="jd-space-y-4 jd-pr-4">
                   {placeholders.map((placeholder, idx) => (
-                    <div key={placeholder.key + idx} className="space-y-1">
-                      <label className="text-sm font-medium flex items-center">
-                        <span className="bg-primary/10 px-2 py-1 rounded">{placeholder.key}</span>
+                    <div key={placeholder.key + idx} className="jd-space-y-1">
+                      <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
+                        <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
                       </label>
                       <Input
                         value={placeholder.value}
                         onChange={(e) => updatePlaceholder(idx, e.target.value)}
                         placeholder={getMessage('enterValueFor', [placeholder.key])}
-                        className="w-full"
+                        className="jd-w-full"
                       />
                     </div>
                   ))}
                 </div>
               </ScrollArea>
             ) : (
-              <div className="text-muted-foreground text-center py-8">{getMessage('noPlaceholders')}</div>
+              <div className="jd-text-muted-foreground jd-text-center jd-py-8">{getMessage('noPlaceholders')}</div>
             )}
           </div>
 
           {/* Rich Text Editable Section */}
-          <div className="border rounded-md p-4 overflow-hidden flex flex-col">
-            <h3 className="text-sm font-medium mb-2">{getMessage('editTemplate')}</h3>
+          <div className="jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
+            <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
             <div
               ref={editorRef}
               contentEditable
               suppressContentEditableWarning
-              className="flex-grow h-[50vh] resize-none border rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-primary overflow-auto whitespace-pre-wrap"
+              className="jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus:outline-none jd-focus:ring-2 jd-focus:ring-primary jd-overflow-auto jd-whitespace-pre-wrap"
               onClick={(e) => e.stopPropagation()} 
               onMouseDown={(e) => e.stopPropagation()} 
             ></div>

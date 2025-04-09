@@ -28,8 +28,8 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
         className={className} 
         onClick={(e) => e.stopPropagation()}
       >
-        {title && <h2 className="dialog-title">{getMessage(title, undefined, title)}</h2>}
-        {description && <p className="dialog-description">{getMessage(description, undefined, description)}</p>}
+        {title && <h2 className="jd-dialog-title">{getMessage(title, undefined, title)}</h2>}
+        {description && <p className="jd-dialog-description">{getMessage(description, undefined, description)}</p>}
         {children}
       </DialogContent>
     </Dialog>

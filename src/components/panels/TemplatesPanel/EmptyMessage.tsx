@@ -14,7 +14,7 @@ export function EmptyMessage({
   className = ''
 }: EmptyMessageProps) {
   return (
-    <div className={`text-center py-2 text-xs text-muted-foreground px-2 ${className}`}>
+    <div className={`jd-text-center jd-py-2 jd-text-xs jd-text-muted-foreground jd-px-2 ${className}`}>
       {children}
     </div>
   );

@@ -27,7 +27,7 @@ export const AuthDialog: React.FC = () => {
     <Dialog {...dialogProps}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold text-white font-heading mb-6">
+          <DialogTitle className="jd-text-center jd-text-2xl jd-font-bold jd-text-white jd-font-heading jd-mb-6">
             {initialMode === 'signin' 
               ? getMessage('signIn', undefined, 'Sign In')
               : getMessage('signUp', undefined, 'Sign Up')}

@@ -14,9 +14,9 @@ export function LoadingState({
   className = ''
 }: LoadingStateProps) {
   return (
-    <div className={`py-8 text-center ${className}`}>
-      <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
-      <p className="text-sm text-muted-foreground mt-2">
+    <div className={`jd-py-8 jd-text-center ${className}`}>
+      <div className="jd-animate-spin jd-h-5 jd-w-5 jd-border-2 jd-border-primary jd-border-t-transparent jd-rounded-full jd-mx-auto"></div>
+      <p className="jd-text-sm jd-text-muted-foreground jd-mt-2">
         {getMessage('loadingTemplates', undefined, message)}
       </p>
     </div>

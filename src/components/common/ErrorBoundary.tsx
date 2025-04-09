@@ -67,17 +67,17 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Default fallback UI
       return (
-        <div className="p-4 bg-red-900/20 border border-red-700/30 rounded-md text-center">
-          <AlertTriangle className="h-10 w-10 text-red-500 mx-auto mb-2" />
-          <h3 className="text-lg font-medium text-red-200 mb-2">
+        <div className="jd-p-4 jd-bg-red-900/20 jd-border jd-border-red-700/30 jd-rounded-md jd-text-center">
+          <AlertTriangle className="jd-h-10 jd-w-10 jd-text-red-500 jd-mx-auto jd-mb-2" />
+          <h3 className="jd-text-lg jd-font-medium jd-text-red-200 jd-mb-2">
             Something went wrong
           </h3>
-          <p className="text-sm text-red-300 mb-4">
+          <p className="jd-text-sm jd-text-red-300 jd-mb-4">
             {this.state.error?.message || 'An unexpected error occurred'}
           </p>
           <Button 
             variant="outline" 
-            className="border-red-700 text-red-200 hover:bg-red-900/30"
+            className="jd-border-red-700 jd-text-red-200 jd-hover:jd-bg-red-900/30"
             onClick={this.resetErrorBoundary}
           >
             Try Again

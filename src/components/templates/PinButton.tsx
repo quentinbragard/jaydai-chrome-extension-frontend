@@ -7,11 +7,11 @@ export function PinButton({ isPinned, onClick, className }: { isPinned: boolean,
       <Button
         variant="ghost"
         size="sm"
-        className={`h-6 w-6 p-0 ${isPinned ? 'text-yellow-500' : 'text-muted-foreground opacity-70 hover:opacity-100'} ${className}`}
+        className={`jd-h-6 jd-w-6 jd-p-0 ${isPinned ? 'jd-text-yellow-500' : 'jd-text-muted-foreground jd-opacity-70 jd-hover:jd-opacity-100'} ${className}`}
         onClick={onClick}
         title={isPinned ? getMessage('unpin_folder', undefined, 'Unpin folder') : getMessage('pin_folder', undefined, 'Pin folder')}
       >
-        <Star className={`h-4 w-4 ${isPinned ? 'fill-yellow-500' : ''}`} />
+        <Star className={`jd-h-4 jd-w-4 ${isPinned ? 'jd-fill-yellow-500' : ''}`} />
       </Button>
     );
   }

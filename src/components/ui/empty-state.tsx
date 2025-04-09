@@ -54,66 +54,66 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   // Sizing classes
   const sizeClasses = {
-    sm: 'py-4 px-3',
-    md: 'py-8 px-4',
-    lg: 'py-12 px-6',
+    sm: 'jd-py-4 jd-px-3',
+    md: 'jd-py-8 jd-px-4',
+    lg: 'jd-py-12 jd-px-6',
   };
   
   // Icon size classes
   const iconSizeClasses = {
-    sm: 'h-8 w-8',
-    md: 'h-12 w-12',
-    lg: 'h-16 w-16',
+    sm: 'jd-h-8 jd-w-8',
+    md: 'jd-h-12 jd-w-12',
+    lg: 'jd-h-16 jd-w-16',
   };
   
   // Text size classes
   const titleSizeClasses = {
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-lg',
+    sm: 'jd-text-sm',
+    md: 'jd-text-base',
+    lg: 'jd-text-lg',
   };
   
   const descriptionSizeClasses = {
-    sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-base',
+    sm: 'jd-text-xs',
+    md: 'jd-text-sm',
+    lg: 'jd-text-base',
   };
   
   return (
     <div className={cn(
-      'flex flex-col items-center justify-center text-center',
+      'jd-flex jd-flex-col jd-items-center jd-justify-center jd-text-center',
       sizeClasses[size],
       className
     )}>
       {icon && (
-        <div className="mb-4">
+        <div className="jd-mb-4">
           {React.isValidElement(icon) ? 
             React.cloneElement(icon as React.ReactElement, { 
-              className: cn(iconSizeClasses[size], 'text-muted-foreground/40', (icon as React.ReactElement).props.className)
+              className: cn(iconSizeClasses[size], 'jd-text-muted-foreground/40', (icon as React.ReactElement).props.className)
             }) : 
             icon
           }
         </div>
       )}
       
-      <h3 className={cn('font-medium', titleSizeClasses[size])}>
+      <h3 className={cn('jd-font-medium', titleSizeClasses[size])}>
         {title}
       </h3>
       
       {description && (
-        <p className={cn('text-muted-foreground mt-1', descriptionSizeClasses[size])}>
+        <p className={cn('jd-text-muted-foreground jd-mt-1', descriptionSizeClasses[size])}>
           {description}
         </p>
       )}
       
       {action && (
-        <div className="mt-4">
+        <div className="jd-mt-4">
           {action}
         </div>
       )}
       
       {children && (
-        <div className="mt-4 w-full">
+        <div className="jd-mt-4 jd-w-full">
           {children}
         </div>
       )}

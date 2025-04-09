@@ -121,9 +121,9 @@ export const FolderDialog: React.FC = () => {
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit} className="jd-space-y-4 jd-py-2">
           <div>
-            <label className="text-sm font-medium">Folder Name</label>
+            <label className="jd-text-sm jd-font-medium">Folder Name</label>
             <Input 
               value={name} 
               onChange={(e) => setName(e.target.value)}
@@ -133,7 +133,7 @@ export const FolderDialog: React.FC = () => {
           </div>
           
           <div>
-            <label className="text-sm font-medium">Description (Optional)</label>
+            <label className="jd-text-sm jd-font-medium">Description (Optional)</label>
             <Textarea 
               value={description} 
               onChange={(e) => setDescription(e.target.value)}

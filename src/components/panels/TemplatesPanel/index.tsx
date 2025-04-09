@@ -228,15 +228,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       >
         <Alert variant="destructive">
           <AlertDescription>
-            <div className="flex flex-col items-center justify-center py-4">
-              <p className="mb-2">Failed to load templates: {errorMessage}</p>
+            <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-py-4">
+              <p className="jd-mb-2">Failed to load templates: {errorMessage}</p>
               <Button 
                 variant="outline"
                 size="sm"
                 onClick={handleRefresh}
-                className="mt-2"
+                className="jd-mt-2"
               >
-                <RefreshCw className="mr-2 h-4 w-4" />
+                <RefreshCw className="jd-mr-2 jd-h-4 jd-w-4" />
                 Retry
               </Button>
             </div>
@@ -273,22 +273,22 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         onClose={onClose}
         className="w-80"
       >
-        <div className="py-8 px-4 text-center space-y-6">
-          <FolderOpen className="h-8 w-8 text-muted-foreground mx-auto opacity-40" />
+        <div className="jd-py-8 jd-px-4 jd-text-center jd-space-y-6">
+          <FolderOpen className="jd-h-8 jd-w-8 jd-text-muted-foreground jd-mx-auto jd-opacity-40" />
           
-          <p className="text-sm text-muted-foreground">
+          <p className="jd-text-sm jd-text-muted-foreground">
             {getMessage('noTemplates', undefined, "You don’t have any templates yet.")}
           </p>
   
           {/* CTA: Create */}
-          <div className="space-y-2">
+          <div className="jd-space-y-2">
             <Button 
               variant="default" 
               size="sm" 
               onClick={createFolderAndTemplate}
               className="w-full"
             >
-              <PlusCircle className="mr-2 h-4 w-4" />
+              <PlusCircle className="jd-mr-2 jd-h-4 jd-w-4" />
               {getMessage('createFirstTemplate', undefined, 'Create Your First Template')}
             </Button>
   
@@ -299,7 +299,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               onClick={handleBrowseOfficialTemplates}
               className="w-full"
             >
-              <FolderOpen className="mr-2 h-4 w-4" />
+              <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
               {getMessage('browseOfficialTemplates', undefined, 'Browse Official Templates')}
             </Button>
           </div>
@@ -310,7 +310,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             size="sm" 
             onClick={handleRefresh}
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <RefreshCw className="jd-mr-2 jd-h-4 jd-w-4" />
             {getMessage('refresh', undefined, 'Refresh')}
           </Button>
         </div>
@@ -329,7 +329,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       onClose={onClose}
       className="w-80"
     >
-      <div className="space-y-4">
+      <div className="jd-space-y-4">
         {/* Official Templates Section */}
         {pinnedFolders?.official?.length > 0 ? (
           <>
@@ -416,12 +416,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               
               {/* Display unorganized templates section if any */}
               {unorganizedTemplates?.length > 0 && (
-                <div className="mt-4">
-                  <div className="text-xs font-medium text-muted-foreground mb-1 px-2 flex items-center">
-                    <FolderOpen className="h-3.5 w-3.5 mr-1 text-muted-foreground/70" />
+                <div className="jd-mt-4">
+                  <div className="jd-text-xs jd-font-medium jd-text-muted-foreground jd-mb-1 jd-px-2 jd-flex jd-items-center">
+                    <FolderOpen className="jd-h-3.5 jd-w-3.5 jd-mr-1 jd-text-muted-foreground/70" />
                     {getMessage('unorganizedTemplates', undefined, 'Unorganized Templates')}
                   </div>
-                  <div className="space-y-1 mt-2">
+                  <div className="jd-space-y-1 jd-mt-2">
                     {unorganizedTemplates.map((template) => (
                       <TemplateItem
                         key={`template-${template.id}`}

@@ -100,7 +100,7 @@ export const SettingsDialog: React.FC = () => {
 
   return (
     <Dialog {...dialogProps}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="jd-sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{getMessage('jaydaiSettings', undefined, 'Settings')}</DialogTitle>
           <DialogDescription>
@@ -108,16 +108,16 @@ export const SettingsDialog: React.FC = () => {
           </DialogDescription>
         </DialogHeader>
         
-        <div className="py-4 space-y-6">
+        <div className="jd-py-4 jd-space-y-6">
           {loading ? (
-            <div className="flex items-center justify-center h-40">
-              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+            <div className="jd-flex jd-items-center jd-justify-center jd-h-40">
+              <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
             </div>
           ) : (
             <>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium" htmlFor="auto-save">
+              <div className="jd-space-y-2">
+                <div className="jd-flex jd-items-center jd-justify-between">
+                  <label className="jd-text-sm jd-font-medium" htmlFor="auto-save">
                     {getMessage('autoSaveConversations', undefined, 'Auto-save conversations')}
                   </label>
                   <input
@@ -125,13 +125,13 @@ export const SettingsDialog: React.FC = () => {
                     type="checkbox"
                     checked={settings.autoSave}
                     onChange={(e) => handleChange('autoSave', e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary jd-focus:ring-primary"
                   />
                 </div>
                 
                 {settings.autoSave && (
-                  <div className="flex items-center justify-between pl-4">
-                    <label className="text-sm font-medium" htmlFor="auto-save-interval">
+                  <div className="jd-flex jd-items-center jd-justify-between jd-pl-4">
+                    <label className="jd-text-sm jd-font-medium" htmlFor="auto-save-interval">
                       {getMessage('autoSaveInterval', undefined, 'Auto-save interval (seconds)')}
                     </label>
                     <Input
@@ -141,7 +141,7 @@ export const SettingsDialog: React.FC = () => {
                       max={300}
                       value={settings.autoSaveInterval}
                       onChange={(e) => handleChange('autoSaveInterval', parseInt(e.target.value, 10))}
-                      className="w-20"
+                      className="jd-w-20"
                     />
                   </div>
                 )}
@@ -149,9 +149,9 @@ export const SettingsDialog: React.FC = () => {
               
               <Separator />
               
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium" htmlFor="sync-enabled">
+              <div className="jd-space-y-2">
+                <div className="jd-flex jd-items-center jd-justify-between">
+                  <label className="jd-text-sm jd-font-medium" htmlFor="sync-enabled">
                     {getMessage('enableSync', undefined, 'Enable synchronization')}
                   </label>
                   <input
@@ -159,12 +159,12 @@ export const SettingsDialog: React.FC = () => {
                     type="checkbox"
                     checked={settings.syncEnabled}
                     onChange={(e) => handleChange('syncEnabled', e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary jd-focus:ring-primary"
                   />
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium" htmlFor="stats-visible">
+                <div className="jd-flex jd-items-center jd-justify-between">
+                  <label className="jd-text-sm jd-font-medium" htmlFor="stats-visible">
                     {getMessage('showStatsPanel', undefined, 'Show stats panel')}
                   </label>
                   <input
@@ -172,7 +172,7 @@ export const SettingsDialog: React.FC = () => {
                     type="checkbox"
                     checked={settings.statsVisible}
                     onChange={(e) => handleChange('statsVisible', e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary jd-focus:ring-primary"
                   />
                 </div>
               </div>

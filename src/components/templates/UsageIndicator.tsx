@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Template } from '@/types/prompts/templates';
 import { formatUsageDate } from './templateUtils';
+import { getMessage } from '@/core/utils/i18n';
 
 interface UsageIndicatorProps {
   template: Template;
@@ -36,15 +37,15 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ template }) => {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex items-center text-xs text-muted-foreground">
-              <Badge variant="secondary" className="px-1 py-0 h-4 mr-1">
-                <Sparkles className="h-3 w-3 text-yellow-500" />
+            <div className="jd-flex jd-items-center jd-text-xs jd-text-muted-foreground">
+              <Badge variant="secondary" className="jd-px-1 jd-py-0 jd-h-4 jd-mr-1">
+                <Sparkles className="jd-h-3 jd-w-3 jd-text-yellow-500" />
               </Badge>
               Popular • Used {usageCount} times
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p>This template is frequently used</p>
+            <p>{getMessage('popular_template', undefined, 'This template is frequently used')}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

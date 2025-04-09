@@ -1373,5 +1373,21 @@
   "online": {
     "message": "Online",
     "description": "Status indicator for authenticated users"
+  },
+  "tryAgain": {
+    "message": "Try Again",
+    "description": "Button text for retrying an action"
+  },
+  "edit_template": {
+    "message": "Edit template",
+    "description": "Edit template button text"
+  },
+  "delete_template": {
+    "message": "Delete template",
+    "description": "Delete template button text"
+  },
+  "popular_template": {
+    "message": "This template is frequently used",
+    "description": "Popular template text"
   }
 }

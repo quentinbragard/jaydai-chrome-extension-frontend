@@ -36,24 +36,24 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   
   return (
     <div className={cn(
-      "flex items-center justify-between p-2 border-b",
-      "dark:bg-gray-800 dark:text-white bg-gray-100 text-gray-900 rounded-t-md",
+      "jd-flex jd-items-center jd-justify-between jd-p-2 jd-border-b",
+      "jd-dark:jd-bg-gray-800 jd-dark:jd-text-white jd-bg-gray-100 jd-text-gray-900 jd-rounded-t-md",
       className
     )}>
-      <div className="flex items-center gap-2">
+      <div className="jd-flex jd-items-center jd-gap-2">
         {showBackButton && (
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={onBack}
-            className="h-8 w-8 p-0 mr-2 dark:text-white dark:hover:bg-gray-700 text-gray-900 hover:bg-gray-200"
+            className="jd-h-8 jd-w-8 jd-p-0 jd-mr-2 jd-dark:jd-text-white jd-dark:jd-hover:jd-bg-gray-700 jd-text-gray-900 jd-hover:jd-bg-gray-200"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="jd-h-4 jd-w-4" />
           </Button>
         )}
         
-        <span className="font-semibold text-sm flex items-center">
-          {Icon && <Icon className="h-4 w-4 mr-2" />}
+        <span className="jd-font-semibold jd-text-sm jd-flex jd-items-center">
+          {Icon && <Icon className="jd-h-4 jd-w-4 jd-mr-2" />}
           {title ? (
             title
           ) : (
@@ -61,12 +61,12 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
               <img 
                 src={darkLogo} 
                 alt="Jaydai Logo" 
-                className="h-6 hidden dark:block"
+                className="jd-h-6 jd-hidden jd-dark:jd-block"
               />
               <img 
                 src={lightLogo} 
                 alt="Jaydai Logo" 
-                className="h-6 block dark:hidden"
+                className="jd-h-6 jd-block jd-dark:jd-hidden"
               />
             </>
           )}
@@ -74,16 +74,16 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
         {leftExtra}
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="jd-flex jd-items-center jd-gap-2">
         {extra}
         {onClose && (
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={onClose}
-            className="h-8 w-8 p-0 dark:text-white dark:hover:bg-gray-700 text-gray-900 hover:bg-gray-200"
+            className="jd-h-8 jd-w-8 jd-p-0 jd-dark:jd-text-white jd-dark:jd-hover:jd-bg-gray-700 jd-text-gray-900 jd-hover:jd-bg-gray-200"
           >
-            <X className="h-4 w-4" />
+            <X className="jd-h-4 jd-w-4" />
           </Button>
         )}
       </div>

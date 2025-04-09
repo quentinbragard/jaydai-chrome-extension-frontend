@@ -120,30 +120,30 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
           showBackButton={showBackButton}
           onBack={onBack}
           onClose={onClose}
-          className={`stats-panel w-80 ${className || ''}`}
+          className={`jd-stats-panel jd-w-80 ${className || ''}`}
           maxHeight={maxHeight}
         >
           {stats.totalChats === 0 && stats.totalMessages === 0 ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center">
-              <BarChart2 className="h-10 w-10 text-muted-foreground mb-3 opacity-30" />
-              <p className="text-muted-foreground font-medium">No stats available yet</p>
-              <p className="text-xs text-muted-foreground mt-1">
+            <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-p-8 jd-text-center">
+              <BarChart2 className="jd-h-10 jd-w-10 jd-text-muted-foreground jd-mb-3 jd-opacity-30" />
+              <p className="jd-text-muted-foreground jd-font-medium">No stats available yet</p>
+              <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">
                 {getMessage('noStatsAvailable', undefined, 'Start a conversation to see your usage analytics')}
               </p>
             </div>
           ) : (
             <>
               {/* Top cards */}
-              <div className="flex items-center justify-between mb-4 px-8 gap-4 w-full">
+              <div className="jd-flex jd-items-center jd-justify-between jd-mb-4 jd-px-8 jd-gap-4 jd-w-full">
               <StatsCard 
-                  icon={<MessageCircle className="h-3.5 w-3.5" />} 
+                  icon={<MessageCircle className="jd-h-3.5 jd-w-3.5" />} 
                   value={stats.totalChats > 20 ? "20+" : stats.totalChats} 
-                  color="text-blue-500"
+                  color="jd-text-blue-500"
                   title="Conversations"
                 />
                 {stats.efficiency !== undefined && (
                   <StatsCard 
-                    icon={<Award className="h-3.5 w-3.5" />} 
+                    icon={<Award className="jd-h-3.5 jd-w-3.5" />} 
                     value={formatEfficiency(efficiencyValue)} 
                     unit="%" 
                     color={efficiencyColor}
@@ -151,45 +151,45 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                   />
                 )}
                 <StatsCard 
-                  icon={<Zap className="h-3.5 w-3.5" />} 
+                  icon={<Zap className="jd-h-3.5 jd-w-3.5" />} 
                   value={formatEnergy(stats.energyUsage?.totalWh ?? 0)}
                   unit="Wh" 
-                  color="text-amber-500"
+                  color="jd-text-amber-500"
                   title="Energy"
                 />
               </div>
 
               {/* Stats detail rows */}
-              <div className="px-2 py-3 border-t mt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="jd-px-2 jd-py-3 jd-border-t jd-mt-2 jd-animate-in jd-fade-in jd-slide-in-from-top-2 jd-duration-300">
                 <StatsDetailRow 
                   label={getMessage('recentActivity', undefined, 'Recent Activity')}
                   value={`${stats.recentChats} chats`} 
-                  icon={<Activity className="h-3.5 w-3.5" />} 
+                  icon={<Activity className="jd-h-3.5 jd-w-3.5" />} 
                   progress={stats.totalChats ? stats.recentChats / (stats.totalChats * 0.2) * 100 : 0}
-                  progressColor="#3b82f6"
+                  progressColor="jd-text-3b82f6"
                   tooltip="Conversations in the last 7 days"
                 />
                 
                 {/* Improved Energy Equivalent Display 
                 {stats.energyUsage?.equivalent && (
                   <div className="mb-3 last:mb-1 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-900/20 rounded-md px-3 py-2.5">
-                    <div className="flex items-start">
-                      <Zap className="h-4 w-4 mr-2 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                    <div className="jd-flex jd-items-start">
+                      <Zap className="jd-h-4 jd-w-4 jd-mr-2 jd-text-green-600 jd-dark:jd-text-green-400 jd-flex-shrink-0 jd-mt-0.5" />
                       <div>
-                        <div className="flex items-center">
-                          <span className="text-xs font-medium text-green-800 dark:text-green-300 mr-1">
+                        <div className="jd-flex jd-items-center">
+                          <span className="jd-text-xs jd-font-medium jd-text-green-800 jd-dark:jd-text-green-300 jd-mr-1">
                             {getMessage('energyEquivalent', undefined, 'Energy Equivalent')}
                           </span>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Info className="h-3 w-3 text-green-600 dark:text-green-400 cursor-help" />
+                              <Info className="jd-h-3 jd-w-3 jd-text-green-600 jd-dark:jd-text-green-400 jd-cursor-help" />
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p className="max-w-xs text-xs">{getMessage('energyEquivalentHelp', undefined, 'This shows what your AI energy usage is equivalent to in everyday terms')}</p>
+                              <p className="jd-max-w-xs jd-text-xs">{getMessage('energyEquivalentHelp', undefined, 'This shows what your AI energy usage is equivalent to in everyday terms')}</p>
                             </TooltipContent>
                           </Tooltip>
                         </div>
-                        <p className="text-sm text-green-800 dark:text-green-200 mt-1 font-medium">
+                        <p className="jd-text-sm jd-text-green-800 jd-dark:jd-text-green-200 jd-mt-1 jd-font-medium">
                           {stats.energyUsage.equivalent}
                         </p>
                       </div>
@@ -201,7 +201,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                 <StatsDetailRow 
                   label={getMessage('messagingEfficiency', undefined, 'Messages Per Conversation')} 
                   value={stats.avgMessagesPerChat.toFixed(1)} 
-                  icon={<MessageCircle className="h-3.5 w-3.5" />} 
+                  icon={<MessageCircle className="jd-h-3.5 jd-w-3.5" />} 
                   progress={Math.min(100, stats.avgMessagesPerChat * 10)}
                   progressColor="#3b82f6"
                   tooltip="Average number of messages exchanged per conversation"
@@ -210,7 +210,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                 <StatsDetailRow 
                   label={getMessage('thinkingTime', undefined, 'Average Response Time')} 
                   value={`${stats.thinkingTime.average.toFixed(1)}s`} 
-                  icon={<Award className="h-3.5 w-3.5" />} 
+                  icon={<Award className="jd-h-3.5 jd-w-3.5" />} 
                   progress={Math.min(100, 100 - (stats.thinkingTime.average * 5))}
                   progressColor="#10b981"
                   tooltip="Average time it takes to get a response"
@@ -219,27 +219,27 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                 <StatsDetailRow 
                   label={getMessage('tokenUsage', undefined, 'Token Usage')} 
                   value={`${(stats.tokenUsage.recentInput + stats.tokenUsage.recentOutput).toLocaleString()}`} 
-                  icon={<BarChart2 className="h-3.5 w-3.5" />} 
+                  icon={<BarChart2 className="jd-h-3.5 jd-w-3.5" />} 
                   progress={stats.tokenUsage.total ? Math.min(100, (stats.tokenUsage.recentInput + stats.tokenUsage.recentOutput) / (stats.tokenUsage.total * 0.1) * 100) : 0}
                   progressColor="#6366f1"
                   tooltip="Tokens used in the last 7 days"
                 />
                 
-                <div className="flex justify-between items-center mt-4 pt-1 border-t text-xs text-muted-foreground">
-                  <span className="flex items-center">
-                    <span className="inline-block h-1 w-1 rounded-full bg-green-500 mr-1 animate-pulse"></span>
-                    <span className="text-[10px]">
+                <div className="jd-flex jd-justify-between jd-items-center jd-mt-4 jd-pt-1 jd-border-t jd-text-xs jd-text-muted-foreground">
+                  <span className="jd-flex jd-items-center">
+                    <span className="jd-inline-block jd-h-1 jd-w-1 jd-rounded-full jd-bg-green-500 jd-mr-1 jd-animate-pulse"></span>
+                    <span className="jd-text-[10px]">
                       {getMessage('updated', undefined, 'Updated')} {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </span>
                   </span>
                   
                   <Button 
-                    className="text-[10px] text-blue-500 px-1 hover:underline p-0 h-auto bg-transparent flex items-center gap-1"
+                    className="jd-text-[10px] jd-text-blue-500 jd-px-1 jd-hover:jd-underline jd-p-0 jd-h-auto jd-bg-transparent jd-flex jd-items-center jd-gap-1"
                     variant="ghost"
                     onClick={handleOpenEnhancedStats}
                   >
                     {getMessage('viewEnhancedStats', undefined, 'View Enhanced Analytics')}
-                    <ExternalLink className="h-3 w-3" />
+                    <ExternalLink className="jd-h-3 jd-w-3" />
                   </Button>
                 </div>
               </div>

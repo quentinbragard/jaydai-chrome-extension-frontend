@@ -20,29 +20,29 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   refreshing = false
 }) => {
   return (
-    <div className="py-8 px-4 text-center">
-      <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
-      <p className="text-sm text-muted-foreground">
+    <div className="jd-py-8 jd-px-4 jd-text-center">
+      <FileText className="jd-h-8 jd-w-8 jd-text-muted-foreground jd-mx-auto jd-mb-2 jd-opacity-40" />
+      <p className="jd-text-sm jd-text-muted-foreground">
         {getMessage('noTemplates', undefined, "No templates available")}
       </p>
-      <div className="flex flex-col items-center justify-center gap-2 mt-4">
+      <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-gap-2 jd-mt-4">
         <Button 
           variant="outline" 
           size="sm" 
           onClick={onCreateTemplate}
-          className="flex items-center w-full"
+          className="jd-flex jd-items-center jd-w-full"
         >
-          <PlusCircle className="h-4 w-4 mr-1" />
+          <PlusCircle className="jd-h-4 jd-w-4 jd-mr-1" />
           {getMessage('createFirstTemplate', undefined, 'Create Your First Template')}
         </Button>
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={onRefresh}
-          className="flex items-center mt-2"
+          className="jd-flex jd-items-center jd-mt-2"
           disabled={refreshing}
         >
-          <RefreshCw className={`h-4 w-4 mr-1 ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`jd-h-4 jd-w-4 jd-mr-1 ${refreshing ? 'jd-animate-spin' : ''}`} />
           {refreshing ? getMessage('refreshing', undefined, 'Refreshing...') : getMessage('refresh', undefined, 'Refresh')}
         </Button>
       </div>

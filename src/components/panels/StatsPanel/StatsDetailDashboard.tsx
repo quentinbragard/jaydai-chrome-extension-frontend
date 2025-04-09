@@ -116,62 +116,62 @@ const StatsDetailDashboard = () => {
   
   // Reusable empty state component
   const EmptyState = ({ icon, message, submessage }) => (
-    <div className="flex flex-col items-center justify-center h-64 text-center">
+    <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-h-64 jd-text-center">
       {icon}
-      <p className="text-muted-foreground font-medium mt-3">{message}</p>
-      <p className="text-xs text-muted-foreground mt-1">{submessage}</p>
+      <p className="jd-text-muted-foreground jd-font-medium jd-mt-3">{message}</p>
+      <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">{submessage}</p>
     </div>
   );
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-2xl font-bold mb-4">AI Usage Analytics</h2>
+    <div className="jd-p-4 jd-space-y-4">
+      <h2 className="jd-text-2xl jd-font-bold jd-mb-4">AI Usage Analytics</h2>
       
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="jd-grid jd-grid-cols-1 jd:grid-cols-4 jd-gap-4">
         <Card>
-          <CardHeader className="p-4">
-            <CardTitle className="text-sm font-medium">Total Conversations</CardTitle>
+          <CardHeader className="jd-p-4">
+            <CardTitle className="jd-text-sm jd-font-medium">Total Conversations</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold">{stats.totalChats > 20 ? "20+" : stats.totalChats.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="jd-p-4 jd-pt-0">
+            <div className="jd-text-2xl jd-font-bold">{stats.totalChats > 20 ? "20+" : stats.totalChats.toLocaleString()}</div>
+            <p className="jd-text-xs jd-text-muted-foreground">
               {stats.recentChats} in the last 7 days
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="p-4">
-            <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
+          <CardHeader className="jd-p-4">
+            <CardTitle className="jd-text-sm jd-font-medium">Total Messages</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold">{stats.totalMessages.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="jd-p-4 jd-pt-0">
+            <div className="jd-text-2xl jd-font-bold">{stats.totalMessages.toLocaleString()}</div>
+            <p className="jd-text-xs jd-text-muted-foreground">
               {stats.avgMessagesPerChat.toFixed(1)} avg per conversation
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="p-4">
-            <CardTitle className="text-sm font-medium">Energy Usage</CardTitle>
+          <CardHeader className="jd-p-4">
+            <CardTitle className="jd-text-sm jd-font-medium">Energy Usage</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold">{stats.energyUsage.totalWh.toFixed(2)} kWh</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="jd-p-4 jd-pt-0">
+            <div className="jd-text-2xl jd-font-bold">{stats.energyUsage.totalWh.toFixed(2)} kWh</div>
+            <p className="jd-text-xs jd-text-muted-foreground">
               {stats.energyUsage.recentWh.toFixed(2)} kWh in the last 7 days
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="p-4">
-            <CardTitle className="text-sm font-medium">Efficiency Score</CardTitle>
+          <CardHeader className="jd-p-4">
+            <CardTitle className="jd-text-sm jd-font-medium">Efficiency Score</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold">{Math.min(100, Math.max(0, stats.efficiency || 0))}/100</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="jd-p-4 jd-pt-0">
+            <div className="jd-text-2xl jd-font-bold">{Math.min(100, Math.max(0, stats.efficiency || 0))}/100</div>
+            <p className="jd-text-xs jd-text-muted-foreground">
               Based on usage patterns
             </p>
           </CardContent>
@@ -186,7 +186,7 @@ const StatsDetailDashboard = () => {
           <TabsTrigger value="tokens">Token Metrics</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="usage" className="space-y-4">
+        <TabsContent value="usage" className="jd-space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Weekly Conversation Activity</CardTitle>
@@ -194,12 +194,12 @@ const StatsDetailDashboard = () => {
             <CardContent>
               {weeklyConversationsData.length === 0 ? (
                 <EmptyState 
-                  icon={<BarChart2 className="h-12 w-12 text-muted-foreground opacity-30" />}
+                  icon={<BarChart2 className="jd-h-12 jd-w-12 jd-text-muted-foreground jd-opacity-30" />}
                   message="No conversation data available" 
                   submessage="Weekly conversation data will appear here as you use the app" 
                 />
               ) : (
-                <div className="h-80">
+                <div className="jd-h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={weeklyConversationsData}
@@ -217,7 +217,7 @@ const StatsDetailDashboard = () => {
             </CardContent>
           </Card>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="jd-grid jd-grid-cols-1 jd:grid-cols-2 jd-gap-4">
             <Card>
               <CardHeader>
                 <CardTitle>Message Distribution</CardTitle>
@@ -226,12 +226,12 @@ const StatsDetailDashboard = () => {
                 {messageDistributionData.length === 0 || 
                  (messageDistributionData[0].value === 0 && messageDistributionData[1].value === 0) ? (
                   <EmptyState 
-                    icon={<MessageCircle className="h-12 w-12 text-muted-foreground opacity-30" />}
+                    icon={<MessageCircle className="jd-h-12 jd-w-12 jd-text-muted-foreground jd-opacity-30" />}
                     message="No message data available" 
                     submessage="Message distribution will appear here once you've exchanged messages" 
                   />
                 ) : (
-                  <div className="h-64">
+                  <div className="jd-h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -265,12 +265,12 @@ const StatsDetailDashboard = () => {
               <CardContent>
                 {dailyChatData.length === 0 ? (
                   <EmptyState 
-                    icon={<BarChart2 className="h-12 w-12 text-muted-foreground opacity-30" />}
+                    icon={<BarChart2 className="jd-h-12 jd-w-12 jd-text-muted-foreground jd-opacity-30" />}
                     message="No daily chat data available" 
                     submessage="Daily chat volume will appear here as you start conversations" 
                   />
                 ) : (
-                  <div className="h-64">
+                  <div className="jd-h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={dailyChatData}
@@ -298,12 +298,12 @@ const StatsDetailDashboard = () => {
             <CardContent>
               {modelUsageData.length === 0 ? (
                 <EmptyState 
-                  icon={<BarChart2 className="h-12 w-12 text-muted-foreground opacity-30" />}
+                  icon={<BarChart2 className="jd-h-12 jd-w-12 jd-text-muted-foreground jd-opacity-30" />}
                   message="No model usage data available" 
                   submessage="Model usage data will appear here as you use different AI models" 
                 />
               ) : (
-                <div className="h-80">
+                <div className="jd-h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={modelUsageData}
@@ -323,7 +323,7 @@ const StatsDetailDashboard = () => {
         </TabsContent>
         
         <TabsContent value="tokens">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="jd-grid jd-grid-cols-1 jd:grid-cols-2 jd-gap-4">
             <Card>
               <CardHeader>
                 <CardTitle>Token Usage Distribution</CardTitle>
@@ -331,12 +331,12 @@ const StatsDetailDashboard = () => {
               <CardContent>
                 {tokenUsageData[0].value === 0 && tokenUsageData[1].value === 0 ? (
                   <EmptyState 
-                    icon={<Zap className="h-12 w-12 text-muted-foreground opacity-30" />}
+                    icon={<Zap className="jd-h-12 jd-w-12 jd-text-muted-foreground jd-opacity-30" />}
                     message="No token usage data available" 
                     submessage="Token usage data will appear here as you use the app" 
                   />
                 ) : (
-                  <div className="h-64">
+                  <div className="jd-h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -370,12 +370,12 @@ const StatsDetailDashboard = () => {
               <CardContent>
                 {stats.tokenUsage.totalInput === 0 && stats.tokenUsage.totalOutput === 0 ? (
                   <EmptyState 
-                    icon={<Zap className="h-12 w-12 text-muted-foreground opacity-30" />}
+                    icon={<Zap className="jd-h-12 jd-w-12 jd-text-muted-foreground jd-opacity-30" />}
                     message="No token usage data available" 
                     submessage="Token usage comparison will appear here as you use the app" 
                   />
                 ) : (
-                  <div className="h-64">
+                  <div className="jd-h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={[

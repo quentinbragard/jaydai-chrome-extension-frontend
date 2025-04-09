@@ -19,27 +19,27 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 }) => {
   // Size classes
   const sizeMap = {
-    sm: 'h-4 w-4 border-2',
-    md: 'h-8 w-8 border-3',
-    lg: 'h-12 w-12 border-4'
+    sm: 'jd-h-4 jd-w-4 jd-border-2',
+    md: 'jd-h-8 jd-w-8 jd-border-3',
+    lg: 'jd-h-12 jd-w-12 jd-border-4'
   };
   
   const spinnerClass = cn(
-    'animate-spin rounded-full border-transparent border-t-primary inline-block',
+    'jd-animate-spin jd-rounded-full jd-border-transparent jd-border-t-primary jd-inline-block',
     sizeMap[size],
     className
   );
   
   const containerClass = cn(
-    'flex flex-col items-center justify-center gap-3',
-    fullScreen ? 'fixed inset-0 z-50 bg-background/80 backdrop-blur-sm' : 'py-6'
+    'jd-flex jd-flex-col jd-items-center jd-justify-center jd-gap-3',
+    fullScreen ? 'jd-fixed jd-inset-0 jd-z-50 jd-bg-background/80 jd-backdrop-blur-sm' : 'jd-py-6'
   );
   
   return (
     <div className={containerClass}>
       <div className={spinnerClass} />
       {message && (
-        <p className="text-sm text-muted-foreground animate-pulse">
+        <p className="jd-text-sm jd-text-muted-foreground jd-animate-pulse">
           {message}
         </p>
       )}

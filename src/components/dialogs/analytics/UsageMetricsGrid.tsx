@@ -18,30 +18,30 @@ interface MetricProps {
  */
 const UsageMetricsGrid: React.FC<{ metrics: MetricProps[] }> = ({ metrics }) => {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+    <div className="jd-grid jd-grid-cols-2 jd-sm:jd-grid-cols-3 jd-gap-4">
       {metrics.map((metric, index) => (
-        <Card key={index} className="overflow-hidden">
-          <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground mb-1">
+        <Card key={index} className="jd-overflow-hidden">
+          <CardContent className="jd-p-4">
+            <p className="jd-text-sm jd-text-muted-foreground jd-mb-1">
               {metric.label}
             </p>
-            <div className="flex items-baseline">
-              <span className="text-2xl font-bold">{metric.value}</span>
+            <div className="jd-flex jd-items-baseline">
+              <span className="jd-text-2xl jd-font-bold">{metric.value}</span>
               {metric.subtitle && (
-                <span className="ml-1 text-sm text-muted-foreground">
+                <span className="jd-ml-1 jd-text-sm jd-text-muted-foreground">
                   {metric.subtitle}
                 </span>
               )}
             </div>
             
             {(metric.changeValue !== undefined || metric.changeLabel) && (
-              <div className="mt-2 flex items-center text-xs">
+              <div className="jd-mt-2 jd-flex jd-items-center jd-text-xs">
                 {metric.changeValue !== undefined && (
                   <span 
-                    className={`font-medium ${
-                      metric.isPositive === undefined ? 'text-muted-foreground' :
-                      metric.isPositive ? 'text-green-600 dark:text-green-500' : 
-                      'text-red-600 dark:text-red-500'
+                    className={`jd-font-medium ${
+                      metric.isPositive === undefined ? 'jd-text-muted-foreground' :
+                      metric.isPositive ? 'jd-text-green-600 jd-dark:jd-text-green-500' : 
+                      'jd-text-red-600 jd-dark:jd-text-red-500'
                     }`}
                   >
                     {metric.isPositive !== undefined && (
@@ -51,7 +51,7 @@ const UsageMetricsGrid: React.FC<{ metrics: MetricProps[] }> = ({ metrics }) => 
                   </span>
                 )}
                 {metric.changeLabel && (
-                  <span className="text-muted-foreground ml-1">
+                  <span className="jd-text-muted-foreground jd-ml-1">
                     {metric.changeLabel}
                   </span>
                 )}

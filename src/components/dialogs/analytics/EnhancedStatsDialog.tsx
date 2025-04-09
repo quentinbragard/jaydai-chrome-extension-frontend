@@ -161,9 +161,9 @@ export const EnhancedStatsDialog: React.FC = () => {
   if (loading || !stats) {
     return (
       <Dialog {...dialogProps}>
-        <DialogContent className="sm:max-w-3xl">
-          <div className="flex items-center justify-center p-8">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+        <DialogContent className="jd-sm:max-w-3xl">
+          <div className="jd-flex jd-items-center jd-justify-center jd-p-8">
+            <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
           </div>
         </DialogContent>
       </Dialog>
@@ -173,21 +173,21 @@ export const EnhancedStatsDialog: React.FC = () => {
   // Build overview cards
   const overviewCards: StatCardInfo[] = [
     {
-      icon: <MessageCircle className="h-5 w-5" />,
+      icon: <MessageCircle className="jd-h-5 jd-w-5" />,
       title: getMessage('totalConversations', undefined, 'Total Conversations'),
       value: formatNumber(stats.totalChats),
       suffix: stats.recentChats > 0 ? `+${stats.recentChats} ${getMessage('lastWeek', undefined, 'last week')}` : '',
-      color: 'bg-blue-500'
+      color: 'jd-bg-blue-500'
     },
     {
-      icon: <Users className="h-5 w-5" />,
+      icon: <Users className="jd-h-5 jd-w-5" />,
       title: getMessage('messagesExchanged', undefined, 'Messages Exchanged'),
       value: formatNumber(stats.totalMessages),
       suffix: `~${stats.avgMessagesPerChat.toFixed(1)} ${getMessage('perChat', undefined, 'per chat')}`,
-      color: 'bg-indigo-500'
+      color: 'jd-bg-indigo-500'
     },
     {
-      icon: <Award className="h-5 w-5" />,
+      icon: <Award className="jd-h-5 jd-w-5" />,
       title: getMessage('efficiencyScore', undefined, 'Efficiency Score'),
       value: Math.min(Math.round(stats.efficiency || 0), 100),
       suffix: '/100',
@@ -196,29 +196,29 @@ export const EnhancedStatsDialog: React.FC = () => {
       progressColor: 
         (stats.efficiency || 0) >= 80 ? '#22c55e' : 
         (stats.efficiency || 0) >= 60 ? '#eab308' : '#ef4444',
-      color: 'bg-amber-500'
+      color: 'jd-bg-amber-500'
     },
     {
-      icon: <Clock className="h-5 w-5" />,
+      icon: <Clock className="jd-h-5 jd-w-5" />,
       title: getMessage('avgResponseTime', undefined, 'Avg. Response Time'),
       value: stats.thinkingTime.average.toFixed(1),
       suffix: getMessage('seconds', undefined, 'seconds'),
-      color: 'bg-purple-500'
+      color: 'jd-bg-purple-500'
     },
     {
-      icon: <Zap className="h-5 w-5" />,
+      icon: <Zap className="jd-h-5 jd-w-5" />,
       title: getMessage('energyUsage', undefined, 'Energy Usage'),
       value: stats.energyUsage.totalWh.toFixed(3),
       suffix: 'Wh',
       description: getMessage('consumptionEquivalent', undefined, 'Consumption equivalent'),
-      color: 'bg-green-500'
+      color: 'jd-bg-green-500'
     },
     {
-      icon: <BrainCircuit className="h-5 w-5" />,
+      icon: <BrainCircuit className="jd-h-5 jd-w-5" />,
       title: getMessage('tokensProcessed', undefined, 'Tokens Processed'),
       value: formatNumber(stats.tokenUsage.total),
       description: getMessage('inputOutput', undefined, 'Input + Output'),
-      color: 'bg-rose-500'
+      color: 'jd-bg-rose-500'
     }
   ];
 
@@ -260,7 +260,7 @@ export const EnhancedStatsDialog: React.FC = () => {
 
   return (
     <Dialog {...dialogProps}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="jd-sm:max-w-4xl jd-max-h-[90vh] jd-overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {getMessage('enhancedAiAnalytics', undefined, 'Enhanced AI Analytics')}
@@ -270,46 +270,46 @@ export const EnhancedStatsDialog: React.FC = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-4 mb-4">
+        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="jd-w-full">
+        <TabsList className="jd-grid jd-grid-cols-4 jd-mb-4">
             <TabsTrigger value="overview">
-              <Star className="h-4 w-4 mr-2" />
+              <Star className="jd-h-4 jd-w-4 jd-mr-2" />
               {getMessage('overview', undefined, 'Overview')}
             </TabsTrigger>
-            <TabsTrigger value="usage" className="flex items-center justify-center">
-              <div className="flex items-center">
-                <BarChart className="h-4 w-4 mr-2" />
+            <TabsTrigger value="usage" className="jd-flex jd-items-center jd-justify-center">
+              <div className="jd-flex jd-items-center">
+                <BarChart className="jd-h-4 jd-w-4 jd-mr-2" />
                 {getMessage('usageMetrics', undefined, 'Usage Metrics')}
               </div>
-              <LockIcon className="h-3.5 w-3.5 ml-2 text-muted-foreground" />
+              <LockIcon className="jd-h-3.5 jd-w-3.5 jd-ml-2 jd-text-muted-foreground" />
             </TabsTrigger>
-            <TabsTrigger value="efficiency" className="flex items-center justify-center">
-              <div className="flex items-center">
-                <Award className="h-4 w-4 mr-2" />
+            <TabsTrigger value="efficiency" className="jd-flex jd-items-center jd-justify-center">
+              <div className="jd-flex jd-items-center">
+                <Award className="jd-h-4 jd-w-4 jd-mr-2" />
                 {getMessage('efficiency', undefined, 'Efficiency')}
               </div>
-              <LockIcon className="h-3.5 w-3.5 ml-2 text-muted-foreground" />
+              <LockIcon className="jd-h-3.5 jd-w-3.5 jd-ml-2 jd-text-muted-foreground" />
             </TabsTrigger>
-            <TabsTrigger value="insights" className="flex items-center justify-center">
-              <div className="flex items-center">
-                <LightbulbIcon className="h-4 w-4 mr-2" />
+            <TabsTrigger value="insights" className="jd-flex jd-items-center jd-justify-center">
+              <div className="jd-flex jd-items-center">
+                <LightbulbIcon className="jd-h-4 jd-w-4 jd-mr-2" />
                 {getMessage('insights', undefined, 'Insights')}
               </div>
-              <LockIcon className="h-3.5 w-3.5 ml-2 text-muted-foreground" />
+              <LockIcon className="jd-h-3.5 jd-w-3.5 jd-ml-2 jd-text-muted-foreground" />
             </TabsTrigger>
           </TabsList>
           
           {/* Warning message about beta features */}
-          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-md p-3 mb-4 text-yellow-800 dark:text-yellow-200 text-sm">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+          <div className="jd-bg-yellow-100 jd-dark:jd-bg-yellow-900/30 jd-border jd-border-yellow-300 jd-dark:jd-border-yellow-700 jd-rounded-md jd-p-3 jd-mb-4 jd-text-yellow-800 jd-dark:jd-text-yellow-200 jd-text-sm">
+            <div className="jd-flex">
+              <div className="jd-flex-shrink-0">
+                <svg className="jd-h-5 jd-w-5 jd-text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
               </div>
-              <div className="ml-3">
-                <h3 className="font-medium">{getMessage('betaFeatureWarning', undefined, 'Beta Feature Warning')}</h3>
-                <div className="mt-1">
+              <div className="jd-ml-3">
+                <h3 className="jd-font-medium">{getMessage('betaFeatureWarning', undefined, 'Beta Feature Warning')}</h3>
+                <div className="jd-mt-1">
                   {getMessage('betaFeatureWarningMessage', undefined, 'We are still building and refining our analytics features. If you encounter any issues, please email us at')} <a href="mailto:contact@jayd.ai" className="font-medium underline">contact@jayd.ai</a>
                 </div>
               </div>
@@ -318,33 +318,33 @@ export const EnhancedStatsDialog: React.FC = () => {
 
           {/* Overview Tab - The only tab that is actually functional */}
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="jd-grid jd-grid-cols-1 jd-md:jd-grid-cols-3 jd-gap-4">
               {overviewCards.map((card, index) => (
-                <Card key={index} className="overflow-hidden">
-                  <CardHeader className={`flex flex-row items-center justify-between py-2 ${card.color} bg-opacity-10`}>
-                    <CardTitle className="text-sm font-medium">
+                <Card key={index} className="jd-overflow-hidden">
+                  <CardHeader className={`jd-flex jd-flex-row jd-items-center jd-justify-between jd-py-2 ${card.color} jd-bg-opacity-10`}>
+                    <CardTitle className="jd-text-sm jd-font-medium">
                       {card.title}
                     </CardTitle>
-                    <div className={`p-1 rounded-full ${card.color} bg-opacity-20`}>
+                    <div className={`jd-p-1 jd-rounded-full ${card.color} jd-bg-opacity-20`}>
                       {card.icon}
                     </div>
                   </CardHeader>
-                  <CardContent className="p-4">
-                    <div className="flex flex-col">
-                      <div className="flex items-baseline">
-                        <span className="text-2xl font-bold">{card.value}</span>
+                  <CardContent className="jd-p-4">
+                    <div className="jd-flex jd-flex-col">
+                      <div className="jd-flex jd-items-baseline">
+                        <span className="jd-text-2xl jd-font-bold">{card.value}</span>
                         {card.suffix && (
-                          <span className="ml-1 text-muted-foreground text-sm">{card.suffix}</span>
+                          <span className="jd-ml-1 jd-text-muted-foreground jd-text-sm">{card.suffix}</span>
                         )}
                       </div>
                       {card.description && (
-                        <p className="text-xs text-muted-foreground mt-1">{card.description}</p>
+                        <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">{card.description}</p>
                       )}
                       {card.progress !== undefined && (
-                        <div className="mt-3">
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="jd-mt-3">
+                          <div className="jd-h-2 jd-bg-muted jd-rounded-full jd-overflow-hidden">
                             <div 
-                              className="h-full rounded-full transition-all duration-500 ease-out" 
+                              className="jd-h-full jd-rounded-full jd-transition-all jd-duration-500 jd-ease-out" 
                               style={{
                                 width: `${Math.min(100, Math.max(0, card.progress))}%`,
                                 backgroundColor: card.progressColor || '#3b82f6'
@@ -359,14 +359,14 @@ export const EnhancedStatsDialog: React.FC = () => {
               ))}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="jd-grid jd-grid-cols-1 jd-md:jd-grid-cols-2 jd-gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm">
+                  <CardTitle className="jd-text-sm">
                     {getMessage('dailyActivity', undefined, 'Daily Activity')}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="h-60">
+                <CardContent className="jd-h-60">
                   <StatsChart 
                     data={messagesPerDayData} 
                     type="bar" 
@@ -377,11 +377,11 @@ export const EnhancedStatsDialog: React.FC = () => {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm">
+                  <CardTitle className="jd-text-sm">
                     {getMessage('tokenDistribution', undefined, 'Token Distribution')}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="h-60">
+                <CardContent className="jd-h-60">
                   <StatsChart 
                     data={tokenUsageData} 
                     type="pie" 
@@ -394,35 +394,35 @@ export const EnhancedStatsDialog: React.FC = () => {
             {/* Energy equivalent card */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">
+                <CardTitle className="jd-text-sm">
                   {getMessage('energyDetails', undefined, 'Energy Consumption Details')}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4">
-                <div className="flex justify-between mb-4">
+              <CardContent className="jd-p-4">
+                <div className="jd-flex jd-justify-between jd-mb-4">
                   <div>
-                    <span className="text-sm font-medium">
+                    <span className="jd-text-sm jd-font-medium">
                       {getMessage('totalEnergy', undefined, 'Total Energy')}
                     </span>
-                    <div className="text-2xl font-bold mt-1">{stats.energyUsage.totalWh.toFixed(4)} Wh</div>
+                    <div className="jd-text-2xl jd-font-bold jd-mt-1">{stats.energyUsage.totalWh.toFixed(4)} Wh</div>
                   </div>
                   <div>
-                    <span className="text-sm font-medium">
+                    <span className="jd-text-sm jd-font-medium">
                       {getMessage('perMessage', undefined, 'Per Message')}
                     </span>
-                    <div className="text-lg font-medium mt-1">{stats.energyUsage.perMessageWh.toFixed(6)} Wh</div>
+                    <div className="jd-text-lg jd-font-medium jd-mt-1">{stats.energyUsage.perMessageWh.toFixed(6)} Wh</div>
                   </div>
                 </div>
                 
-                <Separator className="my-4" />
+                <Separator className="jd-my-4" />
                 {/*
-                <div className="mt-4">
-                  <h4 className="text-sm font-semibold mb-2">
+                <div className="jd-mt-4">
+                  <h4 className="jd-text-sm jd-font-semibold jd-mb-2">
                     {getMessage('equivalent', undefined, 'Equivalent to')}
                   </h4>
-                  <div className="flex p-4 bg-green-100 dark:bg-green-900/20 text-background rounded-md">
-                    <Zap className="h-5 w-5 mr-2 text-green-600 dark:text-green-400 flex-shrink-0" />
-                    <p className="text-base text-green-800 dark:text-green-300">
+                  <div className="jd-flex jd-p-4 jd-bg-green-100 jd-dark:jd-bg-green-900/20 jd-text-background jd-rounded-md">
+                    <Zap className="jd-h-5 jd-w-5 jd-mr-2 jd-text-green-600 jd-dark:jd-text-green-400 jd-flex-shrink-0" />
+                    <p className="jd-text-base jd-text-green-800 jd-dark:jd-text-green-300">
                       {energyEquivalent}
                     </p>
                   </div>
@@ -433,20 +433,20 @@ export const EnhancedStatsDialog: React.FC = () => {
           </TabsContent>
 
           {/* All other tabs show the Coming Soon card */}
-          <TabsContent value="usage" className="h-[400px]">
+          <TabsContent value="usage" className="jd-h-[400px]">
             <ComingSoonCard title={getMessage('usageMetrics', undefined, 'Usage Metrics')} />
           </TabsContent>
 
-          <TabsContent value="efficiency" className="h-[400px]">
+          <TabsContent value="efficiency" className="jd-h-[400px]">
             <ComingSoonCard title={getMessage('efficiency', undefined, 'Efficiency')} />
           </TabsContent>
 
-          <TabsContent value="insights" className="h-[400px]">
+          <TabsContent value="insights" className="jd-h-[400px]">
             <ComingSoonCard title={getMessage('insights', undefined, 'Insights')} />
           </TabsContent>
         </Tabs>
         
-        <DialogFooter className="mt-6">
+        <DialogFooter className="jd-mt-6">
           <Button onClick={() => dialogProps.onOpenChange(false)}>
             {getMessage('close', undefined, 'Close')}
           </Button>

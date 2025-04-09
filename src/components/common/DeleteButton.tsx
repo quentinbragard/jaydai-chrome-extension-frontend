@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/core/utils/classNames';
-
+import { getMessage } from '@/core/utils/i18n';
 interface DeleteButtonProps {
   onDelete: () => Promise<void | boolean> | void;
   itemType: 'folder' | 'template' | string;
@@ -95,19 +95,19 @@ export const DeleteButton = memo(function DeleteButton({
               size="sm"
               disabled={disabled}
               className={cn(
-                'h-6 w-6 p-0 flex-shrink-0 text-muted-foreground opacity-70 hover:opacity-100',
+                'jd-h-6 jd-w-6 jd-p-0 jd-flex-shrink-0 jd-text-muted-foreground jd-opacity-70 jd-hover:jd-opacity-100',
                 className
               )}
             >
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="jd-h-4 jd-w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem 
               onClick={handleOpenDeleteDialog} 
-              className="text-destructive cursor-pointer"
+              className="jd-text-destructive jd-cursor-pointer"
             >
-              <Trash className="h-4 w-4 mr-2" />
+              <Trash className="jd-h-4 jd-w-4 jd-mr-2" />
               Delete {displayType}
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -117,11 +117,11 @@ export const DeleteButton = memo(function DeleteButton({
         <Button 
           variant="ghost" 
           size="sm" 
-          className={cn('h-6 w-6 p-0 text-destructive', className)}
+          className={cn('jd-h-6 jd-w-6 jd-p-0 jd-text-destructive', className)}
           onClick={handleOpenDeleteDialog}
           disabled={disabled}
         >
-          <Trash className="h-3.5 w-3.5" />
+          <Trash className="jd-h-3.5 jd-w-3.5" />
         </Button>
       )}
 
@@ -129,8 +129,8 @@ export const DeleteButton = memo(function DeleteButton({
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <AlertTriangle className="h-5 w-5 mr-2 text-destructive" />
+            <DialogTitle className="jd-flex jd-items-center">
+              <AlertTriangle className="jd-h-5 jd-w-5 jd-mr-2 jd-text-destructive" />
               Delete {displayType}
             </DialogTitle>
             <DialogDescription>
@@ -143,7 +143,7 @@ export const DeleteButton = memo(function DeleteButton({
               onClick={() => setIsDeleteDialogOpen(false)}
               disabled={isDeleting}
             >
-              Cancel
+              {getMessage('cancel')}
             </Button>
             <Button 
               variant="destructive" 

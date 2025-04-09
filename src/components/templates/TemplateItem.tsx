@@ -147,16 +147,16 @@ export function TemplateItem({
   
   return (
     <div 
-      className={`flex items-center p-2 hover:bg-accent/60 rounded-sm cursor-pointer group ${isProcessing ? 'opacity-50' : ''}`}
+      className={`jd-flex jd-items-center jd-p-2 jd-hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group ${isProcessing ? 'jd-opacity-50' : ''}`}
       onClick={handleTemplateClick}
     >
-      <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
-      <div className="flex-1 min-w-0">
-        <div className="text-sm truncate">
+      <FileText className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
+      <div className="jd-flex-1 jd-min-w-0">
+        <div className="jd-text-sm jd-truncate">
           {displayName}
         </div>
         {template.description && (
-          <div className="text-xs text-muted-foreground truncate">{template.description}</div>
+          <div className="jd-text-xs jd-text-muted-foreground jd-truncate">{template.description}</div>
         )}
         {/* Usage indicator  {renderUsageIndicator()}*/}
         
@@ -164,7 +164,7 @@ export function TemplateItem({
       
       {/* Only show action buttons for user templates */}
       {type === "user" && (
-        <div className="ml-2 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="jd-ml-2 jd-flex jd-items-center jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity">
           {/* Edit Button with blue accent */}
           {onEditTemplate && (
             <TooltipProvider>
@@ -173,14 +173,14 @@ export function TemplateItem({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-7 w-7 p-0 text-blue-800 bg-transparent  rounded hover:text-white hover:bg-blue-600 dark:text-blue-200 dark:bg-transparent  dark:hover:text-black dark:hover:bg-blue-200"
+                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-blue-800 jd-bg-transparent  jd-rounded jd-hover:jd-text-white jd-hover:jd-bg-blue-600 jd-dark:jd-text-blue-200 jd-dark:jd-bg-transparent  jd-dark:jd-hover:jd-text-black jd-dark:jd-hover:jd-bg-blue-200"
                     onClick={handleEditClick}
                   >
-                    <Edit className="h-3.5 w-3.5" />
+                    <Edit className="jd-h-3.5 jd-w-3.5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  <p>Edit template</p>
+                  <p>{getMessage('edit_template', undefined, 'Edit template')}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -194,14 +194,14 @@ export function TemplateItem({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-red-500 jd-hover:jd-text-red-600 jd-hover:jd-bg-red-100 jd-dark:jd-hover:jd-bg-red-900/30"
                     onClick={handleDeleteClick}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="jd-h-3.5 jd-w-3.5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  <p>Delete template</p>
+                  <p>{getMessage('delete_template', undefined, 'Delete template')}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

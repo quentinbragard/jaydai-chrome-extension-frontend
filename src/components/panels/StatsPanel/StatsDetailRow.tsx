@@ -20,16 +20,16 @@ const StatsDetailRow: React.FC<DetailRowProps> = ({
   progressColor = '#3b82f6',
   tooltip
 }) => (
-  <div className="mb-3 last:mb-1" title={tooltip}>
-    <div className="flex items-center mb-1">
-      <div className="mr-2 text-muted-foreground">{icon}</div>
-      <span className="text-xs font-medium flex-1">{label}</span>
-      <span className="text-xs font-semibold">{value}</span>
+  <div className="jd-mb-3 jd-last:jd-mb-1" title={tooltip}>
+    <div className="jd-flex jd-items-center jd-mb-1">
+      <div className="jd-mr-2 jd-text-muted-foreground">{icon}</div>
+      <span className="jd-text-xs jd-font-medium jd-flex-1">{label}</span>
+      <span className="jd-text-xs jd-font-semibold">{value}</span>
     </div>
     {progress !== null && (
-      <div className="bg-muted h-1 rounded-full overflow-hidden">
+      <div className="jd-bg-muted jd-h-1 jd-rounded-full jd-overflow-hidden">
         <div 
-          className="h-full rounded-full transition-all duration-500 ease-out" 
+          className="jd-h-full jd-rounded-full jd-transition-all jd-duration-500 jd-ease-out" 
           style={{ 
             width: `${Math.min(100, Math.max(0, progress))}%`,
             backgroundColor: progressColor

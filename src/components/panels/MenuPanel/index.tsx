@@ -47,40 +47,40 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
     <BasePanel
       icon={MenuIcon}
       onClose={onClose}
-      className="w-56"
+      className="jd-w-56"
     >
-      <Card className="p-1 shadow-none border-0 bg-background text-foreground">
-        <div className="flex flex-col space-y-1">
+      <Card className="jd-p-1 jd-shadow-none jd-border-0 jd-bg-background jd-text-foreground">
+        <div className="jd-flex jd-flex-col jd-space-y-1">
           <Button 
             variant="ghost" 
             size="sm" 
-            className="justify-start" 
+            className="jd-justify-start" 
             onClick={() => handleNavigate('templates')}
           >
-            <FileText className="mr-2 h-4 w-4" /> 
+            <FileText className="jd-mr-2 jd-h-4 jd-w-4" /> 
             {getMessage('templates', undefined, 'Templates')}
           </Button>
           
           <Button 
             variant="ghost" 
             size="sm" 
-            className="justify-start" 
+            className="jd-justify-start" 
             onClick={() => handleNavigate('stats')}
           >
-            <BarChart className="mr-2 h-4 w-4" /> 
+            <BarChart className="jd-mr-2 jd-h-4 jd-w-4" /> 
             {getMessage('aiStats', undefined, 'AI Stats')}
           </Button>
           
           <Button 
             variant="ghost" 
             size="sm" 
-            className="justify-start" 
+            className="jd-justify-start" 
             onClick={() => handleNavigate('notifications')}
           >
-            <Bell className="mr-2 h-4 w-4" /> 
+            <Bell className="jd-mr-2 jd-h-4 jd-w-4" /> 
             {getMessage('notifications', undefined, 'Notifications')}
             {notificationCount > 0 && (
-              <span className="ml-auto  bg-red-500 text-white rounded-full text-xs px-1.5 py-0.5">
+              <span className="jd-ml-auto jd-bg-red-500 jd-text-white jd-rounded-full jd-text-xs jd-px-1.5 jd-py-0.5">
                 {notificationCount}
               </span>
             )}
@@ -89,20 +89,20 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            className="justify-start" 
+            className="jd-justify-start" 
             onClick={handleAiNewsClick}
           >
-            <Save className="mr-2 h-4 w-4" /> 
+            <Save className="jd-mr-2 jd-h-4 jd-w-4" /> 
             {getMessage('aiNews', undefined, 'AI News')}
           </Button>
           
          {/*} <Button 
             variant="ghost" 
             size="sm" 
-            className="justify-start" 
+            className="jd-justify-start" 
             onClick={handleSettingsClick}
           >
-            <Settings className="mr-2 h-4 w-4" /> 
+            <Settings className="jd-mr-2 jd-h-4 jd-w-4" /> 
             {getMessage('settings', undefined, 'Settings')}
           </Button> */}
         </div>

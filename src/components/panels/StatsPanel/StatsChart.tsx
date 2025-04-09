@@ -58,9 +58,9 @@ const StatsChart: React.FC<StatsChartProps> = ({
     // If no data, show an empty state
     if (!hasData) {
       return (
-        <div className="flex flex-col items-center justify-center h-full text-center">
-          <BarChart2 className="h-10 w-10 text-muted-foreground mb-2 opacity-30" />
-          <p className="text-xs text-muted-foreground">No data available</p>
+        <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-h-full jd-text-center">
+          <BarChart2 className="jd-h-10 jd-w-10 jd-text-muted-foreground jd-mb-2 jd-opacity-30" />
+          <p className="jd-text-xs jd-text-muted-foreground">No data available</p>
         </div>
       );
     }

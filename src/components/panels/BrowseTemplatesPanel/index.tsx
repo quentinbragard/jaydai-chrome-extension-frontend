@@ -122,7 +122,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
       icon={FolderOpen}
       showBackButton={true}
       onBack={onBackToTemplates}
-      className="w-80"
+      className="jd-w-80"
       maxHeight={maxHeight}
     >
       {/* Search input */}
@@ -136,7 +136,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
       <Separator />
       
       {/* Content area with conditional rendering based on state */}
-      <div className="overflow-y-auto">
+      <div className="jd-overflow-y-auto">
         {isLoading ? (
           <LoadingState message={`Loading ${folderType} folders...`} />
         ) : error ? (

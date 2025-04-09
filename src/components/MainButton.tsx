@@ -38,8 +38,8 @@ const MainButton = () => {
 
   return (
     <ErrorBoundary>
-      <div className="fixed bottom-6 right-8 z-[9999]">
-        <div className="relative">
+      <div className="jd-fixed jd-bottom-6 jd-right-8 jd-[9999]">
+        <div className="jd-relative">
           {/* Panel Manager */}
           <PanelManager
             isOpen={isOpen}
@@ -49,24 +49,24 @@ const MainButton = () => {
           />
 
           {/* Main Button with logo */}
-          <div className="relative w-16 h-16">
+          <div className="jd-relative jd-w-16 jd-h-16">
             <Button 
               ref={buttonRef}
               onClick={toggleMenu}
-              className="bg-transparent hover:bg-transparent hover:scale-125 transition-all duration-300 w-full h-full rounded-full p-0 overflow-hidden flex items-center justify-center"
+              className="jd-bg-transparent jd-hover:jd-bg-transparent jd-hover:jd-scale-125 jd-transition-all jd-duration-300 jd-w-full jd-h-full jd-rounded-full jd-p-0 jd-overflow-hidden jd-flex jd-items-center jd-justify-center"
             >
               <img 
                 src={document.documentElement.classList.contains('dark') 
                   ? darkLogo 
                   : lightLogo} 
                 alt={getMessage('appName', undefined, 'Jaydai Chrome Extension')} 
-                className="w-full h-full object-cover"
+                className="jd-w-full jd-h-full jd-object-cover"
               />
               
               {/* Optional overlay icon when open */}
               {isOpen && (
-                <div className="absolute top-1 right-1 bg-white rounded-full p-1 z-10">
-                  <X className="h-4 w-4 text-gray-800" />
+                <div className="jd-absolute jd-top-1 jd-right-1 jd-bg-white jd-rounded-full jd-p-1 jd-z-10">
+                  <X className="jd-h-4 jd-w-4 jd-text-gray-800" />
                 </div>
               )}
             </Button>
@@ -74,17 +74,17 @@ const MainButton = () => {
             {/* Notification Badge */}
             {notificationCount > 0 && !isOpen && (
               <span 
-                className="absolute -top-1 -right-1 
-                  bg-red-500 text-white 
-                  text-xs font-semibold 
-                  rounded-full 
-                  w-5 h-5 
-                  flex items-center justify-center 
-                  z-20 
-                  border border-white 
-                  shadow-sm 
-                  hover:bg-red-600 
-                  transition-colors duration-200"
+                className="jd-absolute -jd-top-1 -jd-right-1 
+                  jd-bg-red-500 jd-text-white 
+                  jd-text-xs jd-font-semibold 
+                  jd-rounded-full 
+                  jd-w-5 jd-h-5 
+                  jd-flex jd-items-center jd-justify-center 
+                  jd-z-20 
+                  jd-border jd-border-white 
+                  jd-shadow-sm 
+                  jd-hover:jd-bg-red-600 
+                  jd-transition-colors jd-duration-200"
               >
                 {notificationCount > 9 ? '9+' : notificationCount}
               </span>

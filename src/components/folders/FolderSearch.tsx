@@ -36,26 +36,26 @@ export function FolderSearch({
   };
   
   return (
-    <div className={`p-4 ${className}`}>
-      <div className="flex items-center relative mb-2">
-        <div className="absolute left-2 pointer-events-none">
-          <Search className="h-4 w-4 text-muted-foreground" />
+    <div className={`jd-p-4 ${className}`}>
+      <div className="jd-flex jd-items-center jd-relative jd-mb-2">
+        <div className="jd-absolute jd-left-2 jd-pointer-events-none">
+          <Search className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
         </div>
         <Input 
           value={searchQuery} 
           onChange={handleSearchChange}
           placeholder={placeholderText}
-          className="w-full pl-8 pr-8"
+          className="jd-w-full jd-pl-8 jd-pr-8"
         />
         {searchQuery && (
-          <div className="absolute right-1">
+          <div className="jd-absolute jd-right-1">
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 w-6 p-0"
+              className="jd-h-6 jd-w-6 jd-p-0"
               onClick={handleReset}
             >
-              <X className="h-4 w-4" />
+              <X className="jd-h-4 jd-w-4" />
             </Button>
           </div>
         )}

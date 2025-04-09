@@ -71,7 +71,7 @@ body {
   min-height: 300px;
   overflow-x: hidden;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  @apply bg-background text-foreground;
+  @apply jd-bg-background jd-text-foreground;
   margin: 0;
   padding: 0;
 }
@@ -133,24 +133,24 @@ body {
 
 /* Tool button card effects - ensure NO border */
 .ai-tool-button {
-  @apply rounded-lg transition-all duration-300 border-none;
+  @apply jd-rounded-lg jd-transition-all jd-duration-300 jd-border-none;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
 
 .ai-tool-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  @apply shadow-lg;
+  @apply jd-shadow-lg;
 }
 
 .ai-tool-button:active:not(:disabled) {
   transform: translateY(0);
-  @apply shadow-sm;
+  @apply jd-shadow-sm;
 }
 
 /* Badge styling */
 .coming-soon-badge {
-  @apply z-10;
+  @apply jd-z-10;
 }
 
 @keyframes pulse-slow {
@@ -209,7 +209,7 @@ body {
 .card-3d {
   transform-style: preserve-3d;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  @apply border-none;
+  @apply jd-border-none;
 }
 
 .card-3d:hover {
@@ -230,12 +230,12 @@ body {
 
 /* Tool icon container */
 .tool-icon {
-  @apply rounded-md bg-gradient-to-br p-2 shadow-sm;
+  @apply jd-rounded-md jd-bg-gradient-to-br jd-p-2 jd-shadow-sm;
   transition: all 0.2s ease;
 }
 
 .tool-icon:hover {
-  @apply shadow-md;
+  @apply jd-shadow-md;
   transform: scale(1.05);
 }
 
@@ -250,14 +250,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted/50 rounded;
+  @apply jd-bg-muted/50 jd-rounded;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted/70;
+  @apply jd-bg-muted/70;
 }
 
 /* Override for buttons to ensure no borders */
 button {
-  @apply border-none shadow-none;
+  @apply jd-border-none jd-shadow-none;
 }

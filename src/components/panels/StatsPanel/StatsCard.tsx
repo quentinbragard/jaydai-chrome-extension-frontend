@@ -20,7 +20,7 @@ const StatCard: React.FC<StatCardProps> = ({
   icon, 
   value, 
   unit = "", 
-  color = "text-blue-500", 
+  color = "jd-text-blue-500", 
   title,
   description,
   className = "",
@@ -31,25 +31,25 @@ const StatCard: React.FC<StatCardProps> = ({
   return (
     <div 
       className={cn(
-        "flex items-center gap-1.5 stat-card rounded-md transition-all", 
-        isClickable && "cursor-pointer hover:bg-accent/50",
+        "jd-flex jd-items-center jd-gap-1.5 jd-stat-card jd-rounded-md jd-transition-all", 
+        isClickable && "jd-cursor-pointer jd-hover:jd-bg-accent/50",
         className
       )}
       onClick={onClick}
     >
-      <div className={cn("flex-shrink-0", color)}>{icon}</div>
-      <div className="flex flex-col">
-        <div className="flex items-baseline">
-          <span className="text-sm font-semibold">{value}</span>
-          {unit && <span className="text-xs text-muted-foreground ml-0.5">{unit}</span>}
+      <div className={cn("jd-flex-shrink-0", color)}>{icon}</div>
+      <div className="jd-flex jd-flex-col">
+        <div className="jd-flex jd-items-baseline">
+          <span className="jd-text-sm jd-font-semibold">{value}</span>
+          {unit && <span className="jd-text-xs jd-text-muted-foreground jd-ml-0.5">{unit}</span>}
         </div>
         
         {title && (
-          <span className="text-xs text-muted-foreground">{title}</span>
+          <span className="jd-text-xs jd-text-muted-foreground">{title}</span>
         )}
         
         {description && (
-          <span className="text-xs text-muted-foreground mt-0.5 hidden group-hover:block">{description}</span>
+          <span className="jd:text-xs jd:text-muted-foreground jd:mt-0.5 jd:hidden jd:group-hover:block">{description}</span>
         )}
       </div>
     </div>
