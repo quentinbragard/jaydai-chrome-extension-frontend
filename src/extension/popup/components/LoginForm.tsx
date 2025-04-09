@@ -78,29 +78,29 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   };
 
   return (
-    <CardContent className="p-4 space-y-4">
+    <CardContent className="jd-p-4 jd-space-y-4">
       {/* Login Form */}
-      <div className="space-y-3">
+      <div className="jd-space-y-3">
         {loginError && (
-          <div className="bg-red-500/10 text-red-500 border-red-300/20 p-3 rounded-lg text-sm font-medium shadow-sm backdrop-blur-sm flex items-start space-x-2">
-            <div className="flex-shrink-0 mt-0.5">
+          <div className="jd-bg-red-500/10 jd-text-red-500 jd-border-red-300/20 jd-p-3 jd-rounded-lg jd-text-sm jd-font-medium jd-shadow-sm jd-backdrop-blur-sm jd-flex jd-items-start jd-space-x-2">
+            <div className="jd-flex-shrink-0 jd-mt-0.5">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
               </svg>
             </div>
-            <div className="flex-1">
+            <div className="jd-flex-1">
               {loginError}
             </div>
           </div>
         )}
         
-        <div className="space-y-2 text-foreground">
-          <Label htmlFor="email-signin" className="font-medium text-sm">
+        <div className="jd-space-y-2 jd-text-foreground">
+          <Label htmlFor="email-signin" className="jd-font-medium jd-text-sm">
             {getMessage('email', undefined, 'Email')}
           </Label>
-          <div className="relative group">
+          <div className="jd-relative jd-group">
             <Input 
               id="email-signin"
               type="email" 
@@ -110,22 +110,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               className="pl-11 pr-4 py-2 bg-card/80 backdrop-blur-sm border-input focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all rounded-lg"
               disabled={isLoggingIn}
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-blue-500 transition-colors">
-              <Mail className="h-5 w-5" />
+            <div className="jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-muted-foreground jd-group-focus-within:text-blue-500 jd-transition-colors">
+              <Mail className="jd-h-5 jd-w-5" />
             </div>
           </div>
         </div>
         
-        <div className="space-y-2 text-foreground">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="password-signin" className="font-medium text-sm">
+        <div className="jd-space-y-2 jd-text-foreground">
+          <div className="jd-flex jd-justify-between jd-items-center">
+            <Label htmlFor="password-signin" className="jd-font-medium jd-text-sm">
               {getMessage('password', undefined, 'Password')}
             </Label>
-            <Button variant="link" className="p-0 h-auto text-xs text-blue-500 hover:text-blue-400 transition-colors">
+            <Button variant="link" className="jd-p-0 jd-h-auto jd-text-xs jd-text-blue-500 jd-hover:text-blue-400 jd-transition-colors">
               {getMessage('forgotPassword', undefined, 'Forgot?')}
             </Button>
           </div>
-          <div className="relative group">
+          <div className="jd-relative jd-group">
             <Input 
               id="password-signin"
               type="password" 
@@ -140,75 +140,75 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 }
               }}
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-blue-500 transition-colors">
-              <Lock className="h-5 w-5" />
+            <div className="jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-muted-foreground jd-group-focus-within:text-blue-500 jd-transition-colors">
+              <Lock className="jd-h-5 jd-w-5" />
             </div>
           </div>
         </div>
         
         <Button 
           onClick={handleEmailLogin} 
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 py-5 mt-3 rounded-lg relative overflow-hidden group border-none"
+          className="jd-w-full jd-bg-gradient-to-r jd-from-blue-600 jd-to-indigo-600 jd-hover:jd-from-blue-700 jd-hover:jd-to-indigo-700 jd-transition-all jd-duration-300 jd-py-5 jd-mt-3 jd-rounded-lg jd-relative jd-overflow-hidden jd-group jd-border-none"
           disabled={isLoggingIn}
         >
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600/0 via-blue-400/10 to-blue-600/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
+          <div className="jd-absolute jd-inset-0 jd-w-full jd-h-full jd-bg-gradient-to-r jd-from-blue-600/0 jd-via-blue-400/10 jd-to-blue-600/0 jd-transform jd-skew-x-12 jd-translate-x-full jd-group-hover:jd-translate-x-full jd-transition-transform jd-duration-1000 jd-ease-out"></div>
           {isLoggingIn ? (
-            <span className="flex items-center justify-center">
-              <div className="spinner-sm mr-2">
-                <div className="double-bounce1"></div>
-                <div className="double-bounce2"></div>
+            <span className="jd-flex jd-items-center jd-justify-center">
+              <div className="jd-spinner-sm jd-mr-2">
+                <div className="jd-double-bounce1"></div>
+                <div className="jd-double-bounce2"></div>
               </div>
               <span>{getMessage('signingIn', undefined, 'Signing in...')}</span>
             </span>
           ) : (
-            <span className="flex items-center justify-center">
-              <LogIn className="h-4 w-4 mr-2" />
+            <span className="jd-flex jd-items-center jd-justify-center">
+              <LogIn className="jd-h-4 jd-w-4 jd-mr-2" />
               <span>{getMessage('signIn', undefined, 'Sign In')}</span>
             </span>
           )}
         </Button>
       </div>
 
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-muted"></div>
+      <div className="jd-relative jd-my-6">
+        <div className="jd-absolute jd-inset-0 jd-flex jd-items-center">
+          <div className="jd-w-full jd-border-t jd-border-muted"></div>
         </div>
-        <div className="relative flex justify-center text-xs font-medium">
-          <span className="px-4 py-1 bg-background text-muted-foreground rounded-full border border-muted">
+        <div className="jd-relative jd-flex jd-justify-center jd-text-xs jd-font-medium">
+          <span className="jd-px-4 jd-py-1 jd-bg-background jd-text-muted-foreground jd-rounded-full jd-border jd-border-muted">
             {getMessage('or', undefined, 'Or continue with')}
           </span>
         </div>
       </div>
 
-      <div className="grid gap-3">
+      <div className="jd-grid jd-gap-3">
         <Button 
           variant="outline" 
           onClick={handleGoogleLogin} 
-          className="w-full border-muted hover:bg-muted/10 transition-all duration-300 py-5 rounded-lg group relative overflow-hidden"
+          className="jd-w-full jd-border-muted jd-hover:jd-bg-muted/10 jd-transition-all jd-duration-300 jd-py-5 jd-rounded-lg jd-group jd-relative jd-overflow-hidden"
           disabled={isLoggingIn}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-blue-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <span className="flex items-center justify-center relative z-10">
-            <div className="p-1.5 bg-white rounded-full shadow-sm mr-3 group-hover:shadow group-hover:scale-110 transition-all duration-300">
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-4 w-4" />
+          <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-red-500/5 jd-via-blue-500/5 jd-to-green-500/5 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-duration-500"></div>
+          <span className="jd-flex jd-items-center jd-justify-center jd-relative jd-z-10">
+            <div className="jd-p-1.5 jd-bg-white jd-rounded-full jd-shadow-sm jd-mr-3 jd-group-hover:jd-shadow jd-group-hover:jd-scale-110 jd-transition-all jd-duration-300">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="jd-h-4 jd-w-4" />
             </div>
-            <span className="font-medium">{getMessage('signInWith', ['Google'], 'Sign in with Google')}</span>
+            <span className="jd-font-medium">{getMessage('signInWith', ['Google'], 'Sign in with Google')}</span>
           </span>
         </Button>
         
-        <div className="relative">
-          <div className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-muted to-transparent -translate-y-1/2"></div>
+        <div className="jd-relative">
+          <div className="jd-absolute jd-inset-x-0 jd-top-1/2 jd-h-px jd-bg-gradient-to-r jd-from-transparent jd-via-muted jd-to-transparent jd-translate-y-1/2"></div>
         </div>
         
         <Button 
           variant="ghost" 
           onClick={onWelcomePageClick}
-          className="w-full text-blue-600 hover:text-blue-500 hover:bg-blue-50/30 dark:hover:bg-blue-950/20 transition-all duration-300 py-5 rounded-lg relative overflow-hidden group"
+          className="jd-w-full jd-text-blue-600 jd-hover:jd-text-blue-500 jd-hover:jd-bg-blue-50/30 jd-dark:jd-hover:jd-bg-blue-950/20 jd-transition-all jd-duration-300 jd-py-5 jd-rounded-lg jd-relative jd-overflow-hidden jd-group"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/5 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <span className="flex items-center justify-center space-x-2 relative z-10">
-            <UserPlus className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
-            <span className="font-medium">{getMessage('createAccount', undefined, 'Create Account')}</span>
+          <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-blue-500/0 jd-via-blue-500/5 jd-to-blue-500/0 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-duration-500"></div>
+          <span className="jd-flex jd-items-center jd-justify-center jd-space-x-2 jd-relative jd-z-10">
+            <UserPlus className="jd-h-4 jd-w-4 jd-group-hover:jd-scale-110 jd-transition-transform jd-duration-300" />
+            <span className="jd-font-medium">{getMessage('createAccount', undefined, 'Create Account')}</span>
           </span>
         </Button>
       </div>

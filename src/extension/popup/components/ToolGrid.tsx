@@ -22,7 +22,7 @@ export const ToolGrid: React.FC<ToolGridProps> = ({
 
   return (
     <>
-      <CardContent className="p-4 space-y-3 mt-2">
+      <CardContent className="jd-p-4 jd-space-y-3 jd-mt-2">
         {AI_TOOLS.map((tool) => (
           <ToolCard
             key={tool.name}
@@ -32,18 +32,18 @@ export const ToolGrid: React.FC<ToolGridProps> = ({
         ))}
       </CardContent>
       
-      <CardFooter className="border-t border-muted pt-3 pb-3 flex justify-center">
-        <div className="w-full px-2">
+      <CardFooter className="jd-border-t jd-border-muted jd-pt-3 jd-pb-3 jd-flex jd-justify-center">
+        <div className="jd-w-full jd-px-2">
           <Button 
             variant="ghost" 
-            className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 gap-2 transition-all duration-300 py-5 rounded-lg group border-none"
+            className="jd-w-full jd-text-red-500 jd-hover:jd-text-red-600 jd-hover:jd-bg-red-50 jd-dark:jd-hover:jd-bg-red-950/30 jd-gap-2 jd-transition-all jd-duration-300 jd-py-5 jd-rounded-lg jd-group jd-border-none"
             onClick={onLogout}
           >
-            <LogOut className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
-            <span className="font-medium">{getMessage('signOut', undefined, 'Sign Out')}</span>
+            <LogOut className="jd-h-4 jd-w-4 jd-group-hover:jd-rotate-12 jd-transition-transform jd-duration-300" />
+            <span className="jd-font-medium">{getMessage('signOut', undefined, 'Sign Out')}</span>
           </Button>
-          <div className="text-xs text-center text-muted-foreground mt-2">
-            Archimind v1.0.0
+          <div className="jd-text-xs jd-text-center jd-text-muted-foreground jd-mt-2">
+            Archimind v{chrome.runtime.getManifest().version}
           </div>
         </div>
       </CardFooter>

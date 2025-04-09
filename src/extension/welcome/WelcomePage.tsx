@@ -86,13 +86,13 @@ const WelcomePage: React.FC = () => {
   // Loading state
   if (authState.isLoading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center font-sans">
-        <div className="text-center">
-          <div className="spinner-welcome">
-            <div className="double-bounce1"></div>
-            <div className="double-bounce2"></div>
+      <div className="jd-min-h-screen jd-bg-gray-950 jd-flex jd-items-center jd-justify-center jd-font-sans">
+        <div className="jd-text-center">
+          <div className="jd-spinner-welcome">
+            <div className="jd-double-bounce1"></div>
+            <div className="jd-double-bounce2"></div>
           </div>
-          <p className="text-gray-300 mt-4 animate-pulse">
+          <p className="jd-text-gray-300 jd-mt-4 jd-animate-pulse">
             {getMessage('loading', undefined, 'Loading...')}
           </p>
         </div>
@@ -101,20 +101,20 @@ const WelcomePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center font-sans">
-      <div className="w-full mx-auto px-4">
-        <div className="flex flex-col items-center py-16">
+    <div className="jd-min-h-screen jd-bg-gray-950 jd-flex jd-items-center jd-justify-center jd-font-sans">
+      <div className="jd-w-full jd-mx-auto jd-px-4">
+        <div className="jd-flex jd-flex-col jd-items-center jd-py-16">
           {/* Logo */}
-          <div className="logo-container bg-gray-900 border border-gray-800 mb-8">
+          <div className="jd-logo-container jd-bg-gray-900 jd-border jd-border-gray-800 jd-mb-8">
             <img 
               src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//jaydai-extension-logo.png" 
               alt={getMessage('appName', undefined, 'Archimind Logo')} 
-              className="w-16 h-16 object-contain"
+              className="jd-w-16 jd-h-16 jd-object-contain"
             />
           </div>
           
           {/* Main Title - Different for logged in users */}
-          <h1 className="text-5xl md:text-6xl font-medium text-white text-center mb-6 font-heading">
+          <h1 className="jd-text-5xl jd-md:jd-text-6xl jd-font-medium jd-text-white jd-text-center jd-mb-6 jd-font-heading">
             {authState.isAuthenticated
               ? getMessage('welcomeBack', undefined, 'Welcome Back!')
               : getMessage('welcomeTitle', undefined, 'Welcome to Archimind')}
@@ -122,39 +122,39 @@ const WelcomePage: React.FC = () => {
           
           {/* Logged in state: Display user info and CTA */}
           {authState.isAuthenticated && authState.user ? (
-            <div className="text-center mb-12">
-              <div className="bg-blue-600/20 backdrop-blur-sm rounded-lg p-6 border border-blue-500/20 max-w-2xl mx-auto mb-8">
-                <Sparkles className="w-8 h-8 text-blue-400 mx-auto mb-4" />
-                <h2 className="text-2xl font-medium text-white mb-2 font-heading">
+            <div className="jd-text-center jd-mb-12">
+              <div className="jd-bg-blue-600/20 jd-backdrop-blur-sm jd-rounded-lg jd-p-6 jd-border jd-border-blue-500/20 jd-max-w-2xl jd-mx-auto jd-mb-8">
+                <Sparkles className="jd-w-8 jd-h-8 jd-text-blue-400 jd-mx-auto jd-mb-4" />
+                <h2 className="jd-text-2xl jd-font-medium jd-text-white jd-mb-2 jd-font-heading">
                   {getMessage('accountReady', undefined, 'Your AI companion is ready!')}
                 </h2>
-                <p className="text-lg text-gray-300 mb-6 font-sans">
+                <p className="jd-text-lg jd-text-gray-300 jd-mb-6 jd-font-sans">
                   {getMessage('loggedInAs', [authState.user.email || authState.user.name || ''], 
                     'You\'re logged in as {0}. You can now launch AI tools with enhanced capabilities.')}
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <div className="jd-flex jd-flex-col jd-sm:jd-flex-row jd-gap-4 jd-justify-center">
                   <Button 
                     size="lg"
                     onClick={openChatGPT}
-                    className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 transition-all duration-300 py-6 rounded-lg relative overflow-hidden group min-w-52 font-heading"
+                    className="jd-gap-2 jd-bg-gradient-to-r jd-from-green-600 jd-to-emerald-600 jd-hover:jd-from-green-500 jd-hover:jd-to-emerald-500 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-relative jd-overflow-hidden jd-group jd-min-w-52 jd-font-heading"
                   >
-                    <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-green-600/0 via-green-400/10 to-green-600/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
-                    <span className="flex items-center justify-center text-lg">
+                    <div className="jd-absolute jd-inset-0 jd-w-full jd-h-full jd-bg-gradient-to-r jd-from-green-600/0 jd-via-green-400/10 jd-to-green-600/0 jd-transform jd-skew-x-12 jd-translate-x-full jd-group-hover:jd-translate-x-full jd-transition-transform jd-duration-1000 jd-ease-out"></div>
+                    <span className="jd-flex jd-items-center jd-justify-center jd-text-lg">
                       <img 
                         src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//chatgpt_logo.png" 
                         alt="ChatGPT" 
-                        className="h-6 w-6 mr-2" 
+                        className="jd-h-6 jd-w-6 jd-mr-2" 
                       />
                       <span>{getMessage('openChatGPT', undefined, 'Open ChatGPT')}</span>
-                      <ExternalLink className="w-4 h-4 ml-2" />
+                      <ExternalLink className="jd-w-4 jd-h-4 jd-ml-2" />
                     </span>
                   </Button>
                   
                   <Button 
                     variant="outline"
                     onClick={handleSignOut}
-                    className="border-gray-700 text-white hover:bg-gray-800 min-w-32 font-heading"
+                    className="jd-border-gray-700 jd-text-white jd-hover:jd-bg-gray-800 jd-min-w-32 jd-font-heading"
                   >
                     {getMessage('signOut', undefined, 'Sign Out')}
                   </Button>
@@ -164,14 +164,14 @@ const WelcomePage: React.FC = () => {
           ) : (
             <>
               {/* Animation Section with Single Line - Only for non-logged in users */}
-              <div className="animation-container mb-10 w-full">
-                <div className="w-full text-3xl md:text-4xl text-blue-500 font-semibold whitespace-nowrap font-heading flex justify-center">
+              <div className="jd-animation-container jd-mb-10 jd-w-full">
+                <div className="jd-w-full jd-text-3xl jd-md:jd-text-4xl jd-text-blue-500 jd-font-semibold jd-whitespace-nowrap jd-font-heading jd-flex jd-justify-center">
                   <span>{getMessage('useAIToPrefix', undefined, 'Use AI to')} </span>
-                  <span className="relative inline-block min-w-60 text-left">
+                  <span className="jd-relative jd-inline-block jd-min-w-60 jd-text-left">
                     {tasks.map((task, index) => (
                       <motion.span
                         key={index}
-                        className="absolute left-0 whitespace-nowrap ml-1"
+                        className="jd-absolute jd-left-0 jd-whitespace-nowrap jd-ml-1"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ 
                           opacity: taskIndex === index ? 1 : 0,
@@ -188,40 +188,40 @@ const WelcomePage: React.FC = () => {
                 </div>
               </div>
 
-              <p className="text-lg text-gray-300 max-w-2xl text-center mb-12 font-sans">
+              <p className="jd-text-lg jd-text-gray-300 jd-max-w-2xl jd-text-center jd-mb-12 jd-font-sans">
                 {getMessage('welcomeDescription', undefined, 'Your Intelligent AI Usage Companion. Our goal is to help you harness the power of AI while maintaining your unique human expertise.')}
               </p>
             </>
           )}
           
           {/* Feature Cards - Shown to all users */}
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-12">
-            <div className="bg-gray-900 rounded-lg border border-gray-800 shadow-md p-6 text-left feature-card">
-              <div className="flex items-start mb-4">
-                <Zap className="h-6 w-6 text-blue-500 mr-4 mt-0.5 flex-shrink-0" />
-                <h3 className="text-lg font-medium text-white font-heading">{getMessage('energyInsights', undefined, 'Energy Insights')}</h3>
+          <div className="jd-grid jd-md:jd-grid-cols-3 jd-gap-6 jd-max-w-6xl jd-mx-auto jd-mb-12">
+            <div className="jd-bg-gray-900 jd-rounded-lg jd-border jd-border-gray-800 jd-shadow-md jd-p-6 jd-text-left jd-feature-card">
+              <div className="jd-flex jd-items-start jd-mb-4">
+                <Zap className="jd-h-6 jd-w-6 jd-text-blue-500 jd-mr-4 jd-mt-0.5 jd-flex-shrink-0" />
+                <h3 className="jd-text-lg jd-font-medium jd-text-white jd-font-heading">{getMessage('energyInsights', undefined, 'Energy Insights')}</h3>
               </div>
-              <p className="text-gray-300 text-sm font-sans">
+              <p className="jd-text-gray-300 jd-text-sm jd-font-sans">
                 {getMessage('energyInsightsDesc', undefined, 'Track and optimize your AI usage with real-time energy consumption metrics.')}
               </p>
             </div>
             
-            <div className="bg-gray-900 rounded-lg border border-gray-800 shadow-md p-6 text-left feature-card">
-              <div className="flex items-start mb-4">
-                <BookOpen className="h-6 w-6 text-blue-500 mr-4 mt-0.5 flex-shrink-0" />
-                <h3 className="text-lg font-medium text-white font-heading">{getMessage('smartTemplates', undefined, 'Smart Templates')}</h3>
+            <div className="jd-bg-gray-900 jd-rounded-lg jd-border jd-border-gray-800 jd-shadow-md jd-p-6 jd-text-left jd-feature-card">
+              <div className="jd-flex jd-items-start jd-mb-4">
+                <BookOpen className="jd-h-6 jd-w-6 jd-text-blue-500 jd-mr-4 jd-mt-0.5 jd-flex-shrink-0" />
+                <h3 className="jd-text-lg jd-font-medium jd-text-white jd-font-heading">{getMessage('smartTemplates', undefined, 'Smart Templates')}</h3>
               </div>
-              <p className="text-gray-300 text-sm font-sans">
+              <p className="jd-text-gray-300 jd-text-sm jd-font-sans">
                 {getMessage('smartTemplatesDesc', undefined, 'Access a library of curated prompt templates to enhance your AI interactions.')}
               </p>
             </div>
             
-            <div className="bg-gray-900 rounded-lg border border-gray-800 shadow-md p-6 text-left feature-card">
-              <div className="flex items-start mb-4">
-                <TrendingUp className="h-6 w-6 text-blue-500 mr-4 mt-0.5 flex-shrink-0" />
-                <h3 className="text-lg font-medium text-white font-heading">{getMessage('skillDevelopment', undefined, 'Skill Development')}</h3>
+            <div className="jd-bg-gray-900 jd-rounded-lg jd-border jd-border-gray-800 jd-shadow-md jd-p-6 jd-text-left jd-feature-card">
+              <div className="jd-flex jd-items-start jd-mb-4">
+                <TrendingUp className="jd-h-6 jd-w-6 jd-text-blue-500 jd-mr-4 jd-mt-0.5 jd-flex-shrink-0" />
+                <h3 className="jd-text-lg jd-font-medium jd-text-white jd-font-heading">{getMessage('skillDevelopment', undefined, 'Skill Development')}</h3>
               </div>
-              <p className="text-gray-300 text-sm font-sans">
+              <p className="jd-text-gray-300 jd-text-sm jd-font-sans">
                 {getMessage('skillDevelopmentDesc', undefined, 'Receive personalized recommendations to upskill and maintain human expertise.')}
               </p>
             </div>
@@ -229,27 +229,27 @@ const WelcomePage: React.FC = () => {
           
           {/* Call-to-Action Buttons - Only for non-logged in users */}
           {!authState.isAuthenticated && (
-            <div className="flex flex-row gap-4 mb-8">
+            <div className="jd-flex jd-flex-row jd-gap-4 jd-mb-8">
               <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
-                <div className="flex gap-4">
+                <div className="jd-flex jd-gap-4">
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="gap-2 min-w-32 text-white border-gray-700 hover:bg-gray-800 font-heading"
+                    className="jd-gap-2 jd-min-w-32 jd-text-white jd-border-gray-700 jd-hover:jd-bg-gray-800 jd-font-heading"
                     onClick={handleSignIn}
                   >
-                    {getMessage('signIn', undefined, 'Sign in')} <LogIn className="w-4 h-4 ml-1" />
+                    {getMessage('signIn', undefined, 'Sign in')} <LogIn className="jd-w-4 jd-h-4 jd-ml-1" />
                   </Button>
                   
                   <Button 
                     size="lg" 
-                    className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-32 font-heading"
+                    className="jd-gap-2 jd-bg-blue-600 jd-hover:jd-bg-blue-700 jd-min-w-32 jd-font-heading"
                     onClick={handleGetStarted}
                   >
-                    {getMessage('getStarted', undefined, 'Get started')} <MoveRight className="w-4 h-4 ml-1" />
+                    {getMessage('getStarted', undefined, 'Get started')} <MoveRight className="jd-w-4 jd-h-4 jd-ml-1" />
                   </Button>
                 </div>
-                <DialogContent className="sm:max-w-md bg-gray-950 border-gray-800">
+                <DialogContent className="jd-sm:jd-max-w-md jd-bg-gray-950 jd-border-gray-800">
                   <AuthModal 
                     onClose={() => setIsAuthOpen(false)} 
                     initialMode={authMode}
@@ -260,7 +260,7 @@ const WelcomePage: React.FC = () => {
           )}
           
           {/* Footer */}
-          <div className="text-center text-sm text-gray-500 font-sans">
+          <div className="jd-text-center jd-text-sm jd-text-gray-500 jd-font-sans">
             &copy; {new Date().getFullYear()} Archimind. {getMessage('allRightsReserved', undefined, 'All rights reserved')}
           </div>
         </div>

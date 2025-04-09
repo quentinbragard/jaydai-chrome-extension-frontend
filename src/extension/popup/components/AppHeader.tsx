@@ -15,28 +15,28 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   user
 }) => {
   return (
-    <CardHeader className="pb-2 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-500 opacity-90 bg-animate"></div>
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDUwMCA1MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwMC44NzYgMTYwLjAwOGM2LjgxOCA2LjgxOCAxNi4xMTQgMTEuMDM5IDI2LjQxNCAxMS4wMzlzMTkuNTk2LTQuMjIxIDI2LjQxNC0xMS4wMzlsLjAwMS0uMDAxYzYuODE5LTYuODE4IDExLjA0MS0xNi4xMTQgMTEuMDQxLTI2LjQxNCAwLTEwLjMtNC4yMjItMTkuNTk3LTExLjA0MS0yNi40MTYtNi44MTgtNi44MTgtMTYuMTE0LTExLjA0LTI2LjQxNC0xMS4wNC0xMC4zIDAtMTkuNTk2IDQuMjIyLTI2LjQxNCAxMS4wNGwtLjAwMi4wMDFjLTYuODE4IDYuODE5LTExLjAzOSAxNi4xMTQtMTEuMDM5IDI2LjQxNCAwIDEwLjMgNC4yMjEgMTkuNTk2IDExLjAzOSAyNi40MTRsLjAwMS4wMDFaIiBmaWxsPSIjZmZmZmZmMTAiLz48cGF0aCBkPSJNMjU2IDMwNmM4LjI4NCAwIDE1LTYuNzE2IDE1LTE1IDAtOC4yODQtNi43MTYtMTUtMTUtMTVzLTE1IDYuNzE2LTE1IDE1YzAgOC4yODQgNi43MTYgMTUgMTUgMTVaIiBmaWxsPSIjZmZmZmZmMTAiLz48cGF0aCBkPSJNMTg4IDM3MC41YzAgMTEuODc0IDkuNjI2IDIxLjUgMjEuNSAyMS41UzIzMSAzODIuMzc0IDIzMSAzNzAuNSAyMjEuMzc0IDM0OSAyMDkuNSAzNDkgMTg4IDM1OC42MjYgMTg4IDM3MC41WiIgZmlsbD0iI2ZmZmZmZjEwIi8+PHBhdGggZD0iTTMxNCAyODVjMCA0LjQ0Mi0zLjU1OCA4LTggOHMtOC0zLjU1OC04LTggMy41NTgtOCA4LTggOCAzLjU1OCA4IDhaIiBmaWxsPSIjZmZmZmZmMTAiLz48L3N2Zz4=')] bg-cover opacity-50"></div>
+    <CardHeader className="jd-pb-2 jd-relative jd-overflow-hidden">
+      <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-indigo-600 jd-to-blue-500 jd-opacity-90 jd-bg-animate"></div>
+      <div className="jd-absolute jd-inset-0 jd-bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDUwMCA1MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwMC44NzYgMTYwLjAwOGM2LjgxOCA2LjgxOCAxNi4xMTQgMTEuMDM5IDI2LjQxNCAxMS4wMzlzMTkuNTk2LTQuMjIxIDI2LjQxNC0xMS4wMzlsLjAwMS0uMDAxYzYuODE5LTYuODE4IDExLjA0MS0xNi4xMTQgMTEuMDQxLTI2LjQxNCAwLTEwLjMtNC4yMjItMTkuNTk3LTExLjA0MS0yNi40MTYtNi44MTgtNi44MTgtMTYuMTE0LTExLjA0LTI2LjQxNC0xMS4wNC0xMC4zIDAtMTkuNTk2IDQuMjIyLTI2LjQxNCAxMS4wNGwtLjAwMi4wMDFjLTYuODE4IDYuODE5LTExLjAzOSAxNi4xMTQtMTEuMDM5IDI2LjQxNCAwIDEwLjMgNC4yMjEgMTkuNTk2IDExLjAzOSAyNi40MTRsLjAwMS4wMDFaIiBmaWxsPSIjZmZmZmZmMTAiLz48cGF0aCBkPSJNMjU2IDMwNmM4LjI4NCAwIDE1LTYuNzE2IDE1LTE1IDAtOC4yODQtNi43MTYtMTUtMTUtMTVzLTE1IDYuNzE2LTE1IDE1YzAgOC4yODQgNi43MTYgMTUgMTUgMTVaIiBmaWxsPSIjZmZmZmZmMTAiLz48cGF0aCBkPSJNMTg4IDM3MC41YzAgMTEuODc0IDkuNjI2IDIxLjUgMjEuNSAyMS41UzIzMSAzODIuMzc0IDIzMSAzNzAuNSAyMjEuMzc0IDM0OSAyMDkuNSAzNDkgMTg4IDM1OC42MjYgMTg4IDM3MC41WiIgZmlsbD0iI2ZmZmZmZjEwIi8+PHBhdGggZD0iTTMxNCAyODVjMCA0LjQ0Mi0zLjU1OCA4LTggOHMtOC0zLjU1OC04LTggMy41NTgtOCA4LTggOCAzLjU1OCA4IDhaIiBmaWxsPSIjZmZmZmZmMTAiLz48L3N2Zz4=')] bg-cover opacity-50"></div>
       
       {/* Add geometric shapes for modern touch */}
-      <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-5 rounded-full transform translate-x-8 -translate-y-8"></div>
-      <div className="absolute bottom-0 left-0 w-16 h-16 bg-white opacity-5 rounded-full transform -translate-x-8 translate-y-8"></div>
+      <div className="jd-absolute jd-top-0 jd-right-0 jd-w-24 jd-h-24 jd-bg-white jd-opacity-5 jd-rounded-full jd-transform jd-translate-x-8 jd-translate-y-8"></div>
+      <div className="jd-absolute jd-bottom-0 jd-left-0 jd-w-16 jd-h-16 jd-bg-white jd-opacity-5 jd-rounded-full jd-transform jd-translate-x-8 jd-translate-y-8"></div>
       
-      <div className="relative z-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-8 h-8 rounded-md bg-white/20 backdrop-blur-sm flex items-center justify-center mr-3 shadow-sm">
-              <Sparkles className="h-4 w-4 text-white" />
+      <div className="jd-relative jd-z-10">
+        <div className="jd-flex jd-items-center jd-justify-between">
+          <div className="jd-flex jd-items-center">
+            <div className="jd-w-8 jd-h-8 jd-rounded-md jd-bg-white/20 jd-backdrop-blur-sm jd-flex jd-items-center jd-justify-center jd-mr-3 jd-shadow-sm">
+              <Sparkles className="jd-h-4 jd-w-4 jd-text-white" />
             </div>
-            <CardTitle className="text-white text-xl font-bold">
+            <CardTitle className="jd-text-white jd-text-xl jd-font-bold">
               {getMessage('aiToolLauncher', undefined, 'AI Tool Launcher')}
             </CardTitle>
           </div>
           {isAuthenticated && (
-            <div className="flex items-center space-x-1 bg-white/10 backdrop-blur-sm rounded-full px-2 py-1">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              <span className="text-xs text-white/90 font-medium">
+            <div className="jd-flex jd-items-center jd-space-x-1 jd-bg-white/10 jd-backdrop-blur-sm jd-rounded-full jd-px-2 jd-py-1">
+              <span className="jd-w-2 jd-h-2 jd-bg-green-400 jd-rounded-full jd-animate-pulse"></span>
+              <span className="jd-text-xs jd-text-white/90 jd-font-medium">
                 {getMessage('online', undefined, 'Online')}
               </span>
             </div>
@@ -44,12 +44,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         </div>
         
         {isAuthenticated && user && (
-          <div className="text-sm text-blue-100 mt-2 flex items-center">
-            <div className="glass px-3 py-1 rounded-full text-xs flex items-center space-x-1 backdrop-blur-sm bg-white/10 shadow-inner">
-              <span className="text-white/90">
+          <div className="jd-text-sm jd-text-blue-100 jd-mt-2 jd-flex jd-items-center">
+            <div className="jd-glass jd-px-3 jd-py-1 jd-rounded-full jd-text-xs jd-flex jd-items-center jd-space-x-1 jd-backdrop-blur-sm jd-bg-white/10 jd-shadow-inner">
+              <span className="jd-text-white/90">
                 {getMessage('signedInAs', undefined, 'Signed in as')}
               </span>
-              <span className="font-semibold text-white truncate max-w-[180px]">
+              <span className="jd-font-semibold jd-text-white jd-truncate jd-max-w-[180px]">
                 {user.email || user.name}
               </span>
             </div>

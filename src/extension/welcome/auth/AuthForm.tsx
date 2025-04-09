@@ -263,114 +263,114 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         defaultValue={activeTab} 
         value={activeTab} 
         onValueChange={handleTabChange} 
-        className="w-full"
+        className="jd-w-full"
       >
-        <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-800">
+        <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-6 jd-bg-gray-800">
           <TabsTrigger 
             value="signin" 
-            className="font-heading text-sm data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            className="jd-font-heading jd-text-sm jd-data-[state=active]:jd-bg-blue-600 jd-data-[state=active]:jd-text-white"
           >
-            <LogIn className="h-4 w-4 mr-2" />
+            <LogIn className="jd-h-4 jd-w-4 jd-mr-2" />
             {getMessage('signIn', undefined, 'Sign In')}
           </TabsTrigger>
           <TabsTrigger 
             value="signup" 
-            className="font-heading text-sm data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            className="jd-font-heading jd-text-sm jd-data-[state=active]:jd-bg-blue-600 jd-data-[state=active]:jd-text-white"
           >
-            <UserPlus className="h-4 w-4 mr-2" />
+            <UserPlus className="jd-h-4 jd-w-4 jd-mr-2" />
               {getMessage('signUp', undefined, 'Sign Up')}
           </TabsTrigger>
         </TabsList>
         
         {message && (
           <div 
-            className={`p-3 rounded-md mb-4 flex items-start gap-2 ${
+            className={`jd-p-3 jd-rounded-md jd-mb-4 jd-flex jd-items-start jd-gap-2 ${
               message.type === 'error' 
-                ? 'bg-red-900/30 text-red-300 border border-red-700/50' 
+                ? 'jd-bg-red-900/30 jd-text-red-300 jd-border jd-border-red-700/50' 
                 : message.type === 'success'
-                  ? 'bg-green-900/30 text-green-300 border border-green-700/50'
-                  : 'bg-blue-900/30 text-blue-300 border border-blue-700/50'
+                  ? 'jd-bg-green-900/30 jd-text-green-300 jd-border jd-border-green-700/50'
+                  : 'jd-bg-blue-900/30 jd-text-blue-300 jd-border jd-border-blue-700/50'
             }`}
           >
             {message.type === 'error' ? (
-              <AlertCircle className="h-5 w-5 shrink-0" />
+              <AlertCircle className="jd-h-5 jd-w-5 jd-shrink-0" />
             ) : message.type === 'success' ? (
-              <CheckCircle className="h-5 w-5 shrink-0" />
+              <CheckCircle className="jd-h-5 jd-w-5 jd-shrink-0" />
             ) : (
-              <RefreshCw className="h-5 w-5 shrink-0" />
+              <RefreshCw className="jd-h-5 jd-w-5 jd-shrink-0" />
             )}
-            <span className="text-sm font-sans">{message.text}</span>
+            <span className="jd-text-sm jd-font-sans">{message.text}</span>
           </div>
         )}
         
         <TabsContent value="signin" className="space-y-4">
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="email-signin" className="text-gray-300 font-sans">
+          <div className="jd-space-y-3">
+            <div className="jd-space-y-1">
+              <Label htmlFor="email-signin" className="jd-text-gray-300 jd-font-sans">
                 {getMessage('email', undefined, 'Email')}
               </Label>
-              <div className="relative">
+              <div className="jd-relative">
                 <Input 
                   id="email-signin"
                   type="email" 
                   placeholder="you@example.com" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 bg-gray-800 border-gray-700 text-white font-sans focus:border-blue-500 focus:ring-blue-500"
+                  className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans jd-focus:jd-border-blue-500 jd-focus:jd-ring-blue-500"
                 />
-                <Mail className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Mail className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
               </div>
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="password-signin" className="text-gray-300 font-sans">
+            <div className="jd-space-y-1">
+              <Label htmlFor="password-signin" className="jd-text-gray-300 jd-font-sans">
                 {getMessage('password', undefined, 'Password')}
               </Label>
-              <div className="relative">
+              <div className="jd-relative">
                 <Input 
                   id="password-signin"
                   type="password" 
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-gray-800 border-gray-700 text-white font-sans focus:border-blue-500 focus:ring-blue-500"
+                  className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans jd-focus:jd-border-blue-500 jd-focus:jd-ring-blue-500"
                 />
-                <Lock className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Lock className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
               </div>
             </div>
           </div>
           
           <Button 
             onClick={handleEmailSignIn} 
-            className="w-full font-heading bg-blue-600 hover:bg-blue-700"
+            className="jd-w-full jd-font-heading jd-bg-blue-600 jd-hover:jd-bg-blue-700"
             disabled={isLoading}
           >
             {isLoading ? (
-              <span className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <span className="jd-flex jd-items-center">
+                <svg className="jd-animate-spin jd-ml-1 jd-mr-3 jd-h-4 jd-w-4 jd-text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="jd-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="jd-opacity-75 jd-fill-current jd-text-white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 {getMessage('signingIn', undefined, 'Signing in...')}
               </span>
             ) : getMessage('signIn', undefined, 'Sign In')}
           </Button>
 
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-700"></div>
+          <div className="jd-relative jd-my-4">
+            <div className="jd-absolute jd-inset-0 jd-flex jd-items-center">
+              <div className="jd-w-full jd-border-t jd-border-gray-700"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-900 text-gray-400 font-sans">
+            <div className="jd-relative jd-flex jd-justify-center jd-text-sm">
+              <span className="jd-px-2 jd-bg-gray-900 jd-text-gray-400 jd-font-sans">
                 {getMessage('or', undefined, 'Or continue with')}
               </span>
             </div>
           </div>
 
-          <div className="grid gap-2">
+          <div className="jd-grid jd-gap-2">
             <Button 
               variant="outline" 
               onClick={handleGoogleSignIn} 
-              className="w-full font-heading border-gray-700 text-white hover:bg-gray-800"
+              className="jd-w-full jd-font-heading jd-border-gray-700 jd-text-white jd-hover:jd-bg-gray-800"
               disabled={isLoading}
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
@@ -380,91 +380,91 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         </TabsContent>
         
         <TabsContent value="signup" className="space-y-4">
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <Label htmlFor="name-signup" className="text-gray-300 font-sans">
+        <div className="jd-space-y-3">
+          <div className="jd-space-y-1">
+            <Label htmlFor="name-signup" className="jd-text-gray-300 jd-font-sans">
               {getMessage('name', undefined, 'Name')}
             </Label>
-            <div className="relative">
+            <div className="jd-relative">
               <Input 
                 id="name-signup"
                 type="text" 
                 placeholder="John Doe" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-700 text-white font-sans focus:border-blue-500 focus:ring-blue-500"
+                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans jd-focus:jd-border-blue-500 jd-focus:jd-ring-blue-500"
               />
-              <User className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <User className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
             </div>
           </div>
           
-          <div className="space-y-1">
-            <Label htmlFor="email-signup" className="text-gray-300 font-sans">
+          <div className="jd-space-y-1">
+            <Label htmlFor="email-signup" className="jd-text-gray-300 jd-font-sans">
               {getMessage('email', undefined, 'Email')}
             </Label>
-            <div className="relative">
+            <div className="jd-relative">
               <Input 
                 id="email-signup"
                 type="email" 
                 placeholder="you@example.com" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-700 text-white font-sans focus:border-blue-500 focus:ring-blue-500"
+                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans jd-focus:jd-border-blue-500 jd-focus:jd-ring-blue-500"
               />
-              <Mail className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Mail className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
             </div>
           </div>
           
-          <div className="space-y-1">
-            <Label htmlFor="password-signup" className="text-gray-300 font-sans">
+          <div className="jd-space-y-1">
+            <Label htmlFor="password-signup" className="jd-text-gray-300 jd-font-sans">
               {getMessage('password', undefined, 'Password')}
             </Label>
-            <div className="relative">
+            <div className="jd-relative">
               <Input 
                 id="password-signup"
                 type="password" 
                 placeholder="••••••••" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-700 text-white font-sans focus:border-blue-500 focus:ring-blue-500"
+                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans jd-focus:jd-border-blue-500 jd-focus:jd-ring-blue-500"
               />
-              <Lock className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Lock className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
             </div>
           </div>
         </div>
         
         <Button 
           onClick={handleSignUp} 
-          className="w-full font-heading bg-blue-600 hover:bg-blue-700"
+          className="jd-w-full jd-font-heading jd-bg-blue-600 jd-hover:jd-bg-blue-700"
           disabled={isLoading}
         >
           {isLoading ? (
-            <span className="flex items-center">
-              <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <span className="jd-flex jd-items-center">
+              <svg className="jd-animate-spin jd-ml-1 jd-mr-3 jd-h-4 jd-w-4 jd-text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="jd-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="jd-opacity-75 jd-fill-current jd-text-white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               {getMessage('signingUp', undefined, 'Creating account...')}
             </span>
           ) : getMessage('signUp', undefined, 'Sign Up')}
         </Button>
 
-        <div className="relative my-4">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-700"></div>
+        <div className="jd-relative jd-my-4">
+          <div className="jd-absolute jd-inset-0 jd-flex jd-items-center">
+            <div className="jd-w-full jd-border-t jd-border-gray-700"></div>
           </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-gray-900 text-gray-400 font-sans">
+          <div className="jd-relative jd-flex jd-justify-center jd-text-sm">
+            <span className="jd-px-2 jd-bg-gray-900 jd-text-gray-400 jd-font-sans">
               {getMessage('or', undefined, 'Or sign up with')}
             </span>
           </div>
         </div>
         
-        <div className="grid gap-2">
+        <div className="jd-grid jd-gap-2">
           <Button 
             variant="outline" 
             onClick={handleGoogleSignIn}
-            className="w-full font-heading border-gray-700 text-white hover:bg-gray-800"
+            className="jd-w-full jd-font-heading jd-border-gray-700 jd-text-white jd-hover:jd-bg-gray-800"
             disabled={isLoading}
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />

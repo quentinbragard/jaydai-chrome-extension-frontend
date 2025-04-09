@@ -10,7 +10,7 @@ export const AI_TOOLS: AITool[] = [
     url: 'https://chat.openai.com/',
     description: 'OpenAI\'s conversational AI',
     disabled: false,
-    color: 'from-green-500/20 to-emerald-500/20'
+    color: 'jd-from-green-500/20 jd-to-emerald-500/20'
   },
   {
     name: 'Claude',
@@ -18,7 +18,7 @@ export const AI_TOOLS: AITool[] = [
     url: 'https://claude.ai/',
     description: 'Anthropic\'s AI assistant',
     disabled: true,
-    color: 'from-purple-500/20 to-indigo-500/20'
+    color: 'jd-from-purple-500/20 jd-to-indigo-500/20'
   },
   {
     name: 'Gemini',
@@ -26,7 +26,7 @@ export const AI_TOOLS: AITool[] = [
     url: 'https://gemini.google.com/',
     description: 'Google\'s generative AI',
     disabled: true,
-    color: 'from-blue-500/20 to-sky-500/20'
+    color: 'jd-from-blue-500/20 jd-to-sky-500/20'
   },
   {
     name: 'Mistral',
@@ -34,7 +34,7 @@ export const AI_TOOLS: AITool[] = [
     url: 'https://chat.mistral.ai/',
     description: 'Mistral AI\'s conversational model',
     disabled: true,
-    color: 'from-amber-500/20 to-yellow-500/20'
+    color: 'jd-from-amber-500/20 jd-to-yellow-500/20'
   },
   {
     name: 'Perplexity',
@@ -42,6 +42,6 @@ export const AI_TOOLS: AITool[] = [
     url: 'https://www.perplexity.ai/',
     description: 'AI-powered search and chat',
     disabled: true,
-    color: 'from-pink-500/20 to-rose-500/20'
+    color: 'jd-from-pink-500/20 jd-to-rose-500/20'
   }
 ];

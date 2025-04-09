@@ -80,9 +80,9 @@ const ExtensionPopup: React.FC = () => {
 
   return (
     <ThemeProvider>
-      <div className="w-80 bg-gradient-to-b from-background to-background/80 backdrop-blur overflow-hidden">
-        <Card className="w-full border-none shadow-none relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600"></div>
+      <div className="jd-w-80 jd-bg-gradient-to-b jd-from-background jd-to-background/80 jd-backdrop-blur jd-overflow-hidden">
+        <Card className="jd-w-full jd-border-none jd-shadow-none jd-relative">
+          <div className="jd-absolute jd-top-0 jd-left-0 jd-w-full jd-h-1 jd-bg-gradient-to-r jd-from-blue-600 jd-via-indigo-500 jd-to-purple-600"></div>
           
           <AppHeader 
             isAuthenticated={authState.isAuthenticated} 

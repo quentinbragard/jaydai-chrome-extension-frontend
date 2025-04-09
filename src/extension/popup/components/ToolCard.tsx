@@ -16,42 +16,42 @@ export const ToolCard: React.FC<ToolCardProps> = ({
   onClick
 }) => {
   return (
-    <div className="relative group perspective">
-      <div className={`absolute inset-0 bg-gradient-to-r ${tool.color} rounded-lg -m-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+    <div className="jd-relative jd-group jd-perspective">
+      <div className={`jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-${tool.color} jd-rounded-lg jd-m-0.5 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-duration-300`}></div>
       <Button 
         variant="default"
-        className={`w-full justify-start py-7 relative bg-card/95 border-none shadow-sm hover:shadow-md transition-all card-3d ${tool.disabled ? 'opacity-80 hover:opacity-80 cursor-not-allowed' : ''}`}
+        className={`jd-w-full jd-justify-start jd-py-7 jd-relative jd-bg-card/95 jd-border-none jd-shadow-sm jd-hover:jd-shadow-md jd-transition-all jd-card-3d ${tool.disabled ? 'jd-opacity-80 jd-hover:jd-opacity-80 jd-cursor-not-allowed' : ''}`}
         onClick={onClick}
         disabled={tool.disabled}
       >
-        <div className="flex items-center w-full">
-          <div className="flex-shrink-0 mr-3 p-1.5 bg-gradient-to-br from-background/80 to-background rounded-md tool-icon">
+        <div className="jd-flex jd-items-center jd-w-full">
+          <div className="jd-flex-shrink-0 jd-mr-3 jd-p-1.5 jd-bg-gradient-to-br jd-from-background/80 jd-to-background jd-rounded-md jd-tool-icon">
             {tool.icon}
           </div>
-          <div className="flex-grow text-left">
-            <div className="font-semibold text-foreground">{tool.name}</div>
-            <div className="text-xs text-muted-foreground truncate max-w-[160px]">
+          <div className="jd-flex-grow jd-text-left">
+            <div className="jd-font-semibold jd-text-foreground">{tool.name}</div>
+            <div className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-[160px]">
               {tool.description}
             </div>
           </div>
-          <div className="flex-shrink-0 ml-2 text-muted-foreground">
+          <div className="jd-flex-shrink-0 jd-ml-2 jd-text-muted-foreground">
             {!tool.disabled ? (
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="jd-h-4 jd-w-4" />
             ) : (
-              <span className="text-xs">{getMessage('comingSoon')}</span>
+              <span className="jd-text-xs">{getMessage('comingSoon')}</span>
             )}
           </div>
         </div>
         {!tool.disabled && (
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden rounded-lg pointer-events-none">
-            <div className="absolute -top-1 -right-1 w-8 h-8 bg-blue-500/10 rounded-full"></div>
-            <div className="absolute -bottom-2 -left-2 w-10 h-10 bg-indigo-500/10 rounded-full"></div>
+          <div className="jd-absolute jd-top-0 jd-left-0 jd-w-full jd-h-full jd-overflow-hidden jd-rounded-lg jd-pointer-events-none">
+            <div className="jd-absolute jd-top-0 jd-right-0 jd-w-8 jd-h-8 jd-bg-blue-500/10 jd-rounded-full"></div>
+            <div className="jd-absolute jd-bottom-0 jd-left-0 jd-w-10 jd-h-10 jd-bg-indigo-500/10 jd-rounded-full"></div>
           </div>
         )}
       </Button>
       {tool.disabled && (
         <Badge 
-          className="absolute top-0 right-0 transform -translate-y-1/2 translate-x-0 bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-none text-xs font-medium px-2 py-1 rounded-full shadow-md coming-soon-badge badge-glow"
+          className="jd-absolute jd-top-0 jd-right-0 jd-transform jd-translate-y-1/2 jd-translate-x-0 jd-bg-gradient-to-r jd-from-blue-500 jd-to-indigo-500 jd-text-white jd-border-none jd-text-xs jd-font-medium jd-px-2 jd-py-1 jd-rounded-full jd-shadow-md jd-coming-soon-badge jd-badge-glow"
         >
           {getMessage('comingSoon')}
         </Badge>

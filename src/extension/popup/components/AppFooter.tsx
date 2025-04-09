@@ -28,9 +28,9 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   };
 
   return (
-    <CardFooter className="p-3 border-t border-muted flex flex-col items-center">
-      <div className="w-full flex justify-between items-center">
-        <div className="flex items-center gap-2">
+    <CardFooter className="jd-p-3 jd-border-t jd-border-muted jd-flex jd-flex-col jd-items-center">
+      <div className="jd-w-full jd-flex jd-justify-between jd-items-center">
+        <div className="jd-flex jd-items-center jd-gap-2">
           <TooltipProvider>
             {onSettingsClick && (
               <Tooltip>
@@ -38,10 +38,10 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-8 w-8 rounded-full bg-transparent hover:bg-muted"
+                    className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent jd-hover:jd-bg-muted"
                     onClick={onSettingsClick}
                   >
-                    <Settings className="h-4 w-4 text-muted-foreground" />
+                    <Settings className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -55,10 +55,10 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-8 w-8 rounded-full bg-transparent hover:bg-muted"
+                  className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent jd-hover:jd-bg-muted"
                   onClick={handleHelpClick}
                 >
-                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  <HelpCircle className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -68,8 +68,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           </TooltipProvider>
         </div>
         
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-muted-foreground mr-1">
+        <div className="jd-flex jd-items-center jd-gap-1">
+          <span className="jd-text-xs jd-text-muted-foreground jd-mr-1">
             Archimind v{version}
           </span>
           
@@ -79,10 +79,10 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-8 w-8 rounded-full bg-transparent hover:bg-muted"
+                  className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent jd-hover:jd-bg-muted"
                   onClick={handleLinkedInClick}
                 >
-                  <Linkedin className="h-4 w-4 text-muted-foreground" />
+                  <Linkedin className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -95,10 +95,10 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-8 w-8 rounded-full bg-transparent hover:bg-muted"
+                  className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent jd-hover:jd-bg-muted"
                   onClick={handleWebsiteClick}
                 >
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  <ExternalLink className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -109,7 +109,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         </div>
       </div>
       
-      <div className="text-[10px] text-center text-muted-foreground/60 mt-1 px-4">
+      <div className="jd-text-[10px] jd-text-center jd-text-muted-foreground/60 jd-mt-1 jd-px-4">
         {getMessage('aiCompanion', undefined, 'Your AI companion for effective tool usage')}
       </div>
     </CardFooter>
