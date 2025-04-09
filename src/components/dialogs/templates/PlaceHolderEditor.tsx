@@ -266,7 +266,7 @@ const handleClose = () => {
       }}
     >
       <DialogContent
-        className="jd-max-w-3xl jd-max-h-[90vh] jd-flex jd-flex-col jd-z-[10001] jd-border-primary/10 jd-shadow-2xl"
+        className="jd-max-w-7xl jd-max-h-[90vh] jd-flex jd-flex-col jd-z-[10001] jd-border-primary/10 jd-shadow-2xl"
         onClick={(e) => e.stopPropagation()}
         style={{ maxHeight: '90vh', overflow: 'auto' }}
       >

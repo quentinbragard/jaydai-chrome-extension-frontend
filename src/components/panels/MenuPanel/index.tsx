@@ -34,7 +34,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       window.dialogManager.openDialog('settings');
     } else {
       console.error('Dialog manager not available');
-      toast.error('Could not open settings. Please try again.');
+      toast.error('Could basnot open settings. Please try again.');
     }
   };
 
@@ -50,7 +50,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       className="jd-w-56"
     >
       <Card className="jd-p-1 jd-shadow-none jd-border-0 jd-bg-background jd-text-foreground">
-        <div className="jd-flex jd-flex-col jd-space-y-1">
+        <div className="jd-flex jd-flex-col jd-space-y-1 jd-items-start jd-justify-start">
           <Button 
             variant="ghost" 
             size="sm" 
