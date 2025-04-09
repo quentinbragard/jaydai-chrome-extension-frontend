@@ -77,40 +77,40 @@ const ComingSoonCard: React.FC<{ title: string }> = ({ title }) => {
   };
 
   return (
-    <Card className="w-full h-full flex flex-col justify-center items-center py-12 px-4 text-center border border-muted">
-      <div className="mb-6 bg-muted/20 p-4 rounded-full">
-        <Construction className="h-12 w-12 text-muted-foreground" />
+    <Card className="jd-w-full jd-h-full jd-flex jd-flex-col jd-justify-center jd-items-center jd-py-12 jd-px-4 jd-text-center jd-border jd-border-muted">
+      <div className="jd-mb-6 jd-bg-muted/20 jd-p-4 jd-rounded-full">
+        <Construction className="jd-h-12 jd-w-12 jd-text-muted-foreground" />
       </div>
-      <CardTitle className="mb-4 text-xl">
+      <CardTitle className="jd-mb-4 jd-text-xl">
         {getMessage('comingSoon', undefined, 'Coming Soon!')}
       </CardTitle>
-      <CardDescription className="mb-6 text-center max-w-lg text-base">
+      <CardDescription className="jd-mb-6 jd-text-center jd-max-w-lg jd-text-base">
         {getMessage('featureInDevelopment', [title], `We're still building this exciting ${title} feature! Your support gives us energy to build faster.`)}
       </CardDescription>
       
-      <div className="flex flex-col sm:flex-row gap-4 mt-2 mb-6">
+      <div className="jd-flex jd-flex-col jd-sm:jd-flex-row jd-gap-4 jd-mt-2 jd-mb-6">
         <Button 
           variant="outline" 
-          className="flex items-center gap-2 bg-background border-primary text-primary-foreground hover:bg-primary/10" 
+          className="jd-flex jd-items-center jd-gap-2 jd-bg-background jd-border-primary jd-text-primary-foreground jd-hover:jd-bg-primary/10" 
           onClick={openLinkedIn}
         >
-          <LinkedinIcon className="h-4 w-4" />
+          <LinkedinIcon className="jd-h-4 jd-w-4" />
           {getMessage('followUsLinkedIn', undefined, 'Follow Us on LinkedIn')}
         </Button>
         <Button 
-          className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90" 
+          className="jd-flex jd-items-center jd-gap-2 jd-bg-primary jd-text-primary-foreground jd-hover:jd-bg-primary/90" 
           onClick={openRatingPage}
         >
-          <StarIcon className="h-4 w-4" />
+          <StarIcon className="jd-h-4 jd-w-4" />
           {getMessage('rateUs', undefined, 'Rate Us 5 Stars')}
         </Button>
       </div>
       
-      <p className="text-sm text-muted-foreground mt-4">
+      <p className="jd-text-sm jd-text-muted-foreground jd-mt-4">
         {getMessage('questionsFeedback', undefined, 'Questions or feedback?')} 
         <button 
           onClick={sendEmail} 
-          className="text-primary hover:underline ml-1"
+          className="jd-text-primary jd-hover:jd-underline jd-ml-1"
         >
           contact@jayd.ai
         </button>
