@@ -5,6 +5,9 @@
 
 /* Scope all styles to the welcome page container */
 .jaydai-welcome {
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
   /* Basic resets */
   margin: 0;
   padding: 0;
