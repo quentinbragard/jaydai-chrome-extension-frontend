@@ -45,7 +45,6 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
 
   return (
     <BasePanel
-      icon={MenuIcon}
       onClose={onClose}
       className="jd-w-56"
     >

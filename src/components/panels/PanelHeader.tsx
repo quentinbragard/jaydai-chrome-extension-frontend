@@ -58,7 +58,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
             <img 
               src={isDarkMode ? darkLogo : lightLogo}
               alt={isDarkMode ? "Jaydai Logo Dark" : "Jaydai Logo Light"}
-              className="jd-h-6"
+              className="jd-h-6 jd-pl-2"
             />
           )}
         </span>
