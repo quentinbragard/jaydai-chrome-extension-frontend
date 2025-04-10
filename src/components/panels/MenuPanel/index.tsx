@@ -49,18 +49,21 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       onClose={onClose}
       className="jd-w-56"
     >
-      <Card className="jd-p-1 jd-shadow-none jd-border-0 jd-bg-background jd-text-foreground">
-        <div className="jd-flex jd-flex-col jd-space-y-1 jd-items-start jd-justify-start">
+      <Card className="jd-p-1 jd-shadow-none jd-border-0 jd-bg-background jd-text-foreground jd-w-full">
+        <div className="jd-flex jd-flex-col jd-space-y-1 jd-items-start jd-justify-start jd-w-full">
+          <div className="jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-w-full">
           <Button 
             variant="ghost" 
             size="sm" 
             className="jd-justify-start" 
             onClick={() => handleNavigate('templates')}
           >
-            <FileText className="jd-mr-2 jd-h-4 jd-w-4" /> 
-            {getMessage('templates', undefined, 'Templates')}
-          </Button>
+              <FileText className="jd-mr-2 jd-h-4 jd-w-4" /> 
+              {getMessage('templates', undefined, 'Templates')}
+            </Button>
+          </div>
           
+          <div className="jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-w-full">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -68,9 +71,11 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
             onClick={() => handleNavigate('stats')}
           >
             <BarChart className="jd-mr-2 jd-h-4 jd-w-4" /> 
-            {getMessage('aiStats', undefined, 'AI Stats')}
-          </Button>
-          
+              {getMessage('aiStats', undefined, 'AI Stats')}
+            </Button>
+          </div>
+
+          <div className="jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-w-full">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -85,7 +90,9 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
               </span>
             )}
           </Button>
-          
+          </div>
+
+          <div className="jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-w-full"> 
           <Button 
             variant="ghost" 
             size="sm" 
@@ -95,8 +102,10 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
             <Save className="jd-mr-2 jd-h-4 jd-w-4" /> 
             {getMessage('aiNews', undefined, 'AI News')}
           </Button>
-          
-         {/*} <Button 
+          </div>
+         {/*}
+          <div className="jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-w-full">
+          <Button 
             variant="ghost" 
             size="sm" 
             className="jd-justify-start" 
@@ -104,7 +113,9 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
           >
             <Settings className="jd-mr-2 jd-h-4 jd-w-4" /> 
             {getMessage('settings', undefined, 'Settings')}
-          </Button> */}
+          </Button>
+          </div>
+          */}
         </div>
       </Card>
     </BasePanel>

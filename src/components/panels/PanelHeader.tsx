@@ -44,7 +44,6 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="jd-h-8 jd-w-8 jd-p-0 jd-mr-2"
           >
             <ArrowLeft className="jd-h-4 jd-w-4" />
           </Button>
@@ -74,7 +73,6 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="jd-h-8 jd-w-8 jd-p-0"
           >
             <X className="jd-h-4 jd-w-4" />
           </Button>
