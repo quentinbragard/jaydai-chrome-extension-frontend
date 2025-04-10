@@ -100,7 +100,7 @@ export const SettingsDialog: React.FC = () => {
 
   return (
     <Dialog {...dialogProps}>
-      <DialogContent className="jd-sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{getMessage('jaydaiSettings', undefined, 'Settings')}</DialogTitle>
           <DialogDescription>
@@ -125,7 +125,7 @@ export const SettingsDialog: React.FC = () => {
                     type="checkbox"
                     checked={settings.autoSave}
                     onChange={(e) => handleChange('autoSave', e.target.checked)}
-                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary jd-focus:ring-primary"
+                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary focus:ring-primary"
                   />
                 </div>
                 
@@ -159,7 +159,7 @@ export const SettingsDialog: React.FC = () => {
                     type="checkbox"
                     checked={settings.syncEnabled}
                     onChange={(e) => handleChange('syncEnabled', e.target.checked)}
-                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary jd-focus:ring-primary"
+                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary focus:ring-primary"
                   />
                 </div>
                 
@@ -172,7 +172,7 @@ export const SettingsDialog: React.FC = () => {
                     type="checkbox"
                     checked={settings.statsVisible}
                     onChange={(e) => handleChange('statsVisible', e.target.checked)}
-                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary jd-focus:ring-primary"
+                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary focus:ring-primary"
                   />
                 </div>
               </div>

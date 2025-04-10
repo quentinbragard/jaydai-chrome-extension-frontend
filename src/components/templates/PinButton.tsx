@@ -7,7 +7,7 @@ export function PinButton({ isPinned, onClick, className }: { isPinned: boolean,
       <Button
         variant="ghost"
         size="sm"
-        className={`jd-h-6 jd-w-6 jd-p-0 ${isPinned ? 'jd-text-yellow-500' : 'jd-text-muted-foreground jd-opacity-70 jd-hover:jd-opacity-100'} ${className}`}
+        className={`jd-h-6 jd-w-6 jd-p-0 ${isPinned ? 'jd-text-yellow-500' : 'jd-text-muted-foreground jd-opacity-70 hover:jd-opacity-100'} ${className}`}
         onClick={onClick}
         title={isPinned ? getMessage('unpin_folder', undefined, 'Unpin folder') : getMessage('pin_folder', undefined, 'Pin folder')}
       >

@@ -18,7 +18,7 @@ interface MetricProps {
  */
 const UsageMetricsGrid: React.FC<{ metrics: MetricProps[] }> = ({ metrics }) => {
   return (
-    <div className="jd-grid jd-grid-cols-2 jd-sm:jd-grid-cols-3 jd-gap-4">
+    <div className="jd-grid jd-grid-cols-2 sm:jd-grid-cols-3 jd-gap-4">
       {metrics.map((metric, index) => (
         <Card key={index} className="jd-overflow-hidden">
           <CardContent className="jd-p-4">

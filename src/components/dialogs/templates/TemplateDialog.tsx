@@ -349,7 +349,7 @@ export const TemplateDialog: React.FC = () => {
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="jd-sm:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
             {currentTemplate ? getMessage('editTemplate') : getMessage('createNewTemplate')}

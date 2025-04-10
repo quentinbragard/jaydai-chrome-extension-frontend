@@ -95,7 +95,7 @@ export const DeleteButton = memo(function DeleteButton({
               size="sm"
               disabled={disabled}
               className={cn(
-                'jd-h-6 jd-w-6 jd-p-0 jd-flex-shrink-0 jd-text-muted-foreground jd-opacity-70 jd-hover:jd-opacity-100',
+                'jd-h-6 jd-w-6 jd-p-0 jd-flex-shrink-0 jd-text-muted-foreground jd-opacity-70 hover:jd-opacity-100',
                 className
               )}
             >

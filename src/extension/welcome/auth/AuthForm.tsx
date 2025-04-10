@@ -268,14 +268,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-6 jd-bg-gray-800">
           <TabsTrigger 
             value="signin" 
-            className="jd-font-heading jd-text-sm jd-data-[state=active]:jd-bg-blue-600 jd-data-[state=active]:jd-text-white"
+            className="jd-font-heading jd-text-sm data-[state=active]:jd-bg-blue-600 data-[state=active]:jd-text-white"
           >
             <LogIn className="jd-h-4 jd-w-4 jd-mr-2" />
             {getMessage('signIn', undefined, 'Sign In')}
           </TabsTrigger>
           <TabsTrigger 
             value="signup" 
-            className="jd-font-heading jd-text-sm jd-data-[state=active]:jd-bg-blue-600 jd-data-[state=active]:jd-text-white"
+            className="jd-font-heading jd-text-sm data-[state=active]:jd-bg-blue-600 data-[state=active]:jd-text-white"
           >
             <UserPlus className="jd-h-4 jd-w-4 jd-mr-2" />
               {getMessage('signUp', undefined, 'Sign Up')}
@@ -316,7 +316,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   placeholder="you@example.com" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans jd-focus:jd-border-blue-500 jd-focus:jd-ring-blue-500"
+                  className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
                 />
                 <Mail className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
               </div>
@@ -332,7 +332,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans jd-focus:jd-border-blue-500 jd-focus:jd-ring-blue-500"
+                  className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
                 />
                 <Lock className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
               </div>
@@ -341,7 +341,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           
           <Button 
             onClick={handleEmailSignIn} 
-            className="jd-w-full jd-font-heading jd-bg-blue-600 jd-hover:jd-bg-blue-700"
+            className="jd-w-full jd-font-heading jd-bg-blue-600 hover:jd-bg-blue-700"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -370,7 +370,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             <Button 
               variant="outline" 
               onClick={handleGoogleSignIn} 
-              className="jd-w-full jd-font-heading jd-border-gray-700 jd-text-white jd-hover:jd-bg-gray-800"
+              className="jd-w-full jd-font-heading jd-border-gray-700 jd-text-white hover:jd-bg-gray-800"
               disabled={isLoading}
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
@@ -392,7 +392,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 placeholder="John Doe" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans jd-focus:jd-border-blue-500 jd-focus:jd-ring-blue-500"
+                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
               />
               <User className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
             </div>
@@ -409,7 +409,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 placeholder="you@example.com" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans jd-focus:jd-border-blue-500 jd-focus:jd-ring-blue-500"
+                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
               />
               <Mail className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
             </div>
@@ -426,7 +426,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 placeholder="••••••••" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans jd-focus:jd-border-blue-500 jd-focus:jd-ring-blue-500"
+                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
               />
               <Lock className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
             </div>
@@ -435,7 +435,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         
         <Button 
           onClick={handleSignUp} 
-          className="jd-w-full jd-font-heading jd-bg-blue-600 jd-hover:jd-bg-blue-700"
+          className="jd-w-full jd-font-heading jd-bg-blue-600 hover:jd-bg-blue-700"
           disabled={isLoading}
         >
           {isLoading ? (
@@ -464,7 +464,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           <Button 
             variant="outline" 
             onClick={handleGoogleSignIn}
-            className="jd-w-full jd-font-heading jd-border-gray-700 jd-text-white jd-hover:jd-bg-gray-800"
+            className="jd-w-full jd-font-heading jd-border-gray-700 jd-text-white hover:jd-bg-gray-800"
             disabled={isLoading}
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />

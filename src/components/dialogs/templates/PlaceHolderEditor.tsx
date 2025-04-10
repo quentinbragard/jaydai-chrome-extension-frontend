@@ -284,7 +284,7 @@ const handleClose = () => {
           </Alert>
         )}
 
-      <div className="jd-grid jd-grid-cols-1 jd-md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden jd-w-full">
+      <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden jd-w-full">
         {/* Placeholders Section */}
         <div className="jd-space-y-4 jd-overflow-auto">
           <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('replacePlaceholders')}</h3>
@@ -319,7 +319,7 @@ const handleClose = () => {
             ref={editorRef}
             contentEditable
             suppressContentEditableWarning
-            className="jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus:outline-none jd-focus:ring-2 jd-focus:ring-primary jd-overflow-auto jd-whitespace-pre-wrap"
+            className="jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 focus:outline-none focus:ring-2 focus:ring-primary jd-overflow-auto jd-whitespace-pre-wrap"
             onClick={(e) => e.stopPropagation()} 
             onMouseDown={(e) => e.stopPropagation()} 
           ></div>

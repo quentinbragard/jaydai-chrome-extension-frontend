@@ -36,10 +36,10 @@ export const ToolGrid: React.FC<ToolGridProps> = ({
         <div className="jd-w-full jd-px-2">
           <Button 
             variant="ghost" 
-            className="jd-w-full jd-text-red-500 jd-hover:jd-text-red-600 jd-hover:jd-bg-red-50 jd-dark:jd-hover:jd-bg-red-950/30 jd-gap-2 jd-transition-all jd-duration-300 jd-py-5 jd-rounded-lg jd-group jd-border-none"
+            className="jd-w-full jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-50 jd-dark:hover:jd-bg-red-950/30 jd-gap-2 jd-transition-all jd-duration-300 jd-py-5 jd-rounded-lg jd-group jd-border-none"
             onClick={onLogout}
           >
-            <LogOut className="jd-h-4 jd-w-4 jd-group-hover:jd-rotate-12 jd-transition-transform jd-duration-300" />
+            <LogOut className="jd-h-4 jd-w-4 group-hover:jd-rotate-12 jd-transition-transform jd-duration-300" />
             <span className="jd-font-medium">{getMessage('signOut', undefined, 'Sign Out')}</span>
           </Button>
           <div className="jd-text-xs jd-text-center jd-text-muted-foreground jd-mt-2">

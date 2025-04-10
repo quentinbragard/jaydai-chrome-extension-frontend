@@ -114,7 +114,7 @@ const WelcomePage: React.FC = () => {
           </div>
           
           {/* Main Title - Different for logged in users */}
-          <h1 className="jd-text-5xl jd-md:jd-text-6xl jd-font-medium jd-text-white jd-text-center jd-mb-6 jd-font-heading">
+          <h1 className="jd-text-5xl md:jd-text-6xl jd-font-medium jd-text-white jd-text-center jd-mb-6 jd-font-heading">
             {authState.isAuthenticated
               ? getMessage('welcomeBack', undefined, 'Welcome Back!')
               : getMessage('welcomeTitle', undefined, 'Welcome to Archimind')}
@@ -133,13 +133,13 @@ const WelcomePage: React.FC = () => {
                     'You\'re logged in as {0}. You can now launch AI tools with enhanced capabilities.')}
                 </p>
                 
-                <div className="jd-flex jd-flex-col jd-sm:jd-flex-row jd-gap-4 jd-justify-center">
+                <div className="jd-flex jd-flex-col sm:jd-flex-row jd-gap-4 jd-justify-center">
                   <Button 
                     size="lg"
                     onClick={openChatGPT}
-                    className="jd-gap-2 jd-bg-gradient-to-r jd-from-green-600 jd-to-emerald-600 jd-hover:jd-from-green-500 jd-hover:jd-to-emerald-500 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-relative jd-overflow-hidden jd-group jd-min-w-52 jd-font-heading"
+                    className="jd-gap-2 jd-bg-gradient-to-r jd-from-green-600 jd-to-emerald-600 hover:jd-from-green-500 hover:jd-to-emerald-500 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-relative jd-overflow-hidden jd-group jd-min-w-52 jd-font-heading"
                   >
-                    <div className="jd-absolute jd-inset-0 jd-w-full jd-h-full jd-bg-gradient-to-r jd-from-green-600/0 jd-via-green-400/10 jd-to-green-600/0 jd-transform jd-skew-x-12 jd-translate-x-full jd-group-hover:jd-translate-x-full jd-transition-transform jd-duration-1000 jd-ease-out"></div>
+                    <div className="jd-absolute jd-inset-0 jd-w-full jd-h-full jd-bg-gradient-to-r jd-from-green-600/0 jd-via-green-400/10 jd-to-green-600/0 jd-transform jd-skew-x-12 jd-translate-x-full group-hover:jd-translate-x-full jd-transition-transform jd-duration-1000 jd-ease-out"></div>
                     <span className="jd-flex jd-items-center jd-justify-center jd-text-lg">
                       <img 
                         src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//chatgpt_logo.png" 
@@ -154,7 +154,7 @@ const WelcomePage: React.FC = () => {
                   <Button 
                     variant="outline"
                     onClick={handleSignOut}
-                    className="jd-border-gray-700 jd-text-white jd-hover:jd-bg-gray-800 jd-min-w-32 jd-font-heading"
+                    className="jd-border-gray-700 jd-text-white hover:jd-bg-gray-800 jd-min-w-32 jd-font-heading"
                   >
                     {getMessage('signOut', undefined, 'Sign Out')}
                   </Button>
@@ -165,7 +165,7 @@ const WelcomePage: React.FC = () => {
             <>
               {/* Animation Section with Single Line - Only for non-logged in users */}
               <div className="jd-animation-container jd-mb-10 jd-w-full">
-                <div className="jd-w-full jd-text-3xl jd-md:jd-text-4xl jd-text-blue-500 jd-font-semibold jd-whitespace-nowrap jd-font-heading jd-flex jd-justify-center">
+                <div className="jd-w-full jd-text-3xl md:jd-text-4xl jd-text-blue-500 jd-font-semibold jd-whitespace-nowrap jd-font-heading jd-flex jd-justify-center">
                   <span>{getMessage('useAIToPrefix', undefined, 'Use AI to')} </span>
                   <span className="jd-relative jd-inline-block jd-min-w-60 jd-text-left">
                     {tasks.map((task, index) => (
@@ -195,7 +195,7 @@ const WelcomePage: React.FC = () => {
           )}
           
           {/* Feature Cards - Shown to all users */}
-          <div className="jd-grid jd-md:jd-grid-cols-3 jd-gap-6 jd-max-w-6xl jd-mx-auto jd-mb-12">
+          <div className="jd-grid md:jd-grid-cols-3 jd-gap-6 jd-max-w-6xl jd-mx-auto jd-mb-12">
             <div className="jd-bg-gray-900 jd-rounded-lg jd-border jd-border-gray-800 jd-shadow-md jd-p-6 jd-text-left jd-feature-card">
               <div className="jd-flex jd-items-start jd-mb-4">
                 <Zap className="jd-h-6 jd-w-6 jd-text-blue-500 jd-mr-4 jd-mt-0.5 jd-flex-shrink-0" />
@@ -235,7 +235,7 @@ const WelcomePage: React.FC = () => {
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="jd-gap-2 jd-min-w-32 jd-text-white jd-border-gray-700 jd-hover:jd-bg-gray-800 jd-font-heading"
+                    className="jd-gap-2 jd-min-w-32 jd-text-white jd-border-gray-700 hover:jd-bg-gray-800 jd-font-heading"
                     onClick={handleSignIn}
                   >
                     {getMessage('signIn', undefined, 'Sign in')} <LogIn className="jd-w-4 jd-h-4 jd-ml-1" />
@@ -243,13 +243,13 @@ const WelcomePage: React.FC = () => {
                   
                   <Button 
                     size="lg" 
-                    className="jd-gap-2 jd-bg-blue-600 jd-hover:jd-bg-blue-700 jd-min-w-32 jd-font-heading"
+                    className="jd-gap-2 jd-bg-blue-600 hover:jd-bg-blue-700 jd-min-w-32 jd-font-heading"
                     onClick={handleGetStarted}
                   >
                     {getMessage('getStarted', undefined, 'Get started')} <MoveRight className="jd-w-4 jd-h-4 jd-ml-1" />
                   </Button>
                 </div>
-                <DialogContent className="jd-sm:jd-max-w-md jd-bg-gray-950 jd-border-gray-800">
+                <DialogContent className="sm:jd-max-w-md jd-bg-gray-950 jd-border-gray-800">
                   <AuthModal 
                     onClose={() => setIsAuthOpen(false)} 
                     initialMode={authMode}

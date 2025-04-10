@@ -88,17 +88,17 @@ const ComingSoonCard: React.FC<{ title: string }> = ({ title }) => {
         {getMessage('featureInDevelopment', [title], `We're still building this exciting ${title} feature! Your support gives us energy to build faster.`)}
       </CardDescription>
       
-      <div className="jd-flex jd-flex-col jd-sm:jd-flex-row jd-gap-4 jd-mt-2 jd-mb-6">
+      <div className="jd-flex jd-flex-col sm:jd-flex-row jd-gap-4 jd-mt-2 jd-mb-6">
         <Button 
           variant="outline" 
-          className="jd-flex jd-items-center jd-gap-2 jd-bg-background jd-border-primary jd-text-primary-foreground jd-hover:jd-bg-primary/10" 
+          className="jd-flex jd-items-center jd-gap-2 jd-bg-background jd-border-primary jd-text-primary-foreground hover:jd-bg-primary/10" 
           onClick={openLinkedIn}
         >
           <LinkedinIcon className="jd-h-4 jd-w-4" />
           {getMessage('followUsLinkedIn', undefined, 'Follow Us on LinkedIn')}
         </Button>
         <Button 
-          className="jd-flex jd-items-center jd-gap-2 jd-bg-primary jd-text-primary-foreground jd-hover:jd-bg-primary/90" 
+          className="jd-flex jd-items-center jd-gap-2 jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90" 
           onClick={openRatingPage}
         >
           <StarIcon className="jd-h-4 jd-w-4" />
@@ -110,7 +110,7 @@ const ComingSoonCard: React.FC<{ title: string }> = ({ title }) => {
         {getMessage('questionsFeedback', undefined, 'Questions or feedback?')} 
         <button 
           onClick={sendEmail} 
-          className="jd-text-primary jd-hover:jd-underline jd-ml-1"
+          className="jd-text-primary hover:jd-underline jd-ml-1"
         >
           contact@jayd.ai
         </button>
@@ -161,7 +161,7 @@ export const EnhancedStatsDialog: React.FC = () => {
   if (loading || !stats) {
     return (
       <Dialog {...dialogProps}>
-        <DialogContent className="jd-sm:max-w-3xl">
+        <DialogContent className="sm:max-w-3xl">
           <div className="jd-flex jd-items-center jd-justify-center jd-p-8">
             <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
           </div>
@@ -260,7 +260,7 @@ export const EnhancedStatsDialog: React.FC = () => {
 
   return (
     <Dialog {...dialogProps}>
-      <DialogContent className="jd-sm:max-w-4xl jd-max-h-[90vh] jd-overflow-y-auto">
+      <DialogContent className="sm:max-w-4xl jd-max-h-[90vh] jd-overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {getMessage('enhancedAiAnalytics', undefined, 'Enhanced AI Analytics')}
@@ -318,7 +318,7 @@ export const EnhancedStatsDialog: React.FC = () => {
 
           {/* Overview Tab - The only tab that is actually functional */}
           <TabsContent value="overview" className="space-y-4">
-            <div className="jd-grid jd-grid-cols-1 jd-md:jd-grid-cols-3 jd-gap-4">
+            <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-3 jd-gap-4">
               {overviewCards.map((card, index) => (
                 <Card key={index} className="jd-overflow-hidden">
                   <CardHeader className={`jd-flex jd-flex-row jd-items-center jd-justify-between jd-py-2 ${card.color} jd-bg-opacity-10`}>
@@ -359,7 +359,7 @@ export const EnhancedStatsDialog: React.FC = () => {
               ))}
             </div>
 
-            <div className="jd-grid jd-grid-cols-1 jd-md:jd-grid-cols-2 jd-gap-4">
+            <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-4">
               <Card>
                 <CardHeader>
                   <CardTitle className="jd-text-sm">

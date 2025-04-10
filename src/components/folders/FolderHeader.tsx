@@ -4,7 +4,7 @@ import { Folder, ChevronDown, ChevronRight } from "lucide-react";
 export function FolderHeader({ folder, isExpanded, onToggle, actionButtons }: { folder: any, isExpanded: boolean, onToggle: () => void, actionButtons: React.ReactNode }) {
     return (
       <div 
-        className="jd-group jd-flex jd-items-center jd-p-2 jd-hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
+        className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
         onClick={onToggle}
       >
         {isExpanded ? 

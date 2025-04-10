@@ -147,7 +147,7 @@ export function TemplateItem({
   
   return (
     <div 
-      className={`jd-flex jd-items-center jd-p-2 jd-hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group ${isProcessing ? 'jd-opacity-50' : ''}`}
+      className={`jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group ${isProcessing ? 'jd-opacity-50' : ''}`}
       onClick={handleTemplateClick}
     >
       <FileText className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
@@ -164,7 +164,7 @@ export function TemplateItem({
       
       {/* Only show action buttons for user templates */}
       {type === "user" && (
-        <div className="jd-ml-2 jd-flex jd-items-center jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity">
+        <div className="jd-ml-2 jd-flex jd-items-center jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
           {/* Edit Button with blue accent */}
           {onEditTemplate && (
             <TooltipProvider>
@@ -173,7 +173,7 @@ export function TemplateItem({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-blue-800 jd-bg-transparent  jd-rounded jd-hover:jd-text-white jd-hover:jd-bg-blue-600 jd-dark:jd-text-blue-200 jd-dark:jd-bg-transparent  jd-dark:jd-hover:jd-text-black jd-dark:jd-hover:jd-bg-blue-200"
+                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-blue-800 jd-bg-transparent  jd-rounded hover:jd-text-white hover:jd-bg-blue-600 jd-dark:jd-text-blue-200 jd-dark:jd-bg-transparent  jd-dark:hover:jd-text-black jd-dark:hover:jd-bg-blue-200"
                     onClick={handleEditClick}
                   >
                     <Edit className="jd-h-3.5 jd-w-3.5" />
@@ -194,7 +194,7 @@ export function TemplateItem({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-red-500 jd-hover:jd-text-red-600 jd-hover:jd-bg-red-100 jd-dark:jd-hover:jd-bg-red-900/30"
+                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
                     onClick={handleDeleteClick}
                   >
                     <Trash2 className="jd-h-3.5 jd-w-3.5" />

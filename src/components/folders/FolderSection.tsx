@@ -79,7 +79,7 @@ export function FolderSection({
           <Button 
             variant="outline"
             size="sm"
-            className="mt-1 jd-w-full jd-bg-white/70 jd-dark:jd-bg-gray-800/40 jd-border-amber-200 jd-dark:jd-border-amber-800/30 jd-text-amber-700 jd-dark:jd-text-amber-400 jd-hover:jd-bg-amber-50 jd-dark:jd-hover:jd-bg-amber-900/20 jd-hover:jd-text-amber-800 jd-dark:jd-hover:jd-text-amber-300 jd-transition-colors"
+            className="mt-1 jd-w-full jd-bg-white/70 jd-dark:jd-bg-gray-800/40 jd-border-amber-200 jd-dark:jd-border-amber-800/30 jd-text-amber-700 jd-dark:jd-text-amber-400 hover:jd-bg-amber-50 jd-dark:hover:jd-bg-amber-900/20 hover:jd-text-amber-800 jd-dark:hover:jd-text-amber-300 jd-transition-colors"
             onClick={handleContactSales}
           >
             <Mail className="jd-h-3 jd-w-3 jd-mr-2" />

@@ -77,7 +77,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </p>
           <Button 
             variant="outline" 
-            className="jd-border-red-700 jd-text-red-200 jd-hover:jd-bg-red-900/30"
+            className="jd-border-red-700 jd-text-red-200 hover:jd-bg-red-900/30"
             onClick={this.resetErrorBoundary}
           >
             Try Again

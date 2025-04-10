@@ -53,7 +53,7 @@ const MainButton = () => {
             <Button 
               ref={buttonRef}
               onClick={toggleMenu}
-              className="jd-bg-transparent jd-hover:jd-bg-transparent jd-hover:jd-scale-125 jd-transition-all jd-duration-300 jd-w-full jd-h-full jd-rounded-full jd-p-0 jd-overflow-hidden jd-flex jd-items-center jd-justify-center"
+              className="jd-bg-transparent hover:jd-bg-transparent hover:jd-scale-125 jd-transition-all jd-duration-300 jd-w-full jd-h-full jd-rounded-full jd-p-0 jd-overflow-hidden jd-flex jd-items-center jd-justify-center"
             >
               <img 
                 src={document.documentElement.classList.contains('dark') 
@@ -83,7 +83,7 @@ const MainButton = () => {
                   jd-z-20 
                   jd-border jd-border-white 
                   jd-shadow-sm 
-                  jd-hover:jd-bg-red-600 
+                  hover:jd-bg-red-600 
                   jd-transition-colors jd-duration-200"
               >
                 {notificationCount > 9 ? '9+' : notificationCount}

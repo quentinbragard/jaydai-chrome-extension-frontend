@@ -110,7 +110,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               className="pl-11 pr-4 py-2 bg-card/80 backdrop-blur-sm border-input focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all rounded-lg"
               disabled={isLoggingIn}
             />
-            <div className="jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-muted-foreground jd-group-focus-within:text-blue-500 jd-transition-colors">
+            <div className="jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-muted-foreground group-focus-within:text-blue-500 jd-transition-colors">
               <Mail className="jd-h-5 jd-w-5" />
             </div>
           </div>
@@ -121,7 +121,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             <Label htmlFor="password-signin" className="jd-font-medium jd-text-sm">
               {getMessage('password', undefined, 'Password')}
             </Label>
-            <Button variant="link" className="jd-p-0 jd-h-auto jd-text-xs jd-text-blue-500 jd-hover:text-blue-400 jd-transition-colors">
+            <Button variant="link" className="jd-p-0 jd-h-auto jd-text-xs jd-text-blue-500 hover:text-blue-400 jd-transition-colors">
               {getMessage('forgotPassword', undefined, 'Forgot?')}
             </Button>
           </div>
@@ -140,7 +140,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 }
               }}
             />
-            <div className="jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-muted-foreground jd-group-focus-within:text-blue-500 jd-transition-colors">
+            <div className="jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-muted-foreground group-focus-within:text-blue-500 jd-transition-colors">
               <Lock className="jd-h-5 jd-w-5" />
             </div>
           </div>
@@ -148,10 +148,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         
         <Button 
           onClick={handleEmailLogin} 
-          className="jd-w-full jd-bg-gradient-to-r jd-from-blue-600 jd-to-indigo-600 jd-hover:jd-from-blue-700 jd-hover:jd-to-indigo-700 jd-transition-all jd-duration-300 jd-py-5 jd-mt-3 jd-rounded-lg jd-relative jd-overflow-hidden jd-group jd-border-none"
+          className="jd-w-full jd-bg-gradient-to-r jd-from-blue-600 jd-to-indigo-600 hover:jd-from-blue-700 hover:jd-to-indigo-700 jd-transition-all jd-duration-300 jd-py-5 jd-mt-3 jd-rounded-lg jd-relative jd-overflow-hidden jd-group jd-border-none"
           disabled={isLoggingIn}
         >
-          <div className="jd-absolute jd-inset-0 jd-w-full jd-h-full jd-bg-gradient-to-r jd-from-blue-600/0 jd-via-blue-400/10 jd-to-blue-600/0 jd-transform jd-skew-x-12 jd-translate-x-full jd-group-hover:jd-translate-x-full jd-transition-transform jd-duration-1000 jd-ease-out"></div>
+          <div className="jd-absolute jd-inset-0 jd-w-full jd-h-full jd-bg-gradient-to-r jd-from-blue-600/0 jd-via-blue-400/10 jd-to-blue-600/0 jd-transform jd-skew-x-12 jd-translate-x-full group-hover:jd-translate-x-full jd-transition-transform jd-duration-1000 jd-ease-out"></div>
           {isLoggingIn ? (
             <span className="jd-flex jd-items-center jd-justify-center">
               <div className="jd-spinner-sm jd-mr-2">
@@ -184,12 +184,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <Button 
           variant="outline" 
           onClick={handleGoogleLogin} 
-          className="jd-w-full jd-border-muted jd-hover:jd-bg-muted/10 jd-transition-all jd-duration-300 jd-py-5 jd-rounded-lg jd-group jd-relative jd-overflow-hidden"
+          className="jd-w-full jd-border-muted hover:jd-bg-muted/10 jd-transition-all jd-duration-300 jd-py-5 jd-rounded-lg jd-group jd-relative jd-overflow-hidden"
           disabled={isLoggingIn}
         >
-          <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-red-500/5 jd-via-blue-500/5 jd-to-green-500/5 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-duration-500"></div>
+          <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-red-500/5 jd-via-blue-500/5 jd-to-green-500/5 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-500"></div>
           <span className="jd-flex jd-items-center jd-justify-center jd-relative jd-z-10">
-            <div className="jd-p-1.5 jd-bg-white jd-rounded-full jd-shadow-sm jd-mr-3 jd-group-hover:jd-shadow jd-group-hover:jd-scale-110 jd-transition-all jd-duration-300">
+            <div className="jd-p-1.5 jd-bg-white jd-rounded-full jd-shadow-sm jd-mr-3 group-hover:jd-shadow group-hover:jd-scale-110 jd-transition-all jd-duration-300">
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="jd-h-4 jd-w-4" />
             </div>
             <span className="jd-font-medium">{getMessage('signInWith', ['Google'], 'Sign in with Google')}</span>
@@ -203,11 +203,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <Button 
           variant="ghost" 
           onClick={onWelcomePageClick}
-          className="jd-w-full jd-text-blue-600 jd-hover:jd-text-blue-500 jd-hover:jd-bg-blue-50/30 jd-dark:jd-hover:jd-bg-blue-950/20 jd-transition-all jd-duration-300 jd-py-5 jd-rounded-lg jd-relative jd-overflow-hidden jd-group"
+          className="jd-w-full jd-text-blue-600 hover:jd-text-blue-500 hover:jd-bg-blue-50/30 jd-dark:hover:jd-bg-blue-950/20 jd-transition-all jd-duration-300 jd-py-5 jd-rounded-lg jd-relative jd-overflow-hidden jd-group"
         >
-          <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-blue-500/0 jd-via-blue-500/5 jd-to-blue-500/0 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-duration-500"></div>
+          <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-blue-500/0 jd-via-blue-500/5 jd-to-blue-500/0 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-500"></div>
           <span className="jd-flex jd-items-center jd-justify-center jd-space-x-2 jd-relative jd-z-10">
-            <UserPlus className="jd-h-4 jd-w-4 jd-group-hover:jd-scale-110 jd-transition-transform jd-duration-300" />
+            <UserPlus className="jd-h-4 jd-w-4 group-hover:jd-scale-110 jd-transition-transform jd-duration-300" />
             <span className="jd-font-medium">{getMessage('createAccount', undefined, 'Create Account')}</span>
           </span>
         </Button>

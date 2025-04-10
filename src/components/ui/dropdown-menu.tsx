@@ -27,7 +27,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "jd-flex jd-cursor-default jd-select-none jd-items-center jd-gap-2 jd-rounded-sm jd-px-2 jd-py-1.5 jd-text-sm jd-outline-none jd-focus:jd-bg-accent jd-data-[state=open]:jd-bg-accent [&_svg]:jd-pointer-events-none [&_svg]:jd-size-4 [&_svg]:jd-shrink-0",
+      "jd-flex jd-cursor-default jd-select-none jd-items-center jd-gap-2 jd-rounded-sm jd-px-2 jd-py-1.5 jd-text-sm jd-outline-none focus:jd-bg-accent data-[state=open]:jd-bg-accent [&_svg]:jd-pointer-events-none [&_svg]:jd-size-4 [&_svg]:jd-shrink-0",
       inset && "jd-pl-8",
       className
     )}
@@ -47,7 +47,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "jd-z-50 jd-min-w-[8rem] jd-overflow-hidden jd-rounded-md jd-border jd-bg-popover jd-p-1 jd-text-popover-foreground jd-shadow-lg jd-data-[state=open]:jd-animate-in jd-data-[state=closed]:jd-animate-out jd-data-[state=closed]:jd-fade-out-0 jd-data-[state=open]:jd-fade-in-0 jd-data-[state=closed]:jd-zoom-out-95 jd-data-[state=open]:jd-zoom-in-95 jd-data-[side=bottom]:jd-slide-in-from-top-2 jd-data-[side=left]:jd-slide-in-from-right-2 jd-data-[side=right]:jd-slide-in-from-left-2 jd-data-[side=top]:jd-slide-in-from-bottom-2 jd-origin-[--radix-dropdown-menu-content-transform-origin]",
+      "jd-z-50 jd-min-w-[8rem] jd-overflow-hidden jd-rounded-md jd-border jd-bg-popover jd-p-1 jd-text-popover-foreground jd-shadow-lg data-[state=open]:jd-animate-in data-[state=closed]:jd-animate-out data-[state=closed]:jd-fade-out-0 data-[state=open]:jd-fade-in-0 data-[state=closed]:jd-zoom-out-95 data-[state=open]:jd-zoom-in-95 data-[side=bottom]:jd-slide-in-from-top-2 data-[side=left]:jd-slide-in-from-right-2 data-[side=right]:jd-slide-in-from-left-2 data-[side=top]:jd-slide-in-from-bottom-2 jd-origin-[--radix-dropdown-menu-content-transform-origin]",
       className
     )}
     {...props}
@@ -65,7 +65,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "jd-z-50 jd-max-h-[var(--radix-dropdown-menu-content-available-height)] jd-min-w-[8rem] jd-overflow-y-auto jd-overflow-x-hidden jd-rounded-md jd-border jd-bg-popover jd-p-1 jd-text-popover-foreground jd-shadow-md jd-data-[state=open]:jd-animate-in jd-data-[state=closed]:jd-animate-out jd-data-[state=closed]:jd-fade-out-0 jd-data-[state=open]:jd-fade-in-0 jd-data-[state=closed]:jd-zoom-out-95 jd-data-[state=open]:jd-zoom-in-95 jd-data-[side=bottom]:jd-slide-in-from-top-2 jd-data-[side=left]:jd-slide-in-from-right-2 jd-data-[side=right]:jd-slide-in-from-left-2 jd-data-[side=top]:jd-slide-in-from-bottom-2 jd-origin-[--radix-dropdown-menu-content-transform-origin]",
+        "jd-z-50 jd-max-h-[var(--radix-dropdown-menu-content-available-height)] jd-min-w-[8rem] jd-overflow-y-auto jd-overflow-x-hidden jd-rounded-md jd-border jd-bg-popover jd-p-1 jd-text-popover-foreground jd-shadow-md data-[state=open]:jd-animate-in data-[state=closed]:jd-animate-out data-[state=closed]:jd-fade-out-0 data-[state=open]:jd-fade-in-0 data-[state=closed]:jd-zoom-out-95 data-[state=open]:jd-zoom-in-95 data-[side=bottom]:jd-slide-in-from-top-2 data-[side=left]:jd-slide-in-from-right-2 data-[side=right]:jd-slide-in-from-left-2 data-[side=top]:jd-slide-in-from-bottom-2 jd-origin-[--radix-dropdown-menu-content-transform-origin]",
         className
       )}
       {...props}
@@ -83,7 +83,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "jd-relative jd-flex jd-cursor-default jd-select-none jd-items-center jd-gap-2 jd-rounded-sm jd-px-2 jd-py-1.5 jd-text-sm jd-outline-none jd-transition-colors jd-focus:jd-bg-accent jd-focus:jd-text-accent-foreground jd-data-[disabled]:jd-pointer-events-none jd-data-[disabled]:jd-opacity-50 [&_svg]:jd-pointer-events-none [&_svg]:jd-size-4 [&_svg]:jd-shrink-0",
+      "jd-relative jd-flex jd-cursor-default jd-select-none jd-items-center jd-gap-2 jd-rounded-sm jd-px-2 jd-py-1.5 jd-text-sm jd-outline-none jd-transition-colors focus:jd-bg-accent focus:jd-text-accent-foreground data-[disabled]:jd-pointer-events-none data-[disabled]:jd-opacity-50 [&_svg]:jd-pointer-events-none [&_svg]:jd-size-4 [&_svg]:jd-shrink-0",
       inset && "jd-pl-8",
       className
     )}
@@ -99,7 +99,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "jd-relative jd-flex jd-cursor-default jd-select-none jd-items-center jd-rounded-sm jd-py-1.5 jd-pl-8 jd-pr-2 jd-text-sm jd-outline-none jd-transition-colors jd-focus:jd-bg-accent jd-focus:jd-text-accent-foreground jd-data-[disabled]:jd-pointer-events-none jd-data-[disabled]:jd-opacity-50",
+      "jd-relative jd-flex jd-cursor-default jd-select-none jd-items-center jd-rounded-sm jd-py-1.5 jd-pl-8 jd-pr-2 jd-text-sm jd-outline-none jd-transition-colors focus:jd-bg-accent focus:jd-text-accent-foreground data-[disabled]:jd-pointer-events-none data-[disabled]:jd-opacity-50",
       className
     )}
     checked={checked}
@@ -123,7 +123,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "jd-relative jd-flex jd-cursor-default jd-select-none jd-items-center jd-rounded-sm jd-py-1.5 jd-pl-8 jd-pr-2 jd-text-sm jd-outline-none jd-transition-colors jd-focus:jd-bg-accent jd-focus:jd-text-accent-foreground jd-data-[disabled]:jd-pointer-events-none jd-data-[disabled]:jd-opacity-50",
+      "jd-relative jd-flex jd-cursor-default jd-select-none jd-items-center jd-rounded-sm jd-py-1.5 jd-pl-8 jd-pr-2 jd-text-sm jd-outline-none jd-transition-colors focus:jd-bg-accent focus:jd-text-accent-foreground data-[disabled]:jd-pointer-events-none data-[disabled]:jd-opacity-50",
       className
     )}
     {...props}

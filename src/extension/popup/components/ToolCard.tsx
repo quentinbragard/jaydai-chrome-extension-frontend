@@ -17,10 +17,10 @@ export const ToolCard: React.FC<ToolCardProps> = ({
 }) => {
   return (
     <div className="jd-relative jd-group jd-perspective">
-      <div className={`jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-${tool.color} jd-rounded-lg jd-m-0.5 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-duration-300`}></div>
+      <div className={`jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-${tool.color} jd-rounded-lg jd-m-0.5 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-300`}></div>
       <Button 
         variant="default"
-        className={`jd-w-full jd-justify-start jd-py-7 jd-relative jd-bg-card/95 jd-border-none jd-shadow-sm jd-hover:jd-shadow-md jd-transition-all jd-card-3d ${tool.disabled ? 'jd-opacity-80 jd-hover:jd-opacity-80 jd-cursor-not-allowed' : ''}`}
+        className={`jd-w-full jd-justify-start jd-py-7 jd-relative jd-bg-card/95 jd-border-none jd-shadow-sm hover:jd-shadow-md jd-transition-all jd-card-3d ${tool.disabled ? 'jd-opacity-80 hover:jd-opacity-80 jd-cursor-not-allowed' : ''}`}
         onClick={onClick}
         disabled={tool.disabled}
       >

@@ -72,7 +72,7 @@ export function DeleteButton({
               variant="ghost"
               size="sm"
               disabled={disabled}
-              className={`jd-h-6 jd-w-6 jd-p-0 jd-flex-shrink-0 jd-text-muted-foreground jd-opacity-70 jd-hover:jd-opacity-100 ${className}`}
+              className={`jd-h-6 jd-w-6 jd-p-0 jd-flex-shrink-0 jd-text-muted-foreground jd-opacity-70 hover:jd-opacity-100 ${className}`}
             >
               <MoreVertical className="jd-h-4 jd-w-4" />
             </Button>

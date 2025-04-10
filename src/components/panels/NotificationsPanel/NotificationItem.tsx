@@ -44,7 +44,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       className={`
         jd-group jd-relative jd-flex jd-flex-col jd-p-3 jd-border-b jd-border-gray-700 
         ${isRead ? 'jd-bg-background' : 'jd-bg-background/50'} 
-        jd-hover:jd-bg-gray-700 
+        hover:jd-bg-gray-700 
         jd-transition-colors jd-duration-200 jd-cursor-pointer
       `}
     >
@@ -93,12 +93,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             </div>
             
             {/* Action icons (mark as read/delete) */}
-            <div className="jd-flex jd-gap-1 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
+            <div className="jd-flex jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
               {!isRead && (
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="jd-h-7 jd-w-7 jd-p-0 jd-rounded-full jd-bg-green-900/20 jd-hover:jd-bg-green-800/30"
+                  className="jd-h-7 jd-w-7 jd-p-0 jd-rounded-full jd-bg-green-900/20 hover:jd-bg-green-800/30"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDismiss(notification, e);
@@ -112,7 +112,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
               <Button
                 size="sm"
                 variant="ghost"
-                className="jd-h-7 jd-w-7 jd-p-0 jd-rounded-full jd-bg-red-900/20 jd-hover:jd-bg-red-800/30"
+                className="jd-h-7 jd-w-7 jd-p-0 jd-rounded-full jd-bg-red-900/20 hover:jd-bg-red-800/30"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete(notification, e);

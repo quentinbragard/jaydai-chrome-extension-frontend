@@ -148,7 +148,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
       
       {/* Action buttons for user folders - only visible on hover */}
       {type === 'user' && (
-        <div className="jd-flex jd-items-center jd-gap-1.5 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity">
+        <div className="jd-flex jd-items-center jd-gap-1.5 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
           {/* Delete button for user folders - with red accent */}
           {showDeleteControls && onDeleteFolder && (
             <TooltipProvider>
@@ -157,7 +157,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-red-500 jd-hover:jd-text-red-600 jd-hover:jd-bg-red-100 jd-dark:jd-hover:jd-bg-red-900/30"
+                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
                     onClick={handleDeleteFolder}
                   >
                     <Trash2 className="jd-h-3.5 jd-w-3.5" />

@@ -38,7 +38,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent jd-hover:jd-bg-muted"
+                    className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent hover:jd-bg-muted"
                     onClick={onSettingsClick}
                   >
                     <Settings className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
@@ -55,7 +55,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent jd-hover:jd-bg-muted"
+                  className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent hover:jd-bg-muted"
                   onClick={handleHelpClick}
                 >
                   <HelpCircle className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
@@ -79,7 +79,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent jd-hover:jd-bg-muted"
+                  className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent hover:jd-bg-muted"
                   onClick={handleLinkedInClick}
                 >
                   <Linkedin className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
@@ -95,7 +95,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent jd-hover:jd-bg-muted"
+                  className="jd-h-8 jd-w-8 jd-rounded-full jd-bg-transparent hover:jd-bg-muted"
                   onClick={handleWebsiteClick}
                 >
                   <ExternalLink className="jd-h-4 jd-w-4 jd-text-muted-foreground" />

@@ -13,12 +13,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "jd-group jd-toast jd-group-[.toaster]:jd-bg-background jd-group-[.toaster]:jd-text-foreground jd-group-[.toaster]:jd-border-border jd-group-[.toaster]:jd-shadow-lg",
-          description: "jd-group-[.toast]:jd-text-muted-foreground",
+            "jd-group jd-toast group-[.toaster]:jd-bg-background group-[.toaster]:jd-text-foreground group-[.toaster]:jd-border-border group-[.toaster]:jd-shadow-lg",
+          description: "group-[.toast]:jd-text-muted-foreground",
           actionButton:
-            "jd-group-[.toast]:jd-bg-primary jd-group-[.toast]:jd-text-primary-foreground",
+            "group-[.toast]:jd-bg-primary group-[.toast]:jd-text-primary-foreground",
           cancelButton:
-            "jd-group-[.toast]:jd-bg-muted jd-group-[.toast]:jd-text-muted-foreground",
+            "group-[.toast]:jd-bg-muted group-[.toast]:jd-text-muted-foreground",
         },
       }}
       {...props}
