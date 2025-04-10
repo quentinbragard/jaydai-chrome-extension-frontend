@@ -34,6 +34,7 @@ const Main: React.FC = () => {
   }, []);
 
   return (
+    <div id="jaydai-root">
     <ErrorBoundary>
       <AuthProvider>
         {/* Add QueryProvider to wrap DialogProvider */}
@@ -47,6 +48,7 @@ const Main: React.FC = () => {
         </QueryProvider>
       </AuthProvider>
     </ErrorBoundary>
+    </div>
   );
 };
 

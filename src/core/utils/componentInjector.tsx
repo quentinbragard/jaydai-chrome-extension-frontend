@@ -1,204 +1,101 @@
 // src/core/utils/componentInjector.tsx
-import { ComponentType } from 'react';
-import { createRoot, Root } from 'react-dom/client';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
-interface ComponentInstance {
-  root: Root;
-  containerId: string;
-  cleanup: () => void;
-}
-
-interface InjectOptions {
-  id?: string;
-  targetSelector?: string;
+interface InjectionOptions {
+  id: string;
   position?: {
-    type?: 'fixed' | 'absolute' | 'relative';
-    top?: string;
-    right?: string;
-    bottom?: string;
-    left?: string;
+    type: 'fixed' | 'absolute' | 'relative';
     zIndex?: string;
   };
-  containerStyle?: Record<string, string>;
+  shadowDOM?: boolean; // New option to enable Shadow DOM
 }
 
-/**
- * Manages injection and cleanup of React components in the DOM
- */
-class ComponentInjector {
-  private instances: Map<string, ComponentInstance> = new Map();
-  private stylesInjected: boolean = false;
+// Global reference to shadow root for portal targeting
+let shadowRootRef: ShadowRoot | null = null;
 
-  /**
-   * Injects global styles needed by components
-   */
-  private injectStyles(): void {
-    if (this.stylesInjected) return;
+// Function to get the shadow root for portals
+export const getShadowRootRef = (): ShadowRoot | null => shadowRootRef;
+
+export const componentInjector = {
+  inject: (Component: React.ComponentType<any>, props: any = {}, options: InjectionOptions) => {
+    const { id, position, shadowDOM = true } = options;
     
-    try {
-      // First check if styles already exist
-      if (document.getElementById('jaydai-styles')) {
-        this.stylesInjected = true;
-        return;
+    // Create container element
+    let container = document.getElementById(id);
+    if (!container) {
+      container = document.createElement('div');
+      container.id = id;
+      document.body.appendChild(container);
+    }
+    
+    // Apply positioning if specified
+    if (position) {
+      container.style.position = position.type;
+      if (position.zIndex) {
+        container.style.zIndex = position.zIndex;
       }
-      
-      // Inject stylesheet
-      const style = document.createElement('link');
-      style.rel = 'stylesheet';
-      style.href = chrome.runtime.getURL('assets/content.css');
-      console.log('✅ Injecting stylesheet:', style.href);
-      style.id = 'jaydai-styles';
-      document.head.appendChild(style);
-      
-      // Add an inline style to ensure shadow piercing for our components
-      const inlineStyle = document.createElement('style');
-      inlineStyle.textContent = `
-        .jaydai-root, #jaydai-root * {
-          z-index: 1;
-        }
-      `;
-      inlineStyle.id = 'jaydai-inline-styles';
-      document.head.appendChild(inlineStyle);
-      
-      this.stylesInjected = true;
-      console.log('✅ Archimind styles injected');
-    } catch (error) {
-      console.error('❌ Failed to inject styles:', error);
-    }
-  }
-
-  /**
-   * Creates a container for a component with proper isolation
-   */
-  private createContainer(id: string, options: InjectOptions): HTMLElement {
-    const existingContainer = document.getElementById(id);
-    if (existingContainer) return existingContainer;
-
-    // Create main container if it doesn't exist
-    let rootContainer = document.getElementById('jaydai-root');
-    if (!rootContainer) {
-      rootContainer = document.createElement('div');
-      rootContainer.id = 'jaydai-root';
-      document.body.appendChild(rootContainer);
-    }
-
-    // Create component container
-    const container = document.createElement('div');
-    container.id = id;
-    
-    // Apply positioning styles based on options
-    if (options.position) {
-      Object.assign(container.style, {
-        position: options.position.type || 'fixed',
-        zIndex: options.position.zIndex || '999999',
-        ...options.position
-      });
     }
     
-    // Apply any additional styles
-    if (options.containerStyle) {
-      Object.assign(container.style, options.containerStyle);
-    }
-    
-    // Append to target element or root container
-    const targetElement = options.targetSelector 
-      ? document.querySelector(options.targetSelector) 
-      : rootContainer;
-      
-    if (!targetElement) {
-      console.warn(`Target element not found: ${options.targetSelector}`);
-      rootContainer.appendChild(container);
+    if (shadowDOM) {
+      // Create shadow root if it doesn't exist
+      if (!container.shadowRoot) {
+        shadowRootRef = container.attachShadow({ mode: 'open' });
+        
+        // Create a root div inside shadow DOM
+        const shadowContainer = document.createElement('div');
+        shadowContainer.id = 'jaydai-shadow-container';
+        shadowRootRef.appendChild(shadowContainer);
+        
+        // Inject styles into shadow DOM
+        const styleElement = document.createElement('style');
+        styleElement.textContent = '/* Shadow DOM styles will be injected here */';
+        shadowRootRef.prepend(styleElement);
+        
+        // Dynamically load the CSS
+        fetch(chrome.runtime.getURL('assets/content.css'))
+          .then(response => response.text())
+          .then(css => {
+            styleElement.textContent = css;
+          })
+          .catch(error => console.error('Failed to load CSS:', error));
+        
+        // Create React root
+        const root = ReactDOM.createRoot(shadowContainer);
+        
+        // Wrap component in a provider that will make shadow root available for portals
+        root.render(
+          <ShadowDOMProvider shadowRoot={shadowRootRef}>
+            <Component {...props} />
+          </ShadowDOMProvider>
+        );
+      }
     } else {
-      targetElement.appendChild(container);
-    }
-    
-    return container;
-  }
-
-  /**
-   * Injects a React component into the DOM
-   */
-  inject<P extends object>(
-    Component: ComponentType<P>,
-    props: P,
-    options: InjectOptions = {}
-  ): string {
-    this.injectStyles();
-    
-    // Create unique ID for this instance
-    const id = options.id || `jaydai-${Component.displayName || 'component'}-${Date.now()}`;
-    const containerId = `${id}-container`;
-    
-    // Create or get container
-    const container = this.createContainer(containerId, options);
-    
-    try {
-      // Create React root and render component
-      const root = createRoot(container);
+      // Fall back to standard injection without shadow DOM
+      const root = ReactDOM.createRoot(container);
       root.render(<Component {...props} />);
-      
-      // Store instance for later cleanup
-      const cleanup = () => {
-        try {
-          root.unmount();
-          container.remove();
-          this.instances.delete(id);
-          console.log(`✅ Cleaned up component: ${id}`);
-        } catch (error) {
-          console.error(`❌ Error cleaning up component ${id}:`, error);
-        }
-      };
-      
-      this.instances.set(id, { root, containerId, cleanup });
-      console.log(`✅ Injected component: ${id}`);
-      
-      return id;
-    } catch (error) {
-      console.error(`❌ Error injecting component: ${error}`);
-      container.remove();
-      return '';
     }
+  },
+  
+  removeAll: () => {
+    // Clean up code...
+    shadowRootRef = null;
   }
+};
 
-  /**
-   * Removes a specific component instance
-   */
-  remove(id: string): boolean {
-    const instance = this.instances.get(id);
-    if (!instance) {
-      console.warn(`Component not found: ${id}`);
-      return false;
-    }
-    
-    instance.cleanup();
-    return true;
-  }
+// Context to provide the shadow root reference
+const ShadowRootContext = React.createContext<ShadowRoot | null>(null);
 
-  /**
-   * Cleans up all injected components
-   */
-  removeAll(): void {
-    this.instances.forEach(instance => instance.cleanup());
-    
-    // Also remove styles if they were injected
-    if (this.stylesInjected) {
-      const styleElement = document.getElementById('jaydai-styles');
-      if (styleElement) styleElement.remove();
-      
-      const inlineStyles = document.getElementById('jaydai-inline-styles');
-      if (inlineStyles) inlineStyles.remove();
-      
-      this.stylesInjected = false;
-    }
-    
-    // Remove root container if it exists
-    const rootContainer = document.getElementById('jaydai-root');
-    if (rootContainer) rootContainer.remove();
-    
-    console.log('✅ All components removed');
-  }
-}
+export const useShadowRoot = () => React.useContext(ShadowRootContext);
 
-// Export singleton instance
-export const componentInjector = new ComponentInjector();
-export type { InjectOptions };
+// Provider component
+const ShadowDOMProvider: React.FC<{
+  children: React.ReactNode;
+  shadowRoot: ShadowRoot;
+}> = ({ children, shadowRoot }) => {
+  return (
+    <ShadowRootContext.Provider value={shadowRoot}>
+      {children}
+    </ShadowRootContext.Provider>
+  );
+};
