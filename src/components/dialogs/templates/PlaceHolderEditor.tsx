@@ -284,47 +284,47 @@ const handleClose = () => {
           </Alert>
         )}
 
-        <div className="jd-grid jd-grid-cols-1 jd-md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden">
-          {/* Placeholders Section */}
-          <div className="jd-space-y-4 jd-overflow-auto">
-            <h3 className="jd-text-sm jd-font-medium">{getMessage('replacePlaceholders')}</h3>
+      <div className="jd-grid jd-grid-cols-1 jd-md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden jd-w-full">
+        {/* Placeholders Section */}
+        <div className="jd-space-y-4 jd-overflow-auto">
+          <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('replacePlaceholders')}</h3>
 
-            {placeholders.length > 0 ? (
-              <ScrollArea className="jd-h-[50vh]">
-                <div className="jd-space-y-4 jd-pr-4">
-                  {placeholders.map((placeholder, idx) => (
-                    <div key={placeholder.key + idx} className="jd-space-y-1">
-                      <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
-                        <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
-                      </label>
-                      <Input
-                        value={placeholder.value}
-                        onChange={(e) => updatePlaceholder(idx, e.target.value)}
-                        placeholder={getMessage('enterValueFor', [placeholder.key])}
-                        className="jd-w-full"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            ) : (
-              <div className="jd-text-muted-foreground jd-text-center jd-py-8">{getMessage('noPlaceholders')}</div>
-            )}
-          </div>
-
-          {/* Rich Text Editable Section */}
-          <div className="jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
-            <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
-            <div
-              ref={editorRef}
-              contentEditable
-              suppressContentEditableWarning
-              className="jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus:outline-none jd-focus:ring-2 jd-focus:ring-primary jd-overflow-auto jd-whitespace-pre-wrap"
-              onClick={(e) => e.stopPropagation()} 
-              onMouseDown={(e) => e.stopPropagation()} 
-            ></div>
-          </div>
+          {placeholders.length > 0 ? (
+            <ScrollArea className="jd-h-[50vh]">
+              <div className="jd-space-y-4 jd-pr-4">
+                {placeholders.map((placeholder, idx) => (
+                  <div key={placeholder.key + idx} className="jd-space-y-1">
+                    <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
+                      <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
+                    </label>
+                    <Input
+                      value={placeholder.value}
+                      onChange={(e) => updatePlaceholder(idx, e.target.value)}
+                      placeholder={getMessage('enterValueFor', [placeholder.key])}
+                      className="jd-w-full"
+                    />
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          ) : (
+            <div className="jd-text-muted-foreground jd-text-center jd-py-8">{getMessage('noPlaceholders')}</div>
+          )}
         </div>
+
+        {/* Rich Text Editable Section */}
+        <div className="jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
+          <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
+          <div
+            ref={editorRef}
+            contentEditable
+            suppressContentEditableWarning
+            className="jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus:outline-none jd-focus:ring-2 jd-focus:ring-primary jd-overflow-auto jd-whitespace-pre-wrap"
+            onClick={(e) => e.stopPropagation()} 
+            onMouseDown={(e) => e.stopPropagation()} 
+          ></div>
+        </div>
+      </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={handleClose}>

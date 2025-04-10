@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { getMessage } from '@/core/utils/i18n';
+import { cn } from "@/core/utils/classNames";
 
 export interface BaseDialogProps {
   open: boolean;
@@ -25,7 +26,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={className} 
+        className={cn("jd-dialog-content", className)} 
         onClick={(e) => e.stopPropagation()}
       >
         {title && <h2 className="jd-dialog-title">{getMessage(title, undefined, title)}</h2>}

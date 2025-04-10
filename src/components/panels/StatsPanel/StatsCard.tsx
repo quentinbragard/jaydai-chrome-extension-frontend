@@ -31,7 +31,7 @@ const StatCard: React.FC<StatCardProps> = ({
   return (
     <div 
       className={cn(
-        "jd-flex jd-items-center jd-gap-1.5 jd-stat-card jd-rounded-md jd-transition-all", 
+        "jd-flex jd-items-center jd-gap-2 jd-p-3 jd-stat-card jd-rounded-md jd-transition-all", 
         isClickable && "jd-cursor-pointer jd-hover:jd-bg-accent/50",
         className
       )}
@@ -49,7 +49,7 @@ const StatCard: React.FC<StatCardProps> = ({
         )}
         
         {description && (
-          <span className="jd:text-xs jd:text-muted-foreground jd:mt-0.5 jd:hidden jd:group-hover:block">{description}</span>
+          <span className="jd-text-xs jd-text-muted-foreground jd-mt-0.5 jd-hidden jd-group-hover:jd-block">{description}</span>
         )}
       </div>
     </div>
