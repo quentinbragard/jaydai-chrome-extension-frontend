@@ -58,10 +58,6 @@ export default defineConfig(({ mode }) => {
                         rename: 'welcome.html'
                     },
                     {
-                        src: 'src/extension/content/content.css',
-                        dest: 'assets/'
-                    },
-                    {
                         src: '_locales',
                         dest: ''
                     }
@@ -91,9 +87,9 @@ export default defineConfig(({ mode }) => {
                     welcome: resolve(__dirname, 'src/extension/welcome/welcome.tsx'),
                     'injectedInterceptor': resolve(__dirname, 'src/extension/content/injectedInterceptor/index.js'),
                     'applicationInitializer': resolve(__dirname, 'src/extension/content/applicationInitializer.ts'),
-                    'popup-styles': resolve(__dirname, 'src/extension/popup/popup.css'),
-                    'welcome-styles': resolve(__dirname, 'src/extension/welcome/welcome.css'),
-                    'content-styles': resolve(__dirname, 'src/extension/content/content.css')
+                    //'popup-styles': resolve(__dirname, 'src/extension/popup/popup.css'),
+                    //'welcome-styles': resolve(__dirname, 'src/extension/welcome/welcome.css'),
+                    //'content-styles': resolve(__dirname, 'src/extension/content/content.css')
                 },
                 output: {
                     entryFileNames: '[name].js',

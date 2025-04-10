@@ -35,8 +35,9 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "assets/popup-styles.css",
-        "assets/welcome-styles.css",
+        "assets/popup.css",
+        "assets/welcome.css",
+        "assets/content.css",
         "welcome.js",
         "popup.js",
         "assets/*",

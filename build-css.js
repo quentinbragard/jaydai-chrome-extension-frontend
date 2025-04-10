@@ -36,9 +36,9 @@ async function buildCss(input, output) {
 
 // Build popup and welcome CSS
 await Promise.all([
-  buildCss('src/extension/popup/popup.css', 'dist/assets/popup-styles.css'),
-  buildCss('src/extension/welcome/welcome.css', 'dist/assets/welcome-styles.css'),
-  buildCss('src/extension/content/content.css', 'dist/assets/content-styles.css')
+  buildCss('src/extension/popup/popup.css', 'dist/assets/popup.css'),
+  buildCss('src/extension/welcome/welcome.css', 'dist/assets/welcome.css'),
+  buildCss('src/extension/content/content.css', 'dist/assets/content.css')
 ]);
 
 console.log('🎉 CSS build complete!');

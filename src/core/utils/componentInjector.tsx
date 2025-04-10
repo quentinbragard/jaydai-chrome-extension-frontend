@@ -46,13 +46,14 @@ class ComponentInjector {
       const style = document.createElement('link');
       style.rel = 'stylesheet';
       style.href = chrome.runtime.getURL('assets/content.css');
+      console.log('✅ Injecting stylesheet:', style.href);
       style.id = 'jaydai-styles';
       document.head.appendChild(style);
       
       // Add an inline style to ensure shadow piercing for our components
       const inlineStyle = document.createElement('style');
       inlineStyle.textContent = `
-        #jaydai-root, #jaydai-root * {
+        .jaydai-root, #jaydai-root * {
           z-index: 1;
         }
       `;
