@@ -135,7 +135,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
   
   // Create action buttons for folder header
   const actionButtons = (
-    <div className="flex items-center gap-1.5">
+    <div className="jd-flex jd-items-center jd-gap-2">
       {/* Pin button for official and organization folders */}
       {showPinControls && onTogglePin && (type === 'official' || type === 'organization') && (
         <PinButton 
@@ -148,7 +148,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
       
       {/* Action buttons for user folders - only visible on hover */}
       {type === 'user' && (
-        <div className="jd-flex jd-items-center jd-gap-1.5 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+        <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
           {/* Delete button for user folders - with red accent */}
           {showDeleteControls && onDeleteFolder && (
             <TooltipProvider>
@@ -157,10 +157,10 @@ const FolderItem: React.FC<FolderItemProps> = ({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
+                    className="jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
                     onClick={handleDeleteFolder}
                   >
-                    <Trash2 className="jd-h-3.5 jd-w-3.5" />
+                    <Trash2 className="jd-h-4 jd-w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
@@ -233,7 +233,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="jd-h-6 jd-w-6 jd-p-0"
                   onClick={goToPrevPage}
                   disabled={currentPage === 0}
                   title="Previous items"
@@ -246,7 +245,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="jd-h-6 jd-w-6 jd-p-0"
+
                   onClick={goToNextPage}
                   disabled={currentPage === totalPages - 1}
                   title="Next items"

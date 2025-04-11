@@ -373,7 +373,11 @@ export const AuthForm: React.FC<AuthFormProps> = ({
               className="jd-w-full jd-font-heading jd-border-gray-700 jd-text-white hover:jd-bg-gray-800"
               disabled={isLoading}
             >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
+              <img 
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+                alt="Google" 
+                className="jd-h-5 jd-w-5 jd-mr-2" 
+              />
               {getMessage('signInWith', ['Google']) || 'Sign in with Google'}
             </Button>
           </div>
@@ -467,7 +471,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             className="jd-w-full jd-font-heading jd-border-gray-700 jd-text-white hover:jd-bg-gray-800"
             disabled={isLoading}
           >
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5 mr-2" />
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="jd-h-5 jd-w-5 jd-mr-2" />
             {getMessage('signUpWith', ['Google']) || 'Sign up with Google'}
           </Button>
         </div>

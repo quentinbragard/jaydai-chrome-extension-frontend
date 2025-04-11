@@ -6,7 +6,7 @@ import { AITool } from '../types/tool-types';
 export const AI_TOOLS: AITool[] = [
   {
     name: 'ChatGPT',
-    icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//chatgpt_logo.png" alt="ChatGPT" className="h-8 w-8" />,
+    icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//chatgpt_logo.png" alt="ChatGPT" className="jd-h-8 jd-w-8" />,
     url: 'https://chat.openai.com/',
     description: 'OpenAI\'s conversational AI',
     disabled: false,
@@ -14,7 +14,7 @@ export const AI_TOOLS: AITool[] = [
   },
   {
     name: 'Claude',
-    icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//claude_logo.png" alt="Claude" className="h-8 w-8" />,
+    icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//claude_logo.png" alt="Claude" className="jd-h-8 jd-w-8" />,
     url: 'https://claude.ai/',
     description: 'Anthropic\'s AI assistant',
     disabled: true,
@@ -22,7 +22,7 @@ export const AI_TOOLS: AITool[] = [
   },
   {
     name: 'Gemini',
-    icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//gemini_logo.png" alt="Gemini" className="h-8 w-8" />,
+    icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//gemini_logo.png" alt="Gemini" className="jd-h-8 jd-w-8" />,
     url: 'https://gemini.google.com/',
     description: 'Google\'s generative AI',
     disabled: true,
@@ -30,7 +30,7 @@ export const AI_TOOLS: AITool[] = [
   },
   {
     name: 'Mistral',
-    icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//mistral_logo.png" alt="Mistral" className="h-8 w-8" />,
+    icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//mistral_logo.png" alt="Mistral" className="jd-h-8 jd-w-8" />,
     url: 'https://chat.mistral.ai/',
     description: 'Mistral AI\'s conversational model',
     disabled: true,
@@ -38,7 +38,7 @@ export const AI_TOOLS: AITool[] = [
   },
   {
     name: 'Perplexity',
-    icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//perplexity_logo.png" alt="Perplexity" className="h-8 w-8" />,
+    icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//perplexity_logo.png" alt="Perplexity" className="jd-h-8 jd-w-8" />,
     url: 'https://www.perplexity.ai/',
     description: 'AI-powered search and chat',
     disabled: true,

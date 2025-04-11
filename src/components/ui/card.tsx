@@ -14,9 +14,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     
     // Variant classes
     const variantClasses = {
-      default: 'jd-bg-card jd-text-card-foreground jd-shadow',
-      bordered: 'jd-bg-card jd-text-card-foreground jd-border jd-border-border',
-      elevated: 'jd-bg-card jd-text-card-foreground jd-shadow-lg',
+      default: 'jd-bg-background jd-text-card-foreground jd-shadow',
+      bordered: 'jd-bg-background jd-text-card-foreground jd-border jd-border-border',
+      elevated: 'jd-bg-background jd-text-card-foreground jd-shadow-lg',
       ghost: 'jd-bg-transparent jd-text-card-foreground',
     };
     

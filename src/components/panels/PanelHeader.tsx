@@ -33,7 +33,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   return (
     <div className={cn(
       "jd-flex jd-items-center jd-justify-between jd-p-2 jd-border-b jd-rounded-t-md",
-      "jd-panel-header", // Custom class with HSL values for light/dark modes
+      "jd-bg-header", 
       className
     )}>
       {/* Left Section */}

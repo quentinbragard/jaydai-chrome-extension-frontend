@@ -1,8 +1,9 @@
 // src/components/folders/FolderSection.tsx
 import { ReactNode, useState } from 'react';
 import { BookTemplate, Users, Folder, PlusCircle, ChevronDown, Building2, Mail, Lock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"; // Assuming this is your Shadcn UI Button
 import { getMessage } from '@/core/utils/i18n';
+import { cn } from '@/core/utils/classNames'; // Import cn if needed for combining classes
 
 interface FolderSectionProps {
   title: string;
@@ -11,13 +12,10 @@ interface FolderSectionProps {
   onCreateTemplate?: () => void;
   showBrowseMore?: boolean;
   showCreateButton?: boolean;
-  isEmpty?: boolean; // New prop to check if content is empty
+  isEmpty?: boolean;
   children: ReactNode;
 }
 
-/**
- * Component for rendering a section of template folders with appropriate controls
- */
 export function FolderSection({
   title,
   iconType,
@@ -28,9 +26,10 @@ export function FolderSection({
   isEmpty = false,
   children
 }: FolderSectionProps) {
-  // Select the appropriate icon based on the iconType
+
   const renderIcon = () => {
-    switch (iconType) {
+    // ... (renderIcon function remains the same)
+     switch (iconType) {
       case 'official':
         return <BookTemplate className="jd-mr-2 jd-h-4 jd-w-4" />;
       case 'organization':
@@ -41,14 +40,14 @@ export function FolderSection({
     }
   };
 
-  // Handle contact sales click
   const handleContactSales = () => {
-    window.open('https://www.jayd.ai/#Contact', '_blank');
+    // ... (handleContactSales function remains the same)
+     window.open('https://www.jayd.ai/#Contact', '_blank');
   };
 
-  // Render organization CTA if it's an organization section and it's empty
   const renderOrganizationCTA = () => {
-    if (iconType === 'organization' && isEmpty) {
+    // ... (renderOrganizationCTA function remains the same)
+     if (iconType === 'organization' && isEmpty) {
       return (
         <div className="jd-flex jd-flex-col jd-gap-3 jd-p-4 jd-my-2 jd-rounded-lg jd-bg-gradient-to-br jd-from-slate-50 jd-to-slate-100 jd-dark:jd-from-gray-800/60 jd-dark:jd-to-gray-900/60 jd-border jd-border-slate-200/80 jd-dark:jd-border-amber-500/20 jd-shadow-sm">
           {/* Header with icon and badge */}
@@ -94,41 +93,48 @@ export function FolderSection({
   return (
     <div>
       <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
+        {/* Left side: Icon + Title */}
         <div className="jd-flex jd-items-center">
           {renderIcon()}
           {title}
         </div>
-        
-        {/* Show Browse More button */}
-        {showBrowseMore && onBrowseMore && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="jd-h-7 jd-px-2 jd-text-xs"
-            onClick={onBrowseMore}
-          >
-            <ChevronDown className="jd-h-3.5 jd-w-3.5 jd-mr-1" />
-            {getMessage('browseMore', undefined, 'Browse More')}
-          </Button>
-        )}
-        
-        {/* Show Create button */}
-        {showCreateButton && onCreateTemplate && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="jd-h-7 jd-w-7 jd-p-0"
-            onClick={onCreateTemplate}
-            title={getMessage('newTemplate', undefined, 'New Template')}
-          >
-            <PlusCircle className="jd-h-4 jd-w-4" />
-          </Button>
-        )}
+
+        {/* Right side: Buttons */}
+        <div className="jd-flex jd-items-center jd-gap-1"> {/* Added gap for spacing */}
+          {/* Show Browse More button */}
+          {showBrowseMore && onBrowseMore && (
+            <Button
+              // --- CHANGE: Use secondary variant for more visibility ---
+              variant="secondary"
+              size="sm"
+              // Adjust padding/height if needed, remove explicit text color if variant handles it
+              className="jd-h-7 jd-px-2 jd-text-xs"
+              onClick={onBrowseMore}
+            >
+              <ChevronDown className="jd-h-3.5 jd-w-3.5 jd-mr-1" />
+              {getMessage('browseMore', undefined, 'Browse More')}
+            </Button>
+          )}
+
+          {/* Show Create button */}
+          {showCreateButton && onCreateTemplate && (
+            <Button
+               // --- CHANGE: Use secondary variant for more visibility ---
+              variant="secondary"
+              size="sm"
+              // Keep size adjustments for icon button
+              onClick={onCreateTemplate}
+              title={getMessage('newTemplate', undefined, 'New Template')}
+            >
+              <PlusCircle className="jd-h-4 jd-w-4" /> {/* Ensure icon color contrasts */}
+            </Button>
+          )}
+        </div>
       </div>
-      
+
       {/* Organization CTA if applicable */}
       {renderOrganizationCTA()}
-      
+
       {/* Show children only if not showing organization CTA */}
       {!(iconType === 'organization' && isEmpty) && children}
     </div>

@@ -1,5 +1,5 @@
 // src/core/utils/componentInjector.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
 interface InjectionOptions {
@@ -8,14 +8,19 @@ interface InjectionOptions {
     type: 'fixed' | 'absolute' | 'relative';
     zIndex?: string;
   };
-  shadowDOM?: boolean; // New option to enable Shadow DOM
+  shadowDOM?: boolean; // Option to enable Shadow DOM
 }
 
 // Global reference to shadow root for portal targeting
 let shadowRootRef: ShadowRoot | null = null;
 
 // Function to get the shadow root for portals
-export const getShadowRootRef = (): ShadowRoot | null => shadowRootRef;
+export const useShadowRoot = (): ShadowRoot | null => {
+  return React.useContext(ShadowRootContext);
+};
+
+// Context to provide the shadow root reference
+const ShadowRootContext = React.createContext<ShadowRoot | null>(null);
 
 export const componentInjector = {
   inject: (Component: React.ComponentType<any>, props: any = {}, options: InjectionOptions) => {
@@ -78,21 +83,59 @@ export const componentInjector = {
   },
   
   removeAll: () => {
-    // Clean up code...
+    // Clean up all added elements
+    const shadowContainers = document.querySelectorAll('[id^="jaydai-"]');
+    shadowContainers.forEach(container => {
+      if (container.parentNode) {
+        container.parentNode.removeChild(container);
+      }
+    });
     shadowRootRef = null;
   }
 };
 
-// Context to provide the shadow root reference
-const ShadowRootContext = React.createContext<ShadowRoot | null>(null);
-
-export const useShadowRoot = () => React.useContext(ShadowRootContext);
-
-// Provider component
+// Provider component that also handles theme syncing
 const ShadowDOMProvider: React.FC<{
   children: React.ReactNode;
   shadowRoot: ShadowRoot;
 }> = ({ children, shadowRoot }) => {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    // Initial theme detection
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    // Apply the theme class to the shadow container
+    const container = shadowRoot.getElementById('jaydai-shadow-container');
+    if (container) {
+      if (theme === 'dark') {
+        container.classList.add('dark');
+      } else {
+        container.classList.remove('dark');
+      }
+    }
+
+    // Set up a mutation observer to watch for theme changes in the parent document
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'class' &&
+          mutation.target === document.documentElement
+        ) {
+          const isDark = document.documentElement.classList.contains('dark');
+          setTheme(isDark ? 'dark' : 'light');
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [shadowRoot, theme]);
+
   return (
     <ShadowRootContext.Provider value={shadowRoot}>
       {children}

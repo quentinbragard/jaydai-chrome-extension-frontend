@@ -17,6 +17,40 @@ import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { getMessage } from '@/core/utils/i18n';
 
+// Custom hook to detect dark mode
+const useDarkMode = () => {
+  const [isDarkMode, setIsDarkMode] = React.useState<boolean>(() => {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
+
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return;
+    
+    const updateDarkModeState = () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      setIsDarkMode(isDark);
+    };
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          updateDarkModeState();
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+    updateDarkModeState();
+    
+    return () => observer.disconnect();
+  }, []);
+
+  return isDarkMode;
+};
+
 interface Placeholder {
   key: string;
   value: string;
@@ -32,6 +66,7 @@ export const PlaceholderEditor: React.FC = () => {
   const [contentMounted, setContentMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
+  const isDarkMode = useDarkMode();
 
   // Safe extraction of dialog data with defaults
   const templateContent = data?.content || '';
@@ -94,7 +129,7 @@ export const PlaceholderEditor: React.FC = () => {
     // Finally, highlight placeholders
     return withLineBreaks.replace(
       /\[(.*?)\]/g, 
-      `<span class="bg-yellow-300 text-yellow-900 font-bold px-1 rounded inline-block my-0.5">[$1]</span>`
+      `<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>`
     );
   };
 
@@ -111,19 +146,11 @@ export const PlaceholderEditor: React.FC = () => {
         const extractedPlaceholders = extractPlaceholders(normalizedContent);
         setPlaceholders(extractedPlaceholders);
         
-        // Log for debugging
-        console.log(`Extracted ${extractedPlaceholders.length} placeholders from template`);
-        console.log('Original line breaks count:', (normalizedContent.match(/\n/g) || []).length);
-        
         // Use a short timeout to ensure the ref is available
         setTimeout(() => {
           if (editorRef.current) {
             // Apply the highlighting with proper newline handling
             editorRef.current.innerHTML = highlightPlaceholders(normalizedContent);
-            
-            // Debug the resulting HTML to check for doubled line breaks
-            console.log('HTML line breaks count:', (editorRef.current.innerHTML.match(/<br>/g) || []).length);
-            
             setContentMounted(true);
           }
         }, 10);
@@ -219,39 +246,35 @@ export const PlaceholderEditor: React.FC = () => {
     if (editorRef.current) {
       // Make sure the HTML we set doesn't have doubled line breaks
       editorRef.current.innerHTML = highlightPlaceholders(newContent);
-      
-      // Log for debugging
-      console.log('Updated content line breaks:', (newContent.match(/\n/g) || []).length);
-      console.log('Updated HTML line breaks:', (editorRef.current.innerHTML.match(/<br>/g) || []).length);
     }
   };
 
-/**
-* Handle template completion
-*/
-const handleComplete = () => {
-  // Call the callback with the modified content
-  onComplete(modifiedContent);
-  
-  // Close the dialog
-  dialogProps.onOpenChange(false);
-  
-  // Dispatch events to notify that the editor is closed and to close all panels
-  document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
-  document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
-};
+  /**
+  * Handle template completion
+  */
+  const handleComplete = () => {
+    // Call the callback with the modified content
+    onComplete(modifiedContent);
+    
+    // Close the dialog
+    dialogProps.onOpenChange(false);
+    
+    // Dispatch events to notify that the editor is closed and to close all panels
+    document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
+    document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+  };
 
-/**
-* Handle dialog close
-*/
-const handleClose = () => {
-  // Close dialog
-  dialogProps.onOpenChange(false);
-  
-  // Also dispatch close events
-  document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
-  document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
-};
+  /**
+  * Handle dialog close
+  */
+  const handleClose = () => {
+    // Close dialog
+    dialogProps.onOpenChange(false);
+    
+    // Also dispatch close events
+    document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
+    document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+  };
 
   if (!isOpen) return null;
 
@@ -266,72 +289,85 @@ const handleClose = () => {
       }}
     >
       <DialogContent
-        className="jd-max-w-7xl jd-max-h-[90vh] jd-flex jd-flex-col jd-z-[10001] jd-border-primary/10 jd-shadow-2xl"
+        className={`jd-max-w-7xl jd-max-h-[90vh] jd-flex jd-flex-col jd-z-[10001] jd-shadow-2xl ${
+          isDarkMode 
+            ? "jd-bg-gray-900 jd-border-gray-700" 
+            : "jd-bg-white jd-border-gray-200"
+        }`}
         onClick={(e) => e.stopPropagation()}
         style={{ maxHeight: '90vh', overflow: 'auto' }}
       >
-        <DialogHeader>
-          <DialogTitle>{getMessage('customizeTemplate', [templateTitle])}</DialogTitle>
-          <DialogDescription>
-            {getMessage('customizeTemplateDesc')}
-          </DialogDescription>
-        </DialogHeader>
+        {/* Wrapper div with dark class when in dark mode */}
+        <div className={isDarkMode ? "dark" : ""} style={{ width: '100%' }}>
+          <DialogHeader>
+            <DialogTitle>{getMessage('customizeTemplate', [templateTitle])}</DialogTitle>
+            <DialogDescription>
+              {getMessage('customizeTemplateDesc')}
+            </DialogDescription>
+          </DialogHeader>
 
-        {error && (
-          <Alert variant="destructive" className="jd-mb-4">
-            <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-      <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden jd-w-full">
-        {/* Placeholders Section */}
-        <div className="jd-space-y-4 jd-overflow-auto">
-          <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('replacePlaceholders')}</h3>
-
-          {placeholders.length > 0 ? (
-            <ScrollArea className="jd-h-[50vh]">
-              <div className="jd-space-y-4 jd-pr-4">
-                {placeholders.map((placeholder, idx) => (
-                  <div key={placeholder.key + idx} className="jd-space-y-1">
-                    <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
-                      <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
-                    </label>
-                    <Input
-                      value={placeholder.value}
-                      onChange={(e) => updatePlaceholder(idx, e.target.value)}
-                      placeholder={getMessage('enterValueFor', [placeholder.key])}
-                      className="jd-w-full"
-                    />
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          ) : (
-            <div className="jd-text-muted-foreground jd-text-center jd-py-8">{getMessage('noPlaceholders')}</div>
+          {error && (
+            <Alert variant="destructive" className="jd-mb-4">
+              <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
-        </div>
 
-        {/* Rich Text Editable Section */}
-        <div className="jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
-          <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
-          <div
-            ref={editorRef}
-            contentEditable
-            suppressContentEditableWarning
-            className="jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 focus:outline-none focus:ring-2 focus:ring-primary jd-overflow-auto jd-whitespace-pre-wrap"
-            onClick={(e) => e.stopPropagation()} 
-            onMouseDown={(e) => e.stopPropagation()} 
-          ></div>
-        </div>
-      </div>
+          <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden jd-w-full">
+            {/* Placeholders Section */}
+            <div className="jd-space-y-4 jd-overflow-auto">
+              <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('replacePlaceholders')}</h3>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
-            {getMessage('cancel')}
-          </Button>
-          <Button onClick={handleComplete}>{getMessage('useTemplate')}</Button>
-        </DialogFooter>
+              {placeholders.length > 0 ? (
+                <ScrollArea className="jd-h-[50vh]">
+                  <div className="jd-space-y-4 jd-pr-4">
+                    {placeholders.map((placeholder, idx) => (
+                      <div key={placeholder.key + idx} className="jd-space-y-1">
+                        <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
+                          <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
+                        </label>
+                        <Input
+                          value={placeholder.value}
+                          onChange={(e) => updatePlaceholder(idx, e.target.value)}
+                          placeholder={getMessage('enterValueFor', [placeholder.key])}
+                          className="jd-w-full"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="jd-text-muted-foreground jd-text-center jd-py-8">{getMessage('noPlaceholders')}</div>
+              )}
+            </div>
+
+            {/* Rich Text Editable Section */}
+            <div className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
+              isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
+            }`}>
+              <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
+              <div
+                ref={editorRef}
+                contentEditable
+                suppressContentEditableWarning
+                className={`jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
+                  isDarkMode 
+                    ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
+                    : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
+                }`}
+                onClick={(e) => e.stopPropagation()} 
+                onMouseDown={(e) => e.stopPropagation()} 
+              ></div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={handleClose}>
+              {getMessage('cancel')}
+            </Button>
+            <Button onClick={handleComplete}>{getMessage('useTemplate')}</Button>
+          </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

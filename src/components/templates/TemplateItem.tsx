@@ -173,10 +173,10 @@ export function TemplateItem({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-blue-800 jd-bg-transparent  jd-rounded hover:jd-text-white hover:jd-bg-blue-600 jd-dark:jd-text-blue-200 jd-dark:jd-bg-transparent  jd-dark:hover:jd-text-black jd-dark:hover:jd-bg-blue-200"
+                    className="jd-p-0 jd-text-blue-800 jd-bg-transparent  jd-rounded hover:jd-text-white hover:jd-bg-blue-600 jd-dark:jd-text-blue-200 jd-dark:jd-bg-transparent  jd-dark:hover:jd-text-black jd-dark:hover:jd-bg-blue-200"
                     onClick={handleEditClick}
                   >
-                    <Edit className="jd-h-3.5 jd-w-3.5" />
+                    <Edit className="jd-h-4 jd-w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
@@ -194,10 +194,10 @@ export function TemplateItem({
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="jd-h-7 jd-w-7 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
+                    className="jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
                     onClick={handleDeleteClick}
                   >
-                    <Trash2 className="jd-h-3.5 jd-w-3.5" />
+                    <Trash2 className="jd-h-4 jd-w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">

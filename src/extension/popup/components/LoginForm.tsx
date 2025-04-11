@@ -107,10 +107,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               placeholder="you@example.com" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="pl-11 pr-4 py-2 bg-card/80 backdrop-blur-sm border-input focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all rounded-lg"
+              className="jd-pl-11 jd-pr-4 jd-py-2 jd-bg-card/80 jd-backdrop-blur-sm jd-border-input jd-focus:jd-ring-2 jd-focus:jd-ring-blue-500/20 jd-focus:jd-border-blue-500 jd-transition-all jd-rounded-lg"
               disabled={isLoggingIn}
             />
-            <div className="jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-muted-foreground group-focus-within:text-blue-500 jd-transition-colors">
+            <div className="jd-absolute jd-left-3 jd-top-1/2 -jd-translate-y-1/2 jd-text-muted-foreground group-focus-within:jd-text-blue-500 jd-transition-colors">
               <Mail className="jd-h-5 jd-w-5" />
             </div>
           </div>
@@ -121,7 +121,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             <Label htmlFor="password-signin" className="jd-font-medium jd-text-sm">
               {getMessage('password', undefined, 'Password')}
             </Label>
-            <Button variant="link" className="jd-p-0 jd-h-auto jd-text-xs jd-text-blue-500 hover:text-blue-400 jd-transition-colors">
+            <Button variant="link" className="jd-p-0 jd-h-auto jd-text-xs jd-text-blue-500 hover:jd-text-blue-400 jd-transition-colors">
               {getMessage('forgotPassword', undefined, 'Forgot?')}
             </Button>
           </div>
@@ -132,7 +132,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               placeholder="••••••••" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="pl-11 pr-4 py-2 bg-card/80 backdrop-blur-sm border-input focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all rounded-lg"
+              className="jd-pl-11 jd-pr-4 jd-py-2 jd-bg-card/80 jd-backdrop-blur-sm jd-border-input jd-focus:jd-ring-2 jd-focus:jd-ring-blue-500/20 jd-focus:jd-border-blue-500 jd-transition-all jd-rounded-lg"
               disabled={isLoggingIn}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -140,7 +140,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 }
               }}
             />
-            <div className="jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-muted-foreground group-focus-within:text-blue-500 jd-transition-colors">
+            <div className="jd-absolute jd-left-3 jd-top-1/2 -jd-translate-y-1/2 jd-text-muted-foreground group-focus-within:jd-text-blue-500 jd-transition-colors">
               <Lock className="jd-h-5 jd-w-5" />
             </div>
           </div>
@@ -189,8 +189,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         >
           <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-red-500/5 jd-via-blue-500/5 jd-to-green-500/5 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-500"></div>
           <span className="jd-flex jd-items-center jd-justify-center jd-relative jd-z-10">
-            <div className="jd-p-1.5 jd-bg-white jd-rounded-full jd-shadow-sm jd-mr-3 group-hover:jd-shadow group-hover:jd-scale-110 jd-transition-all jd-duration-300">
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="jd-h-4 jd-w-4" />
+            {/* Fixed Google icon container */}
+            <div className="jd-flex jd-items-center jd-justify-center jd-w-6 jd-h-6 jd-bg-white jd-rounded-full jd-shadow-sm jd-mr-3 group-hover:jd-shadow group-hover:jd-scale-110 jd-transition-all jd-duration-300 jd-overflow-hidden">
+              <img 
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+                alt="Google" 
+                className="jd-h-4 jd-w-4 jd-object-contain" 
+                style={{ display: 'block' }}
+              />
             </div>
             <span className="jd-font-medium">{getMessage('signInWith', ['Google'], 'Sign in with Google')}</span>
           </span>
