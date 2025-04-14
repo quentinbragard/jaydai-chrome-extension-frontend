@@ -240,14 +240,6 @@ const WelcomePage: React.FC = () => {
                   >
                     {getMessage('signIn', undefined, 'Sign in')} <LogIn className="jd-w-4 jd-h-4 jd-ml-1" />
                   </Button>
-                  
-                  <Button 
-                    size="lg" 
-                    className="jd-gap-2 jd-bg-blue-600 hover:jd-bg-blue-700 jd-min-w-32 jd-font-heading"
-                    onClick={handleGetStarted}
-                  >
-                    {getMessage('getStarted', undefined, 'Get started')} <MoveRight className="jd-w-4 jd-h-4 jd-ml-1" />
-                  </Button>
                 </div>
                 <DialogContent className="sm:jd-max-w-md jd-bg-gray-950 jd-border-gray-800">
                   <AuthModal 

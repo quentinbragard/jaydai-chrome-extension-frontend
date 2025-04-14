@@ -316,9 +316,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   placeholder="you@example.com" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
+                  className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
                 />
-                <Mail className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
               </div>
             </div>
             <div className="jd-space-y-1">
@@ -332,9 +331,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
+                  className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
                 />
-                <Lock className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
               </div>
             </div>
           </div>
@@ -396,9 +394,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 placeholder="John Doe" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
+                className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
               />
-              <User className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
             </div>
           </div>
           
@@ -413,9 +410,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 placeholder="you@example.com" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
+                className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
               />
-              <Mail className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
             </div>
           </div>
           
@@ -430,9 +426,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 placeholder="••••••••" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="jd-pl-10 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
+                className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
               />
-              <Lock className="jd-h-5 jd-w-5 jd-absolute jd-left-3 jd-top-1/2 jd-translate-y-1/2 jd-text-gray-400" />
             </div>
           </div>
         </div>
