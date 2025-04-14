@@ -340,7 +340,7 @@ export const PlaceholderEditor: React.FC = () => {
           </div>
         </div>
 
-        <div className="jd-mt-4 jd-flex jd-justify-end">
+        <div className="jd-mt-4 jd-flex jd-justify-end jd-gap-2">
           <Button variant="outline" onClick={handleClose}>
             {getMessage('cancel')}
           </Button>

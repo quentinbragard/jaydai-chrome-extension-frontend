@@ -1,48 +1,71 @@
 "use client"
 
 import * as React from "react"
-import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
-
 import { cn } from "@/core/utils/classNames"
 
+/**
+ * A simple native scroll area that works reliably in Shadow DOM
+ * Uses the browser's native scrolling behavior instead of trying to create a custom scrollbar
+ */
 const ScrollArea = React.forwardRef<
-  React.ElementRef<typeof ScrollAreaPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
->(({ className, children, ...props }, ref) => (
-  <ScrollAreaPrimitive.Root
-    ref={ref}
-    className={cn("jd-relative jd-overflow-hidden", className)}
-    {...props}
-  >
-    <ScrollAreaPrimitive.Viewport className="jd-h-full jd-w-full jd-rounded-[inherit]">
-      {children}
-    </ScrollAreaPrimitive.Viewport>
-    <ScrollBar />
-    <ScrollAreaPrimitive.Corner />
-  </ScrollAreaPrimitive.Root>
-))
-ScrollArea.displayName = ScrollAreaPrimitive.Root.displayName
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & {
+    viewportClassName?: string;
+    thumbClassName?: string;
+  }
+>(({ className, children, viewportClassName, thumbClassName, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className={cn("jd-relative jd-overflow-hidden", className)}
+      {...props}
+    >
+      <div 
+        className={cn(
+          "jd-h-full jd-w-full jd-overflow-auto jd-scrollbar-thin jd-scrollbar-thumb-rounded",
+          "jd-scrollbar jd-scrollbar-track-transparent", 
+          viewportClassName
+        )}
+        style={{
+          // Add some custom scrollbar styling that works in Shadow DOM
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'var(--border) transparent'
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
+    </div>
+  )
+})
+ScrollArea.displayName = "ScrollArea"
 
-const ScrollBar = React.forwardRef<
-  React.ElementRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
-  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>
->(({ className, orientation = "vertical", ...props }, ref) => (
-  <ScrollAreaPrimitive.ScrollAreaScrollbar
-    ref={ref}
-    orientation={orientation}
-    className={cn(
-      "jd-flex jd-touch-none jd-select-none jd-transition-colors",
-      orientation === "vertical" &&
-        "jd-h-full jd-w-2.5 jd-border-l jd-border-l-transparent jd-p-[1px]",
-      orientation === "horizontal" &&
-        "jd-h-2.5 jd-flex-col jd-border-t jd-border-t-transparent jd-p-[1px]",
-      className
-    )}
-    {...props}
-  >
-    <ScrollAreaPrimitive.ScrollAreaThumb className="jd-relative jd-flex-1 jd-rounded-full jd-bg-border" />
-  </ScrollAreaPrimitive.ScrollAreaScrollbar>
-))
-ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName
+/**
+ * A simple horizontal scroll area
+ */
+const ScrollAreaHorizontal = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, children, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className={cn("jd-relative jd-overflow-hidden", className)}
+      {...props}
+    >
+      <div 
+        className="jd-h-full jd-w-full jd-overflow-x-auto jd-overflow-y-hidden jd-scrollbar-thin jd-scrollbar-thumb-rounded"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'var(--border) transparent'
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
+    </div>
+  )
+})
+ScrollAreaHorizontal.displayName = "ScrollAreaHorizontal"
 
-export { ScrollArea, ScrollBar }
+export { ScrollArea, ScrollAreaHorizontal }
