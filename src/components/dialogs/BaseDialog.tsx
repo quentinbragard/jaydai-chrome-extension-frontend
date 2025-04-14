@@ -30,8 +30,10 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
         className={cn(
           "jd-w-full jd-max-w-7xl jd-max-h-[90vh] jd-overflow-hidden jd-bg-background jd-text-primary", 
           className
-        )} 
-        onClick={(e) => e.stopPropagation()}
+        )}
+        // Remove stopPropagation to allow proper event bubbling for inputs
+        // while still preventing dialog closure on content click
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="jd-flex jd-flex-col jd-h-full">
           {title && <h2 className="jd-mb-2">{getMessage(title, undefined, title)}</h2>}

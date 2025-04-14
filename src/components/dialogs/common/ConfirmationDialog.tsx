@@ -38,6 +38,7 @@ export const ConfirmationDialog: React.FC = () => {
       onOpenChange={dialogProps.onOpenChange}
       title={title}
       description={description}
+      className="jd-max-w-md"
     >
       <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
         <div className="jd-flex jd-justify-end jd-space-x-2">
@@ -47,7 +48,6 @@ export const ConfirmationDialog: React.FC = () => {
           <Button onClick={handleConfirm}>
             {confirmText}
           </Button>
-          <p className="jd-text-sm jd-text-muted-foreground"> dfkliwnrwiv</p>
         </div>
       </div>
     </BaseDialog>
