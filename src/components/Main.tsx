@@ -109,7 +109,78 @@ const Main: React.FC = () => {
                 {/* UI Components */}
                 <MainButton />
                 {/* Toast notifications */}
-                <Toaster richColors position="top-right" />
+                <div className="jd-fixed jd-top-4 jd-right-4 jd-z-[9999] jd-pointer-events-none jd-bg-transparent">
+                <Toaster 
+                  richColors 
+                  position="top-right"
+                  closeButton={true}
+                  className="jd-toaster jd-group jd-pointer-events-auto"
+                  toastOptions={{
+                    classNames: {
+                      toast: `
+                        jd-group jd-toast 
+                        jd-bg-background 
+                        jd-text-foreground 
+                        jd-border 
+                        jd-border-[var(--border)] 
+                        jd-border-l-4 
+                        jd-border-l-[var(--primary)] 
+                        jd-shadow-lg 
+                        jd-rounded-xl 
+                        jd-p-4 
+                        jd-max-w-xs 
+                        jd-w-full 
+                        jd-relative 
+                        jd-overflow-hidden
+                        jd-transition-all 
+                        jd-duration-300 
+                        jd-ease-out
+                        dark:jd-border-[var(--border)]
+                        dark:jd-border-l-[var(--foreground)]
+                        jd-flex 
+                        jd-items-center 
+                        jd-gap-3
+                      `,
+                      title: "jd-font-semibold jd-text-sm jd-text-[var(--foreground)]",
+                      description: "jd-text-xs jd-text-[var(--muted-foreground)]",
+                      closeButton: `
+                        jd-text-[var(--muted-foreground)] 
+                        hover:jd-text-[var(--foreground)] 
+                        jd-transition-colors 
+                        jd-duration-200 
+                        jd-rounded-full 
+                        jd-p-1 
+                        hover:jd-bg-[var(--accent)] 
+                        dark:hover:jd-bg-[var(--accent)]
+                      `,
+                      actionButton: `
+                        jd-bg-[var(--primary)] 
+                        jd-text-[var(--primary-foreground)] 
+                        jd-rounded-md 
+                        jd-px-3 
+                        jd-py-1.5 
+                        jd-text-sm 
+                        jd-font-medium 
+                        hover:jd-bg-[var(--primary)]/90 
+                        jd-transition-colors
+                        dark:hover:jd-opacity-90
+                      `,
+                      cancelButton: `
+                        jd-bg-[var(--secondary)] 
+                        jd-text-[var(--secondary-foreground)] 
+                        jd-rounded-md 
+                        jd-px-3 
+                        jd-py-1.5 
+                        jd-text-sm 
+                        jd-font-medium 
+                        hover:jd-bg-[var(--secondary)]/90 
+                        jd-transition-colors
+                        dark:hover:jd-opacity-90
+                      `,
+                    },
+                  }}
+                />
+              </div>
               </DialogProvider>
             </QueryProvider>
           </ThemeProvider>

@@ -42,9 +42,9 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   return (
     <div 
       className={`
-        jd-group jd-relative jd-flex jd-flex-col jd-p-3 jd-border-b jd-border-gray-700 
+        jd-group jd-relative jd-flex jd-flex-col jd-p-3 jd-border-b jd-border-[var(--border)] 
         ${isRead ? 'jd-bg-background' : 'jd-bg-background/50'} 
-        hover:jd-bg-gray-700 
+        hover:jd-bg-[var(--secondary)] 
         jd-transition-colors jd-duration-200 jd-cursor-pointer
       `}
     >
@@ -59,7 +59,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         <div className="jd-flex-1">
           {/* Title row with timestamp */}
           <div className="jd-flex jd-justify-between jd-items-start jd-mb-1">
-            <h4 className={`jd-text-sm jd-font-medium jd-pr-12 ${isRead ? 'jd-text-gray-300' : 'jd-text-white'}`}>
+            <h4 className={`jd-text-sm jd-font-medium jd-pr-12 ${isRead ? 'jd-text-gray-500' : 'jd-text-foreground'}`}>
               {notification.title}
             </h4>
             <span className="jd-text-xs jd-text-gray-500 jd-whitespace-nowrap jd-flex-shrink-0">
@@ -68,7 +68,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           </div>
           
           {/* Message body */}
-          <p className={`jd-text-sm jd-mt-1 ${isRead ? 'jd-text-gray-400' : 'jd-text-gray-300'}`}>
+          <p className={`jd-text-sm jd-mt-1 ${isRead ? 'jd-text-gray-500' : 'jd-text-gray-700'}`}>
             {notification.body}
           </p>
           
@@ -105,7 +105,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                   }}
                   title="Mark as read"
                 >
-                  <Check className="jd-h-4 jd-w-4 jd-text-green-400" />
+                  <Check className="jd-h-4 jd-w-4 jd-text-green-500" />
                 </Button>
               )}
               
@@ -119,7 +119,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                 }}
                 title="Delete notification"
               >
-                <Trash2 className="jd-h-4 jd-w-4 jd-text-red-400" />
+                <Trash2 className="jd-h-4 jd-w-4 jd-text-[var(--destructive)]" />
               </Button>
             </div>
           </div>

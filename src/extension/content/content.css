@@ -6,61 +6,90 @@
 
 /* Define CSS variables directly on :host for light mode */
 :host {
-  color-scheme: inherit;
   /* Base Variables - Light Theme */
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  --background: #ffffff;       /* Keeping your background */
+  --foreground: #1a1d2b;       /* Slightly softer black with blue undertone */
+  
+  /* Primary Colors */
+  --primary: #3b4cb8;          /* Rich indigo - more sophisticated than black */
+  --primary-foreground: #ffffff;
+  
+  /* Secondary Colors */
+  --secondary: #f3f4f8;        /* Subtle light gray with blue hint */
+  --secondary-foreground: #3b4cb8;
+  
+  /* Accent Colors */
+  --accent: #f0f2ff;           /* Very light indigo */
+  --accent-foreground: #3b4cb8;
+  
+  /* Supporting Colors */
+  --muted: #f0f2f7;
+  --muted-foreground: #6b7280;
   --card: #ffffff;
-  --card-foreground: #0a0a0a;
+  --card-foreground: #1a1d2b;
   --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-  --primary: #171717;
-  --primary-foreground: #fafafa;
-  --secondary: #f5f5f5;
-  --secondary-foreground: #171717;
-  --muted: #f5f5f5;
-  --muted-foreground: #737373;
-  --accent: #f5f5f5;
-  --accent-foreground: #171717;
-  --destructive: #f04438;
-  --destructive-foreground: #fafafa;
-  --border: #e5e5e5;
-  --input: #e5e5e5;
-  --ring: #0a0a0a;
-  --chart-1: #ec8f62;
-  --chart-2: #3f8f85;
-  --chart-3: #26404c;
-  --chart-4: #f0c25f;
-  --chart-5: #f7a548;
+  --popover-foreground: #1a1d2b;
+  
+  /* Feedback Colors */
+  --destructive: #e54256;      /* More elegant red */
+  --destructive-foreground: #ffffff;
+  
+  /* Border & UI Elements */
+  --border: #e9ecf3;           /* Subtle blue-gray border */
+  --input: #e9ecf3;
+  --ring: #3b4cb8;
+  
+  /* Chart Colors - Refined elegant palette */
+  --chart-1: #3b4cb8;          /* Primary indigo */
+  --chart-2: #4a9d9a;          /* Teal */
+  --chart-3: #c86b85;          /* Dusty rose */
+  --chart-4: #e9b949;          /* Gold */
+  --chart-5: #7a5195;          /* Purple */
+
   --radius: 0.5rem;
 }
 
 /* Apply dark mode variables directly to :host when it has the dark class */
 :host(.dark) {
-  --background: #030816;
-  --foreground: #f0f8ff;
-  --card: #0a0a0a;
-  --card-foreground: #fafafa;
-  --popover: #0a0a0a;
-  --popover-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #171717;
-  --secondary: #262626;
-  --secondary-foreground: #fafafa;
-  --muted: #262626;
-  --muted-foreground: #a3a3a3;
-  --accent: #262626;
-  --accent-foreground: #fafafa;
-  --destructive: #812b2b;
-  --destructive-foreground: #fafafa;
-  --border: #262626;
-  --input: #262626;
-  --ring: #d4d4d4;
-  --chart-1: #2962ff;
-  --chart-2: #32b39c;
-  --chart-3: #f28b42;
-  --chart-4: #c673db;
-  --chart-5: #e3497a;
+  /* Base Variables - Dark Theme */
+  --background: #030816;       /* Keeping your background */
+  --foreground: #eef1f8;       /* Off-white with blue hint */
+  
+  /* Primary Colors */
+  --primary: #6d7ce6;          /* Lighter indigo for dark mode */
+  --primary-foreground: #030816;
+  
+  /* Secondary Colors */
+  --secondary: #1a1f36;        /* Dark blue-gray */
+  --secondary-foreground: #eef1f8;
+  
+  /* Accent Colors */
+  --accent: #1d2442;           /* Deep indigo accent */
+  --accent-foreground: #eef1f8;
+  
+  /* Supporting Colors */
+  --muted: #181d30;
+  --muted-foreground: #9ca8c2;
+  --card: #0c1023;
+  --card-foreground: #eef1f8;
+  --popover: #0c1023;
+  --popover-foreground: #eef1f8;
+  
+  /* Feedback Colors */
+  --destructive: #e86981;      /* Brighter red for dark mode */
+  --destructive-foreground: #030816;
+  
+  /* Border & UI Elements */
+  --border: #1a1f36;
+  --input: #1a1f36;
+  --ring: #6d7ce6;
+  
+  /* Chart Colors - Coordinated with light theme but adjusted for dark mode */
+  --chart-1: #6d7ce6;          /* Lighter indigo */
+  --chart-2: #56c2c0;          /* Brighter teal */
+  --chart-3: #e295ad;          /* Lighter rose */
+  --chart-4: #ffd166;          /* Brighter gold */
+  --chart-5: #9f78c5;          /* Lighter purple */
 }
 
 /* Custom animations that were defined in your original CSS */

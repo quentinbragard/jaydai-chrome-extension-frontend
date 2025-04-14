@@ -95,7 +95,6 @@ const MainButton = () => {
             )}
           </div>
         </div>
-        <Toaster richColors position="top-right" />
       </div>
     </ErrorBoundary>
   );
