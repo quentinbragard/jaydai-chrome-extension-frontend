@@ -31,7 +31,7 @@ const StatCard: React.FC<StatCardProps> = ({
   return (
     <div 
       className={cn(
-        "jd-flex jd-items-center jd-gap-2 jd-p-3 jd-stat-card jd-rounded-md jd-transition-all", 
+        "jd-flex jd-items-center jd-gap-1 jd-p-1 jd-stat-card jd-rounded-md jd-transition-all", 
         isClickable && "jd-cursor-pointer hover:jd-bg-accent/50",
         className
       )}

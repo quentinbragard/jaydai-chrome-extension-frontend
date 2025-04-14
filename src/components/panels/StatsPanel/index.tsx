@@ -1,4 +1,3 @@
-// src/components/panels/StatsPanel/index.tsx
 import React, { useState, useEffect } from 'react';
 import { BarChart2, Zap, MessageCircle, Award, Activity, ExternalLink, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -120,7 +119,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
           showBackButton={showBackButton}
           onBack={onBack}
           onClose={onClose}
-          className={`jd-stats-panel jd-w-80 ${className || ''}`}
+          className={`jd-stats-panel jd-w-80 ${className || ''}`} // Panel width is w-80 (320px)
           maxHeight={maxHeight}
         >
           {stats.totalChats === 0 && stats.totalMessages === 0 ? (
@@ -133,9 +132,9 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
             </div>
           ) : (
             <>
-              {/* Top cards */}
-              <div className="jd-flex jd-items-center jd-justify-between jd-mb-4 jd-px-8 jd-gap-4 jd-w-full">
-              <StatsCard 
+              {/* Top cards - Reduced padding and gap, centered justification */}
+              <div className="jd-flex jd-items-center jd-justify-center jd-mb-4 jd-px-4 jd-gap-2 jd-w-full"> {/* CHANGED: px-8->px-4, gap-4->gap-2, justify-between->justify-center */}
+                <StatsCard 
                   icon={<MessageCircle className="jd-h-3.5 jd-w-3.5" />} 
                   value={stats.totalChats > 20 ? "20+" : stats.totalChats} 
                   color="jd-text-blue-500"
@@ -166,44 +165,22 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                   value={`${stats.recentChats} chats`} 
                   icon={<Activity className="jd-h-3.5 jd-w-3.5" />} 
                   progress={stats.totalChats ? stats.recentChats / (stats.totalChats * 0.2) * 100 : 0}
-                  progressColor="jd-text-3b82f6"
+                  progressColor="jd-text-3b82f6" // Note: This should likely be a Tailwind class like text-blue-500
                   tooltip="Conversations in the last 7 days"
                 />
                 
-                {/* Improved Energy Equivalent Display 
+                {/* Energy Equivalent Display - Uncomment if needed
                 {stats.energyUsage?.equivalent && (
-                  <div className="mb-3 last:mb-1 bg-gradient-to-r from-green-50 to-green-100 jd-dark:from-green-900/30 jd-dark:to-green-900/20 rounded-md px-3 py-2.5">
-                    <div className="jd-flex jd-items-start">
-                      <Zap className="jd-h-4 jd-w-4 jd-mr-2 jd-text-green-600 jd-dark:jd-text-green-400 jd-flex-shrink-0 jd-mt-0.5" />
-                      <div>
-                        <div className="jd-flex jd-items-center">
-                          <span className="jd-text-xs jd-font-medium jd-text-green-800 jd-dark:jd-text-green-300 jd-mr-1">
-                            {getMessage('energyEquivalent', undefined, 'Energy Equivalent')}
-                          </span>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Info className="jd-h-3 jd-w-3 jd-text-green-600 jd-dark:jd-text-green-400 jd-cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="jd-max-w-xs jd-text-xs">{getMessage('energyEquivalentHelp', undefined, 'This shows what your AI energy usage is equivalent to in everyday terms')}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <p className="jd-text-sm jd-text-green-800 jd-dark:jd-text-green-200 jd-mt-1 jd-font-medium">
-                          {stats.energyUsage.equivalent}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  // ... equivalent display code ...
                 )}
-                  */}
+                */}
                 
                 <StatsDetailRow 
                   label={getMessage('messagingEfficiency', undefined, 'Messages Per Conversation')} 
                   value={stats.avgMessagesPerChat.toFixed(1)} 
                   icon={<MessageCircle className="jd-h-3.5 jd-w-3.5" />} 
                   progress={Math.min(100, stats.avgMessagesPerChat * 10)}
-                  progressColor="#3b82f6"
+                  progressColor="text-blue-500" // Example: Use Tailwind class
                   tooltip="Average number of messages exchanged per conversation"
                 />
                 
@@ -212,7 +189,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                   value={`${stats.thinkingTime.average.toFixed(1)}s`} 
                   icon={<Award className="jd-h-3.5 jd-w-3.5" />} 
                   progress={Math.min(100, 100 - (stats.thinkingTime.average * 5))}
-                  progressColor="#10b981"
+                  progressColor="text-green-500" // Example: Use Tailwind class
                   tooltip="Average time it takes to get a response"
                 />
                 
@@ -221,7 +198,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                   value={`${(stats.tokenUsage.recentInput + stats.tokenUsage.recentOutput).toLocaleString()}`} 
                   icon={<BarChart2 className="jd-h-3.5 jd-w-3.5" />} 
                   progress={stats.tokenUsage.total ? Math.min(100, (stats.tokenUsage.recentInput + stats.tokenUsage.recentOutput) / (stats.tokenUsage.total * 0.1) * 100) : 0}
-                  progressColor="#6366f1"
+                  progressColor="text-indigo-500" // Example: Use Tailwind class
                   tooltip="Tokens used in the last 7 days"
                 />
                 
