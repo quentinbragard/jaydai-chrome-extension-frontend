@@ -17,7 +17,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const logo = chrome.runtime.getURL('images/full-logo-white.png');
   return (
     <CardHeader className="jd-pb-2 jd-relative jd-overflow-hidden">
-      <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-indigo-600 jd-to-blue-500 jd-opacity-90 jd-bg-animate"></div>
+      <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-indigo-600 jd-to-blue-500 jd-opacity-90 jd-bg-animate jd-rounded-lg"></div>
       <div className="jd-absolute jd-inset-0 jd-bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDUwMCA1MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwMC44NzYgMTYwLjAwOGM2LjgxOCA2LjgxOCAxNi4xMTQgMTEuMDM5IDI2LjQxNCAxMS4wMzlzMTkuNTk2LTQuMjIxIDI2LjQxNC0xMS4wMzlsLjAwMS0uMDAxYzYuODE5LTYuODE4IDExLjA0MS0xNi4xMTQgMTEuMDQxLTI2LjQxNCAwLTEwLjMtNC4yMjItMTkuNTk3LTExLjA0MS0yNi40MTYtNi44MTgtNi44MTgtMTYuMTE0LTExLjA0LTI2LjQxNC0xMS4wNC0xMC4zIDAtMTkuNTk2IDQuMjIyLTI2LjQxNCAxMS4wNGwtLjAwMi4wMDFjLTYuODE4IDYuODE5LTExLjAzOSAxNi4xMTQtMTEuMDM5IDI2LjQxNCAwIDEwLjMgNC4yMjEgMTkuNTk2IDExLjAzOSAyNi40MTRsLjAwMS4wMDFaIiBmaWxsPSIjZmZmZmZmMTAiLz48cGF0aCBkPSJNMjU2IDMwNmM4LjI4NCAwIDE1LTYuNzE2IDE1LTE1IDAtOC4yODQtNi43MTYtMTUtMTUtMTVzLTE1IDYuNzE2LTE1IDE1YzAgOC4yODQgNi43MTYgMTUgMTUgMTVaIiBmaWxsPSIjZmZmZmZmMTAiLz48cGF0aCBkPSJNMTg4IDM3MC41YzAgMTEuODc0IDkuNjI2IDIxLjUgMjEuNSAyMS41UzIzMSAzODIuMzc0IDIzMSAzNzAuNSAyMjEuMzc0IDM0OSAyMDkuNSAzNDkgMTg4IDM1OC42MjYgMTg4IDM3MC41WiIgZmlsbD0iI2ZmZmZmZjEwIi8+PHBhdGggZD0iTTMxNCAyODVjMCA0LjQ0Mi0zLjU1OCA4LTggOHMtOC0zLjU1OC04LTggMy41NTgtOCA4LTggOCAzLjU1OCA4IDhaIiBmaWxsPSIjZmZmZmZmMTAiLz48L3N2Zz4=')] bg-cover opacity-50"></div>
       
       {/* Add geometric shapes for modern touch */}

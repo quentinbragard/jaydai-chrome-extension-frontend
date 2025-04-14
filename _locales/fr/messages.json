@@ -235,17 +235,9 @@
     "message": "En vous inscrivant, vous acceptez nos Conditions d'Utilisation et notre Politique de Confidentialité.",
     "description": "Texte d'accord des conditions"
   },
-  "Templates": {
-    "message": "Templates",
-    "description": "Élément de menu templates"
-  },
   "menu": {
     "message": "Menu",
     "description": "Title for menu panel"
-  },
-  "Templates": {
-    "message": "Templates",
-    "description": "Menu item for templates"
   },
   "aiStats": {
     "message": "Statistiques IA",
@@ -1151,7 +1143,7 @@
     "description": "Message de confirmation pour la suppression de dossier"
   },
   "Templates": {
-    "message": "Templates de l'entreprise",
+    "message": "Templates",
     "description": "Titre pour la section des templates de l'entreprise"
   },
   "noPinnedOrganizationTemplates": {
@@ -1313,7 +1305,7 @@
     "description": "Message shown when user's account is ready"
   },
   "loggedInAs": {
-    "message": "Vous êtes connecté en tant que $1$. Vous pouvez maintenant lancer des outils d'IA avec des capacités améliorées.",
+    "message": "Vous êtes connecté en tant que $1. Vous pouvez maintenant lancer des outils d'IA avec des capacités améliorées.",
     "description": "Message showing the logged in user's email or name",
     "placeholders": {
       "1": {
@@ -1373,5 +1365,29 @@
   "popular_template": {
     "message": "Ce template est fréquemment utilisé",
     "description": "Popular template text"
-  }
+  },
+  "enterValueFor": {
+    "message": "Entrez la valeur pour $1",
+    "description": "Placeholder text for placeholder input field"
+  },
+  "templateProcessingError": {
+    "message": "Erreur lors du traitement du template. Veuillez réessayer.",
+    "description": "Error message when template processing fails"
+  },
+  "followOnLinkedin": {
+    "message": "Suivez-nous sur LinkedIn",
+    "description": "Text for the LinkedIn follow button"
+  },
+  "bug_fixes_notification_title": {
+  "message": "Bugs corrigés",
+  "description": "Title for bug fixes notification"
+},
+"bug_fixes_notification_body": {
+  "message": "Nous nous excusons pour les premiers bugs que vous avez pu avoir. Nous venons de tout corriger, n'hésitez pas à nous contacter si vous en rencontrez d'autres.",
+  "description": "Body text for bug fixes notification"
+},
+"bugFixes": {
+  "message": "Continuer",
+  "description": "Button text to acknowledge bug fixes"
+}
 }

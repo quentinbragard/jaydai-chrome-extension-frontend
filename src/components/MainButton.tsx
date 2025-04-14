@@ -44,7 +44,7 @@ const MainButton = () => {
 
   return (
     <ErrorBoundary>
-      <div className="jd-fixed jd-bottom-6 jd-right-8 jd-[9999]">
+      <div className="jd-fixed jd-bottom-6 jd-right-8">
         <div className="jd-relative">
           {/* Panel Manager */}
           <PanelManager
@@ -55,7 +55,7 @@ const MainButton = () => {
           />
 
           {/* Main Button with logo */}
-          <div className="jd-relative jd-w-16 jd-h-16">
+          <div className="jd-relative jd-w-20 jd-h-20">
             <Button 
               ref={buttonRef}
               onClick={toggleMenu}
@@ -78,7 +78,7 @@ const MainButton = () => {
             {/* Notification Badge */}
             {notificationCount > 0 && !isOpen && (
               <span 
-                className="jd-absolute -jd-top-1 -jd-right-1 
+                className="jd-absolute jd-top-1 jd-right-1 
                   jd-bg-red-500 jd-text-white 
                   jd-text-xs jd-font-semibold 
                   jd-rounded-full 

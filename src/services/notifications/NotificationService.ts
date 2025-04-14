@@ -556,6 +556,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
    * Get action button details for a notification
    */
   public getActionButton(notification: NotificationBase): { title: string; visible: boolean } | null {
+    console.log("notification METADATA===========", notification.metadata);
     if (!notification.metadata) {
       return null;
     }

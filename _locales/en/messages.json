@@ -1307,7 +1307,7 @@
     }
   },
   "enterValueFor": {
-    "message": "Enter value for $PLACEHOLDER$",
+    "message": "Enter value for $1",
     "description": "Placeholder text for placeholder input field",
     "placeholders": {
       "placeholder": {
@@ -1329,7 +1329,7 @@
     "description": "Message shown when user's account is ready"
   },
   "loggedInAs": {
-    "message": "You're logged in as $1$. You can now launch AI tools with enhanced capabilities.",
+    "message": "You're logged in as $1. You can now launch AI tools with enhanced capabilities.",
     "description": "Message showing the logged in user's email or name",
     "placeholders": {
       "1": {
@@ -1389,5 +1389,21 @@
   "popular_template": {
     "message": "This template is frequently used",
     "description": "Popular template text"
-  }
+  },
+  "followOnLinkedin": {
+    "message": "Follow on LinkedIn",
+    "description": "Text for the LinkedIn follow button"
+  },
+  "bug_fixes_notification_title": {
+  "message": "Bugs FIxed",
+  "description": "Title for bug fixes notification"
+},
+"bug_fixes_notification_body": {
+  "message": "We apologize for any inconvenience. Several issues have been resolved to enhance your experience. Your feedback helps us improve.",
+  "description": "Body text for bug fixes notification"
+},
+"bugFixes": {
+  "message": "Continue",
+  "description": "Button text to acknowledge bug fixes"
+}
 }
