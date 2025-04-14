@@ -16,46 +16,68 @@ export const ToolCard: React.FC<ToolCardProps> = ({
   onClick
 }) => {
   return (
-    <div className="jd-relative jd-group jd-perspective">
-      <div className={`jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-${tool.color} jd-rounded-lg jd-m-0.5 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-300`}></div>
+    <div className="jd-relative jd-group jd-perspective jd-mb-3">
+      {/* Enhanced background glow effect */}
+      <div 
+        className={`jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-${tool.color} jd-rounded-lg jd-m-0.5 
+                   jd-opacity-0 group-hover:jd-opacity-100 jd-transition-all jd-duration-300
+                   jd-blur-[2px] group-hover:jd-blur-[1px] jd-scale-[0.97] group-hover:jd-scale-100`}
+      />
+      
       <Button 
         variant="default"
-        className={`jd-w-full jd-justify-start jd-py-7 jd-relative jd-bg-card/95 jd-border-none jd-shadow-sm hover:jd-shadow-md jd-transition-all jd-card-3d ${tool.disabled ? 'jd-opacity-80 hover:jd-opacity-80 jd-cursor-not-allowed' : ''}`}
+        className={`jd-w-full jd-justify-start jd-py-6 jd-px-4 jd-relative 
+                   jd-bg-card/95 jd-border jd-border-gray-800/30 
+                   jd-shadow-sm hover:jd-shadow-lg jd-rounded-lg
+                   jd-transition-all jd-duration-300 jd-ease-out
+                   group-hover:jd-translate-y-[-2px] group-hover:jd-border-gray-700/50
+                   ${tool.disabled ? 'jd-opacity-80 hover:jd-opacity-80 jd-cursor-not-allowed' : ''}`}
         onClick={onClick}
         disabled={tool.disabled}
       >
-        <div className="jd-flex jd-items-center jd-w-full">
-          <div className="jd-flex-shrink-0 jd-mr-3 jd-p-1.5 jd-bg-gradient-to-br jd-from-background/80 jd-to-background jd-rounded-md jd-tool-icon">
+        <div className="jd-flex jd-items-center jd-w-full jd-gap-3">
+          {/* Enhanced icon container */}
+          <div className={`jd-flex-shrink-0 jd-p-2 jd-rounded-md
+                         jd-transition-all jd-duration-300
+                         jd-bg-gradient-to-br jd-from-background/90 jd-to-background
+                         group-hover:jd-shadow-md jd-shadow-sm
+                         jd-border jd-border-gray-800/40 group-hover:jd-border-gray-700/70
+                         ${!tool.disabled ? 'group-hover:jd-scale-110' : ''}`}>
             {tool.icon}
           </div>
-          <div className="jd-flex-grow jd-text-left">
-            <div className="jd-font-semibold jd-text-foreground">{tool.name}</div>
-            <div className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-[160px]">
+          
+          {/* Text content */}
+          <div className="jd-flex-grow jd-text-left jd-overflow-hidden">
+            <div className="jd-font-semibold jd-text-foreground group-hover:jd-text-white jd-transition-colors jd-duration-300">
+              {tool.name}
+            </div>
+            <div className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-[160px] group-hover:jd-text-gray-300 jd-transition-colors jd-duration-300">
               {tool.description}
             </div>
           </div>
-          <div className="jd-flex-shrink-0 jd-ml-2 jd-text-muted-foreground">
+          
+          {/* Right icon/status */}
+          <div className="jd-flex-shrink-0 jd-ml-1 jd-text-muted-foreground jd-opacity-70 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-300">
             {!tool.disabled ? (
-              <ChevronRight className="jd-h-4 jd-w-4" />
+              <div className="jd-p-1 jd-rounded-full jd-bg-gray-800/50 group-hover:jd-bg-blue-600/20 jd-transition-colors jd-duration-300">
+                <ChevronRight className="jd-h-4 jd-w-4 group-hover:jd-text-blue-400 jd-transition-colors jd-duration-300" />
+              </div>
             ) : (
-              <span className="jd-text-xs">{getMessage('comingSoon')}</span>
+              <span className="jd-text-[10px] jd-font-medium jd-opacity-60">
+                {getMessage('comingSoon', undefined, 'Coming Soon')}
+              </span>
             )}
           </div>
         </div>
+        
+        {/* Decorative elements */}
         {!tool.disabled && (
-          <div className="jd-absolute jd-top-0 jd-left-0 jd-w-full jd-h-full jd-overflow-hidden jd-rounded-lg jd-pointer-events-none">
-            <div className="jd-absolute jd-top-0 jd-right-0 jd-w-8 jd-h-8 jd-bg-blue-500/10 jd-rounded-full"></div>
-            <div className="jd-absolute jd-bottom-0 jd-left-0 jd-w-10 jd-h-10 jd-bg-indigo-500/10 jd-rounded-full"></div>
+          <div className="jd-absolute jd-top-0 jd-left-0 jd-w-full jd-h-full jd-overflow-hidden jd-rounded-lg jd-pointer-events-none jd-opacity-40 group-hover:jd-opacity-70 jd-transition-opacity jd-duration-300">
+            <div className="jd-absolute jd-top-1 jd-right-1 jd-w-10 jd-h-10 jd-bg-blue-500/20 jd-rounded-full jd-blur-sm"></div>
+            <div className="jd-absolute jd-bottom-1 jd-left-1 jd-w-12 jd-h-12 jd-bg-indigo-500/20 jd-rounded-full jd-blur-sm"></div>
           </div>
         )}
       </Button>
-      {tool.disabled && (
-        <Badge 
-          className="jd-absolute jd-top-0 jd-right-0 jd-transform jd-translate-y-1/2 jd-translate-x-0 jd-bg-gradient-to-r jd-from-blue-500 jd-to-indigo-500 jd-text-white jd-border-none jd-text-xs jd-font-medium jd-px-2 jd-py-1 jd-rounded-full jd-shadow-md jd-coming-soon-badge jd-badge-glow"
-        >
-          {getMessage('comingSoon')}
-        </Badge>
-      )}
     </div>
   );
 };

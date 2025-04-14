@@ -183,7 +183,7 @@ const WelcomePage: React.FC = () => {
                       </motion.span>
                     ))}
                     {/* This maintains space even when animation is changing */}
-                    <span className="invisible">{tasks[0]}</span>
+                    <span className="jd-invisible">{tasks[0]}</span>
                   </span>
                 </div>
               </div>
