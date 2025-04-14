@@ -42,9 +42,6 @@ export const ToolGrid: React.FC<ToolGridProps> = ({
             <LogOut className="jd-h-4 jd-w-4 group-hover:jd-rotate-12 jd-transition-transform jd-duration-300" />
             <span className="jd-font-medium">{getMessage('signOut', undefined, 'Sign Out')}</span>
           </Button>
-          <div className="jd-text-xs jd-text-center jd-text-muted-foreground jd-mt-2">
-            Archimind v{chrome.runtime.getManifest().version}
-          </div>
         </div>
       </CardFooter>
     </>

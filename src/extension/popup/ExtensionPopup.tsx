@@ -99,7 +99,7 @@ const ExtensionPopup: React.FC = () => {
           )}
           
           <AppFooter 
-            version={EXTENSION_VERSION}
+            version={chrome.runtime.getManifest().version}
           />
         </Card>
       </div>

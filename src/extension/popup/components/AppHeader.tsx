@@ -14,6 +14,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   isAuthenticated,
   user
 }) => {
+  const logo = chrome.runtime.getURL('images/full-logo-white.png');
   return (
     <CardHeader className="jd-pb-2 jd-relative jd-overflow-hidden">
       <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-indigo-600 jd-to-blue-500 jd-opacity-90 jd-bg-animate"></div>
@@ -26,12 +27,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       <div className="jd-relative jd-z-10">
         <div className="jd-flex jd-items-center jd-justify-between">
           <div className="jd-flex jd-items-center">
-            <div className="jd-w-8 jd-h-8 jd-rounded-md jd-bg-white/20 jd-backdrop-blur-sm jd-flex jd-items-center jd-justify-center jd-mr-3 jd-shadow-sm">
-              <Sparkles className="jd-h-4 jd-w-4 jd-text-white" />
+            <div className="jd-w-16 jd-h-16 jd-rounded-md  jd-flex jd-items-center jd-justify-center jd-mr-3">
+              <img src={logo} alt="Logo" className="jd-object-contain" />
             </div>
-            <CardTitle className="jd-text-white jd-text-xl jd-font-bold">
-              {getMessage('aiToolLauncher', undefined, 'AI Tool Launcher')}
-            </CardTitle>
           </div>
           {isAuthenticated && (
             <div className="jd-flex jd-items-center jd-space-x-1 jd-bg-white/10 jd-backdrop-blur-sm jd-rounded-full jd-px-2 jd-py-1">

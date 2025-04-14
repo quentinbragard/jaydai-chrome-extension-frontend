@@ -12,7 +12,7 @@ interface AppFooterProps {
 }
 
 export const AppFooter: React.FC<AppFooterProps> = ({ 
-  version = "1.0.0",
+  version = chrome.runtime.getManifest().version,
   onSettingsClick
 }) => {
   const handleLinkedInClick = () => {
@@ -70,7 +70,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         
         <div className="jd-flex jd-items-center jd-gap-1">
           <span className="jd-text-xs jd-text-muted-foreground jd-mr-1">
-            Archimind v{version}
+          Archimind v{version}
           </span>
           
           <TooltipProvider>
