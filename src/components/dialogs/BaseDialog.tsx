@@ -14,6 +14,7 @@ export interface BaseDialogProps {
 
 /**
  * Base Dialog component that all dialogs should extend
+ * Supports 90% height with proper scrolling of content
  */
 export const BaseDialog: React.FC<BaseDialogProps> = ({ 
   open, 
@@ -26,12 +27,19 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={cn("jd-w-full jd-max-w-4xl jd-overflow-y-auto jd-bg-background jd-text-primary", className)} 
+        className={cn(
+          "jd-w-full jd-max-w-7xl jd-max-h-[90vh] jd-overflow-hidden jd-bg-background jd-text-primary", 
+          className
+        )} 
         onClick={(e) => e.stopPropagation()}
       >
-        {title && <h2>{getMessage(title, undefined, title)}</h2>}
-        {description && <p>{getMessage(description, undefined, description)}</p>}
-        {children}
+        <div className="jd-flex jd-flex-col jd-h-full">
+          {title && <h2 className="jd-mb-2">{getMessage(title, undefined, title)}</h2>}
+          {description && <p className="jd-mb-4">{getMessage(description, undefined, description)}</p>}
+          <div className="jd-flex-1 jd-overflow-y-auto jd-pr-2">
+            {children}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
