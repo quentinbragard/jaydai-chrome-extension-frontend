@@ -47,6 +47,7 @@ export const ConfirmationDialog: React.FC = () => {
           <Button onClick={handleConfirm}>
             {confirmText}
           </Button>
+          <p className="jd-text-sm jd-text-muted-foreground"> dfkliwnrwiv</p>
         </div>
       </div>
     </BaseDialog>

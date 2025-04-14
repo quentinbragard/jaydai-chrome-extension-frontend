@@ -1,6 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx
 import React, { useCallback, memo, useMemo } from 'react';
-import { FolderOpen, RefreshCw, PlusCircle } from "lucide-react";
+import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -437,9 +437,27 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               )}
             </>
           ) : (
-            <EmptyMessage>
-              {getMessage('noUserTemplates', undefined, 'No user templates. Create a template to get started.')}
-            </EmptyMessage>
+            <div className="jd-p-4 jd-bg-accent/30 jd-border jd-border-[var(--border)] jd-rounded-lg jd-mb-4">
+              <div className="jd-flex jd-flex-col jd-items-center jd-space-y-3 jd-text-center jd-py-3">
+                <FileText className="jd-h-8 jd-w-8 jd-text-[var(--primary)]/40" />
+                <div className="jd-space-y-1">
+                  <p className="jd-text-sm jd-text-[var(--foreground)]">
+                    {getMessage('noTemplatesYet', undefined, 'No templates yet')}
+                  </p>
+                  <p className="jd-text-xs jd-text-[var(--muted-foreground)]">
+                    {getMessage('createFirstTemplateDesc', undefined, 'Create templates to save time')}
+                  </p>
+                </div>
+                <Button 
+                  size="sm"
+                  className="jd-mt-1 jd-bg-primary jd-text-primary-foreground"
+                  onClick={() => window.dialogManager?.openDialog(DIALOG_TYPES.CREATE_TEMPLATE)}
+                >
+                  <Plus className="jd-h-3.5 jd-w-3.5 jd-mr-1.5" />
+                  {getMessage('createFirstTemplate', undefined, 'Create your first template')}
+                </Button>
+              </div>
+            </div>
           )}
         </FolderSection>
       </div>

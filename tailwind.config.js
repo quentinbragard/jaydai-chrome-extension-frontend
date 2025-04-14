@@ -9,44 +9,44 @@ module.exports = {
 	  extend: {
 		colors: {
 		  background: 'var(--background)',
-		  foreground: 'var(--foreground',
+		  foreground: 'var(--foreground)',
 		  card: {
-			DEFAULT: 'var(--card',
-			foreground: 'var(--card-foreground'
+			DEFAULT: 'var(--card)',
+			foreground: 'var(--card-foreground)'
 		  },
 		  popover: {
-			DEFAULT: 'var(--popover',
-			foreground: 'var(--popover-foreground'
+			DEFAULT: 'var(--popover)',
+			foreground: 'var(--popover-foreground)'
 		  },
 		  primary: {
-			DEFAULT: 'var(--primary',
-			foreground: 'var(--primary-foreground'
+			DEFAULT: 'var(--primary)',
+			foreground: 'var(--primary-foreground)'
 		  },
 		  secondary: {
-			DEFAULT: 'var(--secondary',
-			foreground: 'var(--secondary-foreground'
+			DEFAULT: 'var(--secondary)',
+			foreground: 'var(--secondary-foreground)'
 		  },
 		  muted: {
-			DEFAULT: 'var(--muted',
-			foreground: 'var(--muted-foreground'
+			DEFAULT: 'var(--muted)',
+			foreground: 'var(--muted-foreground)'
 		  },
 		  accent: {
-			DEFAULT: 'var(--accent',
-			foreground: 'var(--accent-foreground'
+			DEFAULT: 'var(--accent)',
+			foreground: 'var(--accent-foreground)'
 		  },
 		  destructive: {
-			DEFAULT: 'var(--destructive',
-			foreground: 'var(--destructive-foreground'
+			DEFAULT: 'var(--destructive)',
+			foreground: 'var(--destructive-foreground)'
 		  },
-		  border: 'var(--border',
-		  input: 'var(--input',
-		  ring: 'var(--ring',
+		  border: 'var(--border)',
+		  input: 'var(--input)',
+		  ring: 'var(--ring)',
 		  chart: {
-			'1': 'var(--chart-1',
-			'2': 'var(--chart-2',
-			'3': 'var(--chart-3',
-			'4': 'var(--chart-4',
-			'5': 'var(--chart-5'
+			'1': 'var(--chart-1)',
+			'2': 'var(--chart-2)',
+			'3': 'var(--chart-3)',
+			'4': 'var(--chart-4)',
+			'5': 'var(--chart-5)'
 		  },
 		},
 		borderRadius: {
