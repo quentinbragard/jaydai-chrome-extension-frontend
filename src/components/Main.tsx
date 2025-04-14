@@ -1,5 +1,5 @@
 // src/components/Main.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/state/AuthContext';
 import MainButton from '@/components/MainButton';
@@ -13,6 +13,9 @@ import { ThemeProvider } from '@/components/theme-provider';
  * Handles providers, global UI elements, and lazy-loaded components
  */
 const Main: React.FC = () => {
+  // Reference to the shadow root host element
+  const shadowRootRef = useRef<HTMLElement | null>(null);
+
   // Ensure dialog system is properly setup
   useEffect(() => {
     // Check if dialog manager is properly initialized
@@ -35,18 +38,36 @@ const Main: React.FC = () => {
     };
   }, []);
 
-  // Sync theme with parent document
+  // Sync theme with parent document - properly handling Shadow DOM
   useEffect(() => {
+    // Get a reference to the shadow host (the element containing the shadow root)
+    shadowRootRef.current = document.getElementById('jaydai-root') as HTMLElement;
+    
+    // Find the actual shadow root
+    const shadowRoot = shadowRootRef.current?.shadowRoot;
+    
+    if (!shadowRoot) {
+      console.error('Shadow root not found, theme synchronization will not work');
+      return;
+    }
+
     const syncTheme = () => {
       const isDarkMode = document.documentElement.classList.contains('dark');
-      // Get the shadow container inside this component's shadow DOM
-      const shadowContainer = document.getElementById('jaydai-shadow-container');
-      if (shadowContainer) {
+      
+      // Apply dark mode directly to the shadow root host element
+      if (shadowRootRef.current) {
         if (isDarkMode) {
-          shadowContainer.classList.add('dark');
+          shadowRootRef.current.shadowRoot?.host.classList.add('dark');
         } else {
-          shadowContainer.classList.remove('dark');
+          shadowRootRef.current.shadowRoot?.host.classList.remove('dark');
         }
+      }
+      
+      // Also store the theme value as an attribute for components that need it
+      if (isDarkMode) {
+        shadowRootRef.current?.setAttribute('data-theme', 'dark');
+      } else {
+        shadowRootRef.current?.setAttribute('data-theme', 'light');
       }
     };
 
@@ -74,11 +95,15 @@ const Main: React.FC = () => {
   }, []);
 
   return (
-    <div id="jaydai-root jd-w-full jd-h-screen">
+    <div id="jaydai-shadow-root" className="jd-w-full jd-h-full">
       <ErrorBoundary>
         <AuthProvider>
-          <ThemeProvider>
-            {/* Add QueryProvider to wrap DialogProvider */}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem={true}
+            disableTransitionOnChange
+          >
             <QueryProvider>
               <DialogProvider>
                 {/* UI Components */}

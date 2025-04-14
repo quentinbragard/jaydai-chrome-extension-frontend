@@ -364,7 +364,7 @@ export const TemplateDialog: React.FC = () => {
         handleClose();
       }}
       title={dialogTitle}
-      className="jd-max-w-2xl"
+      className="jd-max-w-lg"
     >
       <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
         <div>

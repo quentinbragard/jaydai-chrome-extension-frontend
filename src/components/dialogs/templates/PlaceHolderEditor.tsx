@@ -282,7 +282,7 @@ export const PlaceholderEditor: React.FC = () => {
       }}
       title={getMessage('placeholderEditor', undefined, 'Placeholder Editor')}
       description={getMessage('placeholderEditorDescription', undefined, 'Edit placeholders in your template')}
-      className="jd-max-w-3xl"
+      className="jd-max-w-4xl"
     >
       <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
         {error && (

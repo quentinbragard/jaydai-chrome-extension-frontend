@@ -159,7 +159,6 @@ export const EnhancedStatsDialog: React.FC = () => {
         onOpenChange={dialogProps.onOpenChange}
         title={getMessage('enhancedStats', undefined, 'Enhanced Statistics')}
         description={getMessage('enhancedStatsDescription', undefined, 'Detailed analytics and insights about your AI usage')}
-        className="jd-max-w-4xl"
       >
         <div className="jd-flex jd-items-center jd-justify-center jd-p-8">
           <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>

@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import { Button } from "@/components/ui/button"; 
 import { ArrowLeft, X } from "lucide-react";
 import { cn } from "@/core/utils/classNames";
-import { useThemeDetection } from "@/hooks/useThemeDetection";
+import { useThemeDetector } from "@/hooks/useThemeDetector";
 
 interface PanelHeaderProps {
   title?: string;
@@ -28,12 +28,12 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
 }) => {
   const darkLogo = chrome.runtime.getURL('images/full-logo-white.png');
   const lightLogo = chrome.runtime.getURL('images/full-logo-dark.png');
-  const isDarkMode = useThemeDetection();
+  const isDarkMode = useThemeDetector();
   
   return (
     <div className={cn(
-      "jd-flex jd-items-center jd-justify-between jd-p-2 jd-border-b jd-rounded-t-md",
-      "jd-bg-header", 
+      "jd-flex jd-items-center jd-justify-between jd-p-2 jd-border-b jd-rounded-t-md jd-text-foreground",
+      isDarkMode ? "jd-bg-gray-800" : "jd-bg-gray-100", 
       className
     )}>
       {/* Left Section */}

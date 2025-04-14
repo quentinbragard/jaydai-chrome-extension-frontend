@@ -26,11 +26,11 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={cn("max-x-7-xl jd-dialog-content jd-overflow-y-auto jd-bg-background jd-text-foreground", className)} 
+        className={cn("jd-w-full jd-max-w-4xl jd-overflow-y-auto jd-bg-background jd-text-primary", className)} 
         onClick={(e) => e.stopPropagation()}
       >
-        {title && <h2 className="jd-dialog-title">{getMessage(title, undefined, title)}</h2>}
-        {description && <p className="jd-dialog-description">{getMessage(description, undefined, description)}</p>}
+        {title && <h2>{getMessage(title, undefined, title)}</h2>}
+        {description && <p>{getMessage(description, undefined, description)}</p>}
         {children}
       </DialogContent>
     </Dialog>

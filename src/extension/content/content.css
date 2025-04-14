@@ -4,8 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Define CSS variables at the root level of Shadow DOM */
+/* Define CSS variables directly on :host for light mode */
 :host {
+  color-scheme: inherit;
   /* Base Variables - Light Theme */
   --background: #ffffff;
   --foreground: #0a0a0a;
@@ -34,8 +35,8 @@
   --radius: 0.5rem;
 }
 
-/* Dark mode using class on the jaydai-root element */
-.dark #jaydai-root {
+/* Apply dark mode variables directly to :host when it has the dark class */
+:host(.dark) {
   --background: #030816;
   --foreground: #f0f8ff;
   --card: #0a0a0a;
@@ -95,47 +96,10 @@
   animation: jd-slide-up-fade-in 0.4s ease-out forwards;
 }
 
-/* Dialog and overlay */
-.jd-dialog-content {
-  z-index: 10001 !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-#jaydai-root.dark .jd-dialog-content {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
-}
-
-.jd-dialog-overlay {
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  position: fixed;
-  inset: 0;
-  z-index: 10000 !important;
-  animation: jd-fadeIn 200ms ease-out;
-}
-
-[data-state="open"] .jd-dialog-overlay {
-  animation: jd-overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(4px);
-}
-
-.jd-dialog-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.jd-dialog-description {
-  font-size: 0.875rem;
-  color: var(--muted-foreground);
-  margin-bottom: 1rem;
-}
 
 
 /* Shadow DOM specific styles */
-#jaydai-shadow-container {
+#jaydai-shadow-root {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: var(--foreground);
   line-height: 1.5;

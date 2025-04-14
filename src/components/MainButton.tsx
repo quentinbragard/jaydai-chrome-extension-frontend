@@ -8,6 +8,7 @@ import PanelManager from '@/components/panels/PanelManager';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
 import { getMessage } from '@/core/utils/i18n';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 /**
  * Main floating button component that opens various panels
@@ -23,6 +24,9 @@ const MainButton = () => {
     handleClosePanel,
   } = useMainButtonState();
 
+  // Use our theme detector hook to get the current theme
+  const isDarkMode = useThemeDetector();
+
   // We don't need this event listener anymore because it's handled in useMainButtonState
   // But keeping the component structure for reference
   useEffect(() => {
@@ -33,8 +37,10 @@ const MainButton = () => {
     };
   }, []);
 
+  // Choose the appropriate logo based on the detected theme
   const darkLogo = chrome.runtime.getURL('images/letter-logo-white.png');
   const lightLogo = chrome.runtime.getURL('images/letter-logo-dark.png');
+  const logoSrc = isDarkMode ? darkLogo : lightLogo;
 
   return (
     <ErrorBoundary>
@@ -56,9 +62,7 @@ const MainButton = () => {
               className="jd-bg-transparent hover:jd-bg-transparent hover:jd-scale-125 jd-transition-all jd-duration-300 jd-w-full jd-h-full jd-rounded-full jd-p-0 jd-overflow-hidden jd-flex jd-items-center jd-justify-center"
             >
               <img 
-                src={document.documentElement.classList.contains('dark') 
-                  ? darkLogo 
-                  : lightLogo} 
+                src={logoSrc}
                 alt={getMessage('appName', undefined, 'Jaydai Chrome Extension')} 
                 className="jd-w-full jd-h-full jd-object-cover"
               />
