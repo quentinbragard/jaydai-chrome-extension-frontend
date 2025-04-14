@@ -56,7 +56,7 @@ export function FolderSection({
               <Building2 className="jd-w-4 jd-h-4 jd-text-amber-600 jd-dark:jd-text-amber-400" />
             </div>
             <div className="jd-flex jd-flex-col">
-              <h3 className="jd-text-sm jd-font-medium jd-text-gray-800 jd-dark:jd-text-gray-100">
+              <h3 className="jd-text-sm jd-font-medium jd-text-amber-500">
                 {getMessage('organization_templates_title', undefined, 'Enterprise Templates')}
               </h3>
               <div className="jd-flex jd-items-center jd-gap-1">

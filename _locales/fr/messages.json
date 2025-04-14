@@ -431,7 +431,7 @@
     "description": "Titre de la modale Parcourir plus"
   },
   "browseMoreDesc": {
-    "message": "Parcourir et épingler les templates officiels et d'organisation",
+    "message": "Parcourir et épingler les templates officiels et d'entreprise",
     "description": "Description de la modale Parcourir plus"
   },
   "pinFolder": {
@@ -467,7 +467,7 @@
     "description": "Button text to refresh templates"
   },
   "noPinnedOfficialTemplates": {
-    "message": "Aucun template officiel épinglé. Cliquez sur Parcourir pour en ajouter.",
+    "message": "Aucun template officiel épinglé. Cliquez sur 'Voir Plus' pour en ajouter.",
     "description": "Empty state message for official templates section"
   },
   "noUserTemplates": {
@@ -1150,13 +1150,13 @@
     "message": "Êtes-vous sûr de vouloir supprimer ce dossier et tous ses templates ? Cette action ne peut pas être annulée.",
     "description": "Message de confirmation pour la suppression de dossier"
   },
-  "organizationTemplates": {
-    "message": "Templates de l'Organisation",
-    "description": "Titre pour la section des templates de l'organisation"
+  "Templates": {
+    "message": "Templates de l'entreprise",
+    "description": "Titre pour la section des templates de l'entreprise"
   },
   "noPinnedOrganizationTemplates": {
-    "message": "Aucun template d'organisation épinglé.",
-    "description": "Message affiché lorsqu'aucun template d'organisation n'est épinglé"
+    "message": "Aucun template d'entreprise épinglé.",
+    "description": "Message affiché lorsqu'aucun template d'entreprise n'est épinglé"
   },
   "unorganizedTemplates": {
     "message": "Templates Non Organisés",
@@ -1171,7 +1171,7 @@
     "description": "Label indicating an enterprise feature"
   },
   "organization_templates_description": {
-    "message": "L'accès aux templates d'organisation est une fonctionnalité entreprise. Contactez-nous pour l'activer pour votre équipe.",
+    "message": "L'accès aux templates d'entreprise est une fonctionnalité entreprise. Contactez-nous pour l'activer pour votre équipe.",
     "description": "Description text for enterprise templates feature"
   },
   "contact_enterprise_sales": {
@@ -1183,8 +1183,8 @@
     "description": "Texte d'espace réservé pour la recherche de dossiers officiels"
   },
   "searchOrganizationFolders": {
-    "message": "Rechercher des dossiers d'organisation...",
-    "description": "Texte d'espace réservé pour la recherche de dossiers d'organisation"
+    "message": "Rechercher des dossiers d'entreprise...",
+    "description": "Texte d'espace réservé pour la recherche de dossiers d'entreprise"
   },
   "loadingFolders": {
     "message": "Chargement des dossiers $FOLDER_TYPE$...",
