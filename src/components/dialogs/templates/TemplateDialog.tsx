@@ -410,7 +410,7 @@ export const TemplateDialog: React.FC = () => {
                 ) : null}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="jd-max-h-80">
+            <SelectContent className="jd-max-h-80 jd-bg-background">
               <SelectItem value="root">
                 <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
               </SelectItem>

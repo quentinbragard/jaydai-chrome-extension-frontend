@@ -5,12 +5,28 @@ import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "@/core/utils/classNames"
-
+import { useShadowRoot } from "@/core/utils/componentInjector"
 const Select = SelectPrimitive.Root
 
 const SelectGroup = SelectPrimitive.Group
 
 const SelectValue = SelectPrimitive.Value
+
+// Custom DialogPortal that uses shadow DOM
+const SelectPortal = ({ children, ...props }: SelectPrimitive.SelectPortalProps) => {
+  const shadowRoot = useShadowRoot();
+  console.log('shadowRoot', shadowRoot);
+  
+  // If we have access to the shadow root, use it as the portal container
+  return (
+    <SelectPrimitive.Portal 
+      {...props} 
+      container={shadowRoot || undefined}
+    >
+      {children}
+    </SelectPrimitive.Portal>
+  );
+}
 
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
@@ -71,7 +87,7 @@ const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
 >(({ className, children, position = "popper", ...props }, ref) => (
-  <SelectPrimitive.Portal>
+  <SelectPortal>
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
@@ -95,7 +111,7 @@ const SelectContent = React.forwardRef<
       </SelectPrimitive.Viewport>
       <SelectScrollDownButton />
     </SelectPrimitive.Content>
-  </SelectPrimitive.Portal>
+  </SelectPortal>
 ))
 SelectContent.displayName = SelectPrimitive.Content.displayName
 

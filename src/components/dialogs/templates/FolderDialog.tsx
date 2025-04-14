@@ -114,6 +114,7 @@ export const FolderDialog: React.FC = () => {
       }}
       title={getMessage('createFolder', undefined, 'Create Folder')}
       description={getMessage('createFolderDescription', undefined, 'Create a new folder to organize your templates')}
+      className="jd-max-w-xl"
     >
       <form onSubmit={handleSubmit} className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
         <div>
