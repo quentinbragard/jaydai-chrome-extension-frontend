@@ -238,7 +238,7 @@ const WelcomePage: React.FC = () => {
                     className="jd-gap-2 jd-min-w-32 jd-text-white jd-border-gray-700 hover:jd-bg-gray-800 jd-font-heading"
                     onClick={handleSignIn}
                   >
-                    {getMessage('signIn', undefined, 'Sign in')} <LogIn className="jd-w-4 jd-h-4 jd-ml-1" />
+                    {getMessage('getStarted', undefined, 'Get Started')} <LogIn className="jd-w-4 jd-h-4 jd-ml-1" />
                   </Button>
                 </div>
                 <DialogContent className="sm:jd-max-w-md jd-bg-gray-950 jd-border-gray-800">

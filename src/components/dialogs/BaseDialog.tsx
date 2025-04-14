@@ -30,7 +30,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   if (!open) return null;
   
   return (
-    <div className="jd-fixed jd-inset-0 jd-z-50 jd-bg-black/50 jd-flex jd-items-center jd-justify-center"
+    <div className="jd-fixed jd-inset-0 jd-z-50 jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-overflow-hidden"
          onClick={(e) => {
            // Close when clicking the backdrop, but not content
            if (e.target === e.currentTarget) {
@@ -55,20 +55,20 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
         
         {/* Header section - fixed */}
         {(title || description) && (
-          <div className="jd-border-b jd-px-6 jd-py-4">
+          <div className="jd-border-b jd-px-6 jd-py-4 jd-flex-shrink-0">
             {title && <h2 className="jd-text-xl jd-font-semibold jd-mb-1">{getMessage(title, undefined, title)}</h2>}
             {description && <p className="jd-text-muted-foreground">{getMessage(description, undefined, description)}</p>}
           </div>
         )}
         
         {/* Content section - scrollable */}
-        <div className="jd-flex-1 jd-overflow-auto jd-p-6" onMouseDown={(e) => e.stopPropagation()}>
+        <div className="jd-flex-1 jd-overflow-y-auto jd-p-6" onMouseDown={(e) => e.stopPropagation()}>
           {children}
         </div>
         
         {/* Footer section - fixed */}
         {footer && (
-          <div className="jd-border-t jd-p-4 jd-bg-background jd-mt-auto">
+          <div className="jd-border-t jd-p-4 jd-bg-background jd-flex-shrink-0">
             {footer}
           </div>
         )}

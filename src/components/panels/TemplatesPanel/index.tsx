@@ -451,7 +451,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 <Button 
                   size="sm"
                   className="jd-mt-1 jd-bg-primary jd-text-primary-foreground"
-                  onClick={() => window.dialogManager?.openDialog(DIALOG_TYPES.CREATE_TEMPLATE)}
+                  onClick={createTemplate}
                 >
                   <Plus className="jd-h-3.5 jd-w-3.5 jd-mr-1.5" />
                   {getMessage('createFirstTemplate', undefined, 'Create your first template')}

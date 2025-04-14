@@ -133,7 +133,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
           ) : (
             <>
               {/* Top cards - Reduced padding and gap, centered justification */}
-              <div className="jd-flex jd-items-center jd-justify-center jd-mb-4 jd-px-4 jd-gap-2 jd-w-full"> {/* CHANGED: px-8->px-4, gap-4->gap-2, justify-between->justify-center */}
+              <div className="jd-flex jd-items-center jd-justify-center jd-mb-4 jd-px-4 jd-gap-2 jd-w-full"> 
                 <StatsCard 
                   icon={<MessageCircle className="jd-h-3.5 jd-w-3.5" />} 
                   value={stats.totalChats > 20 ? "20+" : stats.totalChats} 
@@ -163,7 +163,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                 <StatsDetailRow 
                   label={getMessage('recentActivity', undefined, 'Recent Activity')}
                   value={`${stats.recentChats} chats`} 
-                  icon={<Activity className="jd-h-3.5 jd-w-3.5" />} 
+                  icon={<Activity className="jd-h-3.5 jd-w-3.5 jd-text-chart-2" />} 
                   progress={stats.totalChats ? stats.recentChats / (stats.totalChats * 0.2) * 100 : 0}
                   progressColor="jd-text-3b82f6" // Note: This should likely be a Tailwind class like text-blue-500
                   tooltip="Conversations in the last 7 days"
@@ -178,7 +178,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                 <StatsDetailRow 
                   label={getMessage('messagingEfficiency', undefined, 'Messages Per Conversation')} 
                   value={stats.avgMessagesPerChat.toFixed(1)} 
-                  icon={<MessageCircle className="jd-h-3.5 jd-w-3.5" />} 
+                  icon={<MessageCircle className="jd-h-3.5 jd-w-3.5 jd-text-chart-3" />} 
                   progress={Math.min(100, stats.avgMessagesPerChat * 10)}
                   progressColor="text-blue-500" // Example: Use Tailwind class
                   tooltip="Average number of messages exchanged per conversation"
@@ -187,7 +187,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                 <StatsDetailRow 
                   label={getMessage('thinkingTime', undefined, 'Average Response Time')} 
                   value={`${stats.thinkingTime.average.toFixed(1)}s`} 
-                  icon={<Award className="jd-h-3.5 jd-w-3.5" />} 
+                  icon={<Award className="jd-h-3.5 jd-w-3.5 jd-text-chart-4" />} 
                   progress={Math.min(100, 100 - (stats.thinkingTime.average * 5))}
                   progressColor="text-green-500" // Example: Use Tailwind class
                   tooltip="Average time it takes to get a response"
@@ -196,7 +196,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                 <StatsDetailRow 
                   label={getMessage('tokenUsage', undefined, 'Token Usage')} 
                   value={`${(stats.tokenUsage.recentInput + stats.tokenUsage.recentOutput).toLocaleString()}`} 
-                  icon={<BarChart2 className="jd-h-3.5 jd-w-3.5" />} 
+                  icon={<BarChart2 className="jd-h-3.5 jd-w-3.5 jd-text-chart-5" />} 
                   progress={stats.tokenUsage.total ? Math.min(100, (stats.tokenUsage.recentInput + stats.tokenUsage.recentOutput) / (stats.tokenUsage.total * 0.1) * 100) : 0}
                   progressColor="text-indigo-500" // Example: Use Tailwind class
                   tooltip="Tokens used in the last 7 days"

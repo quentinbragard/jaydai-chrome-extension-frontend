@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { Button } from "@/components/ui/button";
@@ -310,8 +311,11 @@ export const EnhancedStatsDialog: React.FC = () => {
           </div>
 
           {/* Overview Tab content */}
-          <TabsContent value="overview" className="jd-space-y-4">
-            <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-3 jd-gap-4">
+          <TabsContent 
+            value="overview" 
+            className="jd-overflow-y-auto jd-max-h-[65vh] jd-pr-2 jd-space-y-4"
+          >
+            <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-3 jd-gap-4 jd-bg-secondary jd-p-6 jd-rounded-lg">
               {overviewCards.map((card, index) => (
                 <Card key={index} className="jd-overflow-hidden">
                   <CardHeader className={`jd-flex jd-flex-row jd-items-center jd-justify-between jd-py-2 ${card.color} jd-bg-opacity-10`}>

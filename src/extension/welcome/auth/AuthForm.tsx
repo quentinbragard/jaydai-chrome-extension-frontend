@@ -299,14 +299,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             ) : (
               <RefreshCw className="jd-h-5 jd-w-5 jd-shrink-0" />
             )}
-            <span className="jd-text-sm jd-font-sans">{message.text}</span>
+            <span className="jd-text-sm ">{message.text}</span>
           </div>
         )}
         
         <TabsContent value="signin" className="space-y-4">
           <div className="jd-space-y-3">
             <div className="jd-space-y-1">
-              <Label htmlFor="email-signin" className="jd-text-gray-300 jd-font-sans">
+              <Label htmlFor="email-signin" className="jd-text-gray-300 ">
                 {getMessage('email', undefined, 'Email')}
               </Label>
               <div className="jd-relative">
@@ -316,12 +316,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   placeholder="you@example.com" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
+                  className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white focus:jd-border-blue-500 focus:jd-ring-blue-500 jd-text-sm"
                 />
               </div>
             </div>
             <div className="jd-space-y-1">
-              <Label htmlFor="password-signin" className="jd-text-gray-300 jd-font-sans">
+              <Label htmlFor="password-signin" className="jd-text-gray-300 ">
                 {getMessage('password', undefined, 'Password')}
               </Label>
               <div className="jd-relative">
@@ -331,7 +331,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
+                  className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white  focus:jd-border-blue-500 focus:jd-ring-blue-500 jd-text-sm"
                 />
               </div>
             </div>
@@ -357,8 +357,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             <div className="jd-absolute jd-inset-0 jd-flex jd-items-center">
               <div className="jd-w-full jd-border-t jd-border-gray-700"></div>
             </div>
-            <div className="jd-relative jd-flex jd-justify-center jd-text-sm">
-              <span className="jd-px-2 jd-bg-gray-900 jd-text-gray-400 jd-font-sans">
+            <div className="jd-relative jd-flex jd-justify-center jd-jd-text-sm">
+              <span className="jd-px-2 jd-bg-gray-900 jd-text-gray-400 ">
                 {getMessage('or', undefined, 'Or continue with')}
               </span>
             </div>
@@ -384,7 +384,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         <TabsContent value="signup" className="space-y-4">
         <div className="jd-space-y-3">
           <div className="jd-space-y-1">
-            <Label htmlFor="name-signup" className="jd-text-gray-300 jd-font-sans">
+            <Label htmlFor="name-signup" className="jd-text-gray-300 ">
               {getMessage('name', undefined, 'Name')}
             </Label>
             <div className="jd-relative">
@@ -394,13 +394,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 placeholder="John Doe" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
+                className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white  focus:jd-border-blue-500 focus:jd-ring-blue-500 jd-text-sm"
               />
             </div>
           </div>
           
           <div className="jd-space-y-1">
-            <Label htmlFor="email-signup" className="jd-text-gray-300 jd-font-sans">
+            <Label htmlFor="email-signup" className="jd-text-gray-300 ">
               {getMessage('email', undefined, 'Email')}
             </Label>
             <div className="jd-relative">
@@ -410,13 +410,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 placeholder="you@example.com" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
+                className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white  focus:jd-border-blue-500 focus:jd-ring-blue-500 jd-text-sm"
               />
             </div>
           </div>
           
           <div className="jd-space-y-1">
-            <Label htmlFor="password-signup" className="jd-text-gray-300 jd-font-sans">
+            <Label htmlFor="password-signup" className="jd-text-gray-300 ">
               {getMessage('password', undefined, 'Password')}
             </Label>
             <div className="jd-relative">
@@ -426,7 +426,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                 placeholder="••••••••" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-font-sans focus:jd-border-blue-500 focus:jd-ring-blue-500"
+                className="jd-pl-2 jd-bg-gray-800 jd-border-gray-700 jd-text-white  focus:jd-border-blue-500 focus:jd-ring-blue-500 jd-text-sm"
               />
             </div>
           </div>
@@ -452,8 +452,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           <div className="jd-absolute jd-inset-0 jd-flex jd-items-center">
             <div className="jd-w-full jd-border-t jd-border-gray-700"></div>
           </div>
-          <div className="jd-relative jd-flex jd-justify-center jd-text-sm">
-            <span className="jd-px-2 jd-bg-gray-900 jd-text-gray-400 jd-font-sans">
+          <div className="jd-relative jd-flex jd-justify-center jd-jd-text-sm">
+            <span className="jd-px-2 jd-bg-gray-900 jd-text-gray-400 ">
               {getMessage('or', undefined, 'Or sign up with')}
             </span>
           </div>
