@@ -72,13 +72,13 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
     <Button
       size="sm"
       variant="ghost"
-      className="jd-h-8 jd-w-8 jd-p-0 jd-rounded-full jd-flex jd-items-center jd-justify-center"
+      className="jd-rounded-full jd-flex jd-items-center jd-justify-center"
       onClick={refresh}
       disabled={isRefreshing || loading}
       title="Refresh notifications"
     >
       {isRefreshing ? (
-        <Loader2 className="jd-h-4 jd-w-4 jd-animate-spin" />
+        <Loader2 className="jd-animate-spin" />
       ) : (
         <RefreshCw className="jd-h-4 jd-w-4" />
       )}
@@ -110,7 +110,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
             disabled={isRefreshing || loading}
             title="Mark all as read"
           >
-            <CheckSquare className="jd-h-3.5 jd-w-3.5" />
+            <CheckSquare className="jd-h-4 jd-w-4" />
             Mark all read
           </Button>
         </div>
@@ -139,12 +139,12 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
           >
             {isRefreshing ? (
               <>
-                <Loader2 className="jd-h-3.5 jd-w-3.5 jd-mr-1.5 jd-animate-spin" />
+                <Loader2 className="jd-h-4 jd-w-4 jd-mr-1.5 jd-animate-spin" />
                 Checking...
               </>
             ) : (
               <>
-                <RefreshCw className="jd-h-3.5 jd-w-3.5 jd-mr-1.5" />
+                <RefreshCw className="jd-h-4 jd-w-4 jd-mr-1.5" />
                 Check for notifications
               </>
             )}
@@ -166,7 +166,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
           </div>
           
           {/* Footer count */}
-          <div className="jd-mt-4 jd-pt-2 jd-border-t jd-border-gray-700 jd-flex jd-justify-between jd-items-center jd-text-xs jd-text-gray-400">
+          <div className="jd-mt-4 jd-pt-2 jd-flex jd-justify-between jd-items-center jd-text-xs jd-text-gray-400">
             {notifications.length} notification{notifications.length !== 1 ? 's' : ''}
           </div>
         </>

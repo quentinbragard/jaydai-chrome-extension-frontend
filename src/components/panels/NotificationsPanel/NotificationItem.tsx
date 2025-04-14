@@ -98,28 +98,28 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="jd-h-7 jd-w-7 jd-p-0 jd-rounded-full jd-bg-green-900/20 hover:jd-bg-green-800/30"
+                  className="jd-rounded-full jd-bg-green-900/20 hover:jd-bg-green-800/30"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDismiss(notification, e);
                   }}
                   title="Mark as read"
                 >
-                  <Check className="jd-h-3.5 jd-w-3.5 jd-text-green-400" />
+                  <Check className="jd-h-4 jd-w-4 jd-text-green-400" />
                 </Button>
               )}
               
               <Button
                 size="sm"
                 variant="ghost"
-                className="jd-h-7 jd-w-7 jd-p-0 jd-rounded-full jd-bg-red-900/20 hover:jd-bg-red-800/30"
+                className="jd-rounded-full jd-bg-red-900/20 hover:jd-bg-red-800/30"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete(notification, e);
                 }}
                 title="Delete notification"
               >
-                <Trash2 className="jd-h-3.5 jd-w-3.5 jd-text-red-400" />
+                <Trash2 className="jd-h-4 jd-w-4 jd-text-red-400" />
               </Button>
             </div>
           </div>
