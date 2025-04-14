@@ -1,13 +1,5 @@
 // src/components/dialogs/templates/TemplateDialog.tsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle,
-  DialogFooter
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,6 +10,14 @@ import { DEFAULT_FORM_DATA } from '@/types/prompts/templates';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { getMessage } from '@/core/utils/i18n';
+import { BaseDialog } from '../BaseDialog';
+
+// Define types for folder data
+interface FolderData {
+  id: number;
+  name: string;
+  fullPath: string;
+}
 
 /**
  * Unified Template Dialog for both creating and editing templates
@@ -39,7 +39,7 @@ export const TemplateDialog: React.FC = () => {
   const [selectedFolderId, setSelectedFolderId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
-  const [userFoldersList, setUserFoldersList] = useState<any[]>([]);
+  const [userFoldersList, setUserFoldersList] = useState<FolderData[]>([]);
   
   // Extract data from dialog
   const currentTemplate = data?.template || null;
@@ -345,126 +345,130 @@ export const TemplateDialog: React.FC = () => {
     }
   };
   
+  // Determine dialog title based on mode
+  const dialogTitle = createDialog.isOpen 
+    ? getMessage('createTemplate', undefined, 'Create Template') 
+    : getMessage('editTemplate', undefined, 'Edit Template');
+  
   if (!isOpen) return null;
   
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            {currentTemplate ? getMessage('editTemplate') : getMessage('createNewTemplate')}
-          </DialogTitle>
-          <DialogDescription>
-            {currentTemplate 
-              ? getMessage('editTemplateDescription')
-              : getMessage('createTemplateDescription')}
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="jd-space-y-4 jd-py-2">
-          <div>
-            <label className="jd-text-sm jd-font-medium">{getMessage('templateName')}</label>
-            <Input 
-              value={formData.name || ''} 
-              onChange={(e) => handleFormChange('name', e.target.value)}
-              placeholder={getMessage('enterTemplateName')}
-              className={`jd-mt-1 ${validationErrors.name ? 'jd-border-red-500' : ''}`}
-            />
-            {validationErrors.name && (
-              <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.name}</p>
-            )}
-          </div>
-          
-          <div>
-            <label className="jd-text-sm jd-font-medium">{getMessage('description')}</label>
-            <Input 
-              value={formData.description || ''} 
-              onChange={(e) => handleFormChange('description', e.target.value)}
-              placeholder={getMessage('templateDescriptionPlaceholder')}
-              className="jd-mt-1"
-            />
-          </div>
-          
-          <div>
-            <div className="jd-flex jd-items-center jd-justify-between jd-mb-1">
-              <label className="jd-text-sm jd-font-medium">{getMessage('folder')}</label>
-            </div>
-            
-            <Select 
-              value={selectedFolderId || 'root'} 
-              onValueChange={handleFolderSelect}
-            >
-              <SelectTrigger className="jd-w-full">
-                <SelectValue placeholder={getMessage('selectFolder')}>
-                  {selectedFolderId === 'root' ? (
-                    <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
-                  ) : selectedFolderId ? (
-                    <span className="jd-truncate" title={formData.folder}>
-                      {truncateFolderPath(formData.folder)}
-                    </span>
-                  ) : null}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="jd-max-h-80">
-                <SelectItem value="root">
-                  <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
-                </SelectItem>
-                
-                {userFoldersList.map(folder => (
-                  <SelectItem 
-                    key={folder.id} 
-                    value={folder.id.toString()}
-                    className="jd-truncate"
-                    title={folder.fullPath} // Show full path on hover
-                  >
-                    {folder.fullPath}
-                  </SelectItem>
-                ))}
-                
-                {/* Option to create a new folder */}
-                <SelectItem value="new" className="jd-text-primary jd-font-medium">
-                  <div className="jd-flex jd-items-center">
-                    <FolderPlus className="jd-h-4 jd-w-4 jd-mr-2" />
-                    {getMessage('createNewFolder')}
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div>
-            <label className="jd-text-sm jd-font-medium">{getMessage('content')}</label>
-            <textarea 
-              className={`jd-flex jd-w-full jd-rounded-md jd-border jd-border-input jd-bg-background jd-px-3 jd-py-2 jd-text-sm jd-shadow-sm jd-mt-1 ${
-                validationErrors.content ? 'jd-border-red-500' : ''
-              }`}
-              rows={6}
-              value={formData.content || ''} 
-              onChange={(e) => handleFormChange('content', e.target.value)}
-              placeholder={getMessage('enterTemplateContent')}
-            />
-            {validationErrors.content && (
-              <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.content}</p>
-            )}
-          </div>
+    <BaseDialog
+      open={isOpen}
+      onOpenChange={(open: boolean) => {
+        if (!open) {
+          // Reset form when closing
+          setFormData(DEFAULT_FORM_DATA);
+          setValidationErrors({});
+        }
+        handleClose();
+      }}
+      title={dialogTitle}
+      className="jd-max-w-2xl"
+    >
+      <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
+        <div>
+          <label className="jd-text-sm jd-font-medium">{getMessage('templateName')}</label>
+          <Input 
+            value={formData.name || ''} 
+            onChange={(e) => handleFormChange('name', e.target.value)}
+            placeholder={getMessage('enterTemplateName')}
+            className={`jd-mt-1 ${validationErrors.name ? 'jd-border-red-500' : ''}`}
+          />
+          {validationErrors.name && (
+            <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.name}</p>
+          )}
         </div>
         
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-            {getMessage('cancel')}
-          </Button>
-          <Button onClick={handleSave} disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-inline-block jd-mr-2"></div>
-                {currentTemplate ? getMessage('updating') : getMessage('creating')}
-              </>
-            ) : (
-              currentTemplate ? getMessage('update') : getMessage('create')
-            )}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <div>
+          <label className="jd-text-sm jd-font-medium">{getMessage('description')}</label>
+          <Input 
+            value={formData.description || ''} 
+            onChange={(e) => handleFormChange('description', e.target.value)}
+            placeholder={getMessage('templateDescriptionPlaceholder')}
+            className="jd-mt-1"
+          />
+        </div>
+        
+        <div>
+          <div className="jd-flex jd-items-center jd-justify-between jd-mb-1">
+            <label className="jd-text-sm jd-font-medium">{getMessage('folder')}</label>
+          </div>
+          
+          <Select 
+            value={selectedFolderId || 'root'} 
+            onValueChange={handleFolderSelect}
+          >
+            <SelectTrigger className="jd-w-full">
+              <SelectValue placeholder={getMessage('selectFolder')}>
+                {selectedFolderId === 'root' ? (
+                  <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
+                ) : selectedFolderId ? (
+                  <span className="jd-truncate" title={formData.folder}>
+                    {truncateFolderPath(formData.folder)}
+                  </span>
+                ) : null}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="jd-max-h-80">
+              <SelectItem value="root">
+                <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
+              </SelectItem>
+              
+              {userFoldersList.map(folder => (
+                <SelectItem 
+                  key={folder.id} 
+                  value={folder.id.toString()}
+                  className="jd-truncate"
+                  title={folder.fullPath} // Show full path on hover
+                >
+                  {folder.fullPath}
+                </SelectItem>
+              ))}
+              
+              {/* Option to create a new folder */}
+              <SelectItem value="new" className="jd-text-primary jd-font-medium">
+                <div className="jd-flex jd-items-center">
+                  <FolderPlus className="jd-h-4 jd-w-4 jd-mr-2" />
+                  {getMessage('createNewFolder')}
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <label className="jd-text-sm jd-font-medium">{getMessage('content')}</label>
+          <textarea 
+            className={`jd-flex jd-w-full jd-rounded-md jd-border jd-border-input jd-bg-background jd-px-3 jd-py-2 jd-text-sm jd-shadow-sm jd-mt-1 ${
+              validationErrors.content ? 'jd-border-red-500' : ''
+            }`}
+            rows={6}
+            value={formData.content || ''} 
+            onChange={(e) => handleFormChange('content', e.target.value)}
+            placeholder={getMessage('enterTemplateContent')}
+          />
+          {validationErrors.content && (
+            <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.content}</p>
+          )}
+        </div>
+      </div>
+      
+      <div className="jd-mt-4 jd-flex jd-justify-end">
+        <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+          {getMessage('cancel')}
+        </Button>
+        <Button onClick={handleSave} disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-inline-block jd-mr-2"></div>
+              {currentTemplate ? getMessage('updating') : getMessage('creating')}
+            </>
+          ) : (
+            currentTemplate ? getMessage('update') : getMessage('create')
+          )}
+        </Button>
+      </div>
+    </BaseDialog>
   );
 };

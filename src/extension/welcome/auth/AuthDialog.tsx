@@ -32,7 +32,7 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({ onClose, options, dialog
   return (
     <BaseDialog {...dialogProps}>
       <DialogHeader>
-        <DialogTitle className="jd-text-center jd-text-2xl jd-font-bold jd-text-white jd-font-heading jd-mb-6">
+        <DialogTitle className="jd-text-center jd-text-2xl jd-font-bold jd-font-heading jd-mb-6">
           {initialMode === 'signin' 
             ? getMessage('signIn', undefined, 'Sign In')
             : getMessage('signUp', undefined, 'Sign Up')}

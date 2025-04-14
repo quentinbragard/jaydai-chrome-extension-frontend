@@ -1,13 +1,5 @@
 // src/components/dialogs/analytics/EnhancedStatsDialog.tsx
 import React, { useState, useEffect } from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogDescription,
-  DialogFooter
-} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useDialog } from '@/components/dialogs/core/DialogContext';
@@ -40,6 +32,7 @@ import { getCurrentLanguage } from '@/core/utils/i18n';
 import StatsChart from '@/components/panels/StatsPanel/StatsChart';
 import UserInsightCard from './UserInsightCard';
 import UsageMetricsGrid, { createMetricsData } from './UsageMetricsGrid';
+import { BaseDialog } from '../BaseDialog';
 
 // Define card types and their properties
 interface StatCardInfo {
@@ -127,6 +120,7 @@ export const EnhancedStatsDialog: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [loading, setLoading] = useState<boolean>(true);
   const [language, setLanguage] = useState<string>('en');
+  const [error, setError] = useState<string | null>(null);
 
   // Load stats data
   useEffect(() => {
@@ -160,13 +154,17 @@ export const EnhancedStatsDialog: React.FC = () => {
   // Render loading state
   if (loading || !stats) {
     return (
-      <Dialog {...dialogProps}>
-        <DialogContent className="sm:max-w-3xl">
-          <div className="jd-flex jd-items-center jd-justify-center jd-p-8">
-            <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <BaseDialog
+        open={isOpen}
+        onOpenChange={dialogProps.onOpenChange}
+        title={getMessage('enhancedStats', undefined, 'Enhanced Statistics')}
+        description={getMessage('enhancedStatsDescription', undefined, 'Detailed analytics and insights about your AI usage')}
+        className="jd-max-w-4xl"
+      >
+        <div className="jd-flex jd-items-center jd-justify-center jd-p-8">
+          <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
+        </div>
+      </BaseDialog>
     );
   }
 
@@ -259,19 +257,16 @@ export const EnhancedStatsDialog: React.FC = () => {
   };
 
   return (
-    <Dialog {...dialogProps}>
-      <DialogContent className="sm:max-w-4xl jd-max-h-[90vh] jd-overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {getMessage('enhancedAiAnalytics', undefined, 'Enhanced AI Analytics')}
-          </DialogTitle>
-          <DialogDescription>
-            {getMessage('analyticsDescription', undefined, 'Detailed insights about your AI interactions and usage patterns')}
-          </DialogDescription>
-        </DialogHeader>
-
+    <BaseDialog
+      open={isOpen}
+      onOpenChange={dialogProps.onOpenChange}
+      title={getMessage('enhancedStats', undefined, 'Enhanced Statistics')}
+      description={getMessage('enhancedStatsDescription', undefined, 'Detailed analytics and insights about your AI usage')}
+      className="jd-max-w-4xl"
+    >
+      <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
         <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="jd-w-full">
-        <TabsList className="jd-grid jd-grid-cols-4 jd-mb-4">
+          <TabsList className="jd-grid jd-grid-cols-4 jd-mb-4">
             <TabsTrigger value="overview">
               <Star className="jd-h-4 jd-w-4 jd-mr-2" />
               {getMessage('overview', undefined, 'Overview')}
@@ -446,12 +441,12 @@ export const EnhancedStatsDialog: React.FC = () => {
           </TabsContent>
         </Tabs>
         
-        <DialogFooter className="jd-mt-6">
+        <div className="jd-mt-6 jd-flex jd-justify-end">
           <Button onClick={() => dialogProps.onOpenChange(false)}>
             {getMessage('close', undefined, 'Close')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </BaseDialog>
   );
 };

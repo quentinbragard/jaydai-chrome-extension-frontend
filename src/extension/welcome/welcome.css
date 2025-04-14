@@ -29,35 +29,6 @@
   letter-spacing: -0.025em;
 }
 
-/* Background colors */
-.jd-bg-gray-950 {
-  background-color: #0a0a0a;
-}
-
-.jd-bg-gray-900 {
-  background-color: #111827;
-}
-
-.jd-bg-gray-800 {
-  background-color: #1f2937;
-}
-
-/* Text colors */
-.jd-text-white {
-  color: #f9fafb;
-}
-
-.jd-text-gray-300 {
-  color: #d1d5db;
-}
-
-.jd-text-gray-500 {
-  color: #6b7280;
-}
-
-.jd-text-blue-500 {
-  color: #3b82f6;
-}
 
 /* Feature card */
 .jd-feature-card {

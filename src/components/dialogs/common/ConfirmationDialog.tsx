@@ -1,18 +1,10 @@
 // src/components/dialogs/common/ConfirmationDialog.tsx
 import React from 'react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { getMessage } from '@/core/utils/i18n';
+import { BaseDialog } from '../BaseDialog';
 
 /**
  * Generic confirmation dialog component
@@ -41,23 +33,22 @@ export const ConfirmationDialog: React.FC = () => {
   if (!isOpen) return null;
   
   return (
-    <AlertDialog open={isOpen} onOpenChange={dialogProps.onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {description}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel}>
+    <BaseDialog 
+      open={isOpen} 
+      onOpenChange={dialogProps.onOpenChange}
+      title={title}
+      description={description}
+    >
+      <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
+        <div className="jd-flex jd-justify-end jd-space-x-2">
+          <Button variant="outline" onClick={handleCancel}>
             {cancelText}
-          </AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm}>
+          </Button>
+          <Button onClick={handleConfirm}>
             {confirmText}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </Button>
+        </div>
+      </div>
+    </BaseDialog>
   );
 };

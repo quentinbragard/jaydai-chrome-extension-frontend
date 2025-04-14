@@ -86,7 +86,7 @@ const WelcomePage: React.FC = () => {
   // Loading state
   if (authState.isLoading) {
     return (
-      <div className="jd-min-h-screen jd-bg-gray-950 jd-flex jd-items-center jd-justify-center jd-font-sans">
+      <div className="jd-min-h-screen jd-bg-background jd-text-foreground jd-flex jd-items-center jd-justify-center jd-font-sans">
         <div className="jd-text-center">
           <div className="jd-spinner-welcome">
             <div className="jd-double-bounce1"></div>
@@ -101,7 +101,7 @@ const WelcomePage: React.FC = () => {
   }
 
   return (
-    <div className="jd-min-h-screen jd-bg-gray-950 jd-flex jd-items-center jd-justify-center jd-font-sans">
+    <div className="jd-min-h-screen jd-bg-background jd-text-foreground jd-flex jd-items-center jd-justify-center jd-font-sans">
       <div className="jd-w-full jd-mx-auto jd-px-4">
         <div className="jd-flex jd-flex-col jd-items-center jd-py-16">
           {/* Logo */}

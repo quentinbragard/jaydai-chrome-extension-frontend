@@ -1,13 +1,5 @@
 // src/components/dialogs/templates/PlaceholderEditor.tsx
 import React, { useState, useEffect, useRef } from "react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter, 
-  DialogDescription 
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -16,6 +8,7 @@ import { AlertTriangle } from "lucide-react";
 import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { getMessage } from '@/core/utils/i18n';
+import { BaseDialog } from '../BaseDialog';
 
 // Custom hook to detect dark mode
 const useDarkMode = () => {
@@ -279,96 +272,81 @@ export const PlaceholderEditor: React.FC = () => {
   if (!isOpen) return null;
 
   return (
-    <Dialog 
-      {...dialogProps}
-      onOpenChange={(open) => {
+    <BaseDialog
+      open={isOpen}
+      onOpenChange={(open: boolean) => {
+        if (!open) {
+          handleClose();
+        }
         dialogProps.onOpenChange(open);
-        document.dispatchEvent(new CustomEvent(
-          open ? 'jaydai:placeholder-editor-opened' : 'jaydai:placeholder-editor-closed'
-        ));
       }}
+      title={getMessage('placeholderEditor', undefined, 'Placeholder Editor')}
+      description={getMessage('placeholderEditorDescription', undefined, 'Edit placeholders in your template')}
+      className="jd-max-w-3xl"
     >
-      <DialogContent
-        className={`jd-max-w-7xl jd-max-h-[90vh] jd-flex jd-flex-col jd-z-[10001] jd-shadow-2xl ${
-          isDarkMode 
-            ? "jd-bg-gray-900 jd-border-gray-700" 
-            : "jd-bg-white jd-border-gray-200"
-        }`}
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: '90vh', overflow: 'auto' }}
-      >
-        {/* Wrapper div with dark class when in dark mode */}
-        <div className={isDarkMode ? "dark" : ""} style={{ width: '100%' }}>
-          <DialogHeader>
-            <DialogTitle>{getMessage('customizeTemplate', [templateTitle])}</DialogTitle>
-            <DialogDescription>
-              {getMessage('customizeTemplateDesc')}
-            </DialogDescription>
-          </DialogHeader>
+      <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
+        {error && (
+          <Alert variant="destructive" className="jd-mb-4">
+            <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-          {error && (
-            <Alert variant="destructive" className="jd-mb-4">
-              <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+        <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden jd-w-full">
+          {/* Placeholders Section */}
+          <div className="jd-space-y-4 jd-overflow-auto">
+            <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('replacePlaceholders')}</h3>
 
-          <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden jd-w-full">
-            {/* Placeholders Section */}
-            <div className="jd-space-y-4 jd-overflow-auto">
-              <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('replacePlaceholders')}</h3>
-
-              {placeholders.length > 0 ? (
-                <ScrollArea className="jd-h-[50vh]">
-                  <div className="jd-space-y-4 jd-pr-4">
-                    {placeholders.map((placeholder, idx) => (
-                      <div key={placeholder.key + idx} className="jd-space-y-1">
-                        <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
-                          <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
-                        </label>
-                        <Input
-                          value={placeholder.value}
-                          onChange={(e) => updatePlaceholder(idx, e.target.value)}
-                          placeholder={getMessage('enterValueFor', [placeholder.key])}
-                          className="jd-w-full"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              ) : (
-                <div className="jd-text-muted-foreground jd-text-center jd-py-8">{getMessage('noPlaceholders')}</div>
-              )}
-            </div>
-
-            {/* Rich Text Editable Section */}
-            <div className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
-              isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
-            }`}>
-              <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
-              <div
-                ref={editorRef}
-                contentEditable
-                suppressContentEditableWarning
-                className={`jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
-                  isDarkMode 
-                    ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
-                    : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
-                }`}
-                onClick={(e) => e.stopPropagation()} 
-                onMouseDown={(e) => e.stopPropagation()} 
-              ></div>
-            </div>
+            {placeholders.length > 0 ? (
+              <ScrollArea className="jd-h-[50vh]">
+                <div className="jd-space-y-4 jd-pr-4">
+                  {placeholders.map((placeholder, idx) => (
+                    <div key={placeholder.key + idx} className="jd-space-y-1">
+                      <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
+                        <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
+                      </label>
+                      <Input
+                        value={placeholder.value}
+                        onChange={(e) => updatePlaceholder(idx, e.target.value)}
+                        placeholder={getMessage('enterValueFor', [placeholder.key])}
+                        className="jd-w-full"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="jd-text-muted-foreground jd-text-center jd-py-8">{getMessage('noPlaceholders')}</div>
+            )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={handleClose}>
-              {getMessage('cancel')}
-            </Button>
-            <Button onClick={handleComplete}>{getMessage('useTemplate')}</Button>
-          </DialogFooter>
+          {/* Rich Text Editable Section */}
+          <div className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
+            isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
+          }`}>
+            <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
+            <div
+              ref={editorRef}
+              contentEditable
+              suppressContentEditableWarning
+              className={`jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
+                isDarkMode 
+                  ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
+                  : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
+              }`}
+              onClick={(e) => e.stopPropagation()} 
+              onMouseDown={(e) => e.stopPropagation()} 
+            ></div>
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+
+        <div className="jd-mt-4 jd-flex jd-justify-end">
+          <Button variant="outline" onClick={handleClose}>
+            {getMessage('cancel')}
+          </Button>
+          <Button onClick={handleComplete}>{getMessage('useTemplate')}</Button>
+        </div>
+      </div>
+    </BaseDialog>
   );
 };

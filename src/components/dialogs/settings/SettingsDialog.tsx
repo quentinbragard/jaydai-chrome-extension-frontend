@@ -1,13 +1,5 @@
 // src/components/dialogs/settings/SettingsDialog.tsx
 import React, { useState, useEffect } from 'react';
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -15,6 +7,7 @@ import { toast } from "sonner";
 import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { getMessage } from '@/core/utils/i18n';
+import { BaseDialog } from '../BaseDialog';
 
 interface Settings {
   autoSave: boolean;
@@ -96,99 +89,91 @@ export const SettingsDialog: React.FC = () => {
     dialogProps.onOpenChange(false);
   };
   
-  if (!isOpen) return null;
-
   return (
-    <Dialog {...dialogProps}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{getMessage('jaydaiSettings', undefined, 'Settings')}</DialogTitle>
-          <DialogDescription>
-            {getMessage('configureJaydai', undefined, 'Configure Archimind settings')}
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="jd-py-4 jd-space-y-6">
-          {loading ? (
-            <div className="jd-flex jd-items-center jd-justify-center jd-h-40">
-              <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
+    <BaseDialog
+      open={isOpen}
+      onOpenChange={(open: boolean) => {
+        if (!open) {
+          handleCancel();
+        }
+        dialogProps.onOpenChange(open);
+      }}
+      title={getMessage('settings', undefined, 'Settings')}
+      description={getMessage('settingsDescription', undefined, 'Configure your application settings')}
+      className="jd-max-w-md"
+    >
+      <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
+        <div className="jd-space-y-2">
+          <div className="jd-flex jd-items-center jd-justify-between">
+            <label className="jd-text-sm jd-font-medium" htmlFor="auto-save">
+              {getMessage('autoSaveConversations', undefined, 'Auto-save conversations')}
+            </label>
+            <input
+              id="auto-save"
+              type="checkbox"
+              checked={settings.autoSave}
+              onChange={(e) => handleChange('autoSave', e.target.checked)}
+              className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary focus:ring-primary"
+            />
+          </div>
+          
+          {settings.autoSave && (
+            <div className="jd-flex jd-items-center jd-justify-between jd-pl-4">
+              <label className="jd-text-sm jd-font-medium" htmlFor="auto-save-interval">
+                {getMessage('autoSaveInterval', undefined, 'Auto-save interval (seconds)')}
+              </label>
+              <Input
+                id="auto-save-interval"
+                type="number"
+                min={10}
+                max={300}
+                value={settings.autoSaveInterval}
+                onChange={(e) => handleChange('autoSaveInterval', parseInt(e.target.value, 10))}
+                className="jd-w-20"
+              />
             </div>
-          ) : (
-            <>
-              <div className="jd-space-y-2">
-                <div className="jd-flex jd-items-center jd-justify-between">
-                  <label className="jd-text-sm jd-font-medium" htmlFor="auto-save">
-                    {getMessage('autoSaveConversations', undefined, 'Auto-save conversations')}
-                  </label>
-                  <input
-                    id="auto-save"
-                    type="checkbox"
-                    checked={settings.autoSave}
-                    onChange={(e) => handleChange('autoSave', e.target.checked)}
-                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary focus:ring-primary"
-                  />
-                </div>
-                
-                {settings.autoSave && (
-                  <div className="jd-flex jd-items-center jd-justify-between jd-pl-4">
-                    <label className="jd-text-sm jd-font-medium" htmlFor="auto-save-interval">
-                      {getMessage('autoSaveInterval', undefined, 'Auto-save interval (seconds)')}
-                    </label>
-                    <Input
-                      id="auto-save-interval"
-                      type="number"
-                      min={10}
-                      max={300}
-                      value={settings.autoSaveInterval}
-                      onChange={(e) => handleChange('autoSaveInterval', parseInt(e.target.value, 10))}
-                      className="jd-w-20"
-                    />
-                  </div>
-                )}
-              </div>
-              
-              <Separator />
-              
-              <div className="jd-space-y-2">
-                <div className="jd-flex jd-items-center jd-justify-between">
-                  <label className="jd-text-sm jd-font-medium" htmlFor="sync-enabled">
-                    {getMessage('enableSync', undefined, 'Enable synchronization')}
-                  </label>
-                  <input
-                    id="sync-enabled"
-                    type="checkbox"
-                    checked={settings.syncEnabled}
-                    onChange={(e) => handleChange('syncEnabled', e.target.checked)}
-                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary focus:ring-primary"
-                  />
-                </div>
-                
-                <div className="jd-flex jd-items-center jd-justify-between">
-                  <label className="jd-text-sm jd-font-medium" htmlFor="stats-visible">
-                    {getMessage('showStatsPanel', undefined, 'Show stats panel')}
-                  </label>
-                  <input
-                    id="stats-visible"
-                    type="checkbox"
-                    checked={settings.statsVisible}
-                    onChange={(e) => handleChange('statsVisible', e.target.checked)}
-                    className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary focus:ring-primary"
-                  />
-                </div>
-              </div>
-            </>
           )}
         </div>
         
-        <DialogFooter>
-          <Button variant="outline" onClick={handleCancel}>
-            {getMessage('cancel', undefined, 'Cancel')}
-          </Button>
-          <Button onClick={saveSettings} disabled={loading}>
-            {getMessage('saveChanges', undefined, 'Save Changes')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <Separator />
+        
+        <div className="jd-space-y-2">
+          <div className="jd-flex jd-items-center jd-justify-between">
+            <label className="jd-text-sm jd-font-medium" htmlFor="sync-enabled">
+              {getMessage('enableSync', undefined, 'Enable synchronization')}
+            </label>
+            <input
+              id="sync-enabled"
+              type="checkbox"
+              checked={settings.syncEnabled}
+              onChange={(e) => handleChange('syncEnabled', e.target.checked)}
+              className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary focus:ring-primary"
+            />
+          </div>
+          
+          <div className="jd-flex jd-items-center jd-justify-between">
+            <label className="jd-text-sm jd-font-medium" htmlFor="stats-visible">
+              {getMessage('showStatsPanel', undefined, 'Show stats panel')}
+            </label>
+            <input
+              id="stats-visible"
+              type="checkbox"
+              checked={settings.statsVisible}
+              onChange={(e) => handleChange('statsVisible', e.target.checked)}
+              className="jd-h-4 jd-w-4 jd-rounded jd-border-gray-300 jd-text-primary focus:ring-primary"
+            />
+          </div>
+        </div>
+      </div>
+      
+      <div className="jd-mt-4 jd-flex jd-justify-end">
+        <Button variant="outline" onClick={handleCancel}>
+          {getMessage('cancel', undefined, 'Cancel')}
+        </Button>
+        <Button onClick={saveSettings} disabled={loading}>
+          {getMessage('saveChanges', undefined, 'Save Changes')}
+        </Button>
+      </div>
+    </BaseDialog>
   );
 };

@@ -1,13 +1,5 @@
 // src/components/dialogs/templates/FolderDialog.tsx
 import React, { useState, useEffect } from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +7,8 @@ import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
+import { BaseDialog } from '../BaseDialog';
+import { getMessage } from '@/core/utils/i18n';
 
 /**
  * Dialog for creating new template folders
@@ -109,54 +103,65 @@ export const FolderDialog: React.FC = () => {
     setDescription('');
   };
   
-  if (!isOpen) return null;
-
   return (
-    <Dialog {...dialogProps}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create New Folder</DialogTitle>
-          <DialogDescription>
-            Create a folder to organize your templates.
-          </DialogDescription>
-        </DialogHeader>
+    <BaseDialog
+      open={isOpen}
+      onOpenChange={(open: boolean) => {
+        if (!open) {
+          resetForm();
+        }
+        dialogProps.onOpenChange(open);
+      }}
+      title={getMessage('createFolder', undefined, 'Create Folder')}
+      description={getMessage('createFolderDescription', undefined, 'Create a new folder to organize your templates')}
+    >
+      <form onSubmit={handleSubmit} className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
+        <div>
+          <label className="jd-text-sm jd-font-medium">{getMessage('folderName', undefined, 'Folder Name')}</label>
+          <Input 
+            value={name} 
+            onChange={(e) => setName(e.target.value)}
+            placeholder={getMessage('enterFolderName', undefined, 'Enter folder name')}
+            className="jd-mt-1"
+            autoFocus
+          />
+        </div>
         
-        <form onSubmit={handleSubmit} className="jd-space-y-4 jd-py-2">
-          <div>
-            <label className="jd-text-sm jd-font-medium">Folder Name</label>
-            <Input 
-              value={name} 
-              onChange={(e) => setName(e.target.value)}
-              placeholder="My Templates"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="jd-text-sm jd-font-medium">Description (Optional)</label>
-            <Textarea 
-              value={description} 
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Templates for work projects"
-              rows={3}
-            />
-          </div>
-          
-          <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => dialogProps.onOpenChange(false)} 
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Folder'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+        <div>
+          <label className="jd-text-sm jd-font-medium">{getMessage('description', undefined, 'Description')}</label>
+          <Textarea 
+            value={description} 
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={getMessage('enterFolderDescription', undefined, 'Enter folder description (optional)')}
+            className="jd-mt-1"
+            rows={3}
+          />
+        </div>
+        
+        <div className="jd-flex jd-justify-end jd-space-x-2 jd-mt-4">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => dialogProps.onOpenChange(false)}
+            disabled={isSubmitting}
+          >
+            {getMessage('cancel', undefined, 'Cancel')}
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting || !name.trim()}
+          >
+            {isSubmitting ? (
+              <>
+                <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-inline-block jd-mr-2"></div>
+                {getMessage('creating', undefined, 'Creating...')}
+              </>
+            ) : (
+              getMessage('create', undefined, 'Create')
+            )}
+          </Button>
+        </div>
+      </form>
+    </BaseDialog>
   );
 };

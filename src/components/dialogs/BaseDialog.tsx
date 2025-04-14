@@ -26,7 +26,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={cn("jd-dialog-content", className)} 
+        className={cn("max-x-7-xl jd-dialog-content jd-overflow-y-auto jd-bg-background jd-text-foreground", className)} 
         onClick={(e) => e.stopPropagation()}
       >
         {title && <h2 className="jd-dialog-title">{getMessage(title, undefined, title)}</h2>}
