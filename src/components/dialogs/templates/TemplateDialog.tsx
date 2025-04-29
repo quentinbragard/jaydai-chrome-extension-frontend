@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useDialog } from '@/components/dialogs/core/DialogContext';
 import { DIALOG_TYPES } from '@/core/dialogs/registry';
 import { FolderPlus } from 'lucide-react';
@@ -382,11 +383,38 @@ export const TemplateDialog: React.FC = () => {
         
         <div>
           <label className="jd-text-sm jd-font-medium">{getMessage('description')}</label>
-          <Input 
+          <Textarea 
             value={formData.description || ''} 
             onChange={(e) => handleFormChange('description', e.target.value)}
+            onKeyDown={(e) => {
+              // Allow Enter key to create a new line
+              if (e.key === 'Enter') {
+                // Prevent default behavior (which might submit the form)
+                e.preventDefault();
+                
+                // Get the current cursor position
+                const textarea = e.target as HTMLTextAreaElement;
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                
+                // Insert a newline at the cursor position
+                const newContent = 
+                  (formData.description || '').substring(0, start) + 
+                  '\n' + 
+                  (formData.description || '').substring(end);
+                
+                // Update the form data
+                handleFormChange('description', newContent);
+                
+                // Set the cursor position after the newline
+                setTimeout(() => {
+                  textarea.selectionStart = textarea.selectionEnd = start + 1;
+                }, 0);
+              }
+            }}
             placeholder={getMessage('templateDescriptionPlaceholder')}
             className="jd-mt-1"
+            rows={3}
           />
         </div>
         

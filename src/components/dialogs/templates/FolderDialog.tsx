@@ -122,6 +122,12 @@ export const FolderDialog: React.FC = () => {
           <Input 
             value={name} 
             onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => {
+              // Prevent form submission when Enter is pressed in the name field
+              if (e.key === 'Enter') {
+                e.preventDefault();
+              }
+            }}
             placeholder={getMessage('enterFolderName', undefined, 'Enter folder name')}
             className="jd-mt-1"
             autoFocus
@@ -133,6 +139,32 @@ export const FolderDialog: React.FC = () => {
           <Textarea 
             value={description} 
             onChange={(e) => setDescription(e.target.value)}
+            onKeyDown={(e) => {
+              // Allow Enter key to create a new line
+              if (e.key === 'Enter') {
+                // Prevent default behavior (which might submit the form)
+                e.preventDefault();
+                
+                // Get the current cursor position
+                const textarea = e.target as HTMLTextAreaElement;
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                
+                // Insert a newline at the cursor position
+                const newContent = 
+                  description.substring(0, start) + 
+                  '\n' + 
+                  description.substring(end);
+                
+                // Update the description state
+                setDescription(newContent);
+                
+                // Set the cursor position after the newline
+                setTimeout(() => {
+                  textarea.selectionStart = textarea.selectionEnd = start + 1;
+                }, 0);
+              }
+            }}
             placeholder={getMessage('enterFolderDescription', undefined, 'Enter folder description (optional)')}
             className="jd-mt-1"
             rows={3}
