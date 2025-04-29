@@ -58,7 +58,9 @@ export const PlaceholderEditor: React.FC = () => {
   const [modifiedContent, setModifiedContent] = useState('');
   const [contentMounted, setContentMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false); // New state to track active editing
   const editorRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<MutationObserver | null>(null);
   const isDarkMode = useDarkMode();
 
   // Safe extraction of dialog data with defaults
@@ -157,12 +159,14 @@ export const PlaceholderEditor: React.FC = () => {
     }
   }, [isOpen, templateContent]);
 
-  // Handle changes inside contentEditable div
+  // Setup the mutation observer only once after mounting
   useEffect(() => {
     if (!contentMounted || !editorRef.current) return;
 
-    const observer = new MutationObserver(() => {
-      if (!editorRef.current) return;
+    // Create a new observer
+    observerRef.current = new MutationObserver(() => {
+      // Skip processing while user is actively editing
+      if (isEditing || !editorRef.current) return;
       
       // Get the HTML content
       const htmlContent = editorRef.current.innerHTML;
@@ -195,15 +199,66 @@ export const PlaceholderEditor: React.FC = () => {
       setModifiedContent(textContent);
     });
 
-    observer.observe(editorRef.current, { 
+    // Start observing
+    observerRef.current.observe(editorRef.current, { 
       childList: true, 
       subtree: true, 
       characterData: true,
       attributes: false 
     });
 
-    return () => observer.disconnect();
+    // Cleanup
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    };
   }, [contentMounted]);
+
+  // Handle editor focus events
+  const handleEditorFocus = () => {
+    setIsEditing(true);
+    // Temporarily disconnect the observer when editing starts
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+  };
+
+  // Handle editor blur events
+  const handleEditorBlur = () => {
+    setIsEditing(false);
+    // Extract content and update state
+    if (editorRef.current) {
+      const htmlContent = editorRef.current.innerHTML;
+      // Process HTML content to text (similar to the observer logic)
+      const textContent = htmlContent
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<div\s*\/?>/gi, '')
+        .replace(/<\/div>/gi, '\n')
+        .replace(/<p\s*\/?>/gi, '')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<\/?span[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&amp;/g, '&');
+      
+      setModifiedContent(textContent);
+      
+      // Reconnect the observer
+      if (observerRef.current && editorRef.current) {
+        observerRef.current.observe(editorRef.current, { 
+          childList: true, 
+          subtree: true, 
+          characterData: true,
+          attributes: false 
+        });
+      }
+    }
+  };
 
   /**
    * Helper function to escape regex characters
@@ -217,6 +272,9 @@ export const PlaceholderEditor: React.FC = () => {
    * with single newline handling
    */
   const updatePlaceholder = (index: number, value: string) => {
+    // Skip if user is actively editing
+    if (isEditing) return;
+    
     const updatedPlaceholders = [...placeholders];
     updatedPlaceholders[index].value = value;
     setPlaceholders(updatedPlaceholders);
@@ -236,9 +294,24 @@ export const PlaceholderEditor: React.FC = () => {
     setModifiedContent(newContent);
 
     // Update the editor display with proper highlighting
-    if (editorRef.current) {
+    if (editorRef.current && !isEditing) {
+      // Temporarily disconnect observer
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+      
       // Make sure the HTML we set doesn't have doubled line breaks
       editorRef.current.innerHTML = highlightPlaceholders(newContent);
+      
+      // Reconnect observer
+      if (observerRef.current && editorRef.current) {
+        observerRef.current.observe(editorRef.current, { 
+          childList: true, 
+          subtree: true, 
+          characterData: true,
+          attributes: false 
+        });
+      }
     }
   };
 
@@ -321,21 +394,36 @@ export const PlaceholderEditor: React.FC = () => {
           </div>
 
           {/* Rich Text Editable Section */}
-          <div className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
-            isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
-          }`}>
+          <div 
+            className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
+              isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            >
             <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
             <div
               ref={editorRef}
               contentEditable
               suppressContentEditableWarning
+              onFocus={handleEditorFocus}
+              onBlur={handleEditorBlur}
               className={`jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
                 isDarkMode 
                   ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
                   : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
               }`}
-              onClick={(e) => e.stopPropagation()} 
-              onMouseDown={(e) => e.stopPropagation()} 
+              onClick={(e) => {
+                e.stopPropagation();
+                // Allow default behavior for cursor positioning
+              }} 
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                // Allow default behavior for text selection
+              }}
+              onKeyDown={(e) => e.stopPropagation()}
+              onKeyPress={(e) => e.stopPropagation()}
+              onKeyUp={(e) => e.stopPropagation()}
             ></div>
           </div>
         </div>

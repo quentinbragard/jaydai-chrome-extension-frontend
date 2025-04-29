@@ -1,0 +1,49 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_210_5)">
+<path d="M100 15C120 15 136.667 21.6667 150 35C163.333 48.3333 170 65 170 85C170 115 156.667 140 130 160C116.667 170 106.667 176.667 100 180C93.3333 176.667 83.3333 170 70 160C43.3333 140 30 115 30 85C30 65 36.6667 48.3333 50 35C63.3333 21.6667 80 15 100 15Z" fill="white" stroke="black" stroke-width="2"/>
+<path d="M100 25C116.667 25 130 30 140 40C153.333 53.3333 160 68.3333 160 85C160 111.667 148.333 133.333 125 150C115 160 106.667 166.667 100 170C93.3333 166.667 85 160 75 150C51.6667 133.333 40 111.667 40 85C40 68.3333 46.6667 53.3333 60 40C70 30 83.3333 25 100 25Z" fill="url(#paint0_linear_210_5)"/>
+<path opacity="0.7" d="M100 160C130.376 160 155 135.376 155 105C155 74.6243 130.376 50 100 50C69.6243 50 45 74.6243 45 105C45 135.376 69.6243 160 100 160Z" stroke="#A9C2D8"/>
+<path opacity="0.4" d="M100 125C130.376 125 155 116.046 155 105C155 93.9543 130.376 85 100 85C69.6243 85 45 93.9543 45 105C45 116.046 69.6243 125 100 125Z" stroke="#A9C2D8"/>
+<g opacity="0.6">
+<path d="M45 105H155H45Z" fill="black"/>
+<path d="M45 105H155" stroke="#A9C2D8"/>
+</g>
+<g opacity="0.6">
+<path d="M100 50V160V50Z" fill="black"/>
+<path d="M100 50V160" stroke="#A9C2D8"/>
+</g>
+<g opacity="0.4">
+<path d="M58 63L142 147L58 63Z" fill="black"/>
+<path d="M58 63L142 147" stroke="#A9C2D8"/>
+</g>
+<g opacity="0.4">
+<path d="M58 147L142 63L58 147Z" fill="black"/>
+<path d="M58 147L142 63" stroke="#A9C2D8"/>
+</g>
+<foreignObject x="0" y="0" width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(0px);height:100%;width:100%"></div></foreignObject><path data-figma-bg-blur-radius="0" d="M50 55C83.3333 28.3333 116.667 28.3333 150 55" stroke="url(#paint1_linear_210_5)" stroke-width="6" stroke-linecap="round"/>
+<path d="M100 15V30" stroke="url(#paint2_linear_210_5)" stroke-width="3" stroke-linecap="round"/>
+<path opacity="0.6" d="M60 45C70 40.3333 83.3333 37 100 35" stroke="#FFCD00" stroke-width="1.5" stroke-linecap="round"/>
+<path opacity="0.6" d="M100 35C116.667 37 130 40.3333 140 45" stroke="#FFCD00" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M78 59.6666H116.514V121.889C116.514 130.14 113.267 138.053 107.489 143.888C101.711 149.722 93.8742 153 85.7027 153H78V137.444H85.7027C89.7885 137.444 93.7069 135.806 96.596 132.888C99.485 129.971 101.108 126.014 101.108 121.889V75.2222H78V59.6666Z" fill="#030816"/>
+<path d="M124.216 55L127.297 62.7778L135 65.8889L127.297 69L124.216 76.7778L121.135 69L113.433 65.8889L121.135 62.7778L124.216 55Z" fill="#FFCD00"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_210_5" x1="40" y1="25" x2="40" y2="14525" gradientUnits="userSpaceOnUse">
+<stop stop-color="#7B9EB3" stop-opacity="0.1"/>
+<stop offset="1" stop-color="#4A6F85" stop-opacity="0.3"/>
+</linearGradient>
+<linearGradient id="paint1_linear_210_5" x1="50" y1="35" x2="10050" y2="35" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FFCD00"/>
+<stop offset="0.5" stop-color="#FFCD00"/>
+<stop offset="1" stop-color="#FFCD00"/>
+</linearGradient>
+<linearGradient id="paint2_linear_210_5" x1="-nan" y1="-nan" x2="-nan" y2="-nan" gradientUnits="userSpaceOnUse">
+<stop stop-color="#4A6F85"/>
+<stop offset="0.5" stop-color="#7B9EB3"/>
+<stop offset="1" stop-color="#4A6F85"/>
+</linearGradient>
+<clipPath id="clip0_210_5">
+<rect width="200" height="200" fill="white"/>
+</clipPath>
+</defs>
+</svg>
