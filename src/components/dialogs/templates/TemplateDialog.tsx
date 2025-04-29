@@ -446,6 +446,32 @@ export const TemplateDialog: React.FC = () => {
             rows={6}
             value={formData.content || ''} 
             onChange={(e) => handleFormChange('content', e.target.value)}
+            onKeyDown={(e) => {
+              // Allow Enter key to create a new line
+              if (e.key === 'Enter') {
+                // Prevent default behavior (which might submit the form)
+                e.preventDefault();
+                
+                // Get the current cursor position
+                const textarea = e.target as HTMLTextAreaElement;
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                
+                // Insert a newline at the cursor position
+                const newContent = 
+                  formData.content.substring(0, start) + 
+                  '\n' + 
+                  formData.content.substring(end);
+                
+                // Update the form data
+                handleFormChange('content', newContent);
+                
+                // Set the cursor position after the newline
+                setTimeout(() => {
+                  textarea.selectionStart = textarea.selectionEnd = start + 1;
+                }, 0);
+              }
+            }}
             placeholder={getMessage('enterTemplateContent')}
           />
           {validationErrors.content && (
