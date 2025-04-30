@@ -8,10 +8,11 @@ import { useFolderMutations } from './useFolderMutations';
 import { useQueryClient } from 'react-query';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useDialogManager } from '@/components/dialogs/core/DialogContext';
+import { insertContentIntoChat, formatContentForInsertion } from '@/utils/templates/insertPrompt';
 
 /**
- * A completely redesigned template action hook with improved reliability
- * and cleaner content flow
+ * A redesigned template action hook with cross-platform support
+ * for both ChatGPT and Claude
  */
 export function useTemplateActions() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -58,174 +59,7 @@ export function useTemplateActions() {
       return false;
     }
   }, [dialogManager]);
-  
- /**
- * Insert template content directly into the ChatGPT textarea
- * with improved handling of special characters and formatting
- */
-const insertContentIntoChat = useCallback((content: string) => {
-  if (!content) {
-    console.error('No content to insert');
-    return false;
-  }
-  
-  console.log(`Attempting to insert content (${content.length} chars)`);
-  
-  try {
-    // Find the textarea
-    const textarea = document.querySelector('#prompt-textarea');
-    if (!textarea) {
-      console.error('Could not find #prompt-textarea element');
-      toast.error('Could not find input area');
-      return false;
-    }
-    
-    // Normalize content (preserve all characters including quotes)
-    const normalizedContent = content.replace(/\r\n/g, '\n');
-    console.log('Content normalized, preserving special characters');
-    
-    // ---- Method 1: Event-based insertion ----
-    try {
-      // Make sure textarea is in focus
-      textarea.focus();
-      
-      // For regular textareas
-      if (textarea instanceof HTMLTextAreaElement) {
-        console.log('Using HTMLTextAreaElement approach');
-        
-        // Set the value directly (preserves quotes and other special chars)
-        textarea.value = normalizedContent;
-        
-        // Trigger input event to notify React/ChatGPT of the change
-        const inputEvent = new Event('input', { bubbles: true, cancelable: true });
-        textarea.dispatchEvent(inputEvent);
-        
-        // Trigger a change event as well for good measure
-        const changeEvent = new Event('change', { bubbles: true });
-        textarea.dispatchEvent(changeEvent);
-        
-        // Position cursor at the end
-        textarea.selectionStart = textarea.selectionEnd = normalizedContent.length;
-        
-        return true;
-      }
-      
-      // For contenteditable divs
-      if (textarea instanceof HTMLElement) {
-        console.log('Using contenteditable approach');
-        
-        // Properly escape HTML entities to preserve special characters
-        const escapeHTML = (str) => {
-          return str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-        };
-        
-        // Generate HTML paragraphs with proper escaping
-        const paragraphs = normalizedContent.split('\n');
-        const paragraphsHTML = paragraphs.map(p => 
-          `<p>${escapeHTML(p) || '<br>'}</p>`
-        ).join('');
-        
-        // Set content directly
-        textarea.innerHTML = paragraphsHTML;
-        
-        // Trigger input event
-        textarea.dispatchEvent(new Event('input', { bubbles: true }));
-        
-        // Set selection at the end
-        const selection = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(textarea);
-        range.collapse(false);
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-        
-        return true;
-      }
-    } catch (e) {
-      console.warn('Method 1 failed:', e);
-      // Continue to next method
-    }
-    
-    // ---- Method 2: ClipboardAPI approach ----
-    try {
-      console.log('Trying modern Clipboard API approach');
-      
-      // Focus the textarea first
-      textarea.focus();
-      
-      // Use the newer Clipboard API
-      navigator.clipboard.writeText(normalizedContent)
-        .then(() => {
-          // Execute paste command
-          document.execCommand('paste');
-          console.log('Content pasted via Clipboard API');
-        })
-        .catch(err => {
-          console.warn('Clipboard API failed:', err);
-          throw err; // Continue to next method
-        });
-      
-      return true;
-    } catch (e) {
-      console.warn('Method 2 failed:', e);
-      // Continue to next method
-    }
-    
-    // ---- Method 3: Data transfer/clipboard approach ----
-    try {
-      console.log('Trying clipboard data transfer approach');
-      
-      // Create a data transfer to simulate paste
-      const dataTransfer = new DataTransfer();
-      dataTransfer.setData('text/plain', normalizedContent);
-      
-      // Create and dispatch events
-      const pasteEvent = new ClipboardEvent('paste', {
-        clipboardData: dataTransfer,
-        bubbles: true,
-        cancelable: true
-      });
-      
-      textarea.dispatchEvent(pasteEvent);
-      
-      // Check if the event was handled
-      if (!pasteEvent.defaultPrevented) {
-        throw new Error('Paste event not handled');
-      }
-      
-      return true;
-    } catch (e) {
-      console.warn('Method 3 failed:', e);
-      // Continue to next method
-    }
-    
-    // ---- Method 4: Command insertion ----
-    try {
-      console.log('Trying document.execCommand approach');
-      
-      // Fallback to execCommand (though deprecated)
-      textarea.focus();
-      document.execCommand('insertText', false, normalizedContent);
-      return true;
-    } catch (e) {
-      console.warn('Method 4 failed:', e);
-    }
-    
-    console.error('All insertion methods failed');
-    toast.error('Could not insert template content');
-    return false;
-  } catch (error) {
-    console.error('Error inserting template content:', error);
-    toast.error('Failed to apply template');
-    return false;
-  }
-}, []);
-  
+
 /**
  * Handle template content after editing in the placeholder editor
  * with improved content processing and panel closing
@@ -239,22 +73,26 @@ const handleTemplateComplete = useCallback((finalContent: string) => {
     return;
   }
   
-  // Normalize the content to ensure consistent newlines
-  // but preserve intentional double newlines for paragraph breaks
-  const normalizedContent = finalContent
-    .replace(/\r\n/g, '\n')  // Convert Windows newlines to Unix newlines
-    .replace(/\n{3,}/g, '\n\n');  // Normalize excessive newlines (more than 2) to double newlines
+  // Format content for insertion - normalizes newlines while preserving paragraph breaks
+  const formattedContent = formatContentForInsertion(finalContent);
   
   // Insert the content with a small delay to ensure dialog is fully closed
   setTimeout(() => {
-    insertContentIntoChat(normalizedContent);
+    const success = insertContentIntoChat(formattedContent);
+    
+    if (success) {
+      // Only show toast on success
+      toast.success('Template applied successfully');
+    } else {
+      toast.error('Failed to apply template');
+    }
     
     // Dispatch an event to close the main button and panels
     document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
   }, 50);
-}, [insertContentIntoChat]);
+}, []);
 
-// Also update the useTemplate function to make sure panels are closed when template is used
+// Updated useTemplate function with cross-platform support
 const useTemplate = useCallback((template: Template) => {
   // Validation
   if (!template) {

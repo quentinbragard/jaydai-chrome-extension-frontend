@@ -95,7 +95,7 @@ const Main: React.FC = () => {
   }, []);
 
   return (
-    <div id="jaydai-shadow-root" className="jd-w-full jd-h-full">
+    <div id="jaydai-shadow-root" className="jd-w-full jd-h-full jd-z-[9999]">
       <ErrorBoundary>
         <AuthProvider>
           <ThemeProvider

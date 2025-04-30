@@ -44,7 +44,7 @@ const MainButton = () => {
 
   return (
     <ErrorBoundary>
-      <div className="jd-fixed jd-bottom-6 jd-right-8">
+      <div className="jd-fixed jd-bottom-6 jd-right-8 jd-z-[9999]">
         <div className="jd-relative">
           {/* Panel Manager */}
           <PanelManager
