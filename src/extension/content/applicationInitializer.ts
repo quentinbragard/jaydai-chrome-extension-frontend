@@ -38,7 +38,7 @@ export class AppInitializer {
     }
     
     // Skip if we're not on ChatGPT
-    if (!this.isChatGPTSite()) {
+    if (!this.isChatGPTSite() && !this.isClaudeSite()) {
       return false;
     }
     
@@ -80,6 +80,10 @@ export class AppInitializer {
   private isChatGPTSite(): boolean {
     return window.location.hostname.includes('chatgpt.com') || 
            window.location.hostname.includes('chat.openai.com');
+  }
+
+  private isClaudeSite(): boolean {
+    return window.location.hostname.includes('claude.ai');
   }
 
   

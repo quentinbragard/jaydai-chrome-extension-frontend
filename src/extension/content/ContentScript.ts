@@ -71,7 +71,8 @@ export class ContentScript {
    */
   private isSupportedSite(): boolean {
     return window.location.hostname.includes('chatgpt.com') || 
-           window.location.hostname.includes('chat.openai.com');
+           window.location.hostname.includes('chat.openai.com') ||
+           window.location.hostname.includes('claude.ai');
   }
   
   /**

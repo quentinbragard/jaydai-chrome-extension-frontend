@@ -2,7 +2,7 @@
 // Immediate self-executing function to inject as early as possible
 (function() {
 
-  if (!window.location.hostname.includes('chatgpt.com')) {
+  if (!window.location.hostname.includes('chatgpt.com') && !window.location.hostname.includes('claude.ai')) {
     return;
   }
 

@@ -1,6 +1,7 @@
 // src/core/utils/componentInjector.ts
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { getCurrentTheme } from '@/hooks/useThemeDetector';
 
 // Define a type for position configuration
 type PositionConfig = {
@@ -22,20 +23,27 @@ interface InjectionOptions {
 
 /**
  * Utility class to inject React components into the page with Shadow DOM support
+ * and automatic theme synchronization
  */
 class ComponentInjector {
   private roots: Map<string, ReactDOM.Root> = new Map();
   private containers: Map<string, HTMLElement> = new Map();
   private shadowContainers: Map<string, ShadowRoot> = new Map();
   private styleElements: Map<string, HTMLStyleElement> = new Map();
+  private themeObservers: Map<string, MutationObserver> = new Map();
 
   /**
    * Get or create a shadow DOM element in the page
    * @param containerId - The ID for the container element
    * @param position - Optional position configuration
+   * @param preventAutoTheme - Whether to disable automatic theme detection
    * @returns The shadow root element
    */
-  private getOrCreateShadowRoot(containerId: string, position?: PositionConfig): ShadowRoot {
+  private getOrCreateShadowRoot(
+    containerId: string, 
+    position?: PositionConfig,
+    preventAutoTheme = false
+  ): ShadowRoot {
     // Check if container already exists
     let container = document.getElementById(containerId);
     
@@ -82,9 +90,68 @@ class ComponentInjector {
       
       // Try to load content.css
       this.injectStylesheet(shadowRoot, chrome.runtime.getURL('assets/content.css'));
+      
+      // Set initial theme if auto theme is enabled
+      if (!preventAutoTheme) {
+        this.syncThemeWithHost(container);
+        
+        // Set up theme observer to sync theme changes
+        this.observeThemeChanges(containerId, container);
+      }
     }
     
     return shadowRoot;
+  }
+
+  /**
+   * Sync the theme of the shadow root with the host document
+   * @param container - The shadow host element
+   */
+  private syncThemeWithHost(container: HTMLElement): void {
+    const theme = getCurrentTheme();
+    
+    // Apply theme to shadow host
+    if (theme === 'dark') {
+      container.classList.add('dark');
+      container.setAttribute('data-theme', 'dark');
+    } else {
+      container.classList.remove('dark');
+      container.setAttribute('data-theme', 'light');
+    }
+  }
+
+  /**
+   * Set up a mutation observer to watch for theme changes in the host document
+   * @param id - The component ID
+   * @param container - The shadow host element
+   */
+  private observeThemeChanges(id: string, container: HTMLElement): void {
+    // Remove existing observer if any
+    const existingObserver = this.themeObservers.get(id);
+    if (existingObserver) {
+      existingObserver.disconnect();
+    }
+    
+    // Create new observer
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.attributeName === 'class' || 
+            mutation.attributeName === 'data-theme' ||
+            mutation.attributeName === 'data-mode' ||
+            mutation.attributeName === 'style') {
+          // Sync theme when relevant attributes change
+          this.syncThemeWithHost(container);
+          break;
+        }
+      }
+    });
+    
+    // Observe both html and body elements for theme changes
+    observer.observe(document.documentElement, { attributes: true });
+    observer.observe(document.body, { attributes: true });
+    
+    // Store reference to observer
+    this.themeObservers.set(id, observer);
   }
 
   /**
@@ -135,21 +202,12 @@ class ComponentInjector {
       
       if (useShadowDom) {
         // Get or create the shadow root
-        const shadowRoot = this.getOrCreateShadowRoot(id, position);
-        
-        // Get the theme from the main document
-        const isDarkMode = !preventAutoTheme && document.documentElement.classList.contains('dark');
+        const shadowRoot = this.getOrCreateShadowRoot(id, position, preventAutoTheme);
         
         // Create a container for the React component inside the shadow root
         const reactContainer = document.createElement('div');
         reactContainer.id = `${id}-react-container`;
         shadowRoot.appendChild(reactContainer);
-        
-        // Add the dark class to the shadow host if the document has it
-        if (isDarkMode) {
-          shadowRoot.host.classList.add('dark');
-          shadowRoot.host.setAttribute('data-theme', 'dark');
-        }
         
         // Create a React root and render the component
         const root = ReactDOM.createRoot(reactContainer);
@@ -202,6 +260,13 @@ class ComponentInjector {
    */
   public remove(id: string): void {
     try {
+      // Disconnect theme observer if exists
+      const observer = this.themeObservers.get(id);
+      if (observer) {
+        observer.disconnect();
+        this.themeObservers.delete(id);
+      }
+      
       // Unmount the React root if it exists
       const root = this.roots.get(id);
       if (root) {
@@ -269,14 +334,26 @@ class ComponentInjector {
     // Store reference
     this.styleElements.set(`${id}-style`, styleElement);
   }
+  
+  /**
+   * Manually update the theme for all shadow hosts
+   * Useful for when the theme changes programmatically
+   */
+  public updateAllThemes(): void {
+    // Get all containers
+    const containers = Array.from(this.containers.values());
+    
+    // Update theme for each container
+    containers.forEach(container => {
+      this.syncThemeWithHost(container);
+    });
+  }
 }
 
 // Export a singleton instance
 export const componentInjector = new ComponentInjector();
 
 // For hook usage
-// Update just the useShadowRoot function in componentInjector.ts
-
 /**
  * Improved hook to access the shadow root from React components
  * This version uses multiple strategies to find the shadow root
@@ -290,7 +367,6 @@ export function useShadowRoot(): ShadowRoot | null {
       // Strategy 1: Check for jaydai-root element
       const mainRoot = document.getElementById('jaydai-root');
       if (mainRoot?.shadowRoot) {
-        console.log('✅ Found shadow root via jaydai-root');
         return mainRoot.shadowRoot;
       }
       
@@ -299,14 +375,12 @@ export function useShadowRoot(): ShadowRoot | null {
       for (const id of alternateIds) {
         const el = document.getElementById(id);
         if (el?.shadowRoot) {
-          console.log(`✅ Found shadow root via ${id}`);
           return el.shadowRoot;
         }
       }
       
       // Strategy 3: Check if we're already inside a shadow root
       if (document.head?.getRootNode() instanceof ShadowRoot) {
-        console.log('✅ Found shadow root via current document context');
         return document.head.getRootNode() as ShadowRoot;
       }
       
@@ -314,7 +388,6 @@ export function useShadowRoot(): ShadowRoot | null {
       // This leverages our singleton componentInjector instance
       const shadowRoots = Array.from(componentInjector['shadowContainers'].values());
       if (shadowRoots.length > 0) {
-        console.log('✅ Found shadow root via componentInjector internal map');
         return shadowRoots[0];
       }
       
@@ -322,12 +395,10 @@ export function useShadowRoot(): ShadowRoot | null {
       const allElements = document.querySelectorAll('*');
       for (const el of allElements) {
         if (el.shadowRoot) {
-          console.log('✅ Found shadow root via DOM scan');
           return el.shadowRoot;
         }
       }
       
-      console.warn('⚠️ No shadow root found in document');
       return null;
     };
     
@@ -336,34 +407,13 @@ export function useShadowRoot(): ShadowRoot | null {
     if (root) {
       setShadowRoot(root);
     } else {
-      console.warn('⚠️ Shadow root not found, dialogs may not display correctly');
-      
       // Set up a retry mechanism
       const retryTimeout = setTimeout(() => {
         const retryRoot = findShadowRoot();
         if (retryRoot) {
           setShadowRoot(retryRoot);
-          console.log('✅ Shadow root found on retry');
         } else {
-          console.error('❌ Shadow root not found after retry, dialogs will not work');
-          
-          // As a last resort, we can try to inject a diagnostic style to help debug
-          const emergencyStyle = document.createElement('style');
-          emergencyStyle.textContent = `
-            /* Emergency styles for dialog visibility */
-            .jd-dialog-content {
-              position: fixed !important;
-              left: 50% !important;
-              top: 50% !important;
-              transform: translate(-50%, -50%) !important;
-              z-index: 10001 !important;
-              background-color: white !important;
-              color: black !important;
-              border: 2px solid red !important;
-              padding: 20px !important;
-            }
-          `;
-          document.head.appendChild(emergencyStyle);
+          console.error('Shadow root not found after retry, dialogs may not work correctly');
         }
       }, 500);
       
