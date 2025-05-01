@@ -3,7 +3,8 @@ import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { emitEvent, AppEvent } from '@/core/events/events';
-import { handleConversationList } from '@/platforms/platformManager';
+import { handleConversationList, handleSpecificConversation } from '@/platforms/platformManager';
+
 
 
 export class ChatNetworkService extends AbstractBaseService {
@@ -30,11 +31,13 @@ export class ChatNetworkService extends AbstractBaseService {
         
         // Listen for conversation data events - using direct event listeners
         document.addEventListener('jaydai:conversation-list', handleConversationList);
+        document.addEventListener('jaydai:specific-conversation', handleSpecificConversation);
       }
       
     protected onCleanup(): void {
         window.removeEventListener('popstate', this.checkUrlForConversationId);
         document.removeEventListener('jaydai:conversation-list', handleConversationList);
+        document.removeEventListener('jaydai:specific-conversation', handleSpecificConversation);
         debug('ConversationManager cleaned up');
       }
     

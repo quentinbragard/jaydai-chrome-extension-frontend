@@ -5,7 +5,7 @@ import { getEndpointEvent } from './endpointDetector';
 import { extractRequestBody } from './endpointDetector';
 import { dispatchEvent } from './eventsHandler';
 import { processStreamingResponse } from './streamProcessor';
-import { detectPlatformFromUrl } from './detectPlatformFromUrl';
+import { detectPlatform } from './detectPlatform';
 import { EVENTS } from './constants';
 
 /**
@@ -25,7 +25,7 @@ export function initFetchInterceptor() {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
     console.log('🔍 Intercepting request:', url);
     const eventName = getEndpointEvent(url);
-    const platform = detectPlatformFromUrl(url);
+    const platform = detectPlatform();
     // Skip irrelevant endpoints
     if (!eventName) {
       return originalFetch.apply(this, arguments);

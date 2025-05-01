@@ -16,7 +16,7 @@ export const ENDPOINTS = {
     USER_INFO: '/api/user',
     CONVERSATIONS_LIST: /\/api\/organizations\/[a-f0-9-]+\/chat_conversations/,
     CHAT_COMPLETION: '/api/chat',
-    SPECIFIC_CONVERSATION: /\/api\/conversation\/([a-f0-9-]+)$/
+    SPECIFIC_CONVERSATION: /\/api\/organizations\/[a-f0-9-]+\/chat_conversations\/([a-f0-9-]+)/
   }
 };
   
