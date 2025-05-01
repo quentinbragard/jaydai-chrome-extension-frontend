@@ -4,16 +4,15 @@
 import { ENDPOINTS, EVENTS } from './constants';
 import { detectPlatformFromUrl } from './detectPlatformFromUrl';
 
-/**
- * Mapping from endpoint patterns to event names
- */
-const ENDPOINT_TO_EVENT = {
-  [ENDPOINTS.USER_INFO]: EVENTS.USER_INFO,
-  [ENDPOINTS.CONVERSATIONS_LIST]: EVENTS.CONVERSATIONS_LIST,
-  [ENDPOINTS.CHAT_COMPLETION]: EVENTS.CHAT_COMPLETION,
-  // SPECIFIC_CONVERSATION is handled separately since it's a RegExp
-};
 
+function matchEndpoint(url, pattern) {
+  // If pattern is a RegExp object, test the URL with it
+  if (pattern instanceof RegExp) {
+    return pattern.test(url);
+  }
+  // If pattern is a string, check if the URL includes the pattern
+  return url.includes(pattern);
+}
 
 /**
  * Determines the event to dispatch based on a URL
@@ -30,21 +29,20 @@ export function getEndpointEvent(url) {
     ? new URL(url).pathname 
     : url.split('?')[0];
   
-  // Check against specific conversation pattern (RegExp)
-  if (ENDPOINTS[platform].SPECIFIC_CONVERSATION.test(pathname)) {
+  // Use matchEndpoint for all endpoint checks
+  if (matchEndpoint(pathname, ENDPOINTS[platform].SPECIFIC_CONVERSATION)) {
     return EVENTS.SPECIFIC_CONVERSATION;
   }
   
-  // Check against other endpoints (direct string matches)
-  if (pathname === ENDPOINTS[platform].USER_INFO) {
+  if (matchEndpoint(pathname, ENDPOINTS[platform].USER_INFO)) {
     return EVENTS.USER_INFO;
   }
   
-  if (pathname.startsWith(ENDPOINTS[platform].CONVERSATIONS_LIST)) {
+  if (matchEndpoint(pathname, ENDPOINTS[platform].CONVERSATIONS_LIST)) {
     return EVENTS.CONVERSATIONS_LIST;
   }
   
-  if (pathname.startsWith(ENDPOINTS[platform].CHAT_COMPLETION)) {
+  if (matchEndpoint(pathname, ENDPOINTS[platform].CHAT_COMPLETION)) {
     return EVENTS.CHAT_COMPLETION;
   }
   

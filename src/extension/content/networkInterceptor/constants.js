@@ -14,7 +14,7 @@ export const ENDPOINTS = {
   },
   'claude': {
     USER_INFO: '/api/user',
-    CONVERSATIONS_LIST: '/api/conversations',
+    CONVERSATIONS_LIST: /\/api\/organizations\/[a-f0-9-]+\/chat_conversations/,
     CHAT_COMPLETION: '/api/chat',
     SPECIFIC_CONVERSATION: /\/api\/conversation\/([a-f0-9-]+)$/
   }

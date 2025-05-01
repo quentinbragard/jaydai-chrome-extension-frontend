@@ -2,15 +2,8 @@
 import { serviceManager } from '@/core/managers/ServiceManager';
 
 // Chat services
-import { ChatMessageParser } from './chat/ChatMessageParser';
-import { ConversationParser } from './chat/ConversationParser';
-import { ConversationManager } from './chat/ConversationManager';
-import { ConversationStorage } from './chat/ConversationStorage';
+import { ChatNetworkService } from './network/ChatNetworkService';
 
-// Message services
-import { MessageManager } from './messages/MessageManager';
-import { MessageQueue } from './messages/MessageQueue';
-import { PendingMessageTracker } from './messages/PendingMessageTracker';
 
 // Auth services
 import { AuthService } from './auth/AuthService';
@@ -26,28 +19,7 @@ import { UserProfileService } from './user/UserProfileService';
  */
 export function registerServices(): void {
   // Chat services (network interception)
-  serviceManager.registerService('chat.message-parser', ChatMessageParser.getInstance());
-  serviceManager.registerService('chat.conversation-parser', ConversationParser.getInstance());
-  
-  // Core chat services
-  serviceManager.registerService('chat.conversation-manager', ConversationManager.getInstance(), [
-    'chat.conversation-parser'
-  ]);
-  serviceManager.registerService('chat.conversation-storage', ConversationStorage.getInstance(), [
-    'chat.conversation-manager'
-  ]);
-  
-  // Message services
-  serviceManager.registerService('messages.manager', MessageManager.getInstance(), [
-    'chat.message-parser'
-  ]);
-  serviceManager.registerService('messages.queue', MessageQueue.getInstance(), [
-    'messages.manager'
-  ]);
-  serviceManager.registerService('messages.pending', PendingMessageTracker.getInstance(), [
-    'chat.message-parser',
-    'chat.conversation-manager'
-  ]);
+  serviceManager.registerService('chat.network', ChatNetworkService.getInstance());
   
   // Auth services
   serviceManager.registerService('auth.token', TokenService.getInstance());
@@ -61,7 +33,6 @@ export function registerServices(): void {
   
   // Legacy registrations for backward compatibility
   serviceManager.registerService('auth', AuthService.getInstance());
-  serviceManager.registerService('chat', ConversationManager.getInstance());
   serviceManager.registerService('user', UserProfileService.getInstance());
   
   console.log('All services registered with ServiceManager');
@@ -75,15 +46,7 @@ export {
 
 // Chat services exports
 export {
-  ConversationParser,
-  ConversationManager,
-  ConversationStorage,
-};
-
-// Message services exports
-export {
-  MessageQueue,
-  PendingMessageTracker,
+  ChatNetworkService,
 };
 
 // User services exports
