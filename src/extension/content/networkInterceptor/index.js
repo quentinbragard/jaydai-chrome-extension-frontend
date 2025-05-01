@@ -1,8 +1,7 @@
-// src/extension/content/injectedInterceptor/index.js
+// src/extension/content/networkInterceptor/index.js
 // Main entry point for the injected interceptor
 
 import { initFetchInterceptor } from './fetchInterceptor';
-import { sendInjectionComplete } from './eventsHandler';
 
 /**
  * Self-executing function to initialize the interceptor
@@ -11,9 +10,6 @@ import { sendInjectionComplete } from './eventsHandler';
   try {
     // Initialize the fetch interceptor
     initFetchInterceptor();
-    
-    // Notify that injection is complete
-    sendInjectionComplete();
     
     console.log('✅ Jaydai network interceptor initialized successfully');
   } catch (error) {

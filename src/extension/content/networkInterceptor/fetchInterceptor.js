@@ -1,10 +1,11 @@
-// src/extension/content/injectedInterceptor/fetchInterceptor.js
+// src/extension/content/networkInterceptor/fetchInterceptor.js
 // Core fetch override functionality
 
 import { getEndpointEvent } from './endpointDetector';
 import { extractRequestBody } from './endpointDetector';
-import { dispatchEvent, sendLegacyEvent } from './eventsHandler';
+import { dispatchEvent } from './eventsHandler';
 import { processStreamingResponse } from './streamProcessor';
+import { detectPlatformFromUrl } from './detectPlatformFromUrl';
 import { EVENTS } from './constants';
 
 /**
@@ -22,8 +23,9 @@ export function initFetchInterceptor() {
   // Override fetch to intercept network requests
   window.fetch = async function(input, init) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+    console.log('🔍 Intercepting request:', url);
     const eventName = getEndpointEvent(url);
-    
+    const platform = detectPlatformFromUrl(url);
     // Skip irrelevant endpoints
     if (!eventName) {
       return originalFetch.apply(this, arguments);
@@ -32,10 +34,6 @@ export function initFetchInterceptor() {
     // Extract request body
     const requestBody = extractRequestBody(init);
     
-    // Log parent message ID if present (for debugging)
-    if (requestBody?.parent_message_provider_id) {
-      console.log('🔗 Parent message ID detected:', requestBody.parent_message_provider_id);
-    }
     
     // Call original fetch
     const response = await originalFetch.apply(this, arguments);
@@ -48,10 +46,8 @@ export function initFetchInterceptor() {
       
       if (eventName === EVENTS.CHAT_COMPLETION) {
         // Dispatch chat completion event
-        dispatchEvent(EVENTS.CHAT_COMPLETION, { requestBody });
+        dispatchEvent(EVENTS.CHAT_COMPLETION, platform, { requestBody });
         
-        // Also send legacy event for backward compatibility
-        sendLegacyEvent('chatCompletion', { requestBody });
         
         // Process streaming responses
         if (isStreaming && requestBody?.messages?.[0]?.author?.role === "user") {
@@ -63,27 +59,15 @@ export function initFetchInterceptor() {
         const responseData = await response.clone().json().catch(() => null);
         if (responseData) {
           // Dispatch specialized event
-          dispatchEvent(eventName, {
+          dispatchEvent(eventName, platform, {
             url,
+            platform,
             requestBody,
             responseBody: responseData,
             method: init?.method || 'GET'
           });
           
-          // For backward compatibility, also send legacy event format
-          // This allows services to gradually migrate to the new event system
-          const legacyType = eventName === EVENTS.USER_INFO ? 'userInfo' :
-                            eventName === EVENTS.CONVERSATIONS_LIST ? 'conversationList' :
-                            eventName === EVENTS.SPECIFIC_CONVERSATION ? 'specificConversation' : null;
-                            
-          if (legacyType) {
-            sendLegacyEvent(legacyType, {
-              url,
-              requestBody,
-              responseBody: responseData,
-              method: init?.method || 'GET'
-            });
-          }
+
         }
       }
     } catch (error) {

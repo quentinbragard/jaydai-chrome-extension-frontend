@@ -1,7 +1,8 @@
-// src/extension/content/injectedInterceptor/endpointDetector.js
+// src/extension/content/networkInterceptor/endpointDetector.js
 // Utilities for detecting and classifying endpoints
 
 import { ENDPOINTS, EVENTS } from './constants';
+import { detectPlatformFromUrl } from './detectPlatformFromUrl';
 
 /**
  * Mapping from endpoint patterns to event names
@@ -13,6 +14,7 @@ const ENDPOINT_TO_EVENT = {
   // SPECIFIC_CONVERSATION is handled separately since it's a RegExp
 };
 
+
 /**
  * Determines the event to dispatch based on a URL
  * @param {string} url - The URL to analyze
@@ -20,6 +22,8 @@ const ENDPOINT_TO_EVENT = {
  */
 export function getEndpointEvent(url) {
   if (!url) return null;
+  const platform = detectPlatformFromUrl(url);
+  if (platform === 'unknown') return null;
   
   // Extract pathname from full URL or relative path
   const pathname = url.startsWith('http') 
@@ -27,20 +31,20 @@ export function getEndpointEvent(url) {
     : url.split('?')[0];
   
   // Check against specific conversation pattern (RegExp)
-  if (ENDPOINTS.SPECIFIC_CONVERSATION.test(pathname)) {
+  if (ENDPOINTS[platform].SPECIFIC_CONVERSATION.test(pathname)) {
     return EVENTS.SPECIFIC_CONVERSATION;
   }
   
   // Check against other endpoints (direct string matches)
-  if (pathname === ENDPOINTS.USER_INFO) {
+  if (pathname === ENDPOINTS[platform].USER_INFO) {
     return EVENTS.USER_INFO;
   }
   
-  if (pathname.startsWith(ENDPOINTS.CONVERSATIONS_LIST)) {
+  if (pathname.startsWith(ENDPOINTS[platform].CONVERSATIONS_LIST)) {
     return EVENTS.CONVERSATIONS_LIST;
   }
   
-  if (pathname.startsWith(ENDPOINTS.CHAT_COMPLETION)) {
+  if (pathname.startsWith(ENDPOINTS[platform].CHAT_COMPLETION)) {
     return EVENTS.CHAT_COMPLETION;
   }
   

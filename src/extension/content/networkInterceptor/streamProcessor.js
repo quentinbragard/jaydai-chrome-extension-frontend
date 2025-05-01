@@ -1,4 +1,4 @@
-// src/extension/content/injectedInterceptor/streamProcessor.js
+// src/extension/content/networkInterceptor/streamProcessor.js
 // Functions for processing streaming responses
 
 import { EVENTS } from './constants';

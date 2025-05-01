@@ -41,8 +41,7 @@
         "welcome.js",
         "popup.js",
         "assets/*",
-        "content-init.js",
-        "injectedInterceptor.js",
+        "networkInterceptor.js",
         "applicationInitializer.js",
         "images/*"
       ],

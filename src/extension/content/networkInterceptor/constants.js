@@ -1,4 +1,4 @@
-// src/extension/content/injectedInterceptor/constants.js
+// src/extension/content/networkInterceptor/constants.js
 // Define all constants used across the interceptor system
 
 /**
@@ -6,11 +6,19 @@
  * These are the endpoints we want to monitor and capture data from
  */
 export const ENDPOINTS = {
+  'chatgpt': {
     USER_INFO: '/backend-api/me',
     CONVERSATIONS_LIST: '/backend-api/conversations',
     CHAT_COMPLETION: '/backend-api/conversation',
     SPECIFIC_CONVERSATION: /\/backend-api\/conversation\/([a-f0-9-]+)$/
-  };
+  },
+  'claude': {
+    USER_INFO: '/api/user',
+    CONVERSATIONS_LIST: '/api/conversations',
+    CHAT_COMPLETION: '/api/chat',
+    SPECIFIC_CONVERSATION: /\/api\/conversation\/([a-f0-9-]+)$/
+  }
+};
   
   /**
    * Event names used for communication - using specific events for each data type
@@ -33,17 +41,4 @@ export const ENDPOINTS = {
     OPEN_SETTINGS: 'jaydai:open-settings',
     OPEN_TEMPLATES: 'jaydai:open-templates',
     INJECTION_COMPLETE: 'jaydai:injection-complete'
-  };
-  
-  /**
-   * Legacy backward-compatibility mapping 
-   * This maps the old data types to their corresponding event names
-   */
-  export const LEGACY_TYPE_TO_EVENT = {
-    'userInfo': EVENTS.USER_INFO,
-    'conversationList': EVENTS.CONVERSATIONS_LIST,
-    'specificConversation': EVENTS.SPECIFIC_CONVERSATION,
-    'chatCompletion': EVENTS.CHAT_COMPLETION,
-    'assistantResponse': EVENTS.ASSISTANT_RESPONSE,
-    'injectionComplete': EVENTS.INJECTION_COMPLETE
   };

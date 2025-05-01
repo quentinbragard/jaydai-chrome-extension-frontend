@@ -12,7 +12,7 @@
     // Create the script element
     const script = document.createElement('script');
     script.id = 'jaydai:network-interceptor';
-    script.src = chrome.runtime.getURL('injectedInterceptor.js');
+    script.src = chrome.runtime.getURL('networkInterceptor.js');
     
     // Function to actually inject the script
     const injectScript = () => {
@@ -41,11 +41,11 @@
   // Function to load the main module script
   function injectModuleScript() {
     try {
-      // Get the URL for the content-init.js module
-      const contentInitUrl = chrome.runtime.getURL("content-init.js");
+      // Get the URL for the applicationInitializer.js module
+      const applicationInitializerUrl = chrome.runtime.getURL("applicationInitializer.js");
       
       // Import the module
-      import(contentInitUrl)
+      import(applicationInitializerUrl)
         .then(module => {
           
           // Try to find the initialize and cleanup functions

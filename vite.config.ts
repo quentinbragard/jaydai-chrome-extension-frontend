@@ -81,11 +81,10 @@ export default defineConfig(({ mode }) => {
             rollupOptions: {
                 input: {
                     content: resolve(__dirname, 'src/extension/content/content.js'),
-                    'content-init': resolve(__dirname, 'src/extension/content/initializer.ts'),
                     background: resolve(__dirname, 'src/extension/background/background.js'),
                     popup: resolve(__dirname, 'src/extension/popup/popup.tsx'),
                     welcome: resolve(__dirname, 'src/extension/welcome/welcome.tsx'),
-                    'injectedInterceptor': resolve(__dirname, 'src/extension/content/injectedInterceptor/index.js'),
+                    'networkInterceptor': resolve(__dirname, 'src/extension/content/networkInterceptor/index.js'),
                     'applicationInitializer': resolve(__dirname, 'src/extension/content/applicationInitializer.ts'),
                     //'popup-styles': resolve(__dirname, 'src/extension/popup/popup.css'),
                     //'welcome-styles': resolve(__dirname, 'src/extension/welcome/welcome.css'),
