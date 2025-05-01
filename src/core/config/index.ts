@@ -54,6 +54,6 @@ const defaultConfig: AppConfig = {
    */
   export function debug(...args: any[]): void {
     if (config.debug) {
-      console.debug('[Archimind]', ...args);
+      console.debug('[Jaydai]', ...args);
     }
   }

@@ -8,7 +8,7 @@ import PanelManager from '@/components/panels/PanelManager';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
 import { getMessage } from '@/core/utils/i18n';
-import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { useThemeDetector } from "@/hooks/ui/useThemeDetector";
 
 /**
  * Main floating button component that opens various panels

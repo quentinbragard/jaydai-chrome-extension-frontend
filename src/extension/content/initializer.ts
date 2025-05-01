@@ -20,7 +20,7 @@ export default {
 };
 
 /**
- * Initialize the extension within ChatGPT
+ * Initialize the extension within the target AI site
  */
 async function initializeInternal() {
   try {
@@ -37,9 +37,9 @@ async function initializeInternal() {
     const success = await appInitializer.initialize();
     
     if (success) {
-      console.log('✅ Archimind initialized successfully');
+      console.log('✅ Jaydai initialized successfully'); // Replaced Archimind
     } else {
-      console.error('❌ Archimind initialization failed');
+      console.error('❌ Jaydai initialization failed'); // Replaced Archimind
     }
     
     return success;
@@ -56,6 +56,7 @@ async function cleanupInternal() {
   try {
     
     // Dynamically import the app initializer
+    // Assuming it's already loaded or can be re-imported if needed
     const { appInitializer } = await import('./applicationInitializer');
     
     // Clean up the application

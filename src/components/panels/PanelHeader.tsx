@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import { Button } from "@/components/ui/button"; 
 import { ArrowLeft, X } from "lucide-react";
 import { cn } from "@/core/utils/classNames";
-import { useThemeDetector } from "@/hooks/useThemeDetector";
+import { useThemeDetector } from "@/hooks/ui/useThemeDetector";
 
 interface PanelHeaderProps {
   title?: string;

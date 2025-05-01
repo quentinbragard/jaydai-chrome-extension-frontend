@@ -108,7 +108,7 @@ const WelcomePage: React.FC = () => {
           <div className="jd-logo-container jd-bg-gray-900 jd-border jd-border-gray-800 jd-mb-8">
             <img 
               src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//jaydai-extension-logo.png" 
-              alt={getMessage('appName', undefined, 'Archimind Logo')} 
+              alt={getMessage('appName', undefined, 'Jaydai Logo')} // Replaced Archimind
               className="jd-w-16 jd-h-16 jd-object-contain"
             />
           </div>
@@ -117,7 +117,7 @@ const WelcomePage: React.FC = () => {
           <h1 className="jd-text-5xl md:jd-text-6xl jd-font-medium jd-text-white jd-text-center jd-mb-6 jd-font-heading">
             {authState.isAuthenticated
               ? getMessage('welcomeBack', undefined, 'Welcome Back!')
-              : getMessage('welcomeTitle', undefined, 'Welcome to Archimind')}
+              : getMessage('welcomeTitle', undefined, 'Welcome to Jaydai')} // Replaced Archimind
           </h1>
           
           {/* Logged in state: Display user info and CTA */}
@@ -253,7 +253,7 @@ const WelcomePage: React.FC = () => {
           
           {/* Footer */}
           <div className="jd-text-center jd-text-sm jd-text-gray-500 jd-font-sans">
-            &copy; {new Date().getFullYear()} Archimind. {getMessage('allRightsReserved', undefined, 'All rights reserved')}
+            &copy; {new Date().getFullYear()} Jaydai. {getMessage('allRightsReserved', undefined, 'All rights reserved')} // Replaced Archimind
           </div>
         </div>
       </div>

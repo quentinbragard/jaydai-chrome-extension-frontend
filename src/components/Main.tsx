@@ -1,7 +1,7 @@
 // src/components/Main.tsx
 import React, { useEffect, useRef } from 'react';
 import { Toaster } from 'sonner';
-import { AuthProvider } from '@/state/AuthContext';
+import { AuthProvider } from "@/services/auth/contexts/AuthContext";
 import MainButton from '@/components/MainButton';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { DialogProvider } from '@/components/dialogs';

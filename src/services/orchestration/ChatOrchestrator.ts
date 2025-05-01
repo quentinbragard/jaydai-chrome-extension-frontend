@@ -5,7 +5,13 @@ import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { Message } from '@/types';
 
-// Service interfaces
+// Import dependencies directly
+import { conversationManager as defaultConversationManager } from '../chat/ConversationManager';
+import { messageManager as defaultMessageManager } from '../messages/MessageManager';
+import { messageQueue as defaultMessageQueue } from '../messages/MessageQueue';
+import { pendingMessageTracker as defaultPendingMessageTracker } from '../messages/PendingMessageTracker';
+
+// Service interfaces (keep for clarity and potential external use)
 interface IConversationManager {
   getCurrentConversationId(): string | null;
   setCurrentConversationId(conversationId: string): void;
@@ -30,17 +36,17 @@ interface IPendingMessageTracker {
  */
 export class ChatOrchestrator extends AbstractBaseService {
   private static instance: ChatOrchestrator | null = null;
-  
+
   private conversationManager: IConversationManager;
   private messageManager: IMessageManager;
   private messageQueue: IMessageQueue;
   private pendingTracker: IPendingMessageTracker;
-  
+
   /**
    * Private constructor with explicit dependencies
    */
   private constructor(
-    conversationManager: IConversationManager, 
+    conversationManager: IConversationManager,
     messageManager: IMessageManager,
     messageQueue: IMessageQueue,
     pendingTracker: IPendingMessageTracker
@@ -51,51 +57,44 @@ export class ChatOrchestrator extends AbstractBaseService {
     this.messageQueue = messageQueue;
     this.pendingTracker = pendingTracker;
   }
-  
+
   /**
-   * Get instance with explicit dependencies
+   * Get the singleton instance.
+   * Dependencies are now resolved using direct imports.
    */
-  public static getInstance(
-    conversationManager?: IConversationManager,
-    messageManager?: IMessageManager,
-    messageQueue?: IMessageQueue,
-    pendingTracker?: IPendingMessageTracker
-  ): ChatOrchestrator {
+  public static getInstance(): ChatOrchestrator {
     if (!ChatOrchestrator.instance) {
-      // If dependencies aren't provided, get the default instances
-      const convManager = conversationManager || require('../chat/ConversationManager').conversationManager;
-      const msgManager = messageManager || require('../messages/MessageManager').messageManager;
-      const msgQueue = messageQueue || require('../messages/MessageQueue').messageQueue;
-      const pendTracker = pendingTracker || require('../messages/PendingMessageTracker').pendingMessageTracker;
-      
       ChatOrchestrator.instance = new ChatOrchestrator(
-        convManager, msgManager, msgQueue, pendTracker
+        defaultConversationManager,
+        defaultMessageManager,
+        defaultMessageQueue,
+        defaultPendingMessageTracker
       );
     }
     return ChatOrchestrator.instance;
   }
-  
+
   /**
    * Reset the singleton instance (useful for testing)
    */
   public static resetInstance(): void {
     ChatOrchestrator.instance = null;
   }
-  
+
   protected async onInitialize(): Promise<void> {
     debug('Initializing ChatOrchestrator');
-    
-    // Listen for network intercept events
-    document.addEventListener('jaydai:message-extracted', this.handleMessageExtracted);
-    document.addEventListener('jaydai:conversation-changed', this.handleConversationChanged);
+
+    // Listen for custom DOM events dispatched by the injected script
+    document.addEventListener('jaydai:message-extracted', this.handleMessageExtracted as EventListener);
+    document.addEventListener('jaydai:conversation-changed', this.handleConversationChanged as EventListener);
   }
-  
+
   protected onCleanup(): void {
-    document.removeEventListener('jaydai:message-extracted', this.handleMessageExtracted);
-    document.removeEventListener('jaydai:conversation-changed', this.handleConversationChanged);
+    document.removeEventListener('jaydai:message-extracted', this.handleMessageExtracted as EventListener);
+    document.removeEventListener('jaydai:conversation-changed', this.handleConversationChanged as EventListener);
     debug('ChatOrchestrator cleaned up');
   }
-  
+
   /**
    * Handle extracted message events
    */
@@ -103,7 +102,7 @@ export class ChatOrchestrator extends AbstractBaseService {
     try {
       const { message } = event.detail;
       if (!message) return;
-      
+
       this.processMessage(message);
     } catch (error) {
       errorReporter.captureError(
@@ -111,7 +110,7 @@ export class ChatOrchestrator extends AbstractBaseService {
       );
     }
   };
-  
+
   /**
    * Handle conversation change events
    */
@@ -119,7 +118,8 @@ export class ChatOrchestrator extends AbstractBaseService {
     try {
       const { conversationId } = event.detail;
       if (!conversationId) return;
-      
+
+      // When conversation changes, process any pending messages for the new conversation
       this.pendingTracker.processPendingMessages(conversationId);
     } catch (error) {
       errorReporter.captureError(
@@ -127,55 +127,37 @@ export class ChatOrchestrator extends AbstractBaseService {
       );
     }
   };
-  
+
   /**
-   * Process a message
+   * Process a message: Assign to conversation, store, and queue for saving.
    */
   public processMessage(message: Message): void {
-    // Skip messages without a conversation ID
+    // If a message arrives before the conversation ID is known, hold it
     if (!message.conversationId) {
+      debug('Message received without conversation ID, adding to pending tracker:', message.id);
       this.pendingTracker.addPendingMessage(message);
       return;
     }
-    
-    // Update current conversation ID if needed
+
+    // Update current conversation ID if this message belongs to a different one
     const currentConversationId = this.conversationManager.getCurrentConversationId();
     if (currentConversationId !== message.conversationId) {
+      debug(`Conversation changed to ${message.conversationId}`);
       this.conversationManager.setCurrentConversationId(message.conversationId);
+      // Process pending messages for this *new* conversation ID immediately
+      this.pendingTracker.processPendingMessages(message.conversationId);
     }
-    
-    // Add to message manager
+
+    // Add message to the in-memory manager
     this.messageManager.addMessage(message);
-    
-    // Queue for saving
+
+    // Queue the message to be saved to the backend
     this.messageQueue.queueMessage(message);
   }
 }
 
-// Export a function to create the orchestrator with dependencies
-export function createChatOrchestrator(
-  conversationManager: IConversationManager,
-  messageManager: IMessageManager,
-  messageQueue: IMessageQueue,
-  pendingTracker: IPendingMessageTracker
-): ChatOrchestrator {
-  return ChatOrchestrator.getInstance(
-    conversationManager,
-    messageManager,
-    messageQueue,
-    pendingTracker
-  );
-}
+// Export the singleton instance directly
+export const chatOrchestrator = ChatOrchestrator.getInstance();
 
-// For convenience, also export a default instance
-import { conversationManager } from '../chat/ConversationManager';
-import { messageManager } from '../messages/MessageManager';
-import { messageQueue } from '../messages/MessageQueue';
-import { pendingMessageTracker } from '../messages/PendingMessageTracker';
-
-export const chatOrchestrator = ChatOrchestrator.getInstance(
-  conversationManager,
-  messageManager,
-  messageQueue,
-  pendingMessageTracker
-);
+// Remove the createChatOrchestrator function as it's no longer necessary
+// with the simplified getInstance method.

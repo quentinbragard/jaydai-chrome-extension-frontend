@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { getMessage } from '@/core/utils/i18n';
 import BasePanel from '../BasePanel';
-import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
+import { usePanelNavigation } from "@/components/panels/hooks/usePanelNavigation";
 
 // Import hooks with the new structure
 import { 

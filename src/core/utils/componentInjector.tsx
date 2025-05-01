@@ -1,7 +1,7 @@
 // src/core/utils/componentInjector.ts
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { getCurrentTheme } from '@/hooks/useThemeDetector';
+import { getCurrentTheme } from "@/hooks/ui/useThemeDetector";
 
 // Define a type for position configuration
 type PositionConfig = {

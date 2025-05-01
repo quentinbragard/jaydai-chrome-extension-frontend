@@ -1,7 +1,7 @@
 // src/components/panels/PanelManager.tsx
 
 import React from 'react';
-import { PanelNavigationProvider, usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
+import { PanelNavigationProvider } from "@/components/panels/contexts/PanelNavigationContext";
 import { QueryProvider } from '@/providers/QueryProvider';
 import MenuPanel from './MenuPanel';
 import TemplatesPanel from './TemplatesPanel';
@@ -9,6 +9,7 @@ import NotificationsPanel from './NotificationsPanel';
 import StatsPanel from './StatsPanel';
 import BrowseTemplatesPanel from './BrowseTemplatesPanel';
 import type { PanelType } from '@/hooks/ui/useMainButtonState';
+import { usePanelNavigation } from '@/components/panels/contexts/PanelNavigationContext';
 
 interface PanelManagerProps {
   isOpen: boolean;

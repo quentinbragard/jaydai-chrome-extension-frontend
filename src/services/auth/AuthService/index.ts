@@ -1,250 +1,188 @@
 // src/services/auth/AuthService/index.ts
-import { AbstractBaseService } from '../../BaseService';
-import { AuthState, AuthErrorCode } from '@/types';
-import { AuthStateManager } from './AuthStateManager';
-import { AuthOperations } from './AuthOperations';
-import { AuthNotifications } from './AuthNotifications';
-import { TokenService } from '../TokenService';
+import { AbstractBaseService } from "../../BaseService";
+import { AuthState, AuthErrorCode, AuthUser, AuthToken } from "@/types";
+import { AuthStateManager } from "./AuthStateManager";
+import { AuthOperations } from "./AuthOperations";
+import { AuthNotifications } from "./AuthNotifications";
+import { TokenService } from "../TokenService";
+import { debug } from "@/core/config";
 
 /**
- * Service for managing authentication state and operations
+ * Service for managing authentication state and operations.
+ * Acts as a facade and orchestrator for authentication-related tasks,
+ * coordinating AuthStateManager, AuthOperations, AuthNotifications, and TokenService.
  */
 export class AuthService extends AbstractBaseService {
   private static instance: AuthService | null = null;
   private stateManager: AuthStateManager;
   private tokenService: TokenService;
-  
-  private constructor(tokenService: TokenService, stateManager?: AuthStateManager) {
+
+  // Dependencies are injected or default instances are used
+  private constructor(
+    tokenService: TokenService,
+    stateManager: AuthStateManager
+  ) {
     super();
     this.tokenService = tokenService;
-    this.stateManager = stateManager || new AuthStateManager();
+    this.stateManager = stateManager;
+    debug("AuthService initialized with dependencies");
   }
-  
-  public static getInstance(tokenService?: TokenService): AuthService {
+
+  public static getInstance(
+    tokenService?: TokenService,
+    stateManager?: AuthStateManager
+  ): AuthService {
     if (!AuthService.instance) {
       AuthService.instance = new AuthService(
-        tokenService || TokenService.getInstance()
+        tokenService || TokenService.getInstance(),
+        stateManager || new AuthStateManager()
       );
     }
     return AuthService.instance;
   }
-  
+
   /**
-   * Initialize authentication state
+   * Initialize authentication state by checking token validity and loading user data.
    */
   protected async onInitialize(): Promise<void> {
+    debug("AuthService: Initializing...");
     this.stateManager.updateState({ isLoading: true, error: null });
-    
+
     try {
-      // Try to get the auth token, which will refresh it if necessary
       const tokenResponse = await this.tokenService.getAuthToken();
-      
+
       if (!tokenResponse.success) {
-        // Not authenticated or token refresh failed
-        this.stateManager.updateState({ 
-          isAuthenticated: false, 
+        debug("AuthService: No valid token found or refresh failed.");
+        this.stateManager.updateState({
+          isAuthenticated: false,
           isLoading: false,
           error: tokenResponse.error || null,
-          user: null
+          user: null,
         });
         return;
       }
-      
-      // Get user data from storage
+
+      debug("AuthService: Valid token found. Fetching user data...");
       const user = await AuthOperations.getUserFromStorage();
-      
       this.stateManager.updateState({
         isAuthenticated: true,
         isLoading: false,
         error: null,
-        user
+        user,
       });
+      debug("AuthService: Initialization successful.", { user });
     } catch (error) {
-      console.error('Auth initialization error:', error);
-      
+      console.error("AuthService: Initialization error:", error);
       this.stateManager.updateState({
         isAuthenticated: false,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Authentication error',
-        user: null
+        error: error instanceof Error ? error.message : "Authentication error",
+        user: null,
       });
     }
   }
-  
+
   /**
-   * Clean up resources
+   * Clean up listeners.
    */
   protected onCleanup(): void {
     this.stateManager.clearListeners();
+    debug("AuthService: Cleaned up listeners.");
   }
-  
-  /**
-   * Check if the user is authenticated
-   */
+
+  // --- State Accessors and Subscription ---
+
   public isAuthenticated(): boolean {
     return this.stateManager.getState().isAuthenticated;
   }
-  
-  /**
-   * Get the current auth state
-   */
+
   public getAuthState(): AuthState {
     return this.stateManager.getState();
   }
-  
-  /**
-   * Subscribe to auth state changes
-   */
+
   public subscribe(callback: (state: AuthState) => void): () => void {
     return this.stateManager.subscribe(callback);
   }
-  
+
+  // --- Authentication Actions (Delegation to AuthOperations) ---
+
   /**
-   * Handle session expired errors
+   * Handles the scenario when a session expires.
    */
-  public handleSessionExpired(): void {
-    // Update auth state
+  public async handleSessionExpired(): Promise<void> {
+    debug("AuthService: Handling session expired.");
     this.stateManager.updateState({
       isAuthenticated: false,
-      error: 'Session expired. Please sign in again.',
-      user: null
+      error: "Session expired. Please sign in again.",
+      user: null,
+      isLoading: false, // Ensure loading is false
     });
-    
-    // Clear auth data from storage
-    chrome.storage.local.remove(['access_token', 'refresh_token', 'token_expires_at']);
-    
-    // Show notification
+
+    await this.tokenService.clearAuthSession();
+    await AuthOperations.clearUserDataOnly();
+
     AuthNotifications.showSessionExpiredNotification();
-    
-    // Notify listeners
     AuthNotifications.notifyAuthError(
-      AuthErrorCode.SESSION_EXPIRED, 
+      AuthErrorCode.SESSION_EXPIRED,
       this.stateManager.getState().error
     );
   }
-  
+
   /**
-   * Sign in using email/password
+   * Sign in using email and password by delegating to AuthOperations.
    */
-  public async signInWithEmail(email: string, password: string): Promise<boolean> {
-    const response = await AuthOperations.signInWithEmail(email, password);
-    if (response.success) {
-      this.stateManager.updateState({
-        isAuthenticated: true,
-        user: response.user,
-        error: null
-      });
-      
-      // Store session token if provided
-      if (response.session) {
-        await this.tokenService.storeAuthSession(response.session);
-      }
-      
-      return true;
-    } else {
-      this.stateManager.updateState({
-        isAuthenticated: false,
-        error: response.error || 'Sign-in failed'
-      });
-      return false;
-    }
+  public async signInWithEmail(
+    email: string,
+    password: string
+  ): Promise<boolean> {
+    return AuthOperations.executeSignInWithEmail(
+      email,
+      password,
+      this.stateManager,
+      this.tokenService
+    );
   }
-  
+
   /**
-   * Sign up with email/password
+   * Sign up using email and password by delegating to AuthOperations.
    */
-  public async signUp(email: string, password: string, name?: string): Promise<boolean> {
-    const response = await AuthOperations.signUp(email, password, name);
-    
-    if (response.success) {
-      // Don't set as authenticated since email verification may be required
-      if (response.user) {
-        this.stateManager.updateState({
-          user: response.user,
-          error: null
-        });
-      }
-      
-      // Store session token if provided
-      if (response.session) {
-        await this.tokenService.storeAuthSession(response.session);
-      }
-      
-      return true;
-    } else {
-      this.stateManager.updateState({
-        isAuthenticated: false,
-        error: response.error || 'Sign-up failed'
-      });
-      return false;
-    }
+  public async signUp(
+    email: string,
+    password: string,
+    name?: string
+  ): Promise<boolean> {
+    return AuthOperations.executeSignUp(
+      email,
+      password,
+      name,
+      this.stateManager,
+      this.tokenService
+    );
   }
-  
+
   /**
-   * Sign in with Google OAuth
+   * Sign in using Google OAuth by delegating to AuthOperations.
    */
   public async signInWithGoogle(): Promise<boolean> {
-    this.stateManager.updateState({ isLoading: true, error: null });
-    
-    try {
-      const response = await AuthOperations.signInWithGoogle();
-      
-      if (response.success && response.user) {
-        this.stateManager.updateState({
-          isAuthenticated: true,
-          user: response.user,
-          isLoading: false,
-          error: null
-        });
-        
-        // Store session token if provided
-        if (response.session) {
-          await this.tokenService.storeAuthSession(response.session);
-        }
-        
-        return true;
-      } else {
-        this.stateManager.updateState({
-          isAuthenticated: false,
-          isLoading: false,
-          error: response.error || 'Google sign-in failed'
-        });
-        return false;
-      }
-    } catch (error) {
-      console.error('Google sign-in error:', error);
-      
-      this.stateManager.updateState({
-        isAuthenticated: false,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Google sign-in failed'
-      });
-      
-      return false;
-    }
+    return AuthOperations.executeSignInWithGoogle(
+      this.stateManager,
+      this.tokenService
+    );
   }
-  
-  
+
   /**
-   * Sign out the current user
+   * Sign out the current user by delegating to AuthOperations.
    */
   public async signOut(): Promise<void> {
-    await AuthOperations.clearUserData();
-    
-    this.stateManager.updateState({
-      isAuthenticated: false,
-      user: null,
-      error: null
-    });
-    
-    AuthNotifications.showSignOutConfirmation();
+    await AuthOperations.executeSignOut(this.stateManager, this.tokenService);
   }
-  
+
   /**
-   * Clear any error message in the auth state
+   * Clear any error message in the auth state.
    */
   public clearError(): void {
     if (this.stateManager.getState().error) {
+      debug("AuthService: Clearing error state.");
       this.stateManager.updateState({ error: null });
     }
   }
@@ -252,3 +190,4 @@ export class AuthService extends AbstractBaseService {
 
 // Export singleton instance
 export const authService = AuthService.getInstance();
+

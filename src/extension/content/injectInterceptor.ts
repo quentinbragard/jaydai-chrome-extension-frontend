@@ -53,14 +53,17 @@ function setupInterceptListener(): void {
           break;
           
         case 'specificConversation':
+          console.log('==============handleSpecificConversation', data);
           handleSpecificConversation(data);
           break;
           
         case 'chatCompletion':
+          console.log('==============handleChatCompletion', data);
           await handleChatCompletion(data);
           break;
           
         case 'assistantResponse':
+          console.log('==============handleAssistantResponse', data);
           handleAssistantResponse(data);
           break;
           

@@ -70,7 +70,7 @@ const ExtensionPopup: React.FC = () => {
   
   // Open help page
   const openHelp = () => {
-    chrome.tabs.create({ url: 'https://archimind.ai/help' });
+    chrome.tabs.create({ url: 'https://jaydai.ai/help' });
   };
 
   // Loading state
