@@ -139,6 +139,9 @@ export function processStreamData(data, assistantData, thinkingSteps) {
     }
     console.log('ASSISTANT DATAAAAAAAA', assistantData);
     console.log('THINKING STEPS', thinkingSteps);
+    if (assistantData.content === "" && thinkingSteps.length > 0) {
+      assistantData.content = thinkingSteps[thinkingSteps.length - 1].content;
+    }
     return { assistantData, thinkingSteps };
   }
   
