@@ -3,23 +3,28 @@ import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { emitEvent, AppEvent } from '@/core/events/events';
-import { handleConversationList, handleSpecificConversation } from '@/platforms/platformManager';
+import {
+        handleConversationList,
+        handleSpecificConversation,
+        handleChatCompletion,
+        handleAssistantResponse
+       } from '@/platforms/platformManager';
 
 
 
-export class ChatNetworkService extends AbstractBaseService {
-    private static instance: ChatNetworkService;
+export class ChatService extends AbstractBaseService {
+    private static instance: ChatService;
     private currentConversationId: string | null = null;
 
     private constructor() {
         super();
     }
 
-    public static getInstance(): ChatNetworkService {
-        if (!ChatNetworkService.instance) {
-            ChatNetworkService.instance = new ChatNetworkService();
+    public static getInstance(): ChatService {
+        if (!ChatService.instance) {
+            ChatService.instance = new ChatService();
         }
-        return ChatNetworkService.instance;
+        return ChatService.instance;
     }
 
     protected async onInitialize(): Promise<void> {
@@ -32,12 +37,16 @@ export class ChatNetworkService extends AbstractBaseService {
         // Listen for conversation data events - using direct event listeners
         document.addEventListener('jaydai:conversation-list', handleConversationList);
         document.addEventListener('jaydai:specific-conversation', handleSpecificConversation);
+        document.addEventListener('jaydai:chat-completion', handleChatCompletion);
+        document.addEventListener('jaydai:assistant-response', handleAssistantResponse);
       }
       
     protected onCleanup(): void {
         window.removeEventListener('popstate', this.checkUrlForConversationId);
         document.removeEventListener('jaydai:conversation-list', handleConversationList);
         document.removeEventListener('jaydai:specific-conversation', handleSpecificConversation);
+        document.removeEventListener('jaydai:chat-completion', handleChatCompletion);
+        document.removeEventListener('jaydai:assistant-response', handleAssistantResponse);
         debug('ConversationManager cleaned up');
       }
     

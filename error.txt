@@ -65,12 +65,12 @@ src/core/hooks/useEventListener.ts(23,31): error TS2536: Type 'T' cannot be used
 src/core/hooks/usePanelNavigation.tsx(3,10): error TS6133: 'PanelType' is declared but its value is never read.
 src/core/hooks/usePanelNavigation.tsx(3,33): error TS2865: Import 'PanelNavigationContext' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
 src/core/network/NetworkRequestMonitor.ts(63,31): error TS6133: 'callbacks' is declared but its value is never read.
-src/extension/content/injectInterceptor.ts(113,14): error TS2307: Cannot find module '@/services/chat/ChatNetworkService' or its corresponding type declarations.
-src/extension/content/injectInterceptor.ts(157,12): error TS2307: Cannot find module '@/services/chat/ChatNetworkService' or its corresponding type declarations.
+src/extension/content/injectInterceptor.ts(113,14): error TS2307: Cannot find module '@/services/chat/ChatService' or its corresponding type declarations.
+src/extension/content/injectInterceptor.ts(157,12): error TS2307: Cannot find module '@/services/chat/ChatService' or its corresponding type declarations.
 src/extension/content/injectInterceptor.ts(195,16): error TS2307: Cannot find module '@/services/MessageService' or its corresponding type declarations.
-src/extension/content/injectInterceptor.ts(214,20): error TS2307: Cannot find module '@/services/chat/ChatNetworkService' or its corresponding type declarations.
+src/extension/content/injectInterceptor.ts(214,20): error TS2307: Cannot find module '@/services/chat/ChatService' or its corresponding type declarations.
 src/extension/content/injectInterceptor.ts(242,12): error TS2307: Cannot find module '@/services/MessageService' or its corresponding type declarations.
-src/extension/content/injectInterceptor.ts(262,16): error TS2307: Cannot find module '@/services/chat/ChatNetworkService' or its corresponding type declarations.
+src/extension/content/injectInterceptor.ts(262,16): error TS2307: Cannot find module '@/services/chat/ChatService' or its corresponding type declarations.
 src/hooks/stats/index.tsx(9,3): error TS2305: Module '"@/types/stats"' has no exported member 'Stats'.
 src/hooks/stats/index.tsx(10,3): error TS2305: Module '"@/types/stats"' has no exported member 'StatsFilterOptions'.
 src/hooks/stats/index.tsx(11,3): error TS2305: Module '"@/types/stats"' has no exported member 'TimeSeriesData'.

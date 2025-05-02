@@ -3,6 +3,8 @@
 
 import { EVENTS } from './constants';
 import { dispatchEvent } from './eventsHandler';
+import { detectPlatform } from './detectPlatform';
+
 
 /**
  * Process streaming data from ChatGPT and organize into thinking steps
@@ -12,6 +14,7 @@ import { dispatchEvent } from './eventsHandler';
  * @returns {Object} Updated assistantData and thinkingSteps
  */
 export function processStreamData(data, assistantData, thinkingSteps) {
+  const platform = detectPlatform();
   // Initialize assistantData if needed
   if (!assistantData) {
     assistantData = {
@@ -134,6 +137,8 @@ export function processStreamData(data, assistantData, thinkingSteps) {
         }
       }
     }
+    console.log('ASSISTANT DATAAAAAAAA', assistantData);
+    console.log('THINKING STEPS', thinkingSteps);
     return { assistantData, thinkingSteps };
   }
   
@@ -149,6 +154,7 @@ export function processStreamData(data, assistantData, thinkingSteps) {
  */
 export async function processStreamingResponse(response, requestBody) {
   console.log("PROCESSING STREAMING RESPONSE");
+  const platform = detectPlatform();
   const clonedResponse = response.clone();
   const reader = clonedResponse.body.getReader();
   const decoder = new TextDecoder();
@@ -184,6 +190,7 @@ export async function processStreamingResponse(response, requestBody) {
         // Parse event
         const eventMatch = eventString.match(/^event: ([^\n]+)/);
         const dataMatch = eventString.match(/data: (.+)$/m);
+
         
         if (!dataMatch) continue;
         
@@ -192,9 +199,10 @@ export async function processStreamingResponse(response, requestBody) {
         // Handle special "[DONE]" message 
         if (dataMatch[1] === '[DONE]') {
           console.log("Received [DONE] message, finalizing response");
+          console.log('ASSISTANT DATA', assistantData);
           if (assistantData.messageId && assistantData.content.length > 0) {
             assistantData.isComplete = true;
-            dispatchEvent(EVENTS.ASSISTANT_RESPONSE, assistantData);
+            dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, assistantData);
           }
           continue; // Skip JSON parsing for this message
         }
@@ -202,13 +210,15 @@ export async function processStreamingResponse(response, requestBody) {
         // Parse JSON data (only for non-[DONE] messages)
         try {
           const data = JSON.parse(dataMatch[1]);
+          console.log('event type', eventType);
+          console.log('data', data);
           
           // Process message stream complete event
           if (data.type === "message_stream_complete") {
             if (assistantData.messageId) {
               assistantData.isComplete = true;
               console.log("Stream processing complete");
-              dispatchEvent(EVENTS.ASSISTANT_RESPONSE, assistantData);
+              dispatchEvent(EVENTS.ASSISTANT_RESPONSE,platform, assistantData);
             }
             continue;
           }
@@ -224,7 +234,7 @@ export async function processStreamingResponse(response, requestBody) {
               assistantData.content.length > 0 && 
               assistantData.content.length % 500 === 0) {
             // Send interim update with isComplete=false
-            dispatchEvent(EVENTS.ASSISTANT_RESPONSE, {
+            dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, {
               ...assistantData,
               isComplete: false
             });
@@ -240,7 +250,7 @@ export async function processStreamingResponse(response, requestBody) {
     if (assistantData.messageId && assistantData.content.length > 0 && !assistantData.isComplete) {
       console.log("Stream ended without completion signal, sending final data");
       assistantData.isComplete = true;
-      dispatchEvent(EVENTS.ASSISTANT_RESPONSE, assistantData);
+      dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, assistantData);
     }
   } catch (error) {
     console.error('Error processing stream:', error);
@@ -249,7 +259,7 @@ export async function processStreamingResponse(response, requestBody) {
     if (assistantData.messageId && assistantData.content.length > 0) {
       console.log("Salvaging partial response after error");
       assistantData.isComplete = true;
-      dispatchEvent(EVENTS.ASSISTANT_RESPONSE, assistantData);
+      dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, assistantData);
     }
   }
 }

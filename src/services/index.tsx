@@ -2,7 +2,8 @@
 import { serviceManager } from '@/core/managers/ServiceManager';
 
 // Chat services
-import { ChatNetworkService } from './network/ChatNetworkService';
+import { ChatService } from './network/ChatService';
+import { MessageService } from './network/MessageService';
 
 
 // Auth services
@@ -19,8 +20,8 @@ import { UserProfileService } from './user/UserProfileService';
  */
 export function registerServices(): void {
   // Chat services (network interception)
-  serviceManager.registerService('chat.network', ChatNetworkService.getInstance());
-  
+  serviceManager.registerService('chat.network', ChatService.getInstance());
+  serviceManager.registerService('message.network', MessageService.getInstance());
   // Auth services
   serviceManager.registerService('auth.token', TokenService.getInstance());
   serviceManager.registerService('auth.state', AuthService.getInstance(), [
@@ -46,7 +47,8 @@ export {
 
 // Chat services exports
 export {
-  ChatNetworkService,
+  ChatService,
+  MessageService,
 };
 
 // User services exports

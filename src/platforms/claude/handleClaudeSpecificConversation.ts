@@ -44,6 +44,7 @@ function extractMessagesFromConversation(responseBody: any): Message[] {
             // Fallback to text field if available
             content = message.text;
           }
+          console.log('MESSAaaaaaaaGE', message);
           
           messages.push({
             message_provider_id: message.uuid, // Use message UUID
@@ -52,7 +53,7 @@ function extractMessagesFromConversation(responseBody: any): Message[] {
             role,
             model: responseBody.model || 'claude', // Get model from settings if available
             created_at: new Date(message.created_at).getTime(), // Convert ISO timestamp to milliseconds
-            parent_message_uuid: message.parent_message_uuid // Parent message reference
+            parent_message_provider_id: message.parent_message_uuid // Parent message reference
           });
         }
       });
