@@ -367,7 +367,7 @@ export const TemplateDialog: React.FC = () => {
       <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
         <div>
           <label className="jd-text-sm jd-font-medium">{getMessage('templateName')}</label>
-          <Input 
+          <Textarea 
             value={formData.name || ''} 
             onChange={(e) => handleFormChange('name', e.target.value)}
             placeholder={getMessage('enterTemplateName')}

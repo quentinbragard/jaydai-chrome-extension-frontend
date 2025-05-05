@@ -1,6 +1,5 @@
 // src/components/dialogs/BaseDialog.tsx
 import React, { useRef, useEffect, useState } from 'react';
-import { Dialog } from "@/components/ui/dialog";
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from "@/core/utils/classNames";
 import { X } from "lucide-react";
@@ -28,7 +27,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   children,
   footer
 }) => {
-  // IMPORTANT: All hooks must be called before any conditional returns
+  // All hooks must be called unconditionally at the top
   const dialogRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   
@@ -45,76 +44,73 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onOpenChange(false);
-        // Stop propagation to prevent the escape key from doing anything else
         e.stopPropagation();
       }
     };
 
-    // Attach the event listener
-    window.addEventListener('keydown', handleKeyDown, true); // true for capture phase
+    window.addEventListener('keydown', handleKeyDown, true);
     
     return () => {
       window.removeEventListener('keydown', handleKeyDown, true);
     };
   }, [onOpenChange, open]);
   
-  // Set up input event isolation
+  // Modified event isolation - CRITICAL FIX:
+  // Only isolate text input events, not button clicks or form submissions
   useEffect(() => {
     if (!open || !dialogRef.current) return;
     
-    // This is the critical part that fixes the Claude input issue
-    const handleEvents = (e: Event) => {
-      // Stop the event from propagating through the shadow DOM boundary
-      e.stopPropagation();
+    const handleTextInputEvents = (e: Event) => {
+      // Only stop propagation for keyboard events on text inputs
+      // This allows button clicks and form submissions to work normally
+      if (e.type.startsWith('key')) {
+        e.stopPropagation();
+      }
     };
 
-    // Get all input elements inside the dialog
-    const inputElements = dialogRef.current.querySelectorAll(
-      'input, textarea, [contenteditable="true"]'
+    // Only target text input fields
+    const textInputElements = dialogRef.current.querySelectorAll(
+      'input[type="text"], input[type="email"], input[type="password"], textarea, [contenteditable="true"]'
     );
     
-    // Add event listeners for all input-related events
-    const events = ['keydown', 'keyup', 'keypress', 'input', 'change', 'focus', 'blur', 'click'];
+    // Limited set of events to intercept
+    const inputEvents = ['keydown', 'keyup', 'keypress'];
     
-    inputElements.forEach(element => {
-      events.forEach(eventName => {
-        element.addEventListener(eventName, handleEvents, true);
+    textInputElements.forEach(element => {
+      inputEvents.forEach(eventName => {
+        element.addEventListener(eventName, handleTextInputEvents, true);
       });
     });
     
-    // Cleanup function
     return () => {
       if (!dialogRef.current) return;
       
-      const updatedInputElements = dialogRef.current.querySelectorAll(
-        'input, textarea, [contenteditable="true"]'
+      const updatedTextInputElements = dialogRef.current.querySelectorAll(
+        'input[type="text"], input[type="email"], input[type="password"], textarea, [contenteditable="true"]'
       );
       
-      updatedInputElements.forEach(element => {
-        events.forEach(eventName => {
-          element.removeEventListener(eventName, handleEvents, true);
+      updatedTextInputElements.forEach(element => {
+        inputEvents.forEach(eventName => {
+          element.removeEventListener(eventName, handleTextInputEvents, true);
         });
       });
     };
-  }, [open, children]); // Re-run when open state or children change
+  }, [open, children]);
   
-  // Handle click outside
+  // Handle backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {
-    // Only close if clicking directly on the backdrop (not on its children)
     if (e.target === e.currentTarget) {
       onOpenChange(false);
     }
   };
   
-  // After all hooks have been called, we can use a conditional return
+  // Conditional return after all hooks
   if (!open || !mounted) return null;
   
   return (
     <div 
       className="jd-fixed jd-inset-0 jd-z-[10001] jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-overflow-hidden"
       onClick={handleBackdropClick}
-      onMouseDown={(e) => e.stopPropagation()}
-      onKeyDown={(e) => e.stopPropagation()}
     >
       <div 
         ref={dialogRef}
@@ -123,10 +119,10 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
           className
         )}
         onClick={(e) => e.stopPropagation()}
-        onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button 
+          type="button"
           onClick={() => onOpenChange(false)}
           className="jd-absolute jd-right-4 jd-top-4 jd-rounded-full jd-p-1 jd-bg-muted jd-text-muted-foreground hover:jd-bg-muted/80 focus:jd-outline-none jd-transition-colors jd-z-10"
         >
@@ -134,7 +130,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
           <span className="jd-sr-only">Close</span>
         </button>
         
-        {/* Header section - fixed */}
+        {/* Header section */}
         {(title || description) && (
           <div className="jd-border-b jd-px-6 jd-py-4 jd-flex-shrink-0">
             {title && <h2 className="jd-text-xl jd-font-semibold jd-mb-1">{getMessage(title, undefined, title)}</h2>}
@@ -142,15 +138,12 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
           </div>
         )}
         
-        {/* Content section - scrollable */}
-        <div 
-          className="jd-flex-1 jd-overflow-y-auto jd-p-6" 
-          onMouseDown={(e) => e.stopPropagation()}
-        >
+        {/* Content section */}
+        <div className="jd-flex-1 jd-overflow-y-auto jd-p-6">
           {children}
         </div>
         
-        {/* Footer section - fixed */}
+        {/* Footer section */}
         {footer && (
           <div className="jd-border-t jd-p-4 jd-bg-background jd-flex-shrink-0">
             {footer}
