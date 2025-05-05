@@ -42,7 +42,7 @@ export function processStreamData(data, assistantData, thinkingSteps) {
   }
   
   // Handle initial message creation with 'add' operation
-  if (data.o === "add" && data.v?.message) {
+  if (data.v?.message) {
     // Extract message metadata
     assistantData.messageId = data.v.message.id;
     assistantData.conversationId = data.v.conversation_id;
@@ -79,6 +79,9 @@ export function processStreamData(data, assistantData, thinkingSteps) {
     if (role === 'assistant') {
       assistantData.content = '';
     }
+
+    console.log('ASSISTANT DATA', assistantData);
+    console.log('THINKING STEPS', thinkingSteps);
     
     return { assistantData, thinkingSteps };
   }

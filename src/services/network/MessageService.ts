@@ -1,3 +1,4 @@
+// src/services/network/MessageService.ts
 import { AbstractBaseService } from '../BaseService';
 import { debug } from '@/core/config';
 import { emitEvent, AppEvent } from '@/core/events/events';
@@ -5,6 +6,7 @@ import { Message } from '@/types';
 import { messageApi } from '@/services/api/MessageApi';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
+import { chatService } from './ChatService';
 
 export class MessageService extends AbstractBaseService {
   private static instance: MessageService;
@@ -46,7 +48,12 @@ export class MessageService extends AbstractBaseService {
   private handleExtractedMessage = (event: CustomEvent): void => {
     const { message } = event.detail;
 
-    if (message) {      
+    if (message) {
+      // Try to ensure the message has a conversation ID
+      if (!message.conversationId || message.conversationId === '') {
+        message.conversationId = chatService.getCurrentConversationId() || '';
+      }
+      
       // Queue message for processing
       this.queueMessage(message);
       
@@ -72,16 +79,20 @@ export class MessageService extends AbstractBaseService {
    * Queue a message for saving
    */
   public queueMessage(message: Message): void {
+    console.log('Queueing message:', message);
+    
     // Skip if already processed
-    console.log('MEEEEEEESSSSAAAAGE', message);
     if (this.processed.has(message.messageId)) {
       return;
     }
+
+    // Add to processed set only if we have a conversation ID
+    // This is important - only mark as processed if we have a conversation ID
+    if (message.conversationId && message.conversationId !== '') {
+      this.processed.add(message.messageId);
+    }
     
-    // Add to processed set
-    this.processed.add(message.messageId);
-    
-    // Add to queue
+    // Add to queue regardless of conversation ID
     this.queue.push(message);
     
     // Start processing if not already
@@ -106,22 +117,59 @@ export class MessageService extends AbstractBaseService {
     
     this.processing = true;
     
-    // Take a batch of messages
-    const batch = this.queue.splice(0, this.batchSize);
-    console.log('BATCH', batch);
-    // Process the batch
-    this.saveBatch(batch)
-      .finally(() => {
-        // Schedule next batch
-        this.timer = window.setTimeout(() => this.processQueue(), this.flushInterval);
-      });
+    // Filter messages into two groups:
+    // 1. Messages with conversation IDs that can be processed now
+    // 2. Messages without conversation IDs that need to be kept in the queue
+    const messagesToProcess: Message[] = [];
+    const remainingMessages: Message[] = [];
+    
+    this.queue.forEach(message => {
+      // Try to get the conversation ID one more time if it's missing
+      if (!message.conversationId || message.conversationId === '') {
+        console.log('No conversation IDDDDDDDD found for message:', message);
+        const currentConversationId = chatService.getCurrentConversationId();
+        console.log('Current conversation ID:', currentConversationId);
+        if (currentConversationId) {
+          message.conversationId = currentConversationId;
+        }
+      }
+      
+      // Only process messages that have a conversation ID
+      if (message.conversationId && message.conversationId !== '') {
+        messagesToProcess.push(message);
+        // Mark as processed now that we have a conversation ID
+        if (!this.processed.has(message.messageId)) {
+          this.processed.add(message.messageId);
+        }
+      } else {
+        // Keep messages without conversation ID in the queue
+        remainingMessages.push(message);
+      }
+    });
+    
+    // Update the queue to only contain messages without conversation IDs
+    this.queue = remainingMessages;
+    
+    // Process messages that have conversation IDs
+    if (messagesToProcess.length > 0) {
+      this.saveBatch(messagesToProcess)
+        .finally(() => {
+          // Schedule next batch
+          this.timer = window.setTimeout(() => this.processQueue(), this.flushInterval);
+        });
+    } else if (remainingMessages.length > 0) {
+      // If we have messages waiting for conversation IDs, check again soon
+      this.timer = window.setTimeout(() => this.processQueue(), this.flushInterval);
+    } else {
+      // No messages to process
+      this.processing = false;
+    }
   }
 
   /**
    * Save a batch of messages
    */
   private async saveBatch(messages: Message[]): Promise<void> {
-    console.log('SAVING BATCH', messages);
     if (messages.length === 0) return;
     
     try {
