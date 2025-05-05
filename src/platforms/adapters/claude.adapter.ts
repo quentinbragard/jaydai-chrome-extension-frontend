@@ -2,20 +2,20 @@
 import { BasePlatformAdapter } from './base.adapter';
 import { claudeConfig } from '../config/claude.config';
 import { Message, Conversation } from '@/types';
-import { messageApi, SaveChatParams, SaveMessageParams } from '@/services/api/MessageApi';
+import { messageApi } from '@/services/api/MessageApi';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
+import { chatService } from '@/services/network/ChatService';
 
 export class ClaudeAdapter extends BasePlatformAdapter {
   constructor() {
     super(claudeConfig);
   }
   
-   /**
+  /**
    * Get the current Claude model from the UI
-   * This extracts the model name from the model selector button
    */
-   getModelFromUI(): string {
+  getModelFromUI(): string {
     try {
       // Find the model selector button that contains the model name
       const modelSelector = document.querySelector('[data-testid="model-selector-dropdown"]');
@@ -34,7 +34,6 @@ export class ClaudeAdapter extends BasePlatformAdapter {
         
         // If specific pattern isn't found but there's text, return it
         if (modelText) {
-          console.log('Model text:', modelText);
           return modelText.toLowerCase().replace(/\s+/g, '-');
         }
       }
@@ -47,6 +46,9 @@ export class ClaudeAdapter extends BasePlatformAdapter {
     }
   }
   
+  /**
+   * Extract user message from request body
+   */
   extractUserMessage(requestBody: any, url?: string): Message | null {
     try {
       // Claude has a different API structure
@@ -82,9 +84,12 @@ export class ClaudeAdapter extends BasePlatformAdapter {
     }
   }
   
+  /**
+   * Extract assistant message from response data
+   */
   extractAssistantMessage(data: any): Message | null {
     try {
-      // Get model from UI if possible, fall back to data or default
+      // Get model from UI if possible, or from data
       const model = this.getModelFromUI() || data.model || 'claude';
       
       return {
@@ -105,6 +110,9 @@ export class ClaudeAdapter extends BasePlatformAdapter {
     }
   }
   
+  /**
+   * Extract conversation from response data
+   */
   extractConversation(data: any): Conversation | null {
     try {
       if (!data?.uuid) return null;
@@ -122,6 +130,9 @@ export class ClaudeAdapter extends BasePlatformAdapter {
     }
   }
   
+  /**
+   * Extract messages from conversation data
+   */
   extractMessagesFromConversation(responseBody: any): Message[] {
     try {
       const messages: Message[] = [];
@@ -169,8 +180,12 @@ export class ClaudeAdapter extends BasePlatformAdapter {
       // Sort messages by index to ensure correct order
       return messages.sort((a, b) => {
         // Use the index property from the original messages if available
-        const indexA = responseBody.chat_messages.find((m: any) => m.uuid === a.messageId)?.index || 0;
-        const indexB = responseBody.chat_messages.find((m: any) => m.uuid === b.messageId)?.index || 0;
+        const indexA = responseBody.chat_messages.find(
+          (m: any) => m.uuid === a.messageId
+        )?.index || 0;
+        const indexB = responseBody.chat_messages.find(
+          (m: any) => m.uuid === b.messageId
+        )?.index || 0;
         return indexA - indexB;
       });
     } catch (error) {
@@ -181,13 +196,16 @@ export class ClaudeAdapter extends BasePlatformAdapter {
     }
   }
   
-  async handleConversationList(conversationItems: any[]): Promise<void> {
+  /**
+   * Handle conversation list event
+   */
+  async handleConversationList(conversationItems: any): Promise<void> {
     try {
       if (!Array.isArray(conversationItems)) {
         return Promise.resolve();
       }
       
-      const processedChats: SaveChatParams[] = conversationItems.map(chat => ({
+      const processedChats = conversationItems.map(chat => ({
         chat_provider_id: chat.uuid,
         title: chat.name || 'Unnamed Conversation',
         provider_name: 'Claude'
@@ -209,6 +227,9 @@ export class ClaudeAdapter extends BasePlatformAdapter {
     }
   }
   
+  /**
+   * Handle specific conversation event
+   */
   async handleSpecificConversation(responseBody: any): Promise<void> {
     try {
       if (!responseBody?.uuid) {
@@ -235,6 +256,9 @@ export class ClaudeAdapter extends BasePlatformAdapter {
           parent_message_provider_id: msg.parent_message_provider_id
         })));
         
+        // Update the current conversation ID
+        chatService.setCurrentConversationId(conversation.chat_provider_id);
+        
         // Emit event with conversation and messages
         document.dispatchEvent(new CustomEvent('jaydai:conversation-loaded', {
           detail: { conversation, messages }
@@ -248,6 +272,9 @@ export class ClaudeAdapter extends BasePlatformAdapter {
     return Promise.resolve();
   }
   
+  /**
+   * Handle chat completion event
+   */
   handleChatCompletion(event: CustomEvent): void {
     try {
       const { requestBody, url } = event.detail;
@@ -256,7 +283,7 @@ export class ClaudeAdapter extends BasePlatformAdapter {
       if (message) {
         // Emit event with extracted message
         document.dispatchEvent(new CustomEvent('jaydai:message-extracted', {
-          detail: { message }
+          detail: { message, platform: this.name }
         }));
       }
     } catch (error) {
@@ -266,6 +293,9 @@ export class ClaudeAdapter extends BasePlatformAdapter {
     }
   }
   
+  /**
+   * Handle assistant response event
+   */
   handleAssistantResponse(event: CustomEvent): void {
     try {
       const data = event.detail;
@@ -277,7 +307,7 @@ export class ClaudeAdapter extends BasePlatformAdapter {
         if (message) {
           // Emit event with extracted message
           document.dispatchEvent(new CustomEvent('jaydai:message-extracted', {
-            detail: { message }
+            detail: { message, platform: this.name }
           }));
         }
       }
@@ -288,6 +318,9 @@ export class ClaudeAdapter extends BasePlatformAdapter {
     }
   }
   
+  /**
+   * Insert content into Claude's input area
+   */
   insertPrompt(content: string): boolean {
     if (!content) {
       console.error('No content to insert into Claude');
@@ -374,10 +407,11 @@ export class ClaudeAdapter extends BasePlatformAdapter {
         contentEditableDiv.focus();
         
         // Use clipboard API
-        navigator.clipboard.writeText(normalizedContent)
+        return navigator.clipboard.writeText(normalizedContent)
           .then(() => {
             document.execCommand('paste');
             console.log('Content pasted via Clipboard API');
+            return true;
           })
           .catch(err => {
             console.warn('Clipboard API failed for Claude:', err);
@@ -385,9 +419,8 @@ export class ClaudeAdapter extends BasePlatformAdapter {
             // Final fallback - direct textContent manipulation
             contentEditableDiv.textContent = normalizedContent;
             contentEditableDiv.dispatchEvent(new Event('input', { bubbles: true }));
+            return true;
           });
-        
-        return true;
       } catch (error) {
         console.error('All insertion methods failed for Claude:', error);
         return false;
@@ -396,6 +429,23 @@ export class ClaudeAdapter extends BasePlatformAdapter {
       console.error('Error inserting content into Claude:', error);
       return false;
     }
+  }
+  
+  /**
+   * Check if platform supports streaming
+   */
+  supportsStreaming(): boolean {
+    return false; // Claude doesn't use our streaming approach
+  }
+  
+  /**
+   * Process streaming response - not applicable for Claude
+   */
+  async processStreamingResponse(response: Response, requestBody: any): Promise<void> {
+    // As you mentioned, Claude doesn't need streaming processing
+    // We'll get the conversation data after the response is complete
+    console.log('Claude streaming not processed - conversation will be loaded separately');
+    return Promise.resolve();
   }
 }
 

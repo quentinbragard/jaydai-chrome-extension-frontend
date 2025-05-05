@@ -20,6 +20,10 @@ export interface PlatformAdapter {
   extractAssistantMessage(data: any): Message | null;
   extractConversation(data: any): Conversation | null;
   extractMessagesFromConversation(data: any): Message[];
+
+  // streaming response
+  processStreamingResponse(response: Response, requestBody: any): Promise<void>;
+  supportsStreaming(): boolean;
 }
 
 export abstract class BasePlatformAdapter implements PlatformAdapter {
@@ -40,4 +44,6 @@ export abstract class BasePlatformAdapter implements PlatformAdapter {
   abstract extractAssistantMessage(data: any): Message | null;
   abstract extractConversation(data: any): Conversation | null;
   abstract extractMessagesFromConversation(data: any): Message[];
+  abstract processStreamingResponse(response: Response, requestBody: any): Promise<void>;
+  abstract supportsStreaming(): boolean;
 }
