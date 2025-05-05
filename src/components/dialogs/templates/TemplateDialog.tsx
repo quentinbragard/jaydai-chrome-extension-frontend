@@ -4,8 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useDialog } from '@/components/dialogs/core/DialogContext';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { useDialog } from '@/hooks/dialogs/useDialog';
 import { FolderPlus } from 'lucide-react';
 import { DEFAULT_FORM_DATA } from '@/types/prompts/templates';
 import { toast } from 'sonner';
@@ -22,12 +21,11 @@ interface FolderData {
 
 /**
  * Unified Template Dialog for both creating and editing templates
- * This version doesn't directly import React Query hooks to avoid errors
  */
 export const TemplateDialog: React.FC = () => {
   // Get create and edit dialog states
-  const createDialog = useDialog(DIALOG_TYPES.CREATE_TEMPLATE);
-  const editDialog = useDialog(DIALOG_TYPES.EDIT_TEMPLATE);
+  const createDialog = useDialog('createTemplate');
+  const editDialog = useDialog('editTemplate');
   
   // Determine if either dialog is open
   const isOpen = createDialog.isOpen || editDialog.isOpen;
@@ -46,9 +44,9 @@ export const TemplateDialog: React.FC = () => {
   const currentTemplate = data?.template || null;
   const initialFormData = data?.formData || DEFAULT_FORM_DATA;
   const onFormChange = data?.onFormChange;
-  const onSave = data?.onSave
+  const onSave = data?.onSave;
   const userFolders = data?.userFolders || [];
-  const selectedFolder = data?.selectedFolder; // New: pre-selected folder from folder creation
+  const selectedFolder = data?.selectedFolder;
   
   // Process user folders for the select dropdown
   const processUserFolders = useCallback(() => {
@@ -122,7 +120,6 @@ export const TemplateDialog: React.FC = () => {
         handleFormChange('folder', selectedFolder.name);
       }
     }
-    // Run this effect when dialog open state changes or when user folders update
   }, [isOpen, userFolders, selectedFolder, initialFormData, processUserFolders]);
   
   // Handle dialog close
@@ -172,7 +169,7 @@ export const TemplateDialog: React.FC = () => {
     if (folderId === 'new') {
       // Open create folder dialog and pass callback to handle newly created folder
       if (window.dialogManager) {
-        window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
+        window.dialogManager.openDialog('createFolder', {
           onSaveFolder: async (folderData: { name: string; path: string; description: string }) => {
             try {
               // Direct API call fallback
@@ -389,7 +386,6 @@ export const TemplateDialog: React.FC = () => {
             onKeyDown={(e) => {
               // Allow Enter key to create a new line
               if (e.key === 'Enter') {
-                // Prevent default behavior (which might submit the form)
                 e.preventDefault();
                 
                 // Get the current cursor position
@@ -475,9 +471,8 @@ export const TemplateDialog: React.FC = () => {
             value={formData.content || ''} 
             onChange={(e) => handleFormChange('content', e.target.value)}
             onKeyDown={(e) => {
-              // Allow Enter key to create a new line
+              // Prevent default handling of Enter to allow multi-line content
               if (e.key === 'Enter') {
-                // Prevent default behavior (which might submit the form)
                 e.preventDefault();
                 
                 // Get the current cursor position

@@ -5,10 +5,9 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import { useDialog } from '@/components/dialogs/core/DialogContext';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
-import { getMessage } from '@/core/utils/i18n';
+import { useDialog } from '@/hooks/dialogs/useDialog';
 import { BaseDialog } from '../BaseDialog';
+import { getMessage } from '@/core/utils/i18n';
 
 // Custom hook to detect dark mode
 const useDarkMode = () => {
@@ -53,12 +52,12 @@ interface Placeholder {
  * Dialog for editing template placeholders
  */
 export const PlaceholderEditor: React.FC = () => {
-  const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
+  const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
   const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
   const [modifiedContent, setModifiedContent] = useState('');
   const [contentMounted, setContentMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false); // New state to track active editing
+  const [isEditing, setIsEditing] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<MutationObserver | null>(null);
   const isDarkMode = useDarkMode();
@@ -67,12 +66,6 @@ export const PlaceholderEditor: React.FC = () => {
   const templateContent = data?.content || '';
   const templateTitle = data?.title || 'Template';
   const onComplete = data?.onComplete || (() => {});
-  
-  console.log("PlaceholderEditor opened with:", { 
-    templateTitle, 
-    contentLength: templateContent?.length || 0,
-    hasCallback: !!onComplete
-  });
   
   /**
    * Extract placeholders from template content
@@ -103,7 +96,6 @@ export const PlaceholderEditor: React.FC = () => {
 
   /**
    * Function to highlight placeholders inside the content with improved formatting
-   * with single newline handling
    */
   const highlightPlaceholders = (content: string) => {
     // First, normalize the content to ensure consistent line breaks
@@ -118,7 +110,6 @@ export const PlaceholderEditor: React.FC = () => {
       .replace(/'/g, '&#039;');
     
     // Then handle newlines by converting them to <br> tags
-    // This is a direct replacement, not adding extra breaks
     const withLineBreaks = escapedContent.replace(/\n/g, '<br>');
     
     // Finally, highlight placeholders
@@ -172,16 +163,12 @@ export const PlaceholderEditor: React.FC = () => {
       const htmlContent = editorRef.current.innerHTML;
       
       // First, normalize <br> tags to ensure consistent processing
-      // Replace any series of <br> tags with a single standardized one
       const normalizedHtml = htmlContent
         .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')  // Replace double <br>s
         .replace(/<div><br><\/div>/gi, '<br>')         // Replace div-wrapped <br>s
         .replace(/<p><br><\/p>/gi, '<br>');            // Replace p-wrapped <br>s
       
       // Process the normalized content:
-      // 1. Replace all <br> tags with a single newline character
-      // 2. Remove all other HTML tags
-      // 3. Decode HTML entities
       const textContent = normalizedHtml
         .replace(/<br\s*\/?>/gi, '\n')
         .replace(/<div\s*\/?>/gi, '')
@@ -269,7 +256,6 @@ export const PlaceholderEditor: React.FC = () => {
 
   /**
    * Update placeholder values and reflect changes in the editor
-   * with single newline handling
    */
   const updatePlaceholder = (index: number, value: string) => {
     // Skip if user is actively editing
@@ -398,8 +384,6 @@ export const PlaceholderEditor: React.FC = () => {
             className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
               isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
             }`}
-            onClick={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
             >
             <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
             <div
@@ -413,17 +397,6 @@ export const PlaceholderEditor: React.FC = () => {
                   ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
                   : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
               }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                // Allow default behavior for cursor positioning
-              }} 
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                // Allow default behavior for text selection
-              }}
-              onKeyDown={(e) => e.stopPropagation()}
-              onKeyPress={(e) => e.stopPropagation()}
-              onKeyUp={(e) => e.stopPropagation()}
             ></div>
           </div>
         </div>

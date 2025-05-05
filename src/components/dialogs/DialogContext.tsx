@@ -1,6 +1,6 @@
-// src/components/dialogs/core/DialogContext.tsx
-import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode, useEffect, useRef } from 'react';
-import { DialogType, DialogProps, DIALOG_TYPES } from '@/types/dialog';
+// src/components/dialogs/DialogContext.tsx
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { DialogType, DialogProps } from './DialogRegistry';
 
 // Define the Dialog Manager context type
 interface DialogManagerContextType {
@@ -13,7 +13,7 @@ interface DialogManagerContextType {
 }
 
 // Create the context with default values
-export const DialogManagerContext = createContext<DialogManagerContextType | null>(null);
+const DialogManagerContext = createContext<DialogManagerContextType | null>(null);
 
 // Define the global window interface to expose dialogManager
 declare global {
@@ -72,7 +72,7 @@ export function useDialogManager(): DialogManagerContextType {
         dialogData: {} as DialogProps,
         openDialog: window.dialogManager.openDialog,
         closeDialog: window.dialogManager.closeDialog,
-        isDialogOpen: () => false,  // Fallback implementations
+        isDialogOpen: () => false,
         getDialogData: () => undefined,
       };
     }
@@ -103,7 +103,7 @@ export function useDialog<T extends DialogType>(type: T) {
   }, [closeDialog, type]);
   
   // Helper for dialog props that can be directly passed to a Dialog component
-  const dialogProps = useMemo(() => ({
+  const dialogProps = React.useMemo(() => ({
     open: isOpen,
     onOpenChange: (open: boolean) => {
       if (!open) close();
@@ -119,39 +119,6 @@ export function useDialog<T extends DialogType>(type: T) {
   };
 }
 
-
-/**
- * Hook for opening dialogs with type safety
- */
-export function useOpenDialog() {
-  const { openDialog } = useDialogManager();
-  
-  return {
-    openSettings: () => openDialog(DIALOG_TYPES.SETTINGS, {}),
-    
-    openCreateTemplate: (props: DialogProps[typeof DIALOG_TYPES.CREATE_TEMPLATE]) => 
-      openDialog(DIALOG_TYPES.CREATE_TEMPLATE, props),
-    
-    openEditTemplate: (props: DialogProps[typeof DIALOG_TYPES.EDIT_TEMPLATE]) => 
-      openDialog(DIALOG_TYPES.EDIT_TEMPLATE, props),
-    
-    openCreateFolder: (props: DialogProps[typeof DIALOG_TYPES.CREATE_FOLDER]) => 
-      openDialog(DIALOG_TYPES.CREATE_FOLDER, props),
-    
-    openAuth: (props: DialogProps[typeof DIALOG_TYPES.AUTH]) => 
-      openDialog(DIALOG_TYPES.AUTH, props),
-    
-    openPlaceholderEditor: (props: DialogProps[typeof DIALOG_TYPES.PLACEHOLDER_EDITOR]) => 
-      openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, props),
-    
-    openConfirmation: (props: DialogProps[typeof DIALOG_TYPES.CONFIRMATION]) => 
-      openDialog(DIALOG_TYPES.CONFIRMATION, props),
-      
-    // Add the enhanced stats dialog opener
-    openEnhancedStats: () => openDialog(DIALOG_TYPES.ENHANCED_STATS, {}),
-  };
-}
-
 // Interface for DialogManager Provider Props
 interface DialogManagerProviderProps {
   children: ReactNode;
@@ -164,7 +131,7 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
   // State for tracking open dialogs and their data
   const [openDialogs, setOpenDialogs] = useState<Record<DialogType, boolean>>({} as Record<DialogType, boolean>);
   const [dialogData, setDialogData] = useState<DialogProps>({} as DialogProps);
-  const isInitializedRef = useRef(false);
+  const isInitializedRef = React.useRef(false);
   
   // Dialog management functions
   const openDialog = useCallback(<T extends DialogType>(type: T, data?: DialogProps[T]) => {
@@ -189,7 +156,7 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
   }, [dialogData]);
   
   // Create context value
-  const contextValue = useMemo(() => ({
+  const contextValue = React.useMemo(() => ({
     openDialogs,
     dialogData,
     openDialog,

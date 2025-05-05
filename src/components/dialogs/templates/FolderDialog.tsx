@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useDialog } from '@/components/dialogs/core/DialogContext';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { useDialog } from '../DialogContext';
+import { DIALOG_TYPES } from '../DialogRegistry';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { BaseDialog } from '../BaseDialog';
@@ -123,7 +123,8 @@ export const FolderDialog: React.FC = () => {
             value={name} 
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => {
-              // Prevent form submission when Enter is pressed in the name field
+              // Prevent form submission and propagation when Enter is pressed
+              e.stopPropagation();
               if (e.key === 'Enter') {
                 e.preventDefault();
               }
@@ -140,6 +141,9 @@ export const FolderDialog: React.FC = () => {
             value={description} 
             onChange={(e) => setDescription(e.target.value)}
             onKeyDown={(e) => {
+              // Prevent event propagation to prevent leaking
+              e.stopPropagation();
+              
               // Allow Enter key to create a new line
               if (e.key === 'Enter') {
                 // Prevent default behavior (which might submit the form)
@@ -177,12 +181,14 @@ export const FolderDialog: React.FC = () => {
             variant="outline" 
             onClick={() => dialogProps.onOpenChange(false)}
             disabled={isSubmitting}
+            onKeyDown={(e) => e.stopPropagation()}
           >
             {getMessage('cancel', undefined, 'Cancel')}
           </Button>
           <Button 
             type="submit" 
             disabled={isSubmitting || !name.trim()}
+            onKeyDown={(e) => e.stopPropagation()}
           >
             {isSubmitting ? (
               <>

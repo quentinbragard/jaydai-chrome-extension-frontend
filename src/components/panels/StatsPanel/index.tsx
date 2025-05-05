@@ -8,7 +8,7 @@ import StatsDetailRow from './StatsDetailRow';
 import BasePanel from '../BasePanel';
 import ErrorBoundary from '../../common/ErrorBoundary';
 import { getMessage } from '@/core/utils/i18n';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import {
   Tooltip,
   TooltipContent,

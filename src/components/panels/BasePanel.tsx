@@ -39,7 +39,7 @@ export const BasePanel: React.FC<BasePanelProps> = ({
   headerLeftExtra
 }) => {
   return (
-    <div className={cn("jd-rounded-md jd-overflow-hidden jd-shadow-lg jd-max-w-md", className)}>
+    <div className={cn("jd-rounded-md jd-overflow-hidden jd-shadow-lg jd-max-w-md jd-z-[10000]", className)}>
       <PanelHeader 
         title={title}
         icon={icon}

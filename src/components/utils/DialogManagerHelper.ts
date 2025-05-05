@@ -1,6 +1,6 @@
 // src/utils/DialogManagerHelper.ts
 import { toast } from 'sonner';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 
 /**
  * Helper service to work with the dialog manager more reliably
@@ -170,8 +170,8 @@ export class DialogManagerHelper {
     }
     
     // Try to close common dialogs
-    const dialogTypes = Object.values(DIALOG_TYPES);
-    for (const type of dialogTypes) {
+    const DIALOG_TYPES = Object.values(DIALOG_TYPES);
+    for (const type of DIALOG_TYPES) {
       try {
         dialogManager.closeDialog(type);
       } catch (error) {

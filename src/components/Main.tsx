@@ -4,7 +4,7 @@ import { Toaster } from 'sonner';
 import { AuthProvider } from '@/state/AuthContext';
 import MainButton from '@/components/MainButton';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
-import { DialogProvider } from '@/components/dialogs';
+import { DialogProvider } from '@/components/dialogs/DialogProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ThemeProvider } from '@/components/theme-provider';
 
@@ -15,28 +15,6 @@ import { ThemeProvider } from '@/components/theme-provider';
 const Main: React.FC = () => {
   // Reference to the shadow root host element
   const shadowRootRef = useRef<HTMLElement | null>(null);
-
-  // Ensure dialog system is properly setup
-  useEffect(() => {
-    // Check if dialog manager is properly initialized
-    const checkDialogManager = () => {
-      if (!window.dialogManager) {
-        console.warn('Dialog manager not found, will try to initialize from DialogProvider');
-      } else {
-        console.log('Dialog manager is available in global scope');
-      }
-    };
-
-    // Run check after component mount
-    checkDialogManager();
-    
-    // Set a timeout to check again in case of initialization delay
-    const timeoutId = setTimeout(checkDialogManager, 1000);
-    
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, []);
 
   // Sync theme with parent document - properly handling Shadow DOM
   useEffect(() => {
@@ -105,6 +83,7 @@ const Main: React.FC = () => {
             disableTransitionOnChange
           >
             <QueryProvider>
+              {/* Updated to use our new dialog system */}
               <DialogProvider>
                 {/* UI Components */}
                 <MainButton />

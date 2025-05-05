@@ -2,12 +2,12 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Template } from '@/types/prompts/templates';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { useTemplateMutations } from './useTemplateMutations';
 import { useFolderMutations } from './useFolderMutations';
 import { useQueryClient } from 'react-query';
 import { QUERY_KEYS } from '@/constants/queryKeys';
-import { useDialogManager } from '@/components/dialogs/core/DialogContext';
+import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { insertContentIntoChat, formatContentForInsertion } from '@/utils/templates/insertPrompt';
 
 /**

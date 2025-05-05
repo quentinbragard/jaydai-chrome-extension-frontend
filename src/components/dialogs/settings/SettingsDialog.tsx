@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { useDialog } from '@/components/dialogs/core/DialogContext';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { useDialog } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
 

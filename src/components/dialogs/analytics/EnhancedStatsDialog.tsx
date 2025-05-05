@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useDialog } from '@/components/dialogs/core/DialogContext';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { useDialog } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { 

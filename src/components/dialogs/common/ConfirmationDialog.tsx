@@ -1,8 +1,8 @@
 // src/components/dialogs/common/ConfirmationDialog.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useDialog } from '@/components/dialogs/core/DialogContext';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { useDialog } from '../DialogContext';
+import { DIALOG_TYPES } from '../DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
 
@@ -20,12 +20,14 @@ export const ConfirmationDialog: React.FC = () => {
   const onConfirm = data?.onConfirm || (() => {});
   const onCancel = data?.onCancel || (() => {});
   
-  const handleConfirm = () => {
+  const handleConfirm = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onConfirm();
     dialogProps.onOpenChange(false);
   };
   
-  const handleCancel = () => {
+  const handleCancel = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onCancel();
     dialogProps.onOpenChange(false);
   };
@@ -42,10 +44,17 @@ export const ConfirmationDialog: React.FC = () => {
     >
       <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
         <div className="jd-flex jd-justify-end jd-space-x-2">
-          <Button variant="outline" onClick={handleCancel}>
+          <Button 
+            variant="outline" 
+            onClick={handleCancel}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
             {cancelText}
           </Button>
-          <Button onClick={handleConfirm}>
+          <Button 
+            onClick={handleConfirm}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
             {confirmText}
           </Button>
         </div>

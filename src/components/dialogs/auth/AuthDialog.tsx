@@ -1,7 +1,7 @@
 // src/components/dialogs/auth/AuthDialog.tsx
 import React from 'react';
-import { useDialog } from '@/components/dialogs/core/DialogContext';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { useDialog } from '../DialogContext';
+import { DIALOG_TYPES } from '../DialogRegistry';
 import AuthForm from '@/extension/welcome/auth/AuthForm';
 import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
@@ -28,7 +28,7 @@ export const AuthDialog: React.FC = () => {
         : getMessage('signUp', undefined, 'Sign Up')}
       className="jd-max-w-md"
     >
-      <div className="jd-mt-4">
+      <div className="jd-mt-4" onClick={(e) => e.stopPropagation()}>
         <AuthForm
           initialMode={initialMode}
           isSessionExpired={isSessionExpired}

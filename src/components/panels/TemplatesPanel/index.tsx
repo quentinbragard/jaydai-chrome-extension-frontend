@@ -24,7 +24,7 @@ import {
 } from '@/components/folders';
 
 import { TemplateItem } from '@/components/templates/TemplateItem';
-import { DIALOG_TYPES } from '@/core/dialogs/registry';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
 import { Template, TemplateFolder } from '@/types/prompts/templates';

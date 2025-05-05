@@ -1,4 +1,5 @@
-import React from 'react';
+// src/components/dialogs/BaseDialog.tsx
+import React, { useRef, useEffect } from 'react';
 import { Dialog } from "@/components/ui/dialog";
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from "@/core/utils/classNames";
@@ -16,7 +17,7 @@ export interface BaseDialogProps {
 
 /**
  * A simplified BaseDialog that works better with Shadow DOM
- * Uses native scrolling behavior instead of complex custom scrollbars
+ * Uses improved event capturing to prevent events from leaking
  */
 export const BaseDialog: React.FC<BaseDialogProps> = ({ 
   open, 
@@ -27,22 +28,94 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   children,
   footer
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  
+  // Don't render if not open
   if (!open) return null;
   
+  // Handle click outside
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    // Only close if clicking directly on the backdrop (not on its children)
+    if (e.target === e.currentTarget) {
+      onOpenChange(false);
+    }
+  };
+  
+  // Handle escape key press
+  useEffect(() => {
+    if (!open) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onOpenChange(false);
+        // Stop propagation to prevent the escape key from doing anything else
+        e.stopPropagation();
+      }
+    };
+
+    // Attach the event listener
+    window.addEventListener('keydown', handleKeyDown, true); // true for capture phase
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [onOpenChange, open]);
+  
+  // Set up input event isolation
+  useEffect(() => {
+    if (!open || !dialogRef.current) return;
+    
+    // This is the critical part that fixes the Claude input issue
+    const handleEvents = (e: Event) => {
+      // Stop the event from propagating through the shadow DOM boundary
+      e.stopPropagation();
+    };
+
+    // Get all input elements inside the dialog
+    const inputElements = dialogRef.current.querySelectorAll(
+      'input, textarea, [contenteditable="true"]'
+    );
+    
+    // Add event listeners for all input-related events
+    const events = ['keydown', 'keyup', 'keypress', 'input', 'change', 'focus', 'blur', 'click'];
+    
+    inputElements.forEach(element => {
+      events.forEach(eventName => {
+        element.addEventListener(eventName, handleEvents, true);
+      });
+    });
+    
+    // Cleanup function
+    return () => {
+      if (!dialogRef.current) return;
+      
+      const updatedInputElements = dialogRef.current.querySelectorAll(
+        'input, textarea, [contenteditable="true"]'
+      );
+      
+      updatedInputElements.forEach(element => {
+        events.forEach(eventName => {
+          element.removeEventListener(eventName, handleEvents, true);
+        });
+      });
+    };
+  }, [open, children]); // Re-run when open state or children change
+  
   return (
-    <div className="jd-fixed jd-inset-0 jd-z-50 jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-overflow-hidden"
-         onClick={(e) => {
-           // Close when clicking the backdrop, but not content
-           if (e.target === e.currentTarget) {
-             onOpenChange(false);
-           }
-         }}>
+    <div 
+      className="jd-fixed jd-inset-0 jd-z-[10001] jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-overflow-hidden"
+      onClick={handleBackdropClick}
+      onMouseDown={(e) => e.stopPropagation()}
+      onKeyDown={(e) => e.stopPropagation()}
+    >
       <div 
+        ref={dialogRef}
         className={cn(
-          "jd-bg-background jd-rounded-lg jd-shadow-xl jd-w-full jd-max-w-6xl jd-max-h-[90vh] jd-flex jd-flex-col jd-relative",
+          "jd-bg-background jd-rounded-lg jd-shadow-xl jd-w-full jd-max-h-[90vh] jd-flex jd-flex-col jd-relative",
           className
         )}
         onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button 
@@ -62,7 +135,10 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
         )}
         
         {/* Content section - scrollable */}
-        <div className="jd-flex-1 jd-overflow-y-auto jd-p-6" onMouseDown={(e) => e.stopPropagation()}>
+        <div 
+          className="jd-flex-1 jd-overflow-y-auto jd-p-6" 
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           {children}
         </div>
         
