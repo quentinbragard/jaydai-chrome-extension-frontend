@@ -9,6 +9,8 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
 import { getMessage } from '@/core/utils/i18n';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
+
 
 /**
  * Main floating button component that opens various panels
@@ -26,6 +28,10 @@ const MainButton = () => {
 
   // Use our theme detector hook to get the current theme
   const isDarkMode = useThemeDetector();
+  const handleMainButtonClick = () => {
+    trackEvent(EVENTS.MAIN_BUTTON_CLICKED);
+    toggleMenu();
+  };
 
   // We don't need this event listener anymore because it's handled in useMainButtonState
   // But keeping the component structure for reference
@@ -58,7 +64,7 @@ const MainButton = () => {
           <div className="jd-relative jd-w-20 jd-h-20">
             <Button 
               ref={buttonRef}
-              onClick={toggleMenu}
+              onClick={handleMainButtonClick}
               className="jd-bg-transparent hover:jd-bg-transparent hover:jd-scale-125 jd-transition-all jd-duration-300 jd-w-full jd-h-full jd-rounded-full jd-p-0 jd-overflow-hidden jd-flex jd-items-center jd-justify-center"
             >
               <img 

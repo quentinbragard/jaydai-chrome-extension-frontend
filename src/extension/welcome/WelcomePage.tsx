@@ -9,6 +9,7 @@ import { getMessage } from '@/core/utils/i18n';
 import { authService } from '@/services/auth/AuthService';
 import { AuthState } from '@/types';
 import "./welcome.css";
+import { initAmplitude, trackEvent, EVENTS } from '@/utils/amplitude';
 
 const WelcomePage: React.FC = () => {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
@@ -49,6 +50,11 @@ const WelcomePage: React.FC = () => {
     return () => {
       unsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    initAmplitude();
+    trackEvent(EVENTS.EXTENSION_INSTALLED);
   }, []);
 
   // Animation effect for changing tasks
