@@ -1,5 +1,5 @@
 // src/components/dialogs/BaseDialog.tsx
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Dialog } from "@/components/ui/dialog";
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from "@/core/utils/classNames";
@@ -28,18 +28,15 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   children,
   footer
 }) => {
+  // IMPORTANT: All hooks must be called before any conditional returns
   const dialogRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
   
-  // Don't render if not open
-  if (!open) return null;
-  
-  // Handle click outside
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    // Only close if clicking directly on the backdrop (not on its children)
-    if (e.target === e.currentTarget) {
-      onOpenChange(false);
-    }
-  };
+  // Setup effect for mounting state
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
   
   // Handle escape key press
   useEffect(() => {
@@ -100,6 +97,17 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
       });
     };
   }, [open, children]); // Re-run when open state or children change
+  
+  // Handle click outside
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    // Only close if clicking directly on the backdrop (not on its children)
+    if (e.target === e.currentTarget) {
+      onOpenChange(false);
+    }
+  };
+  
+  // After all hooks have been called, we can use a conditional return
+  if (!open || !mounted) return null;
   
   return (
     <div 
