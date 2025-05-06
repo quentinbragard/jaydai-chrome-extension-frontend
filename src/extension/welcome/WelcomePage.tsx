@@ -10,8 +10,14 @@ import { authService } from '@/services/auth/AuthService';
 import { AuthState } from '@/types';
 import "./welcome.css";
 import { initAmplitude, trackEvent, setAmplitudeUserId, EVENTS } from '@/utils/amplitude';
-import { userApi } from '@/services/api/UserApi';
 import OnboardingFlow from '@/extension/welcome/onboarding/OnboardingFlow';
+import { serviceManager } from '@/core/managers/ServiceManager';
+import { userApi } from '@/services/api/UserApi';
+import { debug } from '@/core/config';
+import { registerServices } from '@/services';
+
+// Flag to ensure we only initialize services once
+let servicesInitialized = false;
 
 const WelcomePage: React.FC = () => {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
@@ -20,6 +26,7 @@ const WelcomePage: React.FC = () => {
   const [onboardingRequired, setOnboardingRequired] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [initError, setInitError] = useState<string | null>(null);
   
   // Auth state
   const [authState, setAuthState] = useState<AuthState>({
@@ -29,7 +36,7 @@ const WelcomePage: React.FC = () => {
     error: null
   });
   
-  // Tasks are now localized using getMessage
+  // Tasks for animation
   const tasks = React.useMemo(
     () => [
       getMessage('aiTask1', undefined, 'write professional emails'),
@@ -47,57 +54,101 @@ const WelcomePage: React.FC = () => {
     trackEvent(EVENTS.EXTENSION_INSTALLED);
   }, []);
   
-  // Initialize auth state and check onboarding status
+  // Initialize services separately
   useEffect(() => {
-    const initializeAuth = async () => {
-      setIsLoading(true);
+    const initServices = async () => {
+      if (servicesInitialized) {
+        debug('Services already initialized, skipping');
+        return true;
+      }
       
+      debug('Starting service initialization...');
       try {
-        // Subscribe to auth state changes
-        const unsubscribe = authService.subscribe(async (state) => {
-          setAuthState(state);
-          
-          // When auth state changes and user is authenticated
-          if (state.user && state.isAuthenticated) {
-            // Set user ID for amplitude tracking
-            setAmplitudeUserId(state.user.id);
-            
-            // Check if user needs to complete onboarding
-            if (!onboardingRequired) {
-              const onboardingStatus = await userApi.getUserOnboardingStatus();
-              console.log('hasCompleted-->', onboardingStatus);
-              setOnboardingRequired(!onboardingStatus.hasCompleted);
-              
-              // Show onboarding if user hasn't completed it
-              if (!onboardingStatus.hasCompleted) {
-                setShowOnboarding(true);
-                trackEvent(EVENTS.ONBOARDING_STARTED, {
-                  user_id: state.user.id
-                });
-              }
-            }
-          }
-          
-          setIsLoading(false);
-        });
-
-        // Initialize auth service if needed
+        // Register services if needed
+        if (!serviceManager.hasService('api.client')) {
+          debug('Registering services...');
+          registerServices();
+        }
+        
+        // Initialize services in the correct order
+        debug('Initializing API client first...');
+        const apiClient = serviceManager.getService('api.client');
+        if (apiClient && !apiClient.isInitialized()) {
+          await apiClient.initialize();
+        }
+        
+        debug('Initializing Token service...');
+        const tokenService = serviceManager.getService('auth.token');
+        if (tokenService && !tokenService.isInitialized()) {
+          await tokenService.initialize();
+        }
+        
+        debug('Initializing Auth service...');
         if (!authService.isInitialized()) {
           await authService.initialize();
         }
-
-        // Cleanup subscription
-        return () => {
-          unsubscribe();
-        };
+        
+        debug('All critical services initialized');
+        servicesInitialized = true;
+        return true;
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        console.error('Error initializing services:', error);
+        setInitError(error instanceof Error ? error.message : 'Failed to initialize services');
         setIsLoading(false);
+        return false;
       }
     };
-
-    initializeAuth();
-  }, [onboardingRequired]);
+    
+    initServices();
+  }, []);
+  
+  // Handle auth state and onboarding check
+  useEffect(() => {
+    if (!servicesInitialized) {
+      return;
+    }
+    
+    debug('Setting up auth subscription...');
+    const unsubscribe = authService.subscribe(async (state) => {
+      debug('Auth state updated:', state);
+      setAuthState(state);
+      
+      // Check onboarding status when authenticated
+      if (state.user && state.isAuthenticated) {
+        setAmplitudeUserId(state.user.id);
+        
+        try {
+          // Only check if not already determined
+          if (!onboardingRequired) {
+            debug('Checking onboarding status...');
+            const status = await userApi.getUserOnboardingStatus();
+            debug('Onboarding status:', status);
+            
+            const needsOnboarding = !status.hasCompleted;
+            setOnboardingRequired(needsOnboarding);
+            
+            if (needsOnboarding) {
+              setShowOnboarding(true);
+              trackEvent(EVENTS.ONBOARDING_STARTED, {
+                user_id: state.user.id
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error checking onboarding status:', error);
+          // Default to not requiring onboarding on error
+          setOnboardingRequired(false);
+        }
+      }
+      
+      setIsLoading(false);
+    });
+    
+    return () => {
+      debug('Cleaning up auth subscription');
+      unsubscribe();
+    };
+  }, [servicesInitialized, onboardingRequired]);
 
   // Animation effect for changing tasks
   React.useEffect(() => {
@@ -152,8 +203,7 @@ const WelcomePage: React.FC = () => {
     });
   };
 
-  // Loading state
-  if (isLoading || authState.isLoading) {
+  if (isLoading) {
     return (
       <div className="jd-min-h-screen jd-bg-background jd-text-foreground jd-flex jd-items-center jd-justify-center jd-font-sans">
         <div className="jd-text-center">
@@ -164,10 +214,42 @@ const WelcomePage: React.FC = () => {
           <p className="jd-text-gray-300 jd-mt-4 jd-animate-pulse">
             {getMessage('loading', undefined, 'Loading...')}
           </p>
+          {/* Add more detailed status for development */}
+          {process.env.NODE_ENV === 'development' && 
+            <p className="jd-text-xs jd-text-gray-500 jd-mt-2">Initializing services...</p>
+          }
         </div>
       </div>
     );
   }
+  
+  // Show initialization error if any
+  if (initError) {
+    return (
+      <div className="jd-min-h-screen jd-bg-background jd-text-foreground jd-flex jd-items-center jd-justify-center jd-font-sans">
+        <div className="jd-text-center jd-max-w-md jd-mx-auto jd-p-6">
+          <div className="jd-text-red-500 jd-mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="jd-h-12 jd-w-12 jd-mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h1 className="jd-text-2xl jd-font-bold jd-text-white jd-mb-4">
+            {getMessage('initializationError', undefined, 'Initialization Error')}
+          </h1>
+          <p className="jd-text-gray-300 jd-mb-6">
+            {initError}
+          </p>
+          <Button 
+            onClick={() => window.location.reload()}
+            className="jd-bg-blue-600 hover:jd-bg-blue-700"
+          >
+            {getMessage('tryAgain', undefined, 'Try Again')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   
   // Show onboarding flow if needed
   if (authState.isAuthenticated && showOnboarding) {

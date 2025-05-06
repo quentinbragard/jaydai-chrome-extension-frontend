@@ -7,6 +7,8 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { DialogProvider } from '@/components/dialogs/DialogProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ThemeProvider } from '@/components/theme-provider';
+import { initAmplitude } from '@/utils/amplitude';
+import { authService } from '@/services/auth/AuthService';
 
 /**
  * Main app component that brings everything together
@@ -70,6 +72,16 @@ const Main: React.FC = () => {
     return () => {
       observer.disconnect();
     };
+  }, []);
+
+  useEffect(() => {
+    authService.subscribe((state) => {
+      console.log('authService-->', state);
+      if (state.user) {
+        console.log('initAmplitude-->', state.user.id);
+        initAmplitude(state.user.id);
+      }
+    });
   }, []);
 
   return (

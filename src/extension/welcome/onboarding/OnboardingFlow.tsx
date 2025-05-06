@@ -85,6 +85,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
     
     try {
       // Submit onboarding data to the backend
+      console.log('data-->', data);
       const result = await userApi.saveUserMetadata(data);
       
       if (result.success) {
