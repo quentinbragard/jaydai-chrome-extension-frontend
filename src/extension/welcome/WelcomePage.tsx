@@ -1,255 +1,80 @@
-import React, { useState, useEffect } from 'react';
+// src/extension/welcome/WelcomePage.tsx
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Toaster } from "@/components/ui/sonner";
-import AuthModal from '@/extension/welcome/auth/AuthModal';
-import { MoveRight, LogIn, Zap, BookOpen, TrendingUp, Sparkles, ExternalLink } from "lucide-react";
-import { motion } from "framer-motion";
+import { ExternalLink } from "lucide-react";
 import { getMessage } from '@/core/utils/i18n';
-import { authService } from '@/services/auth/AuthService';
-import { AuthState } from '@/types';
-import "./welcome.css";
-import { initAmplitude, trackEvent, setAmplitudeUserId, EVENTS } from '@/utils/amplitude';
-import OnboardingFlow from '@/extension/welcome/onboarding/OnboardingFlow';
-import { serviceManager } from '@/core/managers/ServiceManager';
-import { userApi } from '@/services/api/UserApi';
-import { debug } from '@/core/config';
-import { registerServices } from '@/services';
+import { initAmplitude, trackEvent, EVENTS } from '@/utils/amplitude';
 
-// Flag to ensure we only initialize services once
-let servicesInitialized = false;
+// Components
+import { WelcomeLayout } from './layout';
+import { AnimatedTaskText } from '@/components/welcome/AnimatedTaskText';
+import { FeatureGrid } from '@/components/welcome/FeatureGrid';
+import { LoadingSpinner } from '@/components/welcome/LoadingSpinner';
+import { ErrorDisplay } from '@/components/welcome/ErrorDisplay';
+import AuthModal from './auth/AuthModal';
+import OnboardingFlow from './onboarding/OnboardingFlow';
+
+// Custom hooks
+import { useInitializeServices } from '@/hooks/welcome/useInitializeServices';
+import { useAuthState } from '@/hooks/welcome/useAuthState';
+import { useOnboardingStatus } from '@/hooks/welcome/useOnboardingStatus';
+import { useAuthModal } from '@/hooks/welcome/useAuthModal';
 
 const WelcomePage: React.FC = () => {
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [taskIndex, setTaskIndex] = useState(0);
-  const [onboardingRequired, setOnboardingRequired] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [initError, setInitError] = useState<string | null>(null);
-  
-  // Auth state
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    isAuthenticated: false,
-    isLoading: true,
-    error: null
-  });
-  
-  // Tasks for animation
-  const tasks = React.useMemo(
-    () => [
-      getMessage('aiTask1', undefined, 'write professional emails'),
-      getMessage('aiTask2', undefined, 'organize complex data'),
-      getMessage('aiTask3', undefined, 'create content'),
-      getMessage('aiTask4', undefined, 'summarize documents'),
-      getMessage('aiTask5', undefined, 'draft reports')
-    ],
-    []
-  );
-
-  // Initialize amplitude
-  useEffect(() => {
+  // Initialize amplitude tracking
+  React.useEffect(() => {
     initAmplitude();
     trackEvent(EVENTS.EXTENSION_INSTALLED);
   }, []);
+
+  // Initialize services
+  const { isInitialized, isLoading, initError } = useInitializeServices();
   
-  // Initialize services separately
-  useEffect(() => {
-    const initServices = async () => {
-      if (servicesInitialized) {
-        debug('Services already initialized, skipping');
-        return true;
-      }
-      
-      debug('Starting service initialization...');
-      try {
-        // Register services if needed
-        if (!serviceManager.hasService('api.client')) {
-          debug('Registering services...');
-          registerServices();
-        }
-        
-        // Initialize services in the correct order
-        debug('Initializing API client first...');
-        const apiClient = serviceManager.getService('api.client');
-        if (apiClient && !apiClient.isInitialized()) {
-          await apiClient.initialize();
-        }
-        
-        debug('Initializing Token service...');
-        const tokenService = serviceManager.getService('auth.token');
-        if (tokenService && !tokenService.isInitialized()) {
-          await tokenService.initialize();
-        }
-        
-        debug('Initializing Auth service...');
-        if (!authService.isInitialized()) {
-          await authService.initialize();
-        }
-        
-        debug('All critical services initialized');
-        servicesInitialized = true;
-        return true;
-      } catch (error) {
-        console.error('Error initializing services:', error);
-        setInitError(error instanceof Error ? error.message : 'Failed to initialize services');
-        setIsLoading(false);
-        return false;
-      }
-    };
-    
-    initServices();
-  }, []);
+  // Auth state
+  const { authState, handleSignOut } = useAuthState();
   
-  // Handle auth state and onboarding check
-  useEffect(() => {
-    if (!servicesInitialized) {
-      return;
-    }
-    
-    debug('Setting up auth subscription...');
-    const unsubscribe = authService.subscribe(async (state) => {
-      debug('Auth state updated:', state);
-      setAuthState(state);
-      
-      // Check onboarding status when authenticated
-      if (state.user && state.isAuthenticated) {
-        setAmplitudeUserId(state.user.id);
-        
-        try {
-          // Only check if not already determined
-          if (!onboardingRequired) {
-            debug('Checking onboarding status...');
-            const status = await userApi.getUserOnboardingStatus();
-            debug('Onboarding status:', status);
-            
-            const needsOnboarding = !status.hasCompleted;
-            setOnboardingRequired(needsOnboarding);
-            
-            if (needsOnboarding) {
-              setShowOnboarding(true);
-              trackEvent(EVENTS.ONBOARDING_STARTED, {
-                user_id: state.user.id
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Error checking onboarding status:', error);
-          // Default to not requiring onboarding on error
-          setOnboardingRequired(false);
-        }
-      }
-      
-      setIsLoading(false);
-    });
-    
-    return () => {
-      debug('Cleaning up auth subscription');
-      unsubscribe();
-    };
-  }, [servicesInitialized, onboardingRequired]);
+  // Onboarding status
+  const { 
+    onboardingRequired, 
+    showOnboarding, 
+    setShowOnboarding,
+    handleOnboardingComplete, 
+    handleOnboardingSkip 
+  } = useOnboardingStatus(
+    authState.user, 
+    authState.isAuthenticated
+  );
+  
+  // Auth modal state
+  const {
+    authMode,
+    isAuthOpen,
+    setIsAuthOpen,
+    handleGetStarted,
+    handleSignIn
+  } = useAuthModal();
 
-  // Animation effect for changing tasks
-  React.useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setTaskIndex((prevIndex) => 
-        prevIndex === tasks.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 3000);
-    return () => clearTimeout(timeoutId);
-  }, [taskIndex, tasks]);
-
-  // Handle button clicks
-  const handleGetStarted = () => {
-    setAuthMode('signup');
-    setIsAuthOpen(true);
-    trackEvent(EVENTS.SIGNUP_STARTED);
-  };
-
-  const handleSignIn = () => {
-    setAuthMode('signin');
-    setIsAuthOpen(true);
-    trackEvent(EVENTS.SIGNIN_STARTED);
-  };
-
+  // Handle navigation to ChatGPT
   const openChatGPT = () => {
     trackEvent(EVENTS.ONBOARDING_GOTO_CHATGPT);
     chrome.tabs.create({ url: 'https://chat.openai.com' });
   };
 
-  const handleSignOut = async () => {
-    try {
-      trackEvent(EVENTS.SIGNOUT);
-      await authService.signOut();
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-  };
-  
-  const handleOnboardingComplete = () => {
-    setShowOnboarding(false);
-    setOnboardingRequired(false);
-    trackEvent(EVENTS.ONBOARDING_COMPLETED, {
-      user_id: authState.user?.id
-    });
-  };
-  
-  const handleOnboardingSkip = () => {
-    setShowOnboarding(false);
-    // We still mark it as required, but allow the user to access the app
-    trackEvent(EVENTS.ONBOARDING_SKIPPED, {
-      user_id: authState.user?.id
-    });
-  };
-
+  // Show loading spinner while initializing
   if (isLoading) {
-    return (
-      <div className="jd-min-h-screen jd-bg-background jd-text-foreground jd-flex jd-items-center jd-justify-center jd-font-sans">
-        <div className="jd-text-center">
-          <div className="jd-spinner-welcome">
-            <div className="jd-double-bounce1"></div>
-            <div className="jd-double-bounce2"></div>
-          </div>
-          <p className="jd-text-gray-300 jd-mt-4 jd-animate-pulse">
-            {getMessage('loading', undefined, 'Loading...')}
-          </p>
-          {/* Add more detailed status for development */}
-          {process.env.NODE_ENV === 'development' && 
-            <p className="jd-text-xs jd-text-gray-500 jd-mt-2">Initializing services...</p>
-          }
-        </div>
-      </div>
-    );
+    return <LoadingSpinner devInfo="Initializing services..." />;
   }
   
   // Show initialization error if any
   if (initError) {
     return (
-      <div className="jd-min-h-screen jd-bg-background jd-text-foreground jd-flex jd-items-center jd-justify-center jd-font-sans">
-        <div className="jd-text-center jd-max-w-md jd-mx-auto jd-p-6">
-          <div className="jd-text-red-500 jd-mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="jd-h-12 jd-w-12 jd-mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <h1 className="jd-text-2xl jd-font-bold jd-text-white jd-mb-4">
-            {getMessage('initializationError', undefined, 'Initialization Error')}
-          </h1>
-          <p className="jd-text-gray-300 jd-mb-6">
-            {initError}
-          </p>
-          <Button 
-            onClick={() => window.location.reload()}
-            className="jd-bg-blue-600 hover:jd-bg-blue-700"
-          >
-            {getMessage('tryAgain', undefined, 'Try Again')}
-          </Button>
-        </div>
-      </div>
+      <ErrorDisplay 
+        message={initError} 
+        onRetry={() => window.location.reload()} 
+      />
     );
   }
-
   
   // Show onboarding flow if needed
   if (authState.isAuthenticated && showOnboarding) {
@@ -265,187 +90,168 @@ const WelcomePage: React.FC = () => {
   }
 
   return (
-    <div className="jd-min-h-screen jd-bg-background jd-text-foreground jd-flex jd-items-center jd-justify-center jd-font-sans">
-      <div className="jd-w-full jd-mx-auto jd-px-4">
-        <div className="jd-flex jd-flex-col jd-items-center jd-py-16">
-          {/* Logo */}
-          <div className="jd-logo-container jd-bg-gray-900 jd-border jd-border-gray-800 jd-mb-8">
-            <img 
-              src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//jaydai-extension-logo.png" 
-              alt={getMessage('appName', undefined, 'Archimind Logo')} 
-              className="jd-w-16 jd-h-16 jd-object-contain"
-            />
-          </div>
-          
-          {/* Main Title - Different for logged in users */}
-          <h1 className="jd-text-5xl md:jd-text-6xl jd-font-medium jd-text-white jd-text-center jd-mb-6 jd-font-heading">
-            {authState.isAuthenticated
-              ? getMessage('welcomeBack', undefined, 'Welcome Back!')
-              : getMessage('welcomeTitle', undefined, 'Welcome to Archimind')}
-          </h1>
-          
-          {/* Logged in state: Display user info and CTA */}
-          {authState.isAuthenticated && authState.user ? (
-            <div className="jd-text-center jd-mb-12">
-              <div className="jd-bg-blue-600/20 jd-backdrop-blur-sm jd-rounded-lg jd-p-6 jd-border jd-border-blue-500/20 jd-max-w-2xl jd-mx-auto jd-mb-8">
-                <Sparkles className="jd-w-8 jd-h-8 jd-text-blue-400 jd-mx-auto jd-mb-4" />
-                <h2 className="jd-text-2xl jd-font-medium jd-text-white jd-mb-2 jd-font-heading">
-                  {getMessage('accountReady', undefined, 'Your AI companion is ready!')}
-                </h2>
-                <p className="jd-text-lg jd-text-gray-300 jd-mb-6 jd-font-sans">
-                  {getMessage('loggedInAs', [authState.user.email || authState.user.name || ''], 
-                    'You\'re logged in as {0}. You can now launch AI tools with enhanced capabilities.')}
-                </p>
-                
-                <div className="jd-flex jd-flex-col sm:jd-flex-row jd-gap-4 jd-justify-center">
-                  <Button 
-                    size="lg"
-                    onClick={openChatGPT}
-                    className="jd-gap-2 jd-bg-gradient-to-r jd-from-green-600 jd-to-emerald-600 hover:jd-from-green-500 hover:jd-to-emerald-500 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-relative jd-overflow-hidden jd-group jd-min-w-52 jd-font-heading"
-                  >
-                    <div className="jd-absolute jd-inset-0 jd-w-full jd-h-full jd-bg-gradient-to-r jd-from-green-600/0 jd-via-green-400/10 jd-to-green-600/0 jd-transform jd-skew-x-12 jd-translate-x-full group-hover:jd-translate-x-full jd-transition-transform jd-duration-1000 jd-ease-out"></div>
-                    <span className="jd-flex jd-items-center jd-justify-center jd-text-lg">
-                      <img 
-                        src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//chatgpt_logo.png" 
-                        alt="ChatGPT" 
-                        className="jd-h-6 jd-w-6 jd-mr-2" 
-                      />
-                      <span>{getMessage('openChatGPT', undefined, 'Open ChatGPT')}</span>
-                      <ExternalLink className="jd-w-4 jd-h-4 jd-ml-2" />
-                    </span>
-                  </Button>
-                  
-                  {/* Only show button if onboarding is required but not currently showing */}
-                  {onboardingRequired && !showOnboarding && (
-                    <Button 
-                      size="lg"
-                      onClick={() => setShowOnboarding(true)}
-                      className="jd-gap-2 jd-bg-blue-600 hover:jd-bg-blue-700 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-min-w-52 jd-font-heading"
-                    >
-                      <span className="jd-flex jd-items-center jd-justify-center jd-text-lg">
-                        {getMessage('completeSetup', undefined, 'Complete Setup')}
-                      </span>
-                    </Button>
-                  )}
-                  
-                  <Button 
-                    variant="outline"
-                    onClick={handleSignOut}
-                    className="jd-border-gray-700 jd-text-white hover:jd-bg-gray-800 jd-min-w-32 jd-font-heading"
-                  >
-                    {getMessage('signOut', undefined, 'Sign Out')}
-                  </Button>
-                </div>
-              </div>
+    <WelcomeLayout>
+      {/* Main Title - Different for logged in users */}
+      <h1 className="jd-text-5xl md:jd-text-6xl jd-font-medium jd-text-white jd-text-center jd-mb-6 jd-font-heading">
+        {authState.isAuthenticated
+          ? getMessage('welcomeBack', undefined, 'Welcome Back!')
+          : getMessage('welcomeTitle', undefined, 'Welcome to Archimind')}
+      </h1>
+      
+      {/* Logged in state: Display user info and CTA */}
+      {authState.isAuthenticated && authState.user ? (
+        <LoggedInContent 
+          user={authState.user}
+          onboardingRequired={onboardingRequired}
+          showOnboarding={showOnboarding}
+          onOpenChatGPT={openChatGPT}
+          onShowOnboarding={() => setShowOnboarding(true)}
+          onSignOut={handleSignOut}
+        />
+      ) : (
+        <AnonymousContent />
+      )}
+      
+      {/* Feature Cards - Shown to all users */}
+      <FeatureGrid />
+      
+      {/* Call-to-Action Buttons - Only for non-logged in users */}
+      {!authState.isAuthenticated && (
+        <div className="jd-flex jd-flex-row jd-gap-4 jd-mb-8">
+          <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
+            <div className="jd-flex jd-gap-4">
+              <Button 
+                size="lg" 
+                className="jd-gap-2 jd-bg-blue-600 hover:jd-bg-blue-700 jd-min-w-32 jd-font-heading"
+                onClick={handleGetStarted}
+              >
+                {getMessage('getStarted', undefined, 'Get Started')}
+              </Button>
+              
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="jd-gap-2 jd-min-w-32 jd-text-white jd-border-gray-700 hover:jd-bg-gray-800 jd-font-heading"
+                onClick={handleSignIn}
+              >
+                {getMessage('signIn', undefined, 'Sign In')}
+              </Button>
             </div>
-          ) : (
-            <>
-              {/* Animation Section with Single Line - Only for non-logged in users */}
-              <div className="jd-animation-container jd-mb-10 jd-w-full">
-                <div className="jd-w-full jd-text-3xl md:jd-text-4xl jd-text-blue-500 jd-font-semibold jd-whitespace-nowrap jd-font-heading jd-flex jd-justify-center">
-                  <span>{getMessage('useAIToPrefix', undefined, 'Use AI to')} </span>
-                  <span className="jd-relative jd-inline-block jd-min-w-60 jd-text-left">
-                    {tasks.map((task, index) => (
-                      <motion.span
-                        key={index}
-                        className="jd-absolute jd-left-0 jd-whitespace-nowrap jd-ml-1"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ 
-                          opacity: taskIndex === index ? 1 : 0,
-                          y: taskIndex === index ? 0 : 20
-                        }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        {task}
-                      </motion.span>
-                    ))}
-                    {/* This maintains space even when animation is changing */}
-                    <span className="jd-invisible">{tasks[0]}</span>
-                  </span>
-                </div>
-              </div>
+            <DialogContent className="sm:jd-max-w-md jd-bg-gray-950 jd-border-gray-800">
+              <AuthModal 
+                onClose={() => setIsAuthOpen(false)} 
+                initialMode={authMode}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
+    </WelcomeLayout>
+  );
+};
 
-              <p className="jd-text-lg jd-text-gray-300 jd-max-w-2xl jd-text-center jd-mb-12 jd-font-sans">
-                {getMessage('welcomeDescription', undefined, 'Your Intelligent AI Usage Companion. Our goal is to help you harness the power of AI while maintaining your unique human expertise.')}
-              </p>
-            </>
+// Anonymous content shown to non-logged in users
+const AnonymousContent: React.FC = () => {
+  return (
+    <>
+      {/* Animation Section with Single Line - Only for non-logged in users */}
+      <AnimatedTaskText />
+
+      <p className="jd-text-lg jd-text-gray-300 jd-max-w-2xl jd-text-center jd-mb-12 jd-font-sans">
+        {getMessage('welcomeDescription', undefined, 'Your Intelligent AI Usage Companion. Our goal is to help you harness the power of AI while maintaining your unique human expertise.')}
+      </p>
+    </>
+  );
+};
+
+// Logged in content for authenticated users
+interface LoggedInContentProps {
+  user: any;
+  onboardingRequired: boolean;
+  showOnboarding: boolean;
+  onOpenChatGPT: () => void;
+  onShowOnboarding: () => void;
+  onSignOut: () => void;
+}
+
+const LoggedInContent: React.FC<LoggedInContentProps> = ({ 
+  user, 
+  onboardingRequired, 
+  showOnboarding,
+  onOpenChatGPT,
+  onShowOnboarding,
+  onSignOut
+}) => {
+  return (
+    <div className="jd-text-center jd-mb-12">
+      <div className="jd-bg-blue-600/20 jd-backdrop-blur-sm jd-rounded-lg jd-p-6 jd-border jd-border-blue-500/20 jd-max-w-2xl jd-mx-auto jd-mb-8">
+        <Sparkles className="jd-w-8 jd-h-8 jd-text-blue-400 jd-mx-auto jd-mb-4" />
+        <h2 className="jd-text-2xl jd-font-medium jd-text-white jd-mb-2 jd-font-heading">
+          {getMessage('accountReady', undefined, 'Your AI companion is ready!')}
+        </h2>
+        <p className="jd-text-lg jd-text-gray-300 jd-mb-6 jd-font-sans">
+          {getMessage('loggedInAs', [user.email || user.name || ''], 
+            'You\'re logged in as {0}. You can now launch AI tools with enhanced capabilities.')}
+        </p>
+        
+        <div className="jd-flex jd-flex-col sm:jd-flex-row jd-gap-4 jd-justify-center">
+          {/* Only show ChatGPT button if onboarding is not required */}
+          {!onboardingRequired ? (
+            <Button 
+              size="lg"
+              onClick={onOpenChatGPT}
+              className="jd-gap-2 jd-bg-gradient-to-r jd-from-green-600 jd-to-emerald-600 hover:jd-from-green-500 hover:jd-to-emerald-500 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-relative jd-overflow-hidden jd-group jd-min-w-52 jd-font-heading"
+            >
+              <div className="jd-absolute jd-inset-0 jd-w-full jd-h-full jd-bg-gradient-to-r jd-from-green-600/0 jd-via-green-400/10 jd-to-green-600/0 jd-transform jd-skew-x-12 jd-translate-x-full group-hover:jd-translate-x-full jd-transition-transform jd-duration-1000 jd-ease-out"></div>
+              <span className="jd-flex jd-items-center jd-justify-center jd-text-lg">
+                <img 
+                  src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//chatgpt_logo.png" 
+                  alt="ChatGPT" 
+                  className="jd-h-6 jd-w-6 jd-mr-2" 
+                />
+                <span>{getMessage('openChatGPT', undefined, 'Open ChatGPT')}</span>
+                <ExternalLink className="jd-w-4 jd-h-4 jd-ml-2" />
+              </span>
+            </Button>
+          ) : (
+            // Always show Complete Setup button if onboarding is required
+            <Button 
+              size="lg"
+              onClick={onShowOnboarding}
+              className="jd-gap-2 jd-bg-blue-600 hover:jd-bg-blue-700 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-min-w-52 jd-font-heading"
+            >
+              <span className="jd-flex jd-items-center jd-justify-center jd-text-lg">
+                {getMessage('completeSetup', undefined, 'Complete Setup')}
+              </span>
+            </Button>
           )}
           
-          {/* Feature Cards - Shown to all users */}
-          <div className="jd-grid md:jd-grid-cols-3 jd-gap-6 jd-max-w-6xl jd-mx-auto jd-mb-12">
-            <div className="jd-bg-gray-900 jd-rounded-lg jd-border jd-border-gray-800 jd-shadow-md jd-p-6 jd-text-left jd-feature-card">
-              <div className="jd-flex jd-items-start jd-mb-4">
-                <Zap className="jd-h-6 jd-w-6 jd-text-blue-500 jd-mr-4 jd-mt-0.5 jd-flex-shrink-0" />
-                <h3 className="jd-text-lg jd-font-medium jd-text-white jd-font-heading">{getMessage('energyInsights', undefined, 'Energy Insights')}</h3>
-              </div>
-              <p className="jd-text-gray-300 jd-text-sm jd-font-sans">
-                {getMessage('energyInsightsDesc', undefined, 'Track and optimize your AI usage with real-time energy consumption metrics.')}
-              </p>
-            </div>
-            
-            <div className="jd-bg-gray-900 jd-rounded-lg jd-border jd-border-gray-800 jd-shadow-md jd-p-6 jd-text-left jd-feature-card">
-              <div className="jd-flex jd-items-start jd-mb-4">
-                <BookOpen className="jd-h-6 jd-w-6 jd-text-blue-500 jd-mr-4 jd-mt-0.5 jd-flex-shrink-0" />
-                <h3 className="jd-text-lg jd-font-medium jd-text-white jd-font-heading">{getMessage('smartTemplates', undefined, 'Smart Templates')}</h3>
-              </div>
-              <p className="jd-text-gray-300 jd-text-sm jd-font-sans">
-                {getMessage('smartTemplatesDesc', undefined, 'Access a library of curated prompt templates to enhance your AI interactions.')}
-              </p>
-            </div>
-            
-            <div className="jd-bg-gray-900 jd-rounded-lg jd-border jd-border-gray-800 jd-shadow-md jd-p-6 jd-text-left jd-feature-card">
-              <div className="jd-flex jd-items-start jd-mb-4">
-                <TrendingUp className="jd-h-6 jd-w-6 jd-text-blue-500 jd-mr-4 jd-mt-0.5 jd-flex-shrink-0" />
-                <h3 className="jd-text-lg jd-font-medium jd-text-white jd-font-heading">{getMessage('skillDevelopment', undefined, 'Skill Development')}</h3>
-              </div>
-              <p className="jd-text-gray-300 jd-text-sm jd-font-sans">
-                {getMessage('skillDevelopmentDesc', undefined, 'Receive personalized recommendations to upskill and maintain human expertise.')}
-              </p>
-            </div>
-          </div>
-          
-          {/* Call-to-Action Buttons - Only for non-logged in users */}
-          {!authState.isAuthenticated && (
-            <div className="jd-flex jd-flex-row jd-gap-4 jd-mb-8">
-              <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
-                <div className="jd-flex jd-gap-4">
-                  <Button 
-                    size="lg" 
-                    className="jd-gap-2 jd-bg-blue-600 hover:jd-bg-blue-700 jd-min-w-32 jd-font-heading"
-                    onClick={handleGetStarted}
-                  >
-                    {getMessage('getStarted', undefined, 'Get Started')}
-                  </Button>
-                  
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="jd-gap-2 jd-min-w-32 jd-text-white jd-border-gray-700 hover:jd-bg-gray-800 jd-font-heading"
-                    onClick={handleSignIn}
-                  >
-                    {getMessage('signIn', undefined, 'Sign In')} <LogIn className="jd-w-4 jd-h-4 jd-ml-1" />
-                  </Button>
-                </div>
-                <DialogContent className="sm:jd-max-w-md jd-bg-gray-950 jd-border-gray-800">
-                  <AuthModal 
-                    onClose={() => setIsAuthOpen(false)} 
-                    initialMode={authMode}
-                  />
-                </DialogContent>
-              </Dialog>
-            </div>
-          )}
-          
-          {/* Footer */}
-          <div className="jd-text-center jd-text-sm jd-text-gray-500 jd-font-sans">
-            &copy; {new Date().getFullYear()} Archimind. {getMessage('allRightsReserved', undefined, 'All rights reserved')}
-          </div>
+          <Button 
+            variant="outline"
+            onClick={onSignOut}
+            className="jd-border-gray-700 jd-text-white hover:jd-bg-gray-800 jd-min-w-32 jd-font-heading"
+          >
+            {getMessage('signOut', undefined, 'Sign Out')}
+          </Button>
         </div>
       </div>
-      
-      <Toaster richColors />
     </div>
   );
 };
+// Fix missing import
+const Sparkles = ({ className }: { className: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M12 3v5m9 6h-5m-9 0H2m19-4-4.8 4.8M12 16v5M7.8 7.8 3 3m13.2 0L12 7.8M3 16l4.8-4.8" />
+  </svg>
+);
 
 export default WelcomePage;

@@ -1,3 +1,4 @@
+// src/extension/welcome/auth/AuthForm.tsx
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { getMessage } from '@/core/utils/i18n';
 import { authService } from '@/services/auth/AuthService';
+import { userApi } from '@/services/api/UserApi';
 
 export interface AuthFormProps {
   initialMode?: 'signin' | 'signup';
@@ -145,6 +147,17 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     return true;
   }
 
+  // Check if user needs onboarding
+  const checkOnboardingStatus = async (userId: string): Promise<boolean> => {
+    try {
+      const status = await userApi.getUserOnboardingStatus();
+      return !status.hasCompleted;
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+      return false; // Default to not requiring onboarding on error
+    }
+  };
+
   // Auth submission handlers using the authService
   const handleEmailSignIn = async () => {
     if (!validateSignInInputs()) {
@@ -158,15 +171,23 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       const success = await authService.signInWithEmail(email.trim(), password);
 
       if (success) {
+        // Get the user's state to check if onboarding is needed
+        const state = authService.getAuthState();
+        const needsOnboarding = state.user ? await checkOnboardingStatus(state.user.id) : false;
+        
         toast.success(
           getMessage('signInSuccessful', undefined, 'Sign-in successful'), 
           {
-            description: getMessage('youCanNowAccess', undefined, 'You can now access your conversations')
+            description: needsOnboarding 
+              ? getMessage('completeOnboarding', undefined, 'Please complete the onboarding process')
+              : getMessage('youCanNowAccess', undefined, 'You can now access your conversations')
           }
         );
         
-        // Open ChatGPT in a new tab
-        window.open('https://chat.openai.com', '_blank');
+        // Only open ChatGPT if onboarding is not required
+        if (!needsOnboarding) {
+          window.open('https://chat.openai.com', '_blank');
+        }
         
         if (onClose) {
           onClose();
@@ -199,13 +220,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         toast.success(
           getMessage('signUpSuccessful', undefined, 'Sign-up successful'), 
           {
-            description: getMessage('redirectingToChatGPT', undefined, 'Redirecting to ChatGPT...')
+            description: getMessage('completeOnboarding', undefined, 'Please complete the onboarding process')
           }
         );
-        
-        // Open ChatGPT in a new tab
-        window.open('https://chat.openai.com', '_blank');
-        
+                
         // Close the dialog
         if (onClose) {
           onClose();
@@ -231,15 +249,23 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       const success = await authService.signInWithGoogle();
       
       if (success) {
+        // Get the user's state to check if onboarding is needed
+        const state = authService.getAuthState();
+        const needsOnboarding = state.user ? await checkOnboardingStatus(state.user.id) : false;
+        
         toast.success(
           getMessage('signInSuccessful', undefined, 'Sign-in successful'), 
           {
-            description: getMessage('youCanNowAccess', undefined, 'You can now access your conversations')
+            description: needsOnboarding 
+              ? getMessage('completeOnboarding', undefined, 'Please complete the onboarding process')
+              : getMessage('youCanNowAccess', undefined, 'You can now access your conversations')
           }
         );
         
-        // Open ChatGPT in a new tab
-        window.open('https://chat.openai.com', '_blank');
+        // Only open ChatGPT if onboarding is not required
+        if (!needsOnboarding) {
+          window.open('https://chat.openai.com', '_blank');
+        }
         
         if (onClose) {
           onClose();

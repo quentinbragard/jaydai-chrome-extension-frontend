@@ -1,4 +1,4 @@
-// src/components/onboarding/StepIndicator.tsx
+// src/extension/welcome/onboarding/components/StepIndicator.tsx
 import React from 'react';
 
 interface StepIndicatorProps {
@@ -17,7 +17,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
       {/* Progress bar */}
       <div className="jd-w-full jd-h-2 jd-bg-gray-800 jd-rounded-full jd-mb-4">
         <div 
-          className="jd-h-2 jd-bg-blue-600 jd-rounded-full jd-transition-all jd-duration-300"
+          className="jd-h-2 jd-bg-blue-600 jd-rounded-full jd-transition-all jd-duration-500 jd-ease-in-out"
           style={{ width: `${(currentStep / (totalSteps - 1)) * 100}%` }}
         />
       </div>
@@ -36,7 +36,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
                 ${index < currentStep 
                   ? 'jd-bg-blue-600 jd-text-white' 
                   : index === currentStep 
-                    ? 'jd-bg-blue-600 jd-text-white jd-ring-2 jd-ring-blue-400 jd-ring-offset-2 jd-ring-offset-gray-900' 
+                    ? 'jd-bg-blue-600 jd-text-white jd-ring-2 jd-ring-blue-400/50 jd-ring-offset-2 jd-ring-offset-gray-900 jd-scale-110' 
                     : 'jd-bg-gray-800 jd-text-gray-400'}
               `}
             >
@@ -67,4 +67,3 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
   );
 };
 
-export default StepIndicator;

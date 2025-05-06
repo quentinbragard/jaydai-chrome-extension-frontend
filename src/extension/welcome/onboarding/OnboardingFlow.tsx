@@ -1,22 +1,29 @@
-// src/components/onboarding/OnboardingFlow.tsx
+// src/extension/welcome/onboarding/OnboardingFlow.tsx
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { StepIndicator } from './StepIndicator';
-import { JobInfoStep } from './steps/JobInfoStep';
-import { InterestsStep } from './steps/InterestsStep';
-import { ReferralStep } from './steps/ReferralStep';
-import { CompletionStep } from './steps/CompletionStep';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { userApi } from '@/services/api/UserApi';
 import { User } from '@/types';
+
+// Onboarding steps
+import { JobInfoStep } from './steps/JobInfoStep';
+import { InterestsStep } from './steps/InterestsStep';
+import { ReferralStep } from './steps/ReferralStep';
+import { CompletionStep } from './steps/CompletionStep';
+
+// Components
+import { OnboardingCard } from '@/components/welcome/OnboardingCard';
+
 export interface OnboardingData {
   job_type: string | null;
   job_industry: string | null;
   job_seniority: string | null;
+  job_other_details?: string | null;
   interests: string[];
+  other_interests?: string | null;
   signup_source: string | null;
+  other_source?: string | null;
 }
 
 export interface OnboardingFlowProps {
@@ -26,19 +33,24 @@ export interface OnboardingFlowProps {
 }
 
 // Multi-step onboarding flow component
-export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip, user }) => {
+export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ 
+  onComplete, 
+  onSkip, 
+  user 
+}) => {
   // Track the current step
   const [currentStep, setCurrentStep] = useState(0);
-  
- 
   
   // Combined form data from all steps
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     job_type: null,
     job_industry: null,
     job_seniority: null,
+    job_other_details: null,
     interests: [],
-    signup_source: null
+    other_interests: null,
+    signup_source: null,
+    other_source: null
   });
   
   // Loading state for form submission
@@ -84,9 +96,28 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
     setError(null);
     
     try {
+      // Prepare data for submission
+      const submissionData = {
+        ...data,
+        // If job_type is 'other', include the other_details
+        job_type: data.job_type === 'other' && data.job_other_details 
+          ? `other:${data.job_other_details}` 
+          : data.job_type,
+        
+        // If signup_source is 'other', include the other_source
+        signup_source: data.signup_source === 'other' && data.other_source 
+          ? `other:${data.other_source}` 
+          : data.signup_source,
+        
+        // Add any other interests from the text input
+        interests: data.other_interests 
+          ? [...data.interests, `other:${data.other_interests}`] 
+          : data.interests
+      };
+      
       // Submit onboarding data to the backend
-      console.log('data-->', data);
-      const result = await userApi.saveUserMetadata(data);
+      console.log('Submitting onboarding data:', submissionData);
+      const result = await userApi.saveUserMetadata(submissionData);
       
       if (result.success) {
         // Track completion event with Amplitude
@@ -136,6 +167,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
           <JobInfoStep 
             initialData={onboardingData}
             onNext={handleNextStep}
+            isSubmitting={isSubmitting}
           />
         );
       case 1:
@@ -144,6 +176,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
             initialData={onboardingData}
             onNext={handleNextStep}
             onBack={handlePreviousStep}
+            isSubmitting={isSubmitting}
           />
         );
       case 2:
@@ -152,6 +185,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
             initialData={onboardingData}
             onNext={handleNextStep}
             onBack={handlePreviousStep}
+            isSubmitting={isSubmitting}
           />
         );
       case 3:
@@ -165,51 +199,34 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
     }
   };
   
+  // Skip option footer - only for non-completion steps
+  const renderFooter = () => {
+    if (currentStep < totalSteps - 1) {
+      return (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSkip}
+          className="jd-text-gray-400 hover:jd-text-white jd-transition-colors"
+          disabled={isSubmitting}
+        >
+          {getMessage('skipForNow', undefined, 'Skip for now')}
+        </Button>
+      );
+    }
+    return null;
+  };
+  
   return (
-    <Card className="jd-w-full jd-max-w-3xl jd-mx-auto jd-bg-gray-900 jd-border-gray-800">
-      <CardHeader>
-        <CardTitle className="jd-text-2xl jd-font-heading jd-text-white">
-          {getMessage('onboardingTitle', undefined, 'Complete Your Profile')}
-        </CardTitle>
-        <CardDescription className="jd-text-gray-300">
-          {getMessage('onboardingDescription', undefined, 'This helps us personalize your experience and provide relevant templates')}
-        </CardDescription>
-        
-        {/* Progress indicator */}
-        <StepIndicator 
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          stepTitles={stepTitles}
-        />
-      </CardHeader>
-      
-      <CardContent>
-        {/* Error message */}
-        {error && (
-          <div className="jd-bg-red-900/30 jd-border jd-border-red-700/50 jd-rounded-md jd-p-3 jd-mb-4">
-            <p className="jd-text-red-300 jd-text-sm">{error}</p>
-          </div>
-        )}
-        
-        {/* Current step content */}
-        {renderStep()}
-      </CardContent>
-      
-      {/* Only show skip option in the first three steps */}
-      {currentStep < totalSteps - 1 && (
-        <CardFooter className="jd-flex jd-justify-between jd-border-t jd-border-gray-800 jd-pt-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSkip}
-            className="jd-text-gray-400 hover:jd-text-white"
-            disabled={isSubmitting}
-          >
-            {getMessage('skipForNow', undefined, 'Skip for now')}
-          </Button>
-        </CardFooter>
-      )}
-    </Card>
+    <OnboardingCard
+      currentStep={currentStep}
+      totalSteps={totalSteps}
+      stepTitles={stepTitles}
+      error={error}
+      footer={renderFooter()}
+    >
+      {renderStep()}
+    </OnboardingCard>
   );
 };
 

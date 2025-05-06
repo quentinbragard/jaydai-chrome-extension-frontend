@@ -1,12 +1,14 @@
-// src/components/onboarding/steps/ReferralStep.tsx
+// src/extension/welcome/onboarding/steps/ReferralStep.tsx
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
-import { OnboardingData } from '../OnboardingFlow';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { OnboardingData } from '../OnboardingFlow';
+
+// Components
+import { RadioGroup } from '@/components/ui/radio-group';
+import { OnboardingOption } from '@/components/welcome/OnboardingOption';
+import { OnboardingActions } from '@/components/welcome/OnboardingActions';
+import { OtherOptionInput } from '@/components/welcome/OtherOptionInput';
 
 // Referral sources
 const REFERRAL_SOURCES = [
@@ -25,16 +27,23 @@ interface ReferralStepProps {
   initialData: OnboardingData;
   onNext: (data: Partial<OnboardingData>) => void;
   onBack: () => void;
+  isSubmitting: boolean;
 }
 
 export const ReferralStep: React.FC<ReferralStepProps> = ({ 
   initialData, 
   onNext, 
-  onBack 
+  onBack,
+  isSubmitting
 }) => {
   // Local state for referral source
   const [referralSource, setReferralSource] = useState<string | null>(
     initialData.signup_source || null
+  );
+  
+  // State for "Other" text input
+  const [otherSource, setOtherSource] = useState<string>(
+    initialData.other_source || ''
   );
   
   // Error state
@@ -47,6 +56,12 @@ export const ReferralStep: React.FC<ReferralStepProps> = ({
       return;
     }
     
+    // If "Other" is selected but no details are provided
+    if (referralSource === 'other' && otherSource.trim() === '') {
+      setError(getMessage('specifyOtherSource', undefined, 'Please specify how you heard about us'));
+      return;
+    }
+    
     // Track step completion
     trackEvent(EVENTS.ONBOARDING_STEP_COMPLETED, {
       step: 'referral',
@@ -55,7 +70,8 @@ export const ReferralStep: React.FC<ReferralStepProps> = ({
     
     // Pass the data up to the parent
     onNext({
-      signup_source: referralSource
+      signup_source: referralSource,
+      other_source: referralSource === 'other' ? otherSource : null
     });
   };
   
@@ -87,51 +103,38 @@ export const ReferralStep: React.FC<ReferralStepProps> = ({
         className="jd-space-y-3"
       >
         {REFERRAL_SOURCES.map((source) => (
-          <div
+          <OnboardingOption 
             key={source.value}
-            className={`
-              jd-flex jd-items-center jd-space-x-2 jd-rounded-md jd-p-3 jd-transition-colors jd-duration-200
-              ${referralSource === source.value 
-                ? 'jd-bg-blue-900/30 jd-border jd-border-blue-700/50' 
-                : 'jd-bg-gray-800 jd-border jd-border-gray-700 hover:jd-border-gray-600'}
-            `}
-          >
-            <RadioGroupItem
-              id={`source-${source.value}`}
-              value={source.value}
-              className="jd-text-blue-600"
-            />
-            <Label
-              htmlFor={`source-${source.value}`}
-              className="jd-text-sm jd-font-medium jd-text-white jd-cursor-pointer jd-flex-grow"
-            >
-              {source.label}
-            </Label>
-          </div>
+            value={source.value}
+            label={source.label}
+            groupValue={referralSource}
+            onChange={(value) => {
+              setReferralSource(value);
+              if (error) setError(null);
+            }}
+          />
         ))}
       </RadioGroup>
       
+      {/* Other source input */}
+      {referralSource === 'other' && (
+        <OtherOptionInput
+          value={otherSource}
+          onChange={setOtherSource}
+          placeholder={getMessage('specifySource', undefined, 'Please tell us how you heard about us...')}
+        />
+      )}
+      
       {/* Action Buttons */}
-      <div className="jd-flex jd-justify-between jd-pt-4">
-        <Button 
-          onClick={onBack}
-          variant="outline"
-          className="jd-border-gray-700 jd-text-white hover:jd-bg-gray-800"
-        >
-          <ArrowLeft className="jd-mr-2 jd-h-4 jd-w-4" />
-          {getMessage('back', undefined, 'Back')}
-        </Button>
-        
-        <Button 
-          onClick={handleNext} 
-          className="jd-bg-blue-600 hover:jd-bg-blue-700 jd-text-white jd-font-heading"
-        >
-          {getMessage('complete', undefined, 'Complete')}
-          <ArrowRight className="jd-ml-2 jd-h-4 jd-w-4" />
-        </Button>
-      </div>
+      <OnboardingActions 
+        onNext={handleNext}
+        onBack={onBack}
+        isSubmitting={isSubmitting}
+        isLastStep={true}
+      />
     </div>
   );
 };
 
 export default ReferralStep;
+

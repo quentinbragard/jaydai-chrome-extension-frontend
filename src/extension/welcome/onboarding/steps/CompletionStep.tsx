@@ -1,7 +1,7 @@
-// src/components/onboarding/steps/CompletionStep.tsx
+// src/extension/welcome/onboarding/steps/CompletionStep.tsx
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 
@@ -28,7 +28,7 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({ onComplete }) =>
   
   return (
     <div className="jd-space-y-6 jd-flex jd-flex-col jd-items-center jd-text-center">
-      <div className="jd-p-4 jd-bg-green-900/20 jd-rounded-full jd-mb-4">
+      <div className="jd-p-4 jd-bg-green-900/20 jd-rounded-full jd-mb-4 jd-animate-pulse">
         <CheckCircle2 className="jd-h-12 jd-w-12 jd-text-green-500" />
       </div>
       
@@ -57,13 +57,23 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({ onComplete }) =>
         </p>
       </div>
       
-      <div className="jd-pt-6">
+      <div className="jd-pt-6 jd-flex jd-flex-col sm:jd-flex-row jd-gap-4">
         <Button 
           onClick={handleGoToChatGPT} 
-          className="jd-bg-green-600 hover:jd-bg-green-700 jd-text-white jd-font-heading jd-py-6 jd-px-8"
+          className="jd-bg-green-600 hover:jd-bg-green-700 jd-text-white jd-font-heading jd-py-6 jd-px-8 jd-gap-2"
           size="lg"
         >
           {getMessage('goToChatGPT', undefined, 'Go to ChatGPT')}
+          <ArrowRight className="jd-h-5 jd-w-5" />
+        </Button>
+        
+        <Button 
+          onClick={onComplete} 
+          variant="outline"
+          className="jd-border-gray-700 jd-text-white hover:jd-bg-gray-800 jd-font-heading"
+          size="lg"
+        >
+          {getMessage('returnToHome', undefined, 'Return to Home')}
         </Button>
       </div>
     </div>

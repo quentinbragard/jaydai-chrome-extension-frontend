@@ -1,12 +1,13 @@
-// src/components/onboarding/steps/JobInfoStep.tsx
+// src/extension/welcome/onboarding/steps/JobInfoStep.tsx
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { ArrowRight } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
-import { OnboardingData } from '../OnboardingFlow';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { OnboardingData } from '../OnboardingFlow';
+
+// Components
+import { OnboardingSelect } from '@/components/welcome/OnboardingSelect';
+import { OnboardingActions } from '@/components/welcome/OnboardingActions';
+import { OtherOptionInput } from '@/components/welcome/OtherOptionInput';
 
 // Job type options
 const JOB_TYPES = [
@@ -61,23 +62,36 @@ const JOB_SENIORITY = [
 interface JobInfoStepProps {
   initialData: OnboardingData;
   onNext: (data: Partial<OnboardingData>) => void;
+  isSubmitting: boolean;
 }
 
-export const JobInfoStep: React.FC<JobInfoStepProps> = ({ initialData, onNext }) => {
+export const JobInfoStep: React.FC<JobInfoStepProps> = ({ 
+  initialData, 
+  onNext,
+  isSubmitting
+}) => {
   // Local state for this step
   const [jobType, setJobType] = useState<string | null>(initialData.job_type);
   const [jobIndustry, setJobIndustry] = useState<string | null>(initialData.job_industry);
   const [jobSeniority, setJobSeniority] = useState<string | null>(initialData.job_seniority);
+  const [otherJobType, setOtherJobType] = useState<string>(initialData.job_other_details || '');
   
   // Validation state
   const [errors, setErrors] = useState({
     jobType: false,
     jobIndustry: false,
-    jobSeniority: false
+    jobSeniority: false,
+    otherJobType: false
   });
   
   // Check if all required fields are filled
-  const isFormValid = jobType && jobIndustry && jobSeniority;
+  const isFormValid = () => {
+    const validJobType = jobType !== null && (jobType !== 'other' || otherJobType.trim() !== '');
+    const validJobIndustry = jobIndustry !== null;
+    const validJobSeniority = jobSeniority !== null;
+    
+    return validJobType && validJobIndustry && validJobSeniority;
+  };
   
   // Handle next button click with validation
   const handleNext = () => {
@@ -85,13 +99,14 @@ export const JobInfoStep: React.FC<JobInfoStepProps> = ({ initialData, onNext })
     const newErrors = {
       jobType: !jobType,
       jobIndustry: !jobIndustry,
-      jobSeniority: !jobSeniority
+      jobSeniority: !jobSeniority,
+      otherJobType: jobType === 'other' && otherJobType.trim() === ''
     };
     
     setErrors(newErrors);
     
     // Only proceed if all fields are valid
-    if (isFormValid) {
+    if (isFormValid()) {
       // Track step completion
       trackEvent(EVENTS.ONBOARDING_STEP_COMPLETED, {
         step: 'job_info',
@@ -104,13 +119,26 @@ export const JobInfoStep: React.FC<JobInfoStepProps> = ({ initialData, onNext })
       onNext({
         job_type: jobType,
         job_industry: jobIndustry,
-        job_seniority: jobSeniority
+        job_seniority: jobSeniority,
+        job_other_details: jobType === 'other' ? otherJobType : null
       });
+    }
+  };
+
+  // Handle job type change
+  const handleJobTypeChange = (value: string) => {
+    setJobType(value);
+    // Clear error when selection is made
+    setErrors(prev => ({ ...prev, jobType: false }));
+    
+    // If not "other", clear other error as well
+    if (value !== 'other') {
+      setErrors(prev => ({ ...prev, otherJobType: false }));
     }
   };
   
   return (
-    <div className="jd-space-y-6">
+    <div className="jd-space-y-8">
       <div className="jd-text-center jd-mb-8">
         <h3 className="jd-text-xl jd-font-medium jd-text-white jd-mb-2">
           {getMessage('tellUsAboutJob', undefined, 'Tell us about your job')}
@@ -120,108 +148,80 @@ export const JobInfoStep: React.FC<JobInfoStepProps> = ({ initialData, onNext })
         </p>
       </div>
       
-      {/* Job Type Selection */}
-      <div className="jd-space-y-2">
-        <Label htmlFor="jobType" className={`jd-text-sm jd-font-medium ${errors.jobType ? 'jd-text-red-400' : 'jd-text-gray-200'}`}>
-          {getMessage('jobType', undefined, 'What type of work do you do?')} *
-        </Label>
-        <Select
-          value={jobType || ''}
-          onValueChange={(value) => setJobType(value)}
-        >
-          <SelectTrigger 
-            id="jobType"
-            className={`jd-w-full jd-bg-gray-800 jd-border-gray-700 jd-text-white ${errors.jobType ? 'jd-border-red-400' : ''}`}
-          >
-            <SelectValue placeholder={getMessage('selectJobType', undefined, 'Select job type')} />
-          </SelectTrigger>
-          <SelectContent className="jd-bg-gray-800 jd-border-gray-700">
-            {JOB_TYPES.map((type) => (
-              <SelectItem key={type.value} value={type.value} className="jd-text-white hover:jd-bg-gray-700">
-                {type.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.jobType && (
-          <p className="jd-text-red-400 jd-text-xs jd-mt-1">
-            {getMessage('jobTypeRequired', undefined, 'Please select your job type')}
-          </p>
+      <div className="jd-space-y-6">
+        {/* Job Type Selection */}
+        <OnboardingSelect
+          id="jobType"
+          label={getMessage('jobType', undefined, 'What type of work do you do?')}
+          placeholder={getMessage('selectJobType', undefined, 'Select job type')}
+          options={JOB_TYPES}
+          value={jobType}
+          onChange={handleJobTypeChange}
+          required
+          error={errors.jobType}
+          errorMessage={getMessage('jobTypeRequired', undefined, 'Please select your job type')}
+        />
+        
+        {/* Other Job Type Input */}
+        {jobType === 'other' && (
+          <div className="jd-ml-2 jd-mt-2">
+            <OtherOptionInput
+              value={otherJobType}
+              onChange={(value) => {
+                setOtherJobType(value);
+                setErrors(prev => ({ ...prev, otherJobType: value.trim() === '' }));
+              }}
+              placeholder={getMessage('specifyJobType', undefined, 'Please specify your job type...')}
+            />
+            {errors.otherJobType && (
+              <p className="jd-text-red-400 jd-text-xs jd-mt-1 jd-ml-6">
+                {getMessage('otherJobTypeRequired', undefined, 'Please specify your job type')}
+              </p>
+            )}
+          </div>
         )}
-      </div>
-      
-      {/* Industry Selection */}
-      <div className="jd-space-y-2">
-        <Label htmlFor="jobIndustry" className={`jd-text-sm jd-font-medium ${errors.jobIndustry ? 'jd-text-red-400' : 'jd-text-gray-200'}`}>
-          {getMessage('jobIndustry', undefined, 'What industry do you work in?')} *
-        </Label>
-        <Select
-          value={jobIndustry || ''}
-          onValueChange={(value) => setJobIndustry(value)}
-        >
-          <SelectTrigger 
-            id="jobIndustry"
-            className={`jd-w-full jd-bg-gray-800 jd-border-gray-700 jd-text-white ${errors.jobIndustry ? 'jd-border-red-400' : ''}`}
-          >
-            <SelectValue placeholder={getMessage('selectIndustry', undefined, 'Select industry')} />
-          </SelectTrigger>
-          <SelectContent className="jd-bg-gray-800 jd-border-gray-700">
-            {JOB_INDUSTRIES.map((industry) => (
-              <SelectItem key={industry.value} value={industry.value} className="jd-text-white hover:jd-bg-gray-700">
-                {industry.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.jobIndustry && (
-          <p className="jd-text-red-400 jd-text-xs jd-mt-1">
-            {getMessage('industryRequired', undefined, 'Please select your industry')}
-          </p>
-        )}
-      </div>
-      
-      {/* Seniority Selection */}
-      <div className="jd-space-y-2">
-        <Label htmlFor="jobSeniority" className={`jd-text-sm jd-font-medium ${errors.jobSeniority ? 'jd-text-red-400' : 'jd-text-gray-200'}`}>
-          {getMessage('jobSeniority', undefined, 'What is your seniority level?')} *
-        </Label>
-        <Select
-          value={jobSeniority || ''}
-          onValueChange={(value) => setJobSeniority(value)}
-        >
-          <SelectTrigger 
-            id="jobSeniority"
-            className={`jd-w-full jd-bg-gray-800 jd-border-gray-700 jd-text-white ${errors.jobSeniority ? 'jd-border-red-400' : ''}`}
-          >
-            <SelectValue placeholder={getMessage('selectSeniority', undefined, 'Select seniority')} />
-          </SelectTrigger>
-          <SelectContent className="jd-bg-gray-800 jd-border-gray-700">
-            {JOB_SENIORITY.map((seniority) => (
-              <SelectItem key={seniority.value} value={seniority.value} className="jd-text-white hover:jd-bg-gray-700">
-                {seniority.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.jobSeniority && (
-          <p className="jd-text-red-400 jd-text-xs jd-mt-1">
-            {getMessage('seniorityRequired', undefined, 'Please select your seniority level')}
-          </p>
-        )}
+        
+        {/* Industry Selection */}
+        <OnboardingSelect
+          id="jobIndustry"
+          label={getMessage('jobIndustry', undefined, 'What industry do you work in?')}
+          placeholder={getMessage('selectIndustry', undefined, 'Select industry')}
+          options={JOB_INDUSTRIES}
+          value={jobIndustry}
+          onChange={(value) => {
+            setJobIndustry(value);
+            setErrors(prev => ({ ...prev, jobIndustry: false }));
+          }}
+          required
+          error={errors.jobIndustry}
+          errorMessage={getMessage('industryRequired', undefined, 'Please select your industry')}
+        />
+        
+        {/* Seniority Selection */}
+        <OnboardingSelect
+          id="jobSeniority"
+          label={getMessage('jobSeniority', undefined, 'What is your seniority level?')}
+          placeholder={getMessage('selectSeniority', undefined, 'Select seniority')}
+          options={JOB_SENIORITY}
+          value={jobSeniority}
+          onChange={(value) => {
+            setJobSeniority(value);
+            setErrors(prev => ({ ...prev, jobSeniority: false }));
+          }}
+          required
+          error={errors.jobSeniority}
+          errorMessage={getMessage('seniorityRequired', undefined, 'Please select your seniority level')}
+        />
       </div>
       
       {/* Action Buttons */}
-      <div className="jd-flex jd-justify-end jd-pt-4">
-        <Button 
-          onClick={handleNext} 
-          className="jd-bg-blue-600 hover:jd-bg-blue-700 jd-text-white jd-font-heading"
-        >
-          {getMessage('nextStep', undefined, 'Next Step')}
-          <ArrowRight className="jd-ml-2 jd-h-4 jd-w-4" />
-        </Button>
-      </div>
+      <OnboardingActions 
+        onNext={handleNext}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 };
 
 export default JobInfoStep;
+

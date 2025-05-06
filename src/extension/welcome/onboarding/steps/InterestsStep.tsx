@@ -1,12 +1,13 @@
-// src/components/onboarding/steps/InterestsStep.tsx
+// src/extension/welcome/onboarding/steps/InterestsStep.tsx
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
-import { OnboardingData } from '../OnboardingFlow';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { OnboardingData } from '../OnboardingFlow';
+
+// Components
+import { OnboardingCheckbox } from '@/components/welcome/OnboardingCheckbox';
+import { OnboardingActions } from '@/components/welcome/OnboardingActions';
+import { OtherOptionInput } from '@/components/welcome/OtherOptionInput';
 
 // Interests options
 const INTERESTS = [
@@ -24,24 +25,35 @@ const INTERESTS = [
   { value: 'critical_thinking', label: 'Critical Thinking & Analysis' },
   { value: 'customer_support', label: 'Customer Support' },
   { value: 'decision_making', label: 'Decision Making' },
-  { value: 'language_learning', label: 'Language Learning' }
+  { value: 'language_learning', label: 'Language Learning' },
+  { value: 'other', label: 'Other' }
 ];
 
 interface InterestsStepProps {
   initialData: OnboardingData;
   onNext: (data: Partial<OnboardingData>) => void;
   onBack: () => void;
+  isSubmitting: boolean;
 }
 
 export const InterestsStep: React.FC<InterestsStepProps> = ({ 
   initialData, 
   onNext, 
-  onBack 
+  onBack,
+  isSubmitting
 }) => {
   // Local state for selected interests
   const [selectedInterests, setSelectedInterests] = useState<string[]>(
     initialData.interests || []
   );
+  
+  // State for "Other" text input
+  const [otherInterests, setOtherInterests] = useState<string>(
+    initialData.other_interests || ''
+  );
+  
+  // State to track if "Other" is selected
+  const isOtherSelected = selectedInterests.includes('other');
   
   // Validation state
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +79,20 @@ export const InterestsStep: React.FC<InterestsStepProps> = ({
   
   // Handle next button click with validation
   const handleNext = () => {
-    if (selectedInterests.length < MIN_INTERESTS) {
+    // If "Other" is selected but no details are provided
+    if (isOtherSelected && otherInterests.trim() === '') {
+      setError(getMessage(
+        'otherInterestsRequired',
+        undefined,
+        'Please specify your other interests'
+      ));
+      return;
+    }
+    
+    // Check minimum interests (including "other" if it has value)
+    const effectiveCount = selectedInterests.length;
+    
+    if (effectiveCount < MIN_INTERESTS) {
       setError(getMessage(
         'minInterestsRequired',
         [MIN_INTERESTS.toString()],
@@ -85,13 +110,9 @@ export const InterestsStep: React.FC<InterestsStepProps> = ({
     
     // Pass the data up to the parent
     onNext({
-      interests: selectedInterests
+      interests: selectedInterests,
+      other_interests: isOtherSelected ? otherInterests : null
     });
-  };
-  
-  // Handle back button click
-  const handleBack = () => {
-    onBack();
   };
   
   return (
@@ -115,30 +136,24 @@ export const InterestsStep: React.FC<InterestsStepProps> = ({
       {/* Interests grid */}
       <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-4">
         {INTERESTS.map((interest) => (
-          <div
+          <OnboardingCheckbox
             key={interest.value}
-            className={`
-              jd-flex jd-items-center jd-space-x-2 jd-rounded-md jd-p-3 jd-transition-colors jd-duration-200
-              ${selectedInterests.includes(interest.value) 
-                ? 'jd-bg-blue-900/30 jd-border jd-border-blue-700/50' 
-                : 'jd-bg-gray-800 jd-border jd-border-gray-700 hover:jd-border-gray-600'}
-            `}
-          >
-            <Checkbox
-              id={`interest-${interest.value}`}
-              checked={selectedInterests.includes(interest.value)}
-              onCheckedChange={() => toggleInterest(interest.value)}
-              className="jd-data-[state=checked]:jd-bg-blue-600 jd-data-[state=checked]:jd-text-white"
-            />
-            <Label
-              htmlFor={`interest-${interest.value}`}
-              className="jd-text-sm jd-font-medium jd-text-white jd-cursor-pointer jd-flex-grow"
-            >
-              {interest.label}
-            </Label>
-          </div>
+            id={`interest-${interest.value}`}
+            label={interest.label}
+            checked={selectedInterests.includes(interest.value)}
+            onChange={() => toggleInterest(interest.value)}
+          />
         ))}
       </div>
+      
+      {/* Other interests input */}
+      {isOtherSelected && (
+        <OtherOptionInput
+          value={otherInterests}
+          onChange={setOtherInterests}
+          placeholder={getMessage('specifyOtherInterests', undefined, 'Please tell us about your other interests...')}
+        />
+      )}
       
       {/* Selected count */}
       <div className="jd-text-sm jd-text-gray-400 jd-mt-4">
@@ -150,26 +165,14 @@ export const InterestsStep: React.FC<InterestsStepProps> = ({
       </div>
       
       {/* Action Buttons */}
-      <div className="jd-flex jd-justify-between jd-pt-4">
-        <Button 
-          onClick={handleBack}
-          variant="outline"
-          className="jd-border-gray-700 jd-text-white hover:jd-bg-gray-800"
-        >
-          <ArrowLeft className="jd-mr-2 jd-h-4 jd-w-4" />
-          {getMessage('back', undefined, 'Back')}
-        </Button>
-        
-        <Button 
-          onClick={handleNext} 
-          className="jd-bg-blue-600 hover:jd-bg-blue-700 jd-text-white jd-font-heading"
-        >
-          {getMessage('nextStep', undefined, 'Next Step')}
-          <ArrowRight className="jd-ml-2 jd-h-4 jd-w-4" />
-        </Button>
-      </div>
+      <OnboardingActions 
+        onNext={handleNext}
+        onBack={onBack}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 };
 
 export default InterestsStep;
+

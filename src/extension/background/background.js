@@ -108,7 +108,7 @@ async function emailSignIn(email, password, sendResponse) {
         console.warn("⚠️ No user data returned from sign-in endpoint");
       }
 
-      chrome.tabs.create({ url: 'https://chat.openai.com' });
+      //chrome.tabs.create({ url: 'https://chat.openai.com' });
       
       // Response should be sent after storage operations
       sendResponse({ 
@@ -162,7 +162,7 @@ async function emailSignIn(email, password, sendResponse) {
       }
       
       // Open ChatGPT in a new tab
-      chrome.tabs.create({ url: 'https://chat.openai.com' });
+      //chrome.tabs.create({ url: 'https://chat.openai.com' });
       
       sendResponse({ 
         success: true, 
@@ -290,7 +290,7 @@ async function emailSignIn(email, password, sendResponse) {
         }
         
         // Open ChatGPT in a new tab (success case)
-        chrome.tabs.create({ url: 'https://chat.openai.com' });
+        //chrome.tabs.create({ url: 'https://chat.openai.com' });
         
         sendResponse({ 
           success: true, 
