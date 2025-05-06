@@ -9,12 +9,19 @@ import { getMessage } from '@/core/utils/i18n';
 import { authService } from '@/services/auth/AuthService';
 import { AuthState } from '@/types';
 import "./welcome.css";
-import { initAmplitude, trackEvent, EVENTS } from '@/utils/amplitude';
+import { initAmplitude, trackEvent, setAmplitudeUserId, EVENTS } from '@/utils/amplitude';
+import { userApi } from '@/services/api/UserApi';
+import OnboardingFlow from '@/extension/welcome/onboarding/OnboardingFlow';
 
 const WelcomePage: React.FC = () => {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [taskIndex, setTaskIndex] = useState(0);
+  const [onboardingRequired, setOnboardingRequired] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Auth state
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
@@ -34,28 +41,63 @@ const WelcomePage: React.FC = () => {
     []
   );
 
-  // Initialize auth state
-  useEffect(() => {
-    // Subscribe to auth state changes
-    const unsubscribe = authService.subscribe(state => {
-      setAuthState(state);
-    });
-
-    // Initialize auth service if needed
-    if (!authService.isInitialized()) {
-      authService.initialize();
-    }
-
-    // Cleanup subscription
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
+  // Initialize amplitude
   useEffect(() => {
     initAmplitude();
     trackEvent(EVENTS.EXTENSION_INSTALLED);
   }, []);
+  
+  // Initialize auth state and check onboarding status
+  useEffect(() => {
+    const initializeAuth = async () => {
+      setIsLoading(true);
+      
+      try {
+        // Subscribe to auth state changes
+        const unsubscribe = authService.subscribe(async (state) => {
+          setAuthState(state);
+          
+          // When auth state changes and user is authenticated
+          if (state.user && state.isAuthenticated) {
+            // Set user ID for amplitude tracking
+            setAmplitudeUserId(state.user.id);
+            
+            // Check if user needs to complete onboarding
+            if (!onboardingRequired) {
+              const onboardingStatus = await userApi.getUserOnboardingStatus();
+              console.log('hasCompleted-->', onboardingStatus);
+              setOnboardingRequired(!onboardingStatus.hasCompleted);
+              
+              // Show onboarding if user hasn't completed it
+              if (!onboardingStatus.hasCompleted) {
+                setShowOnboarding(true);
+                trackEvent(EVENTS.ONBOARDING_STARTED, {
+                  user_id: state.user.id
+                });
+              }
+            }
+          }
+          
+          setIsLoading(false);
+        });
+
+        // Initialize auth service if needed
+        if (!authService.isInitialized()) {
+          await authService.initialize();
+        }
+
+        // Cleanup subscription
+        return () => {
+          unsubscribe();
+        };
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, [onboardingRequired]);
 
   // Animation effect for changing tasks
   React.useEffect(() => {
@@ -67,30 +109,51 @@ const WelcomePage: React.FC = () => {
     return () => clearTimeout(timeoutId);
   }, [taskIndex, tasks]);
 
+  // Handle button clicks
   const handleGetStarted = () => {
     setAuthMode('signup');
     setIsAuthOpen(true);
+    trackEvent(EVENTS.SIGNUP_STARTED);
   };
 
   const handleSignIn = () => {
     setAuthMode('signin');
     setIsAuthOpen(true);
+    trackEvent(EVENTS.SIGNIN_STARTED);
   };
 
   const openChatGPT = () => {
+    trackEvent(EVENTS.ONBOARDING_GOTO_CHATGPT);
     chrome.tabs.create({ url: 'https://chat.openai.com' });
   };
 
   const handleSignOut = async () => {
     try {
+      trackEvent(EVENTS.SIGNOUT);
       await authService.signOut();
     } catch (error) {
       console.error('Sign out error:', error);
     }
   };
+  
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    setOnboardingRequired(false);
+    trackEvent(EVENTS.ONBOARDING_COMPLETED, {
+      user_id: authState.user?.id
+    });
+  };
+  
+  const handleOnboardingSkip = () => {
+    setShowOnboarding(false);
+    // We still mark it as required, but allow the user to access the app
+    trackEvent(EVENTS.ONBOARDING_SKIPPED, {
+      user_id: authState.user?.id
+    });
+  };
 
   // Loading state
-  if (authState.isLoading) {
+  if (isLoading || authState.isLoading) {
     return (
       <div className="jd-min-h-screen jd-bg-background jd-text-foreground jd-flex jd-items-center jd-justify-center jd-font-sans">
         <div className="jd-text-center">
@@ -102,6 +165,19 @@ const WelcomePage: React.FC = () => {
             {getMessage('loading', undefined, 'Loading...')}
           </p>
         </div>
+      </div>
+    );
+  }
+  
+  // Show onboarding flow if needed
+  if (authState.isAuthenticated && showOnboarding) {
+    return (
+      <div className="jd-min-h-screen jd-bg-background jd-text-foreground jd-flex jd-items-center jd-justify-center jd-font-sans jd-p-6">
+        <OnboardingFlow 
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingSkip}
+          user={authState.user}
+        />
       </div>
     );
   }
@@ -156,6 +232,19 @@ const WelcomePage: React.FC = () => {
                       <ExternalLink className="jd-w-4 jd-h-4 jd-ml-2" />
                     </span>
                   </Button>
+                  
+                  {/* Only show button if onboarding is required but not currently showing */}
+                  {onboardingRequired && !showOnboarding && (
+                    <Button 
+                      size="lg"
+                      onClick={() => setShowOnboarding(true)}
+                      className="jd-gap-2 jd-bg-blue-600 hover:jd-bg-blue-700 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-min-w-52 jd-font-heading"
+                    >
+                      <span className="jd-flex jd-items-center jd-justify-center jd-text-lg">
+                        {getMessage('completeSetup', undefined, 'Complete Setup')}
+                      </span>
+                    </Button>
+                  )}
                   
                   <Button 
                     variant="outline"
@@ -240,11 +329,19 @@ const WelcomePage: React.FC = () => {
                 <div className="jd-flex jd-gap-4">
                   <Button 
                     size="lg" 
+                    className="jd-gap-2 jd-bg-blue-600 hover:jd-bg-blue-700 jd-min-w-32 jd-font-heading"
+                    onClick={handleGetStarted}
+                  >
+                    {getMessage('getStarted', undefined, 'Get Started')}
+                  </Button>
+                  
+                  <Button 
+                    size="lg" 
                     variant="outline" 
                     className="jd-gap-2 jd-min-w-32 jd-text-white jd-border-gray-700 hover:jd-bg-gray-800 jd-font-heading"
                     onClick={handleSignIn}
                   >
-                    {getMessage('getStarted', undefined, 'Get Started')} <LogIn className="jd-w-4 jd-h-4 jd-ml-1" />
+                    {getMessage('signIn', undefined, 'Sign In')} <LogIn className="jd-w-4 jd-h-4 jd-ml-1" />
                   </Button>
                 </div>
                 <DialogContent className="sm:jd-max-w-md jd-bg-gray-950 jd-border-gray-800">

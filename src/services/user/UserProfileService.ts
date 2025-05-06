@@ -133,6 +133,11 @@ export class UserProfileService extends AbstractBaseService {
       );
     }
   }
+
+  public async hasCompletedOnboarding(): Promise<boolean> {
+    const status = await userApi.getUserOnboardingStatus();
+    return status.has_completed_onboarding || false;
+  }
   
   /**
    * Save user info to extension storage

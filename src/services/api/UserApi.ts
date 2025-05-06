@@ -53,6 +53,13 @@ export class UserApi {
   async getMessageDistribution(): Promise<any> {
     return apiClient.request('/stats/messages/distribution');
   }
+
+  /**
+   * Get user onboarding status
+   */
+  async getUserOnboardingStatus(): Promise<any> {
+    return apiClient.request('/user/onboarding/status');
+  }
 }
 
 export const userApi = new UserApi();
