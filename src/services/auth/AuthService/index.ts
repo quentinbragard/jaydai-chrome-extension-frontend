@@ -157,10 +157,11 @@ export class AuthService extends AbstractBaseService {
     const response = await AuthOperations.signUp(email, password, name);
     
     if (response.success) {
-      // Don't set as authenticated since email verification may be required
       if (response.user) {
         this.stateManager.updateState({
           user: response.user,
+          isAuthenticated: true,
+          isLoading: false,
           error: null
         });
       }

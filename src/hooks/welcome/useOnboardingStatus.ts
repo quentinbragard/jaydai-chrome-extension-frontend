@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { userApi } from '@/services/api/UserApi';
 import { User } from '@/types';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
-import { debug } from '@/core/config';
 
 export function useOnboardingStatus(user: User | null, isAuthenticated: boolean) {
   const [onboardingRequired, setOnboardingRequired] = useState(false);
@@ -19,14 +18,13 @@ export function useOnboardingStatus(user: User | null, isAuthenticated: boolean)
         return;
       }
       
-      setIsChecking(true);
-      
+      setIsChecking(true);      
       try {
-        debug('Checking onboarding status...');
+        console.log('Checking onboarding status...');
         const status = await userApi.getUserOnboardingStatus();
-        debug('Onboarding status:', status);
+        console.log('Onboarding status:', status);
         
-        const needsOnboarding = !status.hasCompleted;
+        const needsOnboarding = !status.has_completed_onboarding;
         setOnboardingRequired(needsOnboarding);
         
         // Immediately show onboarding if needed
@@ -48,7 +46,7 @@ export function useOnboardingStatus(user: User | null, isAuthenticated: boolean)
     
     // Run the check whenever authentication state changes
     checkOnboardingStatus();
-  }, [user, isAuthenticated, isChecking]);
+  }, [user, isAuthenticated]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);

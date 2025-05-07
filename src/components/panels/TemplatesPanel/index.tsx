@@ -446,10 +446,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 <FileText className="jd-h-8 jd-w-8 jd-text-[var(--primary)]/40" />
                 <div className="jd-space-y-1">
                   <p className="jd-text-sm jd-text-[var(--foreground)]">
-                    {getMessage('noTemplatesYet', undefined, 'No templates yet')}
+                    {getMessage('noTemplates', undefined, 'No templates yet')}
                   </p>
                   <p className="jd-text-xs jd-text-[var(--muted-foreground)]">
-                    {getMessage('createFirstTemplateDesc', undefined, 'Create templates to save time')}
+                    {getMessage('createFirstTemplate', undefined, 'Create templates to save time')}
                   </p>
                 </div>
                 <Button 

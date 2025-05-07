@@ -64,6 +64,6 @@ export function useInitializeServices() {
     initServices();
   }, []);
 
-  return { isInitialized, isLoading, initError };
+  return { isLoading, initError };
 }
 
