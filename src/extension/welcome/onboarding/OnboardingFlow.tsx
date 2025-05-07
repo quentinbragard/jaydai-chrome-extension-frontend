@@ -149,13 +149,46 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   
   // Handle skipping the onboarding
   const handleSkip = () => {
+    // Track the skip event
     trackEvent(EVENTS.ONBOARDING_SKIPPED, {
       user_id: user?.id,
       step: currentStep
     });
     
-    if (onSkip) {
-      onSkip();
+    // If we're on the last input step, we need special handling
+    if (currentStep === totalSteps - 2) {
+      // For the last step before completion, we need to submit with empty data
+      // Pass empty data for the current step
+      const emptyStepData = getEmptyDataForStep(currentStep);
+      handleNextStep(emptyStepData);
+    } else {
+      // For any other step, just advance to the next step
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+  
+  // Helper function to get empty data structure for each step
+  const getEmptyDataForStep = (step: number): Partial<OnboardingData> => {
+    switch (step) {
+      case 0: // Job info step
+        return {
+          job_type: null,
+          job_industry: null,
+          job_seniority: null,
+          job_other_details: null
+        };
+      case 1: // Interests step
+        return {
+          interests: [],
+          other_interests: null
+        };
+      case 2: // Referral step
+        return {
+          signup_source: null,
+          other_source: null
+        };
+      default:
+        return {};
     }
   };
   

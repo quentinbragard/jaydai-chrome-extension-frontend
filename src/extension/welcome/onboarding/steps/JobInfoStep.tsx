@@ -1,5 +1,7 @@
 // src/extension/welcome/onboarding/steps/JobInfoStep.tsx
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Briefcase } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { OnboardingData } from '../OnboardingFlow';
@@ -66,24 +68,24 @@ interface JobInfoStepProps {
 }
 
 export const JobInfoStep: React.FC<JobInfoStepProps> = ({ 
-  initialData, 
-  onNext,
-  isSubmitting
-}) => {
-  // Local state for this step
-  const [jobType, setJobType] = useState<string | null>(initialData.job_type);
-  const [jobIndustry, setJobIndustry] = useState<string | null>(initialData.job_industry);
-  const [jobSeniority, setJobSeniority] = useState<string | null>(initialData.job_seniority);
-  const [otherJobType, setOtherJobType] = useState<string>(initialData.job_other_details || '');
-  
-  // Validation state
-  const [errors, setErrors] = useState({
-    jobType: false,
-    jobIndustry: false,
-    jobSeniority: false,
-    otherJobType: false
-  });
-  
+    initialData, 
+    onNext,
+    isSubmitting
+  }) => {
+    // Local state for this step - keep your original state setup
+    const [jobType, setJobType] = useState<string | null>(initialData.job_type);
+    const [jobIndustry, setJobIndustry] = useState<string | null>(initialData.job_industry);
+    const [jobSeniority, setJobSeniority] = useState<string | null>(initialData.job_seniority);
+    const [otherJobType, setOtherJobType] = useState<string>(initialData.job_other_details || '');
+    
+    // Validation state - keep your original validation
+    const [errors, setErrors] = useState({
+      jobType: false,
+      jobIndustry: false,
+      jobSeniority: false,
+      otherJobType: false
+    });
+    
   // Check if all required fields are filled
   const isFormValid = () => {
     const validJobType = jobType !== null && (jobType !== 'other' || otherJobType.trim() !== '');
@@ -138,8 +140,27 @@ export const JobInfoStep: React.FC<JobInfoStepProps> = ({
   };
   
   return (
-    <div className="jd-space-y-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="jd-space-y-6"
+    >
       <div className="jd-text-center jd-mb-8">
+        <motion.div 
+          className="jd-inline-flex jd-items-center jd-justify-center jd-w-16 jd-h-16 jd-rounded-full jd-bg-blue-500/10 jd-mb-4"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 300,
+            damping: 20,
+            delay: 0.1 
+          }}
+        >
+          <Briefcase className="jd-h-8 jd-w-8 jd-text-blue-400" />
+        </motion.div>
         <h3 className="jd-text-xl jd-font-medium jd-text-white jd-mb-2">
           {getMessage('tellUsAboutJob', undefined, 'Tell us about your job')}
         </h3>
@@ -219,7 +240,7 @@ export const JobInfoStep: React.FC<JobInfoStepProps> = ({
         onNext={handleNext}
         isSubmitting={isSubmitting}
       />
-    </div>
+    </motion.div>
   );
 };
 

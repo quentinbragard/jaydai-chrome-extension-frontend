@@ -1,5 +1,6 @@
-// src/extension/welcome/onboarding/components/OnboardingSelect.tsx
+// src/components/welcome/OnboardingSelect.tsx
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
@@ -32,7 +33,12 @@ export const OnboardingSelect: React.FC<OnboardingSelectProps> = ({
   errorMessage
 }) => {
   return (
-    <div className="jd-space-y-2">
+    <motion.div 
+      className="jd-space-y-2"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <Label 
         htmlFor={id} 
         className={`jd-text-sm jd-font-medium ${error ? 'jd-text-red-400' : 'jd-text-gray-200'}`}
@@ -45,16 +51,16 @@ export const OnboardingSelect: React.FC<OnboardingSelectProps> = ({
       >
         <SelectTrigger 
           id={id}
-          className={`jd-w-full jd-bg-gray-800 jd-border-gray-700 jd-text-white ${error ? 'jd-border-red-400' : ''}`}
+          className={`jd-w-full jd-bg-gray-800/80 jd-border-gray-700 jd-text-white hover:jd-border-blue-500/50 jd-transition-colors jd-duration-200 ${error ? 'jd-border-red-400' : ''}`}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent className="jd-bg-gray-800 jd-border-gray-700">
+        <SelectContent className="!jd-bg-gray-700 jd-border-gray-700">
           {options.map((option) => (
             <SelectItem 
               key={option.value} 
               value={option.value} 
-              className="jd-text-white hover:jd-bg-gray-700"
+              className="jd-text-white hover:jd-bg-gray-700 jd-cursor-pointer"
             >
               {option.label}
             </SelectItem>
@@ -62,11 +68,16 @@ export const OnboardingSelect: React.FC<OnboardingSelectProps> = ({
         </SelectContent>
       </Select>
       {error && errorMessage && (
-        <p className="jd-text-red-400 jd-text-xs jd-mt-1">
+        <motion.p 
+          className="jd-text-red-400 jd-text-xs jd-mt-1"
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
           {errorMessage}
-        </p>
+        </motion.p>
       )}
-    </div>
+    </motion.div>
   );
 };
 

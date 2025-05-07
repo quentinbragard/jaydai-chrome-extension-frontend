@@ -1,5 +1,7 @@
 // src/extension/welcome/onboarding/steps/InterestsStep.tsx
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Heart } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { OnboardingData } from '../OnboardingFlow';
@@ -116,8 +118,27 @@ export const InterestsStep: React.FC<InterestsStepProps> = ({
   };
   
   return (
-    <div className="jd-space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="jd-space-y-6"
+    >
       <div className="jd-text-center jd-mb-8">
+        <motion.div 
+          className="jd-inline-flex jd-items-center jd-justify-center jd-w-16 jd-h-16 jd-rounded-full jd-bg-indigo-500/10 jd-mb-4"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 300,
+            damping: 20,
+            delay: 0.1 
+          }}
+        >
+          <Heart className="jd-h-8 jd-w-8 jd-text-indigo-400" />
+        </motion.div>
         <h3 className="jd-text-xl jd-font-medium jd-text-white jd-mb-2">
           {getMessage('selectInterests', undefined, 'Select your interests')}
         </h3>
@@ -134,8 +155,7 @@ export const InterestsStep: React.FC<InterestsStepProps> = ({
       )}
       
       {/* Interests grid */}
-      <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-4">
-        {INTERESTS.map((interest) => (
+      <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-4">        {INTERESTS.map((interest) => (
           <OnboardingCheckbox
             key={interest.value}
             id={`interest-${interest.value}`}
@@ -170,7 +190,7 @@ export const InterestsStep: React.FC<InterestsStepProps> = ({
         onBack={onBack}
         isSubmitting={isSubmitting}
       />
-    </div>
+    </motion.div>
   );
 };
 

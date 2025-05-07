@@ -1,5 +1,7 @@
 // src/extension/welcome/onboarding/steps/ReferralStep.tsx
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Users } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { OnboardingData } from '../OnboardingFlow';
@@ -76,8 +78,27 @@ export const ReferralStep: React.FC<ReferralStepProps> = ({
   };
   
   return (
-    <div className="jd-space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="jd-space-y-6"
+    >
       <div className="jd-text-center jd-mb-8">
+        <motion.div 
+          className="jd-inline-flex jd-items-center jd-justify-center jd-w-16 jd-h-16 jd-rounded-full jd-bg-purple-500/10 jd-mb-4"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 300,
+            damping: 20,
+            delay: 0.1 
+          }}
+        >
+          <Users className="jd-h-8 jd-w-8 jd-text-purple-400" />
+        </motion.div>
         <h3 className="jd-text-xl jd-font-medium jd-text-white jd-mb-2">
           {getMessage('howDidYouHear', undefined, 'How did you hear about us?')}
         </h3>
@@ -132,7 +153,7 @@ export const ReferralStep: React.FC<ReferralStepProps> = ({
         isSubmitting={isSubmitting}
         isLastStep={true}
       />
-    </div>
+    </motion.div>
   );
 };
 

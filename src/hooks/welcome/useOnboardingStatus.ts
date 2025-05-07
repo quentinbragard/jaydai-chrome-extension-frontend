@@ -58,10 +58,10 @@ export function useOnboardingStatus(user: User | null, isAuthenticated: boolean)
   
   const handleOnboardingSkip = () => {
     setShowOnboarding(false);
-    // We still mark it as required, but allow the user to access the app
-    trackEvent(EVENTS.ONBOARDING_SKIPPED, {
-      user_id: user?.id
-    });
+    // You might also want to set this to prevent onboarding from appearing again
+    setOnboardingRequired(false);
+    
+    trackEvent(EVENTS.ONBOARDING_SKIPPED);
   };
 
   return { 

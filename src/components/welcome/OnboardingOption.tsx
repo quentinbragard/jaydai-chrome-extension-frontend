@@ -1,5 +1,6 @@
-// src/extension/welcome/onboarding/components/OnboardingOption.tsx
+// src/components/welcome/OnboardingOption.tsx
 import React from 'react';
+import { motion } from 'framer-motion';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 
@@ -21,21 +22,23 @@ export const OnboardingOption: React.FC<OnboardingOptionProps> = ({
   const isSelected = groupValue === value;
   
   return (
-    <div
+    <motion.div
       className={`
-        jd-flex jd-items-center jd-space-x-2 jd-rounded-md jd-p-3 jd-transition-colors jd-duration-200 jd-cursor-pointer
+        jd-flex jd-items-center jd-space-x-2 jd-rounded-lg jd-p-3 jd-transition-colors jd-duration-200 jd-cursor-pointer
         ${isSelected 
-          ? 'jd-bg-blue-900/30 jd-border jd-border-blue-700/50 jd-shadow-md' 
+          ? 'jd-bg-blue-900/30 jd-border jd-border-blue-700/50 jd-shadow-lg jd-shadow-blue-500/10' 
           : 'jd-bg-gray-800 jd-border jd-border-gray-700 hover:jd-border-gray-600 hover:jd-bg-gray-800/80'}
         ${className}
       `}
       onClick={() => onChange(value)}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
     >
       <RadioGroupItem
         id={`option-${value}`}
         value={value}
         checked={isSelected}
-        className="jd-text-blue-600"
+        className="jd-text-blue-600 jd-border-gray-600"
       />
       <Label
         htmlFor={`option-${value}`}
@@ -43,7 +46,7 @@ export const OnboardingOption: React.FC<OnboardingOptionProps> = ({
       >
         {label}
       </Label>
-    </div>
+    </motion.div>
   );
 };
 
