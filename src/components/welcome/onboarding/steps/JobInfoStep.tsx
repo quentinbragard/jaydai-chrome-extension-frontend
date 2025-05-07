@@ -7,9 +7,9 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { OnboardingData } from '../OnboardingFlow';
 
 // Components
-import { OnboardingSelect } from '@/components/welcome/OnboardingSelect';
-import { OnboardingActions } from '@/components/welcome/OnboardingActions';
-import { OtherOptionInput } from '@/components/welcome/OtherOptionInput';
+import { OnboardingSelect } from '@/components/welcome/onboarding/OnboardingSelect';
+import { OnboardingActions } from '@/components/welcome/onboarding/OnboardingActions';
+import { OtherOptionInput } from '@/components/welcome/onboarding/OtherOptionInput';
 
 // Job type options
 const JOB_TYPES = [

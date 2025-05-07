@@ -13,7 +13,7 @@ import { ReferralStep } from './steps/ReferralStep';
 import { CompletionStep } from './steps/CompletionStep';
 
 // Components
-import { OnboardingCard } from '@/components/welcome/OnboardingCard';
+import { OnboardingCard } from '@/components/welcome/onboarding/OnboardingCard';
 
 export interface OnboardingData {
   job_type: string | null;

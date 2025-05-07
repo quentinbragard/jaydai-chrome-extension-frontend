@@ -8,9 +8,9 @@ import { OnboardingData } from '../OnboardingFlow';
 
 // Components
 import { RadioGroup } from '@/components/ui/radio-group';
-import { OnboardingOption } from '@/components/welcome/OnboardingOption';
-import { OnboardingActions } from '@/components/welcome/OnboardingActions';
-import { OtherOptionInput } from '@/components/welcome/OtherOptionInput';
+import { OnboardingOption } from '@/components/welcome/onboarding/OnboardingOption';
+import { OnboardingActions } from '@/components/welcome/onboarding/OnboardingActions';
+import { OtherOptionInput } from '@/components/welcome/onboarding/OtherOptionInput';
 
 // Referral sources
 const REFERRAL_SOURCES = [

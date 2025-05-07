@@ -7,9 +7,9 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { OnboardingData } from '../OnboardingFlow';
 
 // Components
-import { OnboardingCheckbox } from '@/components/welcome/OnboardingCheckbox';
-import { OnboardingActions } from '@/components/welcome/OnboardingActions';
-import { OtherOptionInput } from '@/components/welcome/OtherOptionInput';
+import { OnboardingCheckbox } from '@/components/welcome/onboarding/OnboardingCheckbox';
+import { OnboardingActions } from '@/components/welcome/onboarding/OnboardingActions';
+import { OtherOptionInput } from '@/components/welcome/onboarding/OtherOptionInput';
 
 // Interests options
 const INTERESTS = [

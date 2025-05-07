@@ -187,6 +187,10 @@
     "message": "Ouvrir ChatGPT",
     "description": "Bouton pour ouvrir ChatGPT"
   },
+  "openClaude": {
+    "message": "Ouvrir Claude",
+    "description": "Bouton pour ouvrir Claude"
+  },
   "signInFailed": {
     "message": "Échec de la connexion",
     "description": "Message d'erreur"
@@ -398,7 +402,6 @@
     "description": "Description pour la boîte de dialogue de personnalisation de template"
   },
   "replacePlaceholders": {
-    "message": "Remplacer les Espaces Réservés",
     "message": "Remplacer les espaces réservés",
     "description": "Title for placeholder replacement section"
   },
@@ -1379,15 +1382,75 @@
     "description": "Text for the LinkedIn follow button"
   },
   "bug_fixes_notification_title": {
-  "message": "Bugs corrigés",
-  "description": "Title for bug fixes notification"
-},
-"bug_fixes_notification_body": {
-  "message": "Nous nous excusons pour les premiers bugs que vous avez pu avoir. Nous venons de tout corriger, n'hésitez pas à nous contacter si vous en rencontrez d'autres.",
-  "description": "Body text for bug fixes notification"
-},
-"bugFixes": {
-  "message": "Continuer",
-  "description": "Button text to acknowledge bug fixes"
-}
+    "message": "Bugs corrigés",
+    "description": "Title for bug fixes notification"
+  },
+  "bug_fixes_notification_body": {
+    "message": "Nous nous excusons pour les premiers bugs que vous avez pu avoir. Nous venons de tout corriger, n'hésitez pas à nous contacter si vous en rencontrez d'autres.",
+    "description": "Body text for bug fixes notification"
+  },
+  "bugFixes": {
+    "message": "Continuer",
+    "description": "Button text to acknowledge bug fixes"
+  },
+  "processing": {
+    "message": "Traitement...",
+    "description": "Texte affiché pendant le traitement d'une action"
+  },
+  "complete": {
+    "message": "Terminer",
+    "description": "Texte du bouton pour terminer l'onboarding"
+  },
+  "nextStep": {
+    "message": "Continuer",
+    "description": "Texte du bouton pour l'étape suivante de l'onboarding"
+  },
+  "onboardingTitle": {
+    "message": "Complétez votre profil",
+    "description": "Titre pour la carte d'onboarding"
+  },
+  "onboardingDescription": {
+    "message": "Cela nous aide à personnaliser votre expérience et à proposer des templates pertinents",
+    "description": "Description pour la carte d'onboarding"
+  },
+  "onboardingAllSet": {
+    "message": "C'est terminé !",
+    "description": "Titre pour la dernière étape d'onboarding"
+  },
+  "onboardingComplete": { "message": "Configuration terminée !", "description": "Titre pour l'étape de fin d'onboarding" },
+  "onboardingCompleteDescription": { "message": "Merci d'avoir complété votre profil. Vos templates IA personnalisés sont maintenant prêts à l'emploi.", "description": "Description pour l'étape de fin d'onboarding" },
+  "whatNext": { "message": "Et ensuite ?", "description": "Titre pour les prochaines étapes après l'onboarding" },
+  "whatNextDescription": { "message": "Ouvrez ChatGPT ou Claude pour commencer à utiliser notre extension. Retrouvez notre bouton en bas à droite de votre écran pour accéder à vos templates et suivre votre utilisation de l'IA.", "description": "Description pour les prochaines étapes après l'onboarding" },
+  "goToChatGPT": { "message": "Aller sur ChatGPT", "description": "Bouton pour aller sur ChatGPT après l'onboarding" },
+  "goToClaude": { "message": "Aller sur Claude", "description": "Bouton pour aller sur Claude après l'onboarding" },
+  "returnToHome": { "message": "Retour à l'accueil", "description": "Bouton pour retourner à l'accueil après l'onboarding" },
+  "selectInterests": { "message": "Sélectionnez vos centres d'intérêt", "description": "Titre pour l'étape des intérêts" },
+  "interestsHelp": { "message": "Choisissez les domaines où vous souhaitez que l'IA vous aide", "description": "Aide pour l'étape des intérêts" },
+  "otherInterestsRequired": { "message": "Veuillez préciser vos autres centres d'intérêt", "description": "Erreur pour autres intérêts manquants" },
+  "minInterestsRequired": { "message": "Veuillez sélectionner au moins $1 centres d'intérêt", "description": "Erreur pour le minimum d'intérêts requis", "placeholders": { "1": { "content": "$1", "example": "2" } } },
+  "specifyOtherInterests": { "message": "Merci de nous indiquer vos autres centres d'intérêt...", "description": "Placeholder pour la saisie des autres intérêts" },
+  "selectedCount": { "message": "Sélectionné : $1 (minimum : $2)", "description": "Nombre d'intérêts sélectionnés", "placeholders": { "1": { "content": "$1", "example": "2" }, "2": { "content": "$2", "example": "3" } } },
+  "tellUsAboutJob": { "message": "Parlez-nous de votre métier", "description": "Titre pour l'étape métier" },
+  "jobInfoHelp": { "message": "Cela nous aide à vous proposer les templates IA les plus pertinents", "description": "Aide pour l'étape métier" },
+  "jobType": { "message": "Quel est votre type de poste ?", "description": "Label pour le type de poste" },
+  "selectJobType": { "message": "Sélectionnez le type de poste", "description": "Placeholder pour le type de poste" },
+  "jobTypeRequired": { "message": "Veuillez sélectionner votre type de poste", "description": "Erreur pour type de poste manquant" },
+  "specifyJobType": { "message": "Merci de préciser votre type de poste...", "description": "Placeholder pour autre type de poste" },
+  "otherJobTypeRequired": { "message": "Veuillez préciser votre type de poste", "description": "Erreur pour autre type de poste manquant" },
+  "jobIndustry": { "message": "Dans quel secteur travaillez-vous ?", "description": "Label pour le secteur d'activité" },
+  "selectIndustry": { "message": "Sélectionnez le secteur", "description": "Placeholder pour le secteur d'activité" },
+  "industryRequired": { "message": "Veuillez sélectionner votre secteur d'activité", "description": "Erreur pour secteur manquant" },
+  "jobSeniority": { "message": "Quel est votre niveau de séniorité ?", "description": "Label pour la séniorité" },
+  "selectSeniority": { "message": "Sélectionnez la séniorité", "description": "Placeholder pour la séniorité" },
+  "seniorityRequired": { "message": "Veuillez sélectionner votre niveau de séniorité", "description": "Erreur pour séniorité manquante" },
+  "howDidYouHear": { "message": "Comment avez-vous entendu parler de nous ?", "description": "Titre pour l'étape de recommandation" },
+  "referralHelp": { "message": "Cela nous aide à comprendre comment les gens découvrent notre extension", "description": "Aide pour l'étape de recommandation" },
+  "selectReferralSource": { "message": "Veuillez indiquer comment vous nous avez connu", "description": "Erreur pour source de recommandation manquante" },
+  "specifyOtherSource": { "message": "Veuillez préciser comment vous nous avez connu", "description": "Erreur pour autre source de recommandation manquante" },
+  "specifySource": { "message": "Merci de nous indiquer comment vous nous avez connu...", "description": "Placeholder pour autre source de recommandation" },
+  "onboardingStepJob": { "message": "Votre métier", "description": "Titre d'étape pour le métier" },
+  "onboardingStepInterests": { "message": "Centres d'intérêt", "description": "Titre d'étape pour les intérêts" },
+  "onboardingStepReferral": { "message": "Comment vous nous avez connu", "description": "Titre d'étape pour la recommandation" },
+  "onboardingStepComplete": { "message": "Terminé", "description": "Titre d'étape pour la fin" },
+  "skipForNow": { "message": "Passer pour l'instant", "description": "Bouton pour passer une étape d'onboarding" }
 }

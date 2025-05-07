@@ -7,7 +7,7 @@ import { AnonymousContent } from '@/components/welcome/AnonymousContent';
 import { WelcomeLayout } from './layout';
 import { LoadingSpinner } from '@/components/welcome/LoadingSpinner';
 import { ErrorDisplay } from '@/components/welcome/ErrorDisplay';
-import OnboardingFlow from '@/components/welcome/OnboardingFlow';
+import OnboardingFlow from '@/components/welcome/onboarding/OnboardingFlow';
 import { useInitializeServices } from '@/hooks/welcome/useInitializeServices';
 import { useAuthState } from '@/hooks/auth/useAuthState';
 import { useOnboardingStatus } from '@/hooks/welcome/useOnboardingStatus';

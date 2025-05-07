@@ -190,6 +190,10 @@
     "message": "Open ChatGPT",
     "description": "Open ChatGPT button"
   },
+  "openClaude": {
+    "message": "Open Claude",
+    "description": "Open Claude button"
+  },
   "signInFailed": {
     "message": "Sign-in failed",
     "description": "Error message"
@@ -1395,15 +1399,75 @@
     "description": "Text for the LinkedIn follow button"
   },
   "bug_fixes_notification_title": {
-  "message": "Bugs FIxed",
-  "description": "Title for bug fixes notification"
-},
-"bug_fixes_notification_body": {
-  "message": "We apologize for any inconvenience. Several issues have been resolved to enhance your experience. Your feedback helps us improve.",
-  "description": "Body text for bug fixes notification"
-},
-"bugFixes": {
-  "message": "Continue",
-  "description": "Button text to acknowledge bug fixes"
-}
+    "message": "Bugs FIxed",
+    "description": "Title for bug fixes notification"
+  },
+  "bug_fixes_notification_body": {
+    "message": "We apologize for any inconvenience. Several issues have been resolved to enhance your experience. Your feedback helps us improve.",
+    "description": "Body text for bug fixes notification"
+  },
+  "bugFixes": {
+    "message": "Continue",
+    "description": "Button text to acknowledge bug fixes"
+  },
+  "processing": {
+    "message": "Processing...",
+    "description": "Text shown while processing an action"
+  },
+  "complete": {
+    "message": "Complete",
+    "description": "Button text for completing onboarding"
+  },
+  "nextStep": {
+    "message": "Continue",
+    "description": "Button text for next step in onboarding"
+  },
+  "onboardingTitle": {
+    "message": "Complete Your Profile",
+    "description": "Title for onboarding card"
+  },
+  "onboardingDescription": {
+    "message": "This helps us personalize your experience and provide relevant templates",
+    "description": "Description for onboarding card"
+  },
+  "onboardingAllSet": {
+    "message": "All Set!",
+    "description": "Title for last onboarding step"
+  },
+  "onboardingComplete": { "message": "Setup Complete!", "description": "Title for onboarding completion step" },
+  "onboardingCompleteDescription": { "message": "Thank you for completing your profile. Your personalized AI templates are now ready to use.", "description": "Description for onboarding completion step" },
+  "whatNext": { "message": "What's next?", "description": "Title for next steps after onboarding" },
+  "whatNextDescription": { "message": "Open ChatGPT or Claude to start using our extension. Look for our button in the bottom right corner of your screen to access your templates and track your AI usage.", "description": "Description for next steps after onboarding" },
+  "goToChatGPT": { "message": "Go to ChatGPT", "description": "Button to go to ChatGPT after onboarding" },
+  "goToClaude": { "message": "Go to Claude", "description": "Button to go to Claude after onboarding" },
+  "returnToHome": { "message": "Return to Home", "description": "Button to return to home after onboarding" },
+  "selectInterests": { "message": "Select your interests", "description": "Title for interests onboarding step" },
+  "interestsHelp": { "message": "Choose areas where you want AI to assist you", "description": "Help text for interests onboarding step" },
+  "otherInterestsRequired": { "message": "Please specify your other interests", "description": "Error for missing other interests" },
+  "minInterestsRequired": { "message": "Please select at least $1 interests", "description": "Error for minimum interests required", "placeholders": { "1": { "content": "$1", "example": "2" } } },
+  "specifyOtherInterests": { "message": "Please tell us about your other interests...", "description": "Placeholder for other interests input" },
+  "selectedCount": { "message": "Selected: $1 (minimum: $2)", "description": "Selected interests count", "placeholders": { "1": { "content": "$1", "example": "2" }, "2": { "content": "$2", "example": "3" } } },
+  "tellUsAboutJob": { "message": "Tell us about your job", "description": "Title for job info onboarding step" },
+  "jobInfoHelp": { "message": "This helps us provide you with the most relevant AI templates", "description": "Help text for job info onboarding step" },
+  "jobType": { "message": "What type of work do you do?", "description": "Label for job type select" },
+  "selectJobType": { "message": "Select job type", "description": "Placeholder for job type select" },
+  "jobTypeRequired": { "message": "Please select your job type", "description": "Error for missing job type" },
+  "specifyJobType": { "message": "Please specify your job type...", "description": "Placeholder for other job type input" },
+  "otherJobTypeRequired": { "message": "Please specify your job type", "description": "Error for missing other job type" },
+  "jobIndustry": { "message": "What industry do you work in?", "description": "Label for industry select" },
+  "selectIndustry": { "message": "Select industry", "description": "Placeholder for industry select" },
+  "industryRequired": { "message": "Please select your industry", "description": "Error for missing industry" },
+  "jobSeniority": { "message": "What is your seniority level?", "description": "Label for seniority select" },
+  "selectSeniority": { "message": "Select seniority", "description": "Placeholder for seniority select" },
+  "seniorityRequired": { "message": "Please select your seniority level", "description": "Error for missing seniority" },
+  "howDidYouHear": { "message": "How did you hear about us?", "description": "Title for referral onboarding step" },
+  "referralHelp": { "message": "This helps us understand how people discover our extension", "description": "Help text for referral onboarding step" },
+  "selectReferralSource": { "message": "Please select how you heard about us", "description": "Error for missing referral source" },
+  "specifyOtherSource": { "message": "Please specify how you heard about us", "description": "Error for missing other referral source" },
+  "specifySource": { "message": "Please tell us how you heard about us...", "description": "Placeholder for other referral source input" },
+  "onboardingStepJob": { "message": "Your Job", "description": "Step title for job info" },
+  "onboardingStepInterests": { "message": "Interests", "description": "Step title for interests" },
+  "onboardingStepReferral": { "message": "How You Found Us", "description": "Step title for referral" },
+  "onboardingStepComplete": { "message": "Complete", "description": "Step title for completion" },
+  "skipForNow": { "message": "Skip for now", "description": "Button to skip onboarding step" }
 }

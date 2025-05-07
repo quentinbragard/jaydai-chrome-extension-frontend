@@ -1,7 +1,7 @@
-// src/components/welcome/OnboardingCard.tsx
+// src/components/welcome/onboarding/OnboardingCard.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { StepIndicator } from './StepIndicator';
+import { StepIndicator } from '@/components/welcome/onboarding/StepIndicator';
 import { getMessage } from '@/core/utils/i18n';
 
 interface OnboardingCardProps {
@@ -17,8 +17,8 @@ interface OnboardingCardProps {
 
 export const OnboardingCard: React.FC<OnboardingCardProps> = ({
   children,
-  title = 'Complete Your Profile',
-  description = 'This helps us personalize your experience and provide relevant templates',
+  title = getMessage('onboardingTitle'),
+  description = getMessage('onboardingDescription'),
   currentStep,
   totalSteps,
   stepTitles,
@@ -67,7 +67,9 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            {getMessage('onboardingTitle', undefined, currentStep === totalSteps - 1 ? 'All Set!' : title)}
+            {currentStep === totalSteps - 1
+              ? getMessage('onboardingAllSet')
+              : title}
           </motion.h2>
           
           <motion.p 
@@ -76,7 +78,7 @@ export const OnboardingCard: React.FC<OnboardingCardProps> = ({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            {getMessage('onboardingDescription', undefined, description)}
+            {description}
           </motion.p>
           
           {/* Progress indicator */}
