@@ -7,8 +7,9 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { DialogProvider } from '@/components/dialogs/DialogProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ThemeProvider } from '@/components/theme-provider';
-import { initAmplitude } from '@/utils/amplitude';
+import { initAmplitude, setUserProperties } from '@/utils/amplitude';
 import { authService } from '@/services/auth/AuthService';
+import { getCurrentLanguage } from '@/core/utils/i18n';
 
 /**
  * Main app component that brings everything together
@@ -78,8 +79,12 @@ const Main: React.FC = () => {
     authService.subscribe((state) => {
       console.log('authService-->', state);
       if (state.user) {
-        console.log('initAmplitude-->', state.user.id);
-        initAmplitude(state.user.id);
+        console.log('MAIN initAmplitude-->', state.user.id);
+        initAmplitude(state.user.id, false);
+        setUserProperties({
+          darkMode: document.documentElement.classList.contains('dark'),
+          language: getCurrentLanguage()
+        });
       }
     });
   }, []);

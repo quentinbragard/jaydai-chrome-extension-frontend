@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS, setUserProperties } from '@/utils/amplitude';
 import { userApi } from '@/services/api/UserApi';
 import { User } from '@/types';
 
@@ -28,14 +28,12 @@ export interface OnboardingData {
 
 export interface OnboardingFlowProps {
   onComplete: () => void;
-  onSkip?: () => void;
   user: User | null;
 }
 
 // Multi-step onboarding flow component
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ 
   onComplete, 
-  onSkip, 
   user 
 }) => {
   // Track the current step
@@ -120,6 +118,18 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
       const result = await userApi.saveUserMetadata(submissionData);
       
       if (result.success) {
+        setUserProperties({
+          onbboarding_date: new Date().toISOString(),
+          job_type: data.job_type,
+          job_industry: data.job_industry,
+          job_seniority: data.job_seniority,
+          job_other_details: data.job_other_details,
+          interests: data.interests,
+          other_interests: data.other_interests,
+          signup_source: data.signup_source,
+          template_usage_count: 0,
+          template_created_count: 0
+        });
         // Track completion event with Amplitude
         trackEvent(EVENTS.ONBOARDING_COMPLETED, {
           user_id: user?.id,

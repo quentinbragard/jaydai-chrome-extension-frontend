@@ -1,13 +1,14 @@
 // src/components/panels/MenuPanel/index.tsx
 
 import React from 'react';
-import { FileText, Bell, BarChart, Settings, Save } from "lucide-react";
+import { FileText, Bell, BarChart, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
 import BasePanel from '../BasePanel';
 import { getMessage } from '@/core/utils/i18n';
 import { toast } from 'sonner';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Define a type for our menu items
 type MenuItem = {
@@ -19,13 +20,20 @@ type MenuItem = {
 };
 
 // A reusable menu item component for better modularity
-const MenuItemButton: React.FC<MenuItem> = ({ icon, label, action, badge }) => (
-  <div className="jd-w-full">
-    <Button 
+const MenuItemButton: React.FC<MenuItem> = ({ icon, label, action, badge }) => {
+  const handleClick = () => {
+    trackEvent(EVENTS.MENU_ITEM_CLICKED, {
+      menu_item: label
+    });
+    action();
+  };
+  return (
+    <div className="jd-w-full">
+      <Button 
       variant="ghost" 
       size="sm" 
       className="jd-justify-start jd-items-center jd-w-full jd-text-left jd-px-2"
-      onClick={action}
+      onClick={handleClick}
     >
       <span className="jd-flex jd-items-center jd-w-full">
         <span className="jd-mr-2">{icon}</span>
@@ -38,7 +46,8 @@ const MenuItemButton: React.FC<MenuItem> = ({ icon, label, action, badge }) => (
       </span>
     </Button>
   </div>
-);
+)
+};
 
 interface MenuPanelProps {
   onClose: () => void;
@@ -59,15 +68,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
     pushPanel({ type: panelType });
   };
 
-  // Open settings dialog
-  const openSettings = () => {
-    if (window.dialogManager) {
-      window.dialogManager.openDialog('settings');
-    } else {
-      console.error('Dialog manager not available');
-      toast.error('Could not open settings. Please try again.');
-    }
-  };
+
 
   // Open external link
   const openExternalLink = (url: string) => {
@@ -100,13 +101,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       icon: <Save className="jd-h-4 jd-w-4" />,
       label: getMessage('aiNews', undefined, 'AI News'),
       action: () => openExternalLink('https://thetunnel.substack.com/?utm_source=jaydai-extension')
-    },
-    //{
-    //  id: 'settings',
-    //  icon: <Settings className="jd-h-4 jd-w-4" />,
-    //  label: getMessage('settings', undefined, 'Settings'),
-    //  action: openSettings
-    //}
+    }
   ];
 
   return (

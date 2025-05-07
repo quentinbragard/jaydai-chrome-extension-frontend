@@ -9,6 +9,8 @@ import { useQueryClient } from 'react-query';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { insertContentIntoChat, formatContentForInsertion } from '@/utils/templates/insertPrompt';
+import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
+
 
 /**
  * A redesigned template action hook with cross-platform support
@@ -83,12 +85,17 @@ const handleTemplateComplete = useCallback((finalContent: string) => {
     if (success) {
       // Only show toast on success
       toast.success('Template applied successfully');
+      trackEvent(EVENTS.TEMPLATE_APPLIED);
+      incrementUserProperty('template_usage_count', 1);
     } else {
       toast.error('Failed to apply template');
+      trackEvent(EVENTS.TEMPLATE_APPLIED_ERROR, {
+        error: 'Failed to apply template'
+      });
     }
     
     // Dispatch an event to close the main button and panels
-    document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+    //document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
   }, 50);
 }, []);
 
@@ -97,15 +104,22 @@ const useTemplate = useCallback((template: Template) => {
   // Validation
   if (!template) {
     toast.error('Invalid template data');
+    trackEvent(EVENTS.TEMPLATE_APPLIED_ERROR, {
+      error: 'Invalid template data'
+    });
     return;
   }
   
   if (!template.content) {
     toast.error('Template has no content');
+    trackEvent(EVENTS.TEMPLATE_APPLIED_ERROR, {
+      error: 'Template has no content'
+    });
     return;
   }
   
   console.log(`Using template: ${template.title || 'Untitled'}`);
+  
   setIsProcessing(true);
   
   try {
@@ -113,7 +127,14 @@ const useTemplate = useCallback((template: Template) => {
     openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
       content: template.content,
       title: template.title || 'Untitled Template',
+      type: template.type,
+      id: template.id,
       onComplete: handleTemplateComplete
+    });
+    trackEvent(EVENTS.PLACEHOLDER_EDITOR_OPENED, {
+      template_id: template.id,
+      template_name: template.title,
+      template_type: 'user'
     });
     
     // Track template usage (don't await)
@@ -152,7 +173,7 @@ const useTemplate = useCallback((template: Template) => {
             title: templateData.name,
             content: templateData.content,
             description: templateData.description,
-            folder_id: templateData.folder_id
+            folder_id: templateData.folder_id,
           });
           
           if (result) {
@@ -195,6 +216,10 @@ const useTemplate = useCallback((template: Template) => {
         onFolderCreated: (newFolder: any) => {
           // Force refresh folders query
           queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
+          trackEvent(EVENTS.TEMPLATE_FOLDER_CREATED, {
+            folder_id: newFolder.id,
+            folder_name: newFolder.name
+          });
           
           // Open create template dialog with the new folder selected
           setTimeout(() => {
@@ -233,6 +258,11 @@ const useTemplate = useCallback((template: Template) => {
     };
     
     openDialog(DIALOG_TYPES.EDIT_TEMPLATE, dialogData);
+    trackEvent(EVENTS.TEMPLATE_EDIT_DIALOG_OPENED, {
+      template_id: template.id,
+      template_name: template.title,
+      template_type: 'user'
+    });
   }, [openDialog, queryClient]);
   
   return {

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api/PromptApi';
 import { Template } from '@/types/prompts/templates';
+import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
 
 interface TemplateFormData {
   name: string;
@@ -42,8 +43,17 @@ export function useTemplateCreation() {
       
       const response = await promptApi.createTemplate(templateData);
       if (!response.success) {
+        trackEvent(EVENTS.TEMPLATE_CREATE_ERROR, {
+          error: response.error || 'Failed to create template'
+        });
         throw new Error(response.error || 'Failed to create template');
       }
+      incrementUserProperty('template_created_count', 1);
+      trackEvent(EVENTS.TEMPLATE_CREATE, {
+        template_id: response.template.id,
+        template_name: response.template.title,
+        template_type: response.template.type
+      });
       return response.template;
     },
     {

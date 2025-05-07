@@ -8,6 +8,7 @@ import { AlertTriangle } from "lucide-react";
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { BaseDialog } from '../BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
+import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
 
 // Custom hook to detect dark mode
 const useDarkMode = () => {
@@ -304,14 +305,18 @@ export const PlaceholderEditor: React.FC = () => {
   /**
   * Handle template completion
   */
-  const handleComplete = () => {
+  const handleComplete = (data: any) => {
     // Call the callback with the modified content
     onComplete(modifiedContent);
-    
     // Close the dialog
     dialogProps.onOpenChange(false);
     
     // Dispatch events to notify that the editor is closed and to close all panels
+    trackEvent(EVENTS.TEMPLATE_USED, {
+      template_id: data.id,
+      template_name: data.title,
+      template_type: data.type
+    });
     document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
     document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
   };
@@ -405,7 +410,7 @@ export const PlaceholderEditor: React.FC = () => {
           <Button variant="outline" onClick={handleClose}>
             {getMessage('cancel')}
           </Button>
-          <Button onClick={handleComplete}>{getMessage('useTemplate')}</Button>
+          <Button onClick={() => handleComplete(data)}>{getMessage('useTemplate')}</Button>
         </div>
       </div>
     </BaseDialog>

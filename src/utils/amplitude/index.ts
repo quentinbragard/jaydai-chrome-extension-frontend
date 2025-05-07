@@ -5,11 +5,11 @@ import * as amplitude from '@amplitude/analytics-browser';
  * Initialize Amplitude with the API key and user ID (if available)
  * @param userId Optional user ID to identify the user
  */
-export const initAmplitude = (userId?: string) => {
+export const initAmplitude = (userId?: string, autoCapture = true) => {
   amplitude.init('857a9c3b48322cbc7802683533e50155', {
     // Enable autocapture for automatic event tracking
     autocapture: {
-      elementInteractions: true
+      elementInteractions: autoCapture
     }
   });
   
@@ -60,6 +60,13 @@ export const EVENTS = {
   GOOGLE_AUTH_COMPLETED: 'Google Auth Completed',
   GOOGLE_AUTH_FAILED: 'Google Auth Failed',
   SIGNOUT: 'Sign Out',
+
+  // Menu events
+  MENU_ITEM_CLICKED: 'Menu Item Clicked',
+
+  // Template events
+  TEMPLATE_USE: 'Template Used',
+  TEMPLATE_USE_ERROR: 'Template Use Error',
   
   // Onboarding events
   ONBOARDING_STARTED: 'Onboarding Started',
@@ -75,9 +82,22 @@ export const EVENTS = {
   TEMPLATE_SELECTED: 'Template Selected',
   TEMPLATE_MODIFIED: 'Template Modified',
   TEMPLATE_APPLIED: 'Template Applied',
+  TEMPLATE_APPLIED_ERROR: 'Template Apply Error',
+  TEMPLATE_USED: 'Template Used',
+  TEMPLATE_USED_ERROR: 'Template Use Error',
   TEMPLATE_FOLDER_OPENED: 'Template Folder Opened',
   TEMPLATE_SEARCH: 'Template Search',
-  
+  TEMPLATE_CREATE: 'Template Created',
+  TEMPLATE_CREATE_ERROR: 'Template Create Error',
+  TEMPLATE_DELETE: 'Template Deleted',
+  TEMPLATE_DELETE_FOLDER: 'Template Folder Deleted',
+  TEMPLATE_EDIT: 'Template Edited',
+  TEMPLATE_BROWSE_OFFICIAL: 'Template Browse Official',
+  TEMPLATE_BROWSE_ORGANIZATION: 'Template Browse Organization',
+  TEMPLATE_REFRESH: 'Template Refresh',
+  TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
+  TEMPLATE_EDIT_DIALOG_OPENED: 'Template Edit Dialog Opened',
+  PLACEHOLDER_EDITOR_OPENED: 'Placeholder Editor Opened',
   // Settings events
   SETTINGS_OPENED: 'Settings Opened',
   SETTINGS_CHANGED: 'Settings Changed',
@@ -105,6 +125,22 @@ export const setUserProperties = (properties: Record<string, any>) => {
   Object.entries(properties).forEach(([key, value]) => {
     identify.set(key, value);
   });
+  
+  // Apply the identify operation
+  amplitude.identify(identify);
+};
+
+/**
+ * Increment a user property by a specified amount
+ * @param property Name of the property to increment
+ * @param value Amount to increment by (default: 1)
+ */
+export const incrementUserProperty = (property: string, value: number = 1) => {
+  // Create a new Identify object
+  const identify = new amplitude.Identify();
+  
+  // Use the add method to increment the property
+  identify.add(property, value);
   
   // Apply the identify operation
   amplitude.identify(identify);

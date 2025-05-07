@@ -40,7 +40,6 @@ const WelcomePage: React.FC = () => {
     showOnboarding, 
     setShowOnboarding,
     handleOnboardingComplete, 
-    handleOnboardingSkip 
   } = useOnboardingStatus(
     authState.user, 
     authState.isAuthenticated
@@ -82,7 +81,6 @@ const WelcomePage: React.FC = () => {
       <div className="jd-min-h-screen jd-bg-background jd-text-foreground jd-flex jd-items-center jd-justify-center jd-font-sans jd-p-6">
         <OnboardingFlow 
           onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingSkip}
           user={authState.user}
         />
       </div>

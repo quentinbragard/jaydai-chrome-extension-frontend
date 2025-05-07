@@ -218,16 +218,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       
       if (success) {
         toast.success(
-          getMessage('signUpSuccessful', undefined, 'Sign-up successful'), 
+          getMessage('signUpSuccessful', undefined, 'Sign-up successful'),
           {
             description: getMessage('completeOnboarding', undefined, 'Please complete the onboarding process')
           }
         );
-                
-        // Close the dialog
-        if (onClose) {
-          onClose();
-        }
+        // Automatically sign in the newly created user to trigger onboarding
+        await handleEmailSignIn();
       }
       // If not successful, the AuthService subscription will update the message
     } catch (error) {

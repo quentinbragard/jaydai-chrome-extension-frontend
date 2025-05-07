@@ -9,6 +9,7 @@ export function useOnboardingStatus(user: User | null, isAuthenticated: boolean)
   const [onboardingRequired, setOnboardingRequired] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const [hasTrackedOnboarding, setHasTrackedOnboarding] = useState(false);
 
   // This effect should run whenever auth state changes
   useEffect(() => {
@@ -31,9 +32,10 @@ export function useOnboardingStatus(user: User | null, isAuthenticated: boolean)
         // Immediately show onboarding if needed
         if (needsOnboarding) {
           setShowOnboarding(true);
-          trackEvent(EVENTS.ONBOARDING_STARTED, {
+          !hasTrackedOnboarding && trackEvent(EVENTS.ONBOARDING_STARTED, {
             user_id: user.id
           });
+          setHasTrackedOnboarding(true);
         }
       } catch (error) {
         console.error('Error checking onboarding status:', error);
@@ -56,19 +58,11 @@ export function useOnboardingStatus(user: User | null, isAuthenticated: boolean)
     });
   };
   
-  const handleOnboardingSkip = () => {
-    setShowOnboarding(false);
-    // You might also want to set this to prevent onboarding from appearing again
-    setOnboardingRequired(false);
-    
-    trackEvent(EVENTS.ONBOARDING_SKIPPED);
-  };
 
   return { 
     onboardingRequired, 
     showOnboarding, 
     setShowOnboarding,
-    handleOnboardingComplete,
-    handleOnboardingSkip
-  };
+    handleOnboardingComplete
+    };
 }

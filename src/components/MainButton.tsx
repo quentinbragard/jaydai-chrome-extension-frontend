@@ -29,7 +29,7 @@ const MainButton = () => {
   // Use our theme detector hook to get the current theme
   const isDarkMode = useThemeDetector();
   const handleMainButtonClick = () => {
-    trackEvent(EVENTS.MAIN_BUTTON_CLICKED);
+    trackEvent(EVENTS.MAIN_BUTTON_CLICKED, {darkMode: isDarkMode});
     toggleMenu();
   };
 

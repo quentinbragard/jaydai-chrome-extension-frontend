@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { getMessage } from '@/core/utils/i18n';
 import BasePanel from '../BasePanel';
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Import hooks with the new structure
 import { 
@@ -77,6 +78,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   
   // Handle navigation to browse panels
   const handleBrowseOfficialTemplates = useCallback(() => {
+    trackEvent(EVENTS.TEMPLATE_BROWSE_OFFICIAL);
     pushPanel({ 
       type: 'templatesBrowse',
       props: {
@@ -103,6 +105,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }, [pushPanel, pinnedFolders.official, toggleFolderPin, refetchPinned]);
   
   const handleBrowseOrganizationTemplates = useCallback(() => {
+    trackEvent(EVENTS.TEMPLATE_BROWSE_ORGANIZATION);
     pushPanel({
       type: 'templatesBrowse',
       props: {
@@ -153,6 +156,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   // Handle refresh with loading state - memoized to prevent recreation on render
   const handleRefresh = useCallback(async () => {
+    trackEvent(EVENTS.TEMPLATE_REFRESH);
     try {
       await Promise.all([
         refetchPinned(), 
