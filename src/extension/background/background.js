@@ -3,6 +3,14 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.tabs.create({ url: 'welcome.html' });
 });
 
+// 🔹 Open welcome page only when the extension is newly installed, not on updates
+//chrome.runtime.onInstalled.addListener((details) => {
+  // Only open the welcome page for new installations, not updates
+  //if (details.reason === 'install') {
+  //    chrome.tabs.create({ url: 'welcome.html' });
+  //}
+//});
+
 // Track active monitoring tabs (if still needed)
 const monitoredTabs = new Set();
 
@@ -107,8 +115,6 @@ async function emailSignIn(email, password, sendResponse) {
       } else {
         console.warn("⚠️ No user data returned from sign-in endpoint");
       }
-
-      //chrome.tabs.create({ url: 'https://chat.openai.com' });
       
       // Response should be sent after storage operations
       sendResponse({ 
@@ -161,8 +167,7 @@ async function emailSignIn(email, password, sendResponse) {
         storeAuthSession(data.session);
       }
       
-      // Open ChatGPT in a new tab
-      //chrome.tabs.create({ url: 'https://chat.openai.com' });
+      
       
       sendResponse({ 
         success: true, 
@@ -288,9 +293,7 @@ async function emailSignIn(email, password, sendResponse) {
         if (data.user) {
           storeUser(data.user);
         }
-        
-        // Open ChatGPT in a new tab (success case)
-        //chrome.tabs.create({ url: 'https://chat.openai.com' });
+
         
         sendResponse({ 
           success: true, 

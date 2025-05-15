@@ -1,5 +1,6 @@
 // src/utils/amplitude/index.ts
 import * as amplitude from '@amplitude/analytics-browser';
+import { detectPlatform } from '@/platforms/platformManager';
 
 /**
  * Initialize Amplitude with the API key and user ID (if available)
@@ -35,7 +36,8 @@ export const setAmplitudeUserId = (userId: string) => {
  * @param eventProperties Optional properties to include with the event
  */
 export const trackEvent = (eventName: string, eventProperties = {}) => {
-  amplitude.track(eventName, eventProperties);
+  const platform = detectPlatform();
+  amplitude.track(eventName, { ...eventProperties, 'ai_platform': platform });
 };
 
 /**
