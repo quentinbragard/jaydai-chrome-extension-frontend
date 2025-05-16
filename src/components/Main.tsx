@@ -10,6 +10,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { initAmplitude, setUserProperties } from '@/utils/amplitude';
 import { authService } from '@/services/auth/AuthService';
 import { getCurrentLanguage } from '@/core/utils/i18n';
+import EnterpriseAnalyticsDashboard from './EnterpriseAnalyticsDashboard';
 
 /**
  * Main app component that brings everything together
@@ -103,7 +104,7 @@ const Main: React.FC = () => {
               {/* Updated to use our new dialog system */}
               <DialogProvider>
                 {/* UI Components */}
-                <MainButton />
+                <EnterpriseAnalyticsDashboard />
                 {/* Toast notifications */}
                 <div className="jd-fixed jd-top-4 jd-right-4 jd-z-[9999] jd-pointer-events-none jd-bg-transparent">
                 <Toaster 
