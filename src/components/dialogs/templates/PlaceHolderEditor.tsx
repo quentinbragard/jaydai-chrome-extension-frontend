@@ -82,6 +82,7 @@ export const PlaceholderEditor: React.FC = () => {
   };
 
   // Safe extraction of dialog data with defaults
+  console.log('data 😘😘😘', data);
   const templateContent = data?.content || '';
   const templateTitle = data?.title || 'Template';
   const onComplete = data?.onComplete || (() => {});
