@@ -104,18 +104,18 @@ export function useTemplateEditor(onSaveSuccess?: () => Promise<void>) {
         description: `Folder for ${folderName} templates`
       });
       
-      if (response.success && response.folder) {
+      if (response.success && response.data) {
         toast.success(`Folder "${folderName}" created`);
         
         // Update form data with new folder
         updateFormData({
           folder: folderName,
-          folder_id: response.folder.id
+          folder_id: response.data.id
         });
-        
-        return response.folder;
+
+        return response.data;
       } else {
-        toast.error(`Failed to create folder: ${response.error || 'Unknown error'}`);
+        toast.error(`Failed to create folder: ${response.message || 'Unknown error'}`);
         return null;
       }
     } catch (error) {
@@ -183,7 +183,7 @@ export function useTemplateEditor(onSaveSuccess?: () => Promise<void>) {
         
         return true;
       } else {
-        const errorMessage = `Failed to ${selectedTemplate ? 'update' : 'create'} template: ${response?.error || 'Unknown error'}`;
+        const errorMessage = `Failed to ${selectedTemplate ? 'update' : 'create'} template: ${response?.message || 'Unknown error'}`;
         setError(errorMessage);
         toast.error(errorMessage);
         return false;

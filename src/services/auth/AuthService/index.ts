@@ -144,7 +144,7 @@ export class AuthService extends AbstractBaseService {
     } else {
       this.stateManager.updateState({
         isAuthenticated: false,
-        error: response.error || 'Sign-in failed'
+        error: response.message || 'Sign-in failed'
       });
       return false;
     }
@@ -175,7 +175,7 @@ export class AuthService extends AbstractBaseService {
     } else {
       this.stateManager.updateState({
         isAuthenticated: false,
-        error: response.error || 'Sign-up failed'
+        error: response.message || 'Sign-up failed'
       });
       return false;
     }
@@ -208,7 +208,7 @@ export class AuthService extends AbstractBaseService {
         this.stateManager.updateState({
           isAuthenticated: false,
           isLoading: false,
-          error: response.error || 'Google sign-in failed'
+          error: response.message || 'Google sign-in failed'
         });
         return false;
       }

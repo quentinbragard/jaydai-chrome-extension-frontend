@@ -9,7 +9,7 @@ export async function createFolder(folderData: { name: string, path: string, des
       if (!folderData.name) {
         return {
           success: false,
-          error: 'Folder name is required'
+          message: 'Folder name is required'
         };
       }
 
@@ -20,9 +20,9 @@ export async function createFolder(folderData: { name: string, path: string, des
       return response;
     } catch (error) {
       console.error('Error creating folder:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

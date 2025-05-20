@@ -52,9 +52,9 @@ export function useFolderMutations() {
         async (data: FolderData) => {
           const response = await promptApi.createFolder(data);
           if (!response.success) {
-            throw new Error(response.error || 'Failed to create folder');
+            throw new Error(response.message || 'Failed to create folder');
           }
-          return response.folder;
+          return response.data;
         },
         {
           onSuccess: () => {
@@ -74,9 +74,9 @@ export function useFolderMutations() {
           try {
             const response = await promptApi.createFolder(data);
             if (!response.success) {
-              throw new Error(response.error || 'Failed to create folder');
+              throw new Error(response.message || 'Failed to create folder');
             }
-            return response.folder;
+            return response.data;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             console.error('Error creating folder:', error);
@@ -97,7 +97,7 @@ export function useFolderMutations() {
         async ({ folderId, isPinned, type }: TogglePinParams) => {
           const response = await promptApi.toggleFolderPin(folderId, isPinned, type);
           if (!response.success) {
-            throw new Error(response.error || 'Failed to update pin status');
+            throw new Error(response.message || 'Failed to update pin status');
           }
           return response.data;
         },
@@ -121,7 +121,7 @@ export function useFolderMutations() {
           try {
             const response = await promptApi.toggleFolderPin(folderId, isPinned, type);
             if (!response.success) {
-              throw new Error(response.error || 'Failed to update pin status');
+              throw new Error(response.message || 'Failed to update pin status');
             }
             return response.data;
           } catch (error) {
@@ -144,7 +144,7 @@ export function useFolderMutations() {
         async (id: number) => {
           const response = await promptApi.deleteFolder(id);
           if (!response.success) {
-            throw new Error(response.error || 'Failed to delete folder');
+            throw new Error(response.message || 'Failed to delete folder');
           }
           return id;
         },
@@ -170,7 +170,7 @@ export function useFolderMutations() {
           try {
             const response = await promptApi.deleteFolder(id);
             if (!response.success) {
-              throw new Error(response.error || 'Failed to delete folder');
+              throw new Error(response.message || 'Failed to delete folder');
             }
             return id;
           } catch (error) {

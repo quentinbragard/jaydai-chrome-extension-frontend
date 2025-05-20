@@ -11,7 +11,7 @@
 export interface ApiResponse<T = unknown> {
     success: boolean;
     data?: T;
-    error?: string;
+    message?: string;
     code?: string;
   }
   
@@ -88,7 +88,7 @@ export interface ApiResponse<T = unknown> {
   
   export interface TemplateResponse {
     success: boolean;
-    template?: {
+    data?: {
       id: number;
       title: string;
       content: string;
@@ -98,7 +98,7 @@ export interface ApiResponse<T = unknown> {
       created_at: string;
       [key: string]: any;
     };
-    error?: string;
+    message?: string;
   }
   
   export interface TemplateUsageResponse {
@@ -121,7 +121,7 @@ export interface ApiResponse<T = unknown> {
   
   export interface FolderResponse {
     success: boolean;
-    folder?: {
+    data?: {
       id: number;
       name: string;
       path: string;
@@ -129,12 +129,12 @@ export interface ApiResponse<T = unknown> {
       created_at: string;
       [key: string]: any;
     };
-    error?: string;
+    message?: string;
   }
   
   export interface FoldersResponse {
     success: boolean;
-    folders: Array<{
+    data: Array<{
       id: number;
       name: string;
       path: string;
@@ -145,7 +145,7 @@ export interface ApiResponse<T = unknown> {
       created_at: string;
       [key: string]: any;
     }>;
-    error?: string;
+    message?: string;
   }
   
   export interface FolderPinResponse {
@@ -173,7 +173,7 @@ export interface ApiResponse<T = unknown> {
       pinned_organization_folder_ids: number[] | null;
       [key: string]: any;
     };
-    error?: string;
+    message?: string;
   }
   
   // Stats API types
@@ -245,5 +245,5 @@ export interface ApiResponse<T = unknown> {
       refresh_token: string;
       expires_at: number;
     };
-    error?: string;
+    message?: string;
   }

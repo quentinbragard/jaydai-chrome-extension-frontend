@@ -189,12 +189,12 @@ export const TemplateDialog: React.FC = () => {
             try {
               // Direct API call fallback
               const response = await promptApi.createFolder(folderData);
-              
-              if (response.success && response.folder) {
-                return { success: true, folder: response.folder };
+
+              if (response.success && response.data) {
+                return { success: true, folder: response.data };
               } else {
-                toast.error(response.error || getMessage('failedToCreateFolder'));
-                return { success: false, error: response.error || getMessage('unknownError') };
+                toast.error(response.message || getMessage('failedToCreateFolder'));
+                return { success: false, error: response.message || getMessage('unknownError') };
               }
             } catch (error) {
               console.error('Error creating folder:', error);

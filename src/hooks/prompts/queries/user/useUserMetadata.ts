@@ -12,7 +12,7 @@ export function useUserMetadata() {
     async () => {
       const response = await userApi.getUserMetadata();
       if (!response.success) {
-        throw new Error(response.error || 'Failed to load user metadata');
+        throw new Error(response.message || 'Failed to load user metadata');
       }
       return response.data || {};
     },

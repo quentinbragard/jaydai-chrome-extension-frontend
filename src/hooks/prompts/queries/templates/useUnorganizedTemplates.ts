@@ -12,9 +12,9 @@ export function useUnorganizedTemplates() {
   return useQuery(QUERY_KEYS.UNORGANIZED_TEMPLATES, async () => {
     const response = await promptApi.getUnorganizedTemplates();
     if (!response.success) {
-      throw new Error(response.error || 'Failed to fetch unorganized templates');
+      throw new Error(response.message || 'Failed to fetch unorganized templates');
     }
-    return response.templates.filter((template: Template) => !template.folder_id) as Template[];
+    return response.data.filter((template: Template) => !template.folder_id) as Template[];
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {

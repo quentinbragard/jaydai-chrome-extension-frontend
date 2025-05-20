@@ -44,17 +44,17 @@ export function useTemplateCreation() {
       const response = await promptApi.createTemplate(templateData);
       if (!response.success) {
         trackEvent(EVENTS.TEMPLATE_CREATE_ERROR, {
-          error: response.error || 'Failed to create template'
+          error: response.message || 'Failed to create template'
         });
-        throw new Error(response.error || 'Failed to create template');
+        throw new Error(response.message || 'Failed to create template');
       }
       incrementUserProperty('template_created_count', 1);
       trackEvent(EVENTS.TEMPLATE_CREATE, {
-        template_id: response.template.id,
-        template_name: response.template.title,
-        template_type: response.template.type
+        template_id: response.data.id,
+        template_name: response.data.title,
+        template_type: response.data.type
       });
-      return response.template;
+      return response.data;
     },
     {
       onSuccess: () => {
@@ -83,9 +83,9 @@ export function useTemplateCreation() {
       
       const response = await promptApi.updateTemplate(id, templateData);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to update template');
+        throw new Error(response.message || 'Failed to update template');
       }
-      return response.template;
+      return response.data;
     },
     {
       onSuccess: () => {

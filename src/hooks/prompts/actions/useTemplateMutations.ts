@@ -51,9 +51,9 @@ export function useTemplateMutations() {
         async (data: TemplateData) => {
           const response = await promptApi.createTemplate(data);
           if (!response.success) {
-            throw new Error(response.error || 'Failed to create template');
+            throw new Error(response.message || 'Failed to create template');
           }
-          return response.template;
+          return response.data;
         },
         {
           onSuccess: () => {
@@ -73,9 +73,9 @@ export function useTemplateMutations() {
           try {
             const response = await promptApi.createTemplate(data);
             if (!response.success) {
-              throw new Error(response.error || 'Failed to create template');
+              throw new Error(response.message || 'Failed to create template');
             }
-            return response.template;
+            return response.data;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             console.error('Error creating template:', error);
@@ -96,9 +96,9 @@ export function useTemplateMutations() {
         async ({ id, data }: { id: number; data: Partial<TemplateData> }) => {
           const response = await promptApi.updateTemplate(id, data);
           if (!response.success) {
-            throw new Error(response.error || 'Failed to update template');
+            throw new Error(response.message || 'Failed to update template');
           }
-          return response.template;
+          return response.data;
         },
         {
           onSuccess: () => {
@@ -117,9 +117,9 @@ export function useTemplateMutations() {
           try {
             const response = await promptApi.updateTemplate(id, data);
             if (!response.success) {
-              throw new Error(response.error || 'Failed to update template');
+              throw new Error(response.message || 'Failed to update template');
             }
-            return response.template;
+            return response.data;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             console.error('Error updating template:', error);
@@ -140,7 +140,7 @@ export function useTemplateMutations() {
         async (id: number) => {
           const response = await promptApi.deleteTemplate(id);
           if (!response.success) {
-            throw new Error(response.error || 'Failed to delete template');
+            throw new Error(response.message || 'Failed to delete template');
           }
           return id;
         },
@@ -161,7 +161,7 @@ export function useTemplateMutations() {
           try {
             const response = await promptApi.deleteTemplate(id);
             if (!response.success) {
-              throw new Error(response.error || 'Failed to delete template');
+              throw new Error(response.message || 'Failed to delete template');
             }
             return id;
           } catch (error) {

@@ -10,7 +10,7 @@ export async function updateTemplate(templateId: number, templateData: any): Pro
     if (!templateData.title && !templateData.content) {
       return {
         success: false,
-        error: 'At least one field to update is required'
+        message: 'At least one field to update is required'
       };
     }
     
@@ -28,9 +28,9 @@ export async function updateTemplate(templateId: number, templateData: any): Pro
     return response;
   } catch (error) {
     console.error('Error updating template:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error'
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }

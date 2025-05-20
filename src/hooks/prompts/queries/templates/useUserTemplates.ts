@@ -8,9 +8,9 @@ export function useUserTemplates() {
   return useQuery(QUERY_KEYS.USER_TEMPLATES, async () => {
     const response = await promptApi.getUserTemplates();
     if (!response.success) {
-      throw new Error(response.error || 'Failed to fetch user templates');
+      throw new Error(response.message || 'Failed to fetch user templates');
     }
-    return response.templates as Template[];
+    return response.data as Template[];
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {

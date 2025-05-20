@@ -10,7 +10,7 @@ export async function createTemplate(templateData: any): Promise<any> {
       if (!templateData.title || !templateData.content) {
         return {
           success: false,
-          error: 'Title and content are required'
+          message: 'Title and content are required'
         };
       }
     
@@ -31,9 +31,9 @@ export async function createTemplate(templateData: any): Promise<any> {
       return response;
     } catch (error) {
       console.error('Error creating template:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
