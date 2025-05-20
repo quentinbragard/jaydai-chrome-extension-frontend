@@ -9,7 +9,7 @@ import { AddBlockButton } from '@/components/common/AddBlockButton';
 import { Block } from '@/types/prompts/blocks';
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { BaseDialog } from '../BaseDialog';
-import { getMessage } from '@/core/utils/i18n';
+import { getMessage, getCurrentLanguage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
 
 // Custom hook to detect dark mode
@@ -83,7 +83,22 @@ export const PlaceholderEditor: React.FC = () => {
 
   // Safe extraction of dialog data with defaults
   console.log('data 😘😘😘', data);
-  const templateContent = data?.content || '';
+  const getTemplateContent = () => {
+    const rawContent = data?.content;
+    if (!rawContent) return '';
+    if (typeof rawContent === 'string') return rawContent;
+    if (typeof rawContent === 'object') {
+      const lang = getCurrentLanguage();
+      return (
+        rawContent[lang] ||
+        rawContent['en'] ||
+        Object.values(rawContent)[0] ||
+        ''
+      );
+    }
+    return '';
+  };
+  const templateContent = getTemplateContent();
   const templateTitle = data?.title || 'Template';
   const onComplete = data?.onComplete || (() => {});
   
