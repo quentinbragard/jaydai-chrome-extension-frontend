@@ -18,14 +18,16 @@ export function usePinnedFolders() {
     
     // Get official pinned folders with locale filtering
     const officialIds = metadata.data?.pinned_official_folder_ids || [];
+    console.log('officialIds------------------>>', officialIds);
     let officialFolders: TemplateFolder[] = [];
     
     if (officialIds.length > 0) {
       const officialResponse = await promptApi.getAllFolders('official', false, userLocale);
+      console.log('officialResponse------------------>>', officialResponse);
       if (officialResponse.success) {
-        officialFolders = officialResponse.folders
-          .filter(folder => officialIds.includes(folder.id))
-          .map(folder => ({
+        officialFolders = officialResponse.data
+          .filter((folder: TemplateFolder) => officialIds.includes(folder.id))
+          .map((folder: TemplateFolder) => ({
             ...folder,
             is_pinned: true
           }));
@@ -39,9 +41,9 @@ export function usePinnedFolders() {
     if (orgIds.length > 0) {
       const orgResponse = await promptApi.getAllFolders('organization', false, userLocale);
       if (orgResponse.success) {
-        orgFolders = orgResponse.folders
-          .filter(folder => orgIds.includes(folder.id))
-          .map(folder => ({
+        orgFolders = orgResponse.data
+          .filter((folder: TemplateFolder) => orgIds.includes(folder.id))
+          .map((folder: TemplateFolder) => ({
             ...folder,
             is_pinned: true
           }));
