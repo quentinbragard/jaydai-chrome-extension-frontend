@@ -1,14 +1,19 @@
-// src/components/dialogs/templates/PlaceholderEditor.tsx
+// src/components/dialogs/templates/PlaceholderEditor.tsx (updated)
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Edit, Save, Plus, Trash, Check, X, RefreshCw } from "lucide-react";
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { BaseDialog } from '../BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useBlockActions } from '@/hooks/prompts/useBlockActions';
+import { Textarea } from "@/components/ui/textarea";
 
 // Custom hook to detect dark mode
 const useDarkMode = () => {
@@ -50,7 +55,7 @@ interface Placeholder {
 }
 
 /**
- * Dialog for editing template placeholders
+ * Enhanced dialog for editing templates with block support
  */
 export const PlaceholderEditor: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
@@ -59,12 +64,34 @@ export const PlaceholderEditor: React.FC = () => {
   const [contentMounted, setContentMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('variables');
+  
+  // Blocks state
+  const [templateBlocks, setTemplateBlocks] = useState<any[]>([]);
+  const [currentEditingBlock, setCurrentEditingBlock] = useState<number | null>(null);
+  const [customBlockContent, setCustomBlockContent] = useState<string>('');
+  const [selectedBlockType, setSelectedBlockType] = useState<string>('');
+  const [selectedBlockId, setSelectedBlockId] = useState<string>('');
+
+  // Import block hooks
+  const { 
+    useBlocks, 
+    groupBlocksByType, 
+    blockTypes,
+    isLoadingTypes
+  } = useBlockActions();
+
+  // Get blocks data from the hook
+  const { data: availableBlocks = [], isLoading: isLoadingBlocks } = useBlocks();
+  
+  // Editor references
   const editorRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<MutationObserver | null>(null);
   const isDarkMode = useDarkMode();
 
   // Safe extraction of dialog data with defaults
   const templateContent = data?.content || '';
+  const expandedBlocks = data?.expandedBlocks || [];
   const templateTitle = data?.title || 'Template';
   const onComplete = data?.onComplete || (() => {});
   
@@ -120,10 +147,25 @@ export const PlaceholderEditor: React.FC = () => {
     );
   };
 
-  // Initialize content and placeholders when dialog opens or content changes
+  // Initialize content, placeholders, and blocks when dialog opens or content changes
   useEffect(() => {
-    if (isOpen && templateContent) {
+    if (isOpen) {
       setError(null);
+      
+      // Initialize blocks from expanded blocks
+      if (expandedBlocks && expandedBlocks.length > 0) {
+        setTemplateBlocks(expandedBlocks);
+      } else if (templateContent) {
+        // If no blocks, create a default block with template content
+        setTemplateBlocks([{
+          id: 0,
+          type: 'content',
+          content: templateContent,
+          name: 'Template Content'
+        }]);
+      } else {
+        setTemplateBlocks([]);
+      }
       
       // Normalize template content to ensure consistent line breaks
       const normalizedContent = templateContent.replace(/\r\n/g, '\n');
@@ -148,8 +190,13 @@ export const PlaceholderEditor: React.FC = () => {
     } else {
       // Reset states when dialog closes
       setContentMounted(false);
+      setTemplateBlocks([]);
+      setCurrentEditingBlock(null);
+      setCustomBlockContent('');
+      setSelectedBlockType('');
+      setSelectedBlockId('');
     }
-  }, [isOpen, templateContent]);
+  }, [isOpen]);
 
   // Setup the mutation observer only once after mounting
   useEffect(() => {
@@ -185,6 +232,15 @@ export const PlaceholderEditor: React.FC = () => {
         .replace(/&amp;/g, '&');
       
       setModifiedContent(textContent);
+      
+      // Update the content block if we have one
+      if (templateBlocks.some(block => block.id === 0)) {
+        setTemplateBlocks(prev => 
+          prev.map(block => 
+            block.id === 0 ? { ...block, content: textContent } : block
+          )
+        );
+      }
     });
 
     // Start observing
@@ -202,7 +258,7 @@ export const PlaceholderEditor: React.FC = () => {
         observerRef.current = null;
       }
     };
-  }, [contentMounted]);
+  }, [contentMounted, isEditing, templateBlocks]);
 
   // Handle editor focus events
   const handleEditorFocus = () => {
@@ -235,6 +291,15 @@ export const PlaceholderEditor: React.FC = () => {
         .replace(/&amp;/g, '&');
       
       setModifiedContent(textContent);
+      
+      // Update the content block if we have one
+      if (templateBlocks.some(block => block.id === 0)) {
+        setTemplateBlocks(prev => 
+          prev.map(block => 
+            block.id === 0 ? { ...block, content: textContent } : block
+          )
+        );
+      }
       
       // Reconnect the observer
       if (observerRef.current && editorRef.current) {
@@ -279,6 +344,15 @@ export const PlaceholderEditor: React.FC = () => {
 
     // Update state with the new content
     setModifiedContent(newContent);
+    
+    // Update the content block if we have one
+    if (templateBlocks.some(block => block.id === 0)) {
+      setTemplateBlocks(prev => 
+        prev.map(block => 
+          block.id === 0 ? { ...block, content: newContent } : block
+        )
+      );
+    }
 
     // Update the editor display with proper highlighting
     if (editorRef.current && !isEditing) {
@@ -303,11 +377,159 @@ export const PlaceholderEditor: React.FC = () => {
   };
 
   /**
+   * Handle adding a block to the template
+   */
+  const handleAddBlock = () => {
+    if (!selectedBlockType || (!selectedBlockId && selectedBlockId !== '0')) {
+      return;
+    }
+
+    let newBlock: any;
+
+    if (selectedBlockId === 'custom') {
+      // Create a custom block with empty content initially
+      newBlock = {
+        id: `custom-${Date.now()}`, // Generate a unique ID for the custom block
+        type: selectedBlockType,
+        content: '',
+        name: `Custom ${selectedBlockType}`,
+        isCustom: true
+      };
+    } else if (selectedBlockId === '0') {
+      // Special case for template content block
+      newBlock = {
+        id: 0,
+        type: 'content',
+        content: modifiedContent,
+        name: 'Template Content'
+      };
+    } else {
+      // Find the selected block from available blocks
+      const selectedBlock = availableBlocks.find(block => block.id.toString() === selectedBlockId);
+      if (!selectedBlock) return;
+      
+      newBlock = {
+        ...selectedBlock,
+        originalId: selectedBlock.id // Keep track of the original ID
+      };
+    }
+
+    // Add the new block to the template
+    setTemplateBlocks(prev => [...prev, newBlock]);
+    
+    // Reset selection
+    setSelectedBlockType('');
+    setSelectedBlockId('');
+    
+    // If it's a custom block, immediately set it for editing
+    if (newBlock.isCustom) {
+      setCurrentEditingBlock(templateBlocks.length);
+      setCustomBlockContent('');
+    }
+  };
+
+  /**
+   * Handle removing a block from the template
+   */
+  const handleRemoveBlock = (index: number) => {
+    setTemplateBlocks(prev => {
+      const newBlocks = [...prev];
+      newBlocks.splice(index, 1);
+      return newBlocks;
+    });
+    
+    // Reset editing state if removing the currently edited block
+    if (currentEditingBlock === index) {
+      setCurrentEditingBlock(null);
+      setCustomBlockContent('');
+    }
+  };
+
+  /**
+   * Start editing a custom block
+   */
+  const handleEditBlock = (index: number) => {
+    const block = templateBlocks[index];
+    setCurrentEditingBlock(index);
+    setCustomBlockContent(block.content || '');
+  };
+
+  /**
+   * Save changes to a custom block
+   */
+  const handleSaveBlockEdit = () => {
+    if (currentEditingBlock === null) return;
+    
+    setTemplateBlocks(prev => {
+      const newBlocks = [...prev];
+      newBlocks[currentEditingBlock] = {
+        ...newBlocks[currentEditingBlock],
+        content: customBlockContent
+      };
+      return newBlocks;
+    });
+    
+    // Reset editing state
+    setCurrentEditingBlock(null);
+    setCustomBlockContent('');
+  };
+
+  /**
+   * Cancel editing a block
+   */
+  const handleCancelBlockEdit = () => {
+    setCurrentEditingBlock(null);
+    setCustomBlockContent('');
+  };
+
+  /**
+   * Change a block with another one of the same type
+   */
+  const handleChangeBlock = (index: number, blockId: string) => {
+    const currentBlock = templateBlocks[index];
+    
+    // Handle custom block selection
+    if (blockId === 'custom') {
+      setTemplateBlocks(prev => {
+        const newBlocks = [...prev];
+        newBlocks[index] = {
+          ...newBlocks[index],
+          id: `custom-${Date.now()}`,
+          content: '',
+          name: `Custom ${currentBlock.type}`,
+          isCustom: true
+        };
+        return newBlocks;
+      });
+      
+      // Immediately edit the custom block
+      setCurrentEditingBlock(index);
+      setCustomBlockContent('');
+      return;
+    }
+    
+    // Find the selected block from available blocks
+    const selectedBlock = availableBlocks.find(block => block.id.toString() === blockId);
+    if (!selectedBlock) return;
+    
+    // Update the block
+    setTemplateBlocks(prev => {
+      const newBlocks = [...prev];
+      newBlocks[index] = {
+        ...selectedBlock,
+        originalId: selectedBlock.id
+      };
+      return newBlocks;
+    });
+  };
+
+  /**
   * Handle template completion
   */
-  const handleComplete = (data: any) => {
-    // Call the callback with the modified content
-    onComplete(modifiedContent);
+  const handleComplete = () => {
+    // Call the callback with blocks
+    onComplete(modifiedContent, templateBlocks);
+    
     // Close the dialog
     dialogProps.onOpenChange(false);
     
@@ -333,6 +555,11 @@ export const PlaceholderEditor: React.FC = () => {
     document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
   };
 
+  // Group blocks by type for the selector
+  const groupedBlocks = React.useMemo(() => {
+    return groupBlocksByType(availableBlocks || []);
+  }, [availableBlocks, groupBlocksByType]);
+
   if (!isOpen) return null;
 
   return (
@@ -344,8 +571,8 @@ export const PlaceholderEditor: React.FC = () => {
         }
         dialogProps.onOpenChange(open);
       }}
-      title={getMessage('placeholderEditor', undefined, 'Placeholder Editor')}
-      description={getMessage('placeholderEditorDescription', undefined, 'Edit placeholders in your template')}
+      title={getMessage('placeholderEditor', undefined, 'Template Editor')}
+      description={getMessage('placeholderEditorDescription', undefined, 'Prepare your template')}
       className="jd-max-w-4xl"
     >
       <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
@@ -356,61 +583,312 @@ export const PlaceholderEditor: React.FC = () => {
           </Alert>
         )}
 
-        <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden jd-w-full">
-          {/* Placeholders Section */}
-          <div className="jd-space-y-4 jd-overflow-auto">
-            <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('replacePlaceholders')}</h3>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="jd-w-full">
+          <TabsList className="jd-mb-4">
+            <TabsTrigger value="variables">
+              {getMessage('variables', undefined, 'Variables')}
+              {placeholders.length > 0 && (
+                <Badge variant="secondary" className="jd-ml-2">{placeholders.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="blocks">
+              {getMessage('blocks', undefined, 'Blocks')}
+              {templateBlocks.length > 0 && (
+                <Badge variant="secondary" className="jd-ml-2">{templateBlocks.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="preview">
+              {getMessage('preview', undefined, 'Preview')}
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="variables" className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-6 jd-my-4 jd-flex-grow jd-overflow-hidden jd-w-full">
+            {/* Left side: Placeholders */}
+            <div className="jd-space-y-4 jd-overflow-auto">
+              <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('replacePlaceholders', undefined, 'Replace Placeholders')}</h3>
 
-            {placeholders.length > 0 ? (
-              <ScrollArea className="jd-h-[50vh]">
-                <div className="jd-space-y-4 jd-pr-4">
-                  {placeholders.map((placeholder, idx) => (
-                    <div key={placeholder.key + idx} className="jd-space-y-1">
-                      <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
-                        <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
-                      </label>
-                      <Input
-                        value={placeholder.value}
-                        onChange={(e) => updatePlaceholder(idx, e.target.value)}
-                        placeholder={getMessage('enterValueFor', [placeholder.key])}
-                        className="jd-w-full"
-                      />
+              {placeholders.length > 0 ? (
+                <ScrollArea className="jd-h-[50vh]">
+                  <div className="jd-space-y-4 jd-pr-4">
+                    {placeholders.map((placeholder, idx) => (
+                      <div key={placeholder.key + idx} className="jd-space-y-1">
+                        <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
+                          <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
+                        </label>
+                        <Input
+                          value={placeholder.value}
+                          onChange={(e) => updatePlaceholder(idx, e.target.value)}
+                          placeholder={getMessage('enterValueFor', [placeholder.key], `Enter value for ${placeholder.key}`)}
+                          className="jd-w-full"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="jd-text-muted-foreground jd-text-center jd-py-8">
+                  {getMessage('noPlaceholders', undefined, 'No placeholders found in this template.')}
+                </div>
+              )}
+            </div>
+
+            {/* Right side: Rich Text Editable Section */}
+            <div 
+              className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
+                isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
+              }`}
+            >
+              <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate', undefined, 'Edit Template')}</h3>
+              <div
+                ref={editorRef}
+                contentEditable
+                suppressContentEditableWarning
+                onFocus={handleEditorFocus}
+                onBlur={handleEditorBlur}
+                className={`jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
+                  isDarkMode 
+                    ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
+                    : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
+                }`}
+              ></div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="blocks" className="jd-flex jd-flex-col jd-gap-4">
+            {/* Block list */}
+            <div className="jd-border jd-rounded-md jd-p-4 jd-max-h-[50vh] jd-overflow-auto">
+              <h3 className="jd-text-sm jd-font-medium jd-mb-4">{getMessage('templateBlocks', undefined, 'Template Blocks')}</h3>
+              
+              {templateBlocks.length > 0 ? (
+                <div className="jd-space-y-3">
+                  {templateBlocks.map((block, index) => (
+                    <div key={`${block.id}-${index}`} className="jd-border jd-rounded-md jd-p-3">
+                      <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
+                        <div className="jd-flex jd-items-center jd-gap-2">
+                          <Badge variant="outline">
+                            {block.type || 'content'}
+                          </Badge>
+                          <span className="jd-text-sm jd-font-medium">
+                            {block.name || block.title || `Block ${index + 1}`}
+                          </span>
+                        </div>
+                        
+                        <div className="jd-flex jd-items-center jd-gap-1">
+                          {/* Only show edit button for custom blocks */}
+                          {block.isCustom && currentEditingBlock !== index && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditBlock(index)}
+                              className="jd-h-8 jd-w-8 jd-p-0"
+                            >
+                              <Edit className="jd-h-4 jd-w-4" />
+                            </Button>
+                          )}
+                          
+                          {/* Only show delete button if not in edit mode */}
+                          {currentEditingBlock !== index && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveBlock(index)}
+                              className="jd-h-8 jd-w-8 jd-p-0 jd-text-red-500"
+                            >
+                              <Trash className="jd-h-4 jd-w-4" />
+                            </Button>
+                          )}
+                          
+                          {/* Save and cancel buttons for editing mode */}
+                          {currentEditingBlock === index && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleSaveBlockEdit}
+                                className="jd-h-8 jd-w-8 jd-p-0 jd-text-green-500"
+                              >
+                                <Check className="jd-h-4 jd-w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleCancelBlockEdit}
+                                className="jd-h-8 jd-w-8 jd-p-0 jd-text-red-500"
+                              >
+                                <X className="jd-h-4 jd-w-4" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Block content - different display based on edit mode */}
+                      {currentEditingBlock === index ? (
+                        <Textarea
+                          value={customBlockContent}
+                          onChange={(e) => setCustomBlockContent(e.target.value)}
+                          placeholder={getMessage('enterBlockContent', undefined, 'Enter block content')}
+                          className="jd-min-h-[100px]"
+                        />
+                      ) : (
+                        <div className="jd-flex jd-flex-col jd-gap-2">
+                          {/* Block type selector for replacing blocks */}
+                          {block.type && block.type !== 'content' && groupedBlocks[block.type] && (
+                            <div className="jd-flex jd-items-center jd-gap-2">
+                              <span className="jd-text-xs jd-text-muted-foreground">
+                                {getMessage('changeBlockTo', undefined, 'Change to:')}
+                              </span>
+                              <Select onValueChange={(value) => handleChangeBlock(index, value)}>
+                                <SelectTrigger className="jd-w-[200px]">
+                                  <SelectValue placeholder={getMessage('selectAlternative', undefined, 'Select alternative')} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {groupedBlocks[block.type]?.map((b: any) => (
+                                    <SelectItem key={b.id} value={b.id.toString()}>
+                                      {b.title || b.name || `Block ${b.id}`}
+                                    </SelectItem>
+                                  ))}
+                                  <SelectItem value="custom">
+                                    {getMessage('customBlock', undefined, 'Custom block')}
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                          
+                          {/* Block preview content */}
+                          <div className="jd-text-sm jd-bg-muted jd-p-2 jd-rounded jd-whitespace-pre-wrap jd-max-h-32 jd-overflow-auto">
+                            {block.content || getMessage('emptyBlock', undefined, 'Empty block')}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
-            ) : (
-              <div className="jd-text-muted-foreground jd-text-center jd-py-8">{getMessage('noPlaceholders')}</div>
-            )}
-          </div>
+              ) : (
+                <div className="jd-py-4 jd-text-center jd-text-muted-foreground">
+                  {getMessage('noBlocksAdded', undefined, 'No blocks have been added to this template yet.')}
+                </div>
+              )}
+            </div>
+            
+            {/* Add block section */}
+            <div className="jd-p-4 jd-border jd-rounded-md">
+              <h3 className="jd-text-sm jd-font-medium jd-mb-3">{getMessage('addBlock', undefined, 'Add Block')}</h3>
+              
+              <div className="jd-flex jd-items-center jd-gap-2 jd-flex-wrap md:jd-flex-nowrap">
+                {/* Block type selector */}
+                <Select 
+                  value={selectedBlockType} 
+                  onValueChange={setSelectedBlockType} 
+                  disabled={isLoadingTypes}
+                >
+                  <SelectTrigger className="jd-w-[180px]">
+                    <SelectValue placeholder={
+                      isLoadingTypes 
+                        ? getMessage('loading', undefined, 'Loading...') 
+                        : getMessage('selectBlockType', undefined, 'Select type')
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(groupedBlocks).map(type => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {/* Block selector - only shown when a type is selected */}
+                {selectedBlockType && (
+                  <Select 
+                    value={selectedBlockId} 
+                    onValueChange={setSelectedBlockId}
+                    disabled={isLoadingBlocks}
+                  >
+                    <SelectTrigger className="jd-flex-1">
+                      <SelectValue placeholder={
+                        isLoadingBlocks 
+                          ? getMessage('loading', undefined, 'Loading...') 
+                          : getMessage('selectBlock', undefined, 'Select block')
+                      } />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {groupedBlocks[selectedBlockType]?.map((block: any) => (
+                        <SelectItem key={block.id} value={block.id.toString()}>
+                          {block.title || block.name || `Block ${block.id}`}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="custom">
+                        {getMessage('customBlock', undefined, 'Create custom block')}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+                
+                {/* Special option for template content */}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    setSelectedBlockType('content');
+                    setSelectedBlockId('0');
+                    setTimeout(() => handleAddBlock(), 0);
+                  }}
+                  className="jd-whitespace-nowrap"
+                >
+                  <Plus className="jd-h-4 jd-w-4 jd-mr-1" />
+                  {getMessage('addContent', undefined, 'Add Content Block')}
+                </Button>
+                
+                {/* Add button - enabled when both type and block are selected */}
+                <Button 
+                  onClick={handleAddBlock}
+                  disabled={!selectedBlockType || !selectedBlockId}
+                >
+                  {getMessage('addBlock', undefined, 'Add Block')}
+                </Button>
+              </div>
+              
+              {isLoadingBlocks && (
+                <div className="jd-flex jd-items-center jd-justify-center jd-gap-2 jd-text-sm jd-text-muted-foreground jd-mt-2">
+                  <RefreshCw className="jd-h-4 jd-w-4 jd-animate-spin" />
+                  {getMessage('loadingBlocks', undefined, 'Loading blocks...')}
+                </div>
+              )}
+            </div>
+          </TabsContent>
 
-          {/* Rich Text Editable Section */}
-          <div 
-            className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
-              isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
-            }`}
-            >
-            <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
-            <div
-              ref={editorRef}
-              contentEditable
-              suppressContentEditableWarning
-              onFocus={handleEditorFocus}
-              onBlur={handleEditorBlur}
-              className={`jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
-                isDarkMode 
-                  ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
-                  : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
-              }`}
-            ></div>
-          </div>
-        </div>
+          <TabsContent value="preview" className="jd-flex jd-flex-col jd-gap-4">
+            <div className="jd-border jd-rounded-md jd-p-4 jd-min-h-[50vh] jd-overflow-auto">
+              <h3 className="jd-text-sm jd-font-medium jd-mb-4">{getMessage('finalPreview', undefined, 'Final Template Preview')}</h3>
+              
+              <div className="jd-whitespace-pre-wrap jd-p-4 jd-bg-muted jd-rounded-md">
+                {templateBlocks.length > 0 ? (
+                  <div className="jd-space-y-4">
+                    {templateBlocks.map((block, index) => (
+                      <div key={`preview-${index}`} className="jd-border-b jd-pb-4 jd-last:jd-border-0">
+                        {block.content || getMessage('emptyBlock', undefined, 'Empty block')}
+                      </div>
+                    ))}
+                  </div>
+                ) : modifiedContent ? (
+                  modifiedContent
+                ) : (
+                  <div className="jd-text-center jd-text-muted-foreground jd-py-8">
+                    {getMessage('emptyTemplate', undefined, 'This template is empty.')}
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
 
         <div className="jd-mt-4 jd-flex jd-justify-end jd-gap-2">
           <Button variant="outline" onClick={handleClose}>
-            {getMessage('cancel')}
+            {getMessage('cancel', undefined, 'Cancel')}
           </Button>
-          <Button onClick={() => handleComplete(data)}>{getMessage('useTemplate')}</Button>
+          <Button onClick={handleComplete}>
+            {getMessage('useTemplate', undefined, 'Use Template')}
+          </Button>
         </div>
       </div>
     </BaseDialog>

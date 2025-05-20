@@ -11,10 +11,11 @@ import { Template } from '@/types/prompts/templates';
 export function useUnorganizedTemplates() {
   return useQuery(QUERY_KEYS.UNORGANIZED_TEMPLATES, async () => {
     const response = await promptApi.getUnorganizedTemplates();
+    console.log('🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉response', response);
     if (!response.success) {
       throw new Error(response.error || 'Failed to fetch unorganized templates');
     }
-    return response.templates.filter((template: Template) => !template.folder_id) as Template[];
+    return response.data.filter((template: Template) => !template.folder_id) as Template[];
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {

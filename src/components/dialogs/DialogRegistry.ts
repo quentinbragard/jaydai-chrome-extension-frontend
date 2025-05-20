@@ -1,4 +1,3 @@
-// src/components/dialogs/DialogRegistry.ts
 // Define dialog types
 export const DIALOG_TYPES = {
   // Existing dialog types
@@ -9,7 +8,10 @@ export const DIALOG_TYPES = {
   PLACEHOLDER_EDITOR: 'placeholderEditor',
   AUTH: 'auth',
   CONFIRMATION: 'confirmation',
-  ENHANCED_STATS: 'enhancedStats'
+  ENHANCED_STATS: 'enhancedStats',
+  // New dialog types for blocks
+  CREATE_BLOCK: 'createBlock',
+  EDIT_BLOCK: 'editBlock',
 } as const;
 
 // Export the dialog types
@@ -25,6 +27,7 @@ export interface DialogProps {
     onSave?: (formData: any) => Promise<boolean>;
     userFolders?: any[];
     selectedFolder?: any;
+    availableBlocks?: Record<string, any[]>; // Blocks grouped by type
   };
   
   [DIALOG_TYPES.EDIT_TEMPLATE]: {
@@ -33,6 +36,7 @@ export interface DialogProps {
     onFormChange?: (formData: any) => void;
     onSave?: (formData: any) => Promise<boolean>;
     userFolders?: any[];
+    availableBlocks?: Record<string, any[]>; // Blocks grouped by type
   };
   
   [DIALOG_TYPES.CREATE_FOLDER]: {
@@ -49,7 +53,10 @@ export interface DialogProps {
   [DIALOG_TYPES.PLACEHOLDER_EDITOR]: {
     content: string;
     title?: string;
-    onComplete: (content: string) => void;
+    type?: string;
+    id?: string | number;
+    expandedBlocks?: any[]; // Array of expanded blocks for the template
+    onComplete: (content: string, updatedBlocks?: any[]) => void;
   };
   
   [DIALOG_TYPES.CONFIRMATION]: {
@@ -62,4 +69,16 @@ export interface DialogProps {
   };
   
   [DIALOG_TYPES.ENHANCED_STATS]: Record<string, never>;
+
+  [DIALOG_TYPES.CREATE_BLOCK]: {
+    initialData?: any;
+    onSave?: (blockData: any) => Promise<boolean>;
+    blockTypes?: string[];
+  };
+
+  [DIALOG_TYPES.EDIT_BLOCK]: {
+    block: any;
+    onSave?: (blockData: any) => Promise<boolean>;
+    blockTypes?: string[];
+  };
 }

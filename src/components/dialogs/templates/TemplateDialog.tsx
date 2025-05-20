@@ -1,11 +1,11 @@
-// src/components/dialogs/templates/TemplateDialog.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { useDialog } from '@/hooks/dialogs/useDialog';
-import { FolderPlus } from 'lucide-react';
+import { FolderPlus, Plus, Trash, ArrowUp, ArrowDown } from 'lucide-react';
 import { DEFAULT_FORM_DATA } from '@/types/prompts/templates';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
@@ -21,6 +21,7 @@ interface FolderData {
 
 /**
  * Unified Template Dialog for both creating and editing templates
+ * Updated to support block management
  */
 export const TemplateDialog: React.FC = () => {
   // Get create and edit dialog states
@@ -39,6 +40,7 @@ export const TemplateDialog: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [userFoldersList, setUserFoldersList] = useState<FolderData[]>([]);
+  const [selectedBlockType, setSelectedBlockType] = useState<string>('');
   
   // Extract data from dialog
   const currentTemplate = data?.template || null;
@@ -47,6 +49,7 @@ export const TemplateDialog: React.FC = () => {
   const onSave = data?.onSave;
   const userFolders = data?.userFolders || [];
   const selectedFolder = data?.selectedFolder;
+  const availableBlocks = data?.availableBlocks || {};
   
   // Process user folders for the select dropdown
   const processUserFolders = useCallback(() => {
@@ -134,6 +137,7 @@ export const TemplateDialog: React.FC = () => {
     setFormData(DEFAULT_FORM_DATA);
     setSelectedFolderId('');
     setValidationErrors({});
+    setSelectedBlockType('');
   };
   
   // Form field change handler with validation
@@ -231,6 +235,52 @@ export const TemplateDialog: React.FC = () => {
       handleFormChange('folder', selectedFolder.fullPath);
     }
   };
+
+  // Add a block to the template
+  const handleAddBlock = (blockId: string) => {
+    if (!blockId) return;
+    
+    // Convert to number (or use as is for custom blocks)
+    const id = blockId === 'custom' ? blockId : parseInt(blockId, 10);
+    
+    // Add block ID to blocks array
+    handleFormChange('blocks', [...(formData.blocks || []), id]);
+    
+    // Reset selected block type
+    setSelectedBlockType('');
+  };
+
+  // Remove a block from the template
+  const handleRemoveBlock = (index: number) => {
+    const newBlocks = [...(formData.blocks || [])];
+    newBlocks.splice(index, 1);
+    handleFormChange('blocks', newBlocks);
+  };
+
+  // Move a block up in the template
+  const handleMoveBlockUp = (index: number) => {
+    if (index === 0) return;
+    
+    const newBlocks = [...(formData.blocks || [])];
+    const temp = newBlocks[index];
+    newBlocks[index] = newBlocks[index - 1];
+    newBlocks[index - 1] = temp;
+    
+    handleFormChange('blocks', newBlocks);
+  };
+
+  // Move a block down in the template
+  const handleMoveBlockDown = (index: number) => {
+    const blocks = formData.blocks || [];
+    if (index === blocks.length - 1) return;
+    
+    const newBlocks = [...blocks];
+    const temp = newBlocks[index];
+    newBlocks[index] = newBlocks[index + 1];
+    newBlocks[index + 1] = temp;
+    
+    handleFormChange('blocks', newBlocks);
+  };
   
   // Function to truncate folder name with ellipsis
   const truncateFolderPath = (path: string, maxLength: number = 35) => {
@@ -266,13 +316,34 @@ export const TemplateDialog: React.FC = () => {
       errors.name = getMessage('templateNameRequired');
     }
     
-    if (!formData.content?.trim()) {
+    // Only require content if there are no blocks
+    if (!formData.content?.trim() && (!formData.blocks || formData.blocks.length === 0)) {
       errors.content = getMessage('templateContentRequired');
     }
     
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
+
+  // Helper to get block name from ID
+  const getBlockName = (blockId: number | string) => {
+    if (blockId === 0 || blockId === '0') {
+      return 'Template Content';
+    }
+    
+    // Search through all available blocks
+    for (const type in availableBlocks) {
+      const block = availableBlocks[type]?.find((b: any) => b.id === blockId);
+      if (block) {
+        return block.title || block.name || `Block ${blockId}`;
+      }
+    }
+    
+    return `Block ${blockId}`;
+  };
+
+  // Get available block types
+  const blockTypes = Object.keys(availableBlocks || {});
   
   // Save template
   const handleSave = async () => {
@@ -304,7 +375,8 @@ export const TemplateDialog: React.FC = () => {
           title: formData.name,
           content: formData.content,
           description: formData.description,
-          folder_id: formData.folder_id
+          folder_id: formData.folder_id,
+          blocks: formData.blocks || [] // Include blocks array
         };
         
         let response;
@@ -459,6 +531,112 @@ export const TemplateDialog: React.FC = () => {
               </SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Blocks Section */}
+        <div>
+          <label className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('blocks', undefined, 'Blocks')}</label>
+          
+          {/* Block List */}
+          <div className="jd-max-h-40 jd-overflow-y-auto jd-border jd-rounded-md jd-p-2 jd-mb-2">
+            {formData.blocks && formData.blocks.length > 0 ? (
+              <div className="jd-space-y-2">
+                {formData.blocks.map((blockId, index) => (
+                  <div key={`block-${index}`} className="jd-flex jd-items-center jd-gap-2 jd-border jd-p-2 jd-rounded">
+                    <Badge variant="outline" className="jd-flex-shrink-0">
+                      {blockId === 0 ? 'Content' : (
+                        typeof blockId === 'string' && blockId.startsWith('custom') 
+                          ? 'Custom' 
+                          : getBlockName(blockId)
+                      )}
+                    </Badge>
+                    
+                    <div className="jd-flex-1 jd-text-sm jd-truncate">
+                      {blockId === 0 ? 'Template Content' : `Block ${blockId}`}
+                    </div>
+                    
+                    <div className="jd-flex jd-items-center jd-gap-1">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="jd-h-7 jd-w-7 jd-p-0" 
+                        onClick={() => handleMoveBlockUp(index)}
+                        disabled={index === 0}
+                      >
+                        <ArrowUp className="jd-h-4 jd-w-4" />
+                      </Button>
+                      
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="jd-h-7 jd-w-7 jd-p-0" 
+                        onClick={() => handleMoveBlockDown(index)}
+                        disabled={index === (formData.blocks?.length || 0) - 1}
+                      >
+                        <ArrowDown className="jd-h-4 jd-w-4" />
+                      </Button>
+                      
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="jd-h-7 jd-w-7 jd-p-0 jd-text-red-500" 
+                        onClick={() => handleRemoveBlock(index)}
+                      >
+                        <Trash className="jd-h-4 jd-w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="jd-py-4 jd-text-sm jd-text-center jd-text-muted-foreground">
+                {getMessage('noBlocks', undefined, 'No blocks added. Template will use content only.')}
+              </div>
+            )}
+          </div>
+          
+          {/* Add Block Controls */}
+          <div className="jd-flex jd-items-center jd-gap-2">
+            <Select 
+              value={selectedBlockType} 
+              onValueChange={setSelectedBlockType}
+            >
+              <SelectTrigger className="jd-flex-1">
+                <SelectValue placeholder={getMessage('selectBlockType', undefined, 'Select block type')} />
+              </SelectTrigger>
+              <SelectContent>
+                {blockTypes.map(type => (
+                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            {selectedBlockType && (
+              <Select onValueChange={handleAddBlock}>
+                <SelectTrigger className="jd-flex-1">
+                  <SelectValue placeholder={getMessage('selectBlock', undefined, 'Select block')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableBlocks[selectedBlockType]?.map((block: any) => (
+                    <SelectItem key={block.id} value={block.id.toString()}>
+                      {block.title || block.name || `Block ${block.id}`}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="custom">{getMessage('customBlock', undefined, 'Custom')}</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => handleAddBlock('0')}
+              title={getMessage('addContentBlock', undefined, 'Add content block')}
+            >
+              <Plus className="jd-h-4 jd-w-4 jd-mr-1" />
+              {getMessage('addContent', undefined, 'Content')}
+            </Button>
+          </div>
         </div>
         
         <div>

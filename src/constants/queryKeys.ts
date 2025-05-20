@@ -1,23 +1,44 @@
 // src/constants/queryKeys.ts
-
 /**
- * Query keys for React Query
- * Centralizing these prevents typos and makes refactoring easier
+ * Centralized query keys for React Query
  */
 
 export const QUERY_KEYS = {
-    // Template and folder related queries
-    USER_FOLDERS: 'userFolders',
-    ALL_FOLDERS: 'allFolders',
-    USER_TEMPLATES: 'userTemplates',
-    UNORGANIZED_TEMPLATES: 'unorganizedTemplates',
-    PINNED_FOLDERS: 'pinnedFolders',
-    
-    // User related queries
-    USER_METADATA: 'userMetadata',
-    USER_PROFILE: 'userProfile',
-    
-    // Stats related queries
-    USER_STATS: 'userStats',
-    WEEKLY_STATS: 'weeklyStats',
-  };
+  // User data
+  USER_PROFILE: 'userProfile',
+  USER_METADATA: 'userMetadata',
+  USER_STATS: 'userStats',
+  
+  // Notifications
+  NOTIFICATIONS: 'notifications',
+  UNREAD_COUNT: 'unreadCount',
+  
+  // Template folder keys
+  USER_FOLDERS: 'userFolders',
+  OFFICIAL_FOLDERS: 'officialFolders',
+  ORGANIZATION_FOLDERS: 'organizationFolders',
+  COMPANY_FOLDERS: 'companyFolders',
+  PINNED_FOLDERS: 'pinnedFolders',
+  ALL_FOLDERS: 'allFolders',
+  
+  // Template keys
+  USER_TEMPLATES: 'userTemplates',
+  OFFICIAL_TEMPLATES: 'officialTemplates',
+  ORGANIZATION_TEMPLATES: 'organizationTemplates',
+  COMPANY_TEMPLATES: 'companyTemplates',
+  UNORGANIZED_TEMPLATES: 'unorganizedTemplates',
+  TEMPLATE_BY_ID: 'templateById',
+  
+  // Block keys
+  BLOCKS: 'blocks',
+  BLOCK_TYPES: 'blockTypes',
+  BLOCK_BY_ID: 'blockById',
+  
+  // Chat related
+  CHAT_HISTORY: 'chatHistory',
+  CONVERSATION_HISTORY: 'conversationHistory',
+  CONVERSATION_BY_ID: 'conversationById',
+  ACTIVE_CONVERSATION: 'activeConversation',
+};
+
+export default QUERY_KEYS;

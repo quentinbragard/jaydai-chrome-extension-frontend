@@ -1,4 +1,3 @@
-// src/hooks/prompts/actions/useTemplateActions.ts
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Template } from '@/types/prompts/templates';
@@ -10,11 +9,10 @@ import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { insertContentIntoChat, formatContentForInsertion } from '@/utils/templates/insertPrompt';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
-
+import { useBlockActions } from '../useBlockActions';
 
 /**
- * A redesigned template action hook with cross-platform support
- * for both ChatGPT and Claude
+ * A redesigned template action hook with support for block-based templates
  */
 export function useTemplateActions() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -22,6 +20,8 @@ export function useTemplateActions() {
   const { createFolder: createFolderMutation } = useFolderMutations();
   const queryClient = useQueryClient();
   const dialogManager = useDialogManager();
+  // Get block actions for block functionality
+  const { useBlocks, groupBlocksByType } = useBlockActions();
   
   /**
    * Safely open a dialog with fallback mechanisms
@@ -63,20 +63,38 @@ export function useTemplateActions() {
   }, [dialogManager]);
 
 /**
- * Handle template content after editing in the placeholder editor
- * with improved content processing and panel closing
+ * Generate the final content with all blocks included
  */
-const handleTemplateComplete = useCallback((finalContent: string) => {
-  console.log('Template editing completed, content length:', finalContent?.length);
+const generateFinalContent = useCallback((expandedBlocks) => {
+  if (!expandedBlocks || expandedBlocks.length === 0) {
+    return '';
+  }
   
-  if (!finalContent) {
+  // Combine all block content with proper spacing
+  return expandedBlocks.map(block => block.content || '').join('\n\n');
+}, []);
+
+/**
+ * Handle template content after editing in the placeholder editor
+ * with support for updated blocks
+ */
+const handleTemplateComplete = useCallback((finalContent: string, updatedBlocks: any[] = []) => {
+  console.log('Template editing completed, content length:', finalContent?.length);
+  console.log('Template blocks:', updatedBlocks);
+  
+  if (!finalContent && (!updatedBlocks || updatedBlocks.length === 0)) {
     console.error('No content received from template editor');
     toast.error('Template content is empty');
     return;
   }
   
+  // If we have blocks with content, use that instead of finalContent
+  const contentToInsert = updatedBlocks && updatedBlocks.length > 0 
+    ? generateFinalContent(updatedBlocks)
+    : finalContent;
+  
   // Format content for insertion - normalizes newlines while preserving paragraph breaks
-  const formattedContent = formatContentForInsertion(finalContent);
+  const formattedContent = formatContentForInsertion(contentToInsert);
   
   // Insert the content with a small delay to ensure dialog is fully closed
   setTimeout(() => {
@@ -95,11 +113,11 @@ const handleTemplateComplete = useCallback((finalContent: string) => {
     }
     
     // Dispatch an event to close the main button and panels
-    //document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+    document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
   }, 50);
-}, []);
+}, [generateFinalContent]);
 
-// Updated useTemplate function with cross-platform support
+// Updated useTemplate function with block support
 const useTemplate = useCallback((template: Template) => {
   // Validation
   if (!template) {
@@ -110,7 +128,7 @@ const useTemplate = useCallback((template: Template) => {
     return;
   }
   
-  if (!template.content) {
+  if (!template.content && (!template.expanded_blocks || template.expanded_blocks.length === 0)) {
     toast.error('Template has no content');
     trackEvent(EVENTS.TEMPLATE_APPLIED_ERROR, {
       error: 'Template has no content'
@@ -123,18 +141,20 @@ const useTemplate = useCallback((template: Template) => {
   setIsProcessing(true);
   
   try {
-    // Open the placeholder editor dialog
+    // Open the placeholder editor dialog with expanded blocks
     openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
-      content: template.content,
+      content: template.content || '',
+      expandedBlocks: template.expanded_blocks || [],
       title: template.title || 'Untitled Template',
       type: template.type,
       id: template.id,
       onComplete: handleTemplateComplete
     });
+    
     trackEvent(EVENTS.PLACEHOLDER_EDITOR_OPENED, {
       template_id: template.id,
       template_name: template.title,
-      template_type: 'user'
+      template_type: template.type
     });
     
     // Track template usage (don't await)
@@ -143,8 +163,6 @@ const useTemplate = useCallback((template: Template) => {
     }
     
     // Close all panels when template is used
-    // Note: We're closing panels here even before template editing completes
-    // because the template dialog will be visible instead
     document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
   } catch (error) {
     console.error('Error using template:', error);
@@ -158,15 +176,20 @@ const useTemplate = useCallback((template: Template) => {
    * Open template editor to create a new template
    */
   const createTemplate = useCallback((initialFolder?: any) => {
+    // Fetch available blocks for selection
+    const { data: availableBlocks = [] } = useBlocks();
+    
     const dialogData = {
       formData: {
         name: '',
         content: '',
         description: '',
         folder: initialFolder?.name || '',
-        folder_id: initialFolder?.id || undefined
+        folder_id: initialFolder?.id || undefined,
+        blocks: [] // Initialize with empty blocks array
       },
       userFolders: queryClient.getQueryData(QUERY_KEYS.USER_FOLDERS) || [],
+      availableBlocks: groupBlocksByType(availableBlocks || []),
       onSave: async (templateData: any) => {
         try {
           const result = await createTemplateMutation.mutateAsync({
@@ -174,6 +197,7 @@ const useTemplate = useCallback((template: Template) => {
             content: templateData.content,
             description: templateData.description,
             folder_id: templateData.folder_id,
+            blocks: templateData.blocks || [], // Include blocks array
           });
           
           if (result) {
@@ -196,7 +220,7 @@ const useTemplate = useCallback((template: Template) => {
     };
     
     openDialog(DIALOG_TYPES.CREATE_TEMPLATE, dialogData);
-  }, [openDialog, createTemplateMutation, queryClient]);
+  }, [openDialog, createTemplateMutation, queryClient, groupBlocksByType, useBlocks]);
   
   /**
    * Create a folder and then open template creation
@@ -244,6 +268,9 @@ const useTemplate = useCallback((template: Template) => {
       return;
     }
     
+    // Fetch available blocks for selection
+    const { data: availableBlocks = [] } = useBlocks();
+    
     const dialogData = {
       template,
       formData: {
@@ -251,9 +278,11 @@ const useTemplate = useCallback((template: Template) => {
         content: template.content || '',
         description: template.description || '',
         folder: template.folder || '',
-        folder_id: template.folder_id
+        folder_id: template.folder_id,
+        blocks: template.blocks || [] // Include existing blocks
       },
-      userFolders: queryClient.getQueryData(QUERY_KEYS.USER_FOLDERS) || []
+      userFolders: queryClient.getQueryData(QUERY_KEYS.USER_FOLDERS) || [],
+      availableBlocks: groupBlocksByType(availableBlocks || []),
       // The saving will be handled by the dialog's internal logic
     };
     
@@ -261,9 +290,9 @@ const useTemplate = useCallback((template: Template) => {
     trackEvent(EVENTS.TEMPLATE_EDIT_DIALOG_OPENED, {
       template_id: template.id,
       template_name: template.title,
-      template_type: 'user'
+      template_type: template.type
     });
-  }, [openDialog, queryClient]);
+  }, [openDialog, queryClient, groupBlocksByType, useBlocks]);
   
   return {
     isProcessing,

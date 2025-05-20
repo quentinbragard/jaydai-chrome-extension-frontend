@@ -16,6 +16,14 @@ import {
         trackTemplateUsage
       } from './prompts/templates';
 
+import { 
+        getBlocks,
+        createBlock,
+        updateBlock,
+        deleteBlock,
+        getBlockTypes
+      } from './prompts/blocks';
+
 /**
  * API client for working with prompt templates
  */
@@ -69,7 +77,38 @@ class PromptApiClient {
     return trackTemplateUsage(templateId);
   }
 
+  async getBlocks(type?: string): Promise<any> {
+    return getBlocks(type);
+  }
+  
+  async getBlockTypes(): Promise<any> {
+    return getBlockTypes();
+  }
+  
+  async createBlock(blockData: any): Promise<any> {
+    return createBlock(blockData);
+  }
+  
+  async updateBlock(blockId: number, blockData: any): Promise<any> {
+    return updateBlock(blockId, blockData);
+  }
+  
+  async deleteBlock(blockId: number): Promise<any> {
+    return deleteBlock(blockId);
+  }
+
 }
 
 // Export a singleton instance
 export const promptApi = new PromptApiClient();
+
+
+
+
+
+
+
+
+
+
+
