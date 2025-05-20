@@ -13,10 +13,10 @@ export async function getUserFolders(): Promise<any> {
       return response;
     } catch (error) {
       console.error('Error fetching user folders:', error);
-      return { 
-        success: false, 
-        folders: [],
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        success: false,
+        data: [],
+        message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

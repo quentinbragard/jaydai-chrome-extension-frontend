@@ -28,10 +28,10 @@ export async function updatePinnedFolders(type: 'official' | 'organization', fol
       return response;
     } catch (error) {
       console.error(`Error updating pinned ${type} folders:`, error);
-      return { 
-        success: false, 
-        pinned_folders: [],
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        success: false,
+        data: [],
+        message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

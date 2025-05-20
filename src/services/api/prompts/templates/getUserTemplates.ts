@@ -9,17 +9,13 @@ export async function getUserTemplates(): Promise<any> {
       const response = await apiClient.request('/prompts/templates', {
         method: 'GET'
       });
-            
-      return {
-        success: true,
-        templates: response.templates || []
-      };
+      return response;
     } catch (error) {
       console.error('Error fetching user templates:', error);
-      return { 
-        success: false, 
-        templates: [],
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        success: false,
+        data: [],
+        message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

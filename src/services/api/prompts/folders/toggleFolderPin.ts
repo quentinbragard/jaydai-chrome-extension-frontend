@@ -27,10 +27,10 @@ export async function toggleFolderPin(folderId: number, isPinned: boolean, type:
       return response;
     } catch (error) {
       console.error(`Error toggling pin for ${type} folder ${folderId}:`, error);
-      return { 
-        success: false, 
-        pinned_folders: [],
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        success: false,
+        data: [],
+        message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

@@ -9,16 +9,16 @@ export function useUserFolders() {
   return useQuery(QUERY_KEYS.USER_FOLDERS, async () => {
     const response = await promptApi.getUserFolders();
     if (!response.success) {
-      throw new Error(response.error || 'Failed to load user folders');
+      throw new Error(response.message || 'Failed to load user folders');
     }
     
     // Also fetch user templates to properly handle templates with null folder_id
     const templatesResponse = await promptApi.getUserTemplates();
-    
-    if (templatesResponse.success && templatesResponse.templates) {
+
+    if (templatesResponse.success && templatesResponse.data) {
       // Create a map of folder ID to folder for easy lookup
       const folderMap = new Map<number, TemplateFolder>();
-      response.folders.forEach((folder: TemplateFolder) => {
+      response.data.forEach((folder: TemplateFolder) => {
         folderMap.set(folder.id, folder);
         
         // Initialize templates array if not present
@@ -28,7 +28,7 @@ export function useUserFolders() {
       });
       
       // Process all templates
-      templatesResponse.templates.forEach(template => {
+      templatesResponse.data.forEach(template => {
         if (template.folder_id === null) {
           // We'll handle unorganized templates separately
           return;
@@ -42,7 +42,7 @@ export function useUserFolders() {
       });
     }
     
-    return response.folders;
+    return response.data;
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {

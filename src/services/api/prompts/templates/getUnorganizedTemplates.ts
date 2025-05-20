@@ -12,10 +12,10 @@ export async function getUnorganizedTemplates(): Promise<any> {
       return response;
     } catch (error) {
       console.error('Error fetching unorganized templates:', error);
-      return { 
-        success: false, 
-        templates: [],
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        success: false,
+        data: [],
+        message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

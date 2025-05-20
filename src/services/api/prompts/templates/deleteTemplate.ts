@@ -12,9 +12,9 @@ export async function deleteTemplate(templateId: number): Promise<any> {
       return response;
     } catch (error) {
       console.error('Error deleting template:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

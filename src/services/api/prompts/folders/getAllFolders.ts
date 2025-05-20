@@ -4,8 +4,8 @@ import { TemplateFolder } from '@/types/prompts/folders';
 
 interface GetAllFoldersResponse {
   success: boolean;
-  folders: TemplateFolder[];
-  error?: string;
+  data: TemplateFolder[];
+  message?: string;
 }
 
 /**
@@ -28,10 +28,10 @@ export async function getAllFolders(type: string, empty: boolean = false, locale
     } catch (error) {
       console.error(`Error fetching ${type} folders:`, error);
       // Return a safe default value
-      return { 
-        success: false, 
-        folders: [], 
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        success: false,
+        data: [],
+        message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

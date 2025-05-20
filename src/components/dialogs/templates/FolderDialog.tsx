@@ -75,11 +75,11 @@ export const FolderDialog: React.FC = () => {
       
       // Default handling - use direct API call
       const response = await promptApi.createFolder(folderData);
-      
-      if (response.success && response.folder) {
+
+      if (response.success && response.data) {
         // Call the onFolderCreated callback if provided with the created folder
         if (onFolderCreated) {
-          onFolderCreated(response.folder);
+          onFolderCreated(response.data);
         }
         
         toast.success(`Folder "${name}" created successfully`);
@@ -88,7 +88,7 @@ export const FolderDialog: React.FC = () => {
         resetForm();
         dialogProps.onOpenChange(false);
       } else {
-        toast.error(response.error || 'Failed to create folder');
+        toast.error(response.message || 'Failed to create folder');
       }
     } catch (error) {
       console.error('Error creating folder:', error);

@@ -61,7 +61,7 @@ class PromptApiClient {
     return createFolder(folderData);
   }
 
-  async deleteFolder(folderId: number): Promise<{ success: boolean; error?: string }> {
+  async deleteFolder(folderId: number): Promise<{ success: boolean; message?: string; data?: any }> {
     return deleteFolder(folderId);
   }
 
