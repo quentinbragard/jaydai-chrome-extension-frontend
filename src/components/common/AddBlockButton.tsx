@@ -1,17 +1,20 @@
 import React from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem
+  DropdownMenuItem,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
+import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames';
 import { Block } from '@/types/prompts/blocks';
 
 interface AddBlockButtonProps {
   blocks: Block[];
   onAdd: (block: Block) => void;
+  onRemove?: () => void;
   className?: string;
 }
 
@@ -21,6 +24,7 @@ interface AddBlockButtonProps {
 export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
   blocks,
   onAdd,
+  onRemove,
   className
 }) => {
   return (
@@ -42,6 +46,18 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
             {block.name}
           </DropdownMenuItem>
         ))}
+        {onRemove && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={onRemove}
+              className="jd-text-red-600 jd-flex jd-items-center"
+            >
+              <Trash2 className="jd-h-4 jd-w-4 jd-mr-2" />
+              {getMessage('removeBlock', undefined, 'Remove block')}
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
