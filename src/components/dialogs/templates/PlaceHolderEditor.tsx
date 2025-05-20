@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBlockActions } from '@/hooks/prompts/useBlockActions';
 import { Textarea } from "@/components/ui/textarea";
+import { AddBlockButton, AddBlockControls } from '@/components/templates';
 
 // Custom hook to detect dark mode
 const useDarkMode = () => {
@@ -72,6 +73,7 @@ export const PlaceholderEditor: React.FC = () => {
   const [customBlockContent, setCustomBlockContent] = useState<string>('');
   const [selectedBlockType, setSelectedBlockType] = useState<string>('');
   const [selectedBlockId, setSelectedBlockId] = useState<string>('');
+  const [addPosition, setAddPosition] = useState<'top' | 'bottom' | null>(null);
 
   // Import block hooks
   const { 
@@ -428,6 +430,38 @@ export const PlaceholderEditor: React.FC = () => {
     }
   };
 
+  const handleAddBlockAtPosition = (type: string, id: string, position: 'top' | 'bottom') => {
+    if (!type || (!id && id !== '0')) return;
+
+    let newBlock: any;
+
+    if (id === 'custom') {
+      newBlock = {
+        id: `custom-${Date.now()}`,
+        type,
+        content: '',
+        name: `Custom ${type}`,
+        isCustom: true
+      };
+    } else if (id === '0') {
+      newBlock = {
+        id: 0,
+        type: 'content',
+        content: modifiedContent,
+        name: 'Template Content'
+      };
+    } else {
+      const selectedBlock = availableBlocks.find(block => block.id.toString() === id);
+      if (!selectedBlock) return;
+      newBlock = { ...selectedBlock, originalId: selectedBlock.id };
+    }
+
+    setTemplateBlocks(prev =>
+      position === 'top' ? [newBlock, ...prev] : [...prev, newBlock]
+    );
+    setAddPosition(null);
+  };
+
   /**
    * Handle removing a block from the template
    */
@@ -633,12 +667,20 @@ export const PlaceholderEditor: React.FC = () => {
             </div>
 
             {/* Right side: Rich Text Editable Section */}
-            <div 
+            <div
               className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
                 isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
               }`}
             >
               <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate', undefined, 'Edit Template')}</h3>
+              <AddBlockButton onClick={() => setAddPosition('top')} />
+              {addPosition === 'top' && (
+                <AddBlockControls
+                  blocks={groupedBlocks}
+                  onAdd={(t, id) => handleAddBlockAtPosition(t, id, 'top')}
+                  onCancel={() => setAddPosition(null)}
+                />
+              )}
               <div
                 ref={editorRef}
                 contentEditable
@@ -646,11 +688,19 @@ export const PlaceholderEditor: React.FC = () => {
                 onFocus={handleEditorFocus}
                 onBlur={handleEditorBlur}
                 className={`jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
-                  isDarkMode 
-                    ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
+                  isDarkMode
+                    ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
                     : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
                 }`}
               ></div>
+              <AddBlockButton onClick={() => setAddPosition('bottom')} />
+              {addPosition === 'bottom' && (
+                <AddBlockControls
+                  blocks={groupedBlocks}
+                  onAdd={(t, id) => handleAddBlockAtPosition(t, id, 'bottom')}
+                  onCancel={() => setAddPosition(null)}
+                />
+              )}
             </div>
           </TabsContent>
 

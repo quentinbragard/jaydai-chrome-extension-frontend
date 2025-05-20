@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { FolderPlus, Plus, Trash, ArrowUp, ArrowDown } from 'lucide-react';
+import { AddBlockButton, AddBlockControls } from '@/components/templates';
 import { DEFAULT_FORM_DATA } from '@/types/prompts/templates';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
@@ -41,6 +42,7 @@ export const TemplateDialog: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [userFoldersList, setUserFoldersList] = useState<FolderData[]>([]);
   const [selectedBlockType, setSelectedBlockType] = useState<string>('');
+  const [addBlockPosition, setAddBlockPosition] = useState<'top' | 'bottom' | null>(null);
   
   // Extract data from dialog
   const currentTemplate = data?.template || null;
@@ -248,6 +250,15 @@ export const TemplateDialog: React.FC = () => {
     
     // Reset selected block type
     setSelectedBlockType('');
+  };
+
+  const handleAddBlockAtPosition = (type: string, id: string, position: 'top' | 'bottom') => {
+    if (!type || (!id && id !== '0')) return;
+    const blockId = id === 'custom' ? id : parseInt(id, 10);
+    const blocks = formData.blocks || [];
+    const newBlocks = position === 'top' ? [blockId, ...blocks] : [...blocks, blockId];
+    handleFormChange('blocks', newBlocks);
+    setAddBlockPosition(null);
   };
 
   // Remove a block from the template
@@ -641,7 +652,15 @@ export const TemplateDialog: React.FC = () => {
         
         <div>
           <label className="jd-text-sm jd-font-medium">{getMessage('content')}</label>
-          <textarea 
+          <AddBlockButton onClick={() => setAddBlockPosition('top')} />
+          {addBlockPosition === 'top' && (
+            <AddBlockControls
+              blocks={availableBlocks}
+              onAdd={(t, id) => handleAddBlockAtPosition(t, id, 'top')}
+              onCancel={() => setAddBlockPosition(null)}
+            />
+          )}
+          <textarea
             className={`jd-flex jd-w-full jd-rounded-md jd-border jd-border-input jd-bg-background jd-px-3 jd-py-2 jd-text-sm jd-shadow-sm jd-mt-1 ${
               validationErrors.content ? 'jd-border-red-500' : ''
             }`}
@@ -677,6 +696,14 @@ export const TemplateDialog: React.FC = () => {
           />
           {validationErrors.content && (
             <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.content}</p>
+          )}
+          <AddBlockButton onClick={() => setAddBlockPosition('bottom')} />
+          {addBlockPosition === 'bottom' && (
+            <AddBlockControls
+              blocks={availableBlocks}
+              onAdd={(t, id) => handleAddBlockAtPosition(t, id, 'bottom')}
+              onCancel={() => setAddBlockPosition(null)}
+            />
           )}
         </div>
       </div>

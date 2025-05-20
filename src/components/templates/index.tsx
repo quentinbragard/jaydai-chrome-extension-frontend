@@ -5,3 +5,5 @@ export { PinButton } from './PinButton';
 export { DeleteButton } from './DeleteButton';
 export { TemplateItem } from './TemplateItem';
 export { UnorganizedTemplates } from './UnorganizedTemplates';
+export { AddBlockButton } from './AddBlockButton';
+export { AddBlockControls } from './AddBlockControls';
