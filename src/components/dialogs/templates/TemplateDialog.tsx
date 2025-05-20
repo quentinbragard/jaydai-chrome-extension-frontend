@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { FolderPlus } from 'lucide-react';
+import { AddBlockButton } from '@/components/common/AddBlockButton';
+import { Block } from '@/types/prompts/blocks';
 import { DEFAULT_FORM_DATA } from '@/types/prompts/templates';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
@@ -18,6 +20,11 @@ interface FolderData {
   name: string;
   fullPath: string;
 }
+
+const SAMPLE_BLOCKS: Block[] = [
+  { id: 1, name: 'Context Block', type: 'context', content: '[Context]' },
+  { id: 2, name: 'Role Block', type: 'role', content: '[Role]' }
+];
 
 /**
  * Unified Template Dialog for both creating and editing templates
@@ -39,6 +46,14 @@ export const TemplateDialog: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [userFoldersList, setUserFoldersList] = useState<FolderData[]>([]);
+
+  const handleAddBlock = (block: Block, position: 'start' | 'end') => {
+    const content = formData.content || '';
+    const newContent = position === 'start'
+      ? `${block.content}\n${content}`
+      : `${content}\n${block.content}`;
+    handleFormChange('content', newContent);
+  };
   
   // Extract data from dialog
   const currentTemplate = data?.template || null;
@@ -463,40 +478,43 @@ export const TemplateDialog: React.FC = () => {
         
         <div>
           <label className="jd-text-sm jd-font-medium">{getMessage('content')}</label>
-          <textarea 
-            className={`jd-flex jd-w-full jd-rounded-md jd-border jd-border-input jd-bg-background jd-px-3 jd-py-2 jd-text-sm jd-shadow-sm jd-mt-1 ${
-              validationErrors.content ? 'jd-border-red-500' : ''
-            }`}
-            rows={6}
-            value={formData.content || ''} 
-            onChange={(e) => handleFormChange('content', e.target.value)}
-            onKeyDown={(e) => {
-              // Prevent default handling of Enter to allow multi-line content
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                
-                // Get the current cursor position
-                const textarea = e.target as HTMLTextAreaElement;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                
-                // Insert a newline at the cursor position
-                const newContent = 
-                  formData.content.substring(0, start) + 
-                  '\n' + 
-                  formData.content.substring(end);
-                
-                // Update the form data
-                handleFormChange('content', newContent);
-                
-                // Set the cursor position after the newline
-                setTimeout(() => {
-                  textarea.selectionStart = textarea.selectionEnd = start + 1;
-                }, 0);
-              }
-            }}
-            placeholder={getMessage('enterTemplateContent')}
-          />
+          <div className="jd-relative jd-mt-1">
+            <AddBlockButton
+              blocks={SAMPLE_BLOCKS}
+              onAdd={(b) => handleAddBlock(b, 'start')}
+              className="jd-absolute jd-left-1/2 -jd-translate-x-1/2 -jd-top-3"
+            />
+            <textarea
+              className={`jd-flex jd-w-full jd-rounded-md jd-border jd-border-input jd-bg-background jd-px-3 jd-py-2 jd-text-sm jd-shadow-sm ${
+                validationErrors.content ? 'jd-border-red-500' : ''
+              }`}
+              rows={6}
+              value={formData.content || ''}
+              onChange={(e) => handleFormChange('content', e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const textarea = e.target as HTMLTextAreaElement;
+                  const start = textarea.selectionStart;
+                  const end = textarea.selectionEnd;
+                  const newContent =
+                    formData.content.substring(0, start) +
+                    '\n' +
+                    formData.content.substring(end);
+                  handleFormChange('content', newContent);
+                  setTimeout(() => {
+                    textarea.selectionStart = textarea.selectionEnd = start + 1;
+                  }, 0);
+                }
+              }}
+              placeholder={getMessage('enterTemplateContent')}
+            />
+            <AddBlockButton
+              blocks={SAMPLE_BLOCKS}
+              onAdd={(b) => handleAddBlock(b, 'end')}
+              className="jd-absolute jd-left-1/2 -jd-translate-x-1/2 jd-bottom-3"
+            />
+          </div>
           {validationErrors.content && (
             <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.content}</p>
           )}

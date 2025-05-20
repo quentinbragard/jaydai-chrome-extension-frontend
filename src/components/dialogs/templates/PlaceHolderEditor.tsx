@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
+import { AddBlockButton } from '@/components/common/AddBlockButton';
+import { Block } from '@/types/prompts/blocks';
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { BaseDialog } from '../BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
@@ -49,6 +51,11 @@ interface Placeholder {
   value: string;
 }
 
+const SAMPLE_BLOCKS: Block[] = [
+  { id: 1, name: 'Context Block', type: 'context', content: '[Context]' },
+  { id: 2, name: 'Role Block', type: 'role', content: '[Role]' }
+];
+
 /**
  * Dialog for editing template placeholders
  */
@@ -62,6 +69,17 @@ export const PlaceholderEditor: React.FC = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<MutationObserver | null>(null);
   const isDarkMode = useDarkMode();
+
+  const handleAddBlock = (block: Block, position: 'start' | 'end') => {
+    const newContent = position === 'start'
+      ? `${block.content}\n${modifiedContent}`
+      : `${modifiedContent}\n${block.content}`;
+    setModifiedContent(newContent);
+
+    if (editorRef.current) {
+      editorRef.current.innerHTML = highlightPlaceholders(newContent);
+    }
+  };
 
   // Safe extraction of dialog data with defaults
   const templateContent = data?.content || '';
@@ -385,24 +403,36 @@ export const PlaceholderEditor: React.FC = () => {
           </div>
 
           {/* Rich Text Editable Section */}
-          <div 
+          <div
             className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
               isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
             }`}
-            >
+          >
             <h3 className="jd-text-sm jd-font-medium jd-mb-2">{getMessage('editTemplate')}</h3>
-            <div
-              ref={editorRef}
-              contentEditable
-              suppressContentEditableWarning
-              onFocus={handleEditorFocus}
-              onBlur={handleEditorBlur}
-              className={`jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
-                isDarkMode 
-                  ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
-                  : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
-              }`}
-            ></div>
+            <div className="jd-relative jd-flex jd-flex-col jd-flex-grow">
+              <AddBlockButton
+                blocks={SAMPLE_BLOCKS}
+                onAdd={(b) => handleAddBlock(b, 'start')}
+                className="jd-absolute jd-left-1/2 -jd-translate-x-1/2 -jd-top-3"
+              />
+              <div
+                ref={editorRef}
+                contentEditable
+                suppressContentEditableWarning
+                onFocus={handleEditorFocus}
+                onBlur={handleEditorBlur}
+                className={`jd-flex-grow jd-h-[50vh] jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
+                  isDarkMode
+                    ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
+                    : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
+                }`}
+              ></div>
+              <AddBlockButton
+                blocks={SAMPLE_BLOCKS}
+                onAdd={(b) => handleAddBlock(b, 'end')}
+                className="jd-absolute jd-left-1/2 -jd-translate-x-1/2 jd-bottom-3"
+              />
+            </div>
           </div>
         </div>
 
