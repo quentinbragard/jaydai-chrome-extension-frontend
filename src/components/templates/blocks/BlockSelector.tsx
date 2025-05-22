@@ -20,7 +20,8 @@ export const BlockSelector: React.FC<BlockSelectorProps> = ({
   // Handle clicking outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (cardRef.current && !cardRef.current.contains(event.target as Node)) {
+      const path = event.composedPath();
+      if (cardRef.current && !path.includes(cardRef.current)) {
         onCancel();
       }
     };
