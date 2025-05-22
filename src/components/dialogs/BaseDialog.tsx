@@ -96,6 +96,21 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
       });
     };
   }, [open, children]);
+
+  // Stop keyboard events from leaking to the page
+  useEffect(() => {
+    if (!open) return;
+
+    const stopPropagation = (e: KeyboardEvent) => {
+      e.stopPropagation();
+    };
+
+    const events: (keyof DocumentEventMap)[] = ['keydown', 'keypress', 'keyup'];
+    events.forEach(evt => window.addEventListener(evt, stopPropagation, true));
+    return () => {
+      events.forEach(evt => window.removeEventListener(evt, stopPropagation, true));
+    };
+  }, [open]);
   
   // Handle backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {
