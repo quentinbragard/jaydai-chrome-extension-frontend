@@ -189,7 +189,7 @@ export const PlaceholderEditor: React.FC = () => {
             <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
           </div>
         ) : (
-          <div className="jd-flex jd-flex-col jd-gap-4 jd-flex-1 jd-overflow-hidden">
+          <div className="jd-flex jd-flex-col jd-gap-4 jd-flex-1 jd-overflow-visible">
             {/* Add Block Button - Top */}
             <AddBlockButton
               position="start"
