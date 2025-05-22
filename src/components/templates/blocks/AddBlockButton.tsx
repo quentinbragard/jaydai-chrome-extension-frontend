@@ -41,7 +41,7 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
       </Button>
 
       {showSelector && (
-        <div className="jd-absolute jd-top-full jd-left-1/2 jd-transform -jd-translate-x-1/2 jd-mt-1 jd-z-50">
+        <div className="jd-absolute jd-top-full jd-left-1/2 jd-transform -jd-translate-x-1/2 jd-mt-2 jd-z-50">
           <BlockSelector
             onSelectBlock={handleSelectBlock}
             onCancel={handleCancel}

@@ -211,8 +211,9 @@ export const BlockItem: React.FC<BlockItemProps> = ({
             placeholder={`Enter ${blockTypeInfo?.name || 'block'} content...`}
           />
         ) : (
-          <div
-            className="jd-whitespace-pre-wrap jd-p-3 jd-bg-muted/30 jd-rounded-md jd-text-sm jd-font-mono jd-max-h-[150px] jd-overflow-y-auto"
+          <div 
+            className="jd-whitespace-pre-wrap jd-p-3 jd-bg-muted/30 jd-rounded-md jd-text-sm jd-font-mono jd-max-h-[150px] jd-overflow-y-auto jd-cursor-pointer"
+            onClick={onEdit}
             dangerouslySetInnerHTML={{ __html: highlightPlaceholders(getBlockContent()) }}
           />
         )}
