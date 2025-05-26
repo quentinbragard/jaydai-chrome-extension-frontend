@@ -29,7 +29,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "jd-inline-flex jd-items-center jd-justify-center jd-whitespace-nowrap jd-rounded-sm jd-px-3 jd-py-1.5 jd-text-sm jd-font-medium jd-ring-offset-background jd-transition-all jd-focus-visible:outline-none jd-focus-visible:ring-2 jd-focus-visible:ring-ring jd-focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+      "jd-inline-flex jd-items-center jd-justify-center jd-whitespace-nowrap jd-rounded-sm jd-px-3 jd-py-1.5 jd-text-sm jd-font-medium jd-ring-offset-background jd-transition-all focus-visible:jd-outline-none focus-visible:jd-ring-2 focus-visible:jd-ring-ring focus-visible:jd-ring-offset-2 disabled:jd-pointer-events-none disabled:jd-opacity-50 data-[state=active]:jd-bg-background data-[state=active]:jd-text-foreground data-[state=active]:jd-shadow-sm",
       className
     )}
     {...props}
@@ -44,7 +44,7 @@ const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      "jd-mt-2 jd-ring-offset-background jd-focus-visible:outline-none jd-focus-visible:ring-2 jd-focus-visible:ring-ring jd-focus-visible:ring-offset-2",
+      "jd-mt-2 jd-ring-offset-background focus-visible:jd-outline-none focus-visible:jd-ring-2 focus-visible:jd-ring-ring focus-visible:jd-ring-offset-2",
       className
     )}
     {...props}

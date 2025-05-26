@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Block, BlockType } from '@/components/templates/blocks/types';
 import { getCurrentLanguage } from '@/core/utils/i18n';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 interface BasicEditorProps {
   blocks: Block[];
@@ -294,59 +295,58 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   };
 
   return (
-    <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-6 jd-flex-1 jd-overflow-hidden">
-      {/* Placeholders Section */}
-      <div className="jd-space-y-4 jd-overflow-auto">
-        <h3 className="jd-text-sm jd-font-medium jd-mb-2">Replace Placeholders</h3>
-
-        {placeholders.length > 0 ? (
-          <ScrollArea className="jd-h-full">
-            <div className="jd-space-y-4 jd-pr-4">
-              {placeholders.map((placeholder, idx) => (
-                <div key={placeholder.key + idx} className="jd-space-y-1">
-                  <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
-                    <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
-                  </label>
-                  <Input
-                    value={placeholder.value}
-                    onChange={(e) => updatePlaceholder(idx, e.target.value)}
-                    placeholder={`Enter value for ${placeholder.key}`}
-                    className="jd-w-full"
-                  />
+    <div className="jd-h-full jd-flex jd-flex-1 jd-overflow-hidden">
+      <ResizablePanelGroup direction="horizontal" className="jd-h-full jd-w-full">
+        <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
+          <div className="jd-h-full jd-space-y-4 jd-overflow-auto jd-p-4">
+            <h3 className="jd-text-sm jd-font-medium jd-mb-2">Replace Placeholders</h3>
+            {placeholders.length > 0 ? (
+              <ScrollArea className="jd-h-full">
+                <div className="jd-space-y-4 jd-pr-4">
+                  {placeholders.map((placeholder, idx) => (
+                    <div key={placeholder.key + idx} className="jd-space-y-1">
+                      <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
+                        <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
+                      </label>
+                      <Input
+                        value={placeholder.value}
+                        onChange={(e) => updatePlaceholder(idx, e.target.value)}
+                        placeholder={`Enter value for ${placeholder.key}`}
+                        className="jd-w-full"
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
-        ) : (
-          <div className="jd-text-muted-foreground jd-text-center jd-py-8">No placeholders found</div>
-        )}
-      </div>
-
-      {/* Rich Text Editable Section */}
-      <div 
-        className={`jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col ${
-          isDarkMode ? "jd-border-gray-700" : "jd-border-gray-200"
-        }`}
-      >
-        <h3 className="jd-text-sm jd-font-medium jd-mb-2">Edit Template</h3>
-        <div
-          ref={editorRef}
-          contentEditable
-          suppressContentEditableWarning
-          onFocus={handleEditorFocus}
-          onBlur={handleEditorBlur}
-          className={`jd-flex-1 jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
-            isDarkMode 
-              ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
-              : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
-          }`}
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
-          onKeyPress={(e) => e.stopPropagation()}
-          onKeyUp={(e) => e.stopPropagation()}
-        />
-      </div>
+              </ScrollArea>
+            ) : (
+              <div className="jd-text-muted-foreground jd-text-center jd-py-8">No placeholders found</div>
+            )}
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={70} minSize={40}>
+          <div className="jd-h-full jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
+            <h3 className="jd-text-sm jd-font-medium jd-mb-2">Edit Template</h3>
+            <div
+              ref={editorRef}
+              contentEditable
+              suppressContentEditableWarning
+              onFocus={handleEditorFocus}
+              onBlur={handleEditorBlur}
+              className={`jd-flex-1 jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
+                isDarkMode 
+                  ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
+                  : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
+              }`}
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              onKeyPress={(e) => e.stopPropagation()}
+              onKeyUp={(e) => e.stopPropagation()}
+            />
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
