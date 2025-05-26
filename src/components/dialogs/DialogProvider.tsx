@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { DialogManagerProvider } from './DialogContext';
 import { TemplateDialog } from './templates/TemplateDialog';
 import { FolderDialog } from './templates/FolderDialog';
-import { PlaceholderEditor } from './templates/PlaceHolderEditor';
+import { PlaceholderEditor } from './templates/PlaceholderEditor';
 import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
