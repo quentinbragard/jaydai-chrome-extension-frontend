@@ -1,6 +1,7 @@
 // src/components/dialogs/templates/editor/BlockDetailEditor.tsx
 import React, { useState, useEffect } from 'react';
 import { Block } from '@/components/templates/blocks/types';
+import { ExistingBlocksDropdown } from '@/components/templates/blocks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,6 +48,7 @@ export const BlockDetailEditor: React.FC<BlockDetailEditorProps> = ({
 }) => {
   const [localBlock, setLocalBlock] = useState<Block>(block);
   const [hasChanges, setHasChanges] = useState(false);
+  const [showLibrary, setShowLibrary] = useState(false);
 
   // Update local state when block prop changes (different block selected)
   useEffect(() => {
@@ -68,6 +70,19 @@ export const BlockDetailEditor: React.FC<BlockDetailEditorProps> = ({
   const handleChange = (field: keyof Block, value: any) => {
     setLocalBlock(prev => ({ ...prev, [field]: value }));
     setHasChanges(true);
+  };
+
+  const handleSelectExisting = (existing: Block) => {
+    setLocalBlock(prev => ({
+      ...prev,
+      name: existing.name || prev.name,
+      content: existing.content
+    }));
+    setShowLibrary(false);
+    onUpdateBlock(block.id, {
+      name: existing.name,
+      content: existing.content
+    });
   };
 
   // Save changes
@@ -133,7 +148,27 @@ export const BlockDetailEditor: React.FC<BlockDetailEditorProps> = ({
 
         {/* Block Content */}
         <div className="jd-flex-1">
-          <Label htmlFor="block-content">Content</Label>
+          <div className="jd-flex jd-items-center jd-justify-between">
+            <Label htmlFor="block-content">Content</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowLibrary(prev => !prev)}
+              className="jd-ml-auto"
+            >
+              Browse Library
+            </Button>
+          </div>
+          {showLibrary && (
+            <div className="jd-my-2">
+              <ExistingBlocksDropdown
+                blockType={block.type}
+                onSelectExisting={handleSelectExisting}
+                onCreateNew={() => setShowLibrary(false)}
+              />
+            </div>
+          )}
           <Textarea
             id="block-content"
             value={getContentAsString(localBlock.content)}
