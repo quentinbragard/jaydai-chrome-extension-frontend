@@ -207,12 +207,12 @@ export const BlockItem: React.FC<BlockItemProps> = ({
             value={editableContent}
             onChange={(e) => setEditableContent(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="jd-min-h-[120px] jd-font-mono jd-text-sm jd-resize-none"
+            className="jd-min-h-[120px] jd-text-sm jd-resize-none"
             placeholder={`Enter ${blockTypeInfo?.name || 'block'} content...`}
           />
         ) : (
           <div 
-            className="jd-whitespace-pre-wrap jd-p-3 jd-bg-muted/30 jd-rounded-md jd-text-sm jd-font-mono jd-max-h-[150px] jd-overflow-y-auto jd-cursor-pointer"
+            className="jd-whitespace-pre-wrap jd-p-3 jd-bg-muted/30 jd-rounded-md jd-text-sm jd-max-h-[150px] jd-overflow-y-auto jd-cursor-pointer"
             onClick={onEdit}
             dangerouslySetInnerHTML={{ __html: highlightPlaceholders(getBlockContent()) }}
           />

@@ -1,4 +1,4 @@
-// src/components/dialogs/templates/PlaceholderEditor.tsx
+// src/components/dialogs/templates/PlaceHolderEditor.tsx
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -8,18 +8,19 @@ import { BaseDialog } from '../BaseDialog';
 import { getMessage, getCurrentLanguage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from "sonner";
-import { BlockEditor } from '@/components/templates/blocks/BlockEditor';
-import { AddBlockButton } from '@/components/templates/blocks/AddBlockButton';
 import { Block, BlockType } from '@/components/templates/blocks/types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BasicEditor, AdvancedEditor } from './editor';
 
 /**
- * Enhanced dialog for editing template content using blocks
+ * Enhanced dialog for editing template content using blocks with Basic/Advanced modes
  */
 export const PlaceholderEditor: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
 
   // Helper function to extract content from potentially localized block content
   const getBlockContent = (block: Block): string => {
@@ -43,11 +44,11 @@ export const PlaceholderEditor: React.FC = () => {
         
         // Process expanded blocks if available
         if (data.expanded_blocks && Array.isArray(data.expanded_blocks)) {
-          templateBlocks = data.expanded_blocks.map((block: any) => ({
-            id: block.id || Date.now(),
+          templateBlocks = data.expanded_blocks.map((block: any, index: number) => ({
+            id: block.id || Date.now() + index,
             type: block.type || 'content',
             content: block.content || '',
-            name: block.name || `${block.type} Block`,
+            name: block.name || `${(block.type || 'content').charAt(0).toUpperCase() + (block.type || 'content').slice(1)} Block`,
             description: block.description || ''
           }));
         } else if (data.content) {
@@ -73,12 +74,13 @@ export const PlaceholderEditor: React.FC = () => {
   // Handle adding a new block
   const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => {
     const newBlock: Block = existingBlock ? 
-      { ...existingBlock, id: Date.now() } : 
+      { ...existingBlock, id: Date.now() + Math.random() } : 
       {
-        id: Date.now(),
+        id: Date.now() + Math.random(),
         type: blockType,
         content: '',
-        name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
+        name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`,
+        description: ''
       };
     
     setBlocks(prevBlocks => {
@@ -88,6 +90,7 @@ export const PlaceholderEditor: React.FC = () => {
       } else {
         newBlocks.push(newBlock);
       }
+      console.log('Added block:', newBlock, 'Total blocks:', newBlocks.length);
       return newBlocks;
     });
   };
@@ -99,7 +102,11 @@ export const PlaceholderEditor: React.FC = () => {
       return;
     }
     
-    setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== blockId));
+    setBlocks(prevBlocks => {
+      const newBlocks = prevBlocks.filter(block => block.id !== blockId);
+      console.log('Removed block:', blockId, 'Remaining blocks:', newBlocks.length);
+      return newBlocks;
+    });
   };
 
   // Handle updating block content
@@ -146,7 +153,8 @@ export const PlaceholderEditor: React.FC = () => {
     trackEvent(EVENTS.TEMPLATE_USED, {
       template_id: data?.id,
       template_name: data?.title,
-      template_type: data?.type
+      template_type: data?.type,
+      editor_mode: activeTab
     });
     
     // Dispatch events
@@ -163,6 +171,15 @@ export const PlaceholderEditor: React.FC = () => {
 
   if (!isOpen) return null;
 
+  const commonProps = {
+    blocks,
+    onAddBlock: handleAddBlock,
+    onRemoveBlock: handleRemoveBlock,
+    onUpdateBlock: handleUpdateBlock,
+    onMoveBlock: handleMoveBlock,
+    isProcessing
+  };
+
   return (
     <BaseDialog
       open={isOpen}
@@ -174,7 +191,7 @@ export const PlaceholderEditor: React.FC = () => {
       }}
       title={getMessage('placeholderEditor', undefined, 'Prompt Block Editor')}
       description={getMessage('placeholderEditorDescription', undefined, 'Build your prompt using blocks')}
-      className="jd-max-w-4xl jd-h-[85vh]"
+      className="jd-max-w-6xl jd-h-[90vh]"
     >
       <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">
         {error && (
@@ -189,31 +206,20 @@ export const PlaceholderEditor: React.FC = () => {
             <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
           </div>
         ) : (
-          <div className="jd-flex jd-flex-col jd-gap-4 jd-flex-1 jd-overflow-hidden">
-            {/* Add Block Button - Top */}
-            <AddBlockButton
-              position="start"
-              onAddBlock={handleAddBlock}
-              className="jd-self-center"
-            />
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'basic' | 'advanced')} className="jd-flex-1 jd-flex jd-flex-col">
+            <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4">
+              <TabsTrigger value="basic">Basic</TabsTrigger>
+              <TabsTrigger value="advanced">Advanced</TabsTrigger>
+            </TabsList>
             
-            {/* Block Editor */}
-            <div className="jd-flex-1 jd-overflow-hidden">
-              <BlockEditor
-                blocks={blocks}
-                onUpdateBlock={handleUpdateBlock}
-                onRemoveBlock={handleRemoveBlock}
-                onMoveBlock={handleMoveBlock}
-              />
-            </div>
+            <TabsContent value="basic" className="jd-flex-1 jd-overflow-hidden">
+              <BasicEditor {...commonProps} />
+            </TabsContent>
             
-            {/* Add Block Button - Bottom */}
-            <AddBlockButton
-              position="end"
-              onAddBlock={handleAddBlock}
-              className="jd-self-center"
-            />
-          </div>
+            <TabsContent value="advanced" className="jd-flex-1 jd-overflow-hidden">
+              <AdvancedEditor {...commonProps} />
+            </TabsContent>
+          </Tabs>
         )}
         
         {/* Footer */}

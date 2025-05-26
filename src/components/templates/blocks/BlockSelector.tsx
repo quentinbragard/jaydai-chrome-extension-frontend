@@ -19,8 +19,6 @@ export const BlockSelector: React.FC<BlockSelectorProps> = ({
 
   // Handle clicking outside to close
   useEffect(() => {
-    const root = (cardRef.current?.getRootNode() ?? document) as Document | ShadowRoot;
-
     const handleClickOutside = (event: MouseEvent) => {
       const path = event.composedPath();
       if (cardRef.current && !path.includes(cardRef.current)) {
@@ -28,14 +26,12 @@ export const BlockSelector: React.FC<BlockSelectorProps> = ({
       }
     };
 
-    root.addEventListener('mousedown', handleClickOutside);
-    return () => root.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onCancel]);
 
   // Handle escape key
   useEffect(() => {
-    const root = (cardRef.current?.getRootNode() ?? document) as Document | ShadowRoot;
-
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         if (selectedType) {
@@ -46,8 +42,8 @@ export const BlockSelector: React.FC<BlockSelectorProps> = ({
       }
     };
 
-    root.addEventListener('keydown', handleEscape);
-    return () => root.removeEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [selectedType, onCancel]);
 
   const handleTypeSelect = (type: BlockType) => {
