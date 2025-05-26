@@ -1,0 +1,150 @@
+import { useState, useEffect } from 'react';
+import { useDialog } from '@/hooks/dialogs/useDialog';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { toast } from 'sonner';
+import { Block, BlockType } from '@/components/templates/blocks/types';
+import { PromptMetadata, DEFAULT_METADATA_FIELDS } from '@/components/templates/metadata/types';
+import { getBlockContent, getLocalizedContent } from '../utils/blockUtils';
+
+export function usePlaceholderEditor() {
+  const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [metadata, setMetadata] = useState<PromptMetadata>({ fields: DEFAULT_METADATA_FIELDS });
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
+
+  useEffect(() => {
+    if (isOpen && data) {
+      setError(null);
+      setIsProcessing(true);
+      try {
+        let templateBlocks: Block[] = [];
+        if (data.expanded_blocks && Array.isArray(data.expanded_blocks)) {
+          templateBlocks = data.expanded_blocks.map((block: any, index: number) => ({
+            id: block.id || Date.now() + index,
+            type: block.type || 'content',
+            content: getLocalizedContent(block.content) || '',
+            name: block.name || `${(block.type || 'content').charAt(0).toUpperCase() + (block.type || 'content').slice(1)} Block`,
+            description: block.description || ''
+          }));
+        } else if (data.content) {
+          const contentString = getLocalizedContent(data.content);
+          templateBlocks = [{
+            id: Date.now(),
+            type: 'content',
+            content: contentString,
+            name: 'Template Content'
+          }];
+        }
+        setBlocks(templateBlocks);
+        setMetadata({ fields: DEFAULT_METADATA_FIELDS });
+      } catch (err) {
+        console.error('PlaceholderEditor: Error processing template:', err);
+        setError('Failed to process template content. Please try again.');
+      } finally {
+        setIsProcessing(false);
+      }
+    }
+  }, [isOpen, data]);
+
+  const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => {
+    const newBlock: Block = existingBlock
+      ? { ...existingBlock }
+      : {
+          id: Date.now() + Math.random(),
+          type: blockType,
+          content: '',
+          name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`,
+          description: ''
+        };
+
+    setBlocks(prevBlocks => {
+      const newBlocks = [...prevBlocks];
+      if (position === 'start') {
+        newBlocks.unshift(newBlock);
+      } else {
+        newBlocks.push(newBlock);
+      }
+      return newBlocks;
+    });
+  };
+
+  const handleRemoveBlock = (blockId: number) => {
+    if (blocks.length <= 1) {
+      toast.warning('Cannot remove the last block. Templates must have at least one block.');
+      return;
+    }
+    setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== blockId));
+  };
+
+  const handleUpdateBlock = (blockId: number, updatedBlock: Partial<Block>) => {
+    setBlocks(prevBlocks => prevBlocks.map(block => (block.id === blockId ? { ...block, ...updatedBlock } : block)));
+  };
+
+  const handleMoveBlock = (blockId: number, direction: 'up' | 'down') => {
+    setBlocks(prevBlocks => {
+      const currentIndex = prevBlocks.findIndex(block => block.id === blockId);
+      if (currentIndex === -1 || (direction === 'up' && currentIndex === 0) || (direction === 'down' && currentIndex === prevBlocks.length - 1)) {
+        return prevBlocks;
+      }
+      const newBlocks = [...prevBlocks];
+      const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+      [newBlocks[currentIndex], newBlocks[targetIndex]] = [newBlocks[targetIndex], newBlocks[currentIndex]];
+      return newBlocks;
+    });
+  };
+
+  const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
+    setMetadata(newMetadata);
+  };
+
+  const handleComplete = () => {
+    try {
+      const finalContent = blocks.map(block => getBlockContent(block)).join('\n\n');
+      if (data && data.onComplete) {
+        data.onComplete(finalContent);
+      }
+      dialogProps.onOpenChange(false);
+      trackEvent(EVENTS.TEMPLATE_USED, {
+        template_id: data?.id,
+        template_name: data?.title,
+        template_type: data?.type,
+        editor_mode: activeTab
+      });
+      document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
+      document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+    } catch (error) {
+      console.error('PlaceholderEditor: Error in handleComplete:', error);
+      toast.error('Failed to process template content');
+    }
+  };
+
+  const handleClose = () => {
+    try {
+      dialogProps.onOpenChange(false);
+      document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
+      document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+    } catch (error) {
+      console.error('PlaceholderEditor: Error in handleClose:', error);
+    }
+  };
+
+  return {
+    isOpen,
+    error,
+    blocks,
+    metadata,
+    isProcessing,
+    activeTab,
+    setActiveTab,
+    handleAddBlock,
+    handleRemoveBlock,
+    handleUpdateBlock,
+    handleMoveBlock,
+    handleUpdateMetadata,
+    handleComplete,
+    handleClose,
+    dialogProps
+  };
+}
