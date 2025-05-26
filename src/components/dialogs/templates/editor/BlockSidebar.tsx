@@ -78,9 +78,9 @@ export const BlockSidebar: React.FC<BlockSidebarProps> = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {Object.entries(BLOCK_CONFIGS).map(([type, config]) => (
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 key={type}
-                onClick={() => handleAddBlockClick(type as BlockType)}
+                onSelect={() => handleAddBlockClick(type as BlockType)}
                 className="jd-flex jd-items-center jd-gap-2"
               >
                 {getBlockIcon(type as BlockType)}
@@ -141,22 +141,22 @@ export const BlockSidebar: React.FC<BlockSidebarProps> = ({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem 
-                      onClick={(e) => { e.stopPropagation(); onMoveBlock(block.id, 'up'); }}
+                    <DropdownMenuItem
+                      onSelect={() => onMoveBlock(block.id, 'up')}
                       disabled={!canMoveUp}
                     >
                       <ArrowUp className="jd-h-4 jd-w-4 jd-mr-2" />
                       Move Up
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={(e) => { e.stopPropagation(); onMoveBlock(block.id, 'down'); }}
+                    <DropdownMenuItem
+                      onSelect={() => onMoveBlock(block.id, 'down')}
                       disabled={!canMoveDown}
                     >
                       <ArrowDown className="jd-h-4 jd-w-4 jd-mr-2" />
                       Move Down
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={(e) => { e.stopPropagation(); onRemoveBlock(block.id); }}
+                    <DropdownMenuItem
+                      onSelect={() => onRemoveBlock(block.id)}
                       disabled={blocks.length <= 1}
                       className="jd-text-destructive focus:jd-text-destructive"
                     >
