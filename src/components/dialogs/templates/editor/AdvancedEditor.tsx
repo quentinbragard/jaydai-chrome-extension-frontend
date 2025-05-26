@@ -16,7 +16,7 @@ interface AdvancedEditorProps {
 }
 
 /**
- * Advanced editor mode - Interactive preview with inline editing and metadata support
+ * Advanced editor mode - Enhanced unified interface with inline editing and metadata support
  */
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   blocks,

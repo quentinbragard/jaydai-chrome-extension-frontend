@@ -9,6 +9,7 @@ import { getMessage, getCurrentLanguage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from "sonner";
 import { Block, BlockType } from '@/components/templates/blocks/types';
+import { PromptMetadata, DEFAULT_METADATA_FIELDS } from '@/components/templates/metadata/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BasicEditor, AdvancedEditor } from './editor';
 
@@ -18,6 +19,7 @@ import { BasicEditor, AdvancedEditor } from './editor';
 export const PlaceholderEditor: React.FC = () => {
 const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
 const [blocks, setBlocks] = useState<Block[]>([]);
+const [metadata, setMetadata] = useState<PromptMetadata>({ fields: DEFAULT_METADATA_FIELDS });
 const [error, setError] = useState<string | null>(null);
 const [isProcessing, setIsProcessing] = useState(false);
 const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
@@ -33,9 +35,21 @@ const getBlockContent = (block: Block): string => {
   return '';
 };
 
+// Helper function to extract content from potentially localized data
+const getLocalizedContent = (content: any): string => {
+  if (typeof content === 'string') {
+    return content;
+  } else if (content && typeof content === 'object') {
+    const locale = getCurrentLanguage();
+    return content[locale] || content.en || Object.values(content)[0] || '';
+  }
+  return '';
+};
+
 // Initialize content and blocks when dialog opens
 useEffect(() => {
   if (isOpen && data) {
+    console.log('PlaceholderEditor: Processing data:', data);
     setError(null);
     setIsProcessing(true);
     
@@ -44,26 +58,33 @@ useEffect(() => {
       
       // Process expanded blocks if available
       if (data.expanded_blocks && Array.isArray(data.expanded_blocks)) {
+        console.log('PlaceholderEditor: Processing expanded_blocks');
         templateBlocks = data.expanded_blocks.map((block: any, index: number) => ({
           id: block.id || Date.now() + index,
           type: block.type || 'content',
-          content: block.content || '',
+          content: getLocalizedContent(block.content) || '',
           name: block.name || `${(block.type || 'content').charAt(0).toUpperCase() + (block.type || 'content').slice(1)} Block`,
           description: block.description || ''
         }));
       } else if (data.content) {
         // If no blocks, create a default content block
+        console.log('PlaceholderEditor: Creating default content block from data.content');
+        const contentString = getLocalizedContent(data.content);
         templateBlocks = [{
           id: Date.now(),
           type: 'content',
-          content: data.content,
+          content: contentString,
           name: 'Template Content'
         }];
       }
       
+      console.log('PlaceholderEditor: Final templateBlocks:', templateBlocks);
       setBlocks(templateBlocks);
+      
+      // Initialize metadata with default fields
+      setMetadata({ fields: DEFAULT_METADATA_FIELDS });
     } catch (err) {
-      console.error("Error processing template:", err);
+      console.error("PlaceholderEditor: Error processing template:", err);
       setError("Failed to process template content. Please try again.");
     } finally {
       setIsProcessing(false);
@@ -90,7 +111,7 @@ const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existin
     } else {
       newBlocks.push(newBlock);
     }
-    console.log('Added block:', newBlock, 'Total blocks:', newBlocks.length);
+    console.log('PlaceholderEditor: Added block:', newBlock, 'Total blocks:', newBlocks.length);
     return newBlocks;
   });
 };
@@ -104,7 +125,7 @@ const handleRemoveBlock = (blockId: number) => {
   
   setBlocks(prevBlocks => {
     const newBlocks = prevBlocks.filter(block => block.id !== blockId);
-    console.log('Removed block:', blockId, 'Remaining blocks:', newBlocks.length);
+    console.log('PlaceholderEditor: Removed block:', blockId, 'Remaining blocks:', newBlocks.length);
     return newBlocks;
   });
 };
@@ -136,47 +157,94 @@ const handleMoveBlock = (blockId: number, direction: 'up' | 'down') => {
   });
 };
 
+// Handle metadata updates
+const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
+  setMetadata(newMetadata);
+};
+
 // Function to handle template completion
 const handleComplete = () => {
-  // Combine all block content
-  const finalContent = blocks.map(block => getBlockContent(block)).join('\n\n');
-  
-  // Call the onComplete callback
-  if (data && data.onComplete) {
-    data.onComplete(finalContent);
+  try {
+    // Combine all block content
+    const finalContent = blocks.map(block => getBlockContent(block)).join('\n\n');
+    
+    console.log('PlaceholderEditor: Completing with content:', finalContent);
+    
+    // Call the onComplete callback
+    if (data && data.onComplete) {
+      data.onComplete(finalContent);
+    }
+    
+    // Close the dialog
+    dialogProps.onOpenChange(false);
+    
+    // Track usage
+    trackEvent(EVENTS.TEMPLATE_USED, {
+      template_id: data?.id,
+      template_name: data?.title,
+      template_type: data?.type,
+      editor_mode: activeTab
+    });
+    
+    // Dispatch events
+    document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
+    document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+  } catch (error) {
+    console.error('PlaceholderEditor: Error in handleComplete:', error);
+    toast.error('Failed to process template content');
   }
-  
-  // Close the dialog
-  dialogProps.onOpenChange(false);
-  
-  // Track usage
-  trackEvent(EVENTS.TEMPLATE_USED, {
-    template_id: data?.id,
-    template_name: data?.title,
-    template_type: data?.type,
-    editor_mode: activeTab
-  });
-  
-  // Dispatch events
-  document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
-  document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
 };
 
 // Handle dialog close
 const handleClose = () => {
-  dialogProps.onOpenChange(false);
-  document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
-  document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+  try {
+    dialogProps.onOpenChange(false);
+    document.dispatchEvent(new CustomEvent('jaydai:placeholder-editor-closed'));
+    document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+  } catch (error) {
+    console.error('PlaceholderEditor: Error in handleClose:', error);
+  }
 };
 
-if (!isOpen) return null;
+// Early return if not open
+if (!isOpen) {
+  return null;
+}
+
+// Show error state if there's an error and no blocks
+if (error && blocks.length === 0 && !isProcessing) {
+  return (
+    <BaseDialog
+      open={isOpen}
+      onOpenChange={(open: boolean) => {
+        if (!open) {
+          handleClose();
+        }
+      }}
+      title={getMessage('placeholderEditor', undefined, 'Prompt Block Editor')}
+      className="jd-max-w-4xl jd-h-[80vh]"
+    >
+      <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-h-64">
+        <Alert variant="destructive" className="jd-mb-4 jd-max-w-md">
+          <AlertTriangle className="jd-h-4 jd-w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+        <Button onClick={handleClose} variant="outline">
+          Close
+        </Button>
+      </div>
+    </BaseDialog>
+  );
+}
 
 const commonProps = {
   blocks,
+  metadata,
   onAddBlock: handleAddBlock,
   onRemoveBlock: handleRemoveBlock,
   onUpdateBlock: handleUpdateBlock,
   onMoveBlock: handleMoveBlock,
+  onUpdateMetadata: handleUpdateMetadata,
   isProcessing
 };
 
@@ -187,7 +255,6 @@ return (
       if (!open) {
         handleClose();
       }
-      dialogProps.onOpenChange(open);
     }}
     title={getMessage('placeholderEditor', undefined, 'Prompt Block Editor')}
     description={getMessage('placeholderEditorDescription', undefined, 'Build your prompt using blocks')}
@@ -204,6 +271,7 @@ return (
       {isProcessing ? (
         <div className="jd-flex jd-items-center jd-justify-center jd-h-64">
           <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
+          <span className="jd-ml-3 jd-text-gray-600">Loading template...</span>
         </div>
       ) : (
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'basic' | 'advanced')} className="jd-flex-1 jd-flex jd-flex-col">
@@ -227,7 +295,7 @@ return (
         <Button variant="outline" onClick={handleClose}>
           {getMessage('cancel', undefined, 'Cancel')}
         </Button>
-        <Button onClick={handleComplete} disabled={blocks.length === 0}>
+        <Button onClick={handleComplete} disabled={blocks.length === 0 || isProcessing}>
           {getMessage('useTemplate', undefined, 'Use Template')}
         </Button>
       </div>
