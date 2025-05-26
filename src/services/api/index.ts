@@ -5,3 +5,4 @@ export * from './MessageApi';
 export * from './PromptApi';
 export * from './NotificationApi';
 export * from './UserApi';
+export * from './BlocksApi';

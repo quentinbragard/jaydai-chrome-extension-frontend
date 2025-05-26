@@ -8,6 +8,10 @@ export interface Block {
   content: string | Record<string, string>;
   name?: string;
   description?: string;
+  created_at?: string;
+  user_id?: string;
+  organization_id?: string;
+  company_id?: string;
 }
 
 export interface BlockTypeDefinition {
