@@ -40,7 +40,7 @@ export const METADATA_CONFIGS: Record<MetadataType, MetadataConfig> = {
     label: 'Goal',
     emoji: '🎯',
     description: 'Specify what you want to achieve',
-    blockType: 'content',
+    blockType: 'goal',
     placeholder: 'Your goal is to...'
   },
   audience: {

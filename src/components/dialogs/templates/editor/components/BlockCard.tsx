@@ -88,7 +88,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
                 {block.name || `${block.type.charAt(0).toUpperCase() + block.type.slice(1)} Block`}
               </span>
               <Badge 
-                variant="outline" 
+                variant="default" 
                 className={cn(
                   'jd-text-xs jd-border',
                   BLOCK_COLORS[block.type]
@@ -105,29 +105,29 @@ export const BlockCard: React.FC<BlockCardProps> = ({
               variant="ghost" 
               onClick={() => onMove(block.id, 'up')} 
               disabled={index === 0} 
-              className="jd-h-7 jd-w-7 jd-p-0"
+              className="jd-h-8 jd-w-8 jd-p-1"
               title="Move up"
             >
-              <ArrowUp className="jd-h-3 jd-w-3" />
+              <ArrowUp className="jd-h-4 jd-w-4" />
             </Button>
             <Button 
               size="sm" 
               variant="ghost" 
               onClick={() => onMove(block.id, 'down')} 
               disabled={index === total - 1} 
-              className="jd-h-7 jd-w-7 jd-p-0"
+              className="jd-h-8 jd-w-8 jd-p-1"
               title="Move down"
             >
-              <ArrowDown className="jd-h-3 jd-w-3" />
+              <ArrowDown className="jd-h-4 jd-w-4" />
             </Button>
             <Button 
               size="sm" 
               variant="ghost" 
               onClick={() => onRemove(block.id)} 
-              className="jd-h-7 jd-w-7 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-destructive"
+              className="jd-h-8 jd-w-8 jd-p-1 jd-text-muted-foreground jd-hover:jd-text-destructive"
               title="Delete block"
             >
-              <Trash2 className="jd-h-3 jd-w-3" />
+              <Trash2 className="jd-h-4 jd-w-4" />
             </Button>
           </div>
         </div>

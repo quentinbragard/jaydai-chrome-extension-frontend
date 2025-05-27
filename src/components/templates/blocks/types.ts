@@ -1,8 +1,9 @@
 // src/components/dialogs/templates/blocks/types.ts
 
 export type BlockType =
-  | 'context'
   | 'role'
+  | 'context'
+  | 'goal'
   | 'example'
   | 'format'
   | 'audience'

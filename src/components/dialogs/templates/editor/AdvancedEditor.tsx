@@ -45,6 +45,7 @@ const BLOCK_TYPES: BlockType[] = ['content', 'context', 'role', 'example', 'form
 
 const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   content: 'Content',
+  goal: 'Goal',
   context: 'Context',
   role: 'Role',
   example: 'Example',
@@ -54,6 +55,7 @@ const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
 
 const BLOCK_TYPE_ICONS: Record<BlockType, React.ComponentType<any>> = {
   content: FileText,
+  goal: Target,
   context: MessageSquare,
   role: User,
   example: Layout,
@@ -77,7 +79,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     (metadata.values || {}) as Record<MetadataType, string>
   );
   const [expandedMetadata, setExpandedMetadata] = useState<MetadataType | null>(null);
-  const [showSecondaryMetadata, setShowSecondaryMetadata] = useState(false);
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const [activeSecondaryMetadata, setActiveSecondaryMetadata] = useState<Set<MetadataType>>(new Set());
   const [showAddBlockDropdown, setShowAddBlockDropdown] = useState(false);
@@ -270,21 +271,11 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         </div>
         
         {/* Add Secondary Metadata Button */}
-        <div className="jd-flex jd-justify-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSecondaryMetadata(!showSecondaryMetadata)}
-            className="jd-flex jd-items-center jd-gap-2"
-          >
-            <Plus className="jd-h-4 jd-w-4" />
-            Add More Elements
-          </Button>
-        </div>
+        
       </div>
 
       {/* Secondary Metadata Row */}
-      {showSecondaryMetadata && (
+      
         <div className="jd-space-y-4">
           <h4 className="jd-text-sm jd-font-medium jd-text-muted-foreground jd-flex jd-items-center jd-gap-2">
             <Layout className="jd-h-4 jd-w-4" />
@@ -333,7 +324,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               })}
           </div>
         </div>
-      )}
 
       {/* Blocks Section */}
       <div className="jd-space-y-4 jd-flex-1">
@@ -342,17 +332,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             <FileText className="jd-h-5 jd-w-5 jd-text-primary" />
             Content Blocks
           </h3>
-          <div className="jd-flex jd-items-center jd-gap-2">
-            <Button
-              onClick={() => onAddBlock('start', 'content')}
-              variant="outline"
-              size="sm"
-              className="jd-flex jd-items-center jd-gap-2"
-            >
-              <Plus className="jd-h-4 jd-w-4" />
-              Add Block Above
-            </Button>
-          </div>
         </div>
         
         <div className="jd-space-y-3 jd-flex-1 jd-overflow-y-auto">
@@ -379,10 +358,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                       className="jd-flex jd-items-center jd-gap-2"
                     >
                       <Plus className="jd-h-4 jd-w-4" />
-                      Add Block Below
+                      Add Block
                     </Button>
                   ) : (
-                    <div className="jd-flex jd-flex-col jd-gap-2 jd-p-4 jd-border jd-rounded-lg jd-bg-white jd-shadow-lg jd-min-w-64">
+                    <div className="jd-flex jd-flex-col jd-gap-2 jd-p-4 jd-border jd-rounded-lg jd-shadow-lg jd-min-w-64">
                       <div className="jd-flex jd-items-center jd-justify-between">
                         <span className="jd-font-medium jd-text-sm">Add Block</span>
                         <Button
