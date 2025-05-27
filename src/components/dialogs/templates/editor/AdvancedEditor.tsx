@@ -82,7 +82,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const [selectedBlockType, setSelectedBlockType] = useState<BlockType | null>(null);
   const [availableBlocksByType, setAvailableBlocksByType] = useState<Record<BlockType, Block[]>>({} as Record<BlockType, Block[]>);
   const [draggedBlockId, setDraggedBlockId] = useState<number | null>(null);
-  const isDarkMode = useThemeDetector();
+
 
   // Load available blocks for each metadata type and block type
   useEffect(() => {
