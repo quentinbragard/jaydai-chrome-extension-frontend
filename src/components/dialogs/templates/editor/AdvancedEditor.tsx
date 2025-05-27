@@ -9,22 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
-  ChevronDown, 
-  ChevronUp,
-  Eye,
-  Trash2,
-  ArrowUp,
-  ArrowDown,
-  FileText,
-  User,
-  MessageSquare,
-  Target,
-  Users,
-  Type,
-  Layout
-} from 'lucide-react';
+import { MetadataCard } from './components/MetadataCard';
+import { BlockCard } from './components/BlockCard';
+import { PreviewSection } from './components/PreviewSection';
+import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
 import { cn } from "@/core/utils/classNames";
 
 interface AdvancedEditorProps {
@@ -44,7 +32,6 @@ const PRIMARY_METADATA: MetadataType[] = ['role', 'context', 'goal'];
 // All available metadata types for the secondary row
 const ALL_METADATA_TYPES: MetadataType[] = Object.keys(METADATA_CONFIGS) as MetadataType[];
 
-// Icons for metadata types
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: User,
   context: MessageSquare,
@@ -54,15 +41,6 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   example: Layout
 };
 
-// Block type icons
-const BLOCK_ICONS: Record<BlockType, React.ComponentType<any>> = {
-  content: FileText,
-  context: MessageSquare,
-  role: User,
-  example: Layout,
-  format: Type,
-  audience: Users
-};
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   blocks,
@@ -78,7 +56,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const [customValues, setCustomValues] = useState<Record<MetadataType, string>>({} as Record<MetadataType, string>);
   const [expandedMetadata, setExpandedMetadata] = useState<MetadataType | null>(null);
   const [showSecondaryMetadata, setShowSecondaryMetadata] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+  const [previewExpanded, setPreviewExpanded] = useState(false);
   const [activeSecondaryMetadata, setActiveSecondaryMetadata] = useState<Set<MetadataType>>(new Set());
 
   // Load available blocks for each metadata type
@@ -168,174 +146,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     return parts.filter(Boolean).join('\n\n');
   };
 
-  const MetadataCard: React.FC<{ 
-    type: MetadataType; 
-    isPrimary?: boolean; 
-    onRemove?: () => void 
-  }> = ({ type, isPrimary = false, onRemove }) => {
-    const config = METADATA_CONFIGS[type];
-    const Icon = METADATA_ICONS[type];
-    const isExpanded = expandedMetadata === type;
-    const selectedId = metadata[type] || 0;
-    const customValue = customValues[type] || '';
-    
-    return (
-      <Card 
-        className={cn(
-          "jd-transition-all jd-duration-200 jd-cursor-pointer hover:jd-shadow-md",
-          isPrimary ? "jd-border-2 jd-border-primary/20" : "jd-border jd-border-muted",
-          isExpanded && "jd-ring-2 jd-ring-primary/50 jd-shadow-lg"
-        )}
-      >
-        <CardContent className="jd-p-4">
-          <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
-            <div className="jd-flex jd-items-center jd-gap-2">
-              <Icon className={cn("jd-h-4 jd-w-4", isPrimary ? "jd-text-primary" : "jd-text-muted-foreground")} />
-              <span className={cn("jd-font-medium", isPrimary ? "jd-text-primary" : "jd-text-foreground")}>
-                {config.emoji} {config.label}
-              </span>
-            </div>
-            <div className="jd-flex jd-items-center jd-gap-1">
-              {!isPrimary && onRemove && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemove();
-                  }}
-                  className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-destructive"
-                >
-                  <Trash2 className="jd-h-3 jd-w-3" />
-                </Button>
-              )}
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setExpandedMetadata(isExpanded ? null : type)}
-                className="jd-h-6 jd-w-6 jd-p-0"
-              >
-                {isExpanded ? <ChevronUp className="jd-h-3 jd-w-3" /> : <ChevronDown className="jd-h-3 jd-w-3" />}
-              </Button>
-            </div>
-          </div>
-          
-          {isExpanded ? (
-            <div className="jd-space-y-3">
-              <Select 
-                value={selectedId ? String(selectedId) : '0'} 
-                onValueChange={(v) => handleMetadataChange(type, v)}
-              >
-                <SelectTrigger className="jd-w-full">
-                  <SelectValue placeholder="Select or create custom" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">None</SelectItem>
-                  {availableBlocks[type]?.map((block) => (
-                    <SelectItem key={block.id} value={String(block.id)}>
-                      <div className="jd-flex jd-items-center jd-gap-2">
-                        <span className="jd-font-medium jd-truncate jd-max-w-32">
-                          {block.name || `${type} block`}
-                        </span>
-                        <span className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-48">
-                          {typeof block.content === 'string'
-                            ? block.content.substring(0, 40) + '...'
-                            : (block.content[getCurrentLanguage()] || '').substring(0, 40) + '...'}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="custom">
-                    <div className="jd-flex jd-items-center jd-gap-2">
-                      <Plus className="jd-h-3 jd-w-3" />
-                      Create custom {type}
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              
-              {(!selectedId || selectedId === 0) && (
-                <Textarea
-                  value={customValue}
-                  onChange={(e) => handleCustomChange(type, e.target.value)}
-                  placeholder={`Enter custom ${type} content...`}
-                  rows={3}
-                  className="resize-none"
-                />
-              )}
-            </div>
-          ) : (
-            <div className="jd-text-sm jd-text-muted-foreground">
-              {selectedId && selectedId !== 0 
-                ? availableBlocks[type]?.find(b => b.id === selectedId)?.name || `${type} block`
-                : customValue 
-                  ? customValue.substring(0, 50) + (customValue.length > 50 ? '...' : '')
-                  : `Click to set ${type}`
-              }
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
-
-  const BlockCard: React.FC<{ block: Block; index: number }> = ({ block, index }) => {
-    const Icon = BLOCK_ICONS[block.type];
-    const content = typeof block.content === 'string' 
-      ? block.content 
-      : block.content[getCurrentLanguage()] || block.content.en || '';
-    
-    return (
-      <Card className="jd-transition-all jd-duration-200 jd-hover:jd-shadow-md">
-        <CardContent className="jd-p-4">
-          <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
-            <div className="jd-flex jd-items-center jd-gap-2">
-              <Icon className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
-              <span className="jd-font-medium">{block.name || `${block.type} Block`}</span>
-              <Badge variant="outline" className="jd-text-xs">
-                {block.type}
-              </Badge>
-            </div>
-            <div className="jd-flex jd-items-center jd-gap-1">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onMoveBlock(block.id, 'up')}
-                disabled={index === 0}
-                className="jd-h-6 jd-w-6 jd-p-0"
-              >
-                <ArrowUp className="jd-h-3 jd-w-3" />
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onMoveBlock(block.id, 'down')}
-                disabled={index === blocks.length - 1}
-                className="jd-h-6 jd-w-6 jd-p-0"
-              >
-                <ArrowDown className="jd-h-3 jd-w-3" />
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onRemoveBlock(block.id)}
-                className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-destructive"
-              >
-                <Trash2 className="jd-h-3 jd-w-3" />
-              </Button>
-            </div>
-          </div>
-          
-          <Textarea
-            value={content}
-            onChange={(e) => onUpdateBlock(block.id, { content: e.target.value })}
-            className="jd-resize-none jd-min-h-[80px]"
-            placeholder={`Enter ${block.type} content...`}
-          />
-        </CardContent>
-      </Card>
-    );
-  };
 
   if (isProcessing) {
     return (
@@ -346,7 +156,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   }
 
   return (
-    <div className="jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-4">
+    <div className="jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-4 jd-bg-gradient-to-br jd-from-slate-50 jd-to-slate-100 jd-dark:jd-from-gray-800/60 jd-dark:jd-to-gray-900/60">
       {/* Primary Metadata Row */}
       <div className="jd-space-y-4">
         <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
@@ -354,7 +164,19 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         </h3>
         <div className="jd-grid jd-grid-cols-3 jd-gap-4">
           {PRIMARY_METADATA.map((type) => (
-            <MetadataCard key={type} type={type} isPrimary />
+            <MetadataCard
+              key={type}
+              type={type}
+              icon={METADATA_ICONS[type]}
+              availableBlocks={availableBlocks[type] || []}
+              expanded={expandedMetadata === type}
+              selectedId={metadata[type] || 0}
+              customValue={customValues[type] || ''}
+              isPrimary
+              onSelect={(v) => handleMetadataChange(type, v)}
+              onCustomChange={(v) => handleCustomChange(type, v)}
+              onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
+            />
           ))}
         </div>
         
@@ -382,9 +204,17 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           {activeSecondaryMetadata.size > 0 && (
             <div className="jd-grid jd-grid-cols-2 jd-gap-3">
               {Array.from(activeSecondaryMetadata).map((type) => (
-                <MetadataCard 
-                  key={type} 
-                  type={type} 
+                <MetadataCard
+                  key={type}
+                  type={type}
+                  icon={METADATA_ICONS[type]}
+                  availableBlocks={availableBlocks[type] || []}
+                  expanded={expandedMetadata === type}
+                  selectedId={metadata[type] || 0}
+                  customValue={customValues[type] || ''}
+                  onSelect={(v) => handleMetadataChange(type, v)}
+                  onCustomChange={(v) => handleCustomChange(type, v)}
+                  onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
                   onRemove={() => removeSecondaryMetadata(type)}
                 />
               ))}
@@ -421,6 +251,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           </h3>
           <Button
             onClick={() => onAddBlock('start', 'content')}
+            variant="outline"
             size="sm"
             className="jd-flex jd-items-center jd-gap-2"
           >
@@ -432,7 +263,14 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         <div className="jd-space-y-3 jd-flex-1 jd-overflow-y-auto">
           {blocks.map((block, index) => (
             <div key={block.id}>
-              <BlockCard block={block} index={index} />
+              <BlockCard
+                block={block}
+                index={index}
+                total={blocks.length}
+                onMove={onMoveBlock}
+                onRemove={onRemoveBlock}
+                onUpdate={onUpdateBlock}
+              />
               {index === blocks.length - 1 && (
                 <div className="jd-flex jd-justify-center jd-mt-3">
                   <Button
@@ -455,6 +293,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               <p>No content blocks yet</p>
               <Button
                 onClick={() => onAddBlock('end', 'content')}
+                variant="outline"
                 size="sm"
                 className="jd-mt-2"
               >
@@ -466,34 +305,11 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         </div>
       </div>
 
-      {/* Preview Button */}
-      <div className="jd-border-t jd-pt-4">
-        <Button
-          onClick={() => setShowPreview(!showPreview)}
-          variant={showPreview ? "default" : "outline"}
-          className="jd-w-full jd-flex jd-items-center jd-justify-center jd-gap-2"
-        >
-          <Eye className="jd-h-4 jd-w-4" />
-          {showPreview ? 'Hide Preview' : 'Preview Full Prompt'}
-        </Button>
-        
-        {showPreview && (
-          <Card className="jd-mt-4">
-            <CardContent className="jd-p-4">
-              <h4 className="jd-font-medium jd-mb-2">🔍 Preview</h4>
-              <div className="jd-bg-muted/50 jd-rounded-lg jd-p-4 jd-max-h-60 jd-overflow-y-auto">
-                <pre className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono">
-                  {generatePreviewContent() || "Your prompt will appear here..."}
-                </pre>
-              </div>
-              <div className="jd-flex jd-justify-between jd-items-center jd-mt-2 jd-text-xs jd-text-muted-foreground">
-                <span>{generatePreviewContent().length} characters</span>
-                <span>{generatePreviewContent().split('\n').length} lines</span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      <PreviewSection
+        content={generatePreviewContent()}
+        expanded={previewExpanded}
+        onToggle={() => setPreviewExpanded(!previewExpanded)}
+      />
     </div>
   );
 };
