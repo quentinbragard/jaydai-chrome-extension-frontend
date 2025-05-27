@@ -96,17 +96,9 @@ export const BlockCard: React.FC<BlockCardProps> = ({
             </div>
           </div>
           
-          <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
-            {block.isNew && content.trim() && (
-              <SaveBlockButton
-                type={block.type}
-                content={content}
-                title={block.name}
-                description={block.description}
-                onSaved={(saved) => onSave && onSave(saved)}
-                className="jd-h-8 jd-w-8 jd-p-1"
-              />
-            )}
+
+          <div className="jd-flex jd-items-center jd-gap-1">
+
             <Button
               size="sm"
               variant="ghost"
@@ -130,6 +122,18 @@ export const BlockCard: React.FC<BlockCardProps> = ({
           <div className="jd-mt-2 jd-text-xs jd-text-muted-foreground jd-flex jd-justify-between">
             <span>{content.length} characters</span>
             <span>{content.split('\n').length} lines</span>
+          </div>
+        )}
+
+        {block.isNew && content.trim() && (
+          <div className="jd-flex jd-justify-end jd-mt-3">
+            <SaveBlockButton
+              type={block.type}
+              content={content}
+              title={block.name}
+              description={block.description}
+              onSaved={(saved) => onSave && onSave(saved)}
+            />
           </div>
         )}
       </CardContent>

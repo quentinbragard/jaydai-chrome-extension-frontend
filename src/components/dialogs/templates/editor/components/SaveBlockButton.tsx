@@ -12,6 +12,12 @@ interface SaveBlockButtonProps {
   description?: string;
   onSaved?: (block: Block) => void;
   className?: string;
+  /**
+   * When true, only display the icon instead of text. Used in compact areas
+   * like metadata cards.
+   */
+  iconOnly?: boolean;
+
 }
 
 export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
@@ -20,7 +26,10 @@ export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
   title,
   description,
   onSaved,
-  className
+  className,
+  iconOnly = false
+
+
 }) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -53,13 +62,25 @@ export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
   return (
     <Button
       size="sm"
-      variant="ghost"
+      variant={iconOnly ? 'ghost' : 'secondary'}
+
       onClick={handleSave}
       disabled={saving || saved || !content.trim()}
       className={className}
       title="Save block"
     >
-      {saved ? <Check className="jd-h-4 jd-w-4" /> : <Save className="jd-h-4 jd-w-4" />}
+      {saved ? (
+        <>
+          <Check className="jd-h-4 jd-w-4 jd-mr-1" />
+          {!iconOnly && <span>Saved</span>}
+        </>
+      ) : (
+        <>
+          <Save className="jd-h-4 jd-w-4 jd-mr-1" />
+          {!iconOnly && <span>Save</span>}
+        </>
+      )}
+
     </Button>
   );
 };
