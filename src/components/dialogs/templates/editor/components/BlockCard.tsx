@@ -96,7 +96,9 @@ export const BlockCard: React.FC<BlockCardProps> = ({
             </div>
           </div>
           
+
           <div className="jd-flex jd-items-center jd-gap-1">
+
             <Button
               size="sm"
               variant="ghost"

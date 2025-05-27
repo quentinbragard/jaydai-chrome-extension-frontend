@@ -17,6 +17,7 @@ interface SaveBlockButtonProps {
    * like metadata cards.
    */
   iconOnly?: boolean;
+
 }
 
 export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
@@ -27,6 +28,8 @@ export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
   onSaved,
   className,
   iconOnly = false
+
+
 }) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -60,6 +63,7 @@ export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
     <Button
       size="sm"
       variant={iconOnly ? 'ghost' : 'secondary'}
+
       onClick={handleSave}
       disabled={saving || saved || !content.trim()}
       className={className}
@@ -76,6 +80,7 @@ export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
           {!iconOnly && <span>Save</span>}
         </>
       )}
+
     </Button>
   );
 };

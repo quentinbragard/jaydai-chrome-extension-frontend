@@ -161,7 +161,6 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                     content={customValue}
                     onSaved={(b) => onSaveBlock && onSaveBlock(b)}
                     className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-primary"
-                    iconOnly
                   />
                 )}
               </>
