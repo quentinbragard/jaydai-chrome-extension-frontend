@@ -73,7 +73,9 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   isProcessing
 }) => {
   const [availableBlocks, setAvailableBlocks] = useState<Record<MetadataType, Block[]>>({} as Record<MetadataType, Block[]>);
-  const [customValues, setCustomValues] = useState<Record<MetadataType, string>>({} as Record<MetadataType, string>);
+  const [customValues, setCustomValues] = useState<Record<MetadataType, string>>(
+    (metadata.values || {}) as Record<MetadataType, string>
+  );
   const [expandedMetadata, setExpandedMetadata] = useState<MetadataType | null>(null);
   const [showSecondaryMetadata, setShowSecondaryMetadata] = useState(false);
   const [previewExpanded, setPreviewExpanded] = useState(false);
@@ -116,18 +118,32 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
   const handleMetadataChange = (type: MetadataType, value: string) => {
     if (!onUpdateMetadata) return;
-    
+
     if (value === 'custom') {
-      onUpdateMetadata({ ...metadata, [type]: 0 });
+      const newMetadata = {
+        ...metadata,
+        [type]: 0,
+        values: { ...(metadata.values || {}), [type]: customValues[type] || '' }
+      };
+      onUpdateMetadata(newMetadata);
       setExpandedMetadata(type);
     } else {
-      onUpdateMetadata({ ...metadata, [type]: Number(value) });
+      const id = Number(value);
+      const content = getBlockContent(id, type);
+      const newValues = { ...(metadata.values || {}) };
+      if (content) newValues[type] = content; else delete newValues[type];
+      const newMetadata = { ...metadata, [type]: id, values: newValues };
+      onUpdateMetadata(newMetadata);
       setExpandedMetadata(null);
     }
   };
 
   const handleCustomChange = (type: MetadataType, value: string) => {
     setCustomValues((prev) => ({ ...prev, [type]: value }));
+    if (!onUpdateMetadata) return;
+    const newValues = { ...(metadata.values || {}), [type]: value };
+    const newMetadata = { ...metadata, [type]: 0, values: newValues };
+    onUpdateMetadata(newMetadata);
   };
 
   const getBlockContent = (blockId: number, type: MetadataType): string => {
@@ -141,7 +157,12 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const addSecondaryMetadata = (type: MetadataType) => {
     setActiveSecondaryMetadata(prev => new Set([...prev, type]));
     if (!onUpdateMetadata) return;
-    onUpdateMetadata({ ...metadata, [type]: 0 });
+    const newMetadata = {
+      ...metadata,
+      [type]: 0,
+      values: { ...(metadata.values || {}), [type]: '' }
+    };
+    onUpdateMetadata(newMetadata);
   };
 
   const removeSecondaryMetadata = (type: MetadataType) => {
@@ -153,6 +174,9 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     if (!onUpdateMetadata) return;
     const newMetadata = { ...metadata };
     delete newMetadata[type];
+    const newValues = { ...(metadata.values || {}) };
+    delete newValues[type];
+    newMetadata.values = newValues;
     onUpdateMetadata(newMetadata);
   };
 
@@ -187,13 +211,9 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     
     // Add metadata content
     ALL_METADATA_TYPES.forEach((type) => {
-      const id = metadata[type];
-      const custom = customValues[type];
-      if (id && id !== 0) {
-        const content = getBlockContent(id, type);
-        if (content) parts.push(content);
-      } else if (custom) {
-        parts.push(custom);
+      const value = metadata.values?.[type];
+      if (value) {
+        parts.push(value);
       }
     });
     

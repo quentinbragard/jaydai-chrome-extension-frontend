@@ -10,6 +10,7 @@ export interface PromptMetadata {
   audience?: number;
   format?: number;
   example?: number;
+  values?: Partial<Record<MetadataType, string>>;
 }
 
 export interface MetadataConfig {
@@ -65,11 +66,14 @@ export const METADATA_CONFIGS: Record<MetadataType, MetadataConfig> = {
   }
 };
 
+export const ALL_METADATA_TYPES: MetadataType[] = Object.keys(METADATA_CONFIGS) as MetadataType[];
+
 export const DEFAULT_METADATA: PromptMetadata = {
   role: undefined,
   context: undefined,
   goal: undefined,
   audience: undefined,
   format: undefined,
-  example: undefined
+  example: undefined,
+  values: {}
 };
