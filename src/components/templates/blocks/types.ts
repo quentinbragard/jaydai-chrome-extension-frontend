@@ -28,6 +28,8 @@ export interface Block {
   user_id?: string;
   organization_id?: string;
   company_id?: string;
+  /** Whether this block has not been saved to the backend */
+  isNew?: boolean;
 }
 
 export interface BlockTypeDefinition {

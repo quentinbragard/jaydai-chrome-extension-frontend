@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
+import { SaveBlockButton } from './SaveBlockButton';
 import { cn } from '@/core/utils/classNames';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
@@ -21,6 +22,7 @@ interface MetadataCardProps {
   onCustomChange: (value: string) => void;
   onToggle: () => void;
   onRemove?: () => void;
+  onSaveBlock?: (block: Block) => void;
 }
 
 export const MetadataCard: React.FC<MetadataCardProps> = ({
@@ -34,7 +36,8 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   onSelect,
   onCustomChange,
   onToggle,
-  onRemove
+  onRemove,
+  onSaveBlock
 }) => {
   const config = METADATA_CONFIGS[type];
   const isDarkMode = useThemeDetector();
@@ -143,14 +146,24 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
             </Select>
 
             {(!selectedId || selectedId === 0) && (
-              <Textarea
-                value={customValue}
-                onChange={(e) => onCustomChange(e.target.value)}
-                placeholder={`Enter custom ${type} content...`}
-                rows={3}
-                className="jd-resize-none"
-                onClick={stopPropagation}
-              />
+              <>
+                <Textarea
+                  value={customValue}
+                  onChange={(e) => onCustomChange(e.target.value)}
+                  placeholder={`Enter custom ${type} content...`}
+                  rows={3}
+                  className="jd-resize-none"
+                  onClick={stopPropagation}
+                />
+                {customValue && (
+                  <SaveBlockButton
+                    type={config.blockType}
+                    content={customValue}
+                    onSaved={(b) => onSaveBlock && onSaveBlock(b)}
+                    className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-primary"
+                  />
+                )}
+              </>
             )}
           </div>
         ) : (
