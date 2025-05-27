@@ -78,7 +78,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const [customValues, setCustomValues] = useState<Record<MetadataType, string>>({} as Record<MetadataType, string>);
   const [expandedMetadata, setExpandedMetadata] = useState<MetadataType | null>(null);
   const [showSecondaryMetadata, setShowSecondaryMetadata] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+  const [previewExpanded, setPreviewExpanded] = useState(false);
   const [activeSecondaryMetadata, setActiveSecondaryMetadata] = useState<Set<MetadataType>>(new Set());
 
   // Load available blocks for each metadata type
@@ -180,10 +180,11 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     const customValue = customValues[type] || '';
     
     return (
-      <Card 
+      <Card
+        onClick={() => setExpandedMetadata(isExpanded ? null : type)}
         className={cn(
           "jd-transition-all jd-duration-200 jd-cursor-pointer hover:jd-shadow-md",
-          isPrimary ? "jd-border-2 jd-border-primary/20" : "jd-border jd-border-muted",
+          isPrimary ? "jd-border-2 jd-border-primary/20" : "jd-border jd-border-muted jd-bg-muted/20",
           isExpanded && "jd-ring-2 jd-ring-primary/50 jd-shadow-lg"
         )}
       >
@@ -212,7 +213,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => setExpandedMetadata(isExpanded ? null : type)}
+                onClick={(e) => { e.stopPropagation(); setExpandedMetadata(isExpanded ? null : type); }}
                 className="jd-h-6 jd-w-6 jd-p-0"
               >
                 {isExpanded ? <ChevronUp className="jd-h-3 jd-w-3" /> : <ChevronDown className="jd-h-3 jd-w-3" />}
@@ -346,7 +347,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   }
 
   return (
-    <div className="jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-4">
+    <div className="jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-4 jd-bg-gradient-to-br jd-from-slate-50 jd-to-slate-100 jd-dark:jd-from-gray-800/60 jd-dark:jd-to-gray-900/60">
       {/* Primary Metadata Row */}
       <div className="jd-space-y-4">
         <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
@@ -421,6 +422,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           </h3>
           <Button
             onClick={() => onAddBlock('start', 'content')}
+            variant="outline"
             size="sm"
             className="jd-flex jd-items-center jd-gap-2"
           >
@@ -455,6 +457,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               <p>No content blocks yet</p>
               <Button
                 onClick={() => onAddBlock('end', 'content')}
+                variant="outline"
                 size="sm"
                 className="jd-mt-2"
               >
@@ -466,33 +469,38 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         </div>
       </div>
 
-      {/* Preview Button */}
+      {/* Preview */}
       <div className="jd-border-t jd-pt-4">
-        <Button
-          onClick={() => setShowPreview(!showPreview)}
-          variant={showPreview ? "default" : "outline"}
-          className="jd-w-full jd-flex jd-items-center jd-justify-center jd-gap-2"
-        >
-          <Eye className="jd-h-4 jd-w-4" />
-          {showPreview ? 'Hide Preview' : 'Preview Full Prompt'}
-        </Button>
-        
-        {showPreview && (
-          <Card className="jd-mt-4">
-            <CardContent className="jd-p-4">
-              <h4 className="jd-font-medium jd-mb-2">🔍 Preview</h4>
-              <div className="jd-bg-muted/50 jd-rounded-lg jd-p-4 jd-max-h-60 jd-overflow-y-auto">
-                <pre className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono">
-                  {generatePreviewContent() || "Your prompt will appear here..."}
-                </pre>
+        <Card>
+          <CardContent className="jd-p-4">
+            <h4 className="jd-font-medium jd-mb-2 jd-flex jd-items-center jd-gap-2">
+              <Eye className="jd-h-4 jd-w-4" /> Preview
+            </h4>
+            <div className={cn(
+              "jd-bg-muted/50 jd-rounded-lg jd-p-4 jd-relative",
+              previewExpanded ? "jd-max-h-60 jd-overflow-y-auto" : "jd-max-h-24 jd-overflow-hidden"
+            )}>
+              <pre className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono">
+                {previewExpanded ? generatePreviewContent() : generatePreviewContent().split('\n').slice(0, 3).join('\n') || "Your prompt will appear here..."}
+              </pre>
+              {!previewExpanded && generatePreviewContent().split('\n').length > 3 && (
+                <div className="jd-absolute jd-inset-x-0 jd-bottom-0 jd-h-8 jd-bg-gradient-to-t jd-from-muted/80 jd-to-muted/0 pointer-events-none" />
+              )}
+            </div>
+            <div className="jd-flex jd-justify-between jd-items-center jd-mt-2 jd-text-xs jd-text-muted-foreground">
+              <span>{generatePreviewContent().length} characters</span>
+              <span>{generatePreviewContent().split('\n').length} lines</span>
+            </div>
+            {generatePreviewContent().split('\n').length > 3 && (
+              <div className="jd-flex jd-justify-end jd-mt-2">
+                <Button size="sm" variant="ghost" onClick={() => setPreviewExpanded(!previewExpanded)} className="jd-flex jd-items-center jd-gap-1">
+                  {previewExpanded ? <ChevronUp className="jd-h-4 jd-w-4" /> : <ChevronDown className="jd-h-4 jd-w-4" />}
+                  {previewExpanded ? 'Collapse' : 'Expand'}
+                </Button>
               </div>
-              <div className="jd-flex jd-justify-between jd-items-center jd-mt-2 jd-text-xs jd-text-muted-foreground">
-                <span>{generatePreviewContent().length} characters</span>
-                <span>{generatePreviewContent().split('\n').length} lines</span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
