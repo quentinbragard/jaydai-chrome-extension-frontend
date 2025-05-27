@@ -3,13 +3,13 @@ import { useDialog } from '@/hooks/dialogs/useDialog';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
 import { Block, BlockType } from '@/components/templates/blocks/types';
-import { PromptMetadata, DEFAULT_METADATA_FIELDS } from '@/components/templates/metadata/types';
+import { PromptMetadata, DEFAULT_METADATA } from '@/components/templates/metadata/types';
 import { getBlockContent, getLocalizedContent } from '../utils/blockUtils';
 
 export function usePlaceholderEditor() {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
   const [blocks, setBlocks] = useState<Block[]>([]);
-  const [metadata, setMetadata] = useState<PromptMetadata>({ fields: DEFAULT_METADATA_FIELDS });
+  const [metadata, setMetadata] = useState<PromptMetadata>(DEFAULT_METADATA);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
@@ -38,7 +38,7 @@ export function usePlaceholderEditor() {
           }];
         }
         setBlocks(templateBlocks);
-        setMetadata({ fields: DEFAULT_METADATA_FIELDS });
+        setMetadata(DEFAULT_METADATA);
       } catch (err) {
         console.error('PlaceholderEditor: Error processing template:', err);
         setError('Failed to process template content. Please try again.');

@@ -1,6 +1,21 @@
 // src/components/dialogs/templates/blocks/types.ts
 
-export type BlockType = 'context' | 'role' | 'example' | 'format' | 'audience' | 'content';
+export type BlockType =
+  | 'context'
+  | 'role'
+  | 'example'
+  | 'format'
+  | 'audience'
+  | 'content'
+  | 'tone_style'
+  | 'output_format'
+  | 'output_language'
+  | 'main_context'
+  | 'main_goal'
+  | 'constraints'
+  | 'thinking_steps'
+  | 'additional_context'
+  | 'custom';
 
 export interface Block {
   id: number;
@@ -52,11 +67,65 @@ export const BLOCK_TYPES: BlockTypeDefinition[] = [
     description: "Describes the target audience",
     color: "jd-bg-pink-500"
   },
-  { 
-    id: "content", 
-    name: "Content", 
+  {
+    id: "content",
+    name: "Content",
     description: "Main content of the prompt",
     color: "jd-bg-gray-500"
+  },
+  {
+    id: "tone_style",
+    name: "Tone & Style",
+    description: "Tone or style guideline",
+    color: "jd-bg-yellow-500"
+  },
+  {
+    id: "output_format",
+    name: "Output Format",
+    description: "Defines how the AI should format the answer",
+    color: "jd-bg-fuchsia-500"
+  },
+  {
+    id: "output_language",
+    name: "Output Language",
+    description: "Language of the output",
+    color: "jd-bg-indigo-500"
+  },
+  {
+    id: "main_context",
+    name: "Main Context",
+    description: "Core context of the prompt",
+    color: "jd-bg-blue-700"
+  },
+  {
+    id: "main_goal",
+    name: "Main Goal",
+    description: "Objective to achieve",
+    color: "jd-bg-green-700"
+  },
+  {
+    id: "constraints",
+    name: "Constraints",
+    description: "Restrictions or requirements",
+    color: "jd-bg-red-500"
+  },
+  {
+    id: "thinking_steps",
+    name: "Thinking Steps",
+    description: "Guidance on reasoning steps",
+    color: "jd-bg-purple-600"
+  },
+  {
+    id: "additional_context",
+    name: "Additional Context",
+    description: "Extra context information",
+    color: "jd-bg-cyan-500"
+  },
+  {
+    id: "custom",
+    name: "Custom",
+    description: "Custom user block",
+    color: "jd-bg-gray-400"
   }
 ];
 
