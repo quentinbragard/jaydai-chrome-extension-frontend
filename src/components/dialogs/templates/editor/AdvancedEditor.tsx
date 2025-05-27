@@ -151,7 +151,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   }
 
   return (
-    <div className="jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-4 jd-bg-gradient-to-br jd-from-slate-50 jd-to-slate-100 jd-dark:jd-from-gray-800/60 jd-dark:jd-to-gray-900/60">
+    <div className="jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-4 jd-bg-gradient-to-br jd-from-slate-50 jd-to-slate-100 dark:jd-from-gray-800/60 dark:jd-to-gray-900/60">
       {/* Primary Metadata Row */}
       <div className="jd-space-y-4">
         <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
