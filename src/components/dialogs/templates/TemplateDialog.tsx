@@ -4,15 +4,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle, FolderPlus } from 'lucide-react';
 import { useDialog } from '@/hooks/dialogs/useDialog';
-import { FolderPlus } from 'lucide-react';
-import { AddBlockButton } from '@/components/common/AddBlockButton';
-import { Block } from '@/types/prompts/blocks';
-import { DEFAULT_FORM_DATA } from '@/types/prompts/templates';
+import { Block, BlockType } from '@/components/templates/blocks/types';
+import { PromptMetadata, DEFAULT_METADATA } from '@/components/templates/metadata/types';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
+import { BasicTemplateEditor, AdvancedTemplateEditor } from './editor/template';
+import { getBlockContent } from './utils/blockUtils';
+import { ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
 
 // Define types for folder data
 interface FolderData {
@@ -21,13 +25,9 @@ interface FolderData {
   fullPath: string;
 }
 
-const SAMPLE_BLOCKS: Block[] = [
-  { id: 1, name: 'Context Block', type: 'context', content: '[Context]' },
-  { id: 2, name: 'Role Block', type: 'role', content: '[Role]' }
-];
-
 /**
  * Unified Template Dialog for both creating and editing templates
+ * Now with Basic and Advanced editing modes
  */
 export const TemplateDialog: React.FC = () => {
   // Get create and edit dialog states
@@ -36,28 +36,27 @@ export const TemplateDialog: React.FC = () => {
   
   // Determine if either dialog is open
   const isOpen = createDialog.isOpen || editDialog.isOpen;
+  const isEditMode = editDialog.isOpen;
   
   // Get the appropriate data based on which dialog is open
   const data = createDialog.isOpen ? createDialog.data : editDialog.data;
   
-  // Local state for form data 
-  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
+  // State for template data
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [selectedFolderId, setSelectedFolderId] = useState<string>('');
+  const [content, setContent] = useState('');
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [metadata, setMetadata] = useState<PromptMetadata>(DEFAULT_METADATA);
+  const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
+  
+  // Form state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [userFoldersList, setUserFoldersList] = useState<FolderData[]>([]);
 
-  const handleAddBlock = (block: Block, position: 'start' | 'end') => {
-    const content = formData.content || '';
-    const newContent = position === 'start'
-      ? `${block.content}\n${content}`
-      : `${content}\n${block.content}`;
-    handleFormChange('content', newContent);
-  };
-  
   // Extract data from dialog
   const currentTemplate = data?.template || null;
-  const initialFormData = data?.formData || DEFAULT_FORM_DATA;
   const onFormChange = data?.onFormChange;
   const onSave = data?.onSave;
   const userFolders = data?.userFolders || [];
@@ -65,23 +64,18 @@ export const TemplateDialog: React.FC = () => {
   
   // Process user folders for the select dropdown
   const processUserFolders = useCallback(() => {
-    // Safely validate and transform user folders
     if (!userFolders || !Array.isArray(userFolders)) {
-      console.log('No valid user folders found');
       setUserFoldersList([]);
       return;
     }
     
-    // Helper function to flatten folder hierarchy
     const flattenFolderHierarchy = (
       folders: any[], 
       path: string = "", 
-      result: {id: number, name: string, fullPath: string}[] = []
+      result: FolderData[] = []
     ) => {
       folders.forEach(folder => {
-        // Extra validation to ensure folder is valid
         if (!folder || typeof folder.id !== 'number' || !folder.name) {
-          console.warn('Invalid folder encountered:', folder);
           return;
         }
         
@@ -93,7 +87,6 @@ export const TemplateDialog: React.FC = () => {
           fullPath: folderPath
         });
         
-        // Recursively process subfolders if they exist
         if (folder.Folders && Array.isArray(folder.Folders) && folder.Folders.length > 0) {
           flattenFolderHierarchy(folder.Folders, folderPath, result);
         }
@@ -103,39 +96,56 @@ export const TemplateDialog: React.FC = () => {
     };
     
     const flattenedFolders = flattenFolderHierarchy(userFolders);
-    console.log('Processed user folders:', flattenedFolders);
     setUserFoldersList(flattenedFolders || []);
   }, [userFolders]);
   
   // Initialize form state when dialog opens or data changes
   useEffect(() => {
     if (isOpen) {
-      // Reset validation errors
       setValidationErrors({});
-  
-      // Initialize form data only once when dialog opens
-      console.log('Setting initial form data:', initialFormData);
-      setFormData(initialFormData);
       
-      // Set selected folder ID from form data if available
-      if (initialFormData.folder_id) {
-        setSelectedFolderId(initialFormData.folder_id.toString());
+      if (currentTemplate) {
+        // Editing existing template
+        setName(currentTemplate.title || '');
+        setDescription(currentTemplate.description || '');
+        setSelectedFolderId(currentTemplate.folder_id ? currentTemplate.folder_id.toString() : '');
+        
+        // Handle blocks and metadata if they exist
+        if (currentTemplate.expanded_blocks && Array.isArray(currentTemplate.expanded_blocks)) {
+          const templateBlocks: Block[] = currentTemplate.expanded_blocks.map((block: any, index: number) => ({
+            id: block.id || Date.now() + index,
+            type: block.type || 'content',
+            content: block.content || '',
+            name: block.name,
+            description: block.description
+          }));
+          setBlocks(templateBlocks);
+          
+          // Extract metadata from blocks if any
+          // TODO: Parse metadata from blocks
+        } else {
+          // Legacy template with just content
+          setContent(currentTemplate.content || '');
+          setBlocks([{
+            id: Date.now(),
+            type: 'content',
+            content: currentTemplate.content || '',
+            name: 'Template Content'
+          }]);
+        }
       } else {
-        setSelectedFolderId('');
+        // Creating new template
+        setName('');
+        setDescription('');
+        setContent('');
+        setBlocks([]);
+        setMetadata(DEFAULT_METADATA);
+        setSelectedFolderId(selectedFolder?.id?.toString() || '');
       }
       
-      // Process user folders
       processUserFolders();
-      
-      // If there's a pre-selected folder, update the form accordingly
-      if (selectedFolder) {
-        console.log('Auto-selecting folder from creation:', selectedFolder);
-        setSelectedFolderId(selectedFolder.id.toString());
-        handleFormChange('folder_id', selectedFolder.id);
-        handleFormChange('folder', selectedFolder.name);
-      }
     }
-  }, [isOpen, userFolders, selectedFolder, initialFormData, processUserFolders]);
+  }, [isOpen, currentTemplate, selectedFolder, processUserFolders]);
   
   // Handle dialog close
   const handleClose = () => {
@@ -146,50 +156,24 @@ export const TemplateDialog: React.FC = () => {
     }
     
     // Reset form state
-    setFormData(DEFAULT_FORM_DATA);
+    setName('');
+    setDescription('');
     setSelectedFolderId('');
+    setContent('');
+    setBlocks([]);
+    setMetadata(DEFAULT_METADATA);
     setValidationErrors({});
-  };
-  
-  // Form field change handler with validation
-  const handleFormChange = (field: string, value: any) => {
-    // Clear validation error for this field
-    if (validationErrors[field]) {
-      setValidationErrors(prev => {
-        const newErrors = {...prev};
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-    
-    // Update local state first
-    setFormData(prev => {
-      const newData = {
-        ...prev,
-        [field]: value
-      };
-      
-      // Call the external change handler if provided
-      if (onFormChange) {
-        console.log(`Updating form field ${field}:`, value);
-        onFormChange(newData);
-      }
-      
-      return newData;
-    });
+    setActiveTab('basic');
   };
   
   // Handle folder selection
   const handleFolderSelect = (folderId: string) => {
     if (folderId === 'new') {
-      // Open create folder dialog and pass callback to handle newly created folder
       if (window.dialogManager) {
         window.dialogManager.openDialog('createFolder', {
           onSaveFolder: async (folderData: { name: string; path: string; description: string }) => {
             try {
-              // Direct API call fallback
               const response = await promptApi.createFolder(folderData);
-
               if (response.success && response.data) {
                 return { success: true, folder: response.data };
               } else {
@@ -202,20 +186,11 @@ export const TemplateDialog: React.FC = () => {
             }
           },
           onFolderCreated: (folder: any) => {
-            // When folder is created, update the form with the new folder
-            console.log('New folder created, updating selection:', folder);
             setSelectedFolderId(folder.id.toString());
-            handleFormChange('folder_id', folder.id);
-            handleFormChange('folder', folder.name);
-            
-            // Add the new folder to the list immediately for better UX
             setUserFoldersList(prev => {
-              // Check if folder is already in the list
               if (prev.some(f => f.id === folder.id)) {
                 return prev;
               }
-              
-              // Add the new folder to the list
               return [...prev, {
                 id: folder.id,
                 name: folder.name,
@@ -229,47 +204,27 @@ export const TemplateDialog: React.FC = () => {
     }
     
     setSelectedFolderId(folderId);
-    
-    // Handle "root" folder (no folder) specially
-    if (folderId === 'root') {
-      handleFormChange('folder_id', undefined);
-      handleFormChange('folder', '');
-      return;
-    }
-    
-    // Update form data with folder_id (as a number)
-    handleFormChange('folder_id', parseInt(folderId, 10));
-    
-    // Find the selected folder's path for display
-    const selectedFolder = userFoldersList.find(f => f.id.toString() === folderId);
-    if (selectedFolder) {
-      handleFormChange('folder', selectedFolder.fullPath);
-    }
   };
   
-  // Function to truncate folder name with ellipsis
+  // Truncate folder name with ellipsis
   const truncateFolderPath = (path: string, maxLength: number = 35) => {
     if (!path || path.length <= maxLength) return path;
     
-    // For paths with slashes, try to preserve the last part
     if (path.includes('/')) {
       const parts = path.split('/');
       const lastPart = parts[parts.length - 1].trim();
       const firstParts = parts.slice(0, -1).join('/');
       
-      // If the last part is already too long, truncate it
       if (lastPart.length >= maxLength - 3) {
         return lastPart.substring(0, maxLength - 3) + '...';
       }
       
-      // Otherwise, try to keep the last part intact and truncate the beginning
-      const availableLength = maxLength - lastPart.length - 3 - 3; // 3 for ellipsis, 3 for " / "
-      if (availableLength > 5) { // Only if we can show a meaningful portion
+      const availableLength = maxLength - lastPart.length - 3 - 3;
+      if (availableLength > 5) {
         return '...' + firstParts.substring(firstParts.length - availableLength) + ' / ' + lastPart;
       }
     }
     
-    // Simple truncation for other cases
     return path.substring(0, maxLength - 3) + '...';
   };
   
@@ -277,23 +232,80 @@ export const TemplateDialog: React.FC = () => {
   const validateForm = () => {
     const errors: {[key: string]: string} = {};
     
-    if (!formData.name?.trim()) {
+    if (!name?.trim()) {
       errors.name = getMessage('templateNameRequired');
     }
     
-    if (!formData.content?.trim()) {
+    // In basic mode, validate content
+    if (activeTab === 'basic' && !content?.trim()) {
       errors.content = getMessage('templateContentRequired');
+    }
+    
+    // In advanced mode, ensure at least one block or metadata
+    if (activeTab === 'advanced') {
+      const hasContent = blocks.some(b => getBlockContent(b).trim()) || 
+                        Object.values(metadata.values || {}).some(v => v?.trim());
+      if (!hasContent) {
+        errors.content = getMessage('templateContentRequired');
+      }
     }
     
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
   
+  // Generate final content from blocks and metadata
+  const generateFinalContent = () => {
+    if (activeTab === 'basic') {
+      return content;
+    }
+    
+    // Advanced mode: combine metadata and blocks
+    const parts: string[] = [];
+    
+    // Add metadata content
+    ALL_METADATA_TYPES.forEach((type) => {
+      const value = metadata.values?.[type];
+      if (value) {
+        parts.push(value);
+      }
+    });
+    
+    // Add block content
+    blocks.forEach((block) => {
+      const blockContent = getBlockContent(block);
+      if (blockContent) parts.push(blockContent);
+    });
+    
+    return parts.filter(Boolean).join('\n\n');
+  };
+  
+  // Extract block IDs for API
+  const getBlockIds = (): number[] => {
+    if (activeTab === 'basic') {
+      return []; // Basic mode doesn't use blocks
+    }
+    
+    // Get metadata block IDs
+    const metadataBlockIds: number[] = [];
+    ALL_METADATA_TYPES.forEach((type) => {
+      const blockId = metadata[type];
+      if (blockId && blockId !== 0) {
+        metadataBlockIds.push(blockId);
+      }
+    });
+    
+    // Get content block IDs (excluding new/unsaved blocks)
+    const contentBlockIds = blocks
+      .filter(b => b.id > 0 && !b.isNew)
+      .map(b => b.id);
+    
+    return [...metadataBlockIds, ...contentBlockIds];
+  };
+  
   // Save template
   const handleSave = async () => {
-    // Validate form
     if (!validateForm()) {
-      // Show toast for validation errors
       if (validationErrors.name) {
         toast.error(validationErrors.name);
       } else if (validationErrors.content) {
@@ -304,46 +316,46 @@ export const TemplateDialog: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      console.log('Saving template with data:', formData);
+      const finalContent = generateFinalContent();
+      const blockIds = getBlockIds();
       
-      // If onSave is provided (custom handling), use it
+      const templateData = {
+        title: name.trim(),
+        content: finalContent,
+        blocks: blockIds,
+        description: description?.trim(),
+        folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined
+      };
+      
       if (onSave) {
+        const formData = {
+          name: name.trim(),
+          content: finalContent,
+          description: description?.trim(),
+          folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined
+        };
         const success = await onSave(formData);
         if (success) {
           handleClose();
           return success;
         }
       } else {
-        // Otherwise use direct API calls
-        const templateData = {
-          title: formData.name,
-          content: formData.content,
-          description: formData.description,
-          folder_id: formData.folder_id
-        };
-        
         let response;
         if (currentTemplate?.id) {
-          // Update existing template
           response = await promptApi.updateTemplate(currentTemplate.id, templateData);
         } else {
-          // Create new template
           response = await promptApi.createTemplate(templateData);
         }
         
         if (response.success) {
-          // Show success message
           toast.success(currentTemplate ? getMessage('templateUpdated') : getMessage('templateCreated'));
           
-          // Set a short timeout to allow the toast to be visible before refresh
           if (currentTemplate) {
             setTimeout(() => {
-              // Refresh the page to get updated data
               window.location.reload();
-            }, 1000); // 1-second delay so user can see the success message
+            }, 1000);
           }
           
-          // Close the dialog
           handleClose();
           return true;
         }
@@ -358,10 +370,52 @@ export const TemplateDialog: React.FC = () => {
     }
   };
   
-  // Determine dialog title based on mode
-  const dialogTitle = createDialog.isOpen 
-    ? getMessage('createTemplate', undefined, 'Create Template') 
-    : getMessage('editTemplate', undefined, 'Edit Template');
+  // Block management functions
+  const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => {
+    const newBlock: Block = existingBlock
+      ? { ...existingBlock, isNew: false }
+      : {
+          id: Date.now() + Math.random(),
+          type: blockType,
+          content: '',
+          name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`,
+          description: '',
+          isNew: true
+        };
+
+    setBlocks(prevBlocks => {
+      const newBlocks = [...prevBlocks];
+      if (position === 'start') {
+        newBlocks.unshift(newBlock);
+      } else {
+        newBlocks.push(newBlock);
+      }
+      return newBlocks;
+    });
+  };
+
+  const handleRemoveBlock = (blockId: number) => {
+    setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== blockId));
+  };
+
+  const handleUpdateBlock = (blockId: number, updatedBlock: Partial<Block>) => {
+    setBlocks(prevBlocks => prevBlocks.map(block => 
+      block.id === blockId ? { ...block, ...updatedBlock } : block
+    ));
+  };
+
+  const handleReorderBlocks = (newBlocks: Block[]) => {
+    setBlocks(newBlocks);
+  };
+
+  const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
+    setMetadata(newMetadata);
+  };
+  
+  // Determine dialog title
+  const dialogTitle = isEditMode 
+    ? getMessage('editTemplate', undefined, 'Edit Template') 
+    : getMessage('createTemplate', undefined, 'Create Template');
   
   if (!isOpen) return null;
   
@@ -370,171 +424,136 @@ export const TemplateDialog: React.FC = () => {
       open={isOpen}
       onOpenChange={(open: boolean) => {
         if (!open) {
-          // Reset form when closing
-          setFormData(DEFAULT_FORM_DATA);
-          setValidationErrors({});
+          handleClose();
         }
-        handleClose();
       }}
       title={dialogTitle}
-      className="jd-max-w-lg"
+      className="jd-max-w-4xl jd-h-[80vh]"
     >
-      <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
-        <div>
-          <label className="jd-text-sm jd-font-medium">{getMessage('templateName')}</label>
-          <Textarea 
-            value={formData.name || ''} 
-            onChange={(e) => handleFormChange('name', e.target.value)}
-            placeholder={getMessage('enterTemplateName')}
-            className={`jd-mt-1 ${validationErrors.name ? 'jd-border-red-500' : ''}`}
-          />
-          {validationErrors.name && (
-            <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.name}</p>
-          )}
-        </div>
-        
-        <div>
-          <label className="jd-text-sm jd-font-medium">{getMessage('description')}</label>
-          <Textarea 
-            value={formData.description || ''} 
-            onChange={(e) => handleFormChange('description', e.target.value)}
-            onKeyDown={(e) => {
-              // Allow Enter key to create a new line
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                
-                // Get the current cursor position
-                const textarea = e.target as HTMLTextAreaElement;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                
-                // Insert a newline at the cursor position
-                const newContent = 
-                  (formData.description || '').substring(0, start) + 
-                  '\n' + 
-                  (formData.description || '').substring(end);
-                
-                // Update the form data
-                handleFormChange('description', newContent);
-                
-                // Set the cursor position after the newline
-                setTimeout(() => {
-                  textarea.selectionStart = textarea.selectionEnd = start + 1;
-                }, 0);
-              }
-            }}
-            placeholder={getMessage('templateDescriptionPlaceholder')}
-            className="jd-mt-1"
-            rows={3}
-          />
-        </div>
-        
-        <div>
-          <div className="jd-flex jd-items-center jd-justify-between jd-mb-1">
-            <label className="jd-text-sm jd-font-medium">{getMessage('folder')}</label>
+      <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">
+        {/* Basic Info Section */}
+        <div className="jd-space-y-4">
+          <div>
+            <label className="jd-text-sm jd-font-medium">{getMessage('templateName')}</label>
+            <Input 
+              value={name} 
+              onChange={(e) => setName(e.target.value)}
+              placeholder={getMessage('enterTemplateName')}
+              className={`jd-mt-1 ${validationErrors.name ? 'jd-border-red-500' : ''}`}
+            />
+            {validationErrors.name && (
+              <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.name}</p>
+            )}
           </div>
           
-          <Select 
-            value={selectedFolderId || 'root'} 
-            onValueChange={handleFolderSelect}
-          >
-            <SelectTrigger className="jd-w-full">
-              <SelectValue placeholder={getMessage('selectFolder')}>
-                {selectedFolderId === 'root' ? (
-                  <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
-                ) : selectedFolderId ? (
-                  <span className="jd-truncate" title={formData.folder}>
-                    {truncateFolderPath(formData.folder)}
-                  </span>
-                ) : null}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="jd-max-h-80 jd-bg-background">
-              <SelectItem value="root">
-                <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
-              </SelectItem>
-              
-              {userFoldersList.map(folder => (
-                <SelectItem 
-                  key={folder.id} 
-                  value={folder.id.toString()}
-                  className="jd-truncate"
-                  title={folder.fullPath} // Show full path on hover
-                >
-                  {folder.fullPath}
-                </SelectItem>
-              ))}
-              
-              {/* Option to create a new folder */}
-              <SelectItem value="new" className="jd-text-primary jd-font-medium">
-                <div className="jd-flex jd-items-center">
-                  <FolderPlus className="jd-h-4 jd-w-4 jd-mr-2" />
-                  {getMessage('createNewFolder')}
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="jd-grid jd-grid-cols-2 jd-gap-4">
+            <div>
+              <label className="jd-text-sm jd-font-medium">{getMessage('description')}</label>
+              <Textarea 
+                value={description} 
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={getMessage('templateDescriptionPlaceholder')}
+                className="jd-mt-1"
+                rows={2}
+              />
+            </div>
+            
+            <div>
+              <label className="jd-text-sm jd-font-medium">{getMessage('folder')}</label>
+              <Select 
+                value={selectedFolderId || 'root'} 
+                onValueChange={handleFolderSelect}
+              >
+                <SelectTrigger className="jd-w-full jd-mt-1">
+                  <SelectValue placeholder={getMessage('selectFolder')}>
+                    {selectedFolderId === 'root' ? (
+                      <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
+                    ) : selectedFolderId ? (
+                      <span className="jd-truncate">
+                        {truncateFolderPath(userFoldersList.find(f => f.id.toString() === selectedFolderId)?.fullPath || '')}
+                      </span>
+                    ) : null}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="jd-max-h-80 jd-bg-background">
+                  <SelectItem value="root">
+                    <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
+                  </SelectItem>
+                  
+                  {userFoldersList.map(folder => (
+                    <SelectItem 
+                      key={folder.id} 
+                      value={folder.id.toString()}
+                      className="jd-truncate"
+                      title={folder.fullPath}
+                    >
+                      {folder.fullPath}
+                    </SelectItem>
+                  ))}
+                  
+                  <SelectItem value="new" className="jd-text-primary jd-font-medium">
+                    <div className="jd-flex jd-items-center">
+                      <FolderPlus className="jd-h-4 jd-w-4 jd-mr-2" />
+                      {getMessage('createNewFolder')}
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
         
-        <div>
-          <label className="jd-text-sm jd-font-medium">{getMessage('content')}</label>
-          <div className="jd-relative jd-mt-1">
-            <AddBlockButton
-              blocks={SAMPLE_BLOCKS}
-              onAdd={(b) => handleAddBlock(b, 'start')}
-              className="jd-absolute jd-left-1/2 -jd-translate-x-1/2 -jd-top-3"
-            />
-            <textarea
-              className={`jd-flex jd-w-full jd-rounded-md jd-border jd-border-input jd-bg-background jd-px-3 jd-py-2 jd-text-sm jd-shadow-sm ${
-                validationErrors.content ? 'jd-border-red-500' : ''
-              }`}
-              rows={6}
-              value={formData.content || ''}
-              onChange={(e) => handleFormChange('content', e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  const textarea = e.target as HTMLTextAreaElement;
-                  const start = textarea.selectionStart;
-                  const end = textarea.selectionEnd;
-                  const newContent =
-                    formData.content.substring(0, start) +
-                    '\n' +
-                    formData.content.substring(end);
-                  handleFormChange('content', newContent);
-                  setTimeout(() => {
-                    textarea.selectionStart = textarea.selectionEnd = start + 1;
-                  }, 0);
-                }
-              }}
-              placeholder={getMessage('enterTemplateContent')}
-            />
-            <AddBlockButton
-              blocks={SAMPLE_BLOCKS}
-              onAdd={(b) => handleAddBlock(b, 'end')}
-              className="jd-absolute jd-left-1/2 -jd-translate-x-1/2 jd-bottom-3"
-            />
-          </div>
-          {validationErrors.content && (
-            <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.content}</p>
-          )}
+        {/* Content Editor Tabs */}
+        <div className="jd-flex-1 jd-overflow-hidden">
+          <Tabs
+            value={activeTab}
+            onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
+            className="jd-h-full jd-flex jd-flex-col"
+          >
+            <TabsList className="jd-grid jd-w-full jd-grid-cols-2">
+              <TabsTrigger value="basic">Basic Editor</TabsTrigger>
+              <TabsTrigger value="advanced">Advanced Editor</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="basic" className="jd-flex-1 jd-overflow-hidden jd-mt-4">
+              <BasicTemplateEditor
+                content={content}
+                onContentChange={setContent}
+                error={validationErrors.content}
+              />
+            </TabsContent>
+
+            <TabsContent value="advanced" className="jd-flex-1 jd-overflow-hidden jd-mt-4">
+              <AdvancedTemplateEditor
+                blocks={blocks}
+                metadata={metadata}
+                onAddBlock={handleAddBlock}
+                onRemoveBlock={handleRemoveBlock}
+                onUpdateBlock={handleUpdateBlock}
+                onReorderBlocks={handleReorderBlocks}
+                onUpdateMetadata={handleUpdateMetadata}
+                isProcessing={false}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
-      </div>
-      
-      <div className="jd-mt-4 jd-flex jd-justify-end jd-gap-2">
-        <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-          {getMessage('cancel')}
-        </Button>
-        <Button onClick={handleSave} disabled={isSubmitting}>
-          {isSubmitting ? (
-            <>
-              <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-inline-block jd-mr-2"></div>
-              {currentTemplate ? getMessage('updating') : getMessage('creating')}
-            </>
-          ) : (
-            currentTemplate ? getMessage('update') : getMessage('create')
-          )}
-        </Button>
+        
+        {/* Footer */}
+        <div className="jd-flex jd-justify-end jd-gap-2 jd-pt-4 jd-border-t">
+          <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+            {getMessage('cancel')}
+          </Button>
+          <Button onClick={handleSave} disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-inline-block jd-mr-2"></div>
+                {currentTemplate ? getMessage('updating') : getMessage('creating')}
+              </>
+            ) : (
+              currentTemplate ? getMessage('update') : getMessage('create')
+            )}
+          </Button>
+        </div>
       </div>
     </BaseDialog>
   );
