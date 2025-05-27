@@ -10,6 +10,8 @@ import { BlockCard } from './components/BlockCard';
 import { PreviewSection } from './components/PreviewSection';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { cn } from '@/core/utils/classNames';
 
 interface AdvancedEditorProps {
   blocks: Block[];
@@ -80,6 +82,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const [selectedBlockType, setSelectedBlockType] = useState<BlockType | null>(null);
   const [availableBlocksByType, setAvailableBlocksByType] = useState<Record<BlockType, Block[]>>({} as Record<BlockType, Block[]>);
   const [draggedBlockId, setDraggedBlockId] = useState<number | null>(null);
+
 
   // Load available blocks for each metadata type and block type
   useEffect(() => {
@@ -213,7 +216,12 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   }
 
   return (
-    <div className="jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-4 jd-bg-gradient-to-br jd-from-slate-50 jd-to-slate-100 dark:jd-from-gray-800/60 dark:jd-to-gray-900/60">
+    <div
+      className={cn(
+        'jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-4 jd-bg-gradient-to-br',
+        isDarkMode ? 'jd-from-gray-800/60 jd-to-gray-900/60' : 'jd-from-slate-50 jd-to-slate-100'
+      )}
+    >
       {/* Primary Metadata Row */}
       <div className="jd-space-y-4">
         <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">

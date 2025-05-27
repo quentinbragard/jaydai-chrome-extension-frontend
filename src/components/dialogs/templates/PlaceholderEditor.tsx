@@ -25,6 +25,7 @@ export const PlaceholderEditor: React.FC = () => {
     handleRemoveBlock,
     handleUpdateBlock,
     handleMoveBlock,
+    handleReorderBlocks,
     handleUpdateMetadata,
     handleComplete,
     handleClose
