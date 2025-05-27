@@ -57,6 +57,17 @@ const BLOCK_CONFIGS = {
   audience: { icon: Users, label: 'Audience', color: 'jd-bg-teal-100 jd-text-teal-800', description: 'Target audience definition' }
 };
 
+// Map metadata types to corresponding block types for fetching options
+const METADATA_BLOCK_MAP: Record<string, BlockType> = {
+  audience: 'audience',
+  tone: 'tone_style',
+  language: 'output_language',
+  output_format: 'output_format',
+  role: 'role',
+  main_context: 'main_context',
+  main_goal: 'main_goal'
+};
+
 export const EnhancedInteractivePreviewPanel: React.FC<EnhancedInteractivePreviewPanelProps> = ({ 
   blocks = [], 
   metadata,
@@ -71,14 +82,41 @@ export const EnhancedInteractivePreviewPanel: React.FC<EnhancedInteractivePrevie
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showMetadataPanel, setShowMetadataPanel] = useState(true);
   const [expandedCategories, setExpandedCategories] = useState(new Set(['core']));
+  const [metadataOptions, setMetadataOptions] = useState<Record<string, string[]>>({});
 
-  // Ensure metadata has proper structure with safety checks
   const safeMetadata: PromptMetadata = React.useMemo(() => {
     if (!metadata || !metadata.fields) {
       return { fields: DEFAULT_METADATA_FIELDS || [] };
     }
     return metadata;
   }, [metadata]);
+
+
+  // Fetch blocks for metadata dropdowns
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const types = Array.from(new Set(safeMetadata.fields.map(f => METADATA_BLOCK_MAP[f.type]).filter(Boolean)));
+      const options: Record<string, string[]> = {};
+      for (const type of types) {
+        try {
+          const res = await blocksApi.getBlocksByType(type as BlockType);
+          if (res && res.success && Array.isArray(res.data)) {
+            options[type] = res.data.map((b: any) => {
+              const content = b.content;
+              if (typeof content === 'string') return content;
+              const locale = getCurrentLanguage();
+              return content[locale] || content.en || Object.values(content)[0] || '';
+            });
+          }
+        } catch (e) {
+          console.error('Failed fetching blocks for', type, e);
+        }
+      }
+      setMetadataOptions(options);
+    };
+    fetchOptions();
+  }, [safeMetadata.fields]);
+
 
   // Safe content extraction
   const getContentAsString = React.useCallback((content: Block['content']): string => {
@@ -345,6 +383,10 @@ export const EnhancedInteractivePreviewPanel: React.FC<EnhancedInteractivePrevie
                                 const config = METADATA_CONFIGS[field.type];
                                 if (!config) return null;
                                 
+                                const options = [
+                                  ...(metadataOptions[METADATA_BLOCK_MAP[field.type]] || []),
+                                  ...(config.options || [])
+                                ];
                                 return (
                                   <div key={field.id} className="jd-group jd-space-y-2">
                                     <Label className="jd-text-sm jd-flex jd-items-center jd-gap-2 jd-font-medium jd-text-gray-700">
@@ -352,11 +394,17 @@ export const EnhancedInteractivePreviewPanel: React.FC<EnhancedInteractivePrevie
                                       {field.label}
                                     </Label>
                                     <Input
+                                      list={`meta-${field.id}`}
                                       value={field.value || ''}
                                       onChange={(e) => handleMetadataFieldUpdate(field.id, e.target.value)}
                                       placeholder={field.placeholder}
                                       className="jd-border-gray-200 focus:jd-border-primary focus:jd-ring-primary"
                                     />
+                                    <datalist id={`meta-${field.id}`}>
+                                      {options.map((opt) => (
+                                        <option key={opt} value={opt} />
+                                      ))}
+                                    </datalist>
                                   </div>
                                 );
                               } catch (error) {

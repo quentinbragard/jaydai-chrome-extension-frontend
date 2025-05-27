@@ -1,6 +1,21 @@
 // src/components/dialogs/templates/blocks/types.ts
 
-export type BlockType = 'context' | 'role' | 'example' | 'format' | 'audience' | 'content';
+export type BlockType =
+  | 'context'
+  | 'role'
+  | 'example'
+  | 'format'
+  | 'audience'
+  | 'content'
+  | 'tone_style'
+  | 'output_format'
+  | 'output_language'
+  | 'main_context'
+  | 'main_goal'
+  | 'constraints'
+  | 'thinking_steps'
+  | 'additional_context'
+  | 'custom';
 
 export interface Block {
   id: number;
@@ -46,15 +61,45 @@ export const BLOCK_TYPES: BlockTypeDefinition[] = [
     description: "Specifies output format requirements",
     color: "jd-bg-orange-500"
   },
-  { 
-    id: "audience", 
-    name: "Audience", 
+  {
+    id: "audience",
+    name: "Audience",
     description: "Describes the target audience",
     color: "jd-bg-pink-500"
   },
-  { 
-    id: "content", 
-    name: "Content", 
+  {
+    id: "tone_style",
+    name: "Tone/Style",
+    description: "Specifies the tone or style",
+    color: "jd-bg-yellow-500"
+  },
+  {
+    id: "output_format",
+    name: "Output Format",
+    description: "Desired output format",
+    color: "jd-bg-indigo-500"
+  },
+  {
+    id: "output_language",
+    name: "Output Language",
+    description: "Language of the output",
+    color: "jd-bg-red-500"
+  },
+  {
+    id: "main_context",
+    name: "Main Context",
+    description: "Main context information",
+    color: "jd-bg-teal-500"
+  },
+  {
+    id: "main_goal",
+    name: "Main Goal",
+    description: "Primary goal of the prompt",
+    color: "jd-bg-cyan-500"
+  },
+  {
+    id: "content",
+    name: "Content",
     description: "Main content of the prompt",
     color: "jd-bg-gray-500"
   }
