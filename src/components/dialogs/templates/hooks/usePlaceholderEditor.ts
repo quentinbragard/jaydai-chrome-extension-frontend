@@ -50,13 +50,14 @@ export function usePlaceholderEditor() {
 
   const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => {
     const newBlock: Block = existingBlock
-      ? { ...existingBlock }
+      ? { ...existingBlock, isNew: false }
       : {
           id: Date.now() + Math.random(),
           type: blockType,
           content: '',
           name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`,
-          description: ''
+          description: '',
+          isNew: true
         };
 
     setBlocks(prevBlocks => {

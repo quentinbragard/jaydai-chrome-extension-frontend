@@ -19,7 +19,6 @@ interface AdvancedEditorProps {
   onAddBlock: (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => void;
   onRemoveBlock: (blockId: number) => void;
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
-  onMoveBlock: (blockId: number, direction: 'up' | 'down') => void;
   onReorderBlocks: (blocks: Block[]) => void;
   onUpdateMetadata?: (metadata: PromptMetadata) => void;
   isProcessing: boolean;
@@ -69,7 +68,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   onAddBlock,
   onRemoveBlock,
   onUpdateBlock,
-  onMoveBlock,
   onReorderBlocks,
   onUpdateMetadata,
   isProcessing
@@ -206,6 +204,41 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     setDraggedBlockId(null);
   };
 
+  const handleBlockSaved = (tempId: number, saved: Block) => {
+    // Update block id and mark as saved
+    onUpdateBlock(tempId, { id: saved.id, isNew: false });
+
+    // Add to available blocks lists
+    setAvailableBlocksByType(prev => ({
+      ...prev,
+      [saved.type]: [saved, ...(prev[saved.type] || [])]
+    }));
+
+    Object.entries(METADATA_CONFIGS).forEach(([metaType, cfg]) => {
+      if (cfg.blockType === saved.type) {
+        setAvailableBlocks(prev => ({
+          ...prev,
+          [metaType as MetadataType]: [saved, ...(prev[metaType as MetadataType] || [])]
+        }));
+      }
+    });
+  };
+
+  const handleMetadataBlockSaved = (saved: Block) => {
+    setAvailableBlocksByType(prev => ({
+      ...prev,
+      [saved.type]: [saved, ...(prev[saved.type] || [])]
+    }));
+    Object.entries(METADATA_CONFIGS).forEach(([metaType, cfg]) => {
+      if (cfg.blockType === saved.type) {
+        setAvailableBlocks(prev => ({
+          ...prev,
+          [metaType as MetadataType]: [saved, ...(prev[metaType as MetadataType] || [])]
+        }));
+      }
+    });
+  };
+
   // Generate final content for preview
   const generatePreviewContent = () => {
     const parts: string[] = [];
@@ -266,6 +299,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               onSelect={(v) => handleMetadataChange(type, v)}
               onCustomChange={(v) => handleCustomChange(type, v)}
               onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
+              onSaveBlock={handleMetadataBlockSaved}
             />
           ))}
         </div>
@@ -297,6 +331,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   onCustomChange={(v) => handleCustomChange(type, v)}
                   onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
                   onRemove={() => removeSecondaryMetadata(type)}
+                  onSaveBlock={handleMetadataBlockSaved}
                 />
               ))}
             </div>
@@ -339,14 +374,12 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             <div key={block.id}>
               <BlockCard
                 block={block}
-                index={index}
-                total={blocks.length}
-                onMove={onMoveBlock}
                 onRemove={onRemoveBlock}
                 onUpdate={onUpdateBlock}
                 onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
+                onSave={(saved) => handleBlockSaved(block.id, saved)}
               />
               {index === blocks.length - 1 && (
                 <div className="jd-flex jd-justify-center jd-mt-3 jd-relative">
