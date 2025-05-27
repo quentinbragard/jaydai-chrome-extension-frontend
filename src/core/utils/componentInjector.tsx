@@ -164,22 +164,30 @@ class ComponentInjector {
     linkEl.rel = 'stylesheet';
     linkEl.href = cssUrl;
     shadowRoot.appendChild(linkEl);
-    
+
     // Also add a loading element that will be removed when the CSS loads
     const loadingEl = document.createElement('div');
     loadingEl.className = 'loading-shadow-dom';
     loadingEl.textContent = 'Loading extension UI...';
     shadowRoot.appendChild(loadingEl);
-    
+
     // Remove loading element when CSS loads
     linkEl.onload = () => {
       shadowRoot.contains(loadingEl) && shadowRoot.removeChild(loadingEl);
     };
-    
+
     // Handle errors
     linkEl.onerror = () => {
       console.error('Failed to load CSS:', cssUrl);
       loadingEl.textContent = 'Error loading UI styles';
+
+      // In development, retry in case the build just finished
+      if (process.env.NODE_ENV === 'development') {
+        setTimeout(() => {
+          console.log('Retrying CSS load...');
+          linkEl.href = `${cssUrl}?t=${Date.now()}`;
+        }, 1000);
+      }
     };
   }
 
