@@ -33,13 +33,22 @@ export const BLOCK_TYPE_DESCRIPTIONS: Record<BlockType, string> = {
   audience: 'Define the target audience for the response'
 };
 
-export const BLOCK_COLORS: Record<BlockType, string> = {
-  content: 'jd-bg-blue-50 jd-border-blue-200 jd-text-blue-900 dark:jd-bg-blue-900/20 dark:jd-border-blue-800 dark:jd-text-blue-300',
-  context: 'jd-bg-green-50 jd-border-green-200 jd-text-green-900 dark:jd-bg-green-900/20 dark:jd-border-green-800 dark:jd-text-green-300',
-  role: 'jd-bg-purple-50 jd-border-purple-200 jd-text-purple-900 dark:jd-bg-purple-900/20 dark:jd-border-purple-800 dark:jd-text-purple-300',
-  example: 'jd-bg-orange-50 jd-border-orange-200 jd-text-orange-900 dark:jd-bg-orange-900/20 dark:jd-border-orange-800 dark:jd-text-orange-300',
-  format: 'jd-bg-pink-50 jd-border-pink-200 jd-text-pink-900 dark:jd-bg-pink-900/20 dark:jd-border-pink-800 dark:jd-text-pink-300',
-  audience: 'jd-bg-teal-50 jd-border-teal-200 jd-text-teal-900 dark:jd-bg-teal-900/20 dark:jd-border-teal-800 dark:jd-text-teal-300'
+export const BLOCK_COLORS_LIGHT: Record<BlockType, string> = {
+  content: 'jd-bg-blue-50 jd-border-blue-200 jd-text-blue-900',
+  context: 'jd-bg-green-50 jd-border-green-200 jd-text-green-900',
+  role: 'jd-bg-purple-50 jd-border-purple-200 jd-text-purple-900',
+  example: 'jd-bg-orange-50 jd-border-orange-200 jd-text-orange-900',
+  format: 'jd-bg-pink-50 jd-border-pink-200 jd-text-pink-900',
+  audience: 'jd-bg-teal-50 jd-border-teal-200 jd-text-teal-900'
+};
+
+export const BLOCK_COLORS_DARK: Record<BlockType, string> = {
+  content: 'jd-bg-blue-900/20 jd-border-blue-800 jd-text-blue-300',
+  context: 'jd-bg-green-900/20 jd-border-green-800 jd-text-green-300',
+  role: 'jd-bg-purple-900/20 jd-border-purple-800 jd-text-purple-300',
+  example: 'jd-bg-orange-900/20 jd-border-orange-800 jd-text-orange-300',
+  format: 'jd-bg-pink-900/20 jd-border-pink-800 jd-text-pink-300',
+  audience: 'jd-bg-teal-900/20 jd-border-teal-800 jd-text-teal-300'
 };
 
 /**
@@ -66,8 +75,9 @@ export const getBlockTypeDescription = (type: BlockType): string => {
 /**
  * Get color classes for a block type
  */
-export const getBlockTypeColors = (type: BlockType): string => {
-  return BLOCK_COLORS[type] || BLOCK_COLORS.content;
+export const getBlockTypeColors = (type: BlockType, isDarkMode: boolean): string => {
+  const palette = isDarkMode ? BLOCK_COLORS_DARK : BLOCK_COLORS_LIGHT;
+  return palette[type] || palette.content;
 };
 
 

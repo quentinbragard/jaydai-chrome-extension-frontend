@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { getCurrentLanguage } from '@/core/utils/i18n';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface MetadataCardProps {
   type: MetadataType;
@@ -36,6 +37,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   onRemove
 }) => {
   const config = METADATA_CONFIGS[type];
+  const isDarkMode = useThemeDetector();
 
   // Handle card click - only toggle if clicking on the card itself, not on interactive elements
   const handleCardClick = (e: React.MouseEvent) => {
@@ -63,7 +65,10 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
       className={cn(
         'jd-transition-all jd-duration-200 jd-cursor-pointer hover:jd-shadow-md',
         isPrimary ? 'jd-border-2 jd-border-primary/20 jd-bg-primary/5' : 'jd-border jd-border-muted jd-bg-muted/20',
-        expanded && 'jd-ring-2 jd-ring-primary/50 jd-shadow-lg jd-bg-white dark:jd-bg-gray-800'
+        expanded &&
+          (isDarkMode
+            ? 'jd-ring-2 jd-ring-primary/50 jd-shadow-lg jd-bg-gray-800'
+            : 'jd-ring-2 jd-ring-primary/50 jd-shadow-lg jd-bg-white')
       )}
     >
       <CardContent className="jd-p-4">

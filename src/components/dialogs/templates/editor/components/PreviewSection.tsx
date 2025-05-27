@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye, ChevronUp, ChevronDown, Copy, Check } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface PreviewSectionProps {
   content: string;
@@ -10,12 +11,13 @@ interface PreviewSectionProps {
   onToggle: () => void;
 }
 
-export const PreviewSection: React.FC<PreviewSectionProps> = ({ 
-  content, 
-  expanded, 
-  onToggle 
+export const PreviewSection: React.FC<PreviewSectionProps> = ({
+  content,
+  expanded,
+  onToggle
 }) => {
   const [copied, setCopied] = React.useState(false);
+  const isDarkMode = useThemeDetector();
   
   const lines = content.split('\n');
   const showToggle = lines.length > 3;
@@ -33,7 +35,12 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
 
   return (
     <div className="jd-border-t jd-pt-4">
-      <Card className="jd-bg-gradient-to-br jd-from-slate-50 jd-to-slate-100 dark:jd-from-gray-800 dark:jd-to-gray-900">
+      <Card
+        className={cn(
+          'jd-bg-gradient-to-br',
+          isDarkMode ? 'jd-from-gray-800 jd-to-gray-900' : 'jd-from-slate-50 jd-to-slate-100'
+        )}
+      >
         <CardContent className="jd-p-4">
           <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
             <h4 className="jd-font-medium jd-flex jd-items-center jd-gap-2">
@@ -83,10 +90,13 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
             </div>
           </div>
           
-          <div className={cn(
-            'jd-bg-white dark:jd-bg-gray-800 jd-rounded-lg jd-p-4 jd-relative jd-border jd-border-gray-200 dark:jd-border-gray-700',
-            expanded ? 'jd-max-h-80 jd-overflow-y-auto' : 'jd-max-h-32 jd-overflow-hidden'
-          )}>
+          <div
+            className={cn(
+              'jd-rounded-lg jd-p-4 jd-relative jd-border',
+              isDarkMode ? 'jd-bg-gray-800 jd-border-gray-700' : 'jd-bg-white jd-border-gray-200',
+              expanded ? 'jd-max-h-80 jd-overflow-y-auto' : 'jd-max-h-32 jd-overflow-hidden'
+            )}
+          >
             <pre className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed">
               {displayed || (
                 <span className="jd-text-muted-foreground jd-italic">
@@ -95,7 +105,12 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
               )}
             </pre>
             {!expanded && showToggle && content && (
-              <div className="jd-absolute jd-inset-x-0 jd-bottom-0 jd-h-8 jd-bg-gradient-to-t jd-from-white dark:jd-from-gray-800 jd-to-white/0 dark:jd-to-gray-800/0 jd-pointer-events-none jd-rounded-b-lg" />
+              <div
+                className={cn(
+                  'jd-absolute jd-inset-x-0 jd-bottom-0 jd-h-8 jd-bg-gradient-to-t jd-pointer-events-none jd-rounded-b-lg',
+                  isDarkMode ? 'jd-from-gray-800 jd-to-gray-800/0' : 'jd-from-white jd-to-white/0'
+                )}
+              />
             )}
           </div>
           
