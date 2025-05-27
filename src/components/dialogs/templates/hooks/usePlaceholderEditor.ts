@@ -3,7 +3,7 @@ import { useDialog } from '@/hooks/dialogs/useDialog';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
 import { Block, BlockType } from '@/components/templates/blocks/types';
-import { PromptMetadata, DEFAULT_METADATA } from '@/components/templates/metadata/types';
+import { PromptMetadata, DEFAULT_METADATA, ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
 import { getBlockContent, getLocalizedContent } from '../utils/blockUtils';
 
 export function usePlaceholderEditor() {
@@ -105,7 +105,16 @@ export function usePlaceholderEditor() {
 
   const handleComplete = () => {
     try {
-      const finalContent = blocks.map(block => getBlockContent(block)).join('\n\n');
+      const parts: string[] = [];
+      ALL_METADATA_TYPES.forEach(type => {
+        const value = metadata.values?.[type];
+        if (value) parts.push(value);
+      });
+      blocks.forEach(block => {
+        const content = getBlockContent(block);
+        if (content) parts.push(content);
+      });
+      const finalContent = parts.filter(Boolean).join('\n\n');
       if (data && data.onComplete) {
         data.onComplete(finalContent);
       }
