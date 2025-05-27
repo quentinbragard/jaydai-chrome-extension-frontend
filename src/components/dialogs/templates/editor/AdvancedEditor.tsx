@@ -4,16 +4,11 @@ import { Block, BlockType } from '@/components/templates/blocks/types';
 import { PromptMetadata, DEFAULT_METADATA, METADATA_CONFIGS, MetadataType } from '@/components/templates/metadata/types';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { MetadataCard } from './components/MetadataCard';
 import { BlockCard } from './components/BlockCard';
 import { PreviewSection } from './components/PreviewSection';
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
-import { cn } from "@/core/utils/classNames";
 
 interface AdvancedEditorProps {
   blocks: Block[];
