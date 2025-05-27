@@ -1,7 +1,7 @@
 // src/components/dialogs/templates/editor/AdvancedEditor.tsx
 import React from 'react';
 import { Block, BlockType } from '@/components/templates/blocks/types';
-import { PromptMetadata, DEFAULT_METADATA_FIELDS } from '@/components/templates/metadata/types';
+import { PromptMetadata, DEFAULT_METADATA } from '@/components/templates/metadata/types';
 import { EnhancedInteractivePreviewPanel } from './EnhancedInteractivePreviewPanel';
 
 interface AdvancedEditorProps {
@@ -20,7 +20,7 @@ interface AdvancedEditorProps {
  */
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   blocks,
-  metadata = { fields: DEFAULT_METADATA_FIELDS },
+  metadata = DEFAULT_METADATA,
   onAddBlock,
   onRemoveBlock,
   onUpdateBlock,
