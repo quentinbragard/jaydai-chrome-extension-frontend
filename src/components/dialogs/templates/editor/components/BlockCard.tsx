@@ -33,15 +33,21 @@ interface BlockCardProps {
   onMove: (id: number, dir: 'up' | 'down') => void;
   onRemove: (id: number) => void;
   onUpdate: (id: number, updated: Partial<Block>) => void;
+  onDragStart?: (id: number) => void;
+  onDragOver?: (id: number) => void;
+  onDragEnd?: () => void;
 }
 
-export const BlockCard: React.FC<BlockCardProps> = ({ 
-  block, 
-  index, 
-  total, 
-  onMove, 
-  onRemove, 
-  onUpdate 
+export const BlockCard: React.FC<BlockCardProps> = ({
+  block,
+  index,
+  total,
+  onMove,
+  onRemove,
+  onUpdate,
+  onDragStart,
+  onDragOver,
+  onDragEnd
 }) => {
   const Icon = BLOCK_ICONS[block.type];
   const content = typeof block.content === 'string' 
@@ -60,7 +66,16 @@ export const BlockCard: React.FC<BlockCardProps> = ({
   };
 
   return (
-    <Card className="jd-transition-all jd-duration-200 jd-hover:jd-shadow-md jd-group">
+    <Card
+      className="jd-transition-all jd-duration-200 jd-hover:jd-shadow-md jd-group"
+      draggable
+      onDragStart={() => onDragStart && onDragStart(block.id)}
+      onDragOver={(e) => {
+        e.preventDefault();
+        onDragOver && onDragOver(block.id);
+      }}
+      onDragEnd={() => onDragEnd && onDragEnd()}
+    >
       <CardContent className="jd-p-4">
         <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
           <div className="jd-flex jd-items-center jd-gap-3">

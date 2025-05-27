@@ -18,6 +18,7 @@ interface AdvancedEditorProps {
   onRemoveBlock: (blockId: number) => void;
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
   onMoveBlock: (blockId: number, direction: 'up' | 'down') => void;
+  onReorderBlocks: (blocks: Block[]) => void;
   onUpdateMetadata?: (metadata: PromptMetadata) => void;
   isProcessing: boolean;
 }
@@ -65,6 +66,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   onRemoveBlock,
   onUpdateBlock,
   onMoveBlock,
+  onReorderBlocks,
   onUpdateMetadata,
   isProcessing
 }) => {
@@ -77,6 +79,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const [showAddBlockDropdown, setShowAddBlockDropdown] = useState(false);
   const [selectedBlockType, setSelectedBlockType] = useState<BlockType | null>(null);
   const [availableBlocksByType, setAvailableBlocksByType] = useState<Record<BlockType, Block[]>>({} as Record<BlockType, Block[]>);
+  const [draggedBlockId, setDraggedBlockId] = useState<number | null>(null);
 
   // Load available blocks for each metadata type and block type
   useEffect(() => {
@@ -153,6 +156,25 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     onAddBlock('end', blockType, existingBlock);
     setShowAddBlockDropdown(false);
     setSelectedBlockType(null);
+  };
+
+  const handleDragStart = (id: number) => {
+    setDraggedBlockId(id);
+  };
+
+  const handleDragOver = (id: number) => {
+    if (draggedBlockId === null || draggedBlockId === id) return;
+    const draggedIndex = blocks.findIndex(b => b.id === draggedBlockId);
+    const overIndex = blocks.findIndex(b => b.id === id);
+    if (draggedIndex === -1 || overIndex === -1) return;
+    const newBlocks = [...blocks];
+    const [moved] = newBlocks.splice(draggedIndex, 1);
+    newBlocks.splice(overIndex, 0, moved);
+    onReorderBlocks(newBlocks);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedBlockId(null);
   };
 
   // Generate final content for preview
@@ -312,6 +334,9 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                 onMove={onMoveBlock}
                 onRemove={onRemoveBlock}
                 onUpdate={onUpdateBlock}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
               />
               {index === blocks.length - 1 && (
                 <div className="jd-flex jd-justify-center jd-mt-3 jd-relative">

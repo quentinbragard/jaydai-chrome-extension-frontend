@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Block, BlockType } from '@/components/templates/blocks/types';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface BasicEditorProps {
   blocks: Block[];
@@ -13,6 +14,7 @@ interface BasicEditorProps {
   onRemoveBlock: (blockId: number) => void;
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
   onMoveBlock: (blockId: number, direction: 'up' | 'down') => void;
+  onReorderBlocks: (blocks: Block[]) => void;
   isProcessing: boolean;
 }
 
@@ -21,39 +23,6 @@ interface Placeholder {
   value: string;
 }
 
-// Custom hook to detect dark mode
-const useDarkMode = () => {
-  const [isDarkMode, setIsDarkMode] = React.useState<boolean>(() => {
-    if (typeof document !== 'undefined') {
-      return document.documentElement.classList.contains('dark');
-    }
-    return false;
-  });
-
-  React.useEffect(() => {
-    if (typeof document === 'undefined') return;
-    
-    const updateDarkModeState = () => {
-      const isDark = document.documentElement.classList.contains('dark');
-      setIsDarkMode(isDark);
-    };
-
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          updateDarkModeState();
-        }
-      });
-    });
-
-    observer.observe(document.documentElement, { attributes: true });
-    updateDarkModeState();
-    
-    return () => observer.disconnect();
-  }, []);
-
-  return isDarkMode;
-};
 
 /**
  * Basic editor mode - Simple placeholder and content editing (like the original)
@@ -70,7 +39,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<MutationObserver | null>(null);
-  const isDarkMode = useDarkMode();
+  const isDarkMode = useThemeDetector();
 
   // Get combined content from all blocks
   const getBlockContent = (block: Block): string => {

@@ -95,6 +95,10 @@ export function usePlaceholderEditor() {
     });
   };
 
+  const handleReorderBlocks = (newBlocks: Block[]) => {
+    setBlocks(newBlocks);
+  };
+
   const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
     setMetadata(newMetadata);
   };
@@ -142,6 +146,7 @@ export function usePlaceholderEditor() {
     handleRemoveBlock,
     handleUpdateBlock,
     handleMoveBlock,
+    handleReorderBlocks,
     handleUpdateMetadata,
     handleComplete,
     handleClose,

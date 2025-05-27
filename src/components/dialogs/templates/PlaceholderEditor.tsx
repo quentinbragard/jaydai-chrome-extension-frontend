@@ -62,6 +62,7 @@ export const PlaceholderEditor: React.FC = () => {
     onRemoveBlock: handleRemoveBlock,
     onUpdateBlock: handleUpdateBlock,
     onMoveBlock: handleMoveBlock,
+    onReorderBlocks: handleReorderBlocks,
     onUpdateMetadata: handleUpdateMetadata,
     isProcessing
   };
