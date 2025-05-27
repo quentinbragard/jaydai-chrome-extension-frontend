@@ -37,13 +37,33 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 }) => {
   const config = METADATA_CONFIGS[type];
 
+  // Handle card click - only toggle if clicking on the card itself, not on interactive elements
+  const handleCardClick = (e: React.MouseEvent) => {
+    // If the target is an interactive element or its child, don't toggle
+    const target = e.target as HTMLElement;
+    const isInteractive = target.closest('button') || 
+                         target.closest('[role="combobox"]') || 
+                         target.closest('select') || 
+                         target.closest('textarea') ||
+                         target.closest('[data-radix-collection-item]');
+    
+    if (!isInteractive) {
+      onToggle();
+    }
+  };
+
+  // Stop propagation for interactive elements
+  const stopPropagation = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <Card
-      onClick={onToggle}
+      onClick={handleCardClick}
       className={cn(
         'jd-transition-all jd-duration-200 jd-cursor-pointer hover:jd-shadow-md',
-        isPrimary ? 'jd-border-2 jd-border-primary/20' : 'jd-border jd-border-muted jd-bg-muted/20',
-        expanded && 'jd-ring-2 jd-ring-primary/50 jd-shadow-lg'
+        isPrimary ? 'jd-border-2 jd-border-primary/20 jd-bg-primary/5' : 'jd-border jd-border-muted jd-bg-muted/20',
+        expanded && 'jd-ring-2 jd-ring-primary/50 jd-shadow-lg jd-bg-white dark:jd-bg-gray-800'
       )}
     >
       <CardContent className="jd-p-4">
@@ -51,10 +71,10 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
           <div className="jd-flex jd-items-center jd-gap-2">
             <Icon className={cn('jd-h-4 jd-w-4', isPrimary ? 'jd-text-primary' : 'jd-text-muted-foreground')} />
             <span className={cn('jd-font-medium', isPrimary ? 'jd-text-primary' : 'jd-text-foreground')}>
-              {config.emoji} {config.label}
+              {config.label}
             </span>
           </div>
-          <div className="jd-flex jd-items-center jd-gap-1">
+          <div className="jd-flex jd-items-center jd-gap-1" onClick={stopPropagation}>
             {!isPrimary && onRemove && (
               <Button
                 size="sm"
@@ -83,8 +103,11 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
         </div>
 
         {expanded ? (
-          <div className="jd-space-y-3">
-            <Select value={selectedId ? String(selectedId) : '0'} onValueChange={onSelect}>
+          <div className="jd-space-y-3" onClick={stopPropagation}>
+            <Select 
+              value={selectedId ? String(selectedId) : '0'} 
+              onValueChange={onSelect}
+            >
               <SelectTrigger className="jd-w-full">
                 <SelectValue placeholder="Select or create custom" />
               </SelectTrigger>
@@ -98,8 +121,9 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                       </span>
                       <span className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-48">
                         {typeof block.content === 'string'
-                          ? block.content.substring(0, 40) + '...'
-                          : (block.content[getCurrentLanguage()] || '').substring(0, 40) + '...'}
+                          ? block.content.substring(0, 40) + (block.content.length > 40 ? '...' : '')
+                          : (block.content[getCurrentLanguage()] || '').substring(0, 40) + 
+                            ((block.content[getCurrentLanguage()] || '').length > 40 ? '...' : '')}
                       </span>
                     </div>
                   </SelectItem>
@@ -119,7 +143,8 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                 onChange={(e) => onCustomChange(e.target.value)}
                 placeholder={`Enter custom ${type} content...`}
                 rows={3}
-                className="resize-none"
+                className="jd-resize-none"
+                onClick={stopPropagation}
               />
             )}
           </div>

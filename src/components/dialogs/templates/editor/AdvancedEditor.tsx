@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { MetadataCard } from './components/MetadataCard';
 import { BlockCard } from './components/BlockCard';
 import { PreviewSection } from './components/PreviewSection';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
 
 interface AdvancedEditorProps {
@@ -36,6 +37,26 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   example: Layout
 };
 
+// Available block types for adding new blocks
+const BLOCK_TYPES: BlockType[] = ['content', 'context', 'role', 'example', 'format', 'audience'];
+
+const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
+  content: 'Content',
+  context: 'Context',
+  role: 'Role',
+  example: 'Example',
+  format: 'Format',
+  audience: 'Audience'
+};
+
+const BLOCK_TYPE_ICONS: Record<BlockType, React.ComponentType<any>> = {
+  content: FileText,
+  context: MessageSquare,
+  role: User,
+  example: Layout,
+  format: Type,
+  audience: Users
+};
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   blocks,
@@ -53,21 +74,35 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const [showSecondaryMetadata, setShowSecondaryMetadata] = useState(false);
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const [activeSecondaryMetadata, setActiveSecondaryMetadata] = useState<Set<MetadataType>>(new Set());
+  const [showAddBlockDropdown, setShowAddBlockDropdown] = useState(false);
+  const [selectedBlockType, setSelectedBlockType] = useState<BlockType | null>(null);
+  const [availableBlocksByType, setAvailableBlocksByType] = useState<Record<BlockType, Block[]>>({} as Record<BlockType, Block[]>);
 
-  // Load available blocks for each metadata type
+  // Load available blocks for each metadata type and block type
   useEffect(() => {
     const fetchBlocks = async () => {
-      const result: Record<MetadataType, Block[]> = {} as any;
+      // Fetch blocks for metadata types
+      const metadataBlocks: Record<MetadataType, Block[]> = {} as any;
       await Promise.all(
         ALL_METADATA_TYPES.map(async (type) => {
           const config = METADATA_CONFIGS[type];
           if (config) {
             const res = await blocksApi.getBlocksByType(config.blockType);
-            result[type] = res.success ? res.data : [];
+            metadataBlocks[type] = res.success ? res.data : [];
           }
         })
       );
-      setAvailableBlocks(result);
+      setAvailableBlocks(metadataBlocks);
+
+      // Fetch blocks for each block type
+      const blocksByType: Record<BlockType, Block[]> = {} as any;
+      await Promise.all(
+        BLOCK_TYPES.map(async (blockType) => {
+          const res = await blocksApi.getBlocksByType(blockType);
+          blocksByType[blockType] = res.success ? res.data : [];
+        })
+      );
+      setAvailableBlocksByType(blocksByType);
     };
     fetchBlocks();
   }, []);
@@ -114,6 +149,12 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     onUpdateMetadata(newMetadata);
   };
 
+  const handleAddBlockFromDropdown = (blockType: BlockType, existingBlock?: Block) => {
+    onAddBlock('end', blockType, existingBlock);
+    setShowAddBlockDropdown(false);
+    setSelectedBlockType(null);
+  };
+
   // Generate final content for preview
   const generatePreviewContent = () => {
     const parts: string[] = [];
@@ -141,7 +182,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     return parts.filter(Boolean).join('\n\n');
   };
 
-
   if (isProcessing) {
     return (
       <div className="jd-flex jd-items-center jd-justify-center jd-h-full">
@@ -155,7 +195,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       {/* Primary Metadata Row */}
       <div className="jd-space-y-4">
         <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-          🎯 Prompt Essentials
+          <Target className="jd-h-5 jd-w-5 jd-text-primary" />
+          Prompt Essentials
         </h3>
         <div className="jd-grid jd-grid-cols-3 jd-gap-4">
           {PRIMARY_METADATA.map((type) => (
@@ -193,7 +234,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       {showSecondaryMetadata && (
         <div className="jd-space-y-4">
           <h4 className="jd-text-sm jd-font-medium jd-text-muted-foreground jd-flex jd-items-center jd-gap-2">
-            ⚙️ Additional Elements
+            <Layout className="jd-h-4 jd-w-4" />
+            Additional Elements
           </h4>
           
           {activeSecondaryMetadata.size > 0 && (
@@ -221,6 +263,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               .filter(type => !PRIMARY_METADATA.includes(type) && !activeSecondaryMetadata.has(type))
               .map((type) => {
                 const config = METADATA_CONFIGS[type];
+                const Icon = METADATA_ICONS[type];
                 return (
                   <Button
                     key={type}
@@ -230,7 +273,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                     className="jd-flex jd-items-center jd-gap-1 jd-text-xs"
                   >
                     <Plus className="jd-h-3 jd-w-3" />
-                    {config.emoji} {config.label}
+                    <Icon className="jd-h-3 jd-w-3" />
+                    {config.label}
                   </Button>
                 );
               })}
@@ -242,17 +286,20 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       <div className="jd-space-y-4 jd-flex-1">
         <div className="jd-flex jd-items-center jd-justify-between">
           <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-            📝 Content Blocks
+            <FileText className="jd-h-5 jd-w-5 jd-text-primary" />
+            Content Blocks
           </h3>
-          <Button
-            onClick={() => onAddBlock('start', 'content')}
-            variant="outline"
-            size="sm"
-            className="jd-flex jd-items-center jd-gap-2"
-          >
-            <Plus className="jd-h-4 jd-w-4" />
-            Add Block Above
-          </Button>
+          <div className="jd-flex jd-items-center jd-gap-2">
+            <Button
+              onClick={() => onAddBlock('start', 'content')}
+              variant="outline"
+              size="sm"
+              className="jd-flex jd-items-center jd-gap-2"
+            >
+              <Plus className="jd-h-4 jd-w-4" />
+              Add Block Above
+            </Button>
+          </div>
         </div>
         
         <div className="jd-space-y-3 jd-flex-1 jd-overflow-y-auto">
@@ -267,16 +314,104 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                 onUpdate={onUpdateBlock}
               />
               {index === blocks.length - 1 && (
-                <div className="jd-flex jd-justify-center jd-mt-3">
-                  <Button
-                    onClick={() => onAddBlock('end', 'content')}
-                    variant="outline"
-                    size="sm"
-                    className="jd-flex jd-items-center jd-gap-2"
-                  >
-                    <Plus className="jd-h-4 jd-w-4" />
-                    Add Block Below
-                  </Button>
+                <div className="jd-flex jd-justify-center jd-mt-3 jd-relative">
+                  {!showAddBlockDropdown ? (
+                    <Button
+                      onClick={() => setShowAddBlockDropdown(true)}
+                      variant="outline"
+                      size="sm"
+                      className="jd-flex jd-items-center jd-gap-2"
+                    >
+                      <Plus className="jd-h-4 jd-w-4" />
+                      Add Block Below
+                    </Button>
+                  ) : (
+                    <div className="jd-flex jd-flex-col jd-gap-2 jd-p-4 jd-border jd-rounded-lg jd-bg-white jd-shadow-lg jd-min-w-64">
+                      <div className="jd-flex jd-items-center jd-justify-between">
+                        <span className="jd-font-medium jd-text-sm">Add Block</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setShowAddBlockDropdown(false);
+                            setSelectedBlockType(null);
+                          }}
+                          className="jd-h-6 jd-w-6 jd-p-0"
+                        >
+                          ×
+                        </Button>
+                      </div>
+                      
+                      <Select
+                        value={selectedBlockType || ''}
+                        onValueChange={(value) => setSelectedBlockType(value as BlockType)}
+                      >
+                        <SelectTrigger className="jd-w-full">
+                          <SelectValue placeholder="Select block type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {BLOCK_TYPES.map((blockType) => {
+                            const Icon = BLOCK_TYPE_ICONS[blockType];
+                            return (
+                              <SelectItem key={blockType} value={blockType}>
+                                <div className="jd-flex jd-items-center jd-gap-2">
+                                  <Icon className="jd-h-4 jd-w-4" />
+                                  {BLOCK_TYPE_LABELS[blockType]}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+
+                      {selectedBlockType && (
+                        <div className="jd-space-y-2">
+                          <div className="jd-text-xs jd-text-muted-foreground">
+                            Choose from existing blocks or create new:
+                          </div>
+                          
+                          <Button
+                            onClick={() => handleAddBlockFromDropdown(selectedBlockType)}
+                            variant="outline"
+                            size="sm"
+                            className="jd-w-full jd-justify-start"
+                          >
+                            <Plus className="jd-h-3 jd-w-3 jd-mr-2" />
+                            Create new {BLOCK_TYPE_LABELS[selectedBlockType].toLowerCase()} block
+                          </Button>
+
+                          {availableBlocksByType[selectedBlockType]?.length > 0 && (
+                            <div className="jd-space-y-1">
+                              <div className="jd-text-xs jd-text-muted-foreground">
+                                Or use existing:
+                              </div>
+                              {availableBlocksByType[selectedBlockType].slice(0, 3).map((block) => (
+                                <Button
+                                  key={block.id}
+                                  onClick={() => handleAddBlockFromDropdown(selectedBlockType, block)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="jd-w-full jd-justify-start jd-text-left jd-h-auto jd-p-2"
+                                >
+                                  <div className="jd-flex jd-flex-col jd-items-start">
+                                    <span className="jd-font-medium jd-text-xs">
+                                      {block.name || `${selectedBlockType} block`}
+                                    </span>
+                                    <span className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-full">
+                                      {typeof block.content === 'string' 
+                                        ? block.content.substring(0, 40) + '...'
+                                        : Object.values(block.content)[0]?.substring(0, 40) + '...' || ''
+                                      }
+                                    </span>
+                                  </div>
+                                </Button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -287,7 +422,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               <FileText className="jd-h-12 jd-w-12 jd-mx-auto jd-mb-2 jd-text-muted-foreground/50" />
               <p>No content blocks yet</p>
               <Button
-                onClick={() => onAddBlock('end', 'content')}
+                onClick={() => setShowAddBlockDropdown(true)}
                 variant="outline"
                 size="sm"
                 className="jd-mt-2"
