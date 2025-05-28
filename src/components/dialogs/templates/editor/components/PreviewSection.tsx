@@ -31,6 +31,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
       ? htmlContent
       : htmlContent.split('<br>').slice(0, 3).join('<br>')
     : undefined;
+  const displayed = isHtml ? displayedHtml : displayedText;
 
   const handleCopy = async () => {
     try {
