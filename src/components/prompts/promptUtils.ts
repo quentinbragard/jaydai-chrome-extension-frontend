@@ -1,6 +1,6 @@
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { MetadataType } from '@/types/prompts/metadata';
-import { getBlockContent } from '../../../prompts/blocks/blockUtils';
+import { getBlockContent } from '@/components/prompts/blocks/blockUtils';
 
 // French prefixes for metadata and blocks
 const PREFIXES: Partial<Record<BlockType | MetadataType, string>> = {

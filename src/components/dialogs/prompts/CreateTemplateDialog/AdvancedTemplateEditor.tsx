@@ -14,7 +14,7 @@ import { User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
 import {
   formatMetadataForPreview,
   formatBlockForPreview,
-} from '../../utils/promptUtils';
+} from '@/components/prompts/promptUtils';
 import { highlightPlaceholders } from '@/utils/templates/placeholderUtils';
 
 

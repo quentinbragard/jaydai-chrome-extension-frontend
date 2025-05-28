@@ -4,7 +4,7 @@ import { Block, BlockType } from '@/types/prompts/blocks';
 import { PromptMetadata, DEFAULT_METADATA, METADATA_CONFIGS, MetadataType } from '@/types/prompts/metadata';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { formatMetadataForPreview, formatBlockForPreview } from '../utils/promptUtils';
+import { formatMetadataForPreview, formatBlockForPreview } from '@/components/prompts/promptUtils';
 import { highlightPlaceholders } from '@/utils/templates/placeholderUtils';
 import { Button } from '@/components/ui/button';
 import { MetadataCard } from '@/components/prompts/blocks/MetadataCard';

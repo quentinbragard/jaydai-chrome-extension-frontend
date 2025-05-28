@@ -5,8 +5,8 @@ import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { PromptMetadata, DEFAULT_METADATA, ALL_METADATA_TYPES } from '@/types/prompts/metadata';
-import { getBlockContent, getLocalizedContent } from '../../../prompts/blocks/blockUtils';
-import { formatBlockForPrompt, formatMetadataForPrompt } from '../utils/promptUtils';
+import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
+import { formatBlockForPrompt, formatMetadataForPrompt } from '@/components/prompts/promptUtils';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');

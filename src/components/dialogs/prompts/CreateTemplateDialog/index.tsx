@@ -1,22 +1,21 @@
-// src/components/dialogs/templates/TemplateDialog.tsx
+// src/components/dialogs/templates/CreateTemplateDialog.tsx
 import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, FolderPlus } from 'lucide-react';
+import { FolderPlus } from 'lucide-react';
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { getMessage } from '@/core/utils/i18n';
-import { BaseDialog } from '../BaseDialog';
-import { BasicTemplateEditor, AdvancedTemplateEditor } from './editor/template';
-import { formatBlockForPrompt, formatMetadataForPrompt } from './utils/promptUtils';
-import { ALL_METADATA_TYPES } from '@/types/prompts/metadata';
+import { BaseDialog } from '@/components/dialogs/BaseDialog';
+import { BasicTemplateEditor } from './BasicTemplateEditor';
+import { AdvancedTemplateEditor } from './AdvancedTemplateEditor';
+
 import {
   useProcessUserFolders,
   truncateFolderPath,
@@ -24,7 +23,7 @@ import {
   generateFinalContent,
   getBlockIds,
   FolderData
-} from './utils/templateDialogUtils';
+} from '@/components/prompts/templates/templateUtils';
 
 
 
@@ -32,7 +31,7 @@ import {
  * Unified Template Dialog for both creating and editing templates
  * Now with Basic and Advanced editing modes
  */
-export const TemplateDialog: React.FC = () => {
+export const CreateTemplateDialog: React.FC = () => {
   // Get create and edit dialog states
   const createDialog = useDialog('createTemplate');
   const editDialog = useDialog('editTemplate');

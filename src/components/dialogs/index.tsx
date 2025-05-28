@@ -1,8 +1,8 @@
 // src/components/dialogs/index.tsx
 import React from 'react';
 import { DialogProvider as DialogContextProvider } from './DialogContext';
-import { TemplateDialog } from './prompts/TemplateDialog';
-import { FolderDialog } from './prompts/FolderDialog';
+import { CreateTemplateDialog } from './prompts/TemplateDialog';
+import { CreateFolderDialog } from './prompts/CreateFolderDialog';
 import { CustomizeTemplateDialog } from './prompts/CustomizeTemplateDialog';
 import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
@@ -37,8 +37,8 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       {children}
       
       {/* Register all dialogs here */}
-      <TemplateDialog />
-      <FolderDialog />
+      <CreateTemplateDialog />
+      <CreateFolderDialog  />
       <CustomizeTemplateDialog />
       <AuthDialog />
       <SettingsDialog />
@@ -52,7 +52,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
 export { DialogContextProvider } from './DialogContext';
 export { useDialog, useDialogManager } from './DialogContext';
 export { TemplateDialog } from './prompts/TemplateDialog';
-export { FolderDialog } from './prompts/FolderDialog';
+export { FolderDialog } from './prompts/CreateFolderDialog';
 export { PlaceholderEditor } from './prompts/CustomizeTemplateDialog';
 export { AuthDialog } from './auth/AuthDialog';
 export { SettingsDialog } from './settings/SettingsDialog';

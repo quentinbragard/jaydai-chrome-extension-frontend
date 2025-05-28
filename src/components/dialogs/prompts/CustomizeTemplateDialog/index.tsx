@@ -8,7 +8,7 @@ import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 import { BasicEditor } from './/BasicEditor';
 import { AdvancedEditor } from './AdvancedEditor';
-import { useCustomizeTemplateDialog } from '@/components/dialogs/prompts/hooks/useCustomizeTemplateDialog';
+import { useCustomizeTemplateDialog } from '@/hooks/dialogs/useCustomizeTemplateDialog';
 
 /**
  * Dialog for editing template content using blocks with Basic/Advanced modes
