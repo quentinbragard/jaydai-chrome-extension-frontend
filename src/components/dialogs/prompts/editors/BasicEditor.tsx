@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Block, BlockType } from '@/types/prompts/blocks';
+import { Block } from '@/types/prompts/blocks';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useThemeDetector } from '@/hooks/useThemeDetector';
@@ -10,7 +10,6 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 interface BasicEditorProps {
   blocks: Block[];
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
-  isProcessing: boolean;
   mode?: 'create' | 'customize';
 }
 
@@ -27,7 +26,6 @@ interface Placeholder {
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   blocks,
   onUpdateBlock,
-  isProcessing,
   mode = 'customize'
 }) => {
   const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
@@ -39,6 +37,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   const inputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const activeInputIndex = useRef<number | null>(null);
   const isDarkMode = useThemeDetector();
+  const initialContentRef = useRef('');
 
   // Get combined content from all blocks
   const getBlockContent = (block: Block): string => {
@@ -51,7 +50,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     return '';
   };
 
-  const templateContent = blocks.map(block => getBlockContent(block)).join('\n\n');
+  const templateContent =
+    mode === 'customize' && initialContentRef.current
+      ? initialContentRef.current
+      : blocks.map(block => getBlockContent(block)).join('\n\n');
 
   /**
    * Extract placeholders from template content
@@ -103,25 +105,33 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
   // Initialize content and placeholders
   useEffect(() => {
-    if (templateContent) {      
-      const normalizedContent = templateContent.replace(/\r\n/g, '\n');
-      setModifiedContent(normalizedContent);
-      
-      try {
-        const extractedPlaceholders = extractPlaceholders(normalizedContent);
-        setPlaceholders(extractedPlaceholders);
-        
-        setTimeout(() => {
-          if (editorRef.current) {
-            editorRef.current.innerHTML = highlightPlaceholders(normalizedContent);
-            setContentMounted(true);
-          }
-        }, 10);
-      } catch (err) {
-        console.error("Error processing template:", err);
-      }
+    if (!templateContent) return;
+
+    if (mode === 'customize' && initialContentRef.current) {
+      return;
     }
-  }, [templateContent]);
+
+    const normalizedContent = templateContent.replace(/\r\n/g, '\n');
+    setModifiedContent(normalizedContent);
+
+    try {
+      const extractedPlaceholders = extractPlaceholders(normalizedContent);
+      setPlaceholders(extractedPlaceholders);
+
+      if (!initialContentRef.current) {
+        initialContentRef.current = normalizedContent;
+      }
+
+      setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.innerHTML = highlightPlaceholders(normalizedContent);
+          setContentMounted(true);
+        }
+      }, 10);
+    } catch (err) {
+      console.error('Error processing template:', err);
+    }
+  }, [templateContent, mode]);
 
   // Setup mutation observer
   useEffect(() => {
@@ -153,8 +163,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
       
       setModifiedContent(textContent);
 
-      const extracted = extractPlaceholders(textContent);
-      setPlaceholders(extracted);
+      if (mode === 'create') {
+        const extracted = extractPlaceholders(textContent);
+        setPlaceholders(extracted);
+      }
       
       // Update the first block with the modified content
       if (blocks.length > 0) {
@@ -204,8 +216,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
       
       setModifiedContent(textContent);
 
-      const extracted = extractPlaceholders(textContent);
-      setPlaceholders(extracted);
+      if (mode === 'create') {
+        const extracted = extractPlaceholders(textContent);
+        setPlaceholders(extracted);
+      }
       
       // Update the first block with the modified content
       if (blocks.length > 0) {
@@ -241,7 +255,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     updatedPlaceholders[index].value = value;
     setPlaceholders(updatedPlaceholders);
 
-    let newContent = templateContent.replace(/\r\n/g, '\n');
+    let newContent =
+      (mode === 'customize' ? initialContentRef.current : templateContent).replace(/\r\n/g, '\n');
     
     updatedPlaceholders.forEach(({ key, value }) => {
       if (value) {
