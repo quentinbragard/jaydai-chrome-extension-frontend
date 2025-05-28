@@ -4,12 +4,12 @@ import { Block, BlockType } from '@/components/templates/blocks/types';
 import { PromptMetadata, DEFAULT_METADATA, METADATA_CONFIGS, MetadataType } from '@/components/templates/metadata/types';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { getCurrentLanguage } from '@/core/utils/i18n';
+import { formatMetadataForPreview, formatBlockForPreview } from '../utils/promptUtils';
+import { highlightPlaceholders } from '@/utils/templates/placeholderUtils';
 import { Button } from '@/components/ui/button';
 import { MetadataCard } from './components/MetadataCard';
 import { BlockCard } from './components/BlockCard';
 import { PreviewSection } from './components/PreviewSection';
-import { buildPromptPart, buildPromptPartHtml } from '../utils/blockUtils';
-
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
@@ -194,22 +194,22 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const generatePreviewContent = () => {
     const parts: string[] = [];
 
+    // Add metadata content
     ALL_METADATA_TYPES.forEach((type) => {
       const value = metadata.values?.[type];
       if (value) {
-        const blockType = METADATA_CONFIGS[type].blockType;
-        parts.push(buildPromptPart(blockType, value));
+        parts.push(formatMetadataForPreview(type, value));
       }
     });
 
+    // Add block content
     blocks.forEach((block) => {
-      const content = typeof block.content === 'string'
-        ? block.content
-        : block.content[getCurrentLanguage()] || block.content.en || '';
-      if (content) parts.push(buildPromptPart(block.type, content));
+      const formatted = formatBlockForPreview(block);
+      if (formatted) parts.push(formatted);
     });
 
-    return parts.filter(Boolean).join('\n\n');
+    const html = parts.filter(Boolean).join('<br><br>');
+    return highlightPlaceholders(html);
   };
 
   const generatePreviewHtml = () => {
@@ -391,6 +391,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         htmlContent={generatePreviewHtml()}
         expanded={previewExpanded}
         onToggle={() => setPreviewExpanded(!previewExpanded)}
+        isHtml
       />
     </div>
   );

@@ -11,7 +11,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { getMessage } from '@/core/utils/i18n';
 import { ALL_METADATA_TYPES, METADATA_CONFIGS } from '@/components/templates/metadata/types';
 import { User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
-import { getBlockContent, buildPromptPart, buildPromptPartHtml } from '../../utils/blockUtils';
+import {
+  formatMetadataForPreview,
+  formatBlockForPreview,
+} from '../../utils/promptUtils';
+import { highlightPlaceholders } from '@/utils/templates/placeholderUtils';
+
 
 const METADATA_ICONS: Record<string, React.ComponentType<any>> = {
   role: User,
@@ -128,20 +133,22 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
   const generatePreviewContent = () => {
     const parts: string[] = [];
 
+    // Add metadata content
     ALL_METADATA_TYPES.forEach((type) => {
       const value = metadata.values?.[type];
       if (value) {
-        const blockType = METADATA_CONFIGS[type].blockType;
-        parts.push(buildPromptPart(blockType, value));
+        parts.push(formatMetadataForPreview(type, value));
       }
     });
 
+    // Add block content
     blocks.forEach((block) => {
-      const content = getBlockContent(block);
-      if (content) parts.push(buildPromptPart(block.type, content));
+      const formatted = formatBlockForPreview(block);
+      if (formatted) parts.push(formatted);
     });
 
-    return parts.filter(Boolean).join('\n\n');
+    const html = parts.filter(Boolean).join('<br><br>');
+    return highlightPlaceholders(html);
   };
 
   const generatePreviewHtml = () => {
@@ -298,6 +305,7 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
         htmlContent={generatePreviewHtml()}
         expanded={previewExpanded}
         onToggle={() => setPreviewExpanded(!previewExpanded)}
+        isHtml
       />
     </div>
   );

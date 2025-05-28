@@ -15,8 +15,10 @@ import { promptApi } from '@/services/api';
 import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
 import { BasicTemplateEditor, AdvancedTemplateEditor } from './editor/template';
-import { getBlockContent, buildPromptPart } from './utils/blockUtils';
-import { ALL_METADATA_TYPES, METADATA_CONFIGS } from '@/components/templates/metadata/types';
+import { getBlockContent } from './utils/blockUtils';
+import { formatBlockForPrompt, formatMetadataForPrompt } from './utils/promptUtils';
+import { ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
+
 
 // Define types for folder data
 interface FolderData {
@@ -262,17 +264,19 @@ export const TemplateDialog: React.FC = () => {
 
     const parts: string[] = [];
 
+    // Add metadata content with French prefixes
     ALL_METADATA_TYPES.forEach((type) => {
       const value = metadata.values?.[type];
       if (value) {
-        const blockType = METADATA_CONFIGS[type].blockType;
-        parts.push(buildPromptPart(blockType, value));
+        parts.push(formatMetadataForPrompt(type, value));
       }
     });
 
+    // Add block content with prefixes
     blocks.forEach((block) => {
-      const blockContent = getBlockContent(block);
-      if (blockContent) parts.push(buildPromptPart(block.type, blockContent));
+      const formatted = formatBlockForPrompt(block);
+      if (formatted) parts.push(formatted);
+
     });
 
     return parts.filter(Boolean).join('\n\n');
@@ -383,7 +387,6 @@ export const TemplateDialog: React.FC = () => {
           name: blockType
             ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
             : 'New Block',
-
           description: '',
           isNew: true
         };

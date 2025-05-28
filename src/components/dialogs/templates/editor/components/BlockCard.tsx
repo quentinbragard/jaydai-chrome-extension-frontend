@@ -76,7 +76,6 @@ export const BlockCard: React.FC<BlockCardProps> = ({
             <div className="jd-flex jd-items-center jd-gap-2">
               <span className="jd-font-medium jd-text-sm">
                 {block.name || 'Block'}
-
               </span>
               <Select
                 value={block.type || ''}
