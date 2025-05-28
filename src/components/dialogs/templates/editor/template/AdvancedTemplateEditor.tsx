@@ -17,6 +17,7 @@ import {
 } from '../../utils/promptUtils';
 import { highlightPlaceholders } from '@/utils/templates/placeholderUtils';
 
+
 const METADATA_ICONS: Record<string, React.ComponentType<any>> = {
   role: User,
   context: MessageSquare,  
@@ -148,6 +149,25 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
 
     const html = parts.filter(Boolean).join('<br><br>');
     return highlightPlaceholders(html);
+  };
+
+  const generatePreviewHtml = () => {
+    const parts: string[] = [];
+
+    ALL_METADATA_TYPES.forEach((type) => {
+      const value = metadata.values?.[type];
+      if (value) {
+        const blockType = METADATA_CONFIGS[type].blockType;
+        parts.push(buildPromptPartHtml(blockType, value));
+      }
+    });
+
+    blocks.forEach((block) => {
+      const content = getBlockContent(block);
+      if (content) parts.push(buildPromptPartHtml(block.type, content));
+    });
+
+    return parts.filter(Boolean).join('<br><br>');
   };
 
   return (
@@ -282,6 +302,7 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
       {/* Preview */}
       <PreviewSection
         content={generatePreviewContent()}
+        htmlContent={generatePreviewHtml()}
         expanded={previewExpanded}
         onToggle={() => setPreviewExpanded(!previewExpanded)}
         isHtml

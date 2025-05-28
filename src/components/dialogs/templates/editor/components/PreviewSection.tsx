@@ -7,6 +7,7 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface PreviewSectionProps {
   content: string;
+  htmlContent?: string;
   expanded: boolean;
   onToggle: () => void;
   isHtml?: boolean;
@@ -14,6 +15,7 @@ interface PreviewSectionProps {
 
 export const PreviewSection: React.FC<PreviewSectionProps> = ({
   content,
+  htmlContent,
   expanded,
   onToggle,
   isHtml = false
@@ -23,7 +25,12 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
   
   const lines = content.split('\n');
   const showToggle = lines.length > 3;
-  const displayed = expanded ? content : lines.slice(0, 3).join('\n');
+  const displayedText = expanded ? content : lines.slice(0, 3).join('\n');
+  const displayedHtml = htmlContent
+    ? expanded
+      ? htmlContent
+      : htmlContent.split('<br>').slice(0, 3).join('<br>')
+    : undefined;
 
   const handleCopy = async () => {
     try {
@@ -111,6 +118,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
                 )
               )}
             </pre>
+
             {!expanded && showToggle && content && (
               <div
                 className={cn(

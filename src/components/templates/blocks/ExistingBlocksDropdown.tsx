@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus, FileText } from 'lucide-react';
 import { ExistingBlocksDropdownProps, Block, BLOCK_TYPES } from './types';
 import { getMessage } from '@/core/utils/i18n';
+import { getLocalizedContent } from '@/components/dialogs/templates/utils/blockUtils';
 
 /**
  * Component for selecting existing blocks or creating new ones
@@ -162,7 +163,7 @@ export const ExistingBlocksDropdown: React.FC<ExistingBlocksDropdownProps> = ({
                   <FileText className="jd-h-4 jd-w-4 jd-mr-3 jd-flex-shrink-0" />
                   <div className="jd-min-w-0 jd-flex-1">
                     <div className="jd-font-medium jd-truncate">
-                      {block.name || `${blockTypeInfo?.name} Block`}
+                      {getLocalizedContent(block.title) || `${blockTypeInfo?.name} Block`}
                     </div>
                     <div className="jd-text-xs jd-text-muted-foreground jd-mt-1">
                       {truncateContent(typeof block.content === 'string' ? block.content : 'Localized content')}

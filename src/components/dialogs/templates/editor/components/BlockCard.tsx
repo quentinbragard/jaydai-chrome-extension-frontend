@@ -9,6 +9,7 @@ import { SaveBlockButton } from './SaveBlockButton';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { BLOCK_TYPES, BLOCK_TYPE_LABELS } from '../../utils/blockUtils';
 
+
 const BLOCK_ICONS: Record<BlockType, React.ComponentType<any>> = {
   content: FileText,
   context: MessageSquare,
@@ -128,7 +129,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
             <SaveBlockButton
               type={block.type}
               content={content}
-              title={block.name}
+              title={getLocalizedContent(block.title)}
               description={block.description}
               onSaved={(saved) => onSave && onSave(saved)}
             />

@@ -212,6 +212,27 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     return highlightPlaceholders(html);
   };
 
+  const generatePreviewHtml = () => {
+    const parts: string[] = [];
+
+    ALL_METADATA_TYPES.forEach((type) => {
+      const value = metadata.values?.[type];
+      if (value) {
+        const blockType = METADATA_CONFIGS[type].blockType;
+        parts.push(buildPromptPartHtml(blockType, value));
+      }
+    });
+
+    blocks.forEach((block) => {
+      const content = typeof block.content === 'string'
+        ? block.content
+        : block.content[getCurrentLanguage()] || block.content.en || '';
+      if (content) parts.push(buildPromptPartHtml(block.type, content));
+    });
+
+    return parts.filter(Boolean).join('<br><br>');
+  };
+
   if (isProcessing) {
     return (
       <div className="jd-flex jd-items-center jd-justify-center jd-h-full">
@@ -367,6 +388,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
       <PreviewSection
         content={generatePreviewContent()}
+        htmlContent={generatePreviewHtml()}
         expanded={previewExpanded}
         onToggle={() => setPreviewExpanded(!previewExpanded)}
         isHtml

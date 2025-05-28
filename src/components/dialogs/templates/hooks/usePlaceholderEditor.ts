@@ -26,7 +26,7 @@ export function usePlaceholderEditor() {
             id: block.id || Date.now() + index,
             type: block.type || 'content',
             content: getLocalizedContent(block.content) || '',
-            name: block.name || `${(block.type || 'content').charAt(0).toUpperCase() + (block.type || 'content').slice(1)} Block`,
+            title: block.title || { en: `${(block.type || 'content').charAt(0).toUpperCase() + (block.type || 'content').slice(1)} Block` },
             description: block.description || ''
           }));
         } else if (data.content) {
@@ -35,7 +35,7 @@ export function usePlaceholderEditor() {
             id: Date.now(),
             type: 'content',
             content: contentString,
-            name: 'Template Content'
+            title: { en: 'Template Content' }
           }];
         }
         setBlocks(templateBlocks);

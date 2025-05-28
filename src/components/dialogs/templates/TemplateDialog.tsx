@@ -19,6 +19,7 @@ import { getBlockContent } from './utils/blockUtils';
 import { formatBlockForPrompt, formatMetadataForPrompt } from './utils/promptUtils';
 import { ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
 
+
 // Define types for folder data
 interface FolderData {
   id: number;
@@ -117,7 +118,7 @@ export const TemplateDialog: React.FC = () => {
             id: block.id || Date.now() + index,
             type: block.type || 'content',
             content: block.content || '',
-            name: block.name,
+            title: block.title,
             description: block.description
           }));
           setBlocks(templateBlocks);
@@ -131,7 +132,7 @@ export const TemplateDialog: React.FC = () => {
             id: Date.now(),
             type: 'content',
             content: currentTemplate.content || '',
-            name: 'Template Content'
+            title: { en: 'Template Content' }
           }]);
         }
       } else {
@@ -260,8 +261,7 @@ export const TemplateDialog: React.FC = () => {
     if (activeTab === 'basic') {
       return content;
     }
-    
-    // Advanced mode: combine metadata and blocks
+
     const parts: string[] = [];
 
     // Add metadata content with French prefixes
@@ -276,6 +276,7 @@ export const TemplateDialog: React.FC = () => {
     blocks.forEach((block) => {
       const formatted = formatBlockForPrompt(block);
       if (formatted) parts.push(formatted);
+
     });
 
     return parts.filter(Boolean).join('\n\n');
