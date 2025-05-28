@@ -10,7 +10,7 @@ import {
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames';
 import { Block } from '@/types/prompts/blocks';
-import { getLocalizedContent } from '@/components/dialogs/templates/utils/blockUtils';
+import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
 
 interface AddBlockButtonProps {
   blocks: Block[];

@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { Trash2, FileText, MessageSquare, User, Layout, Type, Users, GripVertical } from 'lucide-react';
-import { SaveBlockButton } from './SaveBlockButton';
+import { SaveBlockButton } from '@/components/prompts/blocks/SaveBlockButton';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { BLOCK_TYPES, BLOCK_TYPE_LABELS } from '../../utils/blockUtils';
+import { BLOCK_TYPES, BLOCK_TYPE_LABELS, getLocalizedContent } from './blockUtils';
 
 
 const BLOCK_ICONS: Record<BlockType, React.ComponentType<any>> = {

@@ -2,7 +2,7 @@
 import React, { useState, memo, useCallback, useRef } from 'react';
 import { Template, TemplateFolder } from '@/types/prompts/templates';
 import { FolderHeader } from './FolderHeader';
-import { TemplateItem } from '@/components/templates/TemplateItem';
+import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { PinButton } from './PinButton';
 import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

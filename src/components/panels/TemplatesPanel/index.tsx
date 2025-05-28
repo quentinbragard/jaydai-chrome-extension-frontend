@@ -22,9 +22,9 @@ import {
 import { 
   FolderSection, 
   FolderList 
-} from '@/components/folders';
+} from '@/components/prompts/folders';
 
-import { TemplateItem } from '@/components/templates/TemplateItem';
+import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';

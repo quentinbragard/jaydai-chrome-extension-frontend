@@ -7,13 +7,13 @@ import { getCurrentLanguage } from '@/core/utils/i18n';
 import { formatMetadataForPreview, formatBlockForPreview } from '../utils/promptUtils';
 import { highlightPlaceholders } from '@/utils/templates/placeholderUtils';
 import { Button } from '@/components/ui/button';
-import { MetadataCard } from './components/MetadataCard';
-import { BlockCard } from './components/BlockCard';
-import { PreviewSection } from './components/PreviewSection';
+import { MetadataCard } from '@/components/prompts/blocks/MetadataCard';
+import { BlockCard } from '@/components/prompts/blocks/BlockCard';
+import { PreviewSection } from '@/components/prompts/PreviewSection';
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
-import { buildPromptPartHtml } from '../utils/blockUtils';
+import { buildPromptPartHtml } from '../../../prompts/blocks/blockUtils';
 
 interface AdvancedEditorProps {
   blocks: Block[];

@@ -1,18 +1,19 @@
-// src/components/dialogs/templates/PlaceholderEditor.tsx
+// src/components/dialogs/templates/CustomizeTemplateDialog.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BaseDialog } from '../BaseDialog';
+import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
-import { BasicEditor, AdvancedEditor } from './editor';
-import { usePlaceholderEditor } from './hooks/usePlaceholderEditor';
+import { BasicEditor } from './/BasicEditor';
+import { AdvancedEditor } from './AdvancedEditor';
+import { useCustomizeTemplateDialog } from '@/components/dialogs/prompts/hooks/useCustomizeTemplateDialog';
 
 /**
  * Dialog for editing template content using blocks with Basic/Advanced modes
  */
-export const PlaceholderEditor: React.FC = () => {
+export const CustomizeTemplateDialog: React.FC = () => {
   const {
     isOpen,
     error,
@@ -29,7 +30,7 @@ export const PlaceholderEditor: React.FC = () => {
     handleUpdateMetadata,
     handleComplete,
     handleClose
-  } = usePlaceholderEditor();
+  } = useCustomizeTemplateDialog();
 
   if (!isOpen) return null;
 
@@ -40,7 +41,7 @@ export const PlaceholderEditor: React.FC = () => {
         onOpenChange={(open: boolean) => {
           if (!open) handleClose();
         }}
-        title={getMessage('placeholderEditor', undefined, 'Prompt Block Editor')}
+        title={getMessage('CustomizeTemplateDialog', undefined, 'Prompt Block Editor')}
         className="jd-max-w-4xl jd-h-[80vh]"
       >
         <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-h-64">
@@ -73,8 +74,8 @@ export const PlaceholderEditor: React.FC = () => {
       onOpenChange={(open: boolean) => {
         if (!open) handleClose();
       }}
-      title={getMessage('placeholderEditor', undefined, 'Prompt Block Editor')}
-      description={getMessage('placeholderEditorDescription', undefined, 'Build your prompt using blocks')}
+      title={getMessage('CustomizeTemplateDialog', undefined, 'Prompt Block Editor')}
+      description={getMessage('CustomizeTemplateDialogDescription', undefined, 'Build your prompt using blocks')}
       className="jd-max-w-6xl jd-h-[90vh]"
     >
       <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">

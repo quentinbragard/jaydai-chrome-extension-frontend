@@ -1,9 +1,9 @@
 // src/components/dialogs/DialogProvider.tsx
 import React, { useEffect } from 'react';
 import { DialogManagerProvider } from './DialogContext';
-import { TemplateDialog } from './templates/TemplateDialog';
-import { FolderDialog } from './templates/FolderDialog';
-import { PlaceholderEditor } from './templates/PlaceholderEditor';
+import { TemplateDialog } from './prompts/TemplateDialog';
+import { FolderDialog } from './prompts/FolderDialog';
+import { CustomizeTemplateDialog } from './prompts/CustomizeTemplateDialog/index';
 import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
@@ -88,7 +88,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       {/* Register all dialogs here */}
       <TemplateDialog />
       <FolderDialog />
-      <PlaceholderEditor />
+      <CustomizeTemplateDialog />
       <AuthDialog />
       <SettingsDialog />
       <ConfirmationDialog />

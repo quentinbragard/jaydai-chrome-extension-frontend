@@ -8,7 +8,7 @@ import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { SaveBlockButton } from './SaveBlockButton';
 import { cn } from '@/core/utils/classNames';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { getLocalizedContent } from '@/components/dialogs/templates/utils/blockUtils';
+import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface MetadataCardProps {
