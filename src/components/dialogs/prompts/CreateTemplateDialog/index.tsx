@@ -439,7 +439,7 @@ export const CreateTemplateDialog: React.FC = () => {
               <TabsTrigger value="advanced">Advanced Editor</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="basic" className="jd-flex-1 jd-overflow-hidden jd-mt-4">
+            <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto jd-mt-4">
               <BasicEditor
                 blocks={blocks}
                 onUpdateBlock={handleUpdateBlock}
@@ -447,7 +447,7 @@ export const CreateTemplateDialog: React.FC = () => {
               />
             </TabsContent>
 
-            <TabsContent value="advanced" className="jd-flex-1 jd-overflow-hidden jd-mt-4">
+            <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto jd-mt-4">
               <AdvancedEditor
                 blocks={blocks}
                 metadata={metadata}

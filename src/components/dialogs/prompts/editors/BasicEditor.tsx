@@ -367,6 +367,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             <div
               ref={editorRef}
               contentEditable
+              dir="ltr"
               suppressContentEditableWarning
               onFocus={handleEditorFocus}
               onBlur={handleEditorBlur}
