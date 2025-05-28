@@ -13,6 +13,7 @@ import { PreviewSection } from './components/PreviewSection';
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
+import { buildPromptPartHtml } from '../utils/blockUtils';
 
 interface AdvancedEditorProps {
   blocks: Block[];
