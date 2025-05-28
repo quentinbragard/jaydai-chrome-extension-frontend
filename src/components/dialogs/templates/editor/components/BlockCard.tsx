@@ -9,6 +9,7 @@ import { SaveBlockButton } from './SaveBlockButton';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { BLOCK_TYPES, BLOCK_TYPE_LABELS, getLocalizedContent } from '../../utils/blockUtils';
 
+
 const BLOCK_ICONS: Record<BlockType, React.ComponentType<any>> = {
   content: FileText,
   context: MessageSquare,
@@ -75,6 +76,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
             <div className="jd-flex jd-items-center jd-gap-2">
               <span className="jd-font-medium jd-text-sm">
                 {getLocalizedContent(block.title) || 'Block'}
+
               </span>
               <Select
                 value={block.type || ''}
