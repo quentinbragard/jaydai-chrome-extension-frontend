@@ -371,14 +371,20 @@ export const TemplateDialog: React.FC = () => {
   };
   
   // Block management functions
-  const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => {
+  const handleAddBlock = (
+    position: 'start' | 'end',
+    blockType?: BlockType | null,
+    existingBlock?: Block
+  ) => {
     const newBlock: Block = existingBlock
       ? { ...existingBlock, isNew: false }
       : {
           id: Date.now() + Math.random(),
-          type: blockType,
+          type: blockType || null,
           content: '',
-          name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`,
+          name: blockType
+            ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
+            : 'New Block',
           description: '',
           isNew: true
         };

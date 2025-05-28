@@ -28,7 +28,7 @@ const PRIMARY_METADATA = ['role', 'context', 'goal'] as const;
 interface AdvancedTemplateEditorProps {
   blocks: Block[];
   metadata: PromptMetadata;
-  onAddBlock: (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => void;
+  onAddBlock: (position: 'start' | 'end', blockType?: BlockType | null, existingBlock?: Block) => void;
   onRemoveBlock: (blockId: number) => void;
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
   onReorderBlocks: (blocks: Block[]) => void;
@@ -247,7 +247,7 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
                 <div className="jd-text-center jd-py-8 jd-border-2 jd-border-dashed jd-rounded-lg jd-text-muted-foreground">
                   <p className="jd-mb-2">{getMessage('noContentBlocks', undefined, 'No content blocks yet')}</p>
                   <Button
-                    onClick={() => onAddBlock('end', 'content')}
+                    onClick={() => onAddBlock('end')}
                     variant="outline"
                     size="sm"
                   >
@@ -260,7 +260,7 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
               {blocks.length > 0 && (
                 <div className="jd-flex jd-justify-center">
                   <Button
-                    onClick={() => onAddBlock('end', 'content')}
+                    onClick={() => onAddBlock('end')}
                     variant="outline"
                     size="sm"
                   >

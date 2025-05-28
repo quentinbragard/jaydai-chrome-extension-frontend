@@ -20,7 +20,8 @@ export type BlockType =
 
 export interface Block {
   id: number;
-  type: BlockType;
+  /** Type of the block. When null, the user can choose it in the editor */
+  type: BlockType | null;
   content: string | Record<string, string>;
   name?: string;
   description?: string;
