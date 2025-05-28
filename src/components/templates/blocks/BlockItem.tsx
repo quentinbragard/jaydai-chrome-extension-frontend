@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { BlockItemProps, BLOCK_TYPES } from './types';
 import { getMessage, getCurrentLanguage } from '@/core/utils/i18n';
+import { getLocalizedContent } from '@/components/dialogs/templates/utils/blockUtils';
 import { cn } from "@/core/utils/classNames";
 
 /**
@@ -31,7 +32,7 @@ export const BlockItem: React.FC<BlockItemProps> = ({
   canMoveUp,
   canMoveDown
 }) => {
-  const [editableName, setEditableName] = useState(block.name || '');
+  const [editableName, setEditableName] = useState(getLocalizedContent(block.title) || '');
   const [editableContent, setEditableContent] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -54,7 +55,7 @@ export const BlockItem: React.FC<BlockItemProps> = ({
     if (isActive) {
       const content = getBlockContent();
       setEditableContent(content);
-      setEditableName(block.name || '');
+      setEditableName(getLocalizedContent(block.title) || '');
     }
   }, [isActive, block]);
 
@@ -68,7 +69,7 @@ export const BlockItem: React.FC<BlockItemProps> = ({
   // Handle saving changes
   const handleSave = () => {
     onUpdate({
-      name: editableName.trim() || blockTypeInfo?.name || 'Block',
+      title: { en: editableName.trim() || blockTypeInfo?.name || 'Block' },
       content: editableContent
     });
     onEdit(); // Close edit mode
@@ -76,7 +77,7 @@ export const BlockItem: React.FC<BlockItemProps> = ({
 
   // Handle canceling edit
   const handleCancel = () => {
-    setEditableName(block.name || '');
+    setEditableName(getLocalizedContent(block.title) || '');
     setEditableContent(getBlockContent());
     onEdit(); // Close edit mode
   };
@@ -124,7 +125,7 @@ export const BlockItem: React.FC<BlockItemProps> = ({
               />
             ) : (
               <h4 className="jd-text-sm jd-font-medium jd-truncate">
-                {block.name || blockTypeInfo?.name || 'Block'}
+                {getLocalizedContent(block.title) || blockTypeInfo?.name || 'Block'}
               </h4>
             )}
           </div>

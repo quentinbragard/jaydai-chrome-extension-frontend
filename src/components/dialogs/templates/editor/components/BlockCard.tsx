@@ -3,11 +3,11 @@ import { Block, BlockType } from '@/components/templates/blocks/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { Trash2, FileText, MessageSquare, User, Layout, Type, Users, GripVertical } from 'lucide-react';
 import { SaveBlockButton } from './SaveBlockButton';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { cn } from '@/core/utils/classNames';
+import { BLOCK_TYPES, BLOCK_TYPE_LABELS, getLocalizedContent } from '../../utils/blockUtils';
 
 const BLOCK_ICONS: Record<BlockType, React.ComponentType<any>> = {
   content: FileText,
@@ -18,14 +18,6 @@ const BLOCK_ICONS: Record<BlockType, React.ComponentType<any>> = {
   audience: Users
 };
 
-const BLOCK_COLORS: Record<BlockType, string> = {
-  content: 'jd-bg-blue-50 jd-border-blue-200 jd-text-blue-900',
-  context: 'jd-bg-green-50 jd-border-green-200 jd-text-green-900',
-  role: 'jd-bg-purple-50 jd-border-purple-200 jd-text-purple-900',
-  example: 'jd-bg-orange-50 jd-border-orange-200 jd-text-orange-900',
-  format: 'jd-bg-pink-50 jd-border-pink-200 jd-text-pink-900',
-  audience: 'jd-bg-teal-50 jd-border-teal-200 jd-text-teal-900'
-};
 
 interface BlockCardProps {
   block: Block;
@@ -46,7 +38,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
   onDragEnd,
   onSave
 }) => {
-  const Icon = BLOCK_ICONS[block.type];
+  const Icon = block.type ? BLOCK_ICONS[block.type] : FileText;
   const content = typeof block.content === 'string' 
     ? block.content 
     : block.content[getCurrentLanguage()] || block.content.en || '';
@@ -82,17 +74,23 @@ export const BlockCard: React.FC<BlockCardProps> = ({
             </div>
             <div className="jd-flex jd-items-center jd-gap-2">
               <span className="jd-font-medium jd-text-sm">
-                {block.name || `${block.type.charAt(0).toUpperCase() + block.type.slice(1)} Block`}
+                {getLocalizedContent(block.title) || 'Block'}
               </span>
-              <Badge 
-                variant="default" 
-                className={cn(
-                  'jd-text-xs jd-border',
-                  BLOCK_COLORS[block.type]
-                )}
+              <Select
+                value={block.type || ''}
+                onValueChange={(value) => onUpdate(block.id, { type: value as BlockType })}
               >
-                {block.type}
-              </Badge>
+                <SelectTrigger className="jd-w-32 jd-text-xs jd-h-7">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BLOCK_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {BLOCK_TYPE_LABELS[t]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           
@@ -106,7 +104,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
               className="jd-h-8 jd-w-8 jd-p-1 jd-text-muted-foreground jd-hover:jd-text-destructive"
               title="Delete block"
             >
-              <Trash2 className="jd-h-4 jd-w-4" />
+              <Trash2 className="jd-h-5 jd-w-5" />
             </Button>
           </div>
         </div>
@@ -115,7 +113,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
           value={content}
           onChange={(e) => handleContentChange(e.target.value)}
           className="jd-resize-none jd-min-h-[100px] jd-text-sm"
-          placeholder={`Enter ${block.type} content...`}
+          placeholder={block.type ? `Enter ${block.type} content...` : 'Enter block content...'}
         />
         
         {content && (
@@ -125,12 +123,12 @@ export const BlockCard: React.FC<BlockCardProps> = ({
           </div>
         )}
 
-        {block.isNew && content.trim() && (
+        {block.isNew && content.trim() && block.type && (
           <div className="jd-flex jd-justify-end jd-mt-3">
             <SaveBlockButton
               type={block.type}
               content={content}
-              title={block.name}
+              title={getLocalizedContent(block.title)}
               description={block.description}
               onSaved={(saved) => onSave && onSave(saved)}
             />

@@ -25,7 +25,7 @@ export function usePlaceholderEditor() {
             id: block.id || Date.now() + index,
             type: block.type || 'content',
             content: getLocalizedContent(block.content) || '',
-            name: block.name || `${(block.type || 'content').charAt(0).toUpperCase() + (block.type || 'content').slice(1)} Block`,
+            title: block.title || { en: `${(block.type || 'content').charAt(0).toUpperCase() + (block.type || 'content').slice(1)} Block` },
             description: block.description || ''
           }));
         } else if (data.content) {
@@ -34,7 +34,7 @@ export function usePlaceholderEditor() {
             id: Date.now(),
             type: 'content',
             content: contentString,
-            name: 'Template Content'
+            title: { en: 'Template Content' }
           }];
         }
         setBlocks(templateBlocks);
@@ -48,14 +48,20 @@ export function usePlaceholderEditor() {
     }
   }, [isOpen, data]);
 
-  const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => {
+  const handleAddBlock = (
+    position: 'start' | 'end',
+    blockType?: BlockType | null,
+    existingBlock?: Block
+  ) => {
     const newBlock: Block = existingBlock
       ? { ...existingBlock, isNew: false }
       : {
           id: Date.now() + Math.random(),
-          type: blockType,
+          type: blockType || null,
           content: '',
-          name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`,
+          title: blockType
+            ? { en: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block` }
+            : { en: 'New Block' },
           description: '',
           isNew: true
         };

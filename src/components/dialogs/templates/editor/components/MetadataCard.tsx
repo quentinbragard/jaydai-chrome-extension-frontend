@@ -8,6 +8,7 @@ import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { SaveBlockButton } from './SaveBlockButton';
 import { cn } from '@/core/utils/classNames';
 import { getCurrentLanguage } from '@/core/utils/i18n';
+import { getLocalizedContent } from '@/components/dialogs/templates/utils/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface MetadataCardProps {
@@ -125,7 +126,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                   <SelectItem key={block.id} value={String(block.id)}>
                     <div className="jd-flex jd-items-center jd-gap-2">
                       <span className="jd-font-medium jd-truncate jd-max-w-32">
-                        {block.name || `${type} block`}
+                        {getLocalizedContent(block.title) || `${type} block`}
                       </span>
                       <span className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-48">
                         {typeof block.content === 'string'
@@ -169,9 +170,9 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
         ) : (
           <div className="jd-text-sm jd-text-muted-foreground">
             {selectedId && selectedId !== 0
-              ? availableBlocks.find((b) => b.id === selectedId)?.name || `${type} block`
+              ? getLocalizedContent(availableBlocks.find((b) => b.id === selectedId)?.title) || `${type} block`
               : customValue
-              ? customValue.substring(0, 50) + (customValue.length > 50 ? '...' : '')
+                ? customValue.substring(0, 50) + (customValue.length > 50 ? '...' : '')
               : `Click to set ${type}`}
           </div>
         )}
