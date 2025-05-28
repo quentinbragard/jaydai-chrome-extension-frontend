@@ -108,7 +108,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
             </TabsList>
 
             <TabsContent value="basic" className="jd-flex-1 jd-overflow-hidden">
-              <BasicEditor {...basicProps} />
+              <BasicEditor {...basicProps} mode="customize" />
             </TabsContent>
 
             <TabsContent value="advanced" className="jd-flex-1 jd-overflow-hidden">

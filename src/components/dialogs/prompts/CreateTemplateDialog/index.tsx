@@ -430,6 +430,7 @@ export const CreateTemplateDialog: React.FC = () => {
                 blocks={blocks}
                 onUpdateBlock={handleUpdateBlock}
                 isProcessing={false}
+                mode="create"
               />
             </TabsContent>
 
