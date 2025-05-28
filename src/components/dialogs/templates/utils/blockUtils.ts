@@ -113,3 +113,61 @@ export const getLocalizedContent = (content: any): string => {
 
   return '';
 };
+
+/** Prefixes in French used when building prompts */
+const PROMPT_PREFIXES_FR: Record<BlockType, string> = {
+  role: "Ton rôle est d'être ",
+  context: 'Contexte : ',
+  goal: 'Ton objectif est ',
+  example: 'Exemple : ',
+  format: 'Utilise le format suivant : ',
+  audience: 'Audience cible : ',
+  content: '',
+  tone_style: 'Ton et style : ',
+  output_format: 'Format de sortie : ',
+  output_language: 'Langue de sortie : ',
+  main_context: 'Contexte principal : ',
+  main_goal: 'Objectif principal : ',
+  constraints: 'Contraintes : ',
+  thinking_steps: 'Étapes de réflexion : ',
+  additional_context: 'Contexte supplémentaire : ',
+  custom: ''
+};
+
+/**
+ * Escape HTML special characters and convert newlines to <br> for safe HTML rendering
+ */
+const escapeHtml = (str: string): string =>
+  str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .replace(/\n/g, '<br>');
+
+/**
+ * Build the final text that will be inserted into the prompt for the given block
+ * or metadata type.
+ */
+export const buildPromptPart = (type: BlockType | null | undefined, content: string): string => {
+  if (!type || type === 'custom' || type === 'content') {
+    return content;
+  }
+  const prefix = PROMPT_PREFIXES_FR[type];
+  return prefix ? `${prefix}${content}` : content;
+};
+
+/**
+ * Build HTML for preview with highlighted prefix words.
+ */
+export const buildPromptPartHtml = (type: BlockType | null | undefined, content: string): string => {
+  if (!type || type === 'custom' || type === 'content') {
+    return escapeHtml(content);
+  }
+  const prefix = PROMPT_PREFIXES_FR[type];
+  if (!prefix) {
+    return escapeHtml(content);
+  }
+  return `<span class="jd-text-primary">${escapeHtml(prefix)}</span>${escapeHtml(content)}`;
+};

@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { getMessage } from '@/core/utils/i18n';
 import { ALL_METADATA_TYPES, METADATA_CONFIGS } from '@/components/templates/metadata/types';
 import { User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
-import { getBlockContent } from '../../utils/blockUtils';
+import { getBlockContent, buildPromptPart, buildPromptPartHtml } from '../../utils/blockUtils';
 
 const METADATA_ICONS: Record<string, React.ComponentType<any>> = {
   role: User,
@@ -28,7 +28,7 @@ const PRIMARY_METADATA = ['role', 'context', 'goal'] as const;
 interface AdvancedTemplateEditorProps {
   blocks: Block[];
   metadata: PromptMetadata;
-  onAddBlock: (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => void;
+  onAddBlock: (position: 'start' | 'end', blockType?: BlockType | null, existingBlock?: Block) => void;
   onRemoveBlock: (blockId: number) => void;
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
   onReorderBlocks: (blocks: Block[]) => void;
@@ -127,22 +127,40 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
   // Generate preview content
   const generatePreviewContent = () => {
     const parts: string[] = [];
-    
-    // Add metadata content
+
     ALL_METADATA_TYPES.forEach((type) => {
       const value = metadata.values?.[type];
       if (value) {
-        parts.push(value);
+        const blockType = METADATA_CONFIGS[type].blockType;
+        parts.push(buildPromptPart(blockType, value));
       }
     });
-    
-    // Add block content
+
     blocks.forEach((block) => {
       const content = getBlockContent(block);
-      if (content) parts.push(content);
+      if (content) parts.push(buildPromptPart(block.type, content));
     });
-    
+
     return parts.filter(Boolean).join('\n\n');
+  };
+
+  const generatePreviewHtml = () => {
+    const parts: string[] = [];
+
+    ALL_METADATA_TYPES.forEach((type) => {
+      const value = metadata.values?.[type];
+      if (value) {
+        const blockType = METADATA_CONFIGS[type].blockType;
+        parts.push(buildPromptPartHtml(blockType, value));
+      }
+    });
+
+    blocks.forEach((block) => {
+      const content = getBlockContent(block);
+      if (content) parts.push(buildPromptPartHtml(block.type, content));
+    });
+
+    return parts.filter(Boolean).join('<br><br>');
   };
 
   return (
@@ -247,7 +265,7 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
                 <div className="jd-text-center jd-py-8 jd-border-2 jd-border-dashed jd-rounded-lg jd-text-muted-foreground">
                   <p className="jd-mb-2">{getMessage('noContentBlocks', undefined, 'No content blocks yet')}</p>
                   <Button
-                    onClick={() => onAddBlock('end', 'content')}
+                    onClick={() => onAddBlock('end')}
                     variant="outline"
                     size="sm"
                   >
@@ -260,7 +278,7 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
               {blocks.length > 0 && (
                 <div className="jd-flex jd-justify-center">
                   <Button
-                    onClick={() => onAddBlock('end', 'content')}
+                    onClick={() => onAddBlock('end')}
                     variant="outline"
                     size="sm"
                   >
@@ -277,6 +295,7 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
       {/* Preview */}
       <PreviewSection
         content={generatePreviewContent()}
+        htmlContent={generatePreviewHtml()}
         expanded={previewExpanded}
         onToggle={() => setPreviewExpanded(!previewExpanded)}
       />

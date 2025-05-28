@@ -7,12 +7,14 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface PreviewSectionProps {
   content: string;
+  htmlContent?: string;
   expanded: boolean;
   onToggle: () => void;
 }
 
 export const PreviewSection: React.FC<PreviewSectionProps> = ({
   content,
+  htmlContent,
   expanded,
   onToggle
 }) => {
@@ -21,7 +23,12 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
   
   const lines = content.split('\n');
   const showToggle = lines.length > 3;
-  const displayed = expanded ? content : lines.slice(0, 3).join('\n');
+  const displayedText = expanded ? content : lines.slice(0, 3).join('\n');
+  const displayedHtml = htmlContent
+    ? expanded
+      ? htmlContent
+      : htmlContent.split('<br>').slice(0, 3).join('<br>')
+    : undefined;
 
   const handleCopy = async () => {
     try {
@@ -97,13 +104,20 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
               expanded ? 'jd-max-h-80 jd-overflow-y-auto' : 'jd-max-h-32 jd-overflow-hidden'
             )}
           >
-            <pre className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed">
-              {displayed || (
-                <span className="jd-text-muted-foreground jd-italic">
-                  Your prompt will appear here...
-                </span>
-              )}
-            </pre>
+            {htmlContent ? (
+              <div
+                className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: displayedHtml || '' }}
+              />
+            ) : (
+              <pre className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed">
+                {displayedText || (
+                  <span className="jd-text-muted-foreground jd-italic">
+                    Your prompt will appear here...
+                  </span>
+                )}
+              </pre>
+            )}
             {!expanded && showToggle && content && (
               <div
                 className={cn(
