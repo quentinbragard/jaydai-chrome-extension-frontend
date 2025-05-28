@@ -23,15 +23,19 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
   const [copied, setCopied] = React.useState(false);
   const isDarkMode = useThemeDetector();
   
+  // Use content for line counting (the actual text content)
   const lines = content.split('\n');
-  const showToggle = lines.length > 3;
+  const showToggle = lines.length > 3 || content.length > 300; // Show toggle if many lines OR long content
+  
+  // For text display
   const displayedText = expanded ? content : lines.slice(0, 3).join('\n');
+  
+  // For HTML display  
   const displayedHtml = htmlContent
     ? expanded
       ? htmlContent
       : htmlContent.split('<br>').slice(0, 3).join('<br>')
     : undefined;
-  const displayed = isHtml ? displayedHtml : displayedText;
 
   const handleCopy = async () => {
     try {
@@ -104,22 +108,25 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
             className={cn(
               'jd-rounded-lg jd-p-4 jd-relative jd-border',
               isDarkMode ? 'jd-bg-gray-800 jd-border-gray-700' : 'jd-bg-white jd-border-gray-200',
-              expanded ? 'jd-max-h-80 jd-overflow-y-auto' : 'jd-max-h-32 jd-overflow-hidden'
+              expanded ? 'jd-max-h-96 jd-overflow-y-auto' : 'jd-max-h-32 jd-overflow-hidden'
             )}
           >
-            <pre
-              className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed"
-              {...(isHtml
-                ? { dangerouslySetInnerHTML: { __html: displayed || '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>' } }
-                : {})}
-            >
-              {!isHtml && (
-                displayed || (
+            {isHtml ? (
+              <pre
+                className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed jd-m-0"
+                dangerouslySetInnerHTML={{ 
+                  __html: displayedHtml || '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>' 
+                }}
+              />
+            ) : (
+              <pre className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed jd-m-0">
+                {displayedText || (
                   <span className="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>
-                )
-              )}
-            </pre>
+                )}
+              </pre>
+            )}
 
+            {/* Gradient overlay when collapsed and content is long */}
             {!expanded && showToggle && content && (
               <div
                 className={cn(

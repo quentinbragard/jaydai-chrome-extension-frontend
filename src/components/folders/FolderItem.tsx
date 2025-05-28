@@ -17,8 +17,8 @@ interface FolderItemProps {
   onTogglePin?: (folderId: number, isPinned: boolean) => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
   onUseTemplate?: (template: Template) => void;
-  onEditTemplate?: (template: Template) => void; // Optional prop for template editing
-  onDeleteTemplate?: (templateId: number) => Promise<boolean> | void; // Optional prop for template deletion
+  onEditTemplate?: (template: Template) => void;
+  onDeleteTemplate?: (templateId: number) => Promise<boolean> | void;
   showPinControls?: boolean;
   showDeleteControls?: boolean;
   level?: number;
@@ -34,19 +34,16 @@ const FolderItem: React.FC<FolderItemProps> = ({
   onTogglePin,
   onDeleteFolder,
   onUseTemplate,
-  onEditTemplate, // Received from props
-  onDeleteTemplate, // Received from props
+  onEditTemplate,
+  onDeleteTemplate,
   showPinControls = false,
   showDeleteControls = false,
   level = 0,
   initialExpanded = false
 }) => {
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
-  // Maintain local state for isPinned to update UI immediately
   const [isPinned, setIsPinned] = useState(!!folder.is_pinned);
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(0);
-  // Add a ref to track if a pin operation is in progress
   const isPinOperationInProgress = useRef(false);
   
   // Skip rendering if folder is invalid
@@ -59,17 +56,24 @@ const FolderItem: React.FC<FolderItemProps> = ({
     return null;
   }
   
-  // Ensure folder.templates is an array
-  const allTemplates = Array.isArray(folder.templates) ? folder.templates : [];
+  // FIXED: Ensure arrays exist and filter out null/undefined items
+  const allTemplates = Array.isArray(folder.templates) 
+    ? folder.templates.filter(template => template && typeof template === 'object' && template.id) 
+    : [];
   const templates = allTemplates.filter(template => template.folder_id !== null);
   
-  // Ensure folder.Folders is an array
-  const subfolders = Array.isArray(folder.Folders) ? folder.Folders : [];
+  const subfolders = Array.isArray(folder.Folders) 
+    ? folder.Folders.filter(subfolder => subfolder && typeof subfolder === 'object' && subfolder.id) 
+    : [];
   
-  // Combine templates and subfolders into a single array for pagination
+  // FIXED: Add additional safety checks when combining items
   const allItems = [
-    ...templates.map(template => ({ type: 'template', data: template })),
-    ...subfolders.map(subfolder => ({ type: 'folder', data: subfolder }))
+    ...templates
+      .filter(template => template && template.id) // Extra safety check
+      .map(template => ({ type: 'template' as const, data: template })),
+    ...subfolders
+      .filter(subfolder => subfolder && subfolder.id) // Extra safety check
+      .map(subfolder => ({ type: 'folder' as const, data: subfolder }))
   ];
   
   // Calculate total pages and current items
@@ -89,35 +93,25 @@ const FolderItem: React.FC<FolderItemProps> = ({
     setCurrentPage(prev => Math.min(totalPages - 1, prev + 1));
   }, [totalPages]);
   
-  // When folder is collapsed, reset pagination
   const toggleExpansion = useCallback(() => {
     if (isExpanded) {
-      // Reset to first page when closing
       setCurrentPage(0);
     }
     setIsExpanded(prev => !prev);
   }, [isExpanded]);
   
-  // Handle pin toggle with debounce to prevent multiple calls
   const handleTogglePin = useCallback((e: React.MouseEvent) => {
     if (onTogglePin && !isPinOperationInProgress.current) {
       e.stopPropagation();
-      
-      // Set flag to prevent duplicate calls
       isPinOperationInProgress.current = true;
-      
-      // Optimistically update the UI
       setIsPinned(prevPinned => !prevPinned);
       
-      // Call the actual toggle function
       Promise.resolve(onTogglePin(folder.id, isPinned))
         .catch(err => {
-          // Revert UI state if the operation fails
           console.error('Pin operation failed:', err);
-          setIsPinned(isPinned); // Revert to original state
+          setIsPinned(isPinned);
         })
         .finally(() => {
-          // Reset the operation flag after a delay
           setTimeout(() => {
             isPinOperationInProgress.current = false;
           }, 1000);
@@ -125,7 +119,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
     }
   }, [folder.id, isPinned, onTogglePin]);
   
-  // Handle folder deletion
   const handleDeleteFolder = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (onDeleteFolder) {
@@ -136,7 +129,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
   // Create action buttons for folder header
   const actionButtons = (
     <div className="jd-flex jd-items-center jd-gap-2">
-      {/* Pin button for official and organization folders */}
       {showPinControls && onTogglePin && (type === 'official' || type === 'organization') && (
         <PinButton 
           isPinned={isPinned} 
@@ -146,10 +138,8 @@ const FolderItem: React.FC<FolderItemProps> = ({
         />
       )}
       
-      {/* Action buttons for user folders - only visible on hover */}
       {type === 'user' && (
         <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
-          {/* Delete button for user folders - with red accent */}
           {showDeleteControls && onDeleteFolder && (
             <TooltipProvider>
               <Tooltip>
@@ -176,7 +166,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
 
   return (
     <div className="jd-folder-container jd-mb-1 jd-group">
-      {/* Folder header */}
       <FolderHeader
         folder={folder}
         isExpanded={isExpanded}
@@ -184,47 +173,69 @@ const FolderItem: React.FC<FolderItemProps> = ({
         actionButtons={actionButtons}
       />
       
-      {/* Expanded content (templates and subfolders) */}
       {isExpanded && (
         <div className="jd-folder-content jd-pl-6 jd-mt-1">
-          {/* Render current page of items */}
-          {currentItems.map((item, index) => {
-            if (item.type === 'template') {
-              const template = item.data as Template;
-              return (
-                <TemplateItem
-                  key={`template-${template.id}`}
-                  template={template}
-                  type={type}
-                  onUseTemplate={onUseTemplate ? () => onUseTemplate(template) : undefined}
-                  // Only pass the edit function if it exists
-                  onEditTemplate={onEditTemplate ? () => onEditTemplate(template) : undefined}
-                  // Only pass the delete function if it exists and template has an id
-                  onDeleteTemplate={template.id && onDeleteTemplate ? 
-                    () => onDeleteTemplate(template.id as number) : undefined
-                  }
-                />
-              );
-            } else {
-              const subfolder = item.data as TemplateFolder;
-              return (
-                <FolderItem
-                  key={`subfolder-${subfolder.id}-${type}`}
-                  folder={subfolder}
-                  type={type}
-                  onTogglePin={onTogglePin}
-                  onDeleteFolder={onDeleteFolder}
-                  onUseTemplate={onUseTemplate}
-                  // Pass through the edit and delete handlers, but only if they exist
-                  onEditTemplate={onEditTemplate}
-                  onDeleteTemplate={onDeleteTemplate}
-                  showPinControls={showPinControls}
-                  showDeleteControls={showDeleteControls}
-                  level={level + 1}
-                />
-              );
-            }
-          })}
+          {/* FIXED: Add null check and better error handling for map */}
+          {currentItems
+            .filter(item => item && item.data) // Additional safety filter
+            .map((item, index) => {
+              // Extra safety check
+              if (!item || !item.data || !item.type) {
+                console.warn('Invalid item found in currentItems:', item);
+                return null;
+              }
+
+              if (item.type === 'template') {
+                const template = item.data as Template;
+                // Ensure template has required properties
+                if (!template || !template.id) {
+                  console.warn('Invalid template found:', template);
+                  return null;
+                }
+                
+                return (
+                  <TemplateItem
+                    key={`template-${template.id}`}
+                    template={template}
+                    type={type}
+                    onUseTemplate={onUseTemplate ? () => onUseTemplate(template) : undefined}
+                    onEditTemplate={onEditTemplate ? () => onEditTemplate(template) : undefined}
+                    onDeleteTemplate={template.id && onDeleteTemplate ? 
+                      () => onDeleteTemplate(template.id as number) : undefined
+                    }
+                  />
+                );
+              } else if (item.type === 'folder') {
+                const subfolder = item.data as TemplateFolder;
+                // Ensure subfolder has required properties
+                if (!subfolder || !subfolder.id) {
+                  console.warn('Invalid subfolder found:', subfolder);
+                  return null;
+                }
+                
+                return (
+                  <FolderItem
+                    key={`subfolder-${subfolder.id}-${type}`}
+                    folder={subfolder}
+                    type={type}
+                    onTogglePin={onTogglePin}
+                    onDeleteFolder={onDeleteFolder}
+                    onUseTemplate={onUseTemplate}
+                    onEditTemplate={onEditTemplate}
+                    onDeleteTemplate={onDeleteTemplate}
+                    showPinControls={showPinControls}
+                    showDeleteControls={showDeleteControls}
+                    level={level + 1}
+                  />
+                );
+              }
+              
+              // Should never reach here, but just in case
+              console.warn('Unknown item type:', item.type);
+              return null;
+            })
+            .filter(Boolean) // Remove any null items
+          }
           
           {/* Pagination controls */}
           {hasMoreItems && (
@@ -245,7 +256,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
                 <Button 
                   variant="ghost" 
                   size="icon" 
-
                   onClick={goToNextPage}
                   disabled={currentPage === totalPages - 1}
                   title="Next items"
@@ -261,8 +271,5 @@ const FolderItem: React.FC<FolderItemProps> = ({
   );
 };
 
-// Memoize the component to prevent unnecessary re-renders
 export default memo(FolderItem);
-
-// Also export a named export for compatibility
 export { FolderItem };
