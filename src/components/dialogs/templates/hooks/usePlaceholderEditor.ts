@@ -59,9 +59,10 @@ export function usePlaceholderEditor() {
           id: Date.now() + Math.random(),
           type: blockType || null,
           content: '',
-          title: blockType
-            ? { en: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block` }
-            : { en: 'New Block' },
+          name: blockType
+            ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
+            : 'New Block',
+
           description: '',
           isNew: true
         };

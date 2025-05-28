@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { MetadataCard } from './components/MetadataCard';
 import { BlockCard } from './components/BlockCard';
 import { PreviewSection } from './components/PreviewSection';
+import { buildPromptPart, buildPromptPartHtml } from '../utils/blockUtils';
+
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
@@ -191,24 +193,44 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   // Generate final content for preview
   const generatePreviewContent = () => {
     const parts: string[] = [];
-    
-    // Add metadata content
+
     ALL_METADATA_TYPES.forEach((type) => {
       const value = metadata.values?.[type];
       if (value) {
-        parts.push(value);
+        const blockType = METADATA_CONFIGS[type].blockType;
+        parts.push(buildPromptPart(blockType, value));
       }
     });
-    
-    // Add block content
+
     blocks.forEach((block) => {
-      const content = typeof block.content === 'string' 
-        ? block.content 
+      const content = typeof block.content === 'string'
+        ? block.content
         : block.content[getCurrentLanguage()] || block.content.en || '';
-      if (content) parts.push(content);
+      if (content) parts.push(buildPromptPart(block.type, content));
     });
-    
+
     return parts.filter(Boolean).join('\n\n');
+  };
+
+  const generatePreviewHtml = () => {
+    const parts: string[] = [];
+
+    ALL_METADATA_TYPES.forEach((type) => {
+      const value = metadata.values?.[type];
+      if (value) {
+        const blockType = METADATA_CONFIGS[type].blockType;
+        parts.push(buildPromptPartHtml(blockType, value));
+      }
+    });
+
+    blocks.forEach((block) => {
+      const content = typeof block.content === 'string'
+        ? block.content
+        : block.content[getCurrentLanguage()] || block.content.en || '';
+      if (content) parts.push(buildPromptPartHtml(block.type, content));
+    });
+
+    return parts.filter(Boolean).join('<br><br>');
   };
 
   if (isProcessing) {
@@ -366,6 +388,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
       <PreviewSection
         content={generatePreviewContent()}
+        htmlContent={generatePreviewHtml()}
         expanded={previewExpanded}
         onToggle={() => setPreviewExpanded(!previewExpanded)}
       />

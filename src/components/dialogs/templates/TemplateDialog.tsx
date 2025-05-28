@@ -15,8 +15,8 @@ import { promptApi } from '@/services/api';
 import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
 import { BasicTemplateEditor, AdvancedTemplateEditor } from './editor/template';
-import { getBlockContent } from './utils/blockUtils';
-import { ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
+import { getBlockContent, buildPromptPart } from './utils/blockUtils';
+import { ALL_METADATA_TYPES, METADATA_CONFIGS } from '@/components/templates/metadata/types';
 
 // Define types for folder data
 interface FolderData {
@@ -259,24 +259,22 @@ export const TemplateDialog: React.FC = () => {
     if (activeTab === 'basic') {
       return content;
     }
-    
-    // Advanced mode: combine metadata and blocks
+
     const parts: string[] = [];
-    
-    // Add metadata content
+
     ALL_METADATA_TYPES.forEach((type) => {
       const value = metadata.values?.[type];
       if (value) {
-        parts.push(value);
+        const blockType = METADATA_CONFIGS[type].blockType;
+        parts.push(buildPromptPart(blockType, value));
       }
     });
-    
-    // Add block content
+
     blocks.forEach((block) => {
       const blockContent = getBlockContent(block);
-      if (blockContent) parts.push(blockContent);
+      if (blockContent) parts.push(buildPromptPart(block.type, blockContent));
     });
-    
+
     return parts.filter(Boolean).join('\n\n');
   };
   
@@ -382,9 +380,9 @@ export const TemplateDialog: React.FC = () => {
           id: Date.now() + Math.random(),
           type: blockType || null,
           content: '',
-          title: blockType
-            ? { en: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block` }
-            : { en: 'New Block' },
+          name: blockType
+            ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
+            : 'New Block',
 
           description: '',
           isNew: true

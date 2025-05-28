@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { getMessage } from '@/core/utils/i18n';
 import { ALL_METADATA_TYPES, METADATA_CONFIGS } from '@/components/templates/metadata/types';
 import { User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
-import { getBlockContent } from '../../utils/blockUtils';
+import { getBlockContent, buildPromptPart, buildPromptPartHtml } from '../../utils/blockUtils';
 
 const METADATA_ICONS: Record<string, React.ComponentType<any>> = {
   role: User,
@@ -127,22 +127,40 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
   // Generate preview content
   const generatePreviewContent = () => {
     const parts: string[] = [];
-    
-    // Add metadata content
+
     ALL_METADATA_TYPES.forEach((type) => {
       const value = metadata.values?.[type];
       if (value) {
-        parts.push(value);
+        const blockType = METADATA_CONFIGS[type].blockType;
+        parts.push(buildPromptPart(blockType, value));
       }
     });
-    
-    // Add block content
+
     blocks.forEach((block) => {
       const content = getBlockContent(block);
-      if (content) parts.push(content);
+      if (content) parts.push(buildPromptPart(block.type, content));
     });
-    
+
     return parts.filter(Boolean).join('\n\n');
+  };
+
+  const generatePreviewHtml = () => {
+    const parts: string[] = [];
+
+    ALL_METADATA_TYPES.forEach((type) => {
+      const value = metadata.values?.[type];
+      if (value) {
+        const blockType = METADATA_CONFIGS[type].blockType;
+        parts.push(buildPromptPartHtml(blockType, value));
+      }
+    });
+
+    blocks.forEach((block) => {
+      const content = getBlockContent(block);
+      if (content) parts.push(buildPromptPartHtml(block.type, content));
+    });
+
+    return parts.filter(Boolean).join('<br><br>');
   };
 
   return (
@@ -277,6 +295,7 @@ export const AdvancedTemplateEditor: React.FC<AdvancedTemplateEditorProps> = ({
       {/* Preview */}
       <PreviewSection
         content={generatePreviewContent()}
+        htmlContent={generatePreviewHtml()}
         expanded={previewExpanded}
         onToggle={() => setPreviewExpanded(!previewExpanded)}
       />
