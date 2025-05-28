@@ -1469,5 +1469,21 @@
   "onboardingStepInterests": { "message": "Interests", "description": "Step title for interests" },
   "onboardingStepReferral": { "message": "How You Found Us", "description": "Step title for referral" },
   "onboardingStepComplete": { "message": "Complete", "description": "Step title for completion" },
-  "skipForNow": { "message": "Skip for now", "description": "Button to skip onboarding step" }
+  "skipForNow": { "message": "Skip for now", "description": "Button to skip onboarding step" },
+  "placeholderEditor": { "message": "Prompt Block Editor", "description": "Title for placeholder editor dialog" },
+  "placeholderEditorDescription": { "message": "Build your prompt using blocks", "description": "Description for placeholder editor" },
+  "basic": { "message": "Basic", "description": "Label for basic mode" },
+  "advanced": { "message": "Advanced", "description": "Label for advanced mode" },
+  "basicEditor": { "message": "Basic Editor", "description": "Tab label for basic editor" },
+  "advancedEditor": { "message": "Advanced Editor", "description": "Tab label for advanced editor" },
+  "loadingTemplate": { "message": "Loading template...", "description": "Text shown while template loads" },
+  "promptEssentials": { "message": "Prompt Essentials", "description": "Section title for primary metadata" },
+  "additionalElements": { "message": "Additional Elements", "description": "Section title for secondary metadata" },
+  "contentBlocks": { "message": "Content Blocks", "description": "Section title for content blocks" },
+  "addBlock": { "message": "Add Block", "description": "Button label to add a block" },
+  "addFirstBlock": { "message": "Add Your First Block", "description": "Button label to add first block" },
+  "noContentBlocks": { "message": "No content blocks yet", "description": "Message when no blocks exist" },
+  "errorProcessingTemplate": { "message": "Failed to process template content. Please try again.", "description": "Error message when template processing fails" },
+  "errorProcessingTemplateToast": { "message": "Failed to process template content", "description": "Toast message for processing error" },
+  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" }
 }

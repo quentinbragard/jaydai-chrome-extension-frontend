@@ -1,7 +1,7 @@
 // src/components/dialogs/templates/editor/template/AdvancedTemplateEditor.tsx
 import React, { useState } from 'react';
-import { Block, BlockType } from '@/components/templates/blocks/types';
-import { PromptMetadata } from '@/components/templates/metadata/types';
+import { Block, BlockType } from '@/types/prompts/blocks';
+import { PromptMetadata } from '@/types/prompts/metadata';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { MetadataCard } from '../components/MetadataCard';
@@ -9,7 +9,7 @@ import { BlockCard } from '../components/BlockCard';
 import { PreviewSection } from '../components/PreviewSection';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getMessage } from '@/core/utils/i18n';
-import { ALL_METADATA_TYPES, METADATA_CONFIGS } from '@/components/templates/metadata/types';
+import { ALL_METADATA_TYPES, METADATA_CONFIGS } from '@/types/prompts/metadata';
 import { User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
 import {
   formatMetadataForPreview,

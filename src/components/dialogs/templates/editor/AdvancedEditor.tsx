@@ -1,7 +1,7 @@
 // src/components/dialogs/templates/editor/AdvancedEditor.tsx
 import React, { useState, useEffect } from 'react';
-import { Block, BlockType } from '@/components/templates/blocks/types';
-import { PromptMetadata, DEFAULT_METADATA, METADATA_CONFIGS, MetadataType } from '@/components/templates/metadata/types';
+import { Block, BlockType } from '@/types/prompts/blocks';
+import { PromptMetadata, DEFAULT_METADATA, METADATA_CONFIGS, MetadataType } from '@/types/prompts/metadata';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { formatMetadataForPreview, formatBlockForPreview } from '../utils/promptUtils';

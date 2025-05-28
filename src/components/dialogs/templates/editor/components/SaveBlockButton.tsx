@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Check, Save } from 'lucide-react';
 import { CreateBlockData, blocksApi } from '@/services/api/BlocksApi';
-import { Block, BlockType } from '@/components/templates/blocks/types';
+import { Block, BlockType } from '@/types/prompts/blocks';
 import { toast } from 'sonner';
 
 interface SaveBlockButtonProps {

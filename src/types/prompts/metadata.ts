@@ -1,5 +1,5 @@
-// src/components/templates/metadata/types.ts
-import { BlockType } from '@/components/templates/blocks/types';
+// src/types/prompts/metadata.ts
+import { BlockType } from '@/types/prompts/blocks';
 
 export type MetadataType = 'role' | 'context' | 'goal' | 'audience' | 'format' | 'example';
 

@@ -1,5 +1,5 @@
-import { Block, BlockType } from '@/components/templates/blocks/types';
-import { MetadataType } from '@/components/templates/metadata/types';
+import { Block, BlockType } from '@/types/prompts/blocks';
+import { MetadataType } from '@/types/prompts/metadata';
 import { getBlockContent } from './blockUtils';
 
 // French prefixes for metadata and blocks

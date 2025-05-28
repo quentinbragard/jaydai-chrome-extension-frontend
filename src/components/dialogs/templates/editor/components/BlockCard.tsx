@@ -1,5 +1,5 @@
 import React from 'react';
-import { Block, BlockType } from '@/components/templates/blocks/types';
+import { Block, BlockType } from '@/types/prompts/blocks';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';

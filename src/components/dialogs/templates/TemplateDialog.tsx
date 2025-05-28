@@ -1,5 +1,5 @@
 // src/components/dialogs/templates/TemplateDialog.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,24 +8,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, FolderPlus } from 'lucide-react';
 import { useDialog } from '@/hooks/dialogs/useDialog';
-import { Block, BlockType } from '@/components/templates/blocks/types';
-import { PromptMetadata, DEFAULT_METADATA } from '@/components/templates/metadata/types';
+import { Block, BlockType } from '@/types/prompts/blocks';
+import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
 import { BasicTemplateEditor, AdvancedTemplateEditor } from './editor/template';
-import { getBlockContent } from './utils/blockUtils';
 import { formatBlockForPrompt, formatMetadataForPrompt } from './utils/promptUtils';
-import { ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
+import { ALL_METADATA_TYPES } from '@/types/prompts/metadata';
+import {
+  useProcessUserFolders,
+  truncateFolderPath,
+  validateTemplateForm,
+  generateFinalContent,
+  getBlockIds,
+  FolderData
+} from './utils/templateDialogUtils';
 
 
-// Define types for folder data
-interface FolderData {
-  id: number;
-  name: string;
-  fullPath: string;
-}
 
 /**
  * Unified Template Dialog for both creating and editing templates
@@ -65,41 +66,7 @@ export const TemplateDialog: React.FC = () => {
   const selectedFolder = data?.selectedFolder;
   
   // Process user folders for the select dropdown
-  const processUserFolders = useCallback(() => {
-    if (!userFolders || !Array.isArray(userFolders)) {
-      setUserFoldersList([]);
-      return;
-    }
-    
-    const flattenFolderHierarchy = (
-      folders: any[], 
-      path: string = "", 
-      result: FolderData[] = []
-    ) => {
-      folders.forEach(folder => {
-        if (!folder || typeof folder.id !== 'number' || !folder.name) {
-          return;
-        }
-        
-        const folderPath = path ? `${path} / ${folder.name}` : folder.name;
-        
-        result.push({
-          id: folder.id,
-          name: folder.name,
-          fullPath: folderPath
-        });
-        
-        if (folder.Folders && Array.isArray(folder.Folders) && folder.Folders.length > 0) {
-          flattenFolderHierarchy(folder.Folders, folderPath, result);
-        }
-      });
-    
-      return result;
-    };
-    
-    const flattenedFolders = flattenFolderHierarchy(userFolders);
-    setUserFoldersList(flattenedFolders || []);
-  }, [userFolders]);
+  const processUserFolders = useProcessUserFolders(userFolders, setUserFoldersList);
   
   // Initialize form state when dialog opens or data changes
   useEffect(() => {
@@ -208,102 +175,28 @@ export const TemplateDialog: React.FC = () => {
     setSelectedFolderId(folderId);
   };
   
-  // Truncate folder name with ellipsis
-  const truncateFolderPath = (path: string, maxLength: number = 35) => {
-    if (!path || path.length <= maxLength) return path;
-    
-    if (path.includes('/')) {
-      const parts = path.split('/');
-      const lastPart = parts[parts.length - 1].trim();
-      const firstParts = parts.slice(0, -1).join('/');
-      
-      if (lastPart.length >= maxLength - 3) {
-        return lastPart.substring(0, maxLength - 3) + '...';
-      }
-      
-      const availableLength = maxLength - lastPart.length - 3 - 3;
-      if (availableLength > 5) {
-        return '...' + firstParts.substring(firstParts.length - availableLength) + ' / ' + lastPart;
-      }
-    }
-    
-    return path.substring(0, maxLength - 3) + '...';
-  };
   
   // Validate form before saving
-  const validateForm = () => {
-    const errors: {[key: string]: string} = {};
-    
-    if (!name?.trim()) {
-      errors.name = getMessage('templateNameRequired');
-    }
-    
-    // In basic mode, validate content
-    if (activeTab === 'basic' && !content?.trim()) {
-      errors.content = getMessage('templateContentRequired');
-    }
-    
-    // In advanced mode, ensure at least one block or metadata
-    if (activeTab === 'advanced') {
-      const hasContent = blocks.some(b => getBlockContent(b).trim()) || 
-                        Object.values(metadata.values || {}).some(v => v?.trim());
-      if (!hasContent) {
-        errors.content = getMessage('templateContentRequired');
-      }
-    }
-    
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-  
+  const validateForm = () =>
+    validateTemplateForm(
+      name,
+      content,
+      blocks,
+      metadata,
+      activeTab,
+      errors => setValidationErrors(
+        Object.fromEntries(
+          Object.entries(errors).map(([k, v]) => [k, getMessage(v as any)])
+        )
+      )
+    );
+
   // Generate final content from blocks and metadata
-  const generateFinalContent = () => {
-    if (activeTab === 'basic') {
-      return content;
-    }
+  const generateFinalContentLocal = () =>
+    generateFinalContent(content, blocks, metadata, activeTab);
 
-    const parts: string[] = [];
-
-    // Add metadata content with French prefixes
-    ALL_METADATA_TYPES.forEach((type) => {
-      const value = metadata.values?.[type];
-      if (value) {
-        parts.push(formatMetadataForPrompt(type, value));
-      }
-    });
-
-    // Add block content with prefixes
-    blocks.forEach((block) => {
-      const formatted = formatBlockForPrompt(block);
-      if (formatted) parts.push(formatted);
-
-    });
-
-    return parts.filter(Boolean).join('\n\n');
-  };
-  
   // Extract block IDs for API
-  const getBlockIds = (): number[] => {
-    if (activeTab === 'basic') {
-      return []; // Basic mode doesn't use blocks
-    }
-    
-    // Get metadata block IDs
-    const metadataBlockIds: number[] = [];
-    ALL_METADATA_TYPES.forEach((type) => {
-      const blockId = metadata[type];
-      if (blockId && blockId !== 0) {
-        metadataBlockIds.push(blockId);
-      }
-    });
-    
-    // Get content block IDs (excluding new/unsaved blocks)
-    const contentBlockIds = blocks
-      .filter(b => b.id > 0 && !b.isNew)
-      .map(b => b.id);
-    
-    return [...metadataBlockIds, ...contentBlockIds];
-  };
+  const getBlockIdsLocal = () => getBlockIds(blocks, metadata, activeTab);
   
   // Save template
   const handleSave = async () => {
@@ -318,8 +211,8 @@ export const TemplateDialog: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const finalContent = generateFinalContent();
-      const blockIds = getBlockIds();
+      const finalContent = generateFinalContentLocal();
+      const blockIds = getBlockIdsLocal();
       
       const templateData = {
         title: name.trim(),

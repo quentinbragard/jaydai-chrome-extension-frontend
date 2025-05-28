@@ -1,6 +1,6 @@
 // src/services/api/BlocksApi.ts
 import { apiClient } from './ApiClient';
-import { Block, BlockType } from '@/components/templates/blocks/types';
+import { Block, BlockType } from '@/types/prompts/blocks';
 
 export interface BlockResponse {
   id: number;
