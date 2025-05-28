@@ -7,7 +7,8 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@
 import { Trash2, FileText, MessageSquare, User, Layout, Type, Users, GripVertical } from 'lucide-react';
 import { SaveBlockButton } from './SaveBlockButton';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { BLOCK_TYPES, BLOCK_TYPE_LABELS } from '../../utils/blockUtils';
+import { BLOCK_TYPES, BLOCK_TYPE_LABELS, getLocalizedContent } from '../../utils/blockUtils';
+
 
 const BLOCK_ICONS: Record<BlockType, React.ComponentType<any>> = {
   content: FileText,
@@ -74,7 +75,8 @@ export const BlockCard: React.FC<BlockCardProps> = ({
             </div>
             <div className="jd-flex jd-items-center jd-gap-2">
               <span className="jd-font-medium jd-text-sm">
-                {block.name || 'Block'}
+                {getLocalizedContent(block.title) || 'Block'}
+
               </span>
               <Select
                 value={block.type || ''}
@@ -128,7 +130,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
             <SaveBlockButton
               type={block.type}
               content={content}
-              title={block.name}
+              title={getLocalizedContent(block.title)}
               description={block.description}
               onSaved={(saved) => onSave && onSave(saved)}
             />
