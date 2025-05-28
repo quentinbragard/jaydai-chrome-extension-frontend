@@ -58,8 +58,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
 
   const basicProps = {
     blocks,
-    onUpdateBlock: handleUpdateBlock,
-    isProcessing
+    onUpdateBlock: handleUpdateBlock
   };
 
   const advancedProps = {

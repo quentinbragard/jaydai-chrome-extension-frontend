@@ -105,7 +105,14 @@ export const CreateTemplateDialog: React.FC = () => {
         setName('');
         setDescription('');
         setContent('');
-        setBlocks([]);
+        setBlocks([
+          {
+            id: Date.now(),
+            type: 'content',
+            content: '',
+            title: { en: 'Template Content' }
+          }
+        ]);
         setMetadata(DEFAULT_METADATA);
         setSelectedFolderId(selectedFolder?.id?.toString() || '');
       }
@@ -127,7 +134,14 @@ export const CreateTemplateDialog: React.FC = () => {
     setDescription('');
     setSelectedFolderId('');
     setContent('');
-    setBlocks([]);
+    setBlocks([
+      {
+        id: Date.now(),
+        type: 'content',
+        content: '',
+        title: { en: 'Template Content' }
+      }
+    ]);
     setMetadata(DEFAULT_METADATA);
     setValidationErrors({});
     setActiveTab('basic');
@@ -429,7 +443,6 @@ export const CreateTemplateDialog: React.FC = () => {
               <BasicEditor
                 blocks={blocks}
                 onUpdateBlock={handleUpdateBlock}
-                isProcessing={false}
                 mode="create"
               />
             </TabsContent>
