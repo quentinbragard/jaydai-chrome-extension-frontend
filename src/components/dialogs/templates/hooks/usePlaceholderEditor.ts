@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
-import { Block, BlockType } from '@/components/templates/blocks/types';
-import { PromptMetadata, DEFAULT_METADATA, ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
+import { getMessage } from '@/core/utils/i18n';
+import { Block, BlockType } from '@/types/prompts/blocks';
+import { PromptMetadata, DEFAULT_METADATA, ALL_METADATA_TYPES } from '@/types/prompts/metadata';
 import { getBlockContent, getLocalizedContent } from '../utils/blockUtils';
 import { formatBlockForPrompt, formatMetadataForPrompt } from '../utils/promptUtils';
 
@@ -42,7 +43,7 @@ export function usePlaceholderEditor() {
         setMetadata(DEFAULT_METADATA);
       } catch (err) {
         console.error('PlaceholderEditor: Error processing template:', err);
-        setError('Failed to process template content. Please try again.');
+        setError(getMessage('errorProcessingTemplate'));
       } finally {
         setIsProcessing(false);
       }
@@ -80,7 +81,7 @@ export function usePlaceholderEditor() {
 
   const handleRemoveBlock = (blockId: number) => {
     if (blocks.length <= 1) {
-      toast.warning('Cannot remove the last block. Templates must have at least one block.');
+      toast.warning(getMessage('cannotRemoveLastBlock'));
       return;
     }
     setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== blockId));
@@ -137,7 +138,7 @@ export function usePlaceholderEditor() {
       document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
     } catch (error) {
       console.error('PlaceholderEditor: Error in handleComplete:', error);
-      toast.error('Failed to process template content');
+      toast.error(getMessage('errorProcessingTemplateToast'));
     }
   };
 

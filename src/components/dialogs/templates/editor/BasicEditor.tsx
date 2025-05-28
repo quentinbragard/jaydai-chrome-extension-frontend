@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Block, BlockType } from '@/components/templates/blocks/types';
+import { Block, BlockType } from '@/types/prompts/blocks';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useThemeDetector } from '@/hooks/useThemeDetector';

@@ -49,7 +49,7 @@ export const PlaceholderEditor: React.FC = () => {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
           <Button onClick={handleClose} variant="outline">
-            Close
+            {getMessage('close')}
           </Button>
         </div>
       </BaseDialog>
@@ -88,7 +88,7 @@ export const PlaceholderEditor: React.FC = () => {
         {isProcessing ? (
           <div className="jd-flex jd-items-center jd-justify-center jd-h-64">
             <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
-            <span className="jd-ml-3 jd-text-gray-600">Loading template...</span>
+            <span className="jd-ml-3 jd-text-gray-600">{getMessage('loadingTemplate')}</span>
           </div>
         ) : (
           <Tabs
@@ -97,8 +97,8 @@ export const PlaceholderEditor: React.FC = () => {
             className="jd-flex-1 jd-flex jd-flex-col"
           >
             <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4">
-              <TabsTrigger value="basic">Basic</TabsTrigger>
-              <TabsTrigger value="advanced">Advanced</TabsTrigger>
+              <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
+              <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="basic" className="jd-flex-1 jd-overflow-hidden">

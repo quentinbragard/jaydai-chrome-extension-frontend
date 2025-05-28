@@ -1,7 +1,7 @@
 // src/components/dialogs/templates/editor/utils/blockUtils.ts
-import { BlockType } from '@/components/templates/blocks/types';
+import { BlockType } from '@/types/prompts/blocks';
 import { FileText, MessageSquare, User, Layout, Type, Users } from 'lucide-react';
-import { Block } from '@/components/templates/blocks/types';
+import { Block } from '@/types/prompts/blocks';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 
 export const BLOCK_TYPES: BlockType[] = ['content', 'context', 'role', 'example', 'format', 'audience'];

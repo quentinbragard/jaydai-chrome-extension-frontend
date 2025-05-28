@@ -1,5 +1,5 @@
 import React from 'react';
-import { Block, MetadataType, METADATA_CONFIGS } from '@/components/templates/metadata/types';
+import { Block, MetadataType, METADATA_CONFIGS } from '@/types/prompts/metadata';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
