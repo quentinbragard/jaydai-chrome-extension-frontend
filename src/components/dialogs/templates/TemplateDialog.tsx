@@ -16,6 +16,7 @@ import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
 import { BasicTemplateEditor, AdvancedTemplateEditor } from './editor/template';
 import { getBlockContent } from './utils/blockUtils';
+import { formatBlockForPrompt, formatMetadataForPrompt } from './utils/promptUtils';
 import { ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
 
 // Define types for folder data
@@ -262,21 +263,21 @@ export const TemplateDialog: React.FC = () => {
     
     // Advanced mode: combine metadata and blocks
     const parts: string[] = [];
-    
-    // Add metadata content
+
+    // Add metadata content with French prefixes
     ALL_METADATA_TYPES.forEach((type) => {
       const value = metadata.values?.[type];
       if (value) {
-        parts.push(value);
+        parts.push(formatMetadataForPrompt(type, value));
       }
     });
-    
-    // Add block content
+
+    // Add block content with prefixes
     blocks.forEach((block) => {
-      const blockContent = getBlockContent(block);
-      if (blockContent) parts.push(blockContent);
+      const formatted = formatBlockForPrompt(block);
+      if (formatted) parts.push(formatted);
     });
-    
+
     return parts.filter(Boolean).join('\n\n');
   };
   
@@ -371,14 +372,20 @@ export const TemplateDialog: React.FC = () => {
   };
   
   // Block management functions
-  const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => {
+  const handleAddBlock = (
+    position: 'start' | 'end',
+    blockType?: BlockType | null,
+    existingBlock?: Block
+  ) => {
     const newBlock: Block = existingBlock
       ? { ...existingBlock, isNew: false }
       : {
           id: Date.now() + Math.random(),
-          type: blockType,
+          type: blockType || null,
           content: '',
-          name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`,
+          name: blockType
+            ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
+            : 'New Block',
           description: '',
           isNew: true
         };

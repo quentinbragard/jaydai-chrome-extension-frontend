@@ -9,12 +9,14 @@ interface PreviewSectionProps {
   content: string;
   expanded: boolean;
   onToggle: () => void;
+  isHtml?: boolean;
 }
 
 export const PreviewSection: React.FC<PreviewSectionProps> = ({
   content,
   expanded,
-  onToggle
+  onToggle,
+  isHtml = false
 }) => {
   const [copied, setCopied] = React.useState(false);
   const isDarkMode = useThemeDetector();
@@ -97,11 +99,16 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
               expanded ? 'jd-max-h-80 jd-overflow-y-auto' : 'jd-max-h-32 jd-overflow-hidden'
             )}
           >
-            <pre className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed">
-              {displayed || (
-                <span className="jd-text-muted-foreground jd-italic">
-                  Your prompt will appear here...
-                </span>
+            <pre
+              className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed"
+              {...(isHtml
+                ? { dangerouslySetInnerHTML: { __html: displayed || '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>' } }
+                : {})}
+            >
+              {!isHtml && (
+                displayed || (
+                  <span className="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>
+                )
               )}
             </pre>
             {!expanded && showToggle && content && (

@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Block, BlockType } from '@/components/templates/blocks/types';
 import { PromptMetadata, DEFAULT_METADATA, ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
 import { getBlockContent, getLocalizedContent } from '../utils/blockUtils';
+import { formatBlockForPrompt, formatMetadataForPrompt } from '../utils/promptUtils';
 
 export function usePlaceholderEditor() {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
@@ -48,14 +49,20 @@ export function usePlaceholderEditor() {
     }
   }, [isOpen, data]);
 
-  const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => {
+  const handleAddBlock = (
+    position: 'start' | 'end',
+    blockType?: BlockType | null,
+    existingBlock?: Block
+  ) => {
     const newBlock: Block = existingBlock
       ? { ...existingBlock, isNew: false }
       : {
           id: Date.now() + Math.random(),
-          type: blockType,
+          type: blockType || null,
           content: '',
-          name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`,
+          name: blockType
+            ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
+            : 'New Block',
           description: '',
           isNew: true
         };
@@ -109,11 +116,11 @@ export function usePlaceholderEditor() {
       const parts: string[] = [];
       ALL_METADATA_TYPES.forEach(type => {
         const value = metadata.values?.[type];
-        if (value) parts.push(value);
+        if (value) parts.push(formatMetadataForPrompt(type, value));
       });
       blocks.forEach(block => {
-        const content = getBlockContent(block);
-        if (content) parts.push(content);
+        const formatted = formatBlockForPrompt(block);
+        if (formatted) parts.push(formatted);
       });
       const finalContent = parts.filter(Boolean).join('\n\n');
       if (data && data.onComplete) {
