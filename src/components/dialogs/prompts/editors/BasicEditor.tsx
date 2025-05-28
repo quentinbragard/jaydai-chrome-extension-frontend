@@ -264,8 +264,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
     const extracted = extractPlaceholders(textContent);
     setPlaceholders(extracted);
-
-    // Do not update block on every keystroke to avoid cursor jumps
   };
 
   const escapeRegExp = (string: string) => {
