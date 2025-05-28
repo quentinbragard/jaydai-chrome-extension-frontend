@@ -8,7 +8,7 @@ import { useFolderMutations } from './useFolderMutations';
 import { useQueryClient } from 'react-query';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
-import { insertContentIntoChat, formatContentForInsertion } from '@/utils/templates/insertPrompt';
+import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrackets } from '@/utils/templates/insertPrompt';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
 
 
@@ -75,8 +75,9 @@ const handleTemplateComplete = useCallback((finalContent: string) => {
     return;
   }
   
+  const cleanContent = removePlaceholderBrackets(finalContent);
   // Format content for insertion - normalizes newlines while preserving paragraph breaks
-  const formattedContent = formatContentForInsertion(finalContent);
+  const formattedContent = formatContentForInsertion(cleanContent);
   
   // Insert the content with a small delay to ensure dialog is fully closed
   setTimeout(() => {

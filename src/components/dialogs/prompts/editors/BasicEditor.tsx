@@ -242,6 +242,34 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }
   };
 
+  const handleEditorInput = () => {
+    if (mode !== 'create' || !editorRef.current) return;
+
+    const htmlContent = editorRef.current.innerHTML;
+    const textContent = htmlContent
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<div\s*\/?>/gi, '')
+      .replace(/<\/div>/gi, '\n')
+      .replace(/<p\s*\/?>/gi, '')
+      .replace(/<\/p>/gi, '\n')
+      .replace(/<\/?span[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      .replace(/&amp;/g, '&');
+
+    setModifiedContent(textContent);
+
+    const extracted = extractPlaceholders(textContent);
+    setPlaceholders(extracted);
+
+    if (blocks.length > 0) {
+      onUpdateBlock(blocks[0].id, { content: textContent });
+    }
+  };
+
   const escapeRegExp = (string: string) => {
     return string.replace(/[.*+?^${}()|[\]\\]/g, "");
   };
@@ -342,9 +370,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               suppressContentEditableWarning
               onFocus={handleEditorFocus}
               onBlur={handleEditorBlur}
+              onInput={handleEditorInput}
               className={`jd-flex-1 jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
-                isDarkMode 
-                  ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
+                isDarkMode
+                  ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
                   : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
               }`}
               onClick={(e) => e.stopPropagation()}
