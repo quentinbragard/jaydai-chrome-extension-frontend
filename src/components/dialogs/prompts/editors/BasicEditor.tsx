@@ -317,12 +317,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
       }
     }
 
-    setTimeout(() => {
-      if (activeInputIndex.current !== null) {
-        const ref = inputRefs.current[activeInputIndex.current];
-        ref?.focus();
-      }
-    }, 0);
+    // Ensure we don't steal cursor position from the active input
+    // by re-focusing it after every keystroke. React already keeps the
+    // input focused when its value changes, so re-focusing here only
+    // causes the caret to jump to the beginning of the field.
   };
 
   return (
