@@ -264,10 +264,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
     const extracted = extractPlaceholders(textContent);
     setPlaceholders(extracted);
-
     if (blocks.length > 0) {
       onUpdateBlock(blocks[0].id, { content: textContent });
     }
+
   };
 
   const escapeRegExp = (string: string) => {
