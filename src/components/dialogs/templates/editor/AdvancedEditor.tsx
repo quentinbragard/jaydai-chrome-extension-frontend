@@ -9,6 +9,7 @@ import { MetadataCard } from './components/MetadataCard';
 import { BlockCard } from './components/BlockCard';
 import { PreviewSection } from './components/PreviewSection';
 import { buildPromptPart, buildPromptPartHtml } from '../utils/blockUtils';
+
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';

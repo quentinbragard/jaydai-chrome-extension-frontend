@@ -116,7 +116,7 @@ export const TemplateDialog: React.FC = () => {
             id: block.id || Date.now() + index,
             type: block.type || 'content',
             content: block.content || '',
-            name: block.name,
+            title: block.title,
             description: block.description
           }));
           setBlocks(templateBlocks);
@@ -130,7 +130,7 @@ export const TemplateDialog: React.FC = () => {
             id: Date.now(),
             type: 'content',
             content: currentTemplate.content || '',
-            name: 'Template Content'
+            title: { en: 'Template Content' }
           }]);
         }
       } else {
@@ -383,6 +383,7 @@ export const TemplateDialog: React.FC = () => {
           name: blockType
             ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
             : 'New Block',
+
           description: '',
           isNew: true
         };
