@@ -1,35 +1,36 @@
-// src/components/dialogs/templates/TemplateDialog.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+// src/components/dialogs/templates/CreateTemplateDialog.tsx
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, FolderPlus } from 'lucide-react';
+import { FolderPlus } from 'lucide-react';
 import { useDialog } from '@/hooks/dialogs/useDialog';
-import { Block, BlockType } from '@/components/templates/blocks/types';
-import { PromptMetadata, DEFAULT_METADATA } from '@/components/templates/metadata/types';
+import { Block, BlockType } from '@/types/prompts/blocks';
+import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
-import { getMessage } from '@/core/utils/i18n';
-import { BaseDialog } from '../BaseDialog';
-import { BasicTemplateEditor, AdvancedTemplateEditor } from './editor/template';
-import { getBlockContent } from './utils/blockUtils';
-import { ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
+import { getMessage, getCurrentLanguage } from '@/core/utils/i18n';
+import { BaseDialog } from '@/components/dialogs/BaseDialog';
+import { BasicEditor, AdvancedEditor } from '../editors';
 
-// Define types for folder data
-interface FolderData {
-  id: number;
-  name: string;
-  fullPath: string;
-}
+import {
+  useProcessUserFolders,
+  truncateFolderPath,
+  validateTemplateForm,
+  generateFinalContent,
+  getBlockIds,
+  FolderData
+} from '@/components/prompts/templates/templateUtils';
+
+
 
 /**
  * Unified Template Dialog for both creating and editing templates
  * Now with Basic and Advanced editing modes
  */
-export const TemplateDialog: React.FC = () => {
+export const CreateTemplateDialog: React.FC = () => {
   // Get create and edit dialog states
   const createDialog = useDialog('createTemplate');
   const editDialog = useDialog('editTemplate');
@@ -63,41 +64,7 @@ export const TemplateDialog: React.FC = () => {
   const selectedFolder = data?.selectedFolder;
   
   // Process user folders for the select dropdown
-  const processUserFolders = useCallback(() => {
-    if (!userFolders || !Array.isArray(userFolders)) {
-      setUserFoldersList([]);
-      return;
-    }
-    
-    const flattenFolderHierarchy = (
-      folders: any[], 
-      path: string = "", 
-      result: FolderData[] = []
-    ) => {
-      folders.forEach(folder => {
-        if (!folder || typeof folder.id !== 'number' || !folder.name) {
-          return;
-        }
-        
-        const folderPath = path ? `${path} / ${folder.name}` : folder.name;
-        
-        result.push({
-          id: folder.id,
-          name: folder.name,
-          fullPath: folderPath
-        });
-        
-        if (folder.Folders && Array.isArray(folder.Folders) && folder.Folders.length > 0) {
-          flattenFolderHierarchy(folder.Folders, folderPath, result);
-        }
-      });
-    
-      return result;
-    };
-    
-    const flattenedFolders = flattenFolderHierarchy(userFolders);
-    setUserFoldersList(flattenedFolders || []);
-  }, [userFolders]);
+  const processUserFolders = useProcessUserFolders(userFolders, setUserFoldersList);
   
   // Initialize form state when dialog opens or data changes
   useEffect(() => {
@@ -116,7 +83,7 @@ export const TemplateDialog: React.FC = () => {
             id: block.id || Date.now() + index,
             type: block.type || 'content',
             content: block.content || '',
-            name: block.name,
+            title: block.title,
             description: block.description
           }));
           setBlocks(templateBlocks);
@@ -130,7 +97,7 @@ export const TemplateDialog: React.FC = () => {
             id: Date.now(),
             type: 'content',
             content: currentTemplate.content || '',
-            name: 'Template Content'
+            title: { en: 'Template Content' }
           }]);
         }
       } else {
@@ -138,7 +105,14 @@ export const TemplateDialog: React.FC = () => {
         setName('');
         setDescription('');
         setContent('');
-        setBlocks([]);
+        setBlocks([
+          {
+            id: Date.now(),
+            type: 'content',
+            content: '',
+            title: { en: 'Template Content' }
+          }
+        ]);
         setMetadata(DEFAULT_METADATA);
         setSelectedFolderId(selectedFolder?.id?.toString() || '');
       }
@@ -160,7 +134,14 @@ export const TemplateDialog: React.FC = () => {
     setDescription('');
     setSelectedFolderId('');
     setContent('');
-    setBlocks([]);
+    setBlocks([
+      {
+        id: Date.now(),
+        type: 'content',
+        content: '',
+        title: { en: 'Template Content' }
+      }
+    ]);
     setMetadata(DEFAULT_METADATA);
     setValidationErrors({});
     setActiveTab('basic');
@@ -206,102 +187,28 @@ export const TemplateDialog: React.FC = () => {
     setSelectedFolderId(folderId);
   };
   
-  // Truncate folder name with ellipsis
-  const truncateFolderPath = (path: string, maxLength: number = 35) => {
-    if (!path || path.length <= maxLength) return path;
-    
-    if (path.includes('/')) {
-      const parts = path.split('/');
-      const lastPart = parts[parts.length - 1].trim();
-      const firstParts = parts.slice(0, -1).join('/');
-      
-      if (lastPart.length >= maxLength - 3) {
-        return lastPart.substring(0, maxLength - 3) + '...';
-      }
-      
-      const availableLength = maxLength - lastPart.length - 3 - 3;
-      if (availableLength > 5) {
-        return '...' + firstParts.substring(firstParts.length - availableLength) + ' / ' + lastPart;
-      }
-    }
-    
-    return path.substring(0, maxLength - 3) + '...';
-  };
   
   // Validate form before saving
-  const validateForm = () => {
-    const errors: {[key: string]: string} = {};
-    
-    if (!name?.trim()) {
-      errors.name = getMessage('templateNameRequired');
-    }
-    
-    // In basic mode, validate content
-    if (activeTab === 'basic' && !content?.trim()) {
-      errors.content = getMessage('templateContentRequired');
-    }
-    
-    // In advanced mode, ensure at least one block or metadata
-    if (activeTab === 'advanced') {
-      const hasContent = blocks.some(b => getBlockContent(b).trim()) || 
-                        Object.values(metadata.values || {}).some(v => v?.trim());
-      if (!hasContent) {
-        errors.content = getMessage('templateContentRequired');
-      }
-    }
-    
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-  
+  const validateForm = () =>
+    validateTemplateForm(
+      name,
+      content,
+      blocks,
+      metadata,
+      activeTab,
+      errors => setValidationErrors(
+        Object.fromEntries(
+          Object.entries(errors).map(([k, v]) => [k, getMessage(v as any)])
+        )
+      )
+    );
+
   // Generate final content from blocks and metadata
-  const generateFinalContent = () => {
-    if (activeTab === 'basic') {
-      return content;
-    }
-    
-    // Advanced mode: combine metadata and blocks
-    const parts: string[] = [];
-    
-    // Add metadata content
-    ALL_METADATA_TYPES.forEach((type) => {
-      const value = metadata.values?.[type];
-      if (value) {
-        parts.push(value);
-      }
-    });
-    
-    // Add block content
-    blocks.forEach((block) => {
-      const blockContent = getBlockContent(block);
-      if (blockContent) parts.push(blockContent);
-    });
-    
-    return parts.filter(Boolean).join('\n\n');
-  };
-  
+  const generateFinalContentLocal = () =>
+    generateFinalContent(content, blocks, metadata, activeTab);
+
   // Extract block IDs for API
-  const getBlockIds = (): number[] => {
-    if (activeTab === 'basic') {
-      return []; // Basic mode doesn't use blocks
-    }
-    
-    // Get metadata block IDs
-    const metadataBlockIds: number[] = [];
-    ALL_METADATA_TYPES.forEach((type) => {
-      const blockId = metadata[type];
-      if (blockId && blockId !== 0) {
-        metadataBlockIds.push(blockId);
-      }
-    });
-    
-    // Get content block IDs (excluding new/unsaved blocks)
-    const contentBlockIds = blocks
-      .filter(b => b.id > 0 && !b.isNew)
-      .map(b => b.id);
-    
-    return [...metadataBlockIds, ...contentBlockIds];
-  };
+  const getBlockIdsLocal = () => getBlockIds(blocks, metadata, activeTab);
   
   // Save template
   const handleSave = async () => {
@@ -316,8 +223,8 @@ export const TemplateDialog: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const finalContent = generateFinalContent();
-      const blockIds = getBlockIds();
+      const finalContent = generateFinalContentLocal();
+      const blockIds = getBlockIdsLocal();
       
       const templateData = {
         title: name.trim(),
@@ -371,14 +278,20 @@ export const TemplateDialog: React.FC = () => {
   };
   
   // Block management functions
-  const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => {
+  const handleAddBlock = (
+    position: 'start' | 'end',
+    blockType?: BlockType | null,
+    existingBlock?: Block
+  ) => {
     const newBlock: Block = existingBlock
       ? { ...existingBlock, isNew: false }
       : {
           id: Date.now() + Math.random(),
-          type: blockType,
+          type: blockType || null,
           content: '',
-          name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`,
+          name: blockType
+            ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
+            : 'New Block',
           description: '',
           isNew: true
         };
@@ -399,9 +312,20 @@ export const TemplateDialog: React.FC = () => {
   };
 
   const handleUpdateBlock = (blockId: number, updatedBlock: Partial<Block>) => {
-    setBlocks(prevBlocks => prevBlocks.map(block => 
-      block.id === blockId ? { ...block, ...updatedBlock } : block
-    ));
+    setBlocks(prevBlocks => {
+      const newBlocks = prevBlocks.map(block =>
+        block.id === blockId ? { ...block, ...updatedBlock } : block
+      );
+      if (activeTab === 'basic' && newBlocks.length > 0 && newBlocks[0].id === blockId) {
+        const first = newBlocks[0];
+        const lang = getCurrentLanguage();
+        const newContent = typeof first.content === 'string'
+          ? first.content
+          : (first.content as any)[lang] || (first.content as any).en || '';
+        setContent(newContent);
+      }
+      return newBlocks;
+    });
   };
 
   const handleReorderBlocks = (newBlocks: Block[]) => {
@@ -515,16 +439,16 @@ export const TemplateDialog: React.FC = () => {
               <TabsTrigger value="advanced">Advanced Editor</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="basic" className="jd-flex-1 jd-overflow-hidden jd-mt-4">
-              <BasicTemplateEditor
-                content={content}
-                onContentChange={setContent}
-                error={validationErrors.content}
+            <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto jd-mt-4">
+              <BasicEditor
+                blocks={blocks}
+                onUpdateBlock={handleUpdateBlock}
+                mode="create"
               />
             </TabsContent>
 
-            <TabsContent value="advanced" className="jd-flex-1 jd-overflow-hidden jd-mt-4">
-              <AdvancedTemplateEditor
+            <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto jd-mt-4">
+              <AdvancedEditor
                 blocks={blocks}
                 metadata={metadata}
                 onAddBlock={handleAddBlock}

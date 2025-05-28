@@ -1,21 +1,16 @@
 // src/components/dialogs/templates/editor/BasicEditor.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Block, BlockType } from '@/components/templates/blocks/types';
+import { Block } from '@/types/prompts/blocks';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface BasicEditorProps {
   blocks: Block[];
-  onAddBlock: (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => void;
-  onRemoveBlock: (blockId: number) => void;
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
-  onMoveBlock: (blockId: number, direction: 'up' | 'down') => void;
-  onReorderBlocks: (blocks: Block[]) => void;
-  isProcessing: boolean;
+  mode?: 'create' | 'customize';
 }
 
 interface Placeholder {
@@ -31,7 +26,7 @@ interface Placeholder {
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   blocks,
   onUpdateBlock,
-  isProcessing
+  mode = 'customize'
 }) => {
   const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
   const [modifiedContent, setModifiedContent] = useState('');
@@ -39,7 +34,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<MutationObserver | null>(null);
+  const inputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const activeInputIndex = useRef<number | null>(null);
   const isDarkMode = useThemeDetector();
+  const initialContentRef = useRef('');
 
   // Get combined content from all blocks
   const getBlockContent = (block: Block): string => {
@@ -52,7 +50,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     return '';
   };
 
-  const templateContent = blocks.map(block => getBlockContent(block)).join('\n\n');
+  const templateContent =
+    mode === 'customize' && initialContentRef.current
+      ? initialContentRef.current
+      : blocks.map(block => getBlockContent(block)).join('\n\n');
 
   /**
    * Extract placeholders from template content
@@ -104,25 +105,33 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
   // Initialize content and placeholders
   useEffect(() => {
-    if (templateContent) {      
-      const normalizedContent = templateContent.replace(/\r\n/g, '\n');
-      setModifiedContent(normalizedContent);
-      
-      try {
-        const extractedPlaceholders = extractPlaceholders(normalizedContent);
-        setPlaceholders(extractedPlaceholders);
-        
-        setTimeout(() => {
-          if (editorRef.current) {
-            editorRef.current.innerHTML = highlightPlaceholders(normalizedContent);
-            setContentMounted(true);
-          }
-        }, 10);
-      } catch (err) {
-        console.error("Error processing template:", err);
-      }
+    if (!templateContent) return;
+
+    if (mode === 'customize' && initialContentRef.current) {
+      return;
     }
-  }, [templateContent]);
+
+    const normalizedContent = templateContent.replace(/\r\n/g, '\n');
+    setModifiedContent(normalizedContent);
+
+    try {
+      const extractedPlaceholders = extractPlaceholders(normalizedContent);
+      setPlaceholders(extractedPlaceholders);
+
+      if (!initialContentRef.current) {
+        initialContentRef.current = normalizedContent;
+      }
+
+      setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.innerHTML = highlightPlaceholders(normalizedContent);
+          setContentMounted(true);
+        }
+      }, 10);
+    } catch (err) {
+      console.error('Error processing template:', err);
+    }
+  }, [templateContent, mode]);
 
   // Setup mutation observer
   useEffect(() => {
@@ -153,6 +162,11 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         .replace(/&amp;/g, '&');
       
       setModifiedContent(textContent);
+
+      if (mode === 'create') {
+        const extracted = extractPlaceholders(textContent);
+        setPlaceholders(extracted);
+      }
       
       // Update the first block with the modified content
       if (blocks.length > 0) {
@@ -201,21 +215,59 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         .replace(/&amp;/g, '&');
       
       setModifiedContent(textContent);
+
+      if (mode === 'create') {
+        const extracted = extractPlaceholders(textContent);
+        setPlaceholders(extracted);
+      }
       
       // Update the first block with the modified content
       if (blocks.length > 0) {
         onUpdateBlock(blocks[0].id, { content: textContent });
       }
-      
+
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+      editorRef.current.innerHTML = highlightPlaceholders(textContent);
+
       if (observerRef.current && editorRef.current) {
-        observerRef.current.observe(editorRef.current, { 
-          childList: true, 
-          subtree: true, 
+        observerRef.current.observe(editorRef.current, {
+          childList: true,
+          subtree: true,
           characterData: true,
-          attributes: false 
+          attributes: false
         });
       }
     }
+  };
+
+  const handleEditorInput = () => {
+    if (mode !== 'create' || !editorRef.current) return;
+
+    const htmlContent = editorRef.current.innerHTML;
+    const textContent = htmlContent
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<div\s*\/?>/gi, '')
+      .replace(/<\/div>/gi, '\n')
+      .replace(/<p\s*\/?>/gi, '')
+      .replace(/<\/p>/gi, '\n')
+      .replace(/<\/?span[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      .replace(/&amp;/g, '&');
+
+    setModifiedContent(textContent);
+
+    const extracted = extractPlaceholders(textContent);
+    setPlaceholders(extracted);
+    if (blocks.length > 0) {
+      onUpdateBlock(blocks[0].id, { content: textContent });
+    }
+
   };
 
   const escapeRegExp = (string: string) => {
@@ -224,12 +276,15 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
   const updatePlaceholder = (index: number, value: string) => {
     if (isEditing) return;
-    
+
+    activeInputIndex.current = index;
+
     const updatedPlaceholders = [...placeholders];
     updatedPlaceholders[index].value = value;
     setPlaceholders(updatedPlaceholders);
 
-    let newContent = templateContent.replace(/\r\n/g, '\n');
+    let newContent =
+      (mode === 'customize' ? initialContentRef.current : templateContent).replace(/\r\n/g, '\n');
     
     updatedPlaceholders.forEach(({ key, value }) => {
       if (value) {
@@ -249,7 +304,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
-      
+
       editorRef.current.innerHTML = highlightPlaceholders(newContent);
       
       if (observerRef.current && editorRef.current) {
@@ -261,6 +316,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         });
       }
     }
+
+    setTimeout(() => {
+      if (activeInputIndex.current !== null) {
+        const ref = inputRefs.current[activeInputIndex.current];
+        ref?.focus();
+      }
+    }, 0);
   };
 
   return (
@@ -277,12 +339,18 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                       <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
                         <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
                       </label>
-                      <Input
-                        value={placeholder.value}
-                        onChange={(e) => updatePlaceholder(idx, e.target.value)}
-                        placeholder={`Enter value for ${placeholder.key}`}
-                        className="jd-w-full"
-                      />
+                      {mode === 'customize' ? (
+                        <Input
+                          ref={el => (inputRefs.current[idx] = el)}
+                          onFocus={() => {
+                            activeInputIndex.current = idx;
+                          }}
+                          value={placeholder.value}
+                          onChange={(e) => updatePlaceholder(idx, e.target.value)}
+                          placeholder={`Enter value for ${placeholder.key}`}
+                          className="jd-w-full"
+                        />
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -299,12 +367,14 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             <div
               ref={editorRef}
               contentEditable
+              dir="ltr"
               suppressContentEditableWarning
               onFocus={handleEditorFocus}
               onBlur={handleEditorBlur}
+              onInput={handleEditorInput}
               className={`jd-flex-1 jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
-                isDarkMode 
-                  ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700" 
+                isDarkMode
+                  ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
                   : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
               }`}
               onClick={(e) => e.stopPropagation()}

@@ -10,6 +10,7 @@ import {
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames';
 import { Block } from '@/types/prompts/blocks';
+import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
 
 interface AddBlockButtonProps {
   blocks: Block[];
@@ -43,7 +44,7 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
       <DropdownMenuContent align="center">
         {blocks.map((block) => (
           <DropdownMenuItem key={block.id} onSelect={() => onAdd(block)}>
-            {block.name}
+            {getLocalizedContent(block.title) || 'Block'}
           </DropdownMenuItem>
         ))}
         {onRemove && (

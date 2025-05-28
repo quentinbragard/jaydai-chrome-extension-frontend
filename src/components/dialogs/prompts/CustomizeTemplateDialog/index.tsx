@@ -1,18 +1,18 @@
-// src/components/dialogs/templates/PlaceholderEditor.tsx
+// src/components/dialogs/templates/CustomizeTemplateDialog.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BaseDialog } from '../BaseDialog';
+import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
-import { BasicEditor, AdvancedEditor } from './editor';
-import { usePlaceholderEditor } from './hooks/usePlaceholderEditor';
+import { BasicEditor, AdvancedEditor } from '../editors';
+import { useCustomizeTemplateDialog } from '@/hooks/dialogs/useCustomizeTemplateDialog';
 
 /**
  * Dialog for editing template content using blocks with Basic/Advanced modes
  */
-export const PlaceholderEditor: React.FC = () => {
+export const CustomizeTemplateDialog: React.FC = () => {
   const {
     isOpen,
     error,
@@ -29,7 +29,7 @@ export const PlaceholderEditor: React.FC = () => {
     handleUpdateMetadata,
     handleComplete,
     handleClose
-  } = usePlaceholderEditor();
+  } = useCustomizeTemplateDialog();
 
   if (!isOpen) return null;
 
@@ -40,7 +40,7 @@ export const PlaceholderEditor: React.FC = () => {
         onOpenChange={(open: boolean) => {
           if (!open) handleClose();
         }}
-        title={getMessage('placeholderEditor', undefined, 'Prompt Block Editor')}
+        title={getMessage('CustomizeTemplateDialog', undefined, 'Prompt Block Editor')}
         className="jd-max-w-4xl jd-h-[80vh]"
       >
         <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-h-64">
@@ -49,14 +49,19 @@ export const PlaceholderEditor: React.FC = () => {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
           <Button onClick={handleClose} variant="outline">
-            Close
+            {getMessage('close')}
           </Button>
         </div>
       </BaseDialog>
     );
   }
 
-  const commonProps = {
+  const basicProps = {
+    blocks,
+    onUpdateBlock: handleUpdateBlock
+  };
+
+  const advancedProps = {
     blocks,
     metadata,
     onAddBlock: handleAddBlock,
@@ -73,8 +78,8 @@ export const PlaceholderEditor: React.FC = () => {
       onOpenChange={(open: boolean) => {
         if (!open) handleClose();
       }}
-      title={getMessage('placeholderEditor', undefined, 'Prompt Block Editor')}
-      description={getMessage('placeholderEditorDescription', undefined, 'Build your prompt using blocks')}
+      title={getMessage('CustomizeTemplateDialog', undefined, 'Prompt Block Editor')}
+      description={getMessage('CustomizeTemplateDialogDescription', undefined, 'Build your prompt using blocks')}
       className="jd-max-w-6xl jd-h-[90vh]"
     >
       <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">
@@ -88,7 +93,7 @@ export const PlaceholderEditor: React.FC = () => {
         {isProcessing ? (
           <div className="jd-flex jd-items-center jd-justify-center jd-h-64">
             <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
-            <span className="jd-ml-3 jd-text-gray-600">Loading template...</span>
+            <span className="jd-ml-3 jd-text-gray-600">{getMessage('loadingTemplate')}</span>
           </div>
         ) : (
           <Tabs
@@ -97,16 +102,16 @@ export const PlaceholderEditor: React.FC = () => {
             className="jd-flex-1 jd-flex jd-flex-col"
           >
             <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4">
-              <TabsTrigger value="basic">Basic</TabsTrigger>
-              <TabsTrigger value="advanced">Advanced</TabsTrigger>
+              <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
+              <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="basic" className="jd-flex-1 jd-overflow-hidden">
-              <BasicEditor {...commonProps} />
+            <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto">
+              <BasicEditor {...basicProps} mode="customize" />
             </TabsContent>
 
-            <TabsContent value="advanced" className="jd-flex-1 jd-overflow-hidden">
-              <AdvancedEditor {...commonProps} />
+            <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
+              <AdvancedEditor {...advancedProps} />
             </TabsContent>
           </Tabs>
         )}

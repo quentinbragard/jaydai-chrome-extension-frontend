@@ -13,7 +13,7 @@ import {
 import {
   FolderList,
   FolderSearch
-} from '@/components/folders';
+} from '@/components/prompts/folders';
 import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 

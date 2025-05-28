@@ -1452,5 +1452,21 @@
   "onboardingStepInterests": { "message": "Centres d'intérêt", "description": "Titre d'étape pour les intérêts" },
   "onboardingStepReferral": { "message": "Comment vous nous avez connu", "description": "Titre d'étape pour la recommandation" },
   "onboardingStepComplete": { "message": "Terminé", "description": "Titre d'étape pour la fin" },
-  "skipForNow": { "message": "Passer pour l'instant", "description": "Bouton pour passer une étape d'onboarding" }
+  "skipForNow": { "message": "Passer pour l'instant", "description": "Bouton pour passer une étape d'onboarding" },
+  "placeholderEditor": { "message": "Éditeur de blocs", "description": "Titre de la fenêtre d'édition de blocs" },
+  "placeholderEditorDescription": { "message": "Construisez votre prompt avec des blocs", "description": "Description de l'éditeur de blocs" },
+  "basic": { "message": "Basique", "description": "Libellé du mode basique" },
+  "advanced": { "message": "Avancé", "description": "Libellé du mode avancé" },
+  "basicEditor": { "message": "Éditeur Basique", "description": "Onglet pour l'éditeur basique" },
+  "advancedEditor": { "message": "Éditeur Avancé", "description": "Onglet pour l'éditeur avancé" },
+  "loadingTemplate": { "message": "Chargement du modèle...", "description": "Texte affiché pendant le chargement du modèle" },
+  "promptEssentials": { "message": "Éléments essentiels", "description": "Titre de la section des métadonnées principales" },
+  "additionalElements": { "message": "Éléments supplémentaires", "description": "Titre de la section des métadonnées secondaires" },
+  "contentBlocks": { "message": "Blocs de contenu", "description": "Titre de la section des blocs de contenu" },
+  "addBlock": { "message": "Ajouter un bloc", "description": "Bouton pour ajouter un bloc" },
+  "addFirstBlock": { "message": "Ajouter votre premier bloc", "description": "Bouton pour ajouter le premier bloc" },
+  "noContentBlocks": { "message": "Aucun bloc de contenu", "description": "Message lorsqu'aucun bloc n'est présent" },
+  "errorProcessingTemplate": { "message": "Impossible de traiter le contenu du modèle. Veuillez réessayer.", "description": "Message d'erreur lors du traitement du modèle" },
+  "errorProcessingTemplateToast": { "message": "Échec du traitement du modèle", "description": "Toast d'erreur de traitement" },
+  "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" }
 }

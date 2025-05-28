@@ -1,9 +1,9 @@
 // src/components/dialogs/index.tsx
 import React from 'react';
 import { DialogProvider as DialogContextProvider } from './DialogContext';
-import { TemplateDialog } from './templates/TemplateDialog';
-import { FolderDialog } from './templates/FolderDialog';
-import { PlaceholderEditor } from './templates/PlaceholderEditor';
+import { CreateTemplateDialog } from './prompts/TemplateDialog';
+import { CreateFolderDialog } from './prompts/CreateFolderDialog';
+import { CustomizeTemplateDialog } from './prompts/CustomizeTemplateDialog';
 import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
@@ -37,9 +37,9 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       {children}
       
       {/* Register all dialogs here */}
-      <TemplateDialog />
-      <FolderDialog />
-      <PlaceholderEditor />
+      <CreateTemplateDialog />
+      <CreateFolderDialog  />
+      <CustomizeTemplateDialog />
       <AuthDialog />
       <SettingsDialog />
       <ConfirmationDialog />
@@ -51,9 +51,9 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
 // Export individual components and hooks
 export { DialogContextProvider } from './DialogContext';
 export { useDialog, useDialogManager } from './DialogContext';
-export { TemplateDialog } from './templates/TemplateDialog';
-export { FolderDialog } from './templates/FolderDialog';
-export { PlaceholderEditor } from './templates/PlaceholderEditor';
+export { TemplateDialog } from './prompts/TemplateDialog';
+export { FolderDialog } from './prompts/CreateFolderDialog';
+export { PlaceholderEditor } from './prompts/CustomizeTemplateDialog';
 export { AuthDialog } from './auth/AuthDialog';
 export { SettingsDialog } from './settings/SettingsDialog';
 export { ConfirmationDialog } from './common/ConfirmationDialog';

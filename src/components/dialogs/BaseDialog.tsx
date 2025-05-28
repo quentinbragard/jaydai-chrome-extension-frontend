@@ -123,9 +123,10 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   if (!open || !mounted) return null;
   
   return (
-    <div 
+    <div
       className="jd-fixed jd-inset-0 jd-z-[10001] jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-overflow-hidden"
       onClick={handleBackdropClick}
+      onWheel={(e) => e.stopPropagation()}
     >
       <div 
         ref={dialogRef}

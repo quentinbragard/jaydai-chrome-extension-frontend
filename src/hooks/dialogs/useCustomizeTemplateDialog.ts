@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
-import { Block, BlockType } from '@/components/templates/blocks/types';
-import { PromptMetadata, DEFAULT_METADATA, ALL_METADATA_TYPES } from '@/components/templates/metadata/types';
-import { getBlockContent, getLocalizedContent } from '../utils/blockUtils';
+import { getMessage } from '@/core/utils/i18n';
+import { Block, BlockType } from '@/types/prompts/blocks';
+import { PromptMetadata, DEFAULT_METADATA, ALL_METADATA_TYPES } from '@/types/prompts/metadata';
+import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
+import { formatBlockForPrompt, formatMetadataForPrompt } from '@/components/prompts/promptUtils';
 
-export function usePlaceholderEditor() {
+export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [metadata, setMetadata] = useState<PromptMetadata>(DEFAULT_METADATA);
@@ -25,7 +27,7 @@ export function usePlaceholderEditor() {
             id: block.id || Date.now() + index,
             type: block.type || 'content',
             content: getLocalizedContent(block.content) || '',
-            name: block.name || `${(block.type || 'content').charAt(0).toUpperCase() + (block.type || 'content').slice(1)} Block`,
+            title: block.title || { en: `${(block.type || 'content').charAt(0).toUpperCase() + (block.type || 'content').slice(1)} Block` },
             description: block.description || ''
           }));
         } else if (data.content) {
@@ -34,28 +36,34 @@ export function usePlaceholderEditor() {
             id: Date.now(),
             type: 'content',
             content: contentString,
-            name: 'Template Content'
+            title: { en: 'Template Content' }
           }];
         }
         setBlocks(templateBlocks);
         setMetadata(DEFAULT_METADATA);
       } catch (err) {
         console.error('PlaceholderEditor: Error processing template:', err);
-        setError('Failed to process template content. Please try again.');
+        setError(getMessage('errorProcessingTemplate'));
       } finally {
         setIsProcessing(false);
       }
     }
   }, [isOpen, data]);
 
-  const handleAddBlock = (position: 'start' | 'end', blockType: BlockType, existingBlock?: Block) => {
+  const handleAddBlock = (
+    position: 'start' | 'end',
+    blockType?: BlockType | null,
+    existingBlock?: Block
+  ) => {
     const newBlock: Block = existingBlock
       ? { ...existingBlock, isNew: false }
       : {
           id: Date.now() + Math.random(),
-          type: blockType,
+          type: blockType || null,
           content: '',
-          name: `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`,
+          name: blockType
+            ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
+            : 'New Block',
           description: '',
           isNew: true
         };
@@ -73,7 +81,7 @@ export function usePlaceholderEditor() {
 
   const handleRemoveBlock = (blockId: number) => {
     if (blocks.length <= 1) {
-      toast.warning('Cannot remove the last block. Templates must have at least one block.');
+      toast.warning(getMessage('cannotRemoveLastBlock'));
       return;
     }
     setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== blockId));
@@ -109,11 +117,11 @@ export function usePlaceholderEditor() {
       const parts: string[] = [];
       ALL_METADATA_TYPES.forEach(type => {
         const value = metadata.values?.[type];
-        if (value) parts.push(value);
+        if (value) parts.push(formatMetadataForPrompt(type, value));
       });
       blocks.forEach(block => {
-        const content = getBlockContent(block);
-        if (content) parts.push(content);
+        const formatted = formatBlockForPrompt(block);
+        if (formatted) parts.push(formatted);
       });
       const finalContent = parts.filter(Boolean).join('\n\n');
       if (data && data.onComplete) {
@@ -130,7 +138,7 @@ export function usePlaceholderEditor() {
       document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
     } catch (error) {
       console.error('PlaceholderEditor: Error in handleComplete:', error);
-      toast.error('Failed to process template content');
+      toast.error(getMessage('errorProcessingTemplateToast'));
     }
   };
 

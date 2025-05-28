@@ -1,20 +1,20 @@
-// src/components/dialogs/templates/FolderDialog.tsx
+// src/components/dialogs/templates/CreateFolderDialog.tsx
 import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useDialog } from '../DialogContext';
-import { DIALOG_TYPES } from '../DialogRegistry';
+import { useDialog } from '../../DialogContext';
+import { DIALOG_TYPES } from '../../DialogRegistry';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
-import { BaseDialog } from '../BaseDialog';
+import { BaseDialog } from '../../BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 
 /**
  * Dialog for creating new template folders
  * This version uses direct API calls to avoid React Query errors
  */
-export const FolderDialog: React.FC = () => {
+export const CreateFolderDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.CREATE_FOLDER);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
