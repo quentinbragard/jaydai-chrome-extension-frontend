@@ -11,10 +11,9 @@ import { Block, BlockType } from '@/types/prompts/blocks';
 import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
-import { getMessage } from '@/core/utils/i18n';
+import { getMessage, getCurrentLanguage } from '@/core/utils/i18n';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
-import { BasicTemplateEditor } from './BasicTemplateEditor';
-import { AdvancedTemplateEditor } from './AdvancedTemplateEditor';
+import { BasicEditor, AdvancedEditor } from '../editors';
 
 import {
   useProcessUserFolders,
@@ -299,9 +298,20 @@ export const CreateTemplateDialog: React.FC = () => {
   };
 
   const handleUpdateBlock = (blockId: number, updatedBlock: Partial<Block>) => {
-    setBlocks(prevBlocks => prevBlocks.map(block => 
-      block.id === blockId ? { ...block, ...updatedBlock } : block
-    ));
+    setBlocks(prevBlocks => {
+      const newBlocks = prevBlocks.map(block =>
+        block.id === blockId ? { ...block, ...updatedBlock } : block
+      );
+      if (activeTab === 'basic' && newBlocks.length > 0 && newBlocks[0].id === blockId) {
+        const first = newBlocks[0];
+        const lang = getCurrentLanguage();
+        const newContent = typeof first.content === 'string'
+          ? first.content
+          : (first.content as any)[lang] || (first.content as any).en || '';
+        setContent(newContent);
+      }
+      return newBlocks;
+    });
   };
 
   const handleReorderBlocks = (newBlocks: Block[]) => {
@@ -416,15 +426,15 @@ export const CreateTemplateDialog: React.FC = () => {
             </TabsList>
 
             <TabsContent value="basic" className="jd-flex-1 jd-overflow-hidden jd-mt-4">
-              <BasicTemplateEditor
-                content={content}
-                onContentChange={setContent}
-                error={validationErrors.content}
+              <BasicEditor
+                blocks={blocks}
+                onUpdateBlock={handleUpdateBlock}
+                isProcessing={false}
               />
             </TabsContent>
 
             <TabsContent value="advanced" className="jd-flex-1 jd-overflow-hidden jd-mt-4">
-              <AdvancedTemplateEditor
+              <AdvancedEditor
                 blocks={blocks}
                 metadata={metadata}
                 onAddBlock={handleAddBlock}

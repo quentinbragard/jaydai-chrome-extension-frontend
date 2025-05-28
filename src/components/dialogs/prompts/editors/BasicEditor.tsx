@@ -10,11 +10,7 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface BasicEditorProps {
   blocks: Block[];
-  onAddBlock: (position: 'start' | 'end', blockType?: BlockType | null, existingBlock?: Block) => void;
-  onRemoveBlock: (blockId: number) => void;
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
-  onMoveBlock: (blockId: number, direction: 'up' | 'down') => void;
-  onReorderBlocks: (blocks: Block[]) => void;
   isProcessing: boolean;
 }
 

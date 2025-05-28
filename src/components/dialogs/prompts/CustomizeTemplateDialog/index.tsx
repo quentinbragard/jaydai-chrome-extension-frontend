@@ -6,8 +6,7 @@ import { AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
-import { BasicEditor } from './/BasicEditor';
-import { AdvancedEditor } from './AdvancedEditor';
+import { BasicEditor, AdvancedEditor } from '../editors';
 import { useCustomizeTemplateDialog } from '@/hooks/dialogs/useCustomizeTemplateDialog';
 
 /**
@@ -57,7 +56,13 @@ export const CustomizeTemplateDialog: React.FC = () => {
     );
   }
 
-  const commonProps = {
+  const basicProps = {
+    blocks,
+    onUpdateBlock: handleUpdateBlock,
+    isProcessing
+  };
+
+  const advancedProps = {
     blocks,
     metadata,
     onAddBlock: handleAddBlock,
@@ -103,11 +108,11 @@ export const CustomizeTemplateDialog: React.FC = () => {
             </TabsList>
 
             <TabsContent value="basic" className="jd-flex-1 jd-overflow-hidden">
-              <BasicEditor {...commonProps} />
+              <BasicEditor {...basicProps} />
             </TabsContent>
 
             <TabsContent value="advanced" className="jd-flex-1 jd-overflow-hidden">
-              <AdvancedEditor {...commonProps} />
+              <AdvancedEditor {...advancedProps} />
             </TabsContent>
           </Tabs>
         )}
