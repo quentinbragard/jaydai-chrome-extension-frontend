@@ -149,11 +149,13 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                     onBlockCreated: (b) => {
                       onSaveBlock && onSaveBlock(b);
                       onSelect(String(b.id));
+                      onToggle();
                     }
                   });
                   return;
                 }
                 onSelect(value);
+                onToggle();
               }}
             >
               <SelectTrigger className="jd-w-full">
