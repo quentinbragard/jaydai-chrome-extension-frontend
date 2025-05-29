@@ -2,6 +2,8 @@
 function createContextMenus() {
   const icon = chrome.runtime.getURL('images/letter-logo-dark.png');
   chrome.contextMenus.removeAll(() => {
+    console.log('Creating Jaydai context menus');
+
     chrome.contextMenus.create({
       id: 'create_block',
       title: 'Create a Jaydai Block',
@@ -18,15 +20,14 @@ function createContextMenus() {
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.tabs.create({ url: 'welcome.html' });
-    createContextMenus();
+  chrome.tabs.create({ url: 'welcome.html' });
+  createContextMenus();
 });
 
-// Ensure menus exist whenever the service worker starts
+// Recreate menus whenever Chrome starts
 chrome.runtime.onStartup.addListener(createContextMenus);
 
-// Also create menus immediately if the service worker is loaded for some other reason
-
+// Also create menus when the service worker loads
 createContextMenus();
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
