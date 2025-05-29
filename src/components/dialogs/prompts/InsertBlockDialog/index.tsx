@@ -12,7 +12,8 @@ import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 import {
   getBlockTypeIcon,
   getBlockTypeColors,
-  getBlockIconColors
+  getBlockIconColors,
+  buildPromptPart
 } from '@/components/prompts/blocks/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
@@ -51,12 +52,11 @@ export const InsertBlockDialog: React.FC = () => {
   };
 
   const insertBlocks = () => {
-    selectedBlocks.forEach(b => {
-      const content = typeof b.content === 'string'
-        ? b.content
-        : b.content.en || '';
-      insertIntoPromptArea(content);
+    const parts = selectedBlocks.map(b => {
+      const content = typeof b.content === 'string' ? b.content : b.content.en || '';
+      return buildPromptPart(b.type, content);
     });
+    insertIntoPromptArea(parts.join('\n\n'));
     dialogProps.onOpenChange(false);
   };
 
