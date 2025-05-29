@@ -232,18 +232,31 @@ export function useCreateTemplateDialog() {
   const handleAddBlock = (
     position: 'start' | 'end',
     blockType?: BlockType | null,
-    existingBlock?: Block
+    existingBlock?: Block,
+    duplicate?: boolean
   ) => {
-    const newBlock: Block = existingBlock
-      ? { ...existingBlock, isNew: false }
-      : {
-          id: Date.now() + Math.random(),
-          type: blockType || null,
-          content: '',
-          name: blockType ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block` : 'New Block',
-          description: '',
-          isNew: true
-        };
+    let newBlock: Block;
+
+    if (existingBlock) {
+      newBlock = duplicate
+        ? {
+            ...existingBlock,
+            id: Date.now() + Math.random(),
+            isNew: true
+          }
+        : { ...existingBlock, isNew: false };
+    } else {
+      newBlock = {
+        id: Date.now() + Math.random(),
+        type: blockType || null,
+        content: '',
+        name: blockType
+          ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
+          : 'New Block',
+        description: '',
+        isNew: true
+      };
+    }
 
     setBlocks(prevBlocks => {
       const newBlocks = [...prevBlocks];

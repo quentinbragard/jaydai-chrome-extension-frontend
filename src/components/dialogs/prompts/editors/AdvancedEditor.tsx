@@ -12,6 +12,7 @@ import { BlockCard } from '@/components/prompts/blocks/BlockCard';
 import { PreviewSection } from '@/components/prompts/PreviewSection';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout, Sparkles, Wand2, Palette } from 'lucide-react';
+import { AddBlockButton } from '@/components/common/AddBlockButton';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
 import { buildPromptPartHtml, BLOCK_TYPES } from '../../../prompts/blocks/blockUtils';
@@ -19,7 +20,12 @@ import { buildPromptPartHtml, BLOCK_TYPES } from '../../../prompts/blocks/blockU
 interface AdvancedEditorProps {
   blocks: Block[];
   metadata?: PromptMetadata;
-  onAddBlock: (position: 'start' | 'end', blockType?: BlockType | null, existingBlock?: Block) => void;
+  onAddBlock: (
+    position: 'start' | 'end',
+    blockType?: BlockType | null,
+    existingBlock?: Block,
+    duplicate?: boolean
+  ) => void;
   onRemoveBlock: (blockId: number) => void;
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
   onReorderBlocks: (blocks: Block[]) => void;
@@ -385,25 +391,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           </div>
 
           <div className="jd-space-y-3 jd-flex-1 jd-overflow-y-auto jd-max-h-[400px] jd-pr-2">
-            <div className="jd-flex jd-justify-center jd-my-3">
-              <Button
-                onClick={() => onAddBlock('start')}
-                variant="outline"
-                size="sm"
-                className={cn(
-                  'jd-flex jd-items-center jd-gap-2',
-                  'jd-transition-all jd-duration-300',
-                  'hover:jd-scale-105 hover:jd-shadow-md',
-                  isDarkMode
-                    ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50'
-                    : 'jd-bg-white/70 hover:jd-bg-white/90'
-                )}
-              >
-                <Plus className="jd-h-4 jd-w-4" />
-                Add Block Above
-              </Button>
-            </div>
-
             {contentBlock && (
               <div className="jd-space-y-2">
                 <h4 className="jd-text-sm jd-font-medium">Prompt Content</h4>
@@ -432,22 +419,13 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             ))}
 
             <div className="jd-flex jd-justify-center jd-my-3">
-              <Button
-                onClick={() => onAddBlock('end')}
-                variant="outline"
-                size="sm"
-                className={cn(
-                  'jd-flex jd-items-center jd-gap-2',
-                  'jd-transition-all jd-duration-300',
-                  'hover:jd-scale-105 hover:jd-shadow-md',
-                  isDarkMode
-                    ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50'
-                    : 'jd-bg-white/70 hover:jd-bg-white/90'
-                )}
-              >
-                <Plus className="jd-h-4 jd-w-4" />
-                Add Block Below
-              </Button>
+              <AddBlockButton
+                availableBlocks={availableBlocksByType}
+                onAdd={(type, existing, duplicate) =>
+                  onAddBlock('end', type, existing, duplicate)
+                }
+              />
+
             </div>
 
             {otherBlocks.length === 0 && (
