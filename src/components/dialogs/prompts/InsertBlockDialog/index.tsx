@@ -305,50 +305,46 @@ export const InsertBlockDialog: React.FC = () => {
       </div>
     ) : (
       <div className="jd-flex-1 jd-flex jd-flex-col jd-overflow-hidden jd-space-y-4">
-        <div className="jd-overflow-hidden jd-max-h-[40vh]">
-          <ScrollArea className="jd-h-full">
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext items={selectedBlocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
-                <div className="jd-space-y-2 jd-pr-2">
-                  {selectedBlocks.map(block => (
-                    <SortableSelectedBlock
-                      key={block.id}
-                      block={block}
-                      isDark={isDark}
-                      onRemove={removeBlock}
-                      isExpanded={expandedBlocks.has(block.id)}
-                      onToggleExpand={toggleExpanded}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-              <DragOverlay>
-                {activeBlockId !== null && (
-                  <SortableSelectedBlock
-                    block={selectedBlocks.find(b => b.id === activeBlockId)!}
-                    isDark={isDark}
-                    onRemove={() => {}}
-                    isExpanded={false}
-                    onToggleExpand={() => {}}
-                  />
-                )}
-              </DragOverlay>
-            </DndContext>
-          </ScrollArea>
-        </div>
-
         <div className="jd-flex-1 jd-overflow-hidden jd-border-t jd-pt-4">
           <ScrollArea className="jd-h-full">
             <div className="jd-space-y-4 jd-pr-4">
               {previewMode === 'visual' ? (
-                selectedBlocks.map((block, index) => (
-                  <PreviewBlock key={block.id} block={block} isDark={isDark} index={index} />
-                ))
+               <div className="jd-overflow-hidden jd-max-h-[40vh]">
+               <ScrollArea className="jd-h-full">
+                 <DndContext
+                   sensors={sensors}
+                   collisionDetection={closestCenter}
+                   onDragStart={handleDragStart}
+                   onDragEnd={handleDragEnd}
+                 >
+                   <SortableContext items={selectedBlocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
+                     <div className="jd-space-y-2 jd-pr-2">
+                       {selectedBlocks.map(block => (
+                         <SortableSelectedBlock
+                           key={block.id}
+                           block={block}
+                           isDark={isDark}
+                           onRemove={removeBlock}
+                           isExpanded={expandedBlocks.has(block.id)}
+                           onToggleExpand={toggleExpanded}
+                         />
+                       ))}
+                     </div>
+                   </SortableContext>
+                   <DragOverlay>
+                     {activeBlockId !== null && (
+                       <SortableSelectedBlock
+                         block={selectedBlocks.find(b => b.id === activeBlockId)!}
+                         isDark={isDark}
+                         onRemove={() => {}}
+                         isExpanded={false}
+                         onToggleExpand={() => {}}
+                       />
+                     )}
+                   </DragOverlay>
+                 </DndContext>
+               </ScrollArea>
+             </div>
               ) : (
                 <div className="jd-bg-muted/30 jd-rounded-lg jd-p-4">
                   <div
