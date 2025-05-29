@@ -50,7 +50,6 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   const isDarkMode = useThemeDetector();
   const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
   const iconColors = getBlockIconColors(config.blockType, isDarkMode);
-  const [name, setName] = React.useState('');
   const { openDialog } = useDialogManager();
 
   // Click outside handler to collapse the card
@@ -192,6 +191,8 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
           <div className="jd-text-sm jd-text-muted-foreground jd-mt-2">
             {selectedId && selectedId !== 0
               ? getLocalizedContent(availableBlocks.find((b) => b.id === selectedId)?.title) || `${type} block`
+              : customValue
+              ? customValue.substring(0, 40) + (customValue.length > 40 ? '...' : '')
               : `Click to set ${type}`}
           </div>
         )}
