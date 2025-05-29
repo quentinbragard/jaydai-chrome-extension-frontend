@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { SaveBlockButton } from './SaveBlockButton';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/core/utils/classNames';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import {
@@ -49,6 +50,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   const isDarkMode = useThemeDetector();
   const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
   const iconColors = getBlockIconColors(config.blockType, isDarkMode);
+  const [name, setName] = React.useState('');
 
   // Handle card click - only toggle if clicking on the card itself, not on interactive elements
   const handleCardClick = (e: React.MouseEvent) => {
@@ -168,12 +170,25 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                   onClick={stopPropagation}
                 />
                 {customValue && (
-                  <SaveBlockButton
-                    type={config.blockType}
-                    content={customValue}
-                    onSaved={(b) => onSaveBlock && onSaveBlock(b)}
-                    className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-primary"
-                  />
+                  <div className="jd-space-y-2 jd-mt-2">
+                    <Input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Block name"
+                      className="jd-text-xs"
+                      onClick={stopPropagation}
+                    />
+                    <SaveBlockButton
+                      type={config.blockType}
+                      content={customValue}
+                      title={name}
+                      onSaved={(b) => {
+                        onSaveBlock && onSaveBlock(b);
+                        setName('');
+                      }}
+                      className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-primary"
+                    />
+                  </div>
                 )}
               </>
             )}
