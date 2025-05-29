@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { BlockType, Block } from '@/types/prompts/blocks';
 import { getCurrentLanguage } from '@/core/utils/i18n';
+import { METADATA_CONFIGS } from '@/types/prompts/metadata';
 
 export const BLOCK_TYPES: BlockType[] = [
   'role',
@@ -225,3 +226,14 @@ export const buildPromptPartHtml = (type: BlockType | null | undefined, content:
   return `<span class="${getBlockTextColors(type, isDarkMode)}">${escapeHtml(prefix)}</span>${escapeHtml(content)}`;
 };
 
+export const isMetadataBlock = (type: BlockType): boolean => {
+  return Object.keys(METADATA_CONFIGS).includes(type);
+};
+
+export const isContentBlock = (type: BlockType): boolean => {
+  return type === 'content';
+};
+
+export const isCustomBlock = (type: BlockType): boolean => {
+  return type === 'custom';
+};
