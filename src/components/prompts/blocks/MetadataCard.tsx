@@ -8,7 +8,11 @@ import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { SaveBlockButton } from './SaveBlockButton';
 import { cn } from '@/core/utils/classNames';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
+import {
+  getLocalizedContent,
+  getBlockTypeColors,
+  getBlockIconColors
+} from '@/components/prompts/blocks/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface MetadataCardProps {
@@ -42,6 +46,8 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 }) => {
   const config = METADATA_CONFIGS[type];
   const isDarkMode = useThemeDetector();
+  const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
+  const iconColors = getBlockIconColors(config.blockType, isDarkMode);
 
   // Handle card click - only toggle if clicking on the card itself, not on interactive elements
   const handleCardClick = (e: React.MouseEvent) => {
@@ -67,8 +73,10 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
     <Card
       onClick={handleCardClick}
       className={cn(
-        'jd-transition-all jd-duration-200 jd-cursor-pointer hover:jd-shadow-md',
-        isPrimary ? 'jd-border-2 jd-border-primary/20 jd-bg-primary/5' : 'jd-border jd-border-muted jd-bg-muted/20',
+        'jd-transition-all jd-duration-300 jd-cursor-pointer hover:jd-shadow-md',
+        'jd-border-2 jd-backdrop-blur-sm',
+        cardColors,
+        isPrimary && 'jd-border-primary/20',
         expanded &&
           (isDarkMode
             ? 'jd-ring-2 jd-ring-primary/50 jd-shadow-lg jd-bg-gray-800'
@@ -78,7 +86,9 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
       <CardContent className="jd-p-4">
         <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
           <div className="jd-flex jd-items-center jd-gap-2">
-            <Icon className={cn('jd-h-4 jd-w-4', isPrimary ? 'jd-text-primary' : 'jd-text-muted-foreground')} />
+            <div className={cn('jd-p-1.5 jd-rounded-md', iconColors)}>
+              <Icon className="jd-h-4 jd-w-4" />
+            </div>
             <span className={cn('jd-font-medium', isPrimary ? 'jd-text-primary' : 'jd-text-foreground')}>
               {config.label}
             </span>

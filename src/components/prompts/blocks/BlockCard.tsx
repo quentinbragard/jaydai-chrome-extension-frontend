@@ -4,20 +4,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
-import { Trash2, FileText, MessageSquare, User, Layout, Type, Users, GripVertical } from 'lucide-react';
+import { Trash2, GripVertical } from 'lucide-react';
 import { SaveBlockButton } from '@/components/prompts/blocks/SaveBlockButton';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { BLOCK_TYPES, BLOCK_TYPE_LABELS, getLocalizedContent } from './blockUtils';
+import {
+  BLOCK_TYPES,
+  BLOCK_TYPE_LABELS,
+  getLocalizedContent,
+  getBlockTypeIcon,
+  getBlockTypeColors,
+  getBlockIconColors
+} from './blockUtils';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { cn } from '@/core/utils/classNames';
 
 
-const BLOCK_ICONS: Record<BlockType, React.ComponentType<any>> = {
-  content: FileText,
-  context: MessageSquare,
-  role: User,
-  example: Layout,
-  format: Type,
-  audience: Users
-};
 
 
 interface BlockCardProps {
@@ -39,7 +40,10 @@ export const BlockCard: React.FC<BlockCardProps> = ({
   onDragEnd,
   onSave
 }) => {
-  const Icon = block.type ? BLOCK_ICONS[block.type] : FileText;
+  const isDark = useThemeDetector();
+  const Icon = getBlockTypeIcon(block.type || 'content');
+  const cardColors = getBlockTypeColors(block.type || 'content', isDark);
+  const iconBg = getBlockIconColors(block.type || 'content', isDark);
   const content = typeof block.content === 'string' 
     ? block.content 
     : block.content[getCurrentLanguage()] || block.content.en || '';
@@ -57,7 +61,12 @@ export const BlockCard: React.FC<BlockCardProps> = ({
 
   return (
     <Card
-      className="jd-transition-all jd-duration-200 jd-hover:jd-shadow-md jd-group"
+      className={cn(
+        'jd-transition-all jd-duration-300 jd-transform',
+        'hover:jd-shadow-xl hover:jd-scale-[1.02] hover:-jd-translate-y-1',
+        'jd-border-2 jd-backdrop-blur-sm',
+        cardColors
+      )}
       draggable
       onDragStart={() => onDragStart && onDragStart(block.id)}
       onDragOver={(e) => {
@@ -71,7 +80,15 @@ export const BlockCard: React.FC<BlockCardProps> = ({
           <div className="jd-flex jd-items-center jd-gap-3">
             <div className="jd-flex jd-items-center jd-gap-2">
               <GripVertical className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-opacity-50 group-hover:jd-opacity-100 jd-transition-opacity" />
-              <Icon className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
+              <div
+                className={cn(
+                  'jd-p-2 jd-rounded-lg jd-transition-all jd-duration-300',
+                  'group-hover:jd-scale-110 group-hover:jd-rotate-3',
+                  iconBg
+                )}
+              >
+                <Icon className="jd-h-4 jd-w-4" />
+              </div>
             </div>
             <div className="jd-flex jd-items-center jd-gap-2">
               <span className="jd-font-medium jd-text-sm">
