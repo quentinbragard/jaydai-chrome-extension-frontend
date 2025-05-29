@@ -29,6 +29,7 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
       );
 
       if (!clickedInside) {
+
         handler();
       }
     };
