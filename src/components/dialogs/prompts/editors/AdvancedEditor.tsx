@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { MetadataCard } from '@/components/prompts/blocks/MetadataCard';
 import { BlockCard } from '@/components/prompts/blocks/BlockCard';
 import { PreviewSection } from '@/components/prompts/PreviewSection';
+import { Textarea } from '@/components/ui/textarea';
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout, Sparkles, Wand2, Palette } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
@@ -260,13 +261,16 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     );
   }
 
+  const contentBlock = blocks[0];
+  const otherBlocks = blocks.slice(1);
+
   return (
     <div
       className={cn(
         'jd-h-full jd-flex jd-flex-col jd-px-6 jd-relative jd-overflow-hidden',
         // Enhanced gradient background with animated mesh
-        isDarkMode 
-          ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900' 
+        isDarkMode
+          ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
           : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
       )}
     >
@@ -379,9 +383,40 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               Content Blocks
             </h3>
           </div>
-          
+
           <div className="jd-space-y-3 jd-flex-1 jd-overflow-y-auto jd-max-h-[400px] jd-pr-2">
-            {blocks.map((block, index) => (
+            <div className="jd-flex jd-justify-center jd-my-3">
+              <Button
+                onClick={() => onAddBlock('start')}
+                variant="outline"
+                size="sm"
+                className={cn(
+                  'jd-flex jd-items-center jd-gap-2',
+                  'jd-transition-all jd-duration-300',
+                  'hover:jd-scale-105 hover:jd-shadow-md',
+                  isDarkMode
+                    ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50'
+                    : 'jd-bg-white/70 hover:jd-bg-white/90'
+                )}
+              >
+                <Plus className="jd-h-4 jd-w-4" />
+                Add Block Above
+              </Button>
+            </div>
+
+            {contentBlock && (
+              <div className="jd-space-y-2">
+                <h4 className="jd-text-sm jd-font-medium">Prompt Content</h4>
+                <Textarea
+                  value={typeof contentBlock.content === 'string' ? contentBlock.content : contentBlock.content[getCurrentLanguage()] || contentBlock.content.en || ''}
+                  onChange={e => onUpdateBlock(contentBlock.id, { content: e.target.value })}
+                  className="jd-min-h-[120px] jd-text-sm"
+                  placeholder="Enter main prompt content..."
+                />
+              </div>
+            )}
+
+            {otherBlocks.map((block, index) => (
               <div key={block.id} className="jd-animate-in jd-slide-in-from-bottom-2 jd-duration-300">
                 <BlockCard
                   block={block}
@@ -393,36 +428,33 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   onDragEnd={handleDragEnd}
                   onSave={(saved) => handleBlockSaved(block.id, saved)}
                 />
-                {index === blocks.length - 1 && (
-                  <div className="jd-flex jd-justify-center jd-my-3">
-                    <Button
-                      onClick={() => onAddBlock('end')}
-                      variant="outline"
-                      size="sm"
-                      className={cn(
-                        'jd-flex jd-items-center jd-gap-2',
-                        'jd-transition-all jd-duration-300',
-                        'hover:jd-scale-105 hover:jd-shadow-md',
-                        isDarkMode 
-                          ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50' 
-                          : 'jd-bg-white/70 hover:jd-bg-white/90'
-                      )}
-                    >
-                      <Plus className="jd-h-4 jd-w-4" />
-                      Add Block
-                    </Button>
-                  </div>
-                )}
               </div>
             ))}
-            
-            {blocks.length === 0 && (
+
+            <div className="jd-flex jd-justify-center jd-my-3">
+              <Button
+                onClick={() => onAddBlock('end')}
+                variant="outline"
+                size="sm"
+                className={cn(
+                  'jd-flex jd-items-center jd-gap-2',
+                  'jd-transition-all jd-duration-300',
+                  'hover:jd-scale-105 hover:jd-shadow-md',
+                  isDarkMode
+                    ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50'
+                    : 'jd-bg-white/70 hover:jd-bg-white/90'
+                )}
+              >
+                <Plus className="jd-h-4 jd-w-4" />
+                Add Block Below
+              </Button>
+            </div>
+
+            {otherBlocks.length === 0 && (
               <div className={cn(
                 'jd-text-center jd-py-12 jd-rounded-lg jd-border-2 jd-border-dashed',
                 'jd-transition-all jd-duration-300',
-                isDarkMode 
-                  ? 'jd-bg-gray-800/30 jd-border-gray-700' 
-                  : 'jd-bg-white/50 jd-border-gray-300'
+                isDarkMode ? 'jd-bg-gray-800/30 jd-border-gray-700' : 'jd-bg-white/50 jd-border-gray-300'
               )}>
                 <div className={cn(
                   'jd-p-4 jd-rounded-full jd-inline-flex jd-mb-4',
@@ -430,16 +462,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                 )}>
                   <Wand2 className="jd-h-12 jd-w-12 jd-text-muted-foreground" />
                 </div>
-                <p className="jd-text-muted-foreground jd-mb-4">No content blocks yet</p>
-                <Button
-                  onClick={() => onAddBlock('end')}
-                  variant="outline"
-                  size="sm"
-                  className="jd-transition-all jd-duration-300 hover:jd-scale-105"
-                >
-                  <Plus className="jd-h-4 jd-w-4 jd-mr-2" />
-                  Add Your First Block
-                </Button>
+                <p className="jd-text-muted-foreground jd-mb-4">No additional blocks yet</p>
               </div>
             )}
           </div>
