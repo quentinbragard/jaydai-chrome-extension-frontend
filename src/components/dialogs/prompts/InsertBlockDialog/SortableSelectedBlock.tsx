@@ -41,36 +41,36 @@ export function SortableSelectedBlock({ block, isDark, onRemove, isExpanded, onT
       ref={setNodeRef}
       style={style}
       className={cn(
-        'group relative border rounded-lg p-3 bg-background transition-all duration-200',
-        isDragging ? 'shadow-lg ring-2 ring-primary/20' : 'hover:shadow-md'
+        'group relative jd-border jd-rounded-lg jd-p-3 jd-bg-background jd-transition-all jd-duration-200',
+        isDragging ? 'jd-shadow-lg jd-ring-2 jd-ring-primary/20' : 'jd-hover:jd-shadow-md'
       )}
     >
       <div
         {...attributes}
         {...listeners}
-        className="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+        className="jd-absolute jd-left-1 jd-top-1/2 jd-translate-y-1/2 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-cursor-grab jd-active:jd-cursor-grabbing"
       >
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
+        <GripVertical className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
       </div>
       <button
         onClick={() => onRemove(block.id)}
-        className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-destructive/10 rounded"
+        className="jd-absolute jd-right-1 jd-top-1 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-p-1 jd-hover:jd-bg-destructive/10 jd-rounded"
       >
-        <X className="h-3 w-3 text-destructive" />
+        <X className="jd-h-3 jd-w-3 jd-text-destructive" />
       </button>
-      <div className="flex items-start gap-3 ml-6 mr-6">
-        <span className={`p-1.5 rounded-md ${iconBg} flex-shrink-0`}>
-          <Icon className="h-4 w-4" />
+      <div className="jd-flex jd-items-start jd-gap-3 jd-ml-6 jd-mr-6">
+        <span className={`jd-p-1.5 jd-rounded-md ${iconBg} jd-flex-shrink-0`}>
+          <Icon className="jd-h-4 jd-w-4" />
         </span>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className="text-sm font-medium truncate">{title}</h4>
-            <Badge variant="secondary" className="text-xs">
+        <div className="jd-flex-1 jd-min-w-0">
+          <div className="jd-flex jd-items-center jd-gap-2 jd-mb-1">
+            <h4 className="jd-text-sm jd-font-medium jd-truncate">{title}</h4>
+            <Badge variant="secondary" className="jd-text-xs">
               {BLOCK_TYPE_LABELS[block.type || 'content']}
             </Badge>
           </div>
-          <div className="text-xs text-muted-foreground">
-            <div className={cn('transition-all duration-200', isExpanded ? '' : 'line-clamp-2')}>
+          <div className="jd-text-xs jd-text-muted-foreground">
+            <div className={cn('jd-transition-all jd-duration-200', isExpanded ? '' : 'jd-line-clamp-2')}>
               {content}
             </div>
             {content.length > 100 && (

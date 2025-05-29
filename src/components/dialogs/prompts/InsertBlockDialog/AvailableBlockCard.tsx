@@ -23,26 +23,26 @@ export function AvailableBlockCard({ block, isDark, onAdd }: AvailableBlockCardP
   return (
     <Card
       className={cn(
-        'cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] group',
+        'jd-cursor-pointer jd-transition-all jd-duration-200 hover:jd-shadow-md hover:jd-scale-[1.02] jd-group',
         cardColors
       )}
       onClick={() => onAdd(block)}
     >
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <span className={`p-2 rounded-lg ${iconBg} flex-shrink-0`}>
-            <Icon className="h-5 w-5" />
+      <CardContent className="jd-p-4">
+        <div className="jd-flex jd-items-start jd-gap-3">
+          <span className={`jd-p-2 jd-rounded-lg ${iconBg} jd-flex-shrink-0`}>
+            <Icon className="jd-h-5 jd-w-5" />
           </span>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium text-sm truncate">{title}</h3>
-              <Plus className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+          <div className="jd-flex-1 jd-min-w-0">
+            <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
+              <h3 className="jd-font-medium jd-text-sm jd-truncate">{title}</h3>
+              <Plus className="jd-h-4 jd-w-4 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-text-primary" />
             </div>
-            <Badge variant="outline" className="mb-2 text-xs">
+            <Badge variant="outline" className="jd-mb-2 jd-text-xs">
               {BLOCK_TYPE_LABELS[block.type || 'content']}
             </Badge>
-            <div className="text-xs text-muted-foreground">
-              <div className={cn('transition-all duration-200', isExpanded ? '' : 'line-clamp-3')}>
+            <div className="jd-text-xs jd-text-muted-foreground">
+              <div className={cn('jd-transition-all jd-duration-200', isExpanded ? '' : 'jd-line-clamp-3')}>
                 {content}
               </div>
               {content.length > 150 && (
@@ -51,7 +51,7 @@ export function AvailableBlockCard({ block, isDark, onAdd }: AvailableBlockCardP
                     e.stopPropagation();
                     setIsExpanded(!isExpanded);
                   }}
-                  className="text-primary hover:underline mt-1"
+                  className="jd-text-primary hover:jd-underline jd-mt-1"
                 >
                   {isExpanded ? 'Show less' : 'Show more'}
                 </button>
