@@ -6,12 +6,12 @@ function createContextMenus() {
     chrome.contextMenus.create({
       id: 'create_block',
       title: 'Create a Jaydai Block',
-      contexts: ['selection'],
+      contexts: ['all'],
     });
     chrome.contextMenus.create({
       id: 'insert_block',
       title: 'Insert a Jaydai Block',
-      contexts: ['editable'],
+      contexts: ['all'],
     });
   });
 }
@@ -37,6 +37,18 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   } else if (info.menuItemId === 'insert_block') {
     chrome.tabs.sendMessage(tab.id, { action: 'openInsertBlockDialog' });
   }
+});
+
+chrome.commands.onCommand.addListener((command) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tab = tabs[0];
+    if (!tab || !tab.id) return;
+    if (command === 'create-prompt') {
+      chrome.tabs.sendMessage(tab.id, { action: 'openCreateBlockDialog', content: '' });
+    } else if (command === 'insert-prompt') {
+      chrome.tabs.sendMessage(tab.id, { action: 'openInsertBlockDialog' });
+    }
+  });
 });
 
 // 🔹 Open welcome page only when the extension is newly installed, not on updates
