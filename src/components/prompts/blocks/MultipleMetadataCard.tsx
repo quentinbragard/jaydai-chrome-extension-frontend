@@ -1,6 +1,6 @@
 // src/components/prompts/blocks/MultipleMetadataCard.tsx
 import React, { useState } from 'react';
-import { Block, MultipleMetadataType, MetadataItem, METADATA_CONFIGS, generateMetadataItemId } from '@/types/prompts/metadata';
+import { Block, MultipleMetadataType, MetadataItem, METADATA_CONFIGS } from '@/types/prompts/metadata';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Trash2, ChevronUp, ChevronDown, Plus, GripVertical } from 'lucide-react';
 import { SaveBlockButton } from './SaveBlockButton';
 import { cn } from '@/core/utils/classNames';
-import { getCurrentLanguage } from '@/core/utils/i18n';
 import {
   getLocalizedContent,
   getBlockTypeColors,
@@ -32,6 +31,153 @@ interface MultipleMetadataCardProps {
   onSaveBlock?: (block: Block) => void;
   onReorderItems?: (newItems: MetadataItem[]) => void;
 }
+
+interface MetadataItemRowProps {
+  item: MetadataItem;
+  index: number;
+  config: typeof METADATA_CONFIGS[keyof typeof METADATA_CONFIGS];
+  availableBlocks: Block[];
+  isDarkMode: boolean;
+  draggedItemId: string | null;
+  draggable: boolean;
+  onRemoveItem: (itemId: string) => void;
+  onUpdateItem: (itemId: string, updates: Partial<MetadataItem>) => void;
+  onSaveBlock?: (block: Block) => void;
+  onDragStart: (itemId: string) => void;
+  onDragOver: (itemId: string) => void;
+  onDragEnd: () => void;
+  stopPropagation: (e: React.MouseEvent) => void;
+}
+
+const MetadataItemRow: React.FC<MetadataItemRowProps> = ({
+  item,
+  index,
+  config,
+  availableBlocks,
+  isDarkMode,
+  draggedItemId,
+  draggable,
+  onRemoveItem,
+  onUpdateItem,
+  onSaveBlock,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
+  stopPropagation
+}) => {
+  const [itemName, setItemName] = useState('');
+  const isCustom = !item.blockId;
+
+  const handleItemSelect = (value: string) => {
+    if (value === 'custom') {
+      onUpdateItem(item.id, { blockId: undefined, value: '' });
+    } else {
+      const blockId = Number(value);
+      const block = availableBlocks.find(b => b.id === blockId);
+      if (block) {
+        const content = getLocalizedContent(block.content) || '';
+        onUpdateItem(item.id, { blockId, value: content });
+      }
+    }
+  };
+
+
+  return (
+    <div
+      className={cn(
+        'jd-border jd-rounded-lg jd-p-3 jd-space-y-3 jd-transition-all jd-duration-200',
+        isDarkMode ? 'jd-bg-gray-800/50 jd-border-gray-700' : 'jd-bg-white/50 jd-border-gray-200',
+        draggedItemId === item.id && 'jd-opacity-50'
+      )}
+      draggable={draggable}
+      onDragStart={() => onDragStart(item.id)}
+      onDragOver={e => {
+        e.preventDefault();
+        onDragOver(item.id);
+      }}
+      onDragEnd={onDragEnd}
+      onClick={stopPropagation}
+    >
+      <div className="jd-flex jd-items-center jd-justify-between">
+        <div className="jd-flex jd-items-center jd-gap-2">
+          {draggable && <GripVertical className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-cursor-grab" />}
+          <span className="jd-text-sm jd-font-medium">
+            {config.label} {index + 1}
+          </span>
+        </div>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => onRemoveItem(item.id)}
+          className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-destructive"
+        >
+          <Trash2 className="jd-h-3 jd-w-3" />
+        </Button>
+      </div>
+
+      <Select value={isCustom ? 'custom' : item.blockId?.toString() || 'custom'} onValueChange={handleItemSelect}>
+        <SelectTrigger className="jd-w-full">
+          <SelectValue placeholder={`Select or create custom ${config.label.toLowerCase()}`} />
+        </SelectTrigger>
+        <SelectContent>
+          {availableBlocks.map(block => (
+            <SelectItem key={block.id} value={block.id.toString()}>
+              <div className="jd-flex jd-items-center jd-gap-2">
+                <span className="jd-font-medium jd-truncate jd-max-w-32">
+                  {getLocalizedContent(block.title) || `${config.blockType} block`}
+                </span>
+                <span className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-48">
+                  {typeof block.content === 'string'
+                    ? block.content.substring(0, 40) + (block.content.length > 40 ? '...' : '')
+                    : (getLocalizedContent(block.content) || '').substring(0, 40) +
+                      ((getLocalizedContent(block.content) || '').length > 40 ? '...' : '')}
+                </span>
+              </div>
+            </SelectItem>
+          ))}
+          <SelectItem value="custom">
+            <div className="jd-flex jd-items-center jd-gap-2">
+              <Plus className="jd-h-3 jd-w-3" />
+              Create custom {config.label.toLowerCase()}
+            </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+
+      {isCustom && (
+        <>
+          <Textarea
+            value={item.value}
+            onChange={e => onUpdateItem(item.id, { value: e.target.value })}
+            placeholder={config.placeholder}
+            rows={3}
+            className="jd-resize-none"
+          />
+          {item.value && onSaveBlock && (
+            <div className="jd-space-y-2">
+              <Input
+                value={itemName}
+                onChange={e => setItemName(e.target.value)}
+                placeholder="Block name"
+                className="jd-text-xs"
+              />
+              <SaveBlockButton
+                type={config.blockType}
+                content={item.value}
+                title={itemName}
+                onSaved={block => {
+                  onSaveBlock(block);
+                  setItemName('');
+                }}
+                className="jd-h-6 jd-text-xs"
+              />
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
 
 export const MultipleMetadataCard: React.FC<MultipleMetadataCardProps> = ({
   type,
@@ -95,130 +241,6 @@ export const MultipleMetadataCard: React.FC<MultipleMetadataCardProps> = ({
     setDraggedItemId(null);
   };
 
-  // Handle item selection from available blocks
-  const handleItemSelect = (itemId: string, value: string) => {
-    if (value === 'custom') {
-      onUpdateItem(itemId, { blockId: undefined, value: '' });
-    } else {
-      const blockId = Number(value);
-      const block = availableBlocks.find(b => b.id === blockId);
-      if (block) {
-        const content = getLocalizedContent(block.content) || '';
-        onUpdateItem(itemId, { blockId, value: content });
-      }
-    }
-  };
-
-  const renderMetadataItem = (item: MetadataItem, index: number) => {
-    const isCustom = !item.blockId;
-    const selectedBlock = item.blockId ? availableBlocks.find(b => b.id === item.blockId) : null;
-    const [itemName, setItemName] = useState('');
-
-    return (
-      <div
-        key={item.id}
-        className={cn(
-          'jd-border jd-rounded-lg jd-p-3 jd-space-y-3 jd-transition-all jd-duration-200',
-          isDarkMode ? 'jd-bg-gray-800/50 jd-border-gray-700' : 'jd-bg-white/50 jd-border-gray-200',
-          draggedItemId === item.id && 'jd-opacity-50'
-        )}
-        draggable={!!onReorderItems}
-        onDragStart={() => handleDragStart(item.id)}
-        onDragOver={(e) => {
-          e.preventDefault();
-          handleDragOver(item.id);
-        }}
-        onDragEnd={handleDragEnd}
-        onClick={stopPropagation}
-      >
-        {/* Item header */}
-        <div className="jd-flex jd-items-center jd-justify-between">
-          <div className="jd-flex jd-items-center jd-gap-2">
-            {onReorderItems && (
-              <GripVertical className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-cursor-grab" />
-            )}
-            <span className="jd-text-sm jd-font-medium">
-              {config.label} {index + 1}
-            </span>
-          </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => onRemoveItem(item.id)}
-            className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-destructive"
-          >
-            <Trash2 className="jd-h-3 jd-w-3" />
-          </Button>
-        </div>
-
-        {/* Block selection */}
-        <Select
-          value={isCustom ? 'custom' : item.blockId?.toString() || 'custom'}
-          onValueChange={(value) => handleItemSelect(item.id, value)}
-        >
-          <SelectTrigger className="jd-w-full">
-            <SelectValue placeholder={`Select or create custom ${config.label.toLowerCase()}`} />
-          </SelectTrigger>
-          <SelectContent>
-            {availableBlocks.map((block) => (
-              <SelectItem key={block.id} value={block.id.toString()}>
-                <div className="jd-flex jd-items-center jd-gap-2">
-                  <span className="jd-font-medium jd-truncate jd-max-w-32">
-                    {getLocalizedContent(block.title) || `${type} block`}
-                  </span>
-                  <span className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-48">
-                    {typeof block.content === 'string'
-                      ? block.content.substring(0, 40) + (block.content.length > 40 ? '...' : '')
-                      : (getLocalizedContent(block.content) || '').substring(0, 40) + 
-                        ((getLocalizedContent(block.content) || '').length > 40 ? '...' : '')}
-                  </span>
-                </div>
-              </SelectItem>
-            ))}
-            <SelectItem value="custom">
-              <div className="jd-flex jd-items-center jd-gap-2">
-                <Plus className="jd-h-3 jd-w-3" />
-                Create custom {config.label.toLowerCase()}
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Content area */}
-        {isCustom && (
-          <>
-            <Textarea
-              value={item.value}
-              onChange={(e) => onUpdateItem(item.id, { value: e.target.value })}
-              placeholder={config.placeholder}
-              rows={3}
-              className="jd-resize-none"
-            />
-            {item.value && onSaveBlock && (
-              <div className="jd-space-y-2">
-                <Input
-                  value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
-                  placeholder="Block name"
-                  className="jd-text-xs"
-                />
-                <SaveBlockButton
-                  type={config.blockType}
-                  content={item.value}
-                  title={itemName}
-                  onSaved={(block) => {
-                    onSaveBlock(block);
-                    setItemName('');
-                  }}
-                  className="jd-h-6 jd-text-xs"
-                />
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    );
-  };
 
   return (
     <Card
@@ -286,9 +308,27 @@ export const MultipleMetadataCard: React.FC<MultipleMetadataCardProps> = ({
         )}
 
         {/* Expanded content */}
-        {expanded && (
+          {expanded && (
           <div className="jd-space-y-3 jd-mt-4" onClick={stopPropagation}>
-            {items.map((item, index) => renderMetadataItem(item, index))}
+            {items.map((item, index) => (
+              <MetadataItemRow
+                key={item.id}
+                item={item}
+                index={index}
+                config={config}
+                availableBlocks={availableBlocks}
+                isDarkMode={isDarkMode}
+                draggedItemId={draggedItemId}
+                draggable={!!onReorderItems}
+                onRemoveItem={onRemoveItem}
+                onUpdateItem={onUpdateItem}
+                onSaveBlock={onSaveBlock}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+                stopPropagation={stopPropagation}
+              />
+            ))}
             
             {/* Add new item button */}
             <Button
