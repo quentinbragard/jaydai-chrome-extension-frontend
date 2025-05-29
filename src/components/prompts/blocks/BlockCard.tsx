@@ -139,7 +139,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
                   ))}
                 </SelectContent>
               </Select>
-              {block.type && blocksForType.length > 0 && (
+              {block.type && (
                 <Select value={selectedExistingId} onValueChange={handleExistingSelect}>
                   <SelectTrigger className="jd-w-40 jd-text-xs jd-h-7">
                     <SelectValue placeholder="Select block" />
