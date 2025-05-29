@@ -76,7 +76,7 @@ export const BLOCK_TYPE_DESCRIPTIONS: Record<BlockType, string> = {
 export const BLOCK_CARD_COLORS_LIGHT: Record<BlockType, string> = {
   role: 'jd-bg-gradient-to-br jd-from-purple-50 jd-to-purple-100 jd-border-purple-200 jd-text-purple-900',
   context: 'jd-bg-gradient-to-br jd-from-green-50 jd-to-green-100 jd-border-green-200 jd-text-green-900',
-  goal: 'jd-bg-gradient-to-br jd-from-blue-50 jd-to-blue-100 jd-border-blue-200 jd-text-blue-900',
+  goal: 'jd-bg-gradient-to-br jd-from-pink-50 jd-to-pink-100 jd-border-pink-200 jd-text-pink-900',
   content: 'jd-bg-gradient-to-br jd-from-slate-50 jd-to-slate-100 jd-border-slate-200 jd-text-slate-900',
   custom: 'jd-bg-gradient-to-br jd-from-amber-50 jd-to-amber-100 jd-border-amber-200 jd-text-amber-900',
   output_format: 'jd-bg-gradient-to-br jd-from-pink-50 jd-to-pink-100 jd-border-pink-200 jd-text-pink-900',
@@ -90,7 +90,7 @@ export const BLOCK_CARD_COLORS_LIGHT: Record<BlockType, string> = {
 export const BLOCK_CARD_COLORS_DARK: Record<BlockType, string> = {
   role: 'jd-bg-gradient-to-br jd-from-purple-800/40 jd-to-purple-900/40 jd-border-purple-700 jd-text-purple-200',
   context: 'jd-bg-gradient-to-br jd-from-green-800/40 jd-to-green-900/40 jd-border-green-700 jd-text-green-200',
-  goal: 'jd-bg-gradient-to-br jd-from-blue-800/40 jd-to-blue-900/40 jd-border-blue-700 jd-text-blue-200',
+  goal: 'jd-bg-gradient-to-br jd-from-pink-800/40 jd-to-pink-900/40 jd-border-pink-700 jd-text-pink-200',
   content: 'jd-bg-gradient-to-br jd-from-slate-700/40 jd-to-slate-800/40 jd-border-slate-600 jd-text-slate-200',
   custom: 'jd-bg-gradient-to-br jd-from-amber-800/40 jd-to-amber-900/40 jd-border-amber-700 jd-text-amber-200',
   output_format: 'jd-bg-gradient-to-br jd-from-pink-800/40 jd-to-pink-900/40 jd-border-pink-700 jd-text-pink-200',
@@ -105,7 +105,7 @@ export const BLOCK_CARD_COLORS_DARK: Record<BlockType, string> = {
 export const BLOCK_ICON_COLORS_LIGHT: Record<BlockType, string> = {
   role: 'jd-bg-purple-100 jd-text-purple-700',
   context: 'jd-bg-green-100 jd-text-green-700',
-  goal: 'jd-bg-blue-100 jd-text-blue-700',
+  goal: 'jd-bg-pink-100 jd-text-pink-700',
   content: 'jd-bg-slate-100 jd-text-slate-700',
   custom: 'jd-bg-amber-100 jd-text-amber-700',
   output_format: 'jd-bg-pink-100 jd-text-pink-700',
@@ -119,7 +119,7 @@ export const BLOCK_ICON_COLORS_LIGHT: Record<BlockType, string> = {
 export const BLOCK_ICON_COLORS_DARK: Record<BlockType, string> = {
   role: 'jd-bg-purple-800 jd-text-purple-300',
   context: 'jd-bg-green-800 jd-text-green-300',
-  goal: 'jd-bg-blue-800 jd-text-blue-300',
+  goal: 'jd-bg-pink-800 jd-text-pink-300',
   content: 'jd-bg-slate-700 jd-text-slate-200',
   custom: 'jd-bg-amber-800 jd-text-amber-300',
   output_format: 'jd-bg-pink-800 jd-text-pink-300',
@@ -130,11 +130,40 @@ export const BLOCK_ICON_COLORS_DARK: Record<BlockType, string> = {
   thinking_step: 'jd-bg-yellow-800 jd-text-yellow-300'
 };
 
+export const BLOCK_TEXT_COLORS_LIGHT: Record<BlockType, string> = {
+  role: 'jd-text-purple-700',
+  context: 'jd-text-green-700',
+  goal: 'jd-text-pink-700',
+  content: 'jd-text-slate-700',
+  custom: 'jd-text-amber-700',
+  output_format: 'jd-text-pink-700',
+  example: 'jd-text-orange-700',
+  constraint: 'jd-text-red-700',
+  tone_style: 'jd-text-indigo-700',
+  audience: 'jd-text-teal-700',
+  thinking_step: 'jd-text-yellow-700'
+};
+
+export const BLOCK_TEXT_COLORS_DARK: Record<BlockType, string> = {
+  role: 'jd-text-purple-300',
+  context: 'jd-text-green-300',
+  goal: 'jd-text-pink-300',
+  content: 'jd-text-slate-300',
+  custom: 'jd-text-amber-300',
+  output_format: 'jd-text-pink-300',
+  example: 'jd-text-orange-300',
+  constraint: 'jd-text-red-300',
+  tone_style: 'jd-text-indigo-300',
+  audience: 'jd-text-teal-300',
+  thinking_step: 'jd-text-yellow-300'
+};
+
 export const getBlockTypeLabel = (type: BlockType): string => BLOCK_TYPE_LABELS[type] || type;
 export const getBlockTypeIcon = (type: BlockType) => BLOCK_TYPE_ICONS[type] || FileText;
 export const getBlockTypeDescription = (type: BlockType): string => BLOCK_TYPE_DESCRIPTIONS[type] || '';
 export const getBlockTypeColors = (type: BlockType, dark: boolean): string => (dark ? BLOCK_CARD_COLORS_DARK[type] : BLOCK_CARD_COLORS_LIGHT[type]);
 export const getBlockIconColors = (type: BlockType, dark: boolean): string => (dark ? BLOCK_ICON_COLORS_DARK[type] : BLOCK_ICON_COLORS_LIGHT[type]);
+export const getBlockTextColors = (type: BlockType, dark: boolean): string => (dark ? BLOCK_TEXT_COLORS_DARK[type] : BLOCK_TEXT_COLORS_LIGHT[type]);
 
 export const getBlockContent = (block: Block): string => {
   if (typeof block.content === 'string') return block.content;
@@ -185,7 +214,7 @@ export const buildPromptPart = (type: BlockType | null | undefined, content: str
   return prefix ? `${prefix}${content}` : content;
 };
 
-export const buildPromptPartHtml = (type: BlockType | null | undefined, content: string): string => {
+export const buildPromptPartHtml = (type: BlockType | null | undefined, content: string, isDarkMode:boolean): string => {
   if (!type || type === 'custom' || type === 'content') {
     return escapeHtml(content);
   }
@@ -193,6 +222,6 @@ export const buildPromptPartHtml = (type: BlockType | null | undefined, content:
   if (!prefix) {
     return escapeHtml(content);
   }
-  return `<span class="jd-text-primary">${escapeHtml(prefix)}</span>${escapeHtml(content)}`;
+  return `<span class="${getBlockTextColors(type, isDarkMode)}">${escapeHtml(prefix)}</span>${escapeHtml(content)}`;
 };
 

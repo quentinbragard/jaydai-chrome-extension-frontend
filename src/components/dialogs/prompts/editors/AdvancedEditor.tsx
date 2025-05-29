@@ -223,7 +223,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       const value = metadata.values?.[type];
       if (value) {
         const blockType = METADATA_CONFIGS[type].blockType;
-        parts.push(buildPromptPartHtml(blockType, value));
+        parts.push(buildPromptPartHtml(blockType, value, isDarkMode));
       }
     });
 
@@ -231,7 +231,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       const content = typeof block.content === 'string'
         ? block.content
         : block.content[getCurrentLanguage()] || block.content.en || '';
-      if (content) parts.push(buildPromptPartHtml(block.type, content));
+      if (content) parts.push(buildPromptPartHtml(block.type, content, isDarkMode));
     });
 
     return parts.filter(Boolean).join('<br><br>');
@@ -248,7 +248,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   return (
     <div
       className={cn(
-        'jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-6 jd-relative jd-overflow-hidden',
+        'jd-h-full jd-flex jd-flex-col jd-px-6 jd-relative jd-overflow-hidden',
         // Enhanced gradient background with animated mesh
         isDarkMode 
           ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900' 
@@ -276,12 +276,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         {/* Primary Metadata Row */}
         <div className="jd-space-y-4">
           <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-            <div className={cn(
-              'jd-p-2 jd-rounded-lg',
-              isDarkMode ? 'jd-bg-purple-800/30 jd-text-purple-400' : 'jd-bg-purple-100 jd-text-purple-700'
-            )}>
-              <Sparkles className="jd-h-5 jd-w-5" />
-            </div>
             Prompt Essentials
           </h3>
           <div className="jd-grid jd-grid-cols-3 jd-gap-4">
@@ -306,14 +300,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         </div>
 
         {/* Secondary Metadata Row */}
-        <div className="jd-space-y-4">
+        <div className="jd-space-y-4 jd-mt-4">
           <h4 className="jd-text-sm jd-font-medium jd-text-muted-foreground jd-flex jd-items-center jd-gap-2">
-            <div className={cn(
-              'jd-p-1.5 jd-rounded-lg',
-              isDarkMode ? 'jd-bg-indigo-800/30 jd-text-indigo-400' : 'jd-bg-indigo-100 jd-text-indigo-700'
-            )}>
-              <Layout className="jd-h-4 jd-w-4" />
-            </div>
             Additional Elements
           </h4>
           
@@ -370,15 +358,9 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         </div>
 
         {/* Blocks Section */}
-        <div className="jd-space-y-4 jd-flex-1">
+        <div className="jd-space-y-4 jd-flex-1 jd-mt-4 jd-border-t jd-pt-4">
           <div className="jd-flex jd-items-center jd-justify-between">
             <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-              <div className={cn(
-                'jd-p-2 jd-rounded-lg',
-                isDarkMode ? 'jd-bg-blue-800/30 jd-text-blue-400' : 'jd-bg-blue-100 jd-text-blue-700'
-              )}>
-                <FileText className="jd-h-5 jd-w-5" />
-              </div>
               Content Blocks
             </h3>
           </div>
@@ -396,7 +378,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   onSave={(saved) => handleBlockSaved(block.id, saved)}
                 />
                 {index === blocks.length - 1 && (
-                  <div className="jd-flex jd-justify-center jd-mt-3">
+                  <div className="jd-flex jd-justify-center jd-my-3">
                     <Button
                       onClick={() => onAddBlock('end')}
                       variant="outline"

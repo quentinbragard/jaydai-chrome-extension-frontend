@@ -11,7 +11,8 @@ import { getCurrentLanguage } from '@/core/utils/i18n';
 import {
   getLocalizedContent,
   getBlockTypeColors,
-  getBlockIconColors
+  getBlockIconColors,
+  getBlockTextColors
 } from '@/components/prompts/blocks/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
@@ -74,7 +75,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
       onClick={handleCardClick}
       className={cn(
         'jd-transition-all jd-duration-300 jd-cursor-pointer hover:jd-shadow-md',
-        'jd-border-2 jd-backdrop-blur-sm',
+        'jd-border-2 jd-backdrop-blur-sm jd-py-2',
         cardColors,
         isPrimary && 'jd-border-primary/20',
         expanded &&
@@ -84,12 +85,12 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
       )}
     >
       <CardContent className="jd-p-4">
-        <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
+        <div className="jd-flex jd-items-center jd-justify-between">
           <div className="jd-flex jd-items-center jd-gap-2">
             <div className={cn('jd-p-1.5 jd-rounded-md', iconColors)}>
               <Icon className="jd-h-4 jd-w-4" />
             </div>
-            <span className={cn('jd-font-medium', isPrimary ? 'jd-text-primary' : 'jd-text-foreground')}>
+            <span className={cn('jd-font-medium', getBlockTextColors(config.blockType, isDarkMode))}>
               {config.label}
             </span>
           </div>

@@ -43,12 +43,11 @@ export const BasicInfoForm: React.FC<Props> = ({
       </div>
       <div>
         <label className="jd-text-sm jd-font-medium">{getMessage('description')}</label>
-        <Textarea
+        <Input
           value={description}
           onChange={e => setDescription(e.target.value)}
           placeholder={getMessage('templateDescriptionPlaceholder')}
           className="jd-mt-1"
-          rows={2}
         />
       </div>
       <div>

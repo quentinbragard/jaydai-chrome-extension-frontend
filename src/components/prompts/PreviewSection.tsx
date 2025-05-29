@@ -58,7 +58,6 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
         <CardContent className="jd-p-4">
           <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
             <h4 className="jd-font-medium jd-flex jd-items-center jd-gap-2">
-              <Eye className="jd-h-4 jd-w-4 jd-text-primary" /> 
               Preview
             </h4>
             <div className="jd-flex jd-items-center jd-gap-2">
