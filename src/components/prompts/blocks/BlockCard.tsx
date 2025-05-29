@@ -94,7 +94,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
       className={cn(
         'jd-transition-all jd-duration-300 jd-transform',
         'hover:jd-shadow-xl hover:jd-scale-[1.02] hover:-jd-translate-y-1',
-        'jd-border-2 jd-backdrop-blur-sm',
+        'jd-border-2 jd-backdrop-blur-sm jd-pt-2',
         cardColors
       )}
       draggable
