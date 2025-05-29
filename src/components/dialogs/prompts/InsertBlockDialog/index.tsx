@@ -161,6 +161,15 @@ export const InsertBlockDialog: React.FC = () => {
     }).join('\n\n');
   };
 
+  const generateFullPromptHtml = () => {
+    return selectedBlocks
+      .map(b => {
+        const content = typeof b.content === 'string' ? b.content : b.content.en || '';
+        return buildPromptPartHtml(b.type || 'content', content, isDark);
+      })
+      .join('<br><br>');
+  };
+
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(generateFullPrompt());
@@ -305,14 +314,11 @@ export const InsertBlockDialog: React.FC = () => {
                 />
               ))
             ) : (
-              <div 
-                className="jd-bg-muted/30 jd-rounded-lg jd-p-4"
-              >
-                <div 
-                  className="jd-text-sm"
-                >
-                  {generateFullPrompt()}
-                </div>
+              <div className="jd-bg-muted/30 jd-rounded-lg jd-p-4">
+                <div
+                  className="jd-text-sm jd-break-words"
+                  dangerouslySetInnerHTML={{ __html: generateFullPromptHtml() }}
+                />
               </div>
             )}
           </div>
