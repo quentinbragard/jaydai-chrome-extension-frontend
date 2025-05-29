@@ -5,12 +5,22 @@ import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { Block } from '@/types/prompts/blocks';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
+import {
+  getBlockTypeIcon,
+  getBlockTypeColors,
+  getBlockIconColors
+} from '@/components/prompts/blocks/blockUtils';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
 
 export const InsertBlockDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.INSERT_BLOCK);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(false);
+  const isDark = useThemeDetector();
 
   useEffect(() => {
     if (isOpen) {
@@ -50,17 +60,33 @@ export const InsertBlockDialog: React.FC = () => {
       className="jd-max-w-md"
     >
       <div className="jd-flex jd-flex-col jd-gap-2 jd-max-h-72 jd-overflow-y-auto">
-        {loading && <div>Loading...</div>}
-        {blocks.map(block => (
-          <Button
-            key={block.id}
-            variant="ghost"
-            className="jd-justify-start jd-whitespace-normal jd-text-left"
-            onClick={() => useBlock(block)}
-          >
-            {(typeof block.title === 'string' ? block.title : block.title?.en) || 'Untitled'}
-          </Button>
-        ))}
+        {loading ? (
+          <LoadingSpinner size="sm" message="Loading blocks..." />
+        ) : blocks.length === 0 ? (
+          <EmptyMessage>No blocks available</EmptyMessage>
+        ) : (
+          blocks.map(block => {
+            const Icon = getBlockTypeIcon(block.type);
+            const cardColors = getBlockTypeColors(block.type, isDark);
+            const iconBg = getBlockIconColors(block.type, isDark);
+            const title =
+              typeof block.title === 'string'
+                ? block.title
+                : block.title?.en || 'Untitled';
+            return (
+              <Card
+                key={block.id}
+                className={`jd-cursor-pointer ${cardColors} jd-border hover:jd-shadow-md`}
+                onClick={() => useBlock(block)}
+              >
+                <CardContent className="jd-flex jd-items-center jd-gap-2 jd-p-2">
+                  <span className={`jd-p-1 jd-rounded ${iconBg}`}><Icon className="jd-h-4 jd-w-4" /></span>
+                  <span className="jd-text-sm jd-font-medium jd-truncate">{title}</span>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
       </div>
       <div className="jd-flex jd-justify-between jd-pt-4">
         <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)}>Close</Button>

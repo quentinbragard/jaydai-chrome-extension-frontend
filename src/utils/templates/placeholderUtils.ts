@@ -1,4 +1,5 @@
 // src/utils/template/placeholderUtils.ts
+import { insertContentIntoChat } from './insertPrompt';
 
 /**
  * Placeholder interface
@@ -100,47 +101,17 @@ export interface Placeholder {
       .trim(); // Remove leading/trailing whitespace
   }
   
+
   /**
-   * Insert content into ChatGPT textarea
+   * Insert content into the current chat platform's prompt area.
+   * Delegates to the platform adapters so it works on ChatGPT, Claude, etc.
    * @param content Content to insert
    * @returns True if successful, false otherwise
    */
   export function insertIntoPromptArea(content: string): boolean {
     try {
-      // Find the textarea
-      const textarea = document.querySelector('#prompt-textarea');
-      if (!textarea) {
-        console.error('Could not find the prompt textarea');
-        return false;
-      }
-      
-      // Format content
       const formattedContent = formatForInsertion(content);
-      
-      // Insert content based on element type
-      if (textarea instanceof HTMLTextAreaElement) {
-        textarea.value = formattedContent;
-      } else if (textarea.isContentEditable) {
-        textarea.innerHTML = formattedContent;
-      } else {
-        textarea.textContent = formattedContent;
-      }
-      
-      // Trigger input event to notify any listeners
-      textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      
-      // Focus the textarea
-      textarea.focus();
-      
-      // If the textarea supports setting cursor position, place cursor at end
-      if ('setSelectionRange' in textarea) {
-        (textarea as HTMLTextAreaElement).setSelectionRange(
-          formattedContent.length,
-          formattedContent.length
-        );
-      }
-      
-      return true;
+      return insertContentIntoChat(formattedContent);
     } catch (error) {
       console.error('Error inserting content:', error);
       return false;
