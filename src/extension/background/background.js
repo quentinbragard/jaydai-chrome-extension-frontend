@@ -26,6 +26,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onStartup.addListener(createContextMenus);
 
 // Also create menus immediately if the service worker is loaded for some other reason
+
 createContextMenus();
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
