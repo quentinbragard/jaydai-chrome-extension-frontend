@@ -10,7 +10,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
-import { buildPromptPart, BLOCK_TYPE_LABELS } from '@/components/prompts/blocks/blockUtils';
+import {
+  buildPromptPart,
+  buildPromptPartHtml,
+  BLOCK_TYPE_LABELS,
+} from '@/components/prompts/blocks/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
 import { 
