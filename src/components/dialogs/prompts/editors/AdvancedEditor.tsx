@@ -106,23 +106,22 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   // Initialize active secondary metadata based on existing metadata
   useEffect(() => {
     const activeTypes = new Set<MetadataType>();
-    
-    // Check single metadata types
+
     SECONDARY_METADATA.forEach(type => {
       if (isMultipleMetadataType(type)) {
         const items = metadata[type as MultipleMetadataType];
-        if (items && items.length > 0) {
+        if (items !== undefined) {
           activeTypes.add(type);
         }
       } else {
-        const value = metadata[type as SingleMetadataType];
-        const customValue = metadata.values?.[type as SingleMetadataType];
-        if (value || customValue) {
+        const hasId = (metadata as any)[type] !== undefined;
+        const hasValue = metadata.values && metadata.values[type as SingleMetadataType] !== undefined;
+        if (hasId || hasValue) {
           activeTypes.add(type);
         }
       }
     });
-    
+
     setActiveSecondaryMetadata(activeTypes);
   }, [metadata]);
 
