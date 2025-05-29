@@ -1,6 +1,44 @@
 // 🔹 Open welcome page when the extension is installed
+function createContextMenus() {
+  const icon = chrome.runtime.getURL('images/letter-logo-dark.png');
+  chrome.contextMenus.removeAll(() => {
+    console.log('Creating Jaydai context menus');
+    chrome.contextMenus.create({
+      id: 'create_block',
+      title: 'Create a Jaydai Block',
+      contexts: ['selection'],
+      icons: { 16: icon }
+    });
+    chrome.contextMenus.create({
+      id: 'insert_block',
+      title: 'Insert a Jaydai Block',
+      contexts: ['editable'],
+      icons: { 16: icon }
+    });
+  });
+}
+
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.tabs.create({ url: 'welcome.html' });
+  chrome.tabs.create({ url: 'welcome.html' });
+  createContextMenus();
+});
+
+// Recreate menus whenever Chrome starts
+chrome.runtime.onStartup.addListener(createContextMenus);
+
+// Also create menus when the service worker loads
+createContextMenus();
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (!tab || !tab.id) return;
+  if (info.menuItemId === 'create_block') {
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'openCreateBlockDialog',
+      content: info.selectionText || ''
+    });
+  } else if (info.menuItemId === 'insert_block') {
+    chrome.tabs.sendMessage(tab.id, { action: 'openInsertBlockDialog' });
+  }
 });
 
 // 🔹 Open welcome page only when the extension is newly installed, not on updates
