@@ -33,6 +33,16 @@
       "128": "icons/icon128.png"
       }
   },
+  "commands": {
+    "create-prompt": {
+      "suggested_key": { "default": "Ctrl+Shift+Y" },
+      "description": "Create a Jaydai Block"
+    },
+    "insert-prompt": {
+      "suggested_key": { "default": "Ctrl+Shift+U" },
+      "description": "Insert a Jaydai Block"
+    }
+  },
   "web_accessible_resources": [
     {
       "resources": [
