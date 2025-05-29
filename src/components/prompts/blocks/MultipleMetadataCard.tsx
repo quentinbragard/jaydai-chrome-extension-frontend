@@ -5,9 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Trash2, ChevronUp, ChevronDown, Plus, GripVertical } from 'lucide-react';
-import { SaveBlockButton } from './SaveBlockButton';
 import { cn } from '@/core/utils/classNames';
 import {
   getLocalizedContent,
@@ -16,6 +14,9 @@ import {
   getBlockTextColors
 } from '@/components/prompts/blocks/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { useClickOutside } from '@/hooks/useClickOutside';
+import { useDialogManager } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 
 interface MultipleMetadataCardProps {
   type: MultipleMetadataType;
@@ -65,12 +66,19 @@ const MetadataItemRow: React.FC<MetadataItemRowProps> = ({
   onDragEnd,
   stopPropagation
 }) => {
-  const [itemName, setItemName] = useState('');
   const isCustom = !item.blockId;
+  const { openDialog } = useDialogManager();
 
   const handleItemSelect = (value: string) => {
     if (value === 'custom') {
-      onUpdateItem(item.id, { blockId: undefined, value: '' });
+      openDialog(DIALOG_TYPES.CREATE_BLOCK, {
+        initialType: config.blockType,
+        onBlockCreated: (b) => {
+          onSaveBlock && onSaveBlock(b);
+          const content = getLocalizedContent(b.content) || '';
+          onUpdateItem(item.id, { blockId: b.id, value: content });
+        }
+      });
     } else {
       const blockId = Number(value);
       const block = availableBlocks.find(b => b.id === blockId);
@@ -145,35 +153,13 @@ const MetadataItemRow: React.FC<MetadataItemRowProps> = ({
       </Select>
 
       {isCustom && (
-        <>
-          <Textarea
-            value={item.value}
-            onChange={e => onUpdateItem(item.id, { value: e.target.value })}
-            placeholder={config.placeholder}
-            rows={3}
-            className="jd-resize-none"
-          />
-          {item.value && onSaveBlock && (
-            <div className="jd-space-y-2">
-              <Input
-                value={itemName}
-                onChange={e => setItemName(e.target.value)}
-                placeholder="Block name"
-                className="jd-text-xs"
-              />
-              <SaveBlockButton
-                type={config.blockType}
-                content={item.value}
-                title={itemName}
-                onSaved={block => {
-                  onSaveBlock(block);
-                  setItemName('');
-                }}
-                className="jd-h-6 jd-text-xs"
-              />
-            </div>
-          )}
-        </>
+        <Textarea
+          value={item.value}
+          onChange={e => onUpdateItem(item.id, { value: e.target.value })}
+          placeholder={config.placeholder}
+          rows={3}
+          className="jd-resize-none"
+        />
       )}
     </div>
   );
@@ -198,6 +184,11 @@ export const MultipleMetadataCard: React.FC<MultipleMetadataCardProps> = ({
   const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
   const iconColors = getBlockIconColors(config.blockType, isDarkMode);
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
+  const cardRef = useClickOutside<HTMLDivElement>(() => {
+    if (expanded) {
+      onToggle();
+    }
+  }, expanded);
 
   // Handle card click - only toggle if clicking on the card itself
   const handleCardClick = (e: React.MouseEvent) => {
@@ -244,6 +235,7 @@ export const MultipleMetadataCard: React.FC<MultipleMetadataCardProps> = ({
 
   return (
     <Card
+      ref={cardRef}
       onClick={handleCardClick}
       className={cn(
         'jd-transition-all jd-duration-300 jd-cursor-pointer hover:jd-shadow-md',

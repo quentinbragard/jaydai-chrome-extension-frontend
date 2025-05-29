@@ -7,7 +7,8 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@
 import { Trash2, GripVertical, Plus, Save } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { CreateBlockDialog } from '@/components/dialogs/prompts/CreateBlockDialog';
+import { useDialogManager } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import {
   BLOCK_TYPES,
   BLOCK_TYPE_LABELS,
@@ -50,10 +51,10 @@ export const BlockCard: React.FC<BlockCardProps> = ({
     ? block.content 
     : block.content[getCurrentLanguage()] || block.content.en || '';
 
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [originalContent, setOriginalContent] = useState(content);
   const [originalType, setOriginalType] = useState(block.type);
+  const { openDialog } = useDialogManager();
 
   const handleContentChange = (newContent: string) => {
     if (typeof block.content === 'string') {
@@ -114,7 +115,11 @@ export const BlockCard: React.FC<BlockCardProps> = ({
   };
 
   const handleSaveClick = () => {
-    setShowCreateDialog(true);
+    openDialog(DIALOG_TYPES.CREATE_BLOCK, {
+      initialType: block.type || 'content',
+      initialContent: content,
+      onBlockCreated: handleBlockCreated
+    });
   };
 
   const handleBlockCreated = (newBlock: Block) => {
@@ -133,7 +138,6 @@ export const BlockCard: React.FC<BlockCardProps> = ({
     setOriginalContent(content);
     setOriginalType(block.type);
     setHasUnsavedChanges(false);
-    setShowCreateDialog(false);
   };
 
   return (
@@ -270,15 +274,6 @@ export const BlockCard: React.FC<BlockCardProps> = ({
           )}
         </CardContent>
       </Card>
-
-      {/* Create Block Dialog */}
-      <CreateBlockDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        initialType={block.type || 'content'}
-        initialContent={content}
-        onBlockCreated={handleBlockCreated}
-      />
     </>
   );
 };
