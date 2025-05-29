@@ -13,7 +13,7 @@ import { PreviewSection } from '@/components/prompts/PreviewSection';
 import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout, Sparkles, Wand2, Palette } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
-import { buildPromptPartHtml } from '../../../prompts/blocks/blockUtils';
+import { buildPromptPartHtml, BLOCK_TYPES } from '../../../prompts/blocks/blockUtils';
 
 interface AdvancedEditorProps {
   blocks: Block[];
@@ -56,7 +56,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   onUpdateMetadata,
   isProcessing
 }) => {
-  const [availableBlocks, setAvailableBlocks] = useState<Record<MetadataType, Block[]>>({} as Record<MetadataType, Block[]>);
+  const [availableMetadataBlocks, setAvailableMetadataBlocks] = useState<Record<MetadataType, Block[]>>({} as Record<MetadataType, Block[]>);
+  const [availableBlocksByType, setAvailableBlocksByType] = useState<Record<BlockType, Block[]>>({} as Record<BlockType, Block[]>);
   const [customValues, setCustomValues] = useState<Record<MetadataType, string>>(
     (metadata.values || {}) as Record<MetadataType, string>
   );
@@ -70,18 +71,22 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   // Load available blocks for each metadata type and block type
   useEffect(() => {
     const fetchBlocks = async () => {
-      // Fetch blocks for metadata types
-      const metadataBlocks: Record<MetadataType, Block[]> = {} as any;
+      const blockMap: Record<BlockType, Block[]> = {} as any;
       await Promise.all(
-        ALL_METADATA_TYPES.map(async (type) => {
-          const config = METADATA_CONFIGS[type];
-          if (config) {
-            const res = await blocksApi.getBlocksByType(config.blockType);
-            metadataBlocks[type] = res.success ? res.data : [];
-          }
+        BLOCK_TYPES.map(async (bt) => {
+          const res = await blocksApi.getBlocksByType(bt);
+          blockMap[bt] = res.success ? res.data : [];
         })
       );
-      setAvailableBlocks(metadataBlocks);
+
+      const metadataBlocks: Record<MetadataType, Block[]> = {} as any;
+      ALL_METADATA_TYPES.forEach((type) => {
+        const bt = METADATA_CONFIGS[type].blockType;
+        metadataBlocks[type] = blockMap[bt] || [];
+      });
+
+      setAvailableBlocksByType(blockMap);
+      setAvailableMetadataBlocks(metadataBlocks);
     };
     fetchBlocks();
   }, []);
@@ -117,7 +122,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   };
 
   const getBlockContent = (blockId: number, type: MetadataType): string => {
-    const block = availableBlocks[type]?.find((b) => b.id === blockId);
+    const block = availableMetadataBlocks[type]?.find((b) => b.id === blockId);
     if (!block) return '';
     if (typeof block.content === 'string') return block.content;
     const lang = getCurrentLanguage();
@@ -173,9 +178,14 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     // Update block id and mark as saved
     onUpdateBlock(tempId, { id: saved.id, isNew: false });
 
+    setAvailableBlocksByType(prev => ({
+      ...prev,
+      [saved.type]: [saved, ...(prev[saved.type] || [])]
+    }));
+
     Object.entries(METADATA_CONFIGS).forEach(([metaType, cfg]) => {
       if (cfg.blockType === saved.type) {
-        setAvailableBlocks(prev => ({
+        setAvailableMetadataBlocks(prev => ({
           ...prev,
           [metaType as MetadataType]: [saved, ...(prev[metaType as MetadataType] || [])]
         }));
@@ -184,9 +194,14 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   };
 
   const handleMetadataBlockSaved = (saved: Block) => {
+    setAvailableBlocksByType(prev => ({
+      ...prev,
+      [saved.type]: [saved, ...(prev[saved.type] || [])]
+    }));
+
     Object.entries(METADATA_CONFIGS).forEach(([metaType, cfg]) => {
       if (cfg.blockType === saved.type) {
-        setAvailableBlocks(prev => ({
+        setAvailableMetadataBlocks(prev => ({
           ...prev,
           [metaType as MetadataType]: [saved, ...(prev[metaType as MetadataType] || [])]
         }));
@@ -284,7 +299,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                 <MetadataCard
                   type={type}
                   icon={METADATA_ICONS[type]}
-                  availableBlocks={availableBlocks[type] || []}
+                  availableBlocks={availableMetadataBlocks[type] || []}
                   expanded={expandedMetadata === type}
                   selectedId={metadata[type] || 0}
                   customValue={customValues[type] || ''}
@@ -312,7 +327,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   <MetadataCard
                     type={type}
                     icon={METADATA_ICONS[type]}
-                    availableBlocks={availableBlocks[type] || []}
+                    availableBlocks={availableMetadataBlocks[type] || []}
                     expanded={expandedMetadata === type}
                     selectedId={metadata[type] || 0}
                     customValue={customValues[type] || ''}
@@ -370,6 +385,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               <div key={block.id} className="jd-animate-in jd-slide-in-from-bottom-2 jd-duration-300">
                 <BlockCard
                   block={block}
+                  availableBlocks={availableBlocksByType[block.type || 'content'] || []}
                   onRemove={onRemoveBlock}
                   onUpdate={onUpdateBlock}
                   onDragStart={handleDragStart}

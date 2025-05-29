@@ -1,11 +1,12 @@
 import React from 'react';
-import { Block, BlockType } from '@/types/prompts/blocks';
+import { Block, BlockType, isMetadataBlock } from '@/types/prompts/blocks';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
-import { Trash2, GripVertical } from 'lucide-react';
+import { Trash2, GripVertical, Plus } from 'lucide-react';
 import { SaveBlockButton } from '@/components/prompts/blocks/SaveBlockButton';
+import { Input } from '@/components/ui/input';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import {
   BLOCK_TYPES,
@@ -18,11 +19,13 @@ import {
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
 
+const AVAILABLE_BLOCK_TYPES = BLOCK_TYPES.filter(t => !isMetadataBlock(t));
 
 
 
 interface BlockCardProps {
   block: Block;
+  availableBlocks: Block[];
   onRemove: (id: number) => void;
   onUpdate: (id: number, updated: Partial<Block>) => void;
   onDragStart?: (id: number) => void;
@@ -33,6 +36,7 @@ interface BlockCardProps {
 
 export const BlockCard: React.FC<BlockCardProps> = ({
   block,
+  availableBlocks,
   onRemove,
   onUpdate,
   onDragStart,
@@ -53,9 +57,28 @@ export const BlockCard: React.FC<BlockCardProps> = ({
       onUpdate(block.id, { content: newContent });
     } else {
       const lang = getCurrentLanguage();
-      onUpdate(block.id, { 
-        content: { ...block.content, [lang]: newContent } 
+      onUpdate(block.id, {
+        content: { ...block.content, [lang]: newContent }
       });
+    }
+  };
+
+  const blocksForType = block.type ? availableBlocks : [];
+  const existing = blocksForType.find(b => b.id === block.id && !block.isNew);
+  const selectedExistingId = existing ? String(existing.id) : 'custom';
+
+  const handleExistingSelect = (value: string) => {
+    if (value === 'custom') {
+      onUpdate(block.id, { isNew: true });
+    } else {
+      const found = blocksForType.find(b => b.id === Number(value));
+      if (found) {
+        onUpdate(block.id, {
+          ...found,
+          name: getLocalizedContent(found.title),
+          isNew: false
+        });
+      }
     }
   };
 
@@ -102,13 +125,32 @@ export const BlockCard: React.FC<BlockCardProps> = ({
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {BLOCK_TYPES.map((t) => (
+                  {AVAILABLE_BLOCK_TYPES.map((t) => (
                     <SelectItem key={t} value={t}>
                       {BLOCK_TYPE_LABELS[t]}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {block.type && blocksForType.length > 0 && (
+                <Select value={selectedExistingId} onValueChange={handleExistingSelect}>
+                  <SelectTrigger className="jd-w-40 jd-text-xs jd-h-7">
+                    <SelectValue placeholder="Select block" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {blocksForType.map(b => (
+                      <SelectItem key={b.id} value={String(b.id)}>
+                        {getLocalizedContent(b.title) || 'Block'}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="custom">
+                      <div className="jd-flex jd-items-center jd-gap-1">
+                        <Plus className="jd-h-3 jd-w-3" /> Create custom
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
           
@@ -141,15 +183,25 @@ export const BlockCard: React.FC<BlockCardProps> = ({
           </div>
         )}
 
-        {block.isNew && content.trim() && block.type && (
-          <div className="jd-flex jd-justify-end jd-mt-3">
-            <SaveBlockButton
-              type={block.type}
-              content={content}
-              title={getLocalizedContent(block.title)}
-              description={block.description}
-              onSaved={(saved) => onSave && onSave(saved)}
+        {block.isNew && (
+          <div className="jd-space-y-2 jd-mt-3">
+            <Input
+              value={block.name || ''}
+              onChange={(e) => onUpdate(block.id, { name: e.target.value })}
+              placeholder="Block name"
+              className="jd-text-xs"
             />
+            {content.trim() && block.type && (
+              <div className="jd-flex jd-justify-end">
+                <SaveBlockButton
+                  type={block.type}
+                  content={content}
+                  title={block.name}
+                  description={block.description}
+                  onSaved={(saved) => onSave && onSave(saved)}
+                />
+              </div>
+            )}
           </div>
         )}
       </CardContent>
