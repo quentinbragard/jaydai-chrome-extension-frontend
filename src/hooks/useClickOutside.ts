@@ -15,14 +15,15 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 
       const path = event.composedPath ? event.composedPath() : [];
 
-      // Ignore events originating from Radix Select portals
-      const clickedRadixSelect = path.some(
-        (el) =>
+      // Ignore events originating from Radix UI portals (like Select)
+      const clickedRadixElement = path.some(
+        el =>
           el instanceof HTMLElement &&
-          (el.hasAttribute('data-radix-select-content') ||
-            el.hasAttribute('data-radix-select-trigger'))
+          Array.from(el.attributes).some(attr =>
+            attr.name.startsWith('data-radix')
+          )
       );
-      if (clickedRadixSelect) return;
+      if (clickedRadixElement) return;
 
       const clickedInside = path.some(
         (el) => el instanceof Node && ref.current!.contains(el as Node)
