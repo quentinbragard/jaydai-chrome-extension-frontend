@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Block } from '@/types/prompts/blocks';
-import { getBlockTypeIcon, getBlockIconColors, buildPromptPart, BLOCK_TYPE_LABELS } from '@/components/prompts/blocks/blockUtils';
+import { getBlockTypeIcon, getBlockIconColors, buildPromptPartHtml, BLOCK_TYPE_LABELS } from '@/components/prompts/blocks/blockUtils';
 
 export interface PreviewBlockProps {
   block: Block;
@@ -25,9 +25,12 @@ export function PreviewBlock({ block, isDark }: PreviewBlockProps) {
           {BLOCK_TYPE_LABELS[block.type || 'content']}
         </Badge>
       </div>
-      <div className="jd-text-sm jd-text-muted-foreground jd-pl-6">
-        {buildPromptPart(block.type || 'content', content)}
-      </div>
+      <div
+        className="jd-text-sm jd-text-muted-foreground jd-pl-6"
+        dangerouslySetInnerHTML={{
+          __html: buildPromptPartHtml(block.type || 'content', content, isDark),
+        }}
+      />
     </div>
   );
 }
