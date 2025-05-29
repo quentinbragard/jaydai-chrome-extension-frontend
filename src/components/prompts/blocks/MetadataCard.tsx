@@ -51,6 +51,9 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
   const iconColors = getBlockIconColors(config.blockType, isDarkMode);
   const [name, setName] = React.useState('');
+  const [isCustom, setIsCustom] = React.useState(
+    selectedId === 0 && !!customValue
+  );
 
   // Handle card click - only toggle if clicking on the card itself, not on interactive elements
   const handleCardClick = (e: React.MouseEvent) => {
@@ -126,9 +129,12 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 
         {expanded ? (
           <div className="jd-space-y-3" onClick={stopPropagation}>
-            <Select 
-              value={selectedId ? String(selectedId) : '0'} 
-              onValueChange={onSelect}
+            <Select
+              value={isCustom ? 'custom' : selectedId ? String(selectedId) : '0'}
+              onValueChange={(value) => {
+                setIsCustom(value === 'custom');
+                onSelect(value);
+              }}
             >
               <SelectTrigger className="jd-w-full">
                 <SelectValue placeholder="Select or create custom" />
@@ -159,7 +165,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
               </SelectContent>
             </Select>
 
-            {(!selectedId || selectedId === 0) && (
+            {isCustom && (
               <>
                 <Textarea
                   value={customValue}

@@ -132,7 +132,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
                   ))}
                 </SelectContent>
               </Select>
-              {block.type && blocksForType.length > 0 && (
+              {block.type && (
                 <Select value={selectedExistingId} onValueChange={handleExistingSelect}>
                   <SelectTrigger className="jd-w-40 jd-text-xs jd-h-7">
                     <SelectValue placeholder="Select block" />
@@ -169,18 +169,22 @@ export const BlockCard: React.FC<BlockCardProps> = ({
           </div>
         </div>
 
-        <Textarea
-          value={content}
-          onChange={(e) => handleContentChange(e.target.value)}
-          className="jd-resize-none jd-min-h-[100px] jd-text-sm"
-          placeholder={block.type ? `Enter ${block.type} content...` : 'Enter block content...'}
-        />
-        
-        {content && (
-          <div className="jd-mt-2 jd-text-xs jd-text-muted-foreground jd-flex jd-justify-between">
-            <span>{content.length} characters</span>
-            <span>{content.split('\n').length} lines</span>
-          </div>
+        {block.isNew && (
+          <>
+            <Textarea
+              value={content}
+              onChange={(e) => handleContentChange(e.target.value)}
+              className="jd-resize-none jd-min-h-[100px] jd-text-sm"
+              placeholder={block.type ? `Enter ${block.type} content...` : 'Enter block content...'}
+            />
+
+            {content && (
+              <div className="jd-mt-2 jd-text-xs jd-text-muted-foreground jd-flex jd-justify-between">
+                <span>{content.length} characters</span>
+                <span>{content.split('\n').length} lines</span>
+              </div>
+            )}
+          </>
         )}
 
         {block.isNew && (
