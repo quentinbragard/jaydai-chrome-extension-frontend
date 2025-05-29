@@ -1,6 +1,5 @@
 // 🔹 Open welcome page when the extension is installed
 function createContextMenus() {
-  const icon = chrome.runtime.getURL('images/letter-logo-dark.png');
   chrome.contextMenus.removeAll(() => {
     console.log('Creating Jaydai context menus');
 
@@ -8,13 +7,11 @@ function createContextMenus() {
       id: 'create_block',
       title: 'Create a Jaydai Block',
       contexts: ['selection'],
-      icons: { 16: icon }
     });
     chrome.contextMenus.create({
       id: 'insert_block',
       title: 'Insert a Jaydai Block',
       contexts: ['editable'],
-      icons: { 16: icon }
     });
   });
 }
