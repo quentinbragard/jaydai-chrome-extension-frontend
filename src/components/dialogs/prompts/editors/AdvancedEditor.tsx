@@ -1,4 +1,4 @@
-// src/components/dialogs/templates/editor/AdvancedEditor.tsx
+// src/components/dialogs/prompts/editors/AdvancedEditor.tsx
 import React, { useState, useEffect } from 'react';
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { PromptMetadata, DEFAULT_METADATA, METADATA_CONFIGS, MetadataType } from '@/types/prompts/metadata';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { MetadataCard } from '@/components/prompts/blocks/MetadataCard';
 import { BlockCard } from '@/components/prompts/blocks/BlockCard';
 import { PreviewSection } from '@/components/prompts/PreviewSection';
-import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout } from 'lucide-react';
+import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout, Sparkles, Wand2, Palette } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
 import { buildPromptPartHtml } from '../../../prompts/blocks/blockUtils';
@@ -29,6 +29,9 @@ interface AdvancedEditorProps {
 // Primary metadata elements that appear on the first row
 const PRIMARY_METADATA: MetadataType[] = ['role', 'context', 'goal'];
 
+// Secondary metadata elements available for additional configuration
+const SECONDARY_METADATA: MetadataType[] = ['audience', 'tone_style', 'output_format', 'format', 'example'];
+
 // All available metadata types for the secondary row
 const ALL_METADATA_TYPES: MetadataType[] = Object.keys(METADATA_CONFIGS) as MetadataType[];
 
@@ -38,9 +41,10 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   goal: Target,
   audience: Users,
   format: Type,
-  example: Layout
+  example: Layout,
+  output_format: Type,
+  tone_style: Palette
 };
-
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   blocks,
@@ -146,7 +150,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     onUpdateMetadata(newMetadata);
   };
 
-
   const handleDragStart = (id: number) => {
     setDraggedBlockId(id);
   };
@@ -242,76 +245,103 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     );
   }
 
-
-
   return (
     <div
       className={cn(
-        'jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-4 jd-bg-gradient-to-br',
-        isDarkMode ? 'jd-from-gray-800/60 jd-to-gray-900/60' : 'jd-from-slate-50 jd-to-slate-100'
+        'jd-h-full jd-flex jd-flex-col jd-space-y-6 jd-p-6 jd-relative jd-overflow-hidden',
+        // Enhanced gradient background with animated mesh
+        isDarkMode 
+          ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900' 
+          : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
       )}
     >
-      {/* Primary Metadata Row */}
-      <div className="jd-space-y-4">
-        <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-          <Target className="jd-h-5 jd-w-5 jd-text-primary" />
-          Prompt Essentials
-        </h3>
-        <div className="jd-grid jd-grid-cols-3 jd-gap-4">
-          {PRIMARY_METADATA.map((type) => (
-            <MetadataCard
-              key={type}
-              type={type}
-              icon={METADATA_ICONS[type]}
-              availableBlocks={availableBlocks[type] || []}
-              expanded={expandedMetadata === type}
-              selectedId={metadata[type] || 0}
-              customValue={customValues[type] || ''}
-              isPrimary
-              onSelect={(v) => handleMetadataChange(type, v)}
-              onCustomChange={(v) => handleCustomChange(type, v)}
-              onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
-              onSaveBlock={handleMetadataBlockSaved}
-            />
-          ))}
-        </div>
-        
-        {/* Add Secondary Metadata Button */}
-        
+      {/* Animated background mesh */}
+      <div className="jd-absolute jd-inset-0 jd-opacity-10">
+        <div className={cn(
+          'jd-absolute jd-inset-0',
+          isDarkMode
+            ? 'jd-bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] jd-from-purple-900 jd-via-transparent jd-to-transparent'
+            : 'jd-bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] jd-from-purple-200 jd-via-transparent jd-to-transparent'
+        )}></div>
+        <div className={cn(
+          'jd-absolute jd-inset-0',
+          isDarkMode
+            ? 'jd-bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] jd-from-blue-900 jd-via-transparent jd-to-transparent'
+            : 'jd-bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] jd-from-blue-200 jd-via-transparent jd-to-transparent'
+        )}></div>
       </div>
 
-      {/* Secondary Metadata Row */}
-      
+      {/* Content wrapper with backdrop blur */}
+      <div className="jd-relative jd-z-10">
+        {/* Primary Metadata Row */}
         <div className="jd-space-y-4">
-          <h4 className="jd-text-sm jd-font-medium jd-text-muted-foreground jd-flex jd-items-center jd-gap-2">
-            <Layout className="jd-h-4 jd-w-4" />
-            Additional Elements
-          </h4>
-          
-          {activeSecondaryMetadata.size > 0 && (
-            <div className="jd-grid jd-grid-cols-2 jd-gap-3">
-              {Array.from(activeSecondaryMetadata).map((type) => (
+          <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
+            <div className={cn(
+              'jd-p-2 jd-rounded-lg',
+              isDarkMode ? 'jd-bg-purple-800/30 jd-text-purple-400' : 'jd-bg-purple-100 jd-text-purple-700'
+            )}>
+              <Sparkles className="jd-h-5 jd-w-5" />
+            </div>
+            Prompt Essentials
+          </h3>
+          <div className="jd-grid jd-grid-cols-3 jd-gap-4">
+            {PRIMARY_METADATA.map((type) => (
+              <div key={type} className="jd-transform jd-transition-all jd-duration-300 hover:jd-scale-105">
                 <MetadataCard
-                  key={type}
                   type={type}
                   icon={METADATA_ICONS[type]}
                   availableBlocks={availableBlocks[type] || []}
                   expanded={expandedMetadata === type}
                   selectedId={metadata[type] || 0}
                   customValue={customValues[type] || ''}
+                  isPrimary
                   onSelect={(v) => handleMetadataChange(type, v)}
                   onCustomChange={(v) => handleCustomChange(type, v)}
                   onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
-                  onRemove={() => removeSecondaryMetadata(type)}
                   onSaveBlock={handleMetadataBlockSaved}
                 />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Secondary Metadata Row */}
+        <div className="jd-space-y-4">
+          <h4 className="jd-text-sm jd-font-medium jd-text-muted-foreground jd-flex jd-items-center jd-gap-2">
+            <div className={cn(
+              'jd-p-1.5 jd-rounded-lg',
+              isDarkMode ? 'jd-bg-indigo-800/30 jd-text-indigo-400' : 'jd-bg-indigo-100 jd-text-indigo-700'
+            )}>
+              <Layout className="jd-h-4 jd-w-4" />
+            </div>
+            Additional Elements
+          </h4>
+          
+          {activeSecondaryMetadata.size > 0 && (
+            <div className="jd-grid jd-grid-cols-2 jd-gap-3">
+              {Array.from(activeSecondaryMetadata).map((type) => (
+                <div key={type} className="jd-transform jd-transition-all jd-duration-300 hover:jd-scale-105">
+                  <MetadataCard
+                    type={type}
+                    icon={METADATA_ICONS[type]}
+                    availableBlocks={availableBlocks[type] || []}
+                    expanded={expandedMetadata === type}
+                    selectedId={metadata[type] || 0}
+                    customValue={customValues[type] || ''}
+                    onSelect={(v) => handleMetadataChange(type, v)}
+                    onCustomChange={(v) => handleCustomChange(type, v)}
+                    onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
+                    onRemove={() => removeSecondaryMetadata(type)}
+                    onSaveBlock={handleMetadataBlockSaved}
+                  />
+                </div>
               ))}
             </div>
           )}
           
           <div className="jd-flex jd-flex-wrap jd-gap-2">
-            {ALL_METADATA_TYPES
-              .filter(type => !PRIMARY_METADATA.includes(type) && !activeSecondaryMetadata.has(type))
+            {SECONDARY_METADATA
+              .filter(type => !activeSecondaryMetadata.has(type))
               .map((type) => {
                 const config = METADATA_CONFIGS[type];
                 const Icon = METADATA_ICONS[type];
@@ -321,7 +351,14 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={() => addSecondaryMetadata(type)}
-                    className="jd-flex jd-items-center jd-gap-1 jd-text-xs"
+                    className={cn(
+                      'jd-flex jd-items-center jd-gap-1 jd-text-xs',
+                      'jd-transition-all jd-duration-300',
+                      'hover:jd-scale-105 hover:jd-shadow-md',
+                      isDarkMode 
+                        ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50' 
+                        : 'jd-bg-white/70 hover:jd-bg-white/90'
+                    )}
                   >
                     <Plus className="jd-h-3 jd-w-3" />
                     <Icon className="jd-h-3 jd-w-3" />
@@ -332,68 +369,92 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           </div>
         </div>
 
-      {/* Blocks Section */}
-      <div className="jd-space-y-4 jd-flex-1">
-        <div className="jd-flex jd-items-center jd-justify-between">
-          <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-            <FileText className="jd-h-5 jd-w-5 jd-text-primary" />
-            Content Blocks
-          </h3>
-        </div>
-        
-        <div className="jd-space-y-3 jd-flex-1 jd-overflow-y-auto">
-          {blocks.map((block, index) => (
-            <div key={block.id}>
-              <BlockCard
-                block={block}
-                onRemove={onRemoveBlock}
-                onUpdate={onUpdateBlock}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDragEnd={handleDragEnd}
-                onSave={(saved) => handleBlockSaved(block.id, saved)}
-              />
-              {index === blocks.length - 1 && (
-                <div className="jd-flex jd-justify-center jd-mt-3">
-                  <Button
-                    onClick={() => onAddBlock('end')}
-                    variant="outline"
-                    size="sm"
-                    className="jd-flex jd-items-center jd-gap-2"
-                  >
-                    <Plus className="jd-h-4 jd-w-4" />
-                    Add Block
-                  </Button>
-                </div>
-              )}
-            </div>
-          ))}
+        {/* Blocks Section */}
+        <div className="jd-space-y-4 jd-flex-1">
+          <div className="jd-flex jd-items-center jd-justify-between">
+            <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
+              <div className={cn(
+                'jd-p-2 jd-rounded-lg',
+                isDarkMode ? 'jd-bg-blue-800/30 jd-text-blue-400' : 'jd-bg-blue-100 jd-text-blue-700'
+              )}>
+                <FileText className="jd-h-5 jd-w-5" />
+              </div>
+              Content Blocks
+            </h3>
+          </div>
           
-          {blocks.length === 0 && (
-            <div className="jd-text-center jd-py-8 jd-text-muted-foreground">
-              <FileText className="jd-h-12 jd-w-12 jd-mx-auto jd-mb-2 jd-text-muted-foreground/50" />
-              <p>No content blocks yet</p>
-              <Button
-                onClick={() => onAddBlock('end')}
-                variant="outline"
-                size="sm"
-                className="jd-mt-2"
-              >
-                <Plus className="jd-h-4 jd-w-4 jd-mr-2" />
-                Add Your First Block
-              </Button>
-            </div>
-          )}
+          <div className="jd-space-y-3 jd-flex-1 jd-overflow-y-auto jd-max-h-[400px] jd-pr-2">
+            {blocks.map((block, index) => (
+              <div key={block.id} className="jd-animate-in jd-slide-in-from-bottom-2 jd-duration-300">
+                <BlockCard
+                  block={block}
+                  onRemove={onRemoveBlock}
+                  onUpdate={onUpdateBlock}
+                  onDragStart={handleDragStart}
+                  onDragOver={handleDragOver}
+                  onDragEnd={handleDragEnd}
+                  onSave={(saved) => handleBlockSaved(block.id, saved)}
+                />
+                {index === blocks.length - 1 && (
+                  <div className="jd-flex jd-justify-center jd-mt-3">
+                    <Button
+                      onClick={() => onAddBlock('end')}
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        'jd-flex jd-items-center jd-gap-2',
+                        'jd-transition-all jd-duration-300',
+                        'hover:jd-scale-105 hover:jd-shadow-md',
+                        isDarkMode 
+                          ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50' 
+                          : 'jd-bg-white/70 hover:jd-bg-white/90'
+                      )}
+                    >
+                      <Plus className="jd-h-4 jd-w-4" />
+                      Add Block
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            {blocks.length === 0 && (
+              <div className={cn(
+                'jd-text-center jd-py-12 jd-rounded-lg jd-border-2 jd-border-dashed',
+                'jd-transition-all jd-duration-300',
+                isDarkMode 
+                  ? 'jd-bg-gray-800/30 jd-border-gray-700' 
+                  : 'jd-bg-white/50 jd-border-gray-300'
+              )}>
+                <div className={cn(
+                  'jd-p-4 jd-rounded-full jd-inline-flex jd-mb-4',
+                  isDarkMode ? 'jd-bg-gray-700/50' : 'jd-bg-gray-100'
+                )}>
+                  <Wand2 className="jd-h-12 jd-w-12 jd-text-muted-foreground" />
+                </div>
+                <p className="jd-text-muted-foreground jd-mb-4">No content blocks yet</p>
+                <Button
+                  onClick={() => onAddBlock('end')}
+                  variant="outline"
+                  size="sm"
+                  className="jd-transition-all jd-duration-300 hover:jd-scale-105"
+                >
+                  <Plus className="jd-h-4 jd-w-4 jd-mr-2" />
+                  Add Your First Block
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <PreviewSection
-        content={generatePreviewContent()}
-        htmlContent={generatePreviewHtml()}
-        expanded={previewExpanded}
-        onToggle={() => setPreviewExpanded(!previewExpanded)}
-        isHtml
-      />
+        <PreviewSection
+          content={generatePreviewContent()}
+          htmlContent={generatePreviewHtml()}
+          expanded={previewExpanded}
+          onToggle={() => setPreviewExpanded(!previewExpanded)}
+          isHtml
+        />
+      </div>
     </div>
   );
 };

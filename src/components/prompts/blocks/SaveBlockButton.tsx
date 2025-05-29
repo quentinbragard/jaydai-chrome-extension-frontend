@@ -77,7 +77,7 @@ export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
       ) : (
         <>
           <Save className="jd-h-4 jd-w-4 jd-mr-1" />
-          {!iconOnly && <span>Save</span>}
+          {!iconOnly && <span>Save Block</span>}
         </>
       )}
 

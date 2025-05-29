@@ -1,4 +1,4 @@
-/* Content CSS for Shadow DOM */
+/* Enhanced Content CSS for Shadow DOM */
 /* Apply Tailwind base styles */
 @tailwind base;
 @tailwind components;
@@ -7,19 +7,19 @@
 /* Define CSS variables directly on :host for light mode */
 :host {
   /* Base Variables - Light Theme */
-  --background: #ffffff;       /* Keeping your background */
-  --foreground: #1a1d2b;       /* Slightly softer black with blue undertone */
+  --background: #ffffff;
+  --foreground: #1a1d2b;
   
   /* Primary Colors */
-  --primary: #3b4cb8;          /* Rich indigo - more sophisticated than black */
+  --primary: #3b4cb8;
   --primary-foreground: #ffffff;
   
   /* Secondary Colors */
-  --secondary: #f3f4f8;        /* Subtle light gray with blue hint */
+  --secondary: #f3f4f8;
   --secondary-foreground: #3b4cb8;
   
   /* Accent Colors */
-  --accent: #f0f2ff;           /* Very light indigo */
+  --accent: #f0f2ff;
   --accent-foreground: #3b4cb8;
   
   /* Supporting Colors */
@@ -31,20 +31,20 @@
   --popover-foreground: #1a1d2b;
   
   /* Feedback Colors */
-  --destructive: #e54256;      /* More elegant red */
+  --destructive: #e54256;
   --destructive-foreground: #ffffff;
   
   /* Border & UI Elements */
-  --border: #e9ecf3;           /* Subtle blue-gray border */
+  --border: #e9ecf3;
   --input: #e9ecf3;
   --ring: #3b4cb8;
   
   /* Chart Colors - Refined elegant palette */
-  --chart-1: #3b4cb8;          /* Primary indigo */
-  --chart-2: #4a9d9a;          /* Teal */
-  --chart-3: #c86b85;          /* Dusty rose */
-  --chart-4: #e9b949;          /* Gold */
-  --chart-5: #7a5195;          /* Purple */
+  --chart-1: #3b4cb8;
+  --chart-2: #4a9d9a;
+  --chart-3: #c86b85;
+  --chart-4: #e9b949;
+  --chart-5: #7a5195;
 
   --radius: 0.5rem;
 }
@@ -52,19 +52,19 @@
 /* Apply dark mode variables directly to :host when it has the dark class */
 :host(.dark) {
   /* Base Variables - Dark Theme */
-  --background: #030816;       /* Keeping your background */
-  --foreground: #eef1f8;       /* Off-white with blue hint */
+  --background: #030816;
+  --foreground: #eef1f8;
   
   /* Primary Colors */
-  --primary: #6d7ce6;          /* Lighter indigo for dark mode */
+  --primary: #6d7ce6;
   --primary-foreground: #030816;
   
   /* Secondary Colors */
-  --secondary: #1a1f36;        /* Dark blue-gray */
+  --secondary: #1a1f36;
   --secondary-foreground: #eef1f8;
   
   /* Accent Colors */
-  --accent: #1d2442;           /* Deep indigo accent */
+  --accent: #1d2442;
   --accent-foreground: #eef1f8;
   
   /* Supporting Colors */
@@ -76,7 +76,7 @@
   --popover-foreground: #eef1f8;
   
   /* Feedback Colors */
-  --destructive: #e86981;      /* Brighter red for dark mode */
+  --destructive: #e86981;
   --destructive-foreground: #030816;
   
   /* Border & UI Elements */
@@ -85,11 +85,11 @@
   --ring: #6d7ce6;
   
   /* Chart Colors - Coordinated with light theme but adjusted for dark mode */
-  --chart-1: #6d7ce6;          /* Lighter indigo */
-  --chart-2: #56c2c0;          /* Brighter teal */
-  --chart-3: #e295ad;          /* Lighter rose */
-  --chart-4: #ffd166;          /* Brighter gold */
-  --chart-5: #9f78c5;          /* Lighter purple */
+  --chart-1: #6d7ce6;
+  --chart-2: #56c2c0;
+  --chart-3: #e295ad;
+  --chart-4: #ffd166;
+  --chart-5: #9f78c5;
 }
 
 /* Custom animations that were defined in your original CSS */
@@ -120,12 +120,48 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* New animations for enhanced visual effects */
+@keyframes jd-shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes jd-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes jd-gentle-pulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+@keyframes jd-card-hover {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-4px) scale(1.02); }
+}
+
+/* Utility classes for animations */
+.jd-animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+  background-size: 1000px 100%;
+  animation: jd-shimmer 3s infinite;
+}
+
+.jd-animate-gradient {
+  background-size: 200% 200%;
+  animation: jd-gradient-shift 5s ease infinite;
+}
+
+.jd-animate-gentle-pulse {
+  animation: jd-gentle-pulse 3s ease-in-out infinite;
+}
+
 /* Common classnames with prefix - these were in your original CSS */
 .jd-expanded-details {
   animation: jd-slide-up-fade-in 0.4s ease-out forwards;
 }
-
-
 
 /* Shadow DOM specific styles */
 #jaydai-shadow-root {
