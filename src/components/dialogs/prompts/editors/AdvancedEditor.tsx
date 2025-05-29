@@ -1,17 +1,30 @@
-// src/components/dialogs/prompts/editors/AdvancedEditor.tsx
+// src/components/dialogs/prompts/editors/AdvancedEditor.tsx - Enhanced version
 import React, { useState, useEffect } from 'react';
 import { Block, BlockType } from '@/types/prompts/blocks';
-import { PromptMetadata, DEFAULT_METADATA, METADATA_CONFIGS, MetadataType } from '@/types/prompts/metadata';
+import { 
+  PromptMetadata, 
+  DEFAULT_METADATA, 
+  METADATA_CONFIGS, 
+  MetadataType,
+  SingleMetadataType,
+  MultipleMetadataType,
+  MetadataItem,
+  PRIMARY_METADATA,
+  SECONDARY_METADATA,
+  isMultipleMetadataType,
+  generateMetadataItemId
+} from '@/types/prompts/metadata';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { formatMetadataForPreview, formatBlockForPreview } from '@/components/prompts/promptUtils';
 import { highlightPlaceholders } from '@/utils/templates/placeholderUtils';
 import { Button } from '@/components/ui/button';
 import { MetadataCard } from '@/components/prompts/blocks/MetadataCard';
+import { MultipleMetadataCard } from '@/components/prompts/blocks/MultipleMetadataCard';
 import { BlockCard } from '@/components/prompts/blocks/BlockCard';
 import { PreviewSection } from '@/components/prompts/PreviewSection';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout, Sparkles, Wand2, Palette } from 'lucide-react';
+import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout, Sparkles, Wand2, Palette, Ban } from 'lucide-react';
 import { AddBlockButton } from '@/components/common/AddBlockButton';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
@@ -33,24 +46,15 @@ interface AdvancedEditorProps {
   isProcessing: boolean;
 }
 
-// Primary metadata elements that appear on the first row
-const PRIMARY_METADATA: MetadataType[] = ['role', 'context', 'goal'];
-
-// Secondary metadata elements available for additional configuration
-const SECONDARY_METADATA: MetadataType[] = ['audience', 'tone_style', 'output_format', 'format', 'example'];
-
-// All available metadata types for the secondary row
-const ALL_METADATA_TYPES: MetadataType[] = Object.keys(METADATA_CONFIGS) as MetadataType[];
-
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: User,
   context: MessageSquare,
   goal: Target,
   audience: Users,
-  format: Type,
-  example: Layout,
   output_format: Type,
-  tone_style: Palette
+  example: Layout,
+  tone_style: Palette,
+  constraint: Ban
 };
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
@@ -65,8 +69,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 }) => {
   const [availableMetadataBlocks, setAvailableMetadataBlocks] = useState<Record<MetadataType, Block[]>>({} as Record<MetadataType, Block[]>);
   const [availableBlocksByType, setAvailableBlocksByType] = useState<Record<BlockType, Block[]>>({} as Record<BlockType, Block[]>);
-  const [customValues, setCustomValues] = useState<Record<MetadataType, string>>(
-    (metadata.values || {}) as Record<MetadataType, string>
+  const [customValues, setCustomValues] = useState<Record<SingleMetadataType, string>>(
+    (metadata.values || {}) as Record<SingleMetadataType, string>
   );
   const [expandedMetadata, setExpandedMetadata] = useState<MetadataType | null>(null);
   const [previewExpanded, setPreviewExpanded] = useState(false);
@@ -87,9 +91,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       );
 
       const metadataBlocks: Record<MetadataType, Block[]> = {} as any;
-      ALL_METADATA_TYPES.forEach((type) => {
-        const bt = METADATA_CONFIGS[type].blockType;
-        metadataBlocks[type] = blockMap[bt] || [];
+      Object.keys(METADATA_CONFIGS).forEach((type) => {
+        const metadataType = type as MetadataType;
+        const bt = METADATA_CONFIGS[metadataType].blockType;
+        metadataBlocks[metadataType] = blockMap[bt] || [];
       });
 
       setAvailableBlocksByType(blockMap);
@@ -98,7 +103,31 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     fetchBlocks();
   }, []);
 
-  const handleMetadataChange = (type: MetadataType, value: string) => {
+  // Initialize active secondary metadata based on existing metadata
+  useEffect(() => {
+    const activeTypes = new Set<MetadataType>();
+    
+    // Check single metadata types
+    SECONDARY_METADATA.forEach(type => {
+      if (isMultipleMetadataType(type)) {
+        const items = metadata[type as MultipleMetadataType];
+        if (items && items.length > 0) {
+          activeTypes.add(type);
+        }
+      } else {
+        const value = metadata[type as SingleMetadataType];
+        const customValue = metadata.values?.[type as SingleMetadataType];
+        if (value || customValue) {
+          activeTypes.add(type);
+        }
+      }
+    });
+    
+    setActiveSecondaryMetadata(activeTypes);
+  }, [metadata]);
+
+  // Handle single metadata changes
+  const handleSingleMetadataChange = (type: SingleMetadataType, value: string) => {
     if (!onUpdateMetadata) return;
 
     if (value === 'custom') {
@@ -120,11 +149,66 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     }
   };
 
-  const handleCustomChange = (type: MetadataType, value: string) => {
+  const handleCustomChange = (type: SingleMetadataType, value: string) => {
     setCustomValues((prev) => ({ ...prev, [type]: value }));
     if (!onUpdateMetadata) return;
     const newValues = { ...(metadata.values || {}), [type]: value };
     const newMetadata = { ...metadata, [type]: 0, values: newValues };
+    onUpdateMetadata(newMetadata);
+  };
+
+  // Handle multiple metadata changes
+  const handleAddMetadataItem = (type: MultipleMetadataType) => {
+    if (!onUpdateMetadata) return;
+    
+    const currentItems = metadata[type] || [];
+    const newItem: MetadataItem = {
+      id: generateMetadataItemId(),
+      value: ''
+    };
+    
+    const newMetadata = {
+      ...metadata,
+      [type]: [...currentItems, newItem]
+    };
+    onUpdateMetadata(newMetadata);
+  };
+
+  const handleRemoveMetadataItem = (type: MultipleMetadataType, itemId: string) => {
+    if (!onUpdateMetadata) return;
+    
+    const currentItems = metadata[type] || [];
+    const newItems = currentItems.filter(item => item.id !== itemId);
+    
+    const newMetadata = {
+      ...metadata,
+      [type]: newItems
+    };
+    onUpdateMetadata(newMetadata);
+  };
+
+  const handleUpdateMetadataItem = (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => {
+    if (!onUpdateMetadata) return;
+    
+    const currentItems = metadata[type] || [];
+    const newItems = currentItems.map(item => 
+      item.id === itemId ? { ...item, ...updates } : item
+    );
+    
+    const newMetadata = {
+      ...metadata,
+      [type]: newItems
+    };
+    onUpdateMetadata(newMetadata);
+  };
+
+  const handleReorderMetadataItems = (type: MultipleMetadataType, newItems: MetadataItem[]) => {
+    if (!onUpdateMetadata) return;
+    
+    const newMetadata = {
+      ...metadata,
+      [type]: newItems
+    };
     onUpdateMetadata(newMetadata);
   };
 
@@ -139,12 +223,23 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const addSecondaryMetadata = (type: MetadataType) => {
     setActiveSecondaryMetadata(prev => new Set([...prev, type]));
     if (!onUpdateMetadata) return;
-    const newMetadata = {
-      ...metadata,
-      [type]: 0,
-      values: { ...(metadata.values || {}), [type]: '' }
-    };
-    onUpdateMetadata(newMetadata);
+    
+    if (isMultipleMetadataType(type)) {
+      // Initialize with empty array for multiple metadata
+      const newMetadata = {
+        ...metadata,
+        [type]: []
+      };
+      onUpdateMetadata(newMetadata);
+    } else {
+      // Initialize with default values for single metadata
+      const newMetadata = {
+        ...metadata,
+        [type]: 0,
+        values: { ...(metadata.values || {}), [type]: '' }
+      };
+      onUpdateMetadata(newMetadata);
+    }
   };
 
   const removeSecondaryMetadata = (type: MetadataType) => {
@@ -154,11 +249,16 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       return newSet;
     });
     if (!onUpdateMetadata) return;
+    
     const newMetadata = { ...metadata };
-    delete newMetadata[type];
-    const newValues = { ...(metadata.values || {}) };
-    delete newValues[type];
-    newMetadata.values = newValues;
+    delete newMetadata[type as keyof PromptMetadata];
+    
+    if (!isMultipleMetadataType(type)) {
+      const newValues = { ...(metadata.values || {}) };
+      delete newValues[type as SingleMetadataType];
+      newMetadata.values = newValues;
+    }
+    
     onUpdateMetadata(newMetadata);
   };
 
@@ -182,7 +282,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   };
 
   const handleBlockSaved = (tempId: number, saved: Block) => {
-    // Update block id and mark as saved
     onUpdateBlock(tempId, { id: saved.id, isNew: false });
 
     setAvailableBlocksByType(prev => ({
@@ -220,13 +319,40 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const generatePreviewContent = () => {
     const parts: string[] = [];
 
-    // Add metadata content
-    ALL_METADATA_TYPES.forEach((type) => {
+    // Add single metadata content
+    PRIMARY_METADATA.forEach((type) => {
       const value = metadata.values?.[type];
       if (value) {
         parts.push(formatMetadataForPreview(type, value));
       }
     });
+
+    // Add secondary single metadata
+    SECONDARY_METADATA.forEach((type) => {
+      if (!isMultipleMetadataType(type)) {
+        const value = metadata.values?.[type as SingleMetadataType];
+        if (value) {
+          parts.push(formatMetadataForPreview(type as SingleMetadataType, value));
+        }
+      }
+    });
+
+    // Add multiple metadata content
+    if (metadata.constraints) {
+      metadata.constraints.forEach((constraint, index) => {
+        if (constraint.value) {
+          parts.push(formatMetadataForPreview('constraint' as any, `${index + 1}. ${constraint.value}`));
+        }
+      });
+    }
+
+    if (metadata.examples) {
+      metadata.examples.forEach((example, index) => {
+        if (example.value) {
+          parts.push(formatMetadataForPreview('example' as any, `Example ${index + 1}: ${example.value}`));
+        }
+      });
+    }
 
     // Add block content
     blocks.forEach((block) => {
@@ -241,7 +367,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const generatePreviewHtml = () => {
     const parts: string[] = [];
 
-    ALL_METADATA_TYPES.forEach((type) => {
+    // Add single metadata HTML
+    PRIMARY_METADATA.forEach((type) => {
       const value = metadata.values?.[type];
       if (value) {
         const blockType = METADATA_CONFIGS[type].blockType;
@@ -249,6 +376,36 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       }
     });
 
+    // Add secondary single metadata HTML
+    SECONDARY_METADATA.forEach((type) => {
+      if (!isMultipleMetadataType(type)) {
+        const value = metadata.values?.[type as SingleMetadataType];
+        if (value) {
+          const blockType = METADATA_CONFIGS[type].blockType;
+          parts.push(buildPromptPartHtml(blockType, value, isDarkMode));
+        }
+      }
+    });
+
+    // Add constraints HTML
+    if (metadata.constraints) {
+      metadata.constraints.forEach((constraint, index) => {
+        if (constraint.value) {
+          parts.push(buildPromptPartHtml('constraint', `${index + 1}. ${constraint.value}`, isDarkMode));
+        }
+      });
+    }
+
+    // Add examples HTML
+    if (metadata.examples) {
+      metadata.examples.forEach((example, index) => {
+        if (example.value) {
+          parts.push(buildPromptPartHtml('example', `Example ${index + 1}: ${example.value}`, isDarkMode));
+        }
+      });
+    }
+
+    // Add blocks HTML
     blocks.forEach((block) => {
       const content = typeof block.content === 'string'
         ? block.content
@@ -274,7 +431,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     <div
       className={cn(
         'jd-h-full jd-flex jd-flex-col jd-px-6 jd-relative jd-overflow-hidden',
-        // Enhanced gradient background with animated mesh
         isDarkMode
           ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
           : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
@@ -314,7 +470,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   selectedId={metadata[type] || 0}
                   customValue={customValues[type] || ''}
                   isPrimary
-                  onSelect={(v) => handleMetadataChange(type, v)}
+                  onSelect={(v) => handleSingleMetadataChange(type, v)}
                   onCustomChange={(v) => handleCustomChange(type, v)}
                   onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
                   onSaveBlock={handleMetadataBlockSaved}
@@ -334,19 +490,36 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             <div className="jd-grid jd-grid-cols-2 jd-gap-3">
               {Array.from(activeSecondaryMetadata).map((type) => (
                 <div key={type} className="jd-transform jd-transition-all jd-duration-300 hover:jd-scale-105">
-                  <MetadataCard
-                    type={type}
-                    icon={METADATA_ICONS[type]}
-                    availableBlocks={availableMetadataBlocks[type] || []}
-                    expanded={expandedMetadata === type}
-                    selectedId={metadata[type] || 0}
-                    customValue={customValues[type] || ''}
-                    onSelect={(v) => handleMetadataChange(type, v)}
-                    onCustomChange={(v) => handleCustomChange(type, v)}
-                    onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
-                    onRemove={() => removeSecondaryMetadata(type)}
-                    onSaveBlock={handleMetadataBlockSaved}
-                  />
+                  {isMultipleMetadataType(type) ? (
+                    <MultipleMetadataCard
+                      type={type}
+                      icon={METADATA_ICONS[type]}
+                      availableBlocks={availableMetadataBlocks[type] || []}
+                      items={metadata[type] || []}
+                      expanded={expandedMetadata === type}
+                      onAddItem={() => handleAddMetadataItem(type)}
+                      onRemoveItem={(itemId) => handleRemoveMetadataItem(type, itemId)}
+                      onUpdateItem={(itemId, updates) => handleUpdateMetadataItem(type, itemId, updates)}
+                      onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
+                      onRemove={() => removeSecondaryMetadata(type)}
+                      onSaveBlock={handleMetadataBlockSaved}
+                      onReorderItems={(newItems) => handleReorderMetadataItems(type, newItems)}
+                    />
+                  ) : (
+                    <MetadataCard
+                      type={type as SingleMetadataType}
+                      icon={METADATA_ICONS[type]}
+                      availableBlocks={availableMetadataBlocks[type] || []}
+                      expanded={expandedMetadata === type}
+                      selectedId={metadata[type as SingleMetadataType] || 0}
+                      customValue={customValues[type as SingleMetadataType] || ''}
+                      onSelect={(v) => handleSingleMetadataChange(type as SingleMetadataType, v)}
+                      onCustomChange={(v) => handleCustomChange(type as SingleMetadataType, v)}
+                      onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
+                      onRemove={() => removeSecondaryMetadata(type)}
+                      onSaveBlock={handleMetadataBlockSaved}
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -382,18 +555,18 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           </div>
         </div>
 
-        {/* Blocks Section */}
+        {/* Prompt Content Section */}
         <div className="jd-space-y-4 jd-flex-1 jd-mt-4 jd-border-t jd-pt-4">
           <div className="jd-flex jd-items-center jd-justify-between">
             <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-              Content Blocks
+              Prompt Content
             </h3>
           </div>
 
           <div className="jd-space-y-3 jd-flex-1 jd-overflow-y-auto jd-max-h-[400px] jd-pr-2">
             {contentBlock && (
               <div className="jd-space-y-2">
-                <h4 className="jd-text-sm jd-font-medium">Prompt Content</h4>
+                <h4 className="jd-text-sm jd-font-medium">Main Content</h4>
                 <Textarea
                   value={typeof contentBlock.content === 'string' ? contentBlock.content : contentBlock.content[getCurrentLanguage()] || contentBlock.content.en || ''}
                   onChange={e => onUpdateBlock(contentBlock.id, { content: e.target.value })}
@@ -425,7 +598,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   onAddBlock('end', type, existing, duplicate)
                 }
               />
-
             </div>
 
             {otherBlocks.length === 0 && (

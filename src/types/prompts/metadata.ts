@@ -1,91 +1,132 @@
-// src/types/prompts/metadata.ts
+// src/types/prompts/metadata.ts - Enhanced version
 import { BlockType } from './blocks';
 
-export type MetadataType = 
-  | 'role' 
-  | 'context' 
-  | 'goal' 
-  | 'audience' 
-  | 'format' 
-  | 'example'
-  | 'output_format'
-  | 'tone_style';
+// Base metadata types
+export type SingleMetadataType = 'role' | 'context' | 'goal' | 'audience' | 'tone_style' | 'output_format';
+export type MultipleMetadataType = 'constraint' | 'example';
+export type MetadataType = SingleMetadataType | MultipleMetadataType;
 
+// Metadata item for multiple types (constraints, examples)
+export interface MetadataItem {
+  id: string; // Unique identifier for the item
+  blockId?: number; // Reference to a saved block
+  value: string; // Custom value or content from block
+}
+
+// Enhanced metadata structure
+export interface PromptMetadata {
+  // Single value metadata
+  role?: number;
+  context?: number;
+  goal?: number;
+  audience?: number;
+  tone_style?: number;
+  output_format?: number;
+  
+  // Multiple value metadata (arrays)
+  constraints?: MetadataItem[];
+  examples?: MetadataItem[];
+  
+  // Custom values for single metadata types
+  values?: Record<SingleMetadataType, string>;
+}
+
+// Configuration for each metadata type
 export interface MetadataConfig {
   label: string;
+  description: string;
   blockType: BlockType;
   placeholder: string;
+  allowMultiple: boolean; // New field to indicate if multiple values are allowed
 }
 
 export const METADATA_CONFIGS: Record<MetadataType, MetadataConfig> = {
   role: {
     label: 'Role',
+    description: 'Define the AI\'s role and expertise',
     blockType: 'role',
-    placeholder: 'Define the AI role...'
+    placeholder: 'e.g., You are an expert software developer...',
+    allowMultiple: false
   },
   context: {
     label: 'Context',
+    description: 'Provide background information',
     blockType: 'context',
-    placeholder: 'Provide context...'
+    placeholder: 'e.g., The user is working on a React project...',
+    allowMultiple: false
   },
   goal: {
     label: 'Goal',
+    description: 'Specify the desired outcome',
     blockType: 'goal',
-    placeholder: 'Define the objective...'
+    placeholder: 'e.g., Help improve code quality and performance...',
+    allowMultiple: false
   },
   audience: {
     label: 'Audience',
+    description: 'Define the target audience',
     blockType: 'audience',
-    placeholder: 'Define target audience...'
-  },
-  format: {
-    label: 'Format',
-    blockType: 'output_format',
-    placeholder: 'Specify output format...'
-  },
-  example: {
-    label: 'Example',
-    blockType: 'example',
-    placeholder: 'Provide an example...'
-  },
-  output_format: {
-    label: 'Output Format',
-    blockType: 'output_format',
-    placeholder: 'Specify the desired output format...'
+    placeholder: 'e.g., Intermediate developers familiar with React...',
+    allowMultiple: false
   },
   tone_style: {
     label: 'Tone & Style',
+    description: 'Set the communication style',
     blockType: 'tone_style',
-    placeholder: 'Define tone and style...'
+    placeholder: 'e.g., Professional but friendly, use clear examples...',
+    allowMultiple: false
+  },
+  output_format: {
+    label: 'Output Format',
+    description: 'Specify how the response should be structured',
+    blockType: 'output_format',
+    placeholder: 'e.g., Provide code examples with explanations...',
+    allowMultiple: false
+  },
+  constraint: {
+    label: 'Constraint',
+    description: 'Add limitations or requirements',
+    blockType: 'constraint',
+    placeholder: 'e.g., Keep responses under 500 words...',
+    allowMultiple: true
+  },
+  example: {
+    label: 'Example',
+    description: 'Provide examples to guide the response',
+    blockType: 'example',
+    placeholder: 'e.g., Good: const data = await fetch()...',
+    allowMultiple: true
   }
 };
 
-export interface PromptMetadata {
-  role?: number;
-  context?: number;
-  goal?: number;
-  audience?: number;
-  format?: number;
-  example?: number;
-  output_format?: number;
-  tone_style?: number;
-  values?: {
-    role?: string;
-    context?: string;
-    goal?: string;
-    audience?: string;
-    format?: string;
-    example?: string;
-    output_format?: string;
-    tone_style?: string;
-  };
-}
+// Primary metadata (always visible)
+export const PRIMARY_METADATA: SingleMetadataType[] = ['role', 'context', 'goal'];
 
+// Secondary metadata (can be added as needed)
+export const SECONDARY_METADATA: (SingleMetadataType | MultipleMetadataType)[] = [
+  'audience', 'tone_style', 'output_format', 'constraint', 'example'
+];
+
+// All metadata types
+export const ALL_METADATA_TYPES: MetadataType[] = [...PRIMARY_METADATA, ...SECONDARY_METADATA];
+
+// Default metadata state
 export const DEFAULT_METADATA: PromptMetadata = {
-  role: 0,
-  context: 0,
-  goal: 0,
-  values: {}
+  constraints: [],
+  examples: [],
+  values: {} as Record<SingleMetadataType, string>
 };
 
-export const ALL_METADATA_TYPES: MetadataType[] = Object.keys(METADATA_CONFIGS) as MetadataType[];
+// Helper functions
+export function isMultipleMetadataType(type: MetadataType): type is MultipleMetadataType {
+  return ['constraint', 'example'].includes(type);
+}
+
+export function isSingleMetadataType(type: MetadataType): type is SingleMetadataType {
+  return !isMultipleMetadataType(type);
+}
+
+// Generate unique ID for metadata items
+export function generateMetadataItemId(): string {
+  return `metadata-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
