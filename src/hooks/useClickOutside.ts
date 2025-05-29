@@ -11,7 +11,24 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
     if (!enabled) return;
 
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
+      if (!ref.current) return;
+
+      const path = event.composedPath ? event.composedPath() : [];
+
+      // Ignore events originating from Radix Select portals
+      const clickedRadixSelect = path.some(
+        (el) =>
+          el instanceof HTMLElement &&
+          (el.hasAttribute('data-radix-select-content') ||
+            el.hasAttribute('data-radix-select-trigger'))
+      );
+      if (clickedRadixSelect) return;
+
+      const clickedInside = path.some(
+        (el) => el instanceof Node && ref.current!.contains(el as Node)
+      );
+
+      if (!clickedInside) {
         handler();
       }
     };
