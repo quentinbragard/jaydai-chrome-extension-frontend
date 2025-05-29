@@ -64,8 +64,15 @@ export const BlockCard: React.FC<BlockCardProps> = ({
   };
 
   const blocksForType = block.type ? availableBlocks : [];
-  const existing = blocksForType.find(b => b.id === block.id && !block.isNew);
-  const selectedExistingId = existing ? String(existing.id) : 'custom';
+  const existing = blocksForType.find(b => b.id === block.id);
+
+  React.useEffect(() => {
+    if (block.type && !existing && !block.isNew) {
+      onUpdate(block.id, { isNew: true });
+    }
+  }, [block.type, existing, block.isNew]);
+
+  const selectedExistingId = existing && !block.isNew ? String(existing.id) : 'custom';
 
   const handleExistingSelect = (value: string) => {
     if (value === 'custom') {
