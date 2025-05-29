@@ -3,6 +3,7 @@ function createContextMenus() {
   const icon = chrome.runtime.getURL('images/letter-logo-dark.png');
   chrome.contextMenus.removeAll(() => {
     console.log('Creating Jaydai context menus');
+
     chrome.contextMenus.create({
       id: 'create_block',
       title: 'Create a Jaydai Block',
