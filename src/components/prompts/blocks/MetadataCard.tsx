@@ -3,13 +3,12 @@ import { Block, MetadataType, METADATA_CONFIGS } from '@/types/prompts/metadata'
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
-import { SaveBlockButton } from './SaveBlockButton';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/core/utils/classNames';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { useClickOutside } from '@/hooks/useClickOutside';
+import { useDialogManager } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import {
   getLocalizedContent,
   getBlockTypeColors,
@@ -52,9 +51,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
   const iconColors = getBlockIconColors(config.blockType, isDarkMode);
   const [name, setName] = React.useState('');
-  const [isCustom, setIsCustom] = React.useState(
-    selectedId === 0 && !!customValue
-  );
+  const { openDialog } = useDialogManager();
 
   // Click outside handler to collapse the card
   const cardRef = useClickOutside<HTMLDivElement>(() => {
@@ -144,9 +141,18 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
         {expanded ? (
           <div className="jd-space-y-3" onClick={stopPropagation}>
             <Select
-              value={isCustom ? 'custom' : selectedId ? String(selectedId) : '0'}
+              value={selectedId ? String(selectedId) : '0'}
               onValueChange={(value) => {
-                setIsCustom(value === 'custom');
+                if (value === 'custom') {
+                  openDialog(DIALOG_TYPES.CREATE_BLOCK, {
+                    initialType: config.blockType,
+                    onBlockCreated: (b) => {
+                      onSaveBlock && onSaveBlock(b);
+                      onSelect(String(b.id));
+                    }
+                  });
+                  return;
+                }
                 onSelect(value);
               }}
             >
@@ -179,46 +185,11 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
               </SelectContent>
             </Select>
 
-            {isCustom && (
-              <>
-                <Textarea
-                  value={customValue}
-                  onChange={(e) => onCustomChange(e.target.value)}
-                  placeholder={`Enter custom ${type} content...`}
-                  rows={3}
-                  className="jd-resize-none"
-                  onClick={stopPropagation}
-                />
-                {customValue && (
-                  <div className="jd-space-y-2 jd-mt-2">
-                    <Input
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Block name"
-                      className="jd-text-xs"
-                      onClick={stopPropagation}
-                    />
-                    <SaveBlockButton
-                      type={config.blockType}
-                      content={customValue}
-                      title={name}
-                      onSaved={(b) => {
-                        onSaveBlock && onSaveBlock(b);
-                        setName('');
-                      }}
-                      className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-primary"
-                    />
-                  </div>
-                )}
-              </>
-            )}
           </div>
         ) : (
           <div className="jd-text-sm jd-text-muted-foreground jd-mt-2">
             {selectedId && selectedId !== 0
               ? getLocalizedContent(availableBlocks.find((b) => b.id === selectedId)?.title) || `${type} block`
-              : customValue
-                ? customValue.substring(0, 50) + (customValue.length > 50 ? '...' : '')
               : `Click to set ${type}`}
           </div>
         )}
