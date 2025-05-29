@@ -1,7 +1,12 @@
-import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Block } from '@/types/prompts/blocks';
-import { getBlockTypeIcon, getBlockIconColors, buildPromptPart, BLOCK_TYPE_LABELS } from '@/components/prompts/blocks/blockUtils';
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Block } from "@/types/prompts/blocks";
+import {
+  getBlockTypeIcon,
+  getBlockIconColors,
+  buildPromptPartHtml,
+  BLOCK_TYPE_LABELS,
+} from "@/components/prompts/blocks/blockUtils";
 
 export interface PreviewBlockProps {
   block: Block;
@@ -11,8 +16,17 @@ export interface PreviewBlockProps {
 export function PreviewBlock({ block, isDark }: PreviewBlockProps) {
   const Icon = getBlockTypeIcon(block.type);
   const iconBg = getBlockIconColors(block.type, isDark);
-  const title = typeof block.title === 'string' ? block.title : block.title?.en || 'Untitled';
-  const content = typeof block.content === 'string' ? block.content : block.content.en || '';
+  const title =
+    typeof block.title === "string"
+      ? block.title
+      : block.title?.en || "Untitled";
+  const content =
+    typeof block.content === "string" ? block.content : block.content.en || "";
+
+  const html = React.useMemo(
+    () => buildPromptPartHtml(block.type || "content", content, isDark),
+    [block.type, content, isDark],
+  );
 
   return (
     <div className="jd-border jd-rounded-lg jd-p-4 jd-bg-background/50 jd-backdrop-blur-sm">
@@ -22,12 +36,13 @@ export function PreviewBlock({ block, isDark }: PreviewBlockProps) {
         </span>
         <span className="jd-text-sm jd-font-medium">{title}</span>
         <Badge variant="outline" className="jd-text-xs">
-          {BLOCK_TYPE_LABELS[block.type || 'content']}
+          {BLOCK_TYPE_LABELS[block.type || "content"]}
         </Badge>
       </div>
-      <div className="jd-text-sm jd-text-muted-foreground jd-pl-6">
-        {buildPromptPart(block.type || 'content', content)}
-      </div>
+      <div
+        className="jd-text-sm jd-text-muted-foreground jd-pl-6"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
     </div>
   );
 }
