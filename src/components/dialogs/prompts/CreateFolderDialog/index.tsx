@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Plus } from 'lucide-react';
+import { cn } from '@/core/utils/classNames';
 import { useDialog } from '../../DialogContext';
 import { DIALOG_TYPES } from '../../DialogRegistry';
 import { toast } from 'sonner';
@@ -185,10 +187,15 @@ export const CreateFolderDialog: React.FC = () => {
           >
             {getMessage('cancel', undefined, 'Cancel')}
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={isSubmitting || !name.trim()}
             onKeyDown={(e) => e.stopPropagation()}
+            className={cn(
+              'jd-transition-all jd-duration-300',
+              'jd-bg-gradient-to-r jd-from-purple-500 jd-to-blue-500',
+              'hover:jd-from-purple-600 hover:jd-to-blue-600 jd-text-white'
+            )}
           >
             {isSubmitting ? (
               <>
@@ -196,7 +203,10 @@ export const CreateFolderDialog: React.FC = () => {
                 {getMessage('creating', undefined, 'Creating...')}
               </>
             ) : (
-              getMessage('create', undefined, 'Create')
+              <>
+                <Plus className="jd-h-4 jd-w-4 jd-mr-1" />
+                {getMessage('create', undefined, 'Create')}
+              </>
             )}
           </Button>
         </div>
