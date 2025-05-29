@@ -60,6 +60,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const [customValues, setCustomValues] = useState<Record<MetadataType, string>>(
     (metadata.values || {}) as Record<MetadataType, string>
   );
+  const [customNames, setCustomNames] = useState<Record<MetadataType, string>>({} as Record<MetadataType, string>);
   const [expandedMetadata, setExpandedMetadata] = useState<MetadataType | null>(null);
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const [activeSecondaryMetadata, setActiveSecondaryMetadata] = useState<Set<MetadataType>>(new Set());
@@ -114,6 +115,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     const newValues = { ...(metadata.values || {}), [type]: value };
     const newMetadata = { ...metadata, [type]: 0, values: newValues };
     onUpdateMetadata(newMetadata);
+  };
+
+  const handleCustomNameChange = (type: MetadataType, value: string) => {
+    setCustomNames(prev => ({ ...prev, [type]: value }));
   };
 
   const getBlockContent = (blockId: number, type: MetadataType): string => {
@@ -294,9 +299,11 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   expanded={expandedMetadata === type}
                   selectedId={metadata[type] || 0}
                   customValue={customValues[type] || ''}
+                  customName={customNames[type] || ''}
                   isPrimary
                   onSelect={(v) => handleMetadataChange(type, v)}
                   onCustomChange={(v) => handleCustomChange(type, v)}
+                  onCustomNameChange={(v) => handleCustomNameChange(type, v)}
                   onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
                   onSaveBlock={handleMetadataBlockSaved}
                 />
@@ -328,8 +335,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                     expanded={expandedMetadata === type}
                     selectedId={metadata[type] || 0}
                     customValue={customValues[type] || ''}
+                    customName={customNames[type] || ''}
                     onSelect={(v) => handleMetadataChange(type, v)}
                     onCustomChange={(v) => handleCustomChange(type, v)}
+                    onCustomNameChange={(v) => handleCustomNameChange(type, v)}
                     onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
                     onRemove={() => removeSecondaryMetadata(type)}
                     onSaveBlock={handleMetadataBlockSaved}
