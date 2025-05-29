@@ -66,6 +66,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
   const isContentType = block.type === 'content';
   const blocksForType = block.type ? availableBlocks : [];
   const existing = blocksForType.find(b => b.id === block.id);
+  const readOnly = !block.isNew;
 
   React.useEffect(() => {
     if (block.type && !existing && !block.isNew) {
@@ -125,39 +126,46 @@ export const BlockCard: React.FC<BlockCardProps> = ({
               <span className="jd-font-medium jd-text-sm">
                 {block.name || 'Block'}
               </span>
-              <Select
-                value={block.type || ''}
-                onValueChange={(value) => onUpdate(block.id, { type: value as BlockType })}
-              >
-                <SelectTrigger className="jd-w-32 jd-text-xs jd-h-7">
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {AVAILABLE_BLOCK_TYPES.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {BLOCK_TYPE_LABELS[t]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {!isContentType && (
-                <Select value={selectedExistingId} onValueChange={handleExistingSelect}>
-                  <SelectTrigger className="jd-w-40 jd-text-xs jd-h-7">
-                    <SelectValue placeholder="Select block" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {blocksForType.map(b => (
-                      <SelectItem key={b.id} value={String(b.id)}>
-                        {getLocalizedContent(b.title) || 'Block'}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="custom">
-                      <div className="jd-flex jd-items-center jd-gap-1">
-                        <Plus className="jd-h-3 jd-w-3" /> Create custom
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+              {!readOnly && (
+                <>
+                  <Select
+                    value={block.type || ''}
+                    onValueChange={(value) => onUpdate(block.id, { type: value as BlockType })}
+                  >
+                    <SelectTrigger className="jd-w-32 jd-text-xs jd-h-7">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {AVAILABLE_BLOCK_TYPES.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {BLOCK_TYPE_LABELS[t]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {!isContentType && (
+                    <Select value={selectedExistingId} onValueChange={handleExistingSelect}>
+                      <SelectTrigger className="jd-w-40 jd-text-xs jd-h-7">
+                        <SelectValue placeholder="Select block" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {blocksForType.map(b => (
+                          <SelectItem key={b.id} value={String(b.id)}>
+                            {getLocalizedContent(b.title) || 'Block'}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="custom">
+                          <div className="jd-flex jd-items-center jd-gap-1">
+                            <Plus className="jd-h-3 jd-w-3" /> Create custom
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </>
+              )}
+              {readOnly && (
+                <span className="jd-text-xs jd-text-muted-foreground">(Existing)</span>
               )}
             </div>
           </div>
@@ -183,9 +191,10 @@ export const BlockCard: React.FC<BlockCardProps> = ({
             onChange={(e) => handleContentChange(e.target.value)}
             className="jd-resize-none jd-min-h-[100px] jd-text-sm"
             placeholder={block.type ? `Enter ${block.type} content...` : 'Enter block content...'}
+            readOnly={readOnly}
           />
 
-          {content && (
+          {!readOnly && content && (
             <div className="jd-mt-2 jd-text-xs jd-text-muted-foreground jd-flex jd-justify-between">
               <span>{content.length} characters</span>
               <span>{content.split('\n').length} lines</span>
