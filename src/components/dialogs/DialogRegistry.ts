@@ -10,9 +10,10 @@ export const DIALOG_TYPES = {
   AUTH: 'auth',
   CONFIRMATION: 'confirmation',
   ENHANCED_STATS: 'enhancedStats',
-  
+
   // New dialog type for block creation
-  CREATE_BLOCK: 'createBlock'
+  CREATE_BLOCK: 'createBlock',
+  INSERT_BLOCK: 'insertBlock'
 } as const;
 
 // Export the dialog types
@@ -71,4 +72,6 @@ export interface DialogProps {
     initialContent?: string;
     onBlockCreated?: (block: any) => void;
   };
+
+  [DIALOG_TYPES.INSERT_BLOCK]: Record<string, never>;
 }

@@ -7,7 +7,8 @@
   "default_locale": "fr",
   "permissions": [
     "storage",
-    "identity"
+    "identity",
+    "contextMenus"
   ],
   "oauth2": {
     "client_id": "32108269805-53if057t0kgq0qlmjqr3st6v124cajam.apps.googleusercontent.com",

@@ -90,3 +90,25 @@ if (process.env.NODE_ENV === 'development') {
     }
   });
 }
+
+// Listen for background messages to open dialogs
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'openCreateBlockDialog') {
+    const content = message.content || '';
+    if (window.dialogManager?.openDialog) {
+      window.dialogManager.openDialog('createBlock', { initialContent: content });
+      sendResponse({ success: true });
+    } else {
+      sendResponse({ success: false });
+    }
+  }
+  if (message.action === 'openInsertBlockDialog') {
+    if (window.dialogManager?.openDialog) {
+      window.dialogManager.openDialog('insertBlock');
+      sendResponse({ success: true });
+    } else {
+      sendResponse({ success: false });
+    }
+  }
+  return true;
+});
