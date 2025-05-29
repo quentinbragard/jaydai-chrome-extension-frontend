@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Block, BlockType, isMetadataBlock } from '@/types/prompts/blocks';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
-import { Trash2, GripVertical, Plus } from 'lucide-react';
-import { SaveBlockButton } from '@/components/prompts/blocks/SaveBlockButton';
+import { Trash2, GripVertical, Plus, Save } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { getCurrentLanguage } from '@/core/utils/i18n';
+import { CreateBlockDialog } from '@/components/dialogs/prompts/CreateBlockDialog';
 import {
   BLOCK_TYPES,
   BLOCK_TYPE_LABELS,
@@ -20,8 +20,6 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
 
 const AVAILABLE_BLOCK_TYPES = BLOCK_TYPES.filter(t => !isMetadataBlock(t));
-
-
 
 interface BlockCardProps {
   block: Block;
@@ -52,6 +50,11 @@ export const BlockCard: React.FC<BlockCardProps> = ({
     ? block.content 
     : block.content[getCurrentLanguage()] || block.content.en || '';
 
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [originalContent, setOriginalContent] = useState(content);
+  const [originalType, setOriginalType] = useState(block.type);
+
   const handleContentChange = (newContent: string) => {
     if (typeof block.content === 'string') {
       onUpdate(block.id, { content: newContent });
@@ -61,12 +64,26 @@ export const BlockCard: React.FC<BlockCardProps> = ({
         content: { ...block.content, [lang]: newContent }
       });
     }
+    
+    // Track if content has changed
+    setHasUnsavedChanges(newContent !== originalContent || block.type !== originalType);
+  };
+
+  const handleTypeChange = (newType: BlockType) => {
+    onUpdate(block.id, { type: newType });
+    setHasUnsavedChanges(content !== originalContent || newType !== originalType);
   };
 
   const isContentType = block.type === 'content';
   const blocksForType = block.type ? availableBlocks : [];
   const existing = blocksForType.find(b => b.id === block.id);
   const readOnly = !block.isNew;
+
+  // Show save button if:
+  // 1. Block is new and has content and type, OR
+  // 2. Block is existing but has unsaved changes
+  const shouldShowSaveButton = (block.isNew && content.trim() && block.type) || 
+                               (!block.isNew && hasUnsavedChanges);
 
   React.useEffect(() => {
     if (block.type && !existing && !block.isNew) {
@@ -79,6 +96,8 @@ export const BlockCard: React.FC<BlockCardProps> = ({
   const handleExistingSelect = (value: string) => {
     if (value === 'custom') {
       onUpdate(block.id, { isNew: true });
+      setOriginalContent('');
+      setOriginalType(block.type);
     } else {
       const found = blocksForType.find(b => b.id === Number(value));
       if (found) {
@@ -87,143 +106,179 @@ export const BlockCard: React.FC<BlockCardProps> = ({
           name: getLocalizedContent(found.title),
           isNew: false
         });
+        setOriginalContent(getLocalizedContent(found.content));
+        setOriginalType(found.type);
+        setHasUnsavedChanges(false);
       }
     }
   };
 
+  const handleSaveClick = () => {
+    setShowCreateDialog(true);
+  };
+
+  const handleBlockCreated = (newBlock: Block) => {
+    if (onSave) {
+      onSave(newBlock);
+    }
+    
+    // Update current block to reference the new saved block
+    onUpdate(block.id, { 
+      id: newBlock.id, 
+      isNew: false,
+      name: getLocalizedContent(newBlock.title)
+    });
+    
+    // Reset tracking
+    setOriginalContent(content);
+    setOriginalType(block.type);
+    setHasUnsavedChanges(false);
+    setShowCreateDialog(false);
+  };
+
   return (
-    <Card
-      className={cn(
-        'jd-transition-all jd-duration-300 jd-transform',
-        'hover:jd-shadow-xl hover:jd-scale-[1.02] hover:-jd-translate-y-1',
-        'jd-border-2 jd-backdrop-blur-sm jd-pt-2',
-        cardColors
-      )}
-      draggable
-      onDragStart={() => onDragStart && onDragStart(block.id)}
-      onDragOver={(e) => {
-        e.preventDefault();
-        onDragOver && onDragOver(block.id);
-      }}
-      onDragEnd={() => onDragEnd && onDragEnd()}
-    >
-      <CardContent className="jd-p-4">
-        <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
-          <div className="jd-flex jd-items-center jd-gap-3">
-            <div className="jd-flex jd-items-center jd-gap-2">
-              <GripVertical className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-opacity-50 group-hover:jd-opacity-100 jd-transition-opacity" />
-              <div
-                className={cn(
-                  'jd-p-2 jd-rounded-lg jd-transition-all jd-duration-300',
-                  'group-hover:jd-scale-110 group-hover:jd-rotate-3',
-                  iconBg
-                )}
-              >
-                <Icon className="jd-h-4 jd-w-4" />
+    <>
+      <Card
+        className={cn(
+          'jd-transition-all jd-duration-300 jd-transform',
+          'hover:jd-shadow-xl hover:jd-scale-[1.02] hover:-jd-translate-y-1',
+          'jd-border-2 jd-backdrop-blur-sm jd-pt-2',
+          cardColors
+        )}
+        draggable
+        onDragStart={() => onDragStart && onDragStart(block.id)}
+        onDragOver={(e) => {
+          e.preventDefault();
+          onDragOver && onDragOver(block.id);
+        }}
+        onDragEnd={() => onDragEnd && onDragEnd()}
+      >
+        <CardContent className="jd-p-4">
+          <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
+            <div className="jd-flex jd-items-center jd-gap-3">
+              <div className="jd-flex jd-items-center jd-gap-2">
+                <GripVertical className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-opacity-50 group-hover:jd-opacity-100 jd-transition-opacity" />
+                <div
+                  className={cn(
+                    'jd-p-2 jd-rounded-lg jd-transition-all jd-duration-300',
+                    'group-hover:jd-scale-110 group-hover:jd-rotate-3',
+                    iconBg
+                  )}
+                >
+                  <Icon className="jd-h-4 jd-w-4" />
+                </div>
               </div>
-            </div>
-            <div className="jd-flex jd-items-center jd-gap-2">
-              <span className="jd-font-medium jd-text-sm">
-                {block.name || 'Block'}
-              </span>
-              {!readOnly && (
-                <>
-                  <Select
-                    value={block.type || ''}
-                    onValueChange={(value) => onUpdate(block.id, { type: value as BlockType })}
-                  >
-                    <SelectTrigger className="jd-w-32 jd-text-xs jd-h-7">
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {AVAILABLE_BLOCK_TYPES.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {BLOCK_TYPE_LABELS[t]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {!isContentType && (
-                    <Select value={selectedExistingId} onValueChange={handleExistingSelect}>
-                      <SelectTrigger className="jd-w-40 jd-text-xs jd-h-7">
-                        <SelectValue placeholder="Select block" />
+              <div className="jd-flex jd-items-center jd-gap-2">
+                <span className="jd-font-medium jd-text-sm">
+                  {block.name || 'Block'}
+                  {hasUnsavedChanges && <span className="jd-text-amber-500 jd-ml-1">*</span>}
+                </span>
+                {!readOnly && (
+                  <>
+                    <Select
+                      value={block.type || ''}
+                      onValueChange={(value) => handleTypeChange(value as BlockType)}
+                    >
+                      <SelectTrigger className="jd-w-32 jd-text-xs jd-h-7">
+                        <SelectValue placeholder="Select type" />
                       </SelectTrigger>
-                      <SelectContent>
-                        {blocksForType.map(b => (
-                          <SelectItem key={b.id} value={String(b.id)}>
-                            {getLocalizedContent(b.title) || 'Block'}
+                      <SelectContent className="jd-z-[10010]">
+                        {AVAILABLE_BLOCK_TYPES.map((t) => (
+                          <SelectItem key={t} value={t}>
+                            {BLOCK_TYPE_LABELS[t]}
                           </SelectItem>
                         ))}
-                        <SelectItem value="custom">
-                          <div className="jd-flex jd-items-center jd-gap-1">
-                            <Plus className="jd-h-3 jd-w-3" /> Create custom
-                          </div>
-                        </SelectItem>
                       </SelectContent>
                     </Select>
-                  )}
-                </>
+                    {!isContentType && (
+                      <Select value={selectedExistingId} onValueChange={handleExistingSelect}>
+                        <SelectTrigger className="jd-w-40 jd-text-xs jd-h-7">
+                          <SelectValue placeholder="Select block" />
+                        </SelectTrigger>
+                        <SelectContent className="jd-z-[10010]">
+                          {blocksForType.map(b => (
+                            <SelectItem key={b.id} value={String(b.id)}>
+                              {getLocalizedContent(b.title) || 'Block'}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="custom">
+                            <div className="jd-flex jd-items-center jd-gap-1">
+                              <Plus className="jd-h-3 jd-w-3" /> Create custom
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </>
+                )}
+                {readOnly && (
+                  <span className="jd-text-xs jd-text-muted-foreground">(Existing)</span>
+                )}
+              </div>
+            </div>
+            
+            <div className="jd-flex jd-items-center jd-gap-1">
+              {shouldShowSaveButton && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleSaveClick}
+                  className="jd-h-8 jd-px-2 jd-text-blue-600 jd-hover:jd-text-blue-700 jd-hover:jd-bg-blue-50"
+                  title="Save as new block"
+                >
+                  <Save className="jd-h-4 jd-w-4 jd-mr-1" />
+                  Save
+                </Button>
               )}
-              {readOnly && (
-                <span className="jd-text-xs jd-text-muted-foreground">(Existing)</span>
-              )}
+              
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onRemove(block.id)}
+                className="jd-h-8 jd-w-8 jd-p-1 jd-text-muted-foreground jd-hover:jd-text-destructive"
+                title="Delete block"
+              >
+                <Trash2 className="jd-h-5 jd-w-5" />
+              </Button>
             </div>
           </div>
-          
 
-          <div className="jd-flex jd-items-center jd-gap-1">
+          <>
+            <Textarea
+              value={content}
+              onChange={(e) => handleContentChange(e.target.value)}
+              className="jd-resize-none jd-min-h-[100px] jd-text-sm"
+              placeholder={block.type ? `Enter ${block.type} content...` : 'Enter block content...'}
+              readOnly={readOnly}
+            />
 
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onRemove(block.id)}
-              className="jd-h-8 jd-w-8 jd-p-1 jd-text-muted-foreground jd-hover:jd-text-destructive"
-              title="Delete block"
-            >
-              <Trash2 className="jd-h-5 jd-w-5" />
-            </Button>
-          </div>
-        </div>
+            {!readOnly && content && (
+              <div className="jd-mt-2 jd-text-xs jd-text-muted-foreground jd-flex jd-justify-between">
+                <span>{content.length} characters</span>
+                <span>{content.split('\n').length} lines</span>
+              </div>
+            )}
+          </>
 
-        <>
-          <Textarea
-            value={content}
-            onChange={(e) => handleContentChange(e.target.value)}
-            className="jd-resize-none jd-min-h-[100px] jd-text-sm"
-            placeholder={block.type ? `Enter ${block.type} content...` : 'Enter block content...'}
-            readOnly={readOnly}
-          />
-
-          {!readOnly && content && (
-            <div className="jd-mt-2 jd-text-xs jd-text-muted-foreground jd-flex jd-justify-between">
-              <span>{content.length} characters</span>
-              <span>{content.split('\n').length} lines</span>
-            </div>
-          )}
-        </>
-
-        {block.isNew && (
-          <div className="jd-space-y-2 jd-mt-3">
+          {block.isNew && shouldShowSaveButton && (
             <Input
               value={block.name || ''}
               onChange={(e) => onUpdate(block.id, { name: e.target.value })}
-              placeholder="Block name"
-              className="jd-text-xs"
+              placeholder="Block name (will be auto-generated)"
+              className="jd-text-xs jd-mt-3"
             />
-            {content.trim() && block.type && (
-              <div className="jd-flex jd-justify-end">
-                <SaveBlockButton
-                  type={block.type}
-                  content={content}
-                  title={block.name}
-                  description={block.description}
-                  onSaved={(saved) => onSave && onSave(saved)}
-                />
-              </div>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Create Block Dialog */}
+      <CreateBlockDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        initialType={block.type || 'content'}
+        initialContent={content}
+        onBlockCreated={handleBlockCreated}
+      />
+    </>
   );
 };

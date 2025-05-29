@@ -9,6 +9,7 @@ import { SaveBlockButton } from './SaveBlockButton';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/core/utils/classNames';
 import { getCurrentLanguage } from '@/core/utils/i18n';
+import { useClickOutside } from '@/hooks/useClickOutside';
 import {
   getLocalizedContent,
   getBlockTypeColors,
@@ -55,6 +56,13 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
     selectedId === 0 && !!customValue
   );
 
+  // Click outside handler to collapse the card
+  const cardRef = useClickOutside<HTMLDivElement>(() => {
+    if (expanded) {
+      onToggle();
+    }
+  }, expanded);
+
   // Handle card click - only toggle if clicking on the card itself, not on interactive elements
   const handleCardClick = (e: React.MouseEvent) => {
     // If the target is an interactive element or its child, don't toggle
@@ -63,9 +71,14 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                          target.closest('[role="combobox"]') || 
                          target.closest('select') || 
                          target.closest('textarea') ||
-                         target.closest('[data-radix-collection-item]');
+                         target.closest('input') ||
+                         target.closest('[data-radix-collection-item]') ||
+                         target.closest('[data-radix-select-trigger]') ||
+                         target.closest('[data-radix-select-content]');
     
     if (!isInteractive) {
+      e.preventDefault();
+      e.stopPropagation();
       onToggle();
     }
   };
@@ -77,10 +90,11 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 
   return (
     <Card
+      ref={cardRef}
       onClick={handleCardClick}
       className={cn(
         'jd-transition-all jd-duration-300 jd-cursor-pointer hover:jd-shadow-md',
-        'jd-border-2 jd-backdrop-blur-sm jd-py-2',
+        'jd-border-2 jd-backdrop-blur-sm jd-py-2 jd-select-none',
         cardColors,
         isPrimary && 'jd-border-primary/20',
         expanded &&
@@ -139,7 +153,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
               <SelectTrigger className="jd-w-full">
                 <SelectValue placeholder="Select or create custom" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="jd-z-[10010]">
                 <SelectItem value="0">None</SelectItem>
                 {availableBlocks.map((block) => (
                   <SelectItem key={block.id} value={String(block.id)}>
@@ -200,7 +214,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
             )}
           </div>
         ) : (
-          <div className="jd-text-sm jd-text-muted-foreground">
+          <div className="jd-text-sm jd-text-muted-foreground jd-mt-2">
             {selectedId && selectedId !== 0
               ? getLocalizedContent(availableBlocks.find((b) => b.id === selectedId)?.title) || `${type} block`
               : customValue

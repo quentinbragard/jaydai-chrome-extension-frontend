@@ -4,6 +4,7 @@ import { DialogManagerProvider } from './DialogContext';
 import { CreateTemplateDialog } from '@/components/dialogs/prompts/CreateTemplateDialog';
 import { CreateFolderDialog } from './prompts/CreateFolderDialog';
 import { CustomizeTemplateDialog } from './prompts/CustomizeTemplateDialog';
+import { CreateBlockDialog } from './prompts/CreateBlockDialog';
 import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
@@ -45,11 +46,13 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       console.log('window.dialogManager already available:', window.dialogManager);
     }
     
-    // Listen for events in shadow DOM
+    // Listen for events in shadow DOM with improved event handling
     const handleCapturedEvent = (e: Event) => {
-      // Don't intercept all events - let normal UI events continue
-      // We only want to intercept keyboard events when dialogs are open
-      if (document.querySelector('.jd-fixed.jd-inset-0.jd-z-50')) {
+      // Only intercept events when dialogs are open
+      const dialogOpen = document.querySelector('.jd-fixed.jd-inset-0.jd-z-\\[10001\\]');
+      
+      if (dialogOpen) {
+        // Only intercept specific events that might cause issues
         if (
           e.type.startsWith('key') || 
           e.type === 'input' || 
@@ -57,7 +60,11 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
           e.type === 'focus' || 
           e.type === 'blur'
         ) {
-          e.stopPropagation();
+          // Don't stop propagation for events inside the dialog
+          const target = e.target as Element;
+          if (target && !target.closest('.jd-fixed.jd-inset-0.jd-z-\\[10001\\]')) {
+            e.stopPropagation();
+          }
         }
       }
     };
@@ -87,8 +94,9 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       
       {/* Register all dialogs here */}
       <CreateTemplateDialog />
-      <CreateFolderDialog  />
+      <CreateFolderDialog />
       <CustomizeTemplateDialog />
+      <CreateBlockDialog />
       <AuthDialog />
       <SettingsDialog />
       <ConfirmationDialog />
