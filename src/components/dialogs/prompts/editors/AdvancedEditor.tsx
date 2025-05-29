@@ -391,7 +391,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           </div>
 
           <div className="jd-space-y-3 jd-flex-1 jd-overflow-y-auto jd-max-h-[400px] jd-pr-2">
-
             {contentBlock && (
               <div className="jd-space-y-2">
                 <h4 className="jd-text-sm jd-font-medium">Prompt Content</h4>
@@ -426,6 +425,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   onAddBlock('end', type, existing, duplicate)
                 }
               />
+
             </div>
 
             {otherBlocks.length === 0 && (
