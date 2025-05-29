@@ -55,7 +55,7 @@ export const InsertBlockDialog: React.FC = () => {
   const [activeBlockId, setActiveBlockId] = useState<number | null>(null);
   const [expandedBlocks, setExpandedBlocks] = useState<Set<number>>(new Set());
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>('all');
-  const [previewMode, setPreviewMode] = useState<'visual' | 'text'>('visual');
+  const [previewMode, setPreviewMode] = useState<'visual' | 'text'>('text');
   const isDark = useThemeDetector();
 
   // Drag & Drop sensors
@@ -246,139 +246,79 @@ export const InsertBlockDialog: React.FC = () => {
 
         {/* Right Panel - Selected Blocks & Preview */}
         <div className="jd-w-1/2 jd-flex jd-flex-col">
-          <Tabs defaultValue="builder" className="jd-flex-1 jd-flex jd-flex-col">
-            <TabsList className="jd-grid jd-w-full jd-grid-cols-2">
-              <TabsTrigger value="builder" className="jd-flex jd-items-center jd-gap-2">
-                <Sparkles className="jd-h-4 jd-w-4" />
-                Builder
-              </TabsTrigger>
-              <TabsTrigger value="preview" className="jd-flex jd-items-center jd-gap-2">
-                <Eye className="jd-h-4 jd-w-4" />
-                Preview
-              </TabsTrigger>
-            </TabsList>
 
-            <TabsContent value="builder" className="jd-flex-1 jd-flex jd-flex-col jd-mt-4">
-              <div className="jd-flex jd-items-center jd-justify-between jd-mb-4">
-                <h3 className="jd-text-sm jd-font-medium">Selected Blocks</h3>
-                {selectedBlocks.length > 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedBlocks([])}
-                  >
-                    Clear All
-                  </Button>
-                )}
-              </div>
+    <div className="jd-flex jd-items-center jd-justify-start jd-mb-4">
+      <h3 className="jd-text-sm jd-font-medium">Prompt Preview</h3>
+      <div className="jd-flex jd-items-center jd-gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={copyToClipboard}
+          disabled={selectedBlocks.length === 0}
+        >
+          <Copy className="jd-h-4 jd-w-4 jd-mr-1" />
+          Copy
+        </Button>
+        <div className="jd-flex jd-bg-muted jd-rounded-md jd-p-1">
+          <button
+            onClick={() => setPreviewMode('text')}
+            className={cn(
+              "jd-px-2 jd-py-1 jd-text-xs jd-rounded jd-transition-colors",
+              previewMode === 'text' ? "jd-bg-background jd-shadow-sm" : "jd-hover:bg-background/50"
+            )}
+          >
+            <Code className="jd-h-3 jd-w-3" />
+          </button>
+          <button
+            onClick={() => setPreviewMode('visual')}
+            className={cn(
+              "jd-px-2 jd-py-1 jd-text-xs jd-rounded jd-transition-colors",
+              previewMode === 'visual' ? "jd-bg-background jd-shadow-sm" : "jd-hover:bg-background/50"
+            )}
+          >
+            <Eye className="jd-h-3 jd-w-3" />
+          </button>
+        </div>
+      </div>
+    </div>
 
-              {selectedBlocks.length === 0 ? (
-                <div className="jd-flex-1 jd-flex jd-items-center jd-justify-center jd-border-2 jd-border-dashed jd-border-muted jd-rounded-lg">
-                  <div className="jd-text-center jd-text-muted-foreground">
-                    <Sparkles className="jd-h-8 jd-w-8 jd-mx-auto jd-mb-2 jd-opacity-50" />
-                    <p className="jd-text-sm">Select blocks to start building</p>
-                  </div>
-                </div>
-              ) : (
-                <ScrollArea className="jd-flex-1">
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext
-                      items={selectedBlocks.map(b => b.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      <div className="jd-space-y-3 jd-pr-4">
-                        {selectedBlocks.map(block => (
-                          <SortableSelectedBlock
-                            key={block.id}
-                            block={block}
-                            isDark={isDark}
-                            onRemove={removeBlock}
-                            isExpanded={expandedBlocks.has(block.id)}
-                            onToggleExpand={toggleExpanded}
-                          />
-                        ))}
-                      </div>
-                    </SortableContext>
-
-                    <DragOverlay>
-                      {activeBlockId ? (
-                        <div className="jd-bg-background jd-border jd-rounded-lg jd-p-3 jd-shadow-lg jd-opacity-95">
-                          Dragging block...
-                        </div>
-                      ) : null}
-                    </DragOverlay>
-                  </DndContext>
-                </ScrollArea>
-              )}
-            </TabsContent>
-
-            <TabsContent value="preview" className="jd-flex-1 jd-flex jd-flex-col jd-mt-4">
-              <div className="jd-flex jd-items-center jd-justify-between jd-mb-4">
-                <h3 className="jd-text-sm jd-font-medium">Prompt Preview</h3>
-                <div className="jd-flex jd-items-center jd-gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={copyToClipboard}
-                    disabled={selectedBlocks.length === 0}
-                  >
-                    <Copy className="jd-h-4 jd-w-4 jd-mr-1" />
-                    Copy
-                  </Button>
-                  <div className="jd-flex jd-bg-muted jd-rounded-md jd-p-1">
-                    <button
-                      onClick={() => setPreviewMode('visual')}
-                      className={cn(
-                        "jd-px-2 jd-py-1 jd-text-xs jd-rounded jd-transition-colors",
-                        previewMode === 'visual' ? "jd-bg-background jd-shadow-sm" : "jd-hover:bg-background/50"
-                      )}
-                    >
-                      <Eye className="jd-h-3 jd-w-3" />
-                    </button>
-                    <button
-                      onClick={() => setPreviewMode('text')}
-                      className={cn(
-                        "jd-px-2 jd-py-1 jd-text-xs jd-rounded jd-transition-colors",
-                        previewMode === 'text' ? "jd-bg-background jd-shadow-sm" : "jd-hover:bg-background/50"
-                      )}
-                    >
-                      <Code className="jd-h-3 jd-w-3" />
-                    </button>
-                  </div>
+    {selectedBlocks.length === 0 ? (
+      // Use fixed height instead of jd-flex-1 for empty state
+      <div className="jd-flex jd-items-center jd-justify-center jd-border-2 jd-border-dashed jd-border-muted jd-rounded-lg jd-py-16">
+        <div className="jd-text-center jd-text-muted-foreground">
+          <Eye className="jd-h-8 jd-w-8 jd-mx-auto jd-mb-2 jd-opacity-50" />
+          <p className="jd-text-sm">Preview will appear here</p>
+        </div>
+      </div>
+    ) : (
+      // Use proper scrollable container
+      <div className="jd-flex-1 jd-overflow-hidden">
+        <ScrollArea className="jd-h-full">
+          <div className="jd-space-y-4 jd-pr-4">
+            {previewMode === 'visual' ? (
+              selectedBlocks.map((block, index) => (
+                <PreviewBlock 
+                  key={block.id} 
+                  block={block} 
+                  isDark={isDark} 
+                  index={index}
+                />
+              ))
+            ) : (
+              <div 
+                className="jd-bg-muted/30 jd-rounded-lg jd-p-4"
+              >
+                <div 
+                  className="jd-text-sm"
+                >
+                  {generateFullPrompt()}
                 </div>
               </div>
-
-              {selectedBlocks.length === 0 ? (
-                <div className="jd-flex-1 jd-flex jd-items-center jd-justify-center jd-border-2 jd-border-dashed jd-border-muted jd-rounded-lg">
-                  <div className="jd-text-center jd-text-muted-foreground">
-                    <Eye className="jd-h-8 jd-w-8 jd-mx-auto jd-mb-2 jd-opacity-50" />
-                    <p className="jd-text-sm">Preview will appear here</p>
-                  </div>
-                </div>
-              ) : (
-                <ScrollArea className="jd-flex-1">
-                  <div className="jd-space-y-4 jd-pr-4">
-                    {previewMode === 'visual' ? (
-                      selectedBlocks.map(block => (
-                        <PreviewBlock key={block.id} block={block} isDark={isDark} />
-                      ))
-                    ) : (
-                      <div className="jd-bg-muted/30 jd-rounded-lg jd-p-4">
-                        <pre className="jd-text-sm jd-whitespace-pre-wrap jd-font-mono">
-                          {generateFullPrompt()}
-                        </pre>
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-              )}
-            </TabsContent>
-          </Tabs>
+            )}
+          </div>
+        </ScrollArea>
+      </div>
+    )}
 
           {/* Action Buttons */}
           <div className="jd-flex jd-justify-between jd-pt-4 jd-border-t jd-mt-4">
@@ -405,3 +345,4 @@ export const InsertBlockDialog: React.FC = () => {
     </BaseDialog>
   );
 };
+

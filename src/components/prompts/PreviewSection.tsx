@@ -111,18 +111,18 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
             )}
           >
             {isHtml ? (
-              <pre
-                className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed jd-m-0"
+              <div
+                className="jd-whitespace-pre-wrap jd-text-sm jd-leading-relaxed jd-m-0"
                 dangerouslySetInnerHTML={{ 
                   __html: displayedHtml || '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>' 
                 }}
               />
             ) : (
-              <pre className="jd-whitespace-pre-wrap jd-text-sm jd-font-mono jd-leading-relaxed jd-m-0">
+              <div className="jd-whitespace-pre-wrap jd-text-sm jd-leading-relaxed jd-m-0">
                 {displayedText || (
                   <span className="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>
                 )}
-              </pre>
+              </div>
             )}
 
             {/* Gradient overlay when collapsed and content is long */}
