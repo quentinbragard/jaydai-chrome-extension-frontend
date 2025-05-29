@@ -4,7 +4,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { SaveBlockButton } from './SaveBlockButton';
 import { cn } from '@/core/utils/classNames';
@@ -23,11 +22,9 @@ interface MetadataCardProps {
   expanded: boolean;
   selectedId: number;
   customValue: string;
-  customName?: string;
   isPrimary?: boolean;
   onSelect: (value: string) => void;
   onCustomChange: (value: string) => void;
-  onCustomNameChange?: (value: string) => void;
   onToggle: () => void;
   onRemove?: () => void;
   onSaveBlock?: (block: Block) => void;
@@ -40,11 +37,9 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   expanded,
   selectedId,
   customValue,
-  customName,
   isPrimary = false,
   onSelect,
   onCustomChange,
-  onCustomNameChange,
   onToggle,
   onRemove,
   onSaveBlock
@@ -163,13 +158,6 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 
             {(!selectedId || selectedId === 0) && (
               <>
-                <Input
-                  value={customName || ''}
-                  onChange={(e) => onCustomNameChange && onCustomNameChange(e.target.value)}
-                  placeholder="Block name"
-                  className="jd-h-7 jd-text-xs"
-                  onClick={stopPropagation}
-                />
                 <Textarea
                   value={customValue}
                   onChange={(e) => onCustomChange(e.target.value)}
@@ -182,7 +170,6 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                   <SaveBlockButton
                     type={config.blockType}
                     content={customValue}
-                    title={customName}
                     onSaved={(b) => onSaveBlock && onSaveBlock(b)}
                     className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-primary"
                   />
