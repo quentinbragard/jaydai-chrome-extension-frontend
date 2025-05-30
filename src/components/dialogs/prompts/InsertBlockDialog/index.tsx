@@ -215,6 +215,8 @@ const EditablePreview: React.FC<{
   const editorRef = React.useRef<HTMLDivElement>(null);
 
   const highlightPlaceholders = (text: string) => {
+    if (!text) return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
+    
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -226,66 +228,81 @@ const EditablePreview: React.FC<{
       );
   };
 
-  // Use HTML content when not editing to preserve colors
+  // Update display when not editing
   React.useEffect(() => {
     if (editorRef.current && !isEditing) {
-      if (htmlContent) {
-        // Add placeholder highlighting to the colored HTML
+      if (htmlContent && htmlContent.trim()) {
         const coloredWithPlaceholders = htmlContent.replace(
           /\[(.*?)\]/g, 
           `<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>`
         );
         editorRef.current.innerHTML = coloredWithPlaceholders;
       } else {
-        editorRef.current.innerHTML = highlightPlaceholders(content || '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>');
+        editorRef.current.innerHTML = highlightPlaceholders(content);
       }
     }
   }, [content, htmlContent, isEditing]);
 
-  const handleClick = () => {
-    if (!isEditing && editorRef.current) {
-      setIsEditing(true);
-      // When editing, show plain text
+  // Set up editing mode when it changes
+  React.useEffect(() => {
+    if (isEditing && editorRef.current) {
+      // Convert to plain text for editing
       editorRef.current.textContent = content;
-      // Focus and position cursor at end
       editorRef.current.focus();
-      const range = document.createRange();
-      const sel = window.getSelection();
-      range.selectNodeContents(editorRef.current);
-      range.collapse(false);
-      sel?.removeAllRanges();
-      sel?.addRange(range);
+      
+      // Place cursor at the end
+      setTimeout(() => {
+        if (editorRef.current) {
+          const range = document.createRange();
+          const selection = window.getSelection();
+          range.selectNodeContents(editorRef.current);
+          range.collapse(false);
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+      }, 0);
     }
+  }, [isEditing, content]);
+
+  const startEditing = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsEditing(true);
   };
 
-  const handleBlur = () => {
-    setIsEditing(false);
-    if (editorRef.current) {
+  const stopEditing = () => {
+    if (isEditing && editorRef.current) {
       const newContent = editorRef.current.textContent || '';
       onChange(newContent);
+      setIsEditing(false);
     }
   };
 
   const handleInput = () => {
-    if (editorRef.current && isEditing) {
+    if (isEditing && editorRef.current) {
       const newContent = editorRef.current.textContent || '';
       onChange(newContent);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isEditing) {
-      // Allow normal editing behavior
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        document.execCommand('insertText', false, '\n');
-        handleInput();
-      }
-      // Escape to stop editing
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        editorRef.current?.blur();
-      }
+    // CRITICAL: Stop all key events from bubbling up to prevent dialog from closing
+    e.stopPropagation();
+    
+    if (isEditing && e.key === 'Escape') {
+      e.preventDefault();
+      stopEditing();
+      return;
+    }
+    
+    // Let all other keys work naturally for contentEditable
+  };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    // Only stop editing if focus is going outside the editor
+    const relatedTarget = e.relatedTarget as HTMLElement;
+    if (!editorRef.current?.contains(relatedTarget)) {
+      stopEditing();
     }
   };
 
@@ -293,24 +310,36 @@ const EditablePreview: React.FC<{
     <div
       ref={editorRef}
       contentEditable={isEditing}
-      onClick={handleClick}
+      onClick={!isEditing ? startEditing : undefined}
       onBlur={handleBlur}
       onInput={handleInput}
       onKeyDown={handleKeyDown}
+      // Stop all events from bubbling to prevent interference
+      onKeyPress={(e) => e.stopPropagation()}
+      onKeyUp={(e) => e.stopPropagation()}
       className={cn(
         'jd-min-h-[200px] jd-p-4 jd-rounded-lg jd-border jd-text-sm jd-leading-relaxed',
         'jd-whitespace-pre-wrap jd-break-words jd-transition-all jd-duration-200',
+        'focus:jd-outline-none',
         isEditing 
-          ? 'jd-outline-none jd-ring-2 jd-ring-primary/50 jd-cursor-text jd-bg-white/90 dark:jd-bg-gray-800/90' 
-          : 'jd-cursor-pointer hover:jd-bg-muted/20',
-        isDark ? 'jd-bg-gray-800 jd-border-gray-700 jd-text-white' : 'jd-bg-white jd-border-gray-200 jd-text-gray-900'
+          ? 'jd-ring-2 jd-ring-primary/50 jd-cursor-text jd-bg-opacity-95' 
+          : 'jd-cursor-pointer hover:jd-bg-muted/10 hover:jd-border-primary/30',
+        isDark 
+          ? 'jd-bg-gray-800 jd-border-gray-700 jd-text-white' 
+          : 'jd-bg-white jd-border-gray-200 jd-text-gray-900'
       )}
       style={{ 
         minHeight: '200px',
-        wordBreak: 'break-word'
+        wordBreak: 'break-word',
+        // Ensure text is visible while editing
+        ...(isEditing && {
+          color: isDark ? '#ffffff' : '#000000',
+          backgroundColor: isDark ? '#1f2937' : '#ffffff'
+        })
       }}
       suppressContentEditableWarning={true}
-      title={isEditing ? 'Press Escape to finish editing' : 'Click to edit'}
+      title={isEditing ? 'Press Escape to finish editing' : 'Click to edit your prompt'}
+      spellCheck={false}
     />
   );
 };
@@ -599,7 +628,8 @@ export const InsertBlockDialog: React.FC = () => {
             <div className="jd-flex jd-items-center jd-justify-center jd-border-2 jd-border-dashed jd-border-muted jd-rounded-lg jd-py-16 jd-flex-1">
               <div className="jd-text-center jd-text-muted-foreground">
                 <Eye className="jd-h-8 jd-w-8 jd-mx-auto jd-mb-2 jd-opacity-50" />
-                <p className="jd-text-sm">Preview will appear here</p>
+                <p className="jd-text-sm jd-mb-1">Select blocks to build your prompt</p>
+                <p className="jd-text-xs">Preview will appear here with colors and placeholder highlighting</p>
               </div>
             </div>
           ) : (
