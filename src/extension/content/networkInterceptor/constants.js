@@ -23,6 +23,12 @@ export const ENDPOINTS = {
     CONVERSATIONS_LIST: '/api/trpc/chat.list',
     CHAT_COMPLETION: '/api/chat',
     SPECIFIC_CONVERSATION: /\/api\/chat/
+  },
+  'copilot': {
+    USER_INFO: '/c/api/user',
+    CONVERSATIONS_LIST: '/c/api/conversations',
+    CHAT_COMPLETION: '/c/api/conversations',
+    SPECIFIC_CONVERSATION: /\/c\/api\/conversations\/([a-zA-Z0-9-]+)\/history/
   }
 };
   
