@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
@@ -397,15 +397,35 @@ export const InsertBlockDialog: React.FC = () => {
     setEditableContent(parts.join('\n\n'));
   }, [selectedBlocks]);
 
-  // Generate HTML content with colors for preview
-  const generateFullPromptHtml = () => {
+  // Generate HTML content from the editable text so that updates made by the
+  // user are reflected in the preview when they exit the editor.
+  const generateFullPromptHtml = useCallback(() => {
+    // Split the editable content into parts using blank lines as delimiters.
+    // This mirrors how the initial text is constructed from the selected blocks.
+    const segments = editableContent.split(/\n{2,}/);
+
     return selectedBlocks
-      .map(b => {
-        const content = typeof b.content === 'string' ? b.content : b.content.en || '';
-        return buildPromptPartHtml(b.type || 'content', content, isDark);
+      .map((b, idx) => {
+        // Determine the raw text for this block from the edited segments. If no
+        // segment exists for this index, fall back to the block's original
+        // content.
+        let text = segments[idx] ?? '';
+
+        // The editable text includes the prefix text. Remove it before passing
+        // the content to buildPromptPartHtml so that the prefix is rendered with
+        // the correct styling.
+        const prefix = buildPromptPart(b.type || 'content', '');
+        if (prefix && text.startsWith(prefix)) {
+          text = text.slice(prefix.length);
+        }
+        if (!text) {
+          const original = typeof b.content === 'string' ? b.content : b.content.en || '';
+          text = original;
+        }
+        return buildPromptPartHtml(b.type || 'content', text, isDark);
       })
       .join('<br><br>');
-  };
+  }, [editableContent, selectedBlocks, isDark]);
 
   const addBlock = (block: Block) => {
     if (!selectedBlocks.find(b => b.id === block.id)) {
