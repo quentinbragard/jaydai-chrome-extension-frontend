@@ -17,6 +17,12 @@ export const ENDPOINTS = {
     CONVERSATIONS_LIST: /\/api\/organizations\/[a-f0-9-]+\/chat_conversations/,
     CHAT_COMPLETION: /\/api\/organizations\/[a-f0-9-]+\/chat_conversations\/[a-f0-9-]+\/completion/,
     SPECIFIC_CONVERSATION: /\/api\/organizations\/[a-f0-9-]+\/chat_conversations\/([a-f0-9-]+)/
+  },
+  'mistral': {
+    USER_INFO: '/api/trpc/user.session',
+    CONVERSATIONS_LIST: '/api/trpc/chat.list',
+    CHAT_COMPLETION: '/api/chat',
+    SPECIFIC_CONVERSATION: /\/api\/chat/
   }
 };
   
