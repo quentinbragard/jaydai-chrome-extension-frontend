@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
@@ -356,6 +356,7 @@ export const InsertBlockDialog: React.FC = () => {
   const [previewMode, setPreviewMode] = useState<'visual' | 'text'>('text');
   const [showInlineCreator, setShowInlineCreator] = useState(false);
   const [editableContent, setEditableContent] = useState('');
+  const [blockContents, setBlockContents] = useState<Record<number, string>>({});
   const isDark = useThemeDetector();
 
   // Drag & Drop sensors
@@ -374,6 +375,7 @@ export const InsertBlockDialog: React.FC = () => {
     if (isOpen) {
       setLoading(true);
       setSelectedBlocks([]);
+      setBlockContents({});
       setSearch('');
       setSelectedTypeFilter('all');
       setShowInlineCreator(false);
@@ -388,33 +390,57 @@ export const InsertBlockDialog: React.FC = () => {
     }
   }, [isOpen]);
 
-  // Update editable content when selected blocks change
+  // Update editable content when selected blocks or their text change
   useEffect(() => {
     const parts = selectedBlocks.map(b => {
-      const content = typeof b.content === 'string' ? b.content : b.content.en || '';
-      return buildPromptPart(b.type || 'content', content);
+      const text = blockContents[b.id] ?? (typeof b.content === 'string' ? b.content : b.content.en || '');
+      return buildPromptPart(b.type || 'content', text);
     });
     setEditableContent(parts.join('\n\n'));
-  }, [selectedBlocks]);
+  }, [selectedBlocks, blockContents]);
 
-  // Generate HTML content with colors for preview
-  const generateFullPromptHtml = () => {
+  // Generate HTML content from the editable text so that updates made by the
+  // user are reflected in the preview when they exit the editor.
+  const generateFullPromptHtml = useCallback(() => {
     return selectedBlocks
       .map(b => {
-        const content = typeof b.content === 'string' ? b.content : b.content.en || '';
-        return buildPromptPartHtml(b.type || 'content', content, isDark);
+        const text = blockContents[b.id] ?? (typeof b.content === 'string' ? b.content : b.content.en || '');
+        return buildPromptPartHtml(b.type || 'content', text, isDark);
       })
       .join('<br><br>');
-  };
+  }, [selectedBlocks, blockContents, isDark]);
 
   const addBlock = (block: Block) => {
     if (!selectedBlocks.find(b => b.id === block.id)) {
       setSelectedBlocks(prev => [...prev, block]);
+      const content = typeof block.content === 'string' ? block.content : block.content.en || '';
+      setBlockContents(prev => ({ ...prev, [block.id]: content }));
     }
   };
 
   const removeBlock = (block: Block) => {
     setSelectedBlocks(prev => prev.filter(b => b.id !== block.id));
+    setBlockContents(prev => {
+      const { [block.id]: _removed, ...rest } = prev;
+      return rest;
+    });
+  };
+
+  const handleEditableContentChange = (text: string) => {
+    const segments = text.split(/\n{2,}/);
+    setBlockContents(prev => {
+      const updated = { ...prev };
+      selectedBlocks.forEach((b, idx) => {
+        let seg = segments[idx] ?? '';
+        const prefix = buildPromptPart(b.type || 'content', '');
+        if (prefix && seg.startsWith(prefix)) {
+          seg = seg.slice(prefix.length);
+        }
+        updated[b.id] = seg;
+      });
+      return updated;
+    });
+    setEditableContent(text);
   };
 
   const insertBlocks = () => {
@@ -677,7 +703,7 @@ export const InsertBlockDialog: React.FC = () => {
                       <EditablePreview
                         content={editableContent}
                         htmlContent={generateFullPromptHtml()}
-                        onChange={setEditableContent}
+                        onChange={handleEditableContentChange}
                         isDark={isDark}
                       />
                     </div>
