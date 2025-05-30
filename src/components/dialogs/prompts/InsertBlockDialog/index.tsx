@@ -410,6 +410,7 @@ export const InsertBlockDialog: React.FC = () => {
       .join('<br><br>');
   }, [selectedBlocks, blockContents, isDark]);
 
+
   const addBlock = (block: Block) => {
     if (!selectedBlocks.find(b => b.id === block.id)) {
       setSelectedBlocks(prev => [...prev, block]);
