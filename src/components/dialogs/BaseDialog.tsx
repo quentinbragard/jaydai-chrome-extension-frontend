@@ -76,16 +76,18 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
       'scroll', 'wheel'
     ];
     
+    // Attach listeners in the bubbling phase so child elements still
+    // receive the event, but stop it from leaving the dialog
     events.forEach(eventName => {
       dialogElement.addEventListener(eventName, stopEventPropagation, {
-        capture: true,
+        capture: false,
         passive: false
       });
     });
     
     return () => {
       events.forEach(eventName => {
-        dialogElement.removeEventListener(eventName, stopEventPropagation, true);
+        dialogElement.removeEventListener(eventName, stopEventPropagation, false);
       });
     };
   }, [open]);
