@@ -3,14 +3,16 @@ import { PlatformAdapter } from './base.adapter';
 import { chatGptAdapter } from './chatgpt.adapter';
 import { claudeAdapter } from './claude.adapter';
 import { mistralAdapter } from './mistral.adapter';
+import { copilotAdapter } from './copilot.adapter';
 
 const adapters: PlatformAdapter[] = [
   chatGptAdapter,
   claudeAdapter,
   mistralAdapter,
+  copilotAdapter,
 ];
 
-export { chatGptAdapter, claudeAdapter, mistralAdapter };
+export { chatGptAdapter, claudeAdapter, mistralAdapter, copilotAdapter };
 export * from './base.adapter';
 
 export function getAdapterByName(name: string): PlatformAdapter | null {

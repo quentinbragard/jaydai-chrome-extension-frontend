@@ -4,7 +4,8 @@
 
   if (!window.location.hostname.includes('chatgpt.com') &&
       !window.location.hostname.includes('claude.ai') &&
-      !window.location.hostname.includes('mistral.ai')) {
+      !window.location.hostname.includes('mistral.ai') &&
+      !window.location.hostname.includes('copilot.microsoft.com')) {
     return;
   }
 

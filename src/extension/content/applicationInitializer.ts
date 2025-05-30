@@ -38,7 +38,7 @@ export class AppInitializer {
     }
     
     // Skip if we're not on a supported site
-    if (!this.isChatGPTSite() && !this.isClaudeSite() && !this.isMistralSite()) {
+    if (!this.isChatGPTSite() && !this.isClaudeSite() && !this.isMistralSite() && !this.isCopilotSite()) {
       return false;
     }
     
@@ -88,6 +88,10 @@ export class AppInitializer {
 
   private isMistralSite(): boolean {
     return window.location.hostname.includes('mistral.ai');
+  }
+
+  private isCopilotSite(): boolean {
+    return window.location.hostname.includes('copilot.microsoft.com');
   }
 
   
