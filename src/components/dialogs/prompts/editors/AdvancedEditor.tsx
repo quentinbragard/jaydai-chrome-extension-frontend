@@ -569,7 +569,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                 <Textarea
                   value={typeof contentBlock.content === 'string' ? contentBlock.content : contentBlock.content[getCurrentLanguage()] || contentBlock.content.en || ''}
                   onChange={e => onUpdateBlock(contentBlock.id, { content: e.target.value })}
-                  className="jd-min-h-[120px] jd-text-sm"
+                  className="jd-h-full jd-text-sm"
                   placeholder="Enter main prompt content..."
                 />
               </div>
@@ -598,22 +598,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                 }
               />
             </div>
-
-            {otherBlocks.length === 0 && (
-              <div className={cn(
-                'jd-text-center jd-py-12 jd-rounded-lg jd-border-2 jd-border-dashed',
-                'jd-transition-all jd-duration-300',
-                isDarkMode ? 'jd-bg-gray-800/30 jd-border-gray-700' : 'jd-bg-white/50 jd-border-gray-300'
-              )}>
-                <div className={cn(
-                  'jd-p-4 jd-rounded-full jd-inline-flex jd-mb-4',
-                  isDarkMode ? 'jd-bg-gray-700/50' : 'jd-bg-gray-100'
-                )}>
-                  <Wand2 className="jd-h-12 jd-w-12 jd-text-muted-foreground" />
-                </div>
-                <p className="jd-text-muted-foreground jd-mb-4">No additional blocks yet</p>
-              </div>
-            )}
           </div>
         </div>
 

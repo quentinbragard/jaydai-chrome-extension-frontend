@@ -8,17 +8,19 @@ import {
   getBlockIconColors, 
   BLOCK_TYPE_LABELS 
 } from '@/components/prompts/blocks/blockUtils';
-import { Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Trash } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
+import { Button } from '@/components/ui/button';
 
 export interface AvailableBlockCardProps {
   block: Block;
   isDark: boolean;
   onAdd: (block: Block) => void;
   isSelected?: boolean;
+  onRemove: (block: Block) => void;
 }
 
-export function AvailableBlockCard({ block, isDark, onAdd, isSelected = false }: AvailableBlockCardProps) {
+export function AvailableBlockCard({ block, isDark, onAdd, isSelected = false, onRemove }: AvailableBlockCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const Icon = getBlockTypeIcon(block.type);
   const iconBg = getBlockIconColors(block.type, isDark);
@@ -37,9 +39,9 @@ export function AvailableBlockCard({ block, isDark, onAdd, isSelected = false }:
       onClick={() => onAdd(block)}
     >
       {isSelected && (
-        <div className="jd-absolute jd--top-1 jd--right-1 jd-bg-primary jd-text-primary-foreground jd-rounded-full jd-w-5 jd-h-5 jd-flex jd-items-center jd-justify-center jd-text-xs jd-font-bold">
-          ✓
-        </div>
+       <div className="jd-absolute jd--top-1 jd--right-1 jd-bg-primary jd-text-primary-foreground jd-rounded-full jd-w-5 jd-h-5 jd-flex jd-items-center jd-justify-center jd-text-xs jd-font-bold">
+       <Button variant="outline" size="icon" onClick={() => onRemove(block)}><Trash className="jd-h-3.5 jd-w-3.5 jd-text-red-500" /></Button>
+     </div>
       )}
       
       <CardContent className="jd-p-3">
@@ -86,7 +88,7 @@ export function AvailableBlockCard({ block, isDark, onAdd, isSelected = false }:
             )}
             
             {!isSelected && (
-              <Plus className="jd-h-3.5 jd-w-3.5 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-text-primary" />
+              <Plus className="jd-h-3.5 jd-w-3.5 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-text-red-500" />
             )}
           </div>
         </div>

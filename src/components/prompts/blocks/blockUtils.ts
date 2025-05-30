@@ -188,17 +188,17 @@ export const getLocalizedContent = (content: any): string => {
 
 // Enhanced prompt prefixes with better French localization
 const PROMPT_PREFIXES_FR: Record<BlockType, string> = {
-  role: "Ton rôle est d'être ",
-  context: 'Contexte : ',
-  goal: 'Ton objectif est ',
+  role: "Role:\n ",
+  context: 'Contexte:\n ',
+  goal: 'Objectif:\n ',
   content: '',
   custom: '',
-  output_format: 'Format de sortie : ',
-  example: 'Exemple : ',
-  constraint: 'Contrainte : ',
-  tone_style: 'Ton et style : ',
-  audience: 'Audience cible : ',
-  thinking_step: 'Étape de réflexion : '
+  output_format: 'Format de sortie:\n ',
+  example: 'Exemples:\n ',
+  constraint: 'Contraintes:\n ',
+  tone_style: 'Ton et style:\n ',
+  audience: 'Audience cible:\n ',
+  thinking_step: 'Étape de réflexion:\n '
 };
 
 const escapeHtml = (str: string): string =>
@@ -226,7 +226,7 @@ export const buildPromptPartHtml = (type: BlockType | null | undefined, content:
   if (!prefix) {
     return escapeHtml(content);
   }
-  return `<span class="${getBlockTextColors(type, isDarkMode)}">${escapeHtml(prefix)}</span>${escapeHtml(content)}`;
+  return `<span class="${getBlockTextColors(type, isDarkMode)} jd-font-black">${escapeHtml(prefix)}</span>${escapeHtml(content)}`;
 };
 
 // Enhanced helper functions

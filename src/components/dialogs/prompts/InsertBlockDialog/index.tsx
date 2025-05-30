@@ -97,8 +97,8 @@ export const InsertBlockDialog: React.FC = () => {
     }
   };
 
-  const removeBlock = (blockId: number) => {
-    setSelectedBlocks(prev => prev.filter(b => b.id !== blockId));
+  const removeBlock = (block: Block) => {
+    setSelectedBlocks(prev => prev.filter(b => b.id !== block.id));
   };
 
   const insertBlocks = () => {
@@ -250,6 +250,8 @@ export const InsertBlockDialog: React.FC = () => {
                     block={block}
                     isDark={isDark}
                     onAdd={addBlock}
+                    isSelected={!!selectedBlocks.find(b => b.id === block.id)}
+                    onRemove={removeBlock}
                   />
                 ))
               )}
@@ -321,6 +323,7 @@ export const InsertBlockDialog: React.FC = () => {
                 block={block}
                 isDark={isDark}
                 onAdd={addBlock}
+                onRemove={removeBlock}
               />
             ))
           )}
