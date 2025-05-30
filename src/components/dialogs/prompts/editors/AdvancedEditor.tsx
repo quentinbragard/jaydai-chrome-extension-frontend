@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/editors/AdvancedEditor.tsx - Enhanced version
+// src/components/dialogs/prompts/editors/AdvancedEditor.tsx - Enhanced version with more content space
 import React, { useState, useEffect } from 'react';
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { 
@@ -24,7 +24,7 @@ import { MultipleMetadataCard } from '@/components/prompts/blocks/MultipleMetada
 import { BlockCard } from '@/components/prompts/blocks/BlockCard';
 import { PreviewSection } from '@/components/prompts/PreviewSection';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout, Sparkles, Wand2, Palette, Ban } from 'lucide-react';
+import { Plus, FileText, User, MessageSquare, Target, Users, Type, Layout, Sparkles, Wand2, Palette, Ban, ChevronDown, ChevronUp } from 'lucide-react';
 import { AddBlockButton } from '@/components/common/AddBlockButton';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
@@ -76,6 +76,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const [activeSecondaryMetadata, setActiveSecondaryMetadata] = useState<Set<MetadataType>>(new Set());
   const [draggedBlockId, setDraggedBlockId] = useState<number | null>(null);
+  
+  // New state for collapsible sections
+  const [metadataCollapsed, setMetadataCollapsed] = useState(false);
+  const [secondaryMetadataCollapsed, setSecondaryMetadataCollapsed] = useState(false);
 
   const isDarkMode = useThemeDetector();
 
@@ -429,7 +433,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   return (
     <div
       className={cn(
-        'jd-h-full jd-flex jd-flex-col jd-px-6 jd-relative jd-overflow-hidden',
+        'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-hidden jd-space-y-4',
         isDarkMode
           ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
           : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
@@ -452,145 +456,177 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       </div>
 
       {/* Content wrapper with backdrop blur */}
-      <div className="jd-relative jd-z-10">
-        {/* Primary Metadata Row */}
-        <div className="jd-space-y-4">
-          <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-            Prompt Essentials
-          </h3>
-          <div className="jd-grid jd-grid-cols-3 jd-gap-4">
-            {PRIMARY_METADATA.map((type) => (
-              <div key={type} className="jd-transform jd-transition-all jd-duration-300 hover:jd-scale-105">
-                <MetadataCard
-                  type={type}
-                  icon={METADATA_ICONS[type]}
-                  availableBlocks={availableMetadataBlocks[type] || []}
-                  expanded={expandedMetadata === type}
-                  selectedId={metadata[type] || 0}
-                  customValue={customValues[type] || ''}
-                  isPrimary
-                  onSelect={(v) => handleSingleMetadataChange(type, v)}
-                  onCustomChange={(v) => handleCustomChange(type, v)}
-                  onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
-                  onSaveBlock={handleMetadataBlockSaved}
-                />
-              </div>
-            ))}
+      <div className="jd-relative jd-z-10 jd-flex-1 jd-flex jd-flex-col jd-space-y-4 jd-p-6 jd-overflow-hidden">
+        
+        {/* Primary Metadata Row - Collapsible */}
+        <div className="jd-flex-shrink-0">
+          <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
+            <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
+              Prompt Essentials
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMetadataCollapsed(!metadataCollapsed)}
+              className="jd-h-6 jd-w-6 jd-p-0"
+            >
+              {metadataCollapsed ? <ChevronDown className="jd-h-4 jd-w-4" /> : <ChevronUp className="jd-h-4 jd-w-4" />}
+            </Button>
           </div>
-        </div>
-
-        {/* Secondary Metadata Row */}
-        <div className="jd-space-y-4 jd-mt-4">
-          <h4 className="jd-text-sm jd-font-medium jd-text-muted-foreground jd-flex jd-items-center jd-gap-2">
-            Additional Elements
-          </h4>
           
-          {activeSecondaryMetadata.size > 0 && (
-            <div className="jd-grid jd-grid-cols-2 jd-gap-3">
-              {Array.from(activeSecondaryMetadata).map((type) => (
+          {!metadataCollapsed && (
+            <div className="jd-grid jd-grid-cols-3 jd-gap-4">
+              {PRIMARY_METADATA.map((type) => (
                 <div key={type} className="jd-transform jd-transition-all jd-duration-300 hover:jd-scale-105">
-                  {isMultipleMetadataType(type) ? (
-                    <MultipleMetadataCard
-                      type={type}
-                      icon={METADATA_ICONS[type]}
-                      availableBlocks={availableMetadataBlocks[type] || []}
-                      items={metadata[type] || []}
-                      expanded={expandedMetadata === type}
-                      onAddItem={() => handleAddMetadataItem(type)}
-                      onRemoveItem={(itemId) => handleRemoveMetadataItem(type, itemId)}
-                      onUpdateItem={(itemId, updates) => handleUpdateMetadataItem(type, itemId, updates)}
-                      onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
-                      onRemove={() => removeSecondaryMetadata(type)}
-                      onSaveBlock={handleMetadataBlockSaved}
-                      onReorderItems={(newItems) => handleReorderMetadataItems(type, newItems)}
-                    />
-                  ) : (
-                    <MetadataCard
-                      type={type as SingleMetadataType}
-                      icon={METADATA_ICONS[type]}
-                      availableBlocks={availableMetadataBlocks[type] || []}
-                      expanded={expandedMetadata === type}
-                      selectedId={metadata[type as SingleMetadataType] || 0}
-                      customValue={customValues[type as SingleMetadataType] || ''}
-                      onSelect={(v) => handleSingleMetadataChange(type as SingleMetadataType, v)}
-                      onCustomChange={(v) => handleCustomChange(type as SingleMetadataType, v)}
-                      onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
-                      onRemove={() => removeSecondaryMetadata(type)}
-                      onSaveBlock={handleMetadataBlockSaved}
-                    />
-                  )}
+                  <MetadataCard
+                    type={type}
+                    icon={METADATA_ICONS[type]}
+                    availableBlocks={availableMetadataBlocks[type] || []}
+                    expanded={expandedMetadata === type}
+                    selectedId={metadata[type] || 0}
+                    customValue={customValues[type] || ''}
+                    isPrimary
+                    onSelect={(v) => handleSingleMetadataChange(type, v)}
+                    onCustomChange={(v) => handleCustomChange(type, v)}
+                    onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
+                    onSaveBlock={handleMetadataBlockSaved}
+                  />
                 </div>
               ))}
             </div>
           )}
-          
-          <div className="jd-flex jd-flex-wrap jd-gap-2">
-            {SECONDARY_METADATA
-              .filter(type => !activeSecondaryMetadata.has(type))
-              .map((type) => {
-                const config = METADATA_CONFIGS[type];
-                const Icon = METADATA_ICONS[type];
-                return (
-                  <Button
-                    key={type}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => addSecondaryMetadata(type)}
-                    className={cn(
-                      'jd-flex jd-items-center jd-gap-1 jd-text-xs',
-                      'jd-transition-all jd-duration-300',
-                      'hover:jd-scale-105 hover:jd-shadow-md',
-                      isDarkMode 
-                        ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50' 
-                        : 'jd-bg-white/70 hover:jd-bg-white/90'
-                    )}
-                  >
-                    <Plus className="jd-h-3 jd-w-3" />
-                    <Icon className="jd-h-3 jd-w-3" />
-                    {config.label}
-                  </Button>
-                );
-              })}
-          </div>
         </div>
 
-        {/* Prompt Content Section */}
-        <div className="jd-space-y-4 jd-flex-1 jd-mt-4 jd-border-t jd-pt-4">
-          <div className="jd-flex jd-items-center jd-justify-between">
+        {/* Secondary Metadata Row - Collapsible */}
+        <div className="jd-flex-shrink-0">
+          <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
+            <h4 className="jd-text-sm jd-font-medium jd-text-muted-foreground jd-flex jd-items-center jd-gap-2">
+              Additional Elements
+            </h4>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSecondaryMetadataCollapsed(!secondaryMetadataCollapsed)}
+              className="jd-h-6 jd-w-6 jd-p-0"
+            >
+              {secondaryMetadataCollapsed ? <ChevronDown className="jd-h-4 jd-w-4" /> : <ChevronUp className="jd-h-4 jd-w-4" />}
+            </Button>
+          </div>
+          
+          {!secondaryMetadataCollapsed && (
+            <>
+              {activeSecondaryMetadata.size > 0 && (
+                <div className="jd-grid jd-grid-cols-2 jd-gap-3 jd-mb-3">
+                  {Array.from(activeSecondaryMetadata).map((type) => (
+                    <div key={type} className="jd-transform jd-transition-all jd-duration-300 hover:jd-scale-105">
+                      {isMultipleMetadataType(type) ? (
+                        <MultipleMetadataCard
+                          type={type}
+                          icon={METADATA_ICONS[type]}
+                          availableBlocks={availableMetadataBlocks[type] || []}
+                          items={metadata[type] || []}
+                          expanded={expandedMetadata === type}
+                          onAddItem={() => handleAddMetadataItem(type)}
+                          onRemoveItem={(itemId) => handleRemoveMetadataItem(type, itemId)}
+                          onUpdateItem={(itemId, updates) => handleUpdateMetadataItem(type, itemId, updates)}
+                          onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
+                          onRemove={() => removeSecondaryMetadata(type)}
+                          onSaveBlock={handleMetadataBlockSaved}
+                          onReorderItems={(newItems) => handleReorderMetadataItems(type, newItems)}
+                        />
+                      ) : (
+                        <MetadataCard
+                          type={type as SingleMetadataType}
+                          icon={METADATA_ICONS[type]}
+                          availableBlocks={availableMetadataBlocks[type] || []}
+                          expanded={expandedMetadata === type}
+                          selectedId={metadata[type as SingleMetadataType] || 0}
+                          customValue={customValues[type as SingleMetadataType] || ''}
+                          onSelect={(v) => handleSingleMetadataChange(type as SingleMetadataType, v)}
+                          onCustomChange={(v) => handleCustomChange(type as SingleMetadataType, v)}
+                          onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
+                          onRemove={() => removeSecondaryMetadata(type)}
+                          onSaveBlock={handleMetadataBlockSaved}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div className="jd-flex jd-flex-wrap jd-gap-2">
+                {SECONDARY_METADATA
+                  .filter(type => !activeSecondaryMetadata.has(type))
+                  .map((type) => {
+                    const config = METADATA_CONFIGS[type];
+                    const Icon = METADATA_ICONS[type];
+                    return (
+                      <Button
+                        key={type}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addSecondaryMetadata(type)}
+                        className={cn(
+                          'jd-flex jd-items-center jd-gap-1 jd-text-xs',
+                          'jd-transition-all jd-duration-300',
+                          'hover:jd-scale-105 hover:jd-shadow-md',
+                          isDarkMode 
+                            ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50' 
+                            : 'jd-bg-white/70 hover:jd-bg-white/90'
+                        )}
+                      >
+                        <Plus className="jd-h-3 jd-w-3" />
+                        <Icon className="jd-h-3 jd-w-3" />
+                        {config.label}
+                      </Button>
+                    );
+                  })}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Prompt Content Section - Now takes more space */}
+        <div className="jd-flex-1 jd-flex jd-flex-col jd-min-h-0 jd-border-t jd-pt-4">
+          <div className="jd-flex jd-items-center jd-justify-between jd-mb-4">
             <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
               Prompt Content
             </h3>
           </div>
 
-          <div className="jd-space-y-3 jd-flex-1 jd-overflow-y-auto jd-max-h-[400px] jd-pr-2">
+          <div className="jd-flex-1 jd-flex jd-flex-col jd-min-h-0 jd-space-y-4">
             {contentBlock && (
-              <div className="jd-space-y-2">
-                <h4 className="jd-text-sm jd-font-medium">Main Content</h4>
+              <div className="jd-flex-1 jd-flex jd-flex-col jd-min-h-0">
+                <h4 className="jd-text-sm jd-font-medium jd-mb-2">Main Content</h4>
                 <Textarea
                   value={typeof contentBlock.content === 'string' ? contentBlock.content : contentBlock.content[getCurrentLanguage()] || contentBlock.content.en || ''}
                   onChange={e => onUpdateBlock(contentBlock.id, { content: e.target.value })}
-                  className="jd-h-full jd-text-sm"
+                  className="jd-flex-1 jd-min-h-[200px] jd-text-sm jd-resize-none"
                   placeholder="Enter main prompt content..."
                 />
               </div>
             )}
 
-            {otherBlocks.map((block, index) => (
-              <div key={block.id} className="jd-animate-in jd-slide-in-from-bottom-2 jd-duration-300">
-                <BlockCard
-                  block={block}
-                  availableBlocks={availableBlocksByType[block.type || 'content'] || []}
-                  onRemove={onRemoveBlock}
-                  onUpdate={onUpdateBlock}
-                  onDragStart={handleDragStart}
-                  onDragOver={handleDragOver}
-                  onDragEnd={handleDragEnd}
-                  onSave={(saved) => handleBlockSaved(block.id, saved)}
-                />
+            {otherBlocks.length > 0 && (
+              <div className="jd-flex jd-flex-col jd-space-y-3 jd-max-h-[300px] jd-overflow-y-auto jd-pr-2">
+                {otherBlocks.map((block, index) => (
+                  <div key={block.id} className="jd-animate-in jd-slide-in-from-bottom-2 jd-duration-300">
+                    <BlockCard
+                      block={block}
+                      availableBlocks={availableBlocksByType[block.type || 'content'] || []}
+                      onRemove={onRemoveBlock}
+                      onUpdate={onUpdateBlock}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDragEnd={handleDragEnd}
+                      onSave={(saved) => handleBlockSaved(block.id, saved)}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
 
-            <div className="jd-flex jd-justify-center jd-my-3">
+            <div className="jd-flex jd-justify-center jd-py-2">
               <AddBlockButton
                 availableBlocks={availableBlocksByType}
                 onAdd={(type, existing, duplicate) =>
@@ -601,13 +637,16 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           </div>
         </div>
 
-        <PreviewSection
-          content={generatePreviewContent()}
-          htmlContent={generatePreviewHtml()}
-          expanded={previewExpanded}
-          onToggle={() => setPreviewExpanded(!previewExpanded)}
-          isHtml
-        />
+        {/* Preview Section - More compact */}
+        <div className="jd-flex-shrink-0">
+          <PreviewSection
+            content={generatePreviewContent()}
+            htmlContent={generatePreviewHtml()}
+            expanded={previewExpanded}
+            onToggle={() => setPreviewExpanded(!previewExpanded)}
+            isHtml
+          />
+        </div>
       </div>
     </div>
   );
