@@ -6,5 +6,8 @@ export function detectPlatform() {
   if (hostname.includes('claude.ai')) {
     return 'claude';
   }
+  if (hostname.includes('mistral.ai')) {
+    return 'mistral';
+  }
   return 'unknown';
 }
