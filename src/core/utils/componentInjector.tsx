@@ -75,7 +75,7 @@ class ComponentInjector {
     
     // Create shadow root if it doesn't exist
     if (!shadowRoot) {
-      shadowRoot = container.attachShadow({ mode: 'open' });
+      shadowRoot = container.attachShadow({ mode: 'open', delegatesFocus: true });
       this.shadowContainers.set(containerId, shadowRoot);
       
       // Create initial style element
