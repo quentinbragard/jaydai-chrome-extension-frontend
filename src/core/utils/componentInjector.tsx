@@ -75,7 +75,6 @@ class ComponentInjector {
     
     // Create shadow root if it doesn't exist
     if (!shadowRoot) {
-      // Use delegatesFocus so focus moves correctly into the shadow DOM
       shadowRoot = container.attachShadow({ mode: 'open', delegatesFocus: true });
       this.shadowContainers.set(containerId, shadowRoot);
       
