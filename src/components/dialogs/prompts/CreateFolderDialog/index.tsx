@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
-import { useDialog } from '../../DialogContext';
-import { DIALOG_TYPES } from '../../DialogRegistry';
+import { useDialog } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
-import { BaseDialog } from '../../BaseDialog';
+import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 
 /**
@@ -105,6 +105,8 @@ export const CreateFolderDialog: React.FC = () => {
     }
     dialogProps.onOpenChange(open);
   };
+
+  if (!isOpen) return null;
   
   return (
     <BaseDialog
@@ -112,15 +114,9 @@ export const CreateFolderDialog: React.FC = () => {
       onOpenChange={handleClose}
       title={getMessage('createFolder', undefined, 'Create Folder')}
       description={getMessage('createFolderDescription', undefined, 'Create a new folder to organize your templates')}
-      className="jd-max-w-xl jd-z-[10015]" // Higher z-index for stacking
+      className="jd-max-w-xl"
     >
-      <div 
-        className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4"
-        // Prevent any event bubbling from the container
-        onClick={(e) => e.stopPropagation()}
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <form onSubmit={handleSubmit} className="jd-space-y-4">
+      <form onSubmit={handleSubmit} className="jd-space-y-4 jd-mt-4">
           <div>
             <label className="jd-text-sm jd-font-medium">
               {getMessage('folderName', undefined, 'Folder Name')}
@@ -197,7 +193,6 @@ export const CreateFolderDialog: React.FC = () => {
             </Button>
           </div>
         </form>
-      </div>
     </BaseDialog>
   );
 };
