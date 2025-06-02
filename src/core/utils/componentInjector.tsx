@@ -1,7 +1,8 @@
-// src/core/utils/componentInjector.ts
+// src/core/utils/componentInjector.tsx - Enhanced with focus management
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { getCurrentTheme } from '@/hooks/useThemeDetector';
+import { setupMinimalFocusProtection } from './shadowDomFocusManager';
 
 // Define a type for position configuration
 type PositionConfig = {
@@ -23,7 +24,7 @@ interface InjectionOptions {
 
 /**
  * Utility class to inject React components into the page with Shadow DOM support
- * and automatic theme synchronization
+ * and automatic theme synchronization and focus management
  */
 class ComponentInjector {
   private roots: Map<string, ReactDOM.Root> = new Map();
@@ -31,6 +32,7 @@ class ComponentInjector {
   private shadowContainers: Map<string, ShadowRoot> = new Map();
   private styleElements: Map<string, HTMLStyleElement> = new Map();
   private themeObservers: Map<string, MutationObserver> = new Map();
+  private focusInterceptors: Map<string, () => void> = new Map(); // Store cleanup functions
 
   /**
    * Get or create a shadow DOM element in the page
@@ -75,15 +77,26 @@ class ComponentInjector {
     
     // Create shadow root if it doesn't exist
     if (!shadowRoot) {
-      shadowRoot = container.attachShadow({ mode: 'open', delegatesFocus: true });
+      shadowRoot = container.attachShadow({ mode: 'open' });
       this.shadowContainers.set(containerId, shadowRoot);
       
-      // Create initial style element
+      // Create initial style element with minimal isolation
       const styleEl = document.createElement('style');
       styleEl.textContent = `
         :host {
           all: initial;
           display: contents;
+        }
+        
+        /* Basic styling for better appearance */
+        * {
+          box-sizing: border-box;
+        }
+        
+        /* Focus styles for accessibility */
+        *:focus {
+          outline: 2px solid var(--primary, #3b82f6);
+          outline-offset: 2px;
         }
       `;
       shadowRoot.appendChild(styleEl);
@@ -98,6 +111,12 @@ class ComponentInjector {
         // Set up theme observer to sync theme changes
         this.observeThemeChanges(containerId, container);
       }
+      
+      // MINIMAL: Setup focus protection for this shadow root (focus monitoring only)
+      const focusCleanup = setupMinimalFocusProtection(shadowRoot);
+      this.focusInterceptors.set(containerId, focusCleanup);
+      
+      // No event interception - just focus monitoring to prevent typing in wrong places
     }
     
     return shadowRoot;
@@ -207,6 +226,7 @@ class ComponentInjector {
         // Create a container for the React component inside the shadow root
         const reactContainer = document.createElement('div');
         reactContainer.id = `${id}-react-container`;
+        
         shadowRoot.appendChild(reactContainer);
         
         // Create a React root and render the component
@@ -248,7 +268,7 @@ class ComponentInjector {
         this.roots.set(id, root);
       }
       
-      console.log(`Component "${id}" injected successfully`);
+      console.log(`Component "${id}" injected successfully with enhanced focus management`);
     } catch (error) {
       console.error(`Error injecting component "${id}":`, error);
     }
@@ -265,6 +285,13 @@ class ComponentInjector {
       if (observer) {
         observer.disconnect();
         this.themeObservers.delete(id);
+      }
+      
+      // Clean up focus interceptor
+      const focusCleanup = this.focusInterceptors.get(id);
+      if (focusCleanup) {
+        focusCleanup();
+        this.focusInterceptors.delete(id);
       }
       
       // Unmount the React root if it exists

@@ -409,7 +409,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         <div
           ref={editorRef}
           contentEditable
-          dir="ltr"
           suppressContentEditableWarning
           onFocus={handleEditorFocus}
           onBlur={handleEditorBlur}
@@ -418,13 +417,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             isDarkMode
               ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
               : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
-          }`}
-          // Stop propagation for events that might interfere with contentEditable behavior
-          onClick={(e) => e.stopPropagation()}
-          // onMouseDown={(e) => e.stopPropagation()} // Usually not needed unless specific issues
-          // onKeyDown={(e) => e.stopPropagation()} // Be careful with this, might block useful keys
-          // onKeyPress={(e) => e.stopPropagation()}// "
-          // onKeyUp={(e) => e.stopPropagation()}   // "
+          }`}          
         />
       </div>
     );
@@ -471,7 +464,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             <div
               ref={editorRef}
               contentEditable
-              dir="ltr"
               suppressContentEditableWarning
               onFocus={handleEditorFocus}
               onBlur={handleEditorBlur}
@@ -481,7 +473,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                   ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
                   : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
               }`}
-              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </ResizablePanel>
