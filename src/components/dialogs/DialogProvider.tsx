@@ -49,12 +49,13 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
     const handleCapturedEvent = (e: Event) => {
       // Don't intercept all events - let normal UI events continue
       // We only want to intercept keyboard events when dialogs are open
-      if (document.querySelector('.jd-fixed.jd-inset-0.jd-z-50')) {
+      // Support both Radix based dialogs (z-50) and custom BaseDialog (z-[10001])
+      if (document.querySelector('.jd-fixed.jd-inset-0')) {
         if (
-          e.type.startsWith('key') || 
-          e.type === 'input' || 
+          e.type.startsWith('key') ||
+          e.type === 'input' ||
           e.type === 'change' ||
-          e.type === 'focus' || 
+          e.type === 'focus' ||
           e.type === 'blur'
         ) {
           e.stopPropagation();
