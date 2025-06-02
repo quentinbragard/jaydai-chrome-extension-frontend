@@ -60,18 +60,24 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   // FIXED: More selective event isolation that doesn't break internal functionality
   useEffect(() => {
     if (!open || !dialogRef.current) return;
-    
+
     const dialogElement = dialogRef.current;
-    
-    // Only prevent events that try to bubble OUT of the dialog
+
+    // Only prevent events that originate outside of ANY dialog
     const handleEvent = (e: Event) => {
-      // Allow events that originate from within the dialog to work normally
-      if (dialogElement.contains(e.target as Node)) {
-        // Let the event continue normally within the dialog
+      const target = e.target as HTMLElement;
+
+      // Allow events from this dialog
+      if (dialogElement.contains(target)) {
         return;
       }
-      
-      // Only stop events that come from outside the dialog
+
+      // Allow events from other dialogs stacked on top
+      if (target.closest('[data-dialog-root]')) {
+        return;
+      }
+
+      // Prevent events coming from the underlying page
       e.stopPropagation();
       e.preventDefault();
     };
@@ -112,6 +118,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   
   return (
     <div
+      data-dialog-root
       className="jd-fixed jd-inset-0 jd-z-[10001] jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-overflow-hidden"
       onClick={handleBackdropClick}
       onMouseDown={(e) => e.stopPropagation()}
