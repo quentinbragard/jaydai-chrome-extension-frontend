@@ -78,14 +78,19 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
     
     events.forEach(eventName => {
       dialogElement.addEventListener(eventName, stopEventPropagation, {
-        capture: true,
+        // Use bubbling phase so events reach their targets before being stopped
+        capture: false,
         passive: false
       });
     });
     
     return () => {
       events.forEach(eventName => {
-        dialogElement.removeEventListener(eventName, stopEventPropagation, true);
+        dialogElement.removeEventListener(
+          eventName,
+          stopEventPropagation,
+          false
+        );
       });
     };
   }, [open]);
