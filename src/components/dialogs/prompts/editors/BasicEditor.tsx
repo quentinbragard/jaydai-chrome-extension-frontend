@@ -18,7 +18,6 @@ interface Placeholder {
   value: string;
 }
 
-
 /**
  * Basic editor mode - Simple placeholder and content editing (like the original)
  * No block logic exposed to the user
@@ -107,83 +106,62 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     const currentEffectiveContent = templateContent ? templateContent.replace(/\r\n/g, '\n') : "";
 
     if (mode === 'customize') {
-        if (initialContentRef.current && initialContentRef.current !== "") { // Past the very first setup for customize
-            // `templateContent` is now pinned to `initialContentRef.current`.
-            // Sync `modifiedContent` if it diverges (e.g., prop update before initialContentRef was used by templateContent).
-            if (modifiedContent !== currentEffectiveContent) {
-                setModifiedContent(currentEffectiveContent);
-            }
-            // Placeholders are based on initialContentRef, so re-extraction might only be needed if `extractPlaceholders` logic itself changes
-            // or if `placeholders` state was not correctly initialized. For simplicity, let's ensure they are set if empty.
-            if(placeholders.length === 0 && currentEffectiveContent) {
-                const extracted = extractPlaceholders(currentEffectiveContent);
-                setPlaceholders(extracted);
-            }
-        } else { // First pass for customize (initialContentRef.current is not yet set or is empty)
-            setModifiedContent(currentEffectiveContent);
-            const extractedPlaceholders = extractPlaceholders(currentEffectiveContent);
-            setPlaceholders(extractedPlaceholders);
-            if(!initialContentRef.current && currentEffectiveContent) { // Set snapshot only if content exists
-                initialContentRef.current = currentEffectiveContent;
-            }
+      if (initialContentRef.current && initialContentRef.current !== "") {
+        if (modifiedContent !== currentEffectiveContent) {
+          setModifiedContent(currentEffectiveContent);
         }
-    } else { // mode === 'create'
-        // In create mode, templateContent is always derived from blocks.
-        // Sync modifiedContent if not editing and it has diverged, or if it's the initial mount.
-        if (!contentMounted) {
-            setModifiedContent(currentEffectiveContent);
-            if (!initialContentRef.current && currentEffectiveContent) { // Set initial ref for create mode too
-                initialContentRef.current = currentEffectiveContent;
-            }
-        } else if (!isEditing && modifiedContent !== currentEffectiveContent) {
-            setModifiedContent(currentEffectiveContent);
+        if(placeholders.length === 0 && currentEffectiveContent) {
+          const extracted = extractPlaceholders(currentEffectiveContent);
+          setPlaceholders(extracted);
         }
+      } else {
+        setModifiedContent(currentEffectiveContent);
+        const extractedPlaceholders = extractPlaceholders(currentEffectiveContent);
+        setPlaceholders(extractedPlaceholders);
+        if(!initialContentRef.current && currentEffectiveContent) {
+          initialContentRef.current = currentEffectiveContent;
+        }
+      }
+    } else {
+      if (!contentMounted) {
+        setModifiedContent(currentEffectiveContent);
+        if (!initialContentRef.current && currentEffectiveContent) {
+          initialContentRef.current = currentEffectiveContent;
+        }
+      } else if (!isEditing && modifiedContent !== currentEffectiveContent) {
+        setModifiedContent(currentEffectiveContent);
+      }
     }
 
-    // DOM manipulation in setTimeout to ensure refs are current and avoid direct manipulation during render.
     const timeoutId = setTimeout(() => {
-        if (editorRef.current) {
-            if (mode === 'customize') {
-                // For customize, only set innerHTML on the very first mount operation.
-                // Subsequent highlighting is handled by onBlur or updatePlaceholder.
-                if (!contentMounted) {
-                    editorRef.current.innerHTML = highlightPlaceholders(currentEffectiveContent);
-                }
-            } else { // mode === 'create'
-                // *** THE CORE FIX FOR CURSOR JUMPING ***
-                if (!contentMounted) {
-                    // Initial mount: set the editor's text content.
-                    editorRef.current.textContent = currentEffectiveContent;
-                } else if (!isEditing && editorRef.current.textContent !== currentEffectiveContent) {
-                    // Subsequent runs: IF NOT EDITING and the DOM content has diverged from
-                    // currentEffectiveContent (e.g., due to an external update to blocks), then update DOM.
-                    editorRef.current.textContent = currentEffectiveContent;
-                }
-                // If 'isEditing' is true, we DO NOT touch editorRef.current.textContent here.
-                // The user's input directly manipulates the DOM.
-                // handleEditorInput syncs this to React state and parent.
-            }
-
-            if (!contentMounted) {
-                setContentMounted(true);
-            }
+      if (editorRef.current) {
+        if (mode === 'customize') {
+          if (!contentMounted) {
+            editorRef.current.innerHTML = highlightPlaceholders(currentEffectiveContent);
+          }
+        } else {
+          if (!contentMounted) {
+            editorRef.current.textContent = currentEffectiveContent;
+          } else if (!isEditing && editorRef.current.textContent !== currentEffectiveContent) {
+            editorRef.current.textContent = currentEffectiveContent;
+          }
         }
-    }, 0); // Use 0 for minimal deferral
+
+        if (!contentMounted) {
+          setContentMounted(true);
+        }
+      }
+    }, 0);
 
     return () => clearTimeout(timeoutId);
-
-}, [templateContent, mode, contentMounted, isEditing, modifiedContent]);
-// Note: `placeholders` was removed from dependencies as its updates are now more controlled within the effect or by other functions.
-// `initialContentRef` is a ref, so it's not a dependency.
-
+  }, [templateContent, mode, contentMounted, isEditing, modifiedContent]);
 
   // Setup mutation observer
   useEffect(() => {
-    if (!contentMounted || !editorRef.current || mode === 'create') { // Observer not strictly needed for create mode if not highlighting
-        if(observerRef.current) observerRef.current.disconnect(); // Ensure cleanup if mode changes
-        return;
+    if (!contentMounted || !editorRef.current || mode === 'create') {
+      if(observerRef.current) observerRef.current.disconnect();
+      return;
     }
-
 
     observerRef.current = new MutationObserver(() => {
       if (isEditing || !editorRef.current) return;
@@ -201,7 +179,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         .replace(/<\/div>/gi, '')
         .replace(/<p\s*\/?>/gi, '')
         .replace(/<\/p>/gi, '')
-        .replace(/<\/?span[^>]*>/g, '') // Keep this to strip our highlights for textContent
+        .replace(/<\/?span[^>]*>/g, '')
         .replace(/&nbsp;/g, ' ')
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
@@ -209,22 +187,20 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         .replace(/&#039;/g, "'")
         .replace(/&amp;/g, '&');
       
-      // Check if content actually changed to avoid redundant updates
       if (modifiedContent !== textContent) {
         setModifiedContent(textContent);
 
         if (mode === 'customize') {
-            const extracted = extractPlaceholders(textContent);
-            // Only update if placeholders actually changed to avoid loops
-            const oldKeys = placeholders.map(p => p.key).join();
-            const newKeys = extracted.map(p => p.key).join();
-            if (oldKeys !== newKeys) {
-                setPlaceholders(extracted);
-            }
+          const extracted = extractPlaceholders(textContent);
+          const oldKeys = placeholders.map(p => p.key).join();
+          const newKeys = extracted.map(p => p.key).join();
+          if (oldKeys !== newKeys) {
+            setPlaceholders(extracted);
+          }
         }
         
         if (blocks.length > 0) {
-            onUpdateBlock(blocks[0].id, { content: textContent });
+          onUpdateBlock(blocks[0].id, { content: textContent });
         }
       }
     });
@@ -242,7 +218,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         observerRef.current = null;
       }
     };
-  }, [contentMounted, blocks, onUpdateBlock, mode, isEditing, modifiedContent, placeholders]); // Added isEditing, modifiedContent, placeholders
+  }, [contentMounted, blocks, onUpdateBlock, mode, isEditing, modifiedContent, placeholders]);
 
   const handleEditorFocus = () => {
     setIsEditing(true);
@@ -255,26 +231,24 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     setIsEditing(false);
     if (editorRef.current) {
       const htmlContent = editorRef.current.innerHTML;
-      // In 'create' mode, innerHTML is effectively textContent due to no highlighting
-      // In 'customize' mode, we need to convert HTML to text for storing
       let textContent = '';
       if (mode === 'create') {
         textContent = editorRef.current.textContent || '';
-      } else { // customize mode needs HTML to text conversion
+      } else {
         textContent = htmlContent
-            .replace(/<br\s*\/?>/gi, '\n')
-            .replace(/<div\s*\/?>/gi, '') // More robust might be needed if complex HTML is pasted
-            .replace(/<\/div>/gi, '\n')   // Basic conversion
-            .replace(/<p\s*\/?>/gi, '')
-            .replace(/<\/p>/gi, '\n')
-            .replace(/<\/?span[^>]*>/g, '') // Strip our highlights
-            .replace(/&nbsp;/g, ' ')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/&#039;/g, "'")
-            .replace(/&amp;/g, '&')
-            .replace(/\n\n+/g, '\n'); // Consolidate multiple newlines
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/<div\s*\/?>/gi, '')
+          .replace(/<\/div>/gi, '\n')
+          .replace(/<p\s*\/?>/gi, '')
+          .replace(/<\/p>/gi, '\n')
+          .replace(/<\/?span[^>]*>/g, '')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, "'")
+          .replace(/&amp;/g, '&')
+          .replace(/\n\n+/g, '\n');
       }
       
       setModifiedContent(textContent);
@@ -288,13 +262,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         onUpdateBlock(blocks[0].id, { content: textContent });
       }
 
-      if (observerRef.current) { // Should be null due to focus logic, but good practice
+      if (observerRef.current) {
         observerRef.current.disconnect();
       }
       
-      if (mode === 'customize') { // Only re-highlight and re-observe in customize mode
-        editorRef.current.innerHTML = highlightPlaceholders(textContent); // Re-apply highlighting
-        if (observerRef.current && editorRef.current) { // Re-attach observer
+      if (mode === 'customize') {
+        editorRef.current.innerHTML = highlightPlaceholders(textContent);
+        if (observerRef.current && editorRef.current) {
           observerRef.current.observe(editorRef.current, {
             childList: true,
             subtree: true,
@@ -309,29 +283,26 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   const handleEditorInput = () => {
     if (!editorRef.current) return;
 
-    // For 'create' mode, textContent is sufficient and more direct.
-    // For 'customize' mode, if user deletes highlighted span, innerHTML is more accurate.
     const currentRawContent = mode === 'create' ? (editorRef.current.textContent || '') : editorRef.current.innerHTML;
 
     let textContent;
     if (mode === 'create') {
-        textContent = currentRawContent;
+      textContent = currentRawContent;
     } else {
-        // Convert HTML to plain text, stripping spans, converting <br> to \n
-        textContent = currentRawContent
-            .replace(/<br\s*\/?>/gi, '\n')
-            .replace(/<div\s*\/?>/gi, '') 
-            .replace(/<\/div>/gi, '\n')   
-            .replace(/<p\s*\/?>/gi, '')
-            .replace(/<\/p>/gi, '\n')
-            .replace(/<\/?span[^>]*>/g, '') // Critical: remove spans to get true text
-            .replace(/&nbsp;/g, ' ')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/&#039;/g, "'")
-            .replace(/&amp;/g, '&')
-            .replace(/\n\n+/g, '\n'); 
+      textContent = currentRawContent
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<div\s*\/?>/gi, '') 
+        .replace(/<\/div>/gi, '\n')   
+        .replace(/<p\s*\/?>/gi, '')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<\/?span[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&amp;/g, '&')
+        .replace(/\n\n+/g, '\n'); 
     }
     
     setModifiedContent(textContent);
@@ -346,12 +317,34 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }
   };
 
+  // FIXED: Proper event handling like in InsertBlockDialog
+  const handleEditorKeyDown = (e: React.KeyboardEvent) => {
+    // CRITICAL: Stop all key events from bubbling up to prevent dialog from closing
+    e.stopPropagation();
+    
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      editorRef.current?.blur();
+      return;
+    }
+    
+    // Let all other keys work naturally for contentEditable
+  };
+
+  const handleEditorKeyPress = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleEditorKeyUp = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
+  };
+
   const escapeRegExp = (string: string) => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // Fixed: escape correctly
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   };
 
   const updatePlaceholder = (index: number, value: string) => {
-    if (isEditing && mode === 'customize') return; // Prevent updates if editor is focused in customize mode
+    if (isEditing && mode === 'customize') return;
 
     activeInputIndex.current = index;
 
@@ -359,12 +352,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     updatedPlaceholders[index].value = value;
     setPlaceholders(updatedPlaceholders);
 
-    // Use initialContentRef.current for customize mode as the base for replacements
-    // For create mode, templateContent is fine (though placeholders aren't typically used here)
     let baseContent = (mode === 'customize' && initialContentRef.current ? initialContentRef.current : templateContent).replace(/\r\n/g, '\n');
     
-    updatedPlaceholders.forEach(({ key, value: val }) => { // Renamed value to val to avoid conflict
-      if (val) { // Only replace if there's a value
+    updatedPlaceholders.forEach(({ key, value: val }) => {
+      if (val) {
         const regex = new RegExp(escapeRegExp(key), "g");
         baseContent = baseContent.replace(regex, val);
       }
@@ -376,7 +367,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
       onUpdateBlock(blocks[0].id, { content: baseContent });
     }
 
-    if (editorRef.current && !isEditing && mode === 'customize') { // Only highlight for customize
+    if (editorRef.current && !isEditing && mode === 'customize') {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
@@ -389,10 +380,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           attributes: false 
         });
       }
-    } else if (editorRef.current && mode === 'create') { // For create mode, just update textContent
-        editorRef.current.textContent = baseContent;
+    } else if (editorRef.current && mode === 'create') {
+      editorRef.current.textContent = baseContent;
     }
-
 
     setTimeout(() => {
       if (activeInputIndex.current !== null && inputRefs.current[activeInputIndex.current]) {
@@ -413,6 +403,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           onFocus={handleEditorFocus}
           onBlur={handleEditorBlur}
           onInput={handleEditorInput}
+          onKeyDown={handleEditorKeyDown}
+          onKeyPress={handleEditorKeyPress}
+          onKeyUp={handleEditorKeyUp}
           className={`jd-flex-1 jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
             isDarkMode
               ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
@@ -431,7 +424,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           <div className="jd-h-full jd-space-y-4 jd-overflow-auto jd-p-4">
             <h3 className="jd-text-sm jd-font-medium jd-mb-2">Replace Placeholders</h3>
             {placeholders.length > 0 ? (
-              <ScrollArea className="jd-h-full"> {/* Ensure ScrollArea has a height constraint */}
+              <ScrollArea className="jd-h-full">
                 <div className="jd-space-y-4 jd-pr-4">
                   {placeholders.map((placeholder, idx) => (
                     <div key={placeholder.key + idx} className="jd-space-y-1">
@@ -443,6 +436,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                         onFocus={() => {
                           activeInputIndex.current = idx;
                         }}
+                        // FIXED: Proper event handling for inputs
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onKeyPress={(e) => e.stopPropagation()}
+                        onKeyUp={(e) => e.stopPropagation()}
                         value={placeholder.value}
                         onChange={(e) => updatePlaceholder(idx, e.target.value)}
                         placeholder={`Enter value for ${placeholder.key}`}
@@ -467,7 +464,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               suppressContentEditableWarning
               onFocus={handleEditorFocus}
               onBlur={handleEditorBlur}
-              onInput={handleEditorInput} // This handles content changes
+              onInput={handleEditorInput}
+              onKeyDown={handleEditorKeyDown}
+              onKeyPress={handleEditorKeyPress}
+              onKeyUp={handleEditorKeyUp}
               className={`jd-flex-1 jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
                 isDarkMode
                   ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"

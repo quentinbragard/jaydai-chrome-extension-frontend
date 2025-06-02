@@ -16,7 +16,7 @@ export interface BaseDialogProps {
 
 /**
  * A simplified BaseDialog that works better with Shadow DOM
- * Uses improved event capturing to prevent events from leaking
+ * Uses improved event capturing to prevent events from leaking while allowing internal functionality
  */
 export const BaseDialog: React.FC<BaseDialogProps> = ({ 
   open, 
@@ -57,40 +57,42 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
     };
   }, [onOpenChange, open]);
   
-  // Enhanced event isolation with better z-index management
+  // FIXED: More selective event isolation that doesn't break internal functionality
   useEffect(() => {
     if (!open || !dialogRef.current) return;
     
     const dialogElement = dialogRef.current;
     
-    // Prevent all events from bubbling out of the dialog
-    const stopEventPropagation = (e: Event) => {
+    // Only prevent events that try to bubble OUT of the dialog
+    const handleEvent = (e: Event) => {
+      // Allow events that originate from within the dialog to work normally
+      if (dialogElement.contains(e.target as Node)) {
+        // Let the event continue normally within the dialog
+        return;
+      }
+      
+      // Only stop events that come from outside the dialog
       e.stopPropagation();
+      e.preventDefault();
     };
     
-    // Events to capture and stop
-    const events = [
-      'click', 'mousedown', 'mouseup', 'mousemove',
-      'keydown', 'keyup', 'keypress',
-      'focus', 'blur', 'input', 'change',
-      'scroll', 'wheel'
+    // Only capture events that could interfere with the parent page
+    const eventsToCapture = [
+      'mousedown', 'mouseup', 'click', // Mouse events from outside
+      'scroll', 'wheel', // Scrolling events
+      'focus', 'blur' // Focus events from outside
     ];
     
-    events.forEach(eventName => {
-      dialogElement.addEventListener(eventName, stopEventPropagation, {
-        // Use bubbling phase so events reach their targets before being stopped
-        capture: false,
+    eventsToCapture.forEach(eventName => {
+      document.addEventListener(eventName, handleEvent, {
+        capture: true, // Capture phase to intercept before they reach targets
         passive: false
       });
     });
     
     return () => {
-      events.forEach(eventName => {
-        dialogElement.removeEventListener(
-          eventName,
-          stopEventPropagation,
-          false
-        );
+      eventsToCapture.forEach(eventName => {
+        document.removeEventListener(eventName, handleEvent, true);
       });
     };
   }, [open]);

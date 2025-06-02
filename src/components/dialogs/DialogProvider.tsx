@@ -47,46 +47,10 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       console.log('window.dialogManager already available:', window.dialogManager);
     }
     
-    // Listen for events in shadow DOM with improved event handling
-    const handleCapturedEvent = (e: Event) => {
-      // Only intercept events when dialogs are open
-      const dialogOpen = document.querySelector('.jd-fixed.jd-inset-0.jd-z-\\[10001\\]');
-      
-      if (dialogOpen) {
-        // Only intercept specific events that might cause issues
-        if (
-          e.type.startsWith('key') || 
-          e.type === 'input' || 
-          e.type === 'change' ||
-          e.type === 'focus' || 
-          e.type === 'blur'
-        ) {
-          // Don't stop propagation for events inside the dialog
-          const target = e.target as Element;
-          if (target && !target.closest('.jd-fixed.jd-inset-0.jd-z-\\[10001\\]')) {
-            e.stopPropagation();
-          }
-        }
-      }
-    };
+    // REMOVED: The aggressive event interception that was causing issues
+    // The previous version had event listeners that were interfering with dialog functionality
+    // Now we rely on individual dialogs to handle their own events properly
     
-    // Events to capture
-    const events = [
-      'keydown', 'keyup', 'keypress', 
-      'input', 'change', 'focus', 'blur'
-    ];
-    
-    // Add event listeners in capture phase at the root level
-    events.forEach(eventType => {
-      document.addEventListener(eventType, handleCapturedEvent, true);
-    });
-    
-    // Cleanup
-    return () => {
-      events.forEach(eventType => {
-        document.removeEventListener(eventType, handleCapturedEvent, true);
-      });
-    };
   }, []);
   
   return (
