@@ -4,10 +4,10 @@
   "version": "1.0.4",
   "type": "module",
   "scripts": {
-    "dev": "node build.js",
-    "dev:watch": "concurrently \"node build.js --watch\" \"node build-css.js --watch\"",
-    "build": "node build.js --prod",
-    "build:zip": "node build.js --prod --zip",
+    "dev": "node build.js develop",
+    "dev:watch": "concurrently \"node build.js develop --watch\" \"node build-css.js --watch\"",
+    "build": "node build.js",
+    "build:zip": "node build.js prod --zip",
     "lint": "eslint .",
     "preview": "vite preview",
     "type-check": "tsc --noEmit"

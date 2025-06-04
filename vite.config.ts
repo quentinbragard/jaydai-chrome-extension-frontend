@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
     // mode can be 'development' or 'production'
     const env = loadEnv(mode, process.cwd(), 'VITE_');
     
-    const isProduction = mode === 'production';
+    const isProduction = mode === 'production' || mode === 'local';
     
     // Get the API URL from env or use default values
     const apiUrl = env.VITE_API_URL || (isProduction 
