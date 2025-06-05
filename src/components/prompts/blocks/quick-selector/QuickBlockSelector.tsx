@@ -218,7 +218,6 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
               alt={isDark ? "Jaydai Logo Dark" : "Jaydai Logo Light"}
               className="jd-h-6 jd-pl-2"
             />
-          <span className="jd-text-sm jd-font-semibold">Quick Blocks</span>
         </div>
         <div className="jd-flex jd-items-center jd-gap-1">
           <Button
