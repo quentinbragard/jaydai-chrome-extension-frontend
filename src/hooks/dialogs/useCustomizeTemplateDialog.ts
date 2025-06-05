@@ -5,17 +5,28 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { Block, BlockType } from '@/types/prompts/blocks';
-import { 
-  PromptMetadata, 
-  DEFAULT_METADATA, 
+import {
+  PromptMetadata,
+  DEFAULT_METADATA,
   MetadataItem,
   MultipleMetadataType,
   SingleMetadataType,
-  isMultipleMetadataType,
   generateMetadataItemId
 } from '@/types/prompts/metadata';
 import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
 import { buildCompletePrompt } from '@/components/prompts/promptUtils';
+import {
+  createBlock,
+  addBlock as addBlockUtil,
+  removeBlock as removeBlockUtil,
+  updateBlock as updateBlockUtil,
+  moveBlock as moveBlockUtil,
+  reorderBlocks as reorderBlocksUtil,
+  addMetadataItem,
+  removeMetadataItem,
+  updateMetadataItem,
+  reorderMetadataItems
+} from './templateDialogUtils';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
@@ -153,38 +164,8 @@ export function useCustomizeTemplateDialog() {
     existingBlock?: Block,
     duplicate?: boolean
   ) => {
-    let newBlock: Block;
-
-    if (existingBlock) {
-      newBlock = duplicate
-        ? {
-            ...existingBlock,
-            id: Date.now() + Math.random(),
-            isNew: true
-          }
-        : { ...existingBlock, isNew: false };
-    } else {
-      newBlock = {
-        id: Date.now() + Math.random(),
-        type: blockType || null,
-        content: '',
-        name: blockType
-          ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
-          : 'New Block',
-        description: '',
-        isNew: true
-      };
-    }
-
-    setBlocks(prevBlocks => {
-      const newBlocks = [...prevBlocks];
-      if (position === 'start') {
-        newBlocks.unshift(newBlock);
-      } else {
-        newBlocks.push(newBlock);
-      }
-      return newBlocks;
-    });
+    const newBlock = createBlock(blockType, existingBlock, duplicate);
+    setBlocks(prev => addBlockUtil(prev, position, newBlock));
   };
 
   const handleRemoveBlock = (blockId: number) => {
@@ -192,28 +173,19 @@ export function useCustomizeTemplateDialog() {
       toast.warning(getMessage('cannotRemoveLastBlock'));
       return;
     }
-    setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== blockId));
+    setBlocks(prev => removeBlockUtil(prev, blockId));
   };
 
   const handleUpdateBlock = (blockId: number, updatedBlock: Partial<Block>) => {
-    setBlocks(prevBlocks => prevBlocks.map(block => (block.id === blockId ? { ...block, ...updatedBlock } : block)));
+    setBlocks(prev => updateBlockUtil(prev, blockId, updatedBlock));
   };
 
   const handleMoveBlock = (blockId: number, direction: 'up' | 'down') => {
-    setBlocks(prevBlocks => {
-      const currentIndex = prevBlocks.findIndex(block => block.id === blockId);
-      if (currentIndex === -1 || (direction === 'up' && currentIndex === 0) || (direction === 'down' && currentIndex === prevBlocks.length - 1)) {
-        return prevBlocks;
-      }
-      const newBlocks = [...prevBlocks];
-      const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-      [newBlocks[currentIndex], newBlocks[targetIndex]] = [newBlocks[targetIndex], newBlocks[currentIndex]];
-      return newBlocks;
-    });
+    setBlocks(prev => moveBlockUtil(prev, blockId, direction));
   };
 
   const handleReorderBlocks = (newBlocks: Block[]) => {
-    setBlocks(newBlocks);
+    setBlocks(prev => reorderBlocksUtil(prev, newBlocks));
   };
 
   const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
@@ -222,38 +194,23 @@ export function useCustomizeTemplateDialog() {
 
   // Enhanced metadata handlers
   const handleAddMetadataItem = (type: MultipleMetadataType) => {
-    const newItem: MetadataItem = {
-      id: generateMetadataItemId(),
-      value: ''
-    };
-
-    setMetadata(prev => ({
-      ...prev,
-      [type]: [...(prev[type] || []), newItem]
-    }));
+    setMetadata(prev => addMetadataItem(prev, type));
   };
 
   const handleRemoveMetadataItem = (type: MultipleMetadataType, itemId: string) => {
-    setMetadata(prev => ({
-      ...prev,
-      [type]: (prev[type] || []).filter(item => item.id !== itemId)
-    }));
+    setMetadata(prev => removeMetadataItem(prev, type, itemId));
   };
 
-  const handleUpdateMetadataItem = (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => {
-    setMetadata(prev => ({
-      ...prev,
-      [type]: (prev[type] || []).map(item => 
-        item.id === itemId ? { ...item, ...updates } : item
-      )
-    }));
+  const handleUpdateMetadataItem = (
+    type: MultipleMetadataType,
+    itemId: string,
+    updates: Partial<MetadataItem>
+  ) => {
+    setMetadata(prev => updateMetadataItem(prev, type, itemId, updates));
   };
 
   const handleReorderMetadataItems = (type: MultipleMetadataType, newItems: MetadataItem[]) => {
-    setMetadata(prev => ({
-      ...prev,
-      [type]: newItems
-    }));
+    setMetadata(prev => reorderMetadataItems(prev, type, newItems));
   };
 
   const handleComplete = () => {
