@@ -2,111 +2,38 @@
 import { useState, useEffect } from 'react';
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { Block, BlockType } from '@/types/prompts/blocks';
-import { 
-  PromptMetadata, 
-  DEFAULT_METADATA, 
+import {
+  PromptMetadata,
+  DEFAULT_METADATA,
   MetadataItem,
   MultipleMetadataType,
-  SingleMetadataType,
-  isMultipleMetadataType,
-  generateMetadataItemId
+  SingleMetadataType
 } from '@/types/prompts/metadata';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { getMessage, getCurrentLanguage } from '@/core/utils/i18n';
-import { buildCompletePrompt } from '@/components/prompts/promptUtils';
 import {
   useProcessUserFolders,
   validateTemplateForm,
   FolderData
 } from '@/components/prompts/templates/templateUtils';
+import {
+  validateEnhancedTemplateForm,
+  generateEnhancedFinalContent,
+  getEnhancedBlockIds,
+  parseTemplateMetadata,
+  createBlock,
+  addBlock as addBlockUtil,
+  removeBlock as removeBlockUtil,
+  updateBlock as updateBlockUtil,
+  reorderBlocks as reorderBlocksUtil,
+  addMetadataItem,
+  removeMetadataItem,
+  updateMetadataItem,
+  reorderMetadataItems
+} from './templateDialogUtils';
 
-// Enhanced template form validation
-const validateEnhancedTemplateForm = (
-  name: string,
-  content: string,
-  blocks: Block[],
-  metadata: PromptMetadata,
-  activeTab: 'basic' | 'advanced',
-  setValidationErrors: (errors: Record<string, string>) => void
-) => {
-  const errors: Record<string, string> = {};
-  
-  if (!name?.trim()) errors.name = 'templateNameRequired';
-  
-  if (activeTab === 'basic' && !content?.trim()) {
-    errors.content = 'templateContentRequired';
-  }
-  
-  if (activeTab === 'advanced') {
-    // Check if there's any content in blocks or metadata
-    const hasBlockContent = blocks.some(b => {
-      const blockContent = typeof b.content === 'string' ? b.content : b.content[getCurrentLanguage()] || b.content.en || '';
-      return blockContent.trim();
-    });
-    
-    const hasMetadataContent = 
-      Object.values(metadata.values || {}).some(v => v?.trim()) ||
-      (metadata.constraints && metadata.constraints.some(c => c.value.trim())) ||
-      (metadata.examples && metadata.examples.some(e => e.value.trim()));
-    
-    if (!hasBlockContent && !hasMetadataContent) {
-      errors.content = 'templateContentRequired';
-    }
-  }
-  
-  setValidationErrors(errors);
-  return Object.keys(errors).length === 0;
-};
 
-// Enhanced content generation
-const generateEnhancedFinalContent = (
-  content: string,
-  blocks: Block[],
-  metadata: PromptMetadata,
-  activeTab: 'basic' | 'advanced'
-): string => {
-  if (activeTab === 'basic') return content;
-  
-  return buildCompletePrompt(metadata, blocks);
-};
-
-// Enhanced block IDs extraction
-const getEnhancedBlockIds = (
-  blocks: Block[],
-  metadata: PromptMetadata,
-  activeTab: 'basic' | 'advanced'
-): number[] => {
-  if (activeTab === 'basic') return [];
-  
-  const metadataIds: number[] = [];
-  
-  // Add single metadata block IDs
-  ['role', 'context', 'goal', 'audience', 'tone_style', 'output_format'].forEach(type => {
-    const id = metadata[type as SingleMetadataType];
-    if (id && id !== 0) metadataIds.push(id);
-  });
-  
-  // Add multiple metadata block IDs
-  if (metadata.constraints) {
-    metadata.constraints.forEach(constraint => {
-      if (constraint.blockId && constraint.blockId !== 0) {
-        metadataIds.push(constraint.blockId);
-      }
-    });
-  }
-  
-  if (metadata.examples) {
-    metadata.examples.forEach(example => {
-      if (example.blockId && example.blockId !== 0) {
-        metadataIds.push(example.blockId);
-      }
-    });
-  }
-  
-  const contentIds = blocks.filter(b => b.id > 0 && !b.isNew).map(b => b.id);
-  return [...metadataIds, ...contentIds];
-};
 
 export function useCreateTemplateDialog() {
   const createDialog = useDialog('createTemplate');
@@ -189,41 +116,6 @@ export function useCreateTemplateDialog() {
     }
   }, [isOpen, currentTemplate, selectedFolder, processUserFolders]);
 
-  // Helper function to parse template metadata
-  const parseTemplateMetadata = (enhancedMetadata: any): PromptMetadata => {
-    const parsedMetadata: PromptMetadata = { ...DEFAULT_METADATA };
-
-    // Parse single metadata values
-    if (enhancedMetadata.values) {
-      parsedMetadata.values = { ...enhancedMetadata.values };
-    }
-
-    // Parse single metadata block references
-    ['role', 'context', 'goal', 'audience', 'tone_style', 'output_format'].forEach(type => {
-      if (enhancedMetadata[type]) {
-        parsedMetadata[type as SingleMetadataType] = enhancedMetadata[type];
-      }
-    });
-
-    // Parse multiple metadata items
-    if (enhancedMetadata.constraints && Array.isArray(enhancedMetadata.constraints)) {
-      parsedMetadata.constraints = enhancedMetadata.constraints.map((item: any) => ({
-        id: item.id || generateMetadataItemId(),
-        blockId: item.blockId,
-        value: item.value || ''
-      }));
-    }
-
-    if (enhancedMetadata.examples && Array.isArray(enhancedMetadata.examples)) {
-      parsedMetadata.examples = enhancedMetadata.examples.map((item: any) => ({
-        id: item.id || generateMetadataItemId(),
-        blockId: item.blockId,
-        value: item.value || ''
-      }));
-    }
-
-    return parsedMetadata;
-  };
 
   const handleClose = () => {
     if (createDialog.isOpen) {
@@ -284,18 +176,19 @@ export function useCreateTemplateDialog() {
     setSelectedFolderId(folderId);
   };
 
-  const validateForm = () =>
-    validateEnhancedTemplateForm(
+  const validateForm = () => {
+    const errors = validateEnhancedTemplateForm(
       name,
       content,
       blocks,
       metadata,
-      activeTab,
-      errors =>
-        setValidationErrors(
-          Object.fromEntries(Object.entries(errors).map(([k, v]) => [k, getMessage(v as any)]))
-        )
+      activeTab
     );
+    setValidationErrors(
+      Object.fromEntries(Object.entries(errors).map(([k, v]) => [k, getMessage(v as any)]))
+    );
+    return Object.keys(errors).length === 0;
+  };
 
   const generateFinalContentLocal = () => generateEnhancedFinalContent(content, blocks, metadata, activeTab);
   const getBlockIdsLocal = () => getEnhancedBlockIds(blocks, metadata, activeTab);
@@ -371,38 +264,23 @@ export function useCreateTemplateDialog() {
 
   // Enhanced metadata handlers
   const handleAddMetadataItem = (type: MultipleMetadataType) => {
-    const newItem: MetadataItem = {
-      id: generateMetadataItemId(),
-      value: ''
-    };
-
-    setMetadata(prev => ({
-      ...prev,
-      [type]: [...(prev[type] || []), newItem]
-    }));
+    setMetadata(prev => addMetadataItem(prev, type));
   };
 
   const handleRemoveMetadataItem = (type: MultipleMetadataType, itemId: string) => {
-    setMetadata(prev => ({
-      ...prev,
-      [type]: (prev[type] || []).filter(item => item.id !== itemId)
-    }));
+    setMetadata(prev => removeMetadataItem(prev, type, itemId));
   };
 
-  const handleUpdateMetadataItem = (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => {
-    setMetadata(prev => ({
-      ...prev,
-      [type]: (prev[type] || []).map(item => 
-        item.id === itemId ? { ...item, ...updates } : item
-      )
-    }));
+  const handleUpdateMetadataItem = (
+    type: MultipleMetadataType,
+    itemId: string,
+    updates: Partial<MetadataItem>
+  ) => {
+    setMetadata(prev => updateMetadataItem(prev, type, itemId, updates));
   };
 
   const handleReorderMetadataItems = (type: MultipleMetadataType, newItems: MetadataItem[]) => {
-    setMetadata(prev => ({
-      ...prev,
-      [type]: newItems
-    }));
+    setMetadata(prev => reorderMetadataItems(prev, type, newItems));
   };
 
   // Block handlers
@@ -412,51 +290,24 @@ export function useCreateTemplateDialog() {
     existingBlock?: Block,
     duplicate?: boolean
   ) => {
-    let newBlock: Block;
-
-    if (existingBlock) {
-      newBlock = duplicate
-        ? {
-            ...existingBlock,
-            id: Date.now() + Math.random(),
-            isNew: true
-          }
-        : { ...existingBlock, isNew: false };
-    } else {
-      newBlock = {
-        id: Date.now() + Math.random(),
-        type: blockType || null,
-        content: '',
-        name: blockType
-          ? `New ${blockType.charAt(0).toUpperCase() + blockType.slice(1)} Block`
-          : 'New Block',
-        description: '',
-        isNew: true
-      };
-    }
-
-    setBlocks(prevBlocks => {
-      const newBlocks = [...prevBlocks];
-      if (position === 'start') {
-        newBlocks.unshift(newBlock);
-      } else {
-        newBlocks.push(newBlock);
-      }
-      return newBlocks;
-    });
+    const newBlock = createBlock(blockType, existingBlock, duplicate);
+    setBlocks(prev => addBlockUtil(prev, position, newBlock));
   };
 
   const handleRemoveBlock = (blockId: number) => {
-    setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== blockId));
+    setBlocks(prev => removeBlockUtil(prev, blockId));
   };
 
   const handleUpdateBlock = (blockId: number, updatedBlock: Partial<Block>) => {
-    setBlocks(prevBlocks => {
-      const newBlocks = prevBlocks.map(block => (block.id === blockId ? { ...block, ...updatedBlock } : block));
+    setBlocks(prev => {
+      const newBlocks = updateBlockUtil(prev, blockId, updatedBlock);
       if (activeTab === 'basic' && newBlocks.length > 0 && newBlocks[0].id === blockId) {
         const first = newBlocks[0];
         const lang = getCurrentLanguage();
-        const newContent = typeof first.content === 'string' ? first.content : (first.content as any)[lang] || (first.content as any).en || '';
+        const newContent =
+          typeof first.content === 'string'
+            ? first.content
+            : (first.content as any)[lang] || (first.content as any).en || '';
         setContent(newContent);
       }
       return newBlocks;
@@ -464,7 +315,7 @@ export function useCreateTemplateDialog() {
   };
 
   const handleReorderBlocks = (newBlocks: Block[]) => {
-    setBlocks(newBlocks);
+    setBlocks(prev => reorderBlocksUtil(prev, newBlocks));
   };
 
   const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
