@@ -3,12 +3,18 @@ import { Block, MetadataType, METADATA_CONFIGS } from '@/types/prompts/metadata'
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
-import { SaveBlockButton } from './SaveBlockButton';
 import { cn } from '@/core/utils/classNames';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
+import { useClickOutside } from '@/hooks/useClickOutside';
+import { useDialogManager } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
+import {
+  getLocalizedContent,
+  getBlockTypeColors,
+  getBlockIconColors,
+  getBlockTextColors
+} from '@/components/prompts/blocks/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface MetadataCardProps {
@@ -42,6 +48,16 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 }) => {
   const config = METADATA_CONFIGS[type];
   const isDarkMode = useThemeDetector();
+  const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
+  const iconColors = getBlockIconColors(config.blockType, isDarkMode);
+  const { openDialog } = useDialogManager();
+
+  // Click outside handler to collapse the card
+  const cardRef = useClickOutside<HTMLDivElement>(() => {
+    if (expanded) {
+      onToggle();
+    }
+  }, expanded);
 
   // Handle card click - only toggle if clicking on the card itself, not on interactive elements
   const handleCardClick = (e: React.MouseEvent) => {
@@ -51,9 +67,14 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                          target.closest('[role="combobox"]') || 
                          target.closest('select') || 
                          target.closest('textarea') ||
-                         target.closest('[data-radix-collection-item]');
+                         target.closest('input') ||
+                         target.closest('[data-radix-collection-item]') ||
+                         target.closest('[data-radix-select-trigger]') ||
+                         target.closest('[data-radix-select-content]');
     
     if (!isInteractive) {
+      e.preventDefault();
+      e.stopPropagation();
       onToggle();
     }
   };
@@ -65,10 +86,13 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 
   return (
     <Card
+      ref={cardRef}
       onClick={handleCardClick}
       className={cn(
-        'jd-transition-all jd-duration-200 jd-cursor-pointer hover:jd-shadow-md',
-        isPrimary ? 'jd-border-2 jd-border-primary/20 jd-bg-primary/5' : 'jd-border jd-border-muted jd-bg-muted/20',
+        'jd-transition-all jd-duration-300 jd-cursor-pointer hover:jd-shadow-md',
+        'jd-border-2 jd-backdrop-blur-sm jd-py-2 jd-select-none',
+        cardColors,
+        isPrimary && 'jd-border-primary/20',
         expanded &&
           (isDarkMode
             ? 'jd-ring-2 jd-ring-primary/50 jd-shadow-lg jd-bg-gray-800'
@@ -76,10 +100,12 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
       )}
     >
       <CardContent className="jd-p-4">
-        <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
+        <div className="jd-flex jd-items-center jd-justify-between">
           <div className="jd-flex jd-items-center jd-gap-2">
-            <Icon className={cn('jd-h-4 jd-w-4', isPrimary ? 'jd-text-primary' : 'jd-text-muted-foreground')} />
-            <span className={cn('jd-font-medium', isPrimary ? 'jd-text-primary' : 'jd-text-foreground')}>
+            <div className={cn('jd-p-1.5 jd-rounded-md', iconColors)}>
+              <Icon className="jd-h-4 jd-w-4" />
+            </div>
+            <span className={cn('jd-font-medium', getBlockTextColors(config.blockType, isDarkMode))}>
               {config.label}
             </span>
           </div>
@@ -113,14 +139,28 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 
         {expanded ? (
           <div className="jd-space-y-3" onClick={stopPropagation}>
-            <Select 
-              value={selectedId ? String(selectedId) : '0'} 
-              onValueChange={onSelect}
+            <Select
+              value={selectedId ? String(selectedId) : '0'}
+              onValueChange={(value) => {
+                if (value === 'custom') {
+                  openDialog(DIALOG_TYPES.CREATE_BLOCK, {
+                    initialType: config.blockType,
+                    onBlockCreated: (b) => {
+                      onSaveBlock && onSaveBlock(b);
+                      onSelect(String(b.id));
+                      onToggle();
+                    }
+                  });
+                  return;
+                }
+                onSelect(value);
+                onToggle();
+              }}
             >
               <SelectTrigger className="jd-w-full">
                 <SelectValue placeholder="Select or create custom" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="jd-z-[10010]">
                 <SelectItem value="0">None</SelectItem>
                 {availableBlocks.map((block) => (
                   <SelectItem key={block.id} value={String(block.id)}>
@@ -146,33 +186,13 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
               </SelectContent>
             </Select>
 
-            {(!selectedId || selectedId === 0) && (
-              <>
-                <Textarea
-                  value={customValue}
-                  onChange={(e) => onCustomChange(e.target.value)}
-                  placeholder={`Enter custom ${type} content...`}
-                  rows={3}
-                  className="jd-resize-none"
-                  onClick={stopPropagation}
-                />
-                {customValue && (
-                  <SaveBlockButton
-                    type={config.blockType}
-                    content={customValue}
-                    onSaved={(b) => onSaveBlock && onSaveBlock(b)}
-                    className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-primary"
-                  />
-                )}
-              </>
-            )}
           </div>
         ) : (
-          <div className="jd-text-sm jd-text-muted-foreground">
+          <div className="jd-text-sm jd-text-muted-foreground jd-mt-2">
             {selectedId && selectedId !== 0
               ? getLocalizedContent(availableBlocks.find((b) => b.id === selectedId)?.title) || `${type} block`
               : customValue
-                ? customValue.substring(0, 50) + (customValue.length > 50 ? '...' : '')
+              ? customValue.substring(0, 40) + (customValue.length > 40 ? '...' : '')
               : `Click to set ${type}`}
           </div>
         )}

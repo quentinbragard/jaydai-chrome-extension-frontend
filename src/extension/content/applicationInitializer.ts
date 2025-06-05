@@ -37,8 +37,8 @@ export class AppInitializer {
       return true;
     }
     
-    // Skip if we're not on ChatGPT
-    if (!this.isChatGPTSite() && !this.isClaudeSite()) {
+    // Skip if we're not on a supported site
+    if (!this.isChatGPTSite() && !this.isClaudeSite() && !this.isMistralSite() && !this.isCopilotSite()) {
       return false;
     }
     
@@ -84,6 +84,14 @@ export class AppInitializer {
 
   private isClaudeSite(): boolean {
     return window.location.hostname.includes('claude.ai');
+  }
+
+  private isMistralSite(): boolean {
+    return window.location.hostname.includes('mistral.ai');
+  }
+
+  private isCopilotSite(): boolean {
+    return window.location.hostname.includes('copilot.microsoft.com');
   }
 
   

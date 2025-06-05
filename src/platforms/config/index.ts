@@ -2,13 +2,17 @@
 import { PlatformConfig } from './base';
 import { chatGptConfig } from './chatgpt.config';
 import { claudeConfig } from './claude.config';
+import { mistralConfig } from './mistral.config';
+import { copilotConfig } from './copilot.config';
 
 export const platformConfigs: PlatformConfig[] = [
   chatGptConfig,
-  claudeConfig
+  claudeConfig,
+  mistralConfig,
+  copilotConfig
 ];
 
-export { chatGptConfig, claudeConfig };
+export { chatGptConfig, claudeConfig, mistralConfig, copilotConfig };
 export * from './base';
 
 export function getConfigByHostname(hostname: string): PlatformConfig | null {

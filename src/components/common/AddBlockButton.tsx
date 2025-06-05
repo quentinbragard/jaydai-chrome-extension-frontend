@@ -1,65 +1,278 @@
-import React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
-import {
-  DropdownMenu,
+// src/components/common/AddBlockButton.tsx
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
   DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
-import { getMessage } from '@/core/utils/i18n';
+import { Plus, Sparkles } from 'lucide-react';
+import { BlockType, Block } from '@/types/prompts/blocks';
+import { 
+  BLOCK_TYPE_LABELS, 
+  getBlockTypeIcon, 
+  getBlockIconColors,
+  BLOCK_TYPES 
+} from '@/components/prompts/blocks/blockUtils';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
-import { Block } from '@/types/prompts/blocks';
-import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
 
 interface AddBlockButtonProps {
-  blocks: Block[];
-  onAdd: (block: Block) => void;
-  onRemove?: () => void;
+  availableBlocks: Record<BlockType, Block[]>;
+  onAdd: (
+    blockType: BlockType | null, 
+    existingBlock?: Block, 
+    duplicate?: boolean
+  ) => void;
   className?: string;
 }
 
-/**
- * Button used to insert a block into a template.
- */
-export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
-  blocks,
-  onAdd,
-  onRemove,
-  className
+export const AddBlockButton: React.FC<AddBlockButtonProps> = ({ 
+  availableBlocks, 
+  onAdd, 
+  className 
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const isDark = useThemeDetector();
+
+  const handleAddNewBlock = (blockType: BlockType) => {
+    onAdd(blockType);
+    setIsOpen(false);
+  };
+
+  const handleAddExistingBlock = (block: Block, duplicate = false) => {
+    onAdd(block.type, block, duplicate);
+    setIsOpen(false);
+  };
+
+  // Filter out metadata block types that shouldn't be directly addable
+  const addableBlockTypes = BLOCK_TYPES.filter(type => 
+    !['role', 'context', 'goal', 'audience', 'tone_style', 'output_format'].includes(type)
+  );
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           className={cn(
-            'jd-bg-background jd-border jd-border-input jd-rounded-full jd-shadow jd-w-6 jd-h-6 jd-flex jd-items-center jd-justify-center jd-text-muted-foreground hover:jd-bg-accent hover:jd-text-accent-foreground',
+            'jd-flex jd-items-center jd-gap-2 jd-transition-all jd-duration-300',
+            'hover:jd-scale-105 hover:jd-shadow-md',
+            'jd-border-dashed jd-border-2',
+            isDark 
+              ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50 jd-border-gray-600' 
+              : 'jd-bg-white/70 hover:jd-bg-white/90 jd-border-gray-300',
             className
           )}
         >
           <Plus className="jd-h-4 jd-w-4" />
-        </button>
+          Add Block
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="center">
-        {blocks.map((block) => (
-          <DropdownMenuItem key={block.id} onSelect={() => onAdd(block)}>
-            {getLocalizedContent(block.title) || 'Block'}
-          </DropdownMenuItem>
-        ))}
-        {onRemove && (
+      
+      <DropdownMenuContent 
+        className="jd-w-80 jd-max-h-96 jd-overflow-y-auto" 
+        align="center"
+        side="top"
+      >
+        <DropdownMenuLabel className="jd-flex jd-items-center jd-gap-2">
+          <Sparkles className="jd-h-4 jd-w-4" />
+          Add Block
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        
+        {/* Create New Blocks Section */}
+        <DropdownMenuLabel className="jd-text-xs jd-text-muted-foreground">
+          Create New Block
+        </DropdownMenuLabel>
+        {addableBlockTypes.map(blockType => {
+          const Icon = getBlockTypeIcon(blockType);
+          const iconBg = getBlockIconColors(blockType, isDark);
+          
+          return (
+            <DropdownMenuItem
+              key={blockType}
+              onClick={() => handleAddNewBlock(blockType)}
+              className="jd-flex jd-items-center jd-gap-3 jd-py-2 jd-cursor-pointer"
+            >
+              <div className={cn('jd-p-1.5 jd-rounded-md', iconBg)}>
+                <Icon className="jd-h-3 jd-w-3" />
+              </div>
+              <div className="jd-flex jd-flex-col">
+                <span className="jd-text-sm jd-font-medium">
+                  {BLOCK_TYPE_LABELS[blockType]}
+                </span>
+                <span className="jd-text-xs jd-text-muted-foreground">
+                  Create new {blockType} block
+                </span>
+              </div>
+            </DropdownMenuItem>
+          );
+        })}
+        
+        {/* Existing Blocks Section */}
+        {Object.entries(availableBlocks).some(([_, blocks]) => blocks.length > 0) && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onSelect={onRemove}
-              className="jd-text-red-600 jd-flex jd-items-center"
-            >
-              <Trash2 className="jd-h-4 jd-w-4 jd-mr-2" />
-              {getMessage('removeBlock', undefined, 'Remove block')}
-            </DropdownMenuItem>
+            <DropdownMenuLabel className="jd-text-xs jd-text-muted-foreground">
+              Add Existing Block
+            </DropdownMenuLabel>
+            
+            {Object.entries(availableBlocks).map(([blockType, blocks]) => {
+              if (blocks.length === 0) return null;
+              
+              const Icon = getBlockTypeIcon(blockType as BlockType);
+              const iconBg = getBlockIconColors(blockType as BlockType, isDark);
+              
+              return blocks.slice(0, 3).map(block => { // Limit to 3 blocks per type to prevent overflow
+                const title = typeof block.title === 'string' 
+                  ? block.title 
+                  : block.title?.en || 'Untitled';
+                const content = typeof block.content === 'string' 
+                  ? block.content 
+                  : block.content?.en || '';
+                
+                return (
+                  <DropdownMenuItem
+                    key={block.id}
+                    onClick={() => handleAddExistingBlock(block)}
+                    className="jd-flex jd-items-start jd-gap-3 jd-py-2 jd-cursor-pointer"
+                  >
+                    <div className={cn('jd-p-1.5 jd-rounded-md jd-flex-shrink-0', iconBg)}>
+                      <Icon className="jd-h-3 jd-w-3" />
+                    </div>
+                    <div className="jd-flex jd-flex-col jd-min-w-0 jd-flex-1">
+                      <span className="jd-text-sm jd-font-medium jd-truncate">
+                        {title}
+                      </span>
+                      <span className="jd-text-xs jd-text-muted-foreground jd-line-clamp-2 jd-leading-tight">
+                        {content.substring(0, 80)}{content.length > 80 ? '...' : ''}
+                      </span>
+                    </div>
+                  </DropdownMenuItem>
+                );
+              });
+            })}
+            
+            {/* Show "View More" option if there are many blocks */}
+            {Object.values(availableBlocks).some(blocks => blocks.length > 3) && (
+              <DropdownMenuItem
+                onClick={() => {
+                  // This could open the InsertBlockDialog or a similar interface
+                  if (window.dialogManager) {
+                    window.dialogManager.openDialog('insertBlock', {});
+                  }
+                  setIsOpen(false);
+                }}
+                className="jd-flex jd-items-center jd-gap-2 jd-py-2 jd-cursor-pointer jd-text-primary"
+              >
+                <Plus className="jd-h-4 jd-w-4" />
+                <span className="jd-text-sm">Browse all blocks...</span>
+              </DropdownMenuItem>
+            )}
           </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+};
+
+// Additional utility component for inline block creation in dialogs
+export const InlineBlockForm: React.FC<{
+  onSave: (blockData: { type: BlockType; title: string; content: string }) => void;
+  onCancel: () => void;
+  initialType?: BlockType;
+}> = ({ onSave, onCancel, initialType = 'content' }) => {
+  const [type, setType] = useState<BlockType>(initialType);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const isDark = useThemeDetector();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (content.trim()) {
+      onSave({
+        type,
+        title: title.trim() || `${BLOCK_TYPE_LABELS[type]} Block`,
+        content: content.trim()
+      });
+    }
+  };
+
+  const Icon = getBlockTypeIcon(type);
+  const iconBg = getBlockIconColors(type, isDark);
+
+  return (
+    <form onSubmit={handleSubmit} className="jd-space-y-3 jd-p-4 jd-border jd-rounded-lg jd-bg-muted/20">
+      <div className="jd-flex jd-items-center jd-gap-2 jd-mb-3">
+        <div className={cn('jd-p-1.5 jd-rounded-md', iconBg)}>
+          <Icon className="jd-h-4 jd-w-4" />
+        </div>
+        <h3 className="jd-font-medium jd-text-sm">Create New Block</h3>
+      </div>
+
+      <div className="jd-grid jd-grid-cols-2 jd-gap-3">
+        <div>
+          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">Type</label>
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value as BlockType)}
+            className="jd-w-full jd-h-8 jd-px-2 jd-text-xs jd-border jd-rounded"
+          >
+            {BLOCK_TYPES.filter(t => !['role', 'context', 'goal'].includes(t)).map(blockType => (
+              <option key={blockType} value={blockType}>
+                {BLOCK_TYPE_LABELS[blockType]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={`${BLOCK_TYPE_LABELS[type]} Block`}
+            className="jd-w-full jd-h-8 jd-px-2 jd-text-xs jd-border jd-rounded"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">Content</label>
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder={`Enter ${type} content...`}
+          className="jd-w-full jd-h-20 jd-p-2 jd-text-xs jd-border jd-rounded jd-resize-none"
+          required
+        />
+      </div>
+
+      <div className="jd-flex jd-gap-2 jd-pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onCancel}
+          className="jd-flex-1 jd-h-8 jd-text-xs"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          size="sm"
+          disabled={!content.trim()}
+          className="jd-flex-1 jd-h-8 jd-text-xs"
+        >
+          Create Block
+        </Button>
+      </div>
+    </form>
   );
 };

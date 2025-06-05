@@ -16,7 +16,7 @@ export interface BaseDialogProps {
 
 /**
  * A simplified BaseDialog that works better with Shadow DOM
- * Uses improved event capturing to prevent events from leaking
+ * Uses improved event capturing to prevent events from leaking while allowing internal functionality
  */
 export const BaseDialog: React.FC<BaseDialogProps> = ({ 
   open, 
@@ -45,76 +45,70 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
       if (e.key === 'Escape') {
         onOpenChange(false);
         e.stopPropagation();
+        e.preventDefault();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown, true);
+    // Use capture phase to ensure we get the event first
+    document.addEventListener('keydown', handleKeyDown, true);
     
     return () => {
-      window.removeEventListener('keydown', handleKeyDown, true);
+      document.removeEventListener('keydown', handleKeyDown, true);
     };
   }, [onOpenChange, open]);
   
-  // Modified event isolation - CRITICAL FIX:
-  // Only isolate text input events, not button clicks or form submissions
+  // FIXED: More selective event isolation that doesn't break internal functionality
   useEffect(() => {
     if (!open || !dialogRef.current) return;
-    
-    const handleTextInputEvents = (e: Event) => {
-      // Only stop propagation for keyboard events on text inputs
-      // This allows button clicks and form submissions to work normally
-      if (e.type.startsWith('key')) {
-        e.stopPropagation();
-      }
-    };
 
-    // Only target text input fields
-    const textInputElements = dialogRef.current.querySelectorAll(
-      'input[type="text"], input[type="email"], input[type="password"], textarea, [contenteditable="true"]'
-    );
+    const dialogElement = dialogRef.current;
+
+    // Only prevent events that originate outside of ANY dialog
+    const handleEvent = (e: Event) => {
+      const target = e.target as HTMLElement;
+
+      // Allow events from this dialog
+      if (dialogElement.contains(target)) {
+        return;
+      }
+
+      // Allow events from other dialogs stacked on top
+      if (target.closest('[data-dialog-root]')) {
+        return;
+      }
+
+      // Prevent events coming from the underlying page
+      e.stopPropagation();
+      e.preventDefault();
+    };
     
-    // Limited set of events to intercept
-    const inputEvents = ['keydown', 'keyup', 'keypress'];
+    // Only capture events that could interfere with the parent page
+    const eventsToCapture = [
+      'mousedown', 'mouseup', 'click', // Mouse events from outside
+      'scroll', 'wheel', // Scrolling events
+      'focus', 'blur' // Focus events from outside
+    ];
     
-    textInputElements.forEach(element => {
-      inputEvents.forEach(eventName => {
-        element.addEventListener(eventName, handleTextInputEvents, true);
+    eventsToCapture.forEach(eventName => {
+      document.addEventListener(eventName, handleEvent, {
+        capture: true, // Capture phase to intercept before they reach targets
+        passive: false
       });
     });
     
     return () => {
-      if (!dialogRef.current) return;
-      
-      const updatedTextInputElements = dialogRef.current.querySelectorAll(
-        'input[type="text"], input[type="email"], input[type="password"], textarea, [contenteditable="true"]'
-      );
-      
-      updatedTextInputElements.forEach(element => {
-        inputEvents.forEach(eventName => {
-          element.removeEventListener(eventName, handleTextInputEvents, true);
-        });
+      eventsToCapture.forEach(eventName => {
+        document.removeEventListener(eventName, handleEvent, true);
       });
     };
-  }, [open, children]);
-
-  // Stop keyboard events from leaking to the page
-  useEffect(() => {
-    if (!open) return;
-
-    const stopPropagation = (e: KeyboardEvent) => {
-      e.stopPropagation();
-    };
-
-    const events: (keyof DocumentEventMap)[] = ['keydown', 'keypress', 'keyup'];
-    events.forEach(evt => window.addEventListener(evt, stopPropagation, true));
-    return () => {
-      events.forEach(evt => window.removeEventListener(evt, stopPropagation, true));
-    };
   }, [open]);
-  
-  // Handle backdrop click
+
+  // Handle backdrop click with improved event handling
   const handleBackdropClick = (e: React.MouseEvent) => {
+    // Only close if clicking directly on the backdrop
     if (e.target === e.currentTarget) {
+      e.preventDefault();
+      e.stopPropagation();
       onOpenChange(false);
     }
   };
@@ -124,23 +118,31 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   
   return (
     <div
+      data-dialog-root
       className="jd-fixed jd-inset-0 jd-z-[10001] jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-overflow-hidden"
       onClick={handleBackdropClick}
-      onWheel={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      style={{ isolation: 'isolate' }} // Create new stacking context
     >
       <div 
         ref={dialogRef}
         className={cn(
-          "jd-bg-background jd-rounded-lg jd-shadow-xl jd-w-full jd-max-h-[90vh] jd-flex jd-flex-col jd-relative",
+          "jd-bg-background jd-rounded-lg jd-shadow-xl jd-w-full jd-max-h-[90vh] jd-flex jd-flex-col jd-relative jd-z-[10002]",
           className
         )}
         onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        style={{ isolation: 'isolate' }} // Create new stacking context for dialog content
       >
-        {/* Close button */}
+        {/* Close button with higher z-index */}
         <button 
           type="button"
-          onClick={() => onOpenChange(false)}
-          className="jd-absolute jd-right-4 jd-top-4 jd-rounded-full jd-p-1 jd-bg-muted jd-text-muted-foreground hover:jd-bg-muted/80 focus:jd-outline-none jd-transition-colors jd-z-10"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onOpenChange(false);
+          }}
+          className="jd-absolute jd-right-4 jd-top-4 jd-rounded-full jd-p-1 jd-bg-muted jd-text-muted-foreground hover:jd-bg-muted/80 focus:jd-outline-none jd-transition-colors jd-z-[10003]"
         >
           <X className="jd-h-4 jd-w-4" />
           <span className="jd-sr-only">Close</span>
@@ -154,8 +156,8 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
           </div>
         )}
         
-        {/* Content section */}
-        <div className="jd-flex-1 jd-overflow-y-auto jd-p-6">
+        {/* Content section with proper z-index */}
+        <div className="jd-flex-1 jd-overflow-y-auto jd-p-6 jd-relative jd-z-[1]">
           {children}
         </div>
         

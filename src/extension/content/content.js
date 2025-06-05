@@ -2,7 +2,10 @@
 // Immediate self-executing function to inject as early as possible
 (function() {
 
-  if (!window.location.hostname.includes('chatgpt.com') && !window.location.hostname.includes('claude.ai')) {
+  if (!window.location.hostname.includes('chatgpt.com') &&
+      !window.location.hostname.includes('claude.ai') &&
+      !window.location.hostname.includes('mistral.ai') &&
+      !window.location.hostname.includes('copilot.microsoft.com')) {
     return;
   }
 
@@ -90,3 +93,25 @@ if (process.env.NODE_ENV === 'development') {
     }
   });
 }
+
+// Listen for background messages to open dialogs
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'openCreateBlockDialog') {
+    const content = message.content || '';
+    if (window.dialogManager?.openDialog) {
+      window.dialogManager.openDialog('createBlock', { initialContent: content });
+      sendResponse({ success: true });
+    } else {
+      sendResponse({ success: false });
+    }
+  }
+  if (message.action === 'openInsertBlockDialog') {
+    if (window.dialogManager?.openDialog) {
+      window.dialogManager.openDialog('insertBlock');
+      sendResponse({ success: true });
+    } else {
+      sendResponse({ success: false });
+    }
+  }
+  return true;
+});

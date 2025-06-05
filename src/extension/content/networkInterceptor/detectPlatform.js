@@ -6,5 +6,11 @@ export function detectPlatform() {
   if (hostname.includes('claude.ai')) {
     return 'claude';
   }
+  if (hostname.includes('mistral.ai')) {
+    return 'mistral';
+  }
+  if (hostname.includes('copilot.microsoft.com')) {
+    return 'copilot';
+  }
   return 'unknown';
 }

@@ -18,7 +18,6 @@ interface Placeholder {
   value: string;
 }
 
-
 /**
  * Basic editor mode - Simple placeholder and content editing (like the original)
  * No block logic exposed to the user
@@ -63,7 +62,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     const matches = [...content.matchAll(placeholderRegex)];
 
     const uniqueKeys = new Set();
-    const uniquePlaceholders = [];
+    const uniquePlaceholders: Placeholder[] = [];
 
     for (const match of matches) {
       const placeholder = match[0];
@@ -78,7 +77,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         value: existingPlaceholder ? existingPlaceholder.value : "",
       });
     }
-
     return uniquePlaceholders;
   };
 
@@ -105,37 +103,65 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
   // Initialize content and placeholders
   useEffect(() => {
-    if (!templateContent) return;
+    const currentEffectiveContent = templateContent ? templateContent.replace(/\r\n/g, '\n') : "";
 
-    if (mode === 'customize' && initialContentRef.current) {
-      return;
+    if (mode === 'customize') {
+      if (initialContentRef.current && initialContentRef.current !== "") {
+        if (modifiedContent !== currentEffectiveContent) {
+          setModifiedContent(currentEffectiveContent);
+        }
+        if(placeholders.length === 0 && currentEffectiveContent) {
+          const extracted = extractPlaceholders(currentEffectiveContent);
+          setPlaceholders(extracted);
+        }
+      } else {
+        setModifiedContent(currentEffectiveContent);
+        const extractedPlaceholders = extractPlaceholders(currentEffectiveContent);
+        setPlaceholders(extractedPlaceholders);
+        if(!initialContentRef.current && currentEffectiveContent) {
+          initialContentRef.current = currentEffectiveContent;
+        }
+      }
+    } else {
+      if (!contentMounted) {
+        setModifiedContent(currentEffectiveContent);
+        if (!initialContentRef.current && currentEffectiveContent) {
+          initialContentRef.current = currentEffectiveContent;
+        }
+      } else if (!isEditing && modifiedContent !== currentEffectiveContent) {
+        setModifiedContent(currentEffectiveContent);
+      }
     }
 
-    const normalizedContent = templateContent.replace(/\r\n/g, '\n');
-    setModifiedContent(normalizedContent);
+    const timeoutId = setTimeout(() => {
+      if (editorRef.current) {
+        if (mode === 'customize') {
+          if (!contentMounted) {
+            editorRef.current.innerHTML = highlightPlaceholders(currentEffectiveContent);
+          }
+        } else {
+          if (!contentMounted) {
+            editorRef.current.textContent = currentEffectiveContent;
+          } else if (!isEditing && editorRef.current.textContent !== currentEffectiveContent) {
+            editorRef.current.textContent = currentEffectiveContent;
+          }
+        }
 
-    try {
-      const extractedPlaceholders = extractPlaceholders(normalizedContent);
-      setPlaceholders(extractedPlaceholders);
-
-      if (!initialContentRef.current) {
-        initialContentRef.current = normalizedContent;
-      }
-
-      setTimeout(() => {
-        if (editorRef.current) {
-          editorRef.current.innerHTML = highlightPlaceholders(normalizedContent);
+        if (!contentMounted) {
           setContentMounted(true);
         }
-      }, 10);
-    } catch (err) {
-      console.error('Error processing template:', err);
-    }
-  }, [templateContent, mode]);
+      }
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
+  }, [templateContent, mode, contentMounted, isEditing, modifiedContent]);
 
   // Setup mutation observer
   useEffect(() => {
-    if (!contentMounted || !editorRef.current) return;
+    if (!contentMounted || !editorRef.current || mode === 'create') {
+      if(observerRef.current) observerRef.current.disconnect();
+      return;
+    }
 
     observerRef.current = new MutationObserver(() => {
       if (isEditing || !editorRef.current) return;
@@ -161,16 +187,21 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         .replace(/&#039;/g, "'")
         .replace(/&amp;/g, '&');
       
-      setModifiedContent(textContent);
+      if (modifiedContent !== textContent) {
+        setModifiedContent(textContent);
 
-      if (mode === 'create') {
-        const extracted = extractPlaceholders(textContent);
-        setPlaceholders(extracted);
-      }
-      
-      // Update the first block with the modified content
-      if (blocks.length > 0) {
-        onUpdateBlock(blocks[0].id, { content: textContent });
+        if (mode === 'customize') {
+          const extracted = extractPlaceholders(textContent);
+          const oldKeys = placeholders.map(p => p.key).join();
+          const newKeys = extracted.map(p => p.key).join();
+          if (oldKeys !== newKeys) {
+            setPlaceholders(extracted);
+          }
+        }
+        
+        if (blocks.length > 0) {
+          onUpdateBlock(blocks[0].id, { content: textContent });
+        }
       }
     });
 
@@ -187,7 +218,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         observerRef.current = null;
       }
     };
-  }, [contentMounted, blocks, onUpdateBlock]);
+  }, [contentMounted, blocks, onUpdateBlock, mode, isEditing, modifiedContent, placeholders]);
 
   const handleEditorFocus = () => {
     setIsEditing(true);
@@ -200,10 +231,68 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     setIsEditing(false);
     if (editorRef.current) {
       const htmlContent = editorRef.current.innerHTML;
-      const textContent = htmlContent
+      let textContent = '';
+      if (mode === 'create') {
+        textContent = editorRef.current.textContent || '';
+      } else {
+        textContent = htmlContent
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/<div\s*\/?>/gi, '')
+          .replace(/<\/div>/gi, '\n')
+          .replace(/<p\s*\/?>/gi, '')
+          .replace(/<\/p>/gi, '\n')
+          .replace(/<\/?span[^>]*>/g, '')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, "'")
+          .replace(/&amp;/g, '&')
+          .replace(/\n\n+/g, '\n');
+      }
+      
+      setModifiedContent(textContent);
+
+      if (mode === 'customize') {
+        const extracted = extractPlaceholders(textContent);
+        setPlaceholders(extracted);
+      }
+      
+      if (blocks.length > 0) {
+        onUpdateBlock(blocks[0].id, { content: textContent });
+      }
+
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+      
+      if (mode === 'customize') {
+        editorRef.current.innerHTML = highlightPlaceholders(textContent);
+        if (observerRef.current && editorRef.current) {
+          observerRef.current.observe(editorRef.current, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+            attributes: false
+          });
+        }
+      }
+    }
+  };
+
+  const handleEditorInput = () => {
+    if (!editorRef.current) return;
+
+    const currentRawContent = mode === 'create' ? (editorRef.current.textContent || '') : editorRef.current.innerHTML;
+
+    let textContent;
+    if (mode === 'create') {
+      textContent = currentRawContent;
+    } else {
+      textContent = currentRawContent
         .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<div\s*\/?>/gi, '')
-        .replace(/<\/div>/gi, '\n')
+        .replace(/<div\s*\/?>/gi, '') 
+        .replace(/<\/div>/gi, '\n')   
         .replace(/<p\s*\/?>/gi, '')
         .replace(/<\/p>/gi, '\n')
         .replace(/<\/?span[^>]*>/g, '')
@@ -212,70 +301,50 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '"')
         .replace(/&#039;/g, "'")
-        .replace(/&amp;/g, '&');
-      
-      setModifiedContent(textContent);
-
-      if (mode === 'create') {
-        const extracted = extractPlaceholders(textContent);
-        setPlaceholders(extracted);
-      }
-      
-      // Update the first block with the modified content
-      if (blocks.length > 0) {
-        onUpdateBlock(blocks[0].id, { content: textContent });
-      }
-
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-      editorRef.current.innerHTML = highlightPlaceholders(textContent);
-
-      if (observerRef.current && editorRef.current) {
-        observerRef.current.observe(editorRef.current, {
-          childList: true,
-          subtree: true,
-          characterData: true,
-          attributes: false
-        });
-      }
+        .replace(/&amp;/g, '&')
+        .replace(/\n\n+/g, '\n'); 
     }
-  };
-
-  const handleEditorInput = () => {
-    if (mode !== 'create' || !editorRef.current) return;
-
-    const htmlContent = editorRef.current.innerHTML;
-    const textContent = htmlContent
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<div\s*\/?>/gi, '')
-      .replace(/<\/div>/gi, '\n')
-      .replace(/<p\s*\/?>/gi, '')
-      .replace(/<\/p>/gi, '\n')
-      .replace(/<\/?span[^>]*>/g, '')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#039;/g, "'")
-      .replace(/&amp;/g, '&');
-
+    
     setModifiedContent(textContent);
 
-    const extracted = extractPlaceholders(textContent);
-    setPlaceholders(extracted);
+    if (mode === 'customize') {
+      const extracted = extractPlaceholders(textContent);
+      setPlaceholders(extracted);
+    }
+    
     if (blocks.length > 0) {
       onUpdateBlock(blocks[0].id, { content: textContent });
     }
+  };
 
+  // FIXED: Proper event handling like in InsertBlockDialog
+  const handleEditorKeyDown = (e: React.KeyboardEvent) => {
+    // CRITICAL: Stop all key events from bubbling up to prevent dialog from closing
+    e.stopPropagation();
+    
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      editorRef.current?.blur();
+      return;
+    }
+    
+    // Let all other keys work naturally for contentEditable
+  };
+
+  const handleEditorKeyPress = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleEditorKeyUp = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
   };
 
   const escapeRegExp = (string: string) => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, "");
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   };
 
   const updatePlaceholder = (index: number, value: string) => {
-    if (isEditing) return;
+    if (isEditing && mode === 'customize') return;
 
     activeInputIndex.current = index;
 
@@ -283,30 +352,26 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     updatedPlaceholders[index].value = value;
     setPlaceholders(updatedPlaceholders);
 
-    let newContent =
-      (mode === 'customize' ? initialContentRef.current : templateContent).replace(/\r\n/g, '\n');
+    let baseContent = (mode === 'customize' && initialContentRef.current ? initialContentRef.current : templateContent).replace(/\r\n/g, '\n');
     
-    updatedPlaceholders.forEach(({ key, value }) => {
-      if (value) {
+    updatedPlaceholders.forEach(({ key, value: val }) => {
+      if (val) {
         const regex = new RegExp(escapeRegExp(key), "g");
-        newContent = newContent.replace(regex, value);
+        baseContent = baseContent.replace(regex, val);
       }
     });
 
-    setModifiedContent(newContent);
+    setModifiedContent(baseContent);
 
-    // Update the first block with the modified content
     if (blocks.length > 0) {
-      onUpdateBlock(blocks[0].id, { content: newContent });
+      onUpdateBlock(blocks[0].id, { content: baseContent });
     }
 
-    if (editorRef.current && !isEditing) {
+    if (editorRef.current && !isEditing && mode === 'customize') {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
-
-      editorRef.current.innerHTML = highlightPlaceholders(newContent);
-      
+      editorRef.current.innerHTML = highlightPlaceholders(baseContent);
       if (observerRef.current && editorRef.current) {
         observerRef.current.observe(editorRef.current, { 
           childList: true, 
@@ -315,16 +380,43 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           attributes: false 
         });
       }
+    } else if (editorRef.current && mode === 'create') {
+      editorRef.current.textContent = baseContent;
     }
 
     setTimeout(() => {
-      if (activeInputIndex.current !== null) {
-        const ref = inputRefs.current[activeInputIndex.current];
-        ref?.focus();
+      if (activeInputIndex.current !== null && inputRefs.current[activeInputIndex.current]) {
+        inputRefs.current[activeInputIndex.current]?.focus();
       }
     }, 0);
   };
 
+  // For create mode, show only the editor without the left panel
+  if (mode === 'create') {
+    return (
+      <div className="jd-h-full jd-flex jd-flex-col jd-p-4">
+        <h3 className="jd-text-sm jd-font-medium jd-mb-2">Edit Template</h3>
+        <div
+          ref={editorRef}
+          contentEditable
+          suppressContentEditableWarning
+          onFocus={handleEditorFocus}
+          onBlur={handleEditorBlur}
+          onInput={handleEditorInput}
+          onKeyDown={handleEditorKeyDown}
+          onKeyPress={handleEditorKeyPress}
+          onKeyUp={handleEditorKeyUp}
+          className={`jd-flex-1 jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
+            isDarkMode
+              ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
+              : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
+          }`}          
+        />
+      </div>
+    );
+  }
+
+  // For customize mode, show the full interface with placeholders
   return (
     <div className="jd-h-full jd-flex jd-flex-1 jd-overflow-hidden">
       <ResizablePanelGroup direction="horizontal" className="jd-h-full jd-w-full">
@@ -339,18 +431,20 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                       <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
                         <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
                       </label>
-                      {mode === 'customize' ? (
-                        <Input
-                          ref={el => (inputRefs.current[idx] = el)}
-                          onFocus={() => {
-                            activeInputIndex.current = idx;
-                          }}
-                          value={placeholder.value}
-                          onChange={(e) => updatePlaceholder(idx, e.target.value)}
-                          placeholder={`Enter value for ${placeholder.key}`}
-                          className="jd-w-full"
-                        />
-                      ) : null}
+                      <Input
+                        ref={el => (inputRefs.current[idx] = el)}
+                        onFocus={() => {
+                          activeInputIndex.current = idx;
+                        }}
+                        // FIXED: Proper event handling for inputs
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onKeyPress={(e) => e.stopPropagation()}
+                        onKeyUp={(e) => e.stopPropagation()}
+                        value={placeholder.value}
+                        onChange={(e) => updatePlaceholder(idx, e.target.value)}
+                        placeholder={`Enter value for ${placeholder.key}`}
+                        className="jd-w-full"
+                      />
                     </div>
                   ))}
                 </div>
@@ -367,21 +461,18 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             <div
               ref={editorRef}
               contentEditable
-              dir="ltr"
               suppressContentEditableWarning
               onFocus={handleEditorFocus}
               onBlur={handleEditorBlur}
               onInput={handleEditorInput}
+              onKeyDown={handleEditorKeyDown}
+              onKeyPress={handleEditorKeyPress}
+              onKeyUp={handleEditorKeyUp}
               className={`jd-flex-1 jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
                 isDarkMode
                   ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
                   : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
               }`}
-              onClick={(e) => e.stopPropagation()}
-              onMouseDown={(e) => e.stopPropagation()}
-              onKeyDown={(e) => e.stopPropagation()}
-              onKeyPress={(e) => e.stopPropagation()}
-              onKeyUp={(e) => e.stopPropagation()}
             />
           </div>
         </ResizablePanel>

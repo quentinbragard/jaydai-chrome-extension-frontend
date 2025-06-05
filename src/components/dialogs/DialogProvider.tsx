@@ -4,6 +4,8 @@ import { DialogManagerProvider } from './DialogContext';
 import { CreateTemplateDialog } from '@/components/dialogs/prompts/CreateTemplateDialog';
 import { CreateFolderDialog } from './prompts/CreateFolderDialog';
 import { CustomizeTemplateDialog } from './prompts/CustomizeTemplateDialog';
+import { CreateBlockDialog } from './prompts/CreateBlockDialog';
+import { InsertBlockDialog } from './prompts/InsertBlockDialog';
 import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
@@ -45,41 +47,8 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       console.log('window.dialogManager already available:', window.dialogManager);
     }
     
-    // Listen for events in shadow DOM
-    const handleCapturedEvent = (e: Event) => {
-      // Don't intercept all events - let normal UI events continue
-      // We only want to intercept keyboard events when dialogs are open
-      // Support both Radix based dialogs (z-50) and custom BaseDialog (z-[10001])
-      if (document.querySelector('.jd-fixed.jd-inset-0')) {
-        if (
-          e.type.startsWith('key') ||
-          e.type === 'input' ||
-          e.type === 'change' ||
-          e.type === 'focus' ||
-          e.type === 'blur'
-        ) {
-          e.stopPropagation();
-        }
-      }
-    };
+
     
-    // Events to capture
-    const events = [
-      'keydown', 'keyup', 'keypress', 
-      'input', 'change', 'focus', 'blur'
-    ];
-    
-    // Add event listeners in capture phase at the root level
-    events.forEach(eventType => {
-      document.addEventListener(eventType, handleCapturedEvent, true);
-    });
-    
-    // Cleanup
-    return () => {
-      events.forEach(eventType => {
-        document.removeEventListener(eventType, handleCapturedEvent, true);
-      });
-    };
   }, []);
   
   return (
@@ -88,8 +57,10 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       
       {/* Register all dialogs here */}
       <CreateTemplateDialog />
-      <CreateFolderDialog  />
+      <CreateFolderDialog />
       <CustomizeTemplateDialog />
+      <CreateBlockDialog />
+      <InsertBlockDialog />
       <AuthDialog />
       <SettingsDialog />
       <ConfirmationDialog />

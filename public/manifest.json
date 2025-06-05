@@ -7,7 +7,8 @@
   "default_locale": "fr",
   "permissions": [
     "storage",
-    "identity"
+    "identity",
+    "contextMenus"
   ],
   "oauth2": {
     "client_id": "32108269805-53if057t0kgq0qlmjqr3st6v124cajam.apps.googleusercontent.com",
@@ -18,7 +19,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://chatgpt.com/*", "https://claude.ai/*"],
+      "matches": ["https://chatgpt.com/*", "https://claude.ai/*", "https://chat.mistral.ai/*", "https://copilot.microsoft.com/*"],
     "js": ["content.js"],
       "run_at": "document_start",
       "type": "module"
@@ -31,6 +32,16 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
       }
+  },
+  "commands": {
+    "create-prompt": {
+      "suggested_key": { "default": "Ctrl+Shift+Y" },
+      "description": "Create a Jaydai Block"
+    },
+    "insert-prompt": {
+      "suggested_key": { "default": "Ctrl+Shift+U" },
+      "description": "Insert a Jaydai Block"
+    }
   },
   "web_accessible_resources": [
     {

@@ -1,6 +1,54 @@
 // 🔹 Open welcome page when the extension is installed
+function createContextMenus() {
+  chrome.contextMenus.removeAll(() => {
+    console.log('Creating Jaydai context menus');
+
+    chrome.contextMenus.create({
+      id: 'create_block',
+      title: 'Create a Jaydai Block',
+      contexts: ['all'],
+    });
+    chrome.contextMenus.create({
+      id: 'insert_block',
+      title: 'Insert a Jaydai Block',
+      contexts: ['all'],
+    });
+  });
+}
+
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.tabs.create({ url: 'welcome.html' });
+  chrome.tabs.create({ url: 'welcome.html' });
+  createContextMenus();
+});
+
+// Recreate menus whenever Chrome starts
+chrome.runtime.onStartup.addListener(createContextMenus);
+
+// Also create menus when the service worker loads
+createContextMenus();
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (!tab || !tab.id) return;
+  if (info.menuItemId === 'create_block') {
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'openCreateBlockDialog',
+      content: info.selectionText || ''
+    });
+  } else if (info.menuItemId === 'insert_block') {
+    chrome.tabs.sendMessage(tab.id, { action: 'openInsertBlockDialog' });
+  }
+});
+
+chrome.commands.onCommand.addListener((command) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tab = tabs[0];
+    if (!tab || !tab.id) return;
+    if (command === 'create-prompt') {
+      chrome.tabs.sendMessage(tab.id, { action: 'openCreateBlockDialog', content: '' });
+    } else if (command === 'insert-prompt') {
+      chrome.tabs.sendMessage(tab.id, { action: 'openInsertBlockDialog' });
+    }
+  });
 });
 
 // 🔹 Open welcome page only when the extension is newly installed, not on updates

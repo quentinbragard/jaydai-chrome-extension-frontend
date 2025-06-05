@@ -3,16 +3,18 @@ import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useDialog } from '../../DialogContext';
-import { DIALOG_TYPES } from '../../DialogRegistry';
+import { Plus } from 'lucide-react';
+import { cn } from '@/core/utils/classNames';
+import { useDialog } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
-import { BaseDialog } from '../../BaseDialog';
+import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 
 /**
  * Dialog for creating new template folders
- * This version uses direct API calls to avoid React Query errors
+ * Enhanced for dialog stacking scenarios and Claude.ai compatibility
  */
 export const CreateFolderDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.CREATE_FOLDER);
@@ -31,7 +33,7 @@ export const CreateFolderDialog: React.FC = () => {
   
   // Safe extraction of dialog data with defaults
   const onSaveFolder = data?.onSaveFolder || (() => Promise.resolve(false));
-  const onFolderCreated = data?.onFolderCreated; // New callback for when folder is created
+  const onFolderCreated = data?.onFolderCreated;
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,16 +49,14 @@ export const CreateFolderDialog: React.FC = () => {
       // Prepare folder data
       const folderData = {
         name: name.trim(),
-        path: name.trim().toLowerCase().replace(/\s+/g, '-'), // Generate path from name
+        path: name.trim().toLowerCase().replace(/\s+/g, '-'),
         description: description.trim()
       };
       
       // Call the provided callback with folder data if it exists
-      // This allows for custom handling by parent components
       if (onSaveFolder) {
         const customResult = await onSaveFolder(folderData);
         if (customResult && customResult.success && customResult.folder) {
-          // Use the folder from the custom result
           if (onFolderCreated) {
             onFolderCreated(customResult.folder);
           }
@@ -66,7 +66,6 @@ export const CreateFolderDialog: React.FC = () => {
           dialogProps.onOpenChange(false);
           return;
         } else if (customResult && !customResult.success) {
-          // Handle custom error case
           toast.error(customResult.error || 'Failed to create folder');
           setIsSubmitting(false);
           return;
@@ -77,14 +76,11 @@ export const CreateFolderDialog: React.FC = () => {
       const response = await promptApi.createFolder(folderData);
 
       if (response.success && response.data) {
-        // Call the onFolderCreated callback if provided with the created folder
         if (onFolderCreated) {
           onFolderCreated(response.data);
         }
         
         toast.success(`Folder "${name}" created successfully`);
-        
-        // Reset form and close dialog
         resetForm();
         dialogProps.onOpenChange(false);
       } else {
@@ -102,105 +98,101 @@ export const CreateFolderDialog: React.FC = () => {
     setName('');
     setDescription('');
   };
+
+  const handleClose = (open: boolean) => {
+    if (!open) {
+      resetForm();
+    }
+    dialogProps.onOpenChange(open);
+  };
+
+  if (!isOpen) return null;
   
   return (
     <BaseDialog
       open={isOpen}
-      onOpenChange={(open: boolean) => {
-        if (!open) {
-          resetForm();
-        }
-        dialogProps.onOpenChange(open);
-      }}
+      onOpenChange={handleClose}
       title={getMessage('createFolder', undefined, 'Create Folder')}
       description={getMessage('createFolderDescription', undefined, 'Create a new folder to organize your templates')}
       className="jd-max-w-xl"
     >
-      <form onSubmit={handleSubmit} className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
-        <div>
-          <label className="jd-text-sm jd-font-medium">{getMessage('folderName', undefined, 'Folder Name')}</label>
-          <Input 
-            value={name} 
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => {
-              // Prevent form submission and propagation when Enter is pressed
-              e.stopPropagation();
-              if (e.key === 'Enter') {
-                e.preventDefault();
-              }
-            }}
-            placeholder={getMessage('enterFolderName', undefined, 'Enter folder name')}
-            className="jd-mt-1"
-            autoFocus
-          />
-        </div>
-        
-        <div>
-          <label className="jd-text-sm jd-font-medium">{getMessage('description', undefined, 'Description')}</label>
-          <Textarea 
-            value={description} 
-            onChange={(e) => setDescription(e.target.value)}
-            onKeyDown={(e) => {
-              // Prevent event propagation to prevent leaking
-              e.stopPropagation();
-              
-              // Allow Enter key to create a new line
-              if (e.key === 'Enter') {
-                // Prevent default behavior (which might submit the form)
-                e.preventDefault();
-                
-                // Get the current cursor position
-                const textarea = e.target as HTMLTextAreaElement;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                
-                // Insert a newline at the cursor position
-                const newContent = 
-                  description.substring(0, start) + 
-                  '\n' + 
-                  description.substring(end);
-                
-                // Update the description state
-                setDescription(newContent);
-                
-                // Set the cursor position after the newline
-                setTimeout(() => {
-                  textarea.selectionStart = textarea.selectionEnd = start + 1;
-                }, 0);
-              }
-            }}
-            placeholder={getMessage('enterFolderDescription', undefined, 'Enter folder description (optional)')}
-            className="jd-mt-1"
-            rows={3}
-          />
-        </div>
-        
-        <div className="jd-flex jd-justify-end jd-space-x-2 jd-mt-4">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => dialogProps.onOpenChange(false)}
-            disabled={isSubmitting}
-            onKeyDown={(e) => e.stopPropagation()}
-          >
-            {getMessage('cancel', undefined, 'Cancel')}
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={isSubmitting || !name.trim()}
-            onKeyDown={(e) => e.stopPropagation()}
-          >
-            {isSubmitting ? (
-              <>
-                <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-inline-block jd-mr-2"></div>
-                {getMessage('creating', undefined, 'Creating...')}
-              </>
-            ) : (
-              getMessage('create', undefined, 'Create')
-            )}
-          </Button>
-        </div>
-      </form>
+      <form onSubmit={handleSubmit} className="jd-space-y-4 jd-mt-4">
+          <div>
+            <label className="jd-text-sm jd-font-medium">
+              {getMessage('folderName', undefined, 'Folder Name')}
+            </label>
+            <Input 
+              value={name} 
+              onChange={(e) => setName(e.target.value)}
+              placeholder={getMessage('enterFolderName', undefined, 'Enter folder name')}
+              className="jd-mt-1"
+              autoFocus
+              // Minimal event handling - just prevent escape key from closing dialog
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  return;
+                }
+                // Let all other keys work normally
+              }}
+            />
+          </div>
+          
+          <div>
+            <label className="jd-text-sm jd-font-medium">
+              {getMessage('description', undefined, 'Description')}
+            </label>
+            <Textarea 
+              value={description} 
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={getMessage('enterFolderDescription', undefined, 'Enter folder description (optional)')}
+              className="jd-mt-1"
+              rows={3}
+              // Minimal event handling
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  return;
+                }
+                // Let Enter work for new lines in textarea
+              }}
+            />
+          </div>
+          
+          <div className="jd-flex jd-justify-end jd-space-x-2 jd-pt-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => handleClose(false)}
+              disabled={isSubmitting}
+            >
+              {getMessage('cancel', undefined, 'Cancel')}
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !name.trim()}
+              className={cn(
+                'jd-transition-all jd-duration-300',
+                'jd-bg-gradient-to-r jd-from-purple-500 jd-to-blue-500',
+                'hover:jd-from-purple-600 hover:jd-to-blue-600 jd-text-white'
+              )}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-inline-block jd-mr-2"></div>
+                  {getMessage('creating', undefined, 'Creating...')}
+                </>
+              ) : (
+                <>
+                  <Plus className="jd-h-4 jd-w-4 jd-mr-1" />
+                  {getMessage('create', undefined, 'Create')}
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
     </BaseDialog>
   );
 };
