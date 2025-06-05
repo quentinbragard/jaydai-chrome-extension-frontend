@@ -11,6 +11,7 @@ export class SlashCommandService extends AbstractBaseService {
   private observer: MutationObserver | null = null;
   private quickSelectorRoot: Root | null = null;
   private quickSelectorContainer: HTMLDivElement | null = null;
+  private isQuickSelectorOpen = false;
 
   private constructor() {
     super();
@@ -227,6 +228,7 @@ export class SlashCommandService extends AbstractBaseService {
         }
       })
     );
+    this.isQuickSelectorOpen = true;
   }
 
   private closeQuickSelector() {
@@ -234,11 +236,12 @@ export class SlashCommandService extends AbstractBaseService {
       this.quickSelectorRoot.unmount();
       this.quickSelectorRoot = null;
     }
-    
+
     if (this.quickSelectorContainer) {
       this.quickSelectorContainer.remove();
       this.quickSelectorContainer = null;
     }
+    this.isQuickSelectorOpen = false;
   }
 
   private handleInput = (e: Event) => {
@@ -252,6 +255,10 @@ export class SlashCommandService extends AbstractBaseService {
     } else if (target instanceof HTMLElement && target.isContentEditable) {
       value = target.innerText;
       // For contenteditable, we'll handle cursor position differently
+    }
+
+    if (this.isQuickSelectorOpen) {
+      return;
     }
 
     // Check for //j pattern (with optional space)
