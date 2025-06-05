@@ -21,7 +21,11 @@ export async function createTemplate(templateData: any): Promise<any> {
         tags: templateData.tags || [],
         locale: templateData.locale || 'en',
         folder_id: templateData.folder_id || null,
-        type: templateData.type || 'user'
+        type: templateData.type || 'user',
+        // Include advanced editor fields when present
+        blocks: templateData.blocks || [],
+        metadata: templateData.metadata || {},
+        enhanced_metadata: templateData.enhanced_metadata || undefined
       };
 
       const response = await apiClient.request('/prompts/templates', {
