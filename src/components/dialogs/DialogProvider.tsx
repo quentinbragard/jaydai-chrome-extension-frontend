@@ -47,9 +47,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       console.log('window.dialogManager already available:', window.dialogManager);
     }
     
-    // REMOVED: The aggressive event interception that was causing issues
-    // The previous version had event listeners that were interfering with dialog functionality
-    // Now we rely on individual dialogs to handle their own events properly
+
     
   }, []);
   
