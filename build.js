@@ -10,13 +10,40 @@ const __dirname = path.dirname(__filename);
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-const isProd = args.includes('--prod');
+
+// Determine which environment we are building for. The first argument that
+// doesn't start with `--` is treated as the environment name. This allows
+// commands like `npm run build prod` or `npm run build develop`.
+const envArg = args.find(a => !a.startsWith('--')) || 'prod';
 const isWatch = args.includes('--watch');
 const isZip = args.includes('--zip');
 
-// Determine build mode
-const mode = isProd ? 'production' : 'development';
-console.log(`🚀 Building extension in ${mode} mode...`);
+// Map the environment argument to Vite's mode and the env file to load.
+let mode = 'production';
+let envFile = '.env.production';
+let isProd = true;
+
+switch (envArg) {
+  case 'develop':
+    mode = 'develop';
+    envFile = '.env.develop';
+    isProd = false;
+    break;
+  case 'locally':
+    mode = 'locally';
+    envFile = '.env.local';
+    isProd = true; // Local build should behave like production
+    break;
+  case 'prod':
+  case 'production':
+  default:
+    mode = 'production';
+    envFile = '.env.production';
+    isProd = true;
+    break;
+}
+
+console.log(`🚀 Building extension for "${envArg}" using ${mode} mode...`);
 
 // Build command
 let buildCommand = `vite build --mode ${mode}`;
@@ -42,46 +69,39 @@ try {
   execSync('node build-css.js', { stdio: 'inherit' });
   
   // Create zip file for production builds if requested
-  if (isProd && isZip) {
+  if (isZip) {
     console.log('📦 Creating zip file for Chrome Web Store submission...');
-    const zipCommand = 'cd dist && zip -r ../jaydai-extension.zip *';
+    const zipCommand = `cd dist && zip -r ../jaydai-extension_${mode}.zip *`;
     execSync(zipCommand, { stdio: 'inherit' });
-    console.log('📦 Created jaydai-extension.zip');
+    console.log(`📦 Created jaydai-extension_${mode}.zip`);
   }
   
   console.log('✅ Build completed successfully!');
   
   // Display environment info
-  const envFile = isProd ? '.env.production' : '.env.development';
   const envPath = path.join(__dirname, envFile);
+  let apiUrl = 'unknown';
   if (fs.existsSync(envPath)) {
     const envContent = fs.readFileSync(envPath, 'utf8');
     console.log(`\n📝 Using environment from ${envFile}:`);
     console.log(envContent.trim());
+    const match = envContent.match(/^VITE_API_URL=(.*)$/m);
+    if (match) {
+      apiUrl = match[1];
+    }
   }
-  
+
   // Display API URL
-  const apiUrl = isProd 
-    ? 'https://api-prod-sw5cmqbraq-od.a.run.app' 
-    : 'http://localhost:8000';
   console.log(`\n🔌 API URL: ${apiUrl}`);
   
   // Display next steps
   console.log('\n📋 Next steps:');
-  if (isProd) {
-    console.log('1. Open Chrome Extensions page (chrome://extensions/)');
-    console.log('2. Enable Developer Mode');
-    console.log('3. Load unpacked extension from the "dist" folder');
-    if (isZip) {
-      console.log('4. Upload jaydai-extension.zip to Chrome Web Store');
-    }
-  } else {
-    console.log('1. Open Chrome Extensions page (chrome://extensions/)');
-    console.log('2. Enable Developer Mode');
-    console.log('3. Load unpacked extension from the "dist" folder');
-    console.log('4. Make sure your localhost:8000 backend is running');
+  console.log('1. Open Chrome Extensions page (chrome://extensions/)');
+  console.log('2. Enable Developer Mode');
+  console.log('3. Load unpacked extension from the "dist" folder');
+  if (isZip) {
+    console.log(`4. Upload jaydai-extension_${mode}.zip to Chrome Web Store`);
   }
-  
 } catch (error) {
   console.error('❌ Build failed:', error);
   process.exit(1);

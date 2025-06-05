@@ -4,10 +4,12 @@
   "version": "1.0.4",
   "type": "module",
   "scripts": {
-    "dev": "node build.js",
-    "dev:watch": "concurrently \"node build.js --watch\" \"node build-css.js --watch\"",
-    "build": "node build.js --prod",
-    "build:zip": "node build.js --prod --zip",
+    "build:prod": "node build.js prod",
+    "build:zip:prod": "node build.js prod --zip",
+    "build:local": "node build.js locally",
+    "build:zip:local": "node build.js locally --zip",
+    "build:develop": "node build.js develop",
+    "build:zip:develop": "node build.js develop --zip",
     "lint": "eslint .",
     "preview": "vite preview",
     "type-check": "tsc --noEmit"

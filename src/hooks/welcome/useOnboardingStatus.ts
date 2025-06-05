@@ -24,7 +24,8 @@ export function useOnboardingStatus(user: User | null, isAuthenticated: boolean)
         const status = await userApi.getUserOnboardingStatus();
         console.log('Onboarding status:', status);
         
-        const needsOnboarding = !status.has_completed_onboarding;
+        const needsOnboarding = !status.data.has_completed_onboarding;
+        console.log('Needs onboarding:', needsOnboarding);
         setOnboardingRequired(needsOnboarding);
         
         // Immediately show onboarding if needed
