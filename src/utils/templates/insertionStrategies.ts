@@ -54,9 +54,16 @@ export function insertIntoContentEditable(element: HTMLElement, text: string, cu
         if (line) fragment.appendChild(document.createTextNode(line));
         if (i < lines.length - 1) fragment.appendChild(document.createElement('br'));
       });
+
+      const lastNode = fragment.lastChild as ChildNode | null;
       range.insertNode(fragment);
-      range.setStartAfter(fragment.lastChild || fragment);
-      range.setEndAfter(fragment.lastChild || fragment);
+
+      if (lastNode && lastNode.parentNode) {
+        range.setStartAfter(lastNode);
+        range.setEndAfter(lastNode);
+      } else {
+        range.collapse(false);
+      }
     } else {
       const node = document.createTextNode(text);
       range.insertNode(node);
