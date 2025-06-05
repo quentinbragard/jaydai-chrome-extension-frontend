@@ -36,6 +36,9 @@ export const BasicInfoForm: React.FC<Props> = ({
           onChange={e => setName(e.target.value)}
           placeholder={getMessage('enterTemplateName')}
           className={`jd-mt-1 ${validationErrors.name ? 'jd-border-red-500' : ''}`}
+          onKeyDown={e => e.stopPropagation()}
+          onKeyPress={e => e.stopPropagation()}
+          onKeyUp={e => e.stopPropagation()}
         />
         {validationErrors.name && (
           <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.name}</p>
@@ -48,6 +51,9 @@ export const BasicInfoForm: React.FC<Props> = ({
           onChange={e => setDescription(e.target.value)}
           placeholder={getMessage('templateDescriptionPlaceholder')}
           className="jd-mt-1"
+          onKeyDown={e => e.stopPropagation()}
+          onKeyPress={e => e.stopPropagation()}
+          onKeyUp={e => e.stopPropagation()}
         />
       </div>
       <div>

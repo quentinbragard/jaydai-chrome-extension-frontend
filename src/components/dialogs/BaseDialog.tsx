@@ -1,5 +1,6 @@
 // src/components/dialogs/BaseDialog.tsx
 import React, { useRef, useEffect, useState } from 'react';
+import { useDialogFocusGuard } from '@/core/utils/shadowDomFocusManager';
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from "@/core/utils/classNames";
 import { X } from "lucide-react";
@@ -30,6 +31,8 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   // All hooks must be called unconditionally at the top
   const dialogRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
+  // Keep focus trapped inside the dialog when open
+  useDialogFocusGuard(dialogRef.current, open);
   
   // Setup effect for mounting state
   useEffect(() => {
@@ -86,7 +89,8 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
     const eventsToCapture = [
       'mousedown', 'mouseup', 'click', // Mouse events from outside
       'scroll', 'wheel', // Scrolling events
-      'focus', 'blur' // Focus events from outside
+      'focus', 'blur', // Focus events from outside
+      'keydown', 'keypress', 'keyup' // Keyboard events that could leak to page
     ];
     
     eventsToCapture.forEach(eventName => {

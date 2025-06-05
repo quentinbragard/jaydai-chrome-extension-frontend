@@ -127,15 +127,15 @@ export const CreateFolderDialog: React.FC = () => {
               placeholder={getMessage('enterFolderName', undefined, 'Enter folder name')}
               className="jd-mt-1"
               autoFocus
-              // Minimal event handling - just prevent escape key from closing dialog
               onKeyDown={(e) => {
+                e.stopPropagation();
                 if (e.key === 'Escape') {
-                  e.stopPropagation();
                   e.preventDefault();
                   return;
                 }
-                // Let all other keys work normally
               }}
+              onKeyPress={(e) => e.stopPropagation()}
+              onKeyUp={(e) => e.stopPropagation()}
             />
           </div>
           
@@ -149,15 +149,16 @@ export const CreateFolderDialog: React.FC = () => {
               placeholder={getMessage('enterFolderDescription', undefined, 'Enter folder description (optional)')}
               className="jd-mt-1"
               rows={3}
-              // Minimal event handling
               onKeyDown={(e) => {
+                e.stopPropagation();
                 if (e.key === 'Escape') {
-                  e.stopPropagation();
                   e.preventDefault();
                   return;
                 }
                 // Let Enter work for new lines in textarea
               }}
+              onKeyPress={(e) => e.stopPropagation()}
+              onKeyUp={(e) => e.stopPropagation()}
             />
           </div>
           
