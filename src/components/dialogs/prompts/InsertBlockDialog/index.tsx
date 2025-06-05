@@ -255,7 +255,7 @@ const EditablePreview: React.FC<{
       // Convert to plain text for editing
       editorRef.current.textContent = content;
       editorRef.current.focus();
-      
+
       // Place cursor at the end
       setTimeout(() => {
         if (editorRef.current) {
@@ -268,7 +268,9 @@ const EditablePreview: React.FC<{
         }
       }, 0);
     }
-  }, [isEditing, content]);
+    // Only run when entering edit mode to preserve cursor position during typing
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing]);
 
   const startEditing = (e: React.MouseEvent) => {
     e.preventDefault();
