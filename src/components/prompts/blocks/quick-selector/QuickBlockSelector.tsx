@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
+import { insertTextAtCursor } from '@/utils/dom/insertTextAtCursor';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { 
   Search, 
@@ -142,7 +143,13 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const handleSelectBlock = (block: Block) => {
     const content = getLocalizedContent(block.content);
     const text = buildPromptPart(block.type || 'content', content);
-    insertIntoPromptArea(text);
+
+    if (targetElement) {
+      insertTextAtCursor(targetElement, text);
+    } else {
+      insertIntoPromptArea(text);
+    }
+
     onClose();
     toast.success(`Inserted ${getLocalizedContent(block.title)} block`);
   };
@@ -187,7 +194,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
     <div
       ref={containerRef}
       className={cn(
-        'jd-fixed jd-z-[2147483647] jd-w-[400px] jd-max-h-[480px]',
+        'jd-fixed jd-z-[2147483647] jd-w-[400px] jd-max-h-[480px] jd-overflow-hidden',
         'jd-bg-background jd-border jd-rounded-lg jd-shadow-xl',
         'jd-flex jd-flex-col jd-animate-in jd-fade-in jd-slide-in-from-bottom-2',
         isDark ? 'jd-border-gray-700' : 'jd-border-gray-200'
@@ -278,7 +285,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
       </div>
 
       {/* Blocks List */}
-      <ScrollArea className="jd-flex-1 jd-px-3 jd-pb-3">
+      <ScrollArea className="jd-flex-1 jd-min-h-0 jd-px-3 jd-pb-3">
         {loading ? (
           <div className="jd-py-8">
             <LoadingSpinner size="sm" message="Loading blocks..." />
