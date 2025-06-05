@@ -1,4 +1,4 @@
-// src/hooks/dialogs/useCreateTemplateDialog.ts - Enhanced version
+// src/hooks/dialogs/useCreateTemplateDialog.ts - FIXED: Proper metadata vs content block separation
 import { useState, useEffect } from 'react';
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { Block, BlockType } from '@/types/prompts/blocks';
@@ -20,8 +20,9 @@ import {
 import {
   validateEnhancedTemplateForm,
   generateEnhancedFinalContent,
-  getEnhancedBlockIds,
-  getMetadataBlockMapping,
+  getEnhancedContentBlockIds, // FIXED: Use this for content blocks
+  getMetadataBlockMapping,    // FIXED: Use this for metadata blocks
+  createEnhancedMetadataForSaving,
   parseTemplateMetadata,
   createBlock,
   addBlock as addBlockUtil,
@@ -33,8 +34,6 @@ import {
   updateMetadataItem,
   reorderMetadataItems
 } from './templateDialogUtils';
-
-
 
 export function useCreateTemplateDialog() {
   const createDialog = useDialog('createTemplate');
@@ -117,7 +116,6 @@ export function useCreateTemplateDialog() {
     }
   }, [isOpen, currentTemplate, selectedFolder, processUserFolders]);
 
-
   const handleClose = () => {
     if (createDialog.isOpen) {
       createDialog.close();
@@ -191,9 +189,10 @@ export function useCreateTemplateDialog() {
     return Object.keys(errors).length === 0;
   };
 
+  // FIXED: Proper separation of content blocks vs metadata blocks
   const generateFinalContentLocal = () => generateEnhancedFinalContent(content, blocks, metadata, activeTab);
-  const getBlockIdsLocal = () => getEnhancedBlockIds(blocks, metadata, activeTab);
-  const getMetadataMappingLocal = () => getMetadataBlockMapping(metadata, activeTab);
+  const getContentBlockIdsLocal = () => getEnhancedContentBlockIds(blocks, activeTab); // FIXED: Only content blocks
+  const getMetadataMappingLocal = () => getMetadataBlockMapping(metadata, activeTab); // FIXED: Only metadata blocks
 
   const handleSave = async () => {
     if (!validateForm()) {
@@ -208,19 +207,44 @@ export function useCreateTemplateDialog() {
     setIsSubmitting(true);
     try {
       const finalContent = generateFinalContentLocal();
-      const blockIds = getBlockIdsLocal();
-      const metadataMapping = getMetadataMappingLocal();
+      const contentBlockIds = getContentBlockIdsLocal(); // FIXED: Content blocks only
+      const metadataBlockMapping = getMetadataMappingLocal(); // FIXED: Metadata blocks only
+      
+      // FIXED: Create comprehensive enhanced metadata for saving
+      const enhancedMetadata = createEnhancedMetadataForSaving(metadata, activeTab);
+
+      console.log('FIXED Template Save Data:', {
+        finalContent,
+        contentBlockIds,      // FIXED: These are content blocks
+        metadataBlockMapping, // FIXED: These are metadata blocks
+        enhancedMetadata
+      });
 
       const templateData = {
         title: name.trim(),
         content: finalContent,
-        blocks: blockIds,
+        
+        // FIXED: Store content block IDs in blocks field
+        blocks: contentBlockIds,
+        
         description: description?.trim(),
         folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined,
-        // Include enhanced metadata for future use
-        enhanced_metadata: metadata,
-        metadata: metadataMapping
+        
+        // FIXED: Store comprehensive metadata structure
+        enhanced_metadata: enhancedMetadata,
+        
+        // FIXED: Store metadata block IDs in metadata field
+        metadata: metadataBlockMapping
       };
+
+      console.log('Final Template Data Structure:', {
+        ...templateData,
+        explanation: {
+          'blocks': 'Content block IDs (blocks added to content section)',
+          'metadata': 'Metadata block IDs (blocks selected in metadata dropdowns)',
+          'enhanced_metadata': 'Complete metadata structure with values and references'
+        }
+      });
 
       if (onSave) {
         const formData = {
@@ -228,8 +252,8 @@ export function useCreateTemplateDialog() {
           content: finalContent,
           description: description?.trim(),
           folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined,
-          enhanced_metadata: metadata,
-          metadata: metadataMapping
+          enhanced_metadata: enhancedMetadata,
+          metadata: metadataBlockMapping
         };
         const success = await onSave(formData);
         if (success) {
@@ -246,6 +270,18 @@ export function useCreateTemplateDialog() {
 
         if (response.success) {
           toast.success(currentTemplate ? getMessage('templateUpdated') : getMessage('templateCreated'));
+
+          // Show detailed info about what was saved
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ Template saved successfully with proper block separation:');
+            console.log(`   📝 Content blocks: ${contentBlockIds.length}`);
+            console.log(`   🏷️  Metadata blocks: ${Object.keys(metadataBlockMapping).length}`);
+            
+            if (Object.keys(metadataBlockMapping).length > 0) {
+              console.log('   Metadata block mapping:', metadataBlockMapping);
+              toast.success(`Template saved with ${Object.keys(metadataBlockMapping).length} metadata blocks tracked`);
+            }
+          }
 
           if (currentTemplate) {
             setTimeout(() => {
@@ -288,7 +324,7 @@ export function useCreateTemplateDialog() {
     setMetadata(prev => reorderMetadataItems(prev, type, newItems));
   };
 
-  // Block handlers
+  // Content block handlers (these only affect content blocks, not metadata)
   const handleAddBlock = (
     position: 'start' | 'end',
     blockType?: BlockType | null,
@@ -356,6 +392,9 @@ export function useCreateTemplateDialog() {
     handleReorderMetadataItems,
     handleSave,
     handleClose,
-    isSubmitting
+    isSubmitting,
+    // FIXED: Expose both mappings for debugging/development
+    getContentBlockIds: () => getContentBlockIdsLocal(),
+    getMetadataBlockMapping: () => getMetadataMappingLocal()
   };
 }

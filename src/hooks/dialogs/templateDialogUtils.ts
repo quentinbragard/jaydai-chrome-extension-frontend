@@ -1,4 +1,3 @@
-// src/hooks/dialogs/templateDialogUtils.ts
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import {
@@ -6,7 +5,10 @@ import {
   MetadataItem,
   MultipleMetadataType,
   SingleMetadataType,
-  generateMetadataItemId
+  generateMetadataItemId,
+  PRIMARY_METADATA,
+  SECONDARY_METADATA,
+  isMultipleMetadataType
 } from '@/types/prompts/metadata';
 import { buildCompletePrompt } from '@/components/prompts/promptUtils';
 
@@ -26,20 +28,21 @@ export function validateEnhancedTemplateForm(
   }
 
   if (activeTab === 'advanced') {
-    const hasBlockContent = blocks.some(b => {
-      const blockContent =
-        typeof b.content === 'string'
-          ? b.content
-          : (b.content as any)[getCurrentLanguage()] || (b.content as any).en || '';
+    // Check for content blocks (excluding metadata blocks)
+    const hasContentBlocks = blocks.some(b => {
+      const blockContent = typeof b.content === 'string'
+        ? b.content
+        : (b.content as any)[getCurrentLanguage()] || (b.content as any).en || '';
       return blockContent.trim();
     });
 
+    // Check for metadata content
     const hasMetadataContent =
       Object.values(metadata.values || {}).some(v => v?.trim()) ||
       (metadata.constraints && metadata.constraints.some(c => c.value.trim())) ||
       (metadata.examples && metadata.examples.some(e => e.value.trim()));
 
-    if (!hasBlockContent && !hasMetadataContent) {
+    if (!hasContentBlocks && !hasMetadataContent) {
       errors.content = 'templateContentRequired';
     }
   }
@@ -57,92 +60,132 @@ export function generateEnhancedFinalContent(
   return buildCompletePrompt(metadata, blocks);
 }
 
-export function getEnhancedBlockIds(
+/**
+ * FIXED: Get ONLY content block IDs, NOT metadata block IDs
+ * Metadata blocks should be saved in metadata field, not blocks field
+ */
+export function getEnhancedContentBlockIds(
   blocks: Block[],
-  metadata: PromptMetadata,
   activeTab: 'basic' | 'advanced'
 ): number[] {
   if (activeTab === 'basic') return [];
-  const metadataIds: number[] = [];
-
-  ['role', 'context', 'goal', 'audience', 'tone_style', 'output_format'].forEach(
-    type => {
-      const id = metadata[type as SingleMetadataType];
-      if (id && id !== 0) metadataIds.push(id);
-    }
-  );
-
-  if (metadata.constraints) {
-    metadata.constraints.forEach(constraint => {
-      if (constraint.blockId && constraint.blockId !== 0) {
-        metadataIds.push(constraint.blockId);
-      }
-    });
-  }
-
-  if (metadata.examples) {
-    metadata.examples.forEach(example => {
-      if (example.blockId && example.blockId !== 0) {
-        metadataIds.push(example.blockId);
-      }
-    });
-  }
-
-  const contentIds = blocks.filter(b => b.id > 0 && !b.isNew).map(b => b.id);
-  return [...metadataIds, ...contentIds];
+  
+  // ONLY return content blocks (blocks that are in the content section)
+  // NOT metadata blocks (blocks selected in metadata dropdowns)
+  return blocks
+    .filter(b => b.id > 0 && !b.isNew)
+    .map(b => b.id);
 }
 
-// Build a mapping of metadata types to block IDs used
+/**
+ * FIXED: Get ONLY metadata block IDs for the metadata field
+ * This is what should be saved as template.metadata
+ */
 export function getMetadataBlockMapping(
   metadata: PromptMetadata,
   activeTab: 'basic' | 'advanced'
-): Record<string, number | number[] | undefined> {
+): Record<string, number | number[]> {
   if (activeTab === 'basic') return {};
 
-  const mapping: Record<string, number | number[] | undefined> = {};
+  const mapping: Record<string, number | number[]> = {};
 
-  ['role', 'context', 'goal', 'audience', 'tone_style', 'output_format'].forEach(
-    type => {
-      const id = metadata[type as SingleMetadataType];
-      if (id && id !== 0) mapping[type] = id;
+  // Handle primary metadata (single block IDs)
+  PRIMARY_METADATA.forEach(type => {
+    const blockId = metadata[type];
+    if (blockId && blockId !== 0) {
+      mapping[type] = blockId;
     }
-  );
+  });
 
-  if (metadata.constraints) {
-    const ids = metadata.constraints
+  // Handle secondary single metadata
+  SECONDARY_METADATA.forEach(type => {
+    if (!isMultipleMetadataType(type)) {
+      const blockId = metadata[type as SingleMetadataType];
+      if (blockId && blockId !== 0) {
+        mapping[type] = blockId;
+      }
+    }
+  });
+
+  // Handle multiple metadata (arrays of block IDs)
+  if (metadata.constraints && metadata.constraints.length > 0) {
+    const constraintBlockIds = metadata.constraints
       .map(c => c.blockId)
       .filter((id): id is number => typeof id === 'number' && id !== 0);
-    if (ids.length > 0) mapping.constraints = ids;
+    if (constraintBlockIds.length > 0) {
+      mapping.constraints = constraintBlockIds;
+    }
   }
 
-  if (metadata.examples) {
-    const ids = metadata.examples
+  if (metadata.examples && metadata.examples.length > 0) {
+    const exampleBlockIds = metadata.examples
       .map(e => e.blockId)
       .filter((id): id is number => typeof id === 'number' && id !== 0);
-    if (ids.length > 0) mapping.examples = ids;
+    if (exampleBlockIds.length > 0) {
+      mapping.examples = exampleBlockIds;
+    }
   }
 
   return mapping;
 }
 
+/**
+ * FIXED: Create comprehensive enhanced metadata object for saving
+ * This separates metadata blocks from content blocks
+ */
+export function createEnhancedMetadataForSaving(
+  metadata: PromptMetadata,
+  activeTab: 'basic' | 'advanced'
+): any {
+  if (activeTab === 'basic') return null;
 
-import { DEFAULT_METADATA } from '@/types/prompts/metadata';
+  const enhancedMetadata = {
+    // Save the complete metadata structure
+    ...metadata,
+    
+    // Add metadata about the structure itself
+    _meta: {
+      version: '1.0',
+      createdAt: new Date().toISOString(),
+      editorMode: activeTab,
+      hasConstraints: (metadata.constraints?.length || 0) > 0,
+      hasExamples: (metadata.examples?.length || 0) > 0,
+      blockMapping: getMetadataBlockMapping(metadata, activeTab)
+    }
+  };
 
+  return enhancedMetadata;
+}
+
+/**
+ * FIXED: Parse template metadata and ensure proper reconstruction
+ */
 export function parseTemplateMetadata(enhancedMetadata: any): PromptMetadata {
-  const parsedMetadata: PromptMetadata = { ...DEFAULT_METADATA };
+  if (!enhancedMetadata) return { values: {} } as PromptMetadata;
 
+  const parsedMetadata: PromptMetadata = { values: {} };
+
+  // Parse metadata values (the actual content)
   if (enhancedMetadata.values) {
     parsedMetadata.values = { ...enhancedMetadata.values };
   }
 
-  ['role', 'context', 'goal', 'audience', 'tone_style', 'output_format'].forEach(
-    type => {
-      if (enhancedMetadata[type]) {
+  // Parse single metadata block references
+  PRIMARY_METADATA.forEach(type => {
+    if (enhancedMetadata[type] && enhancedMetadata[type] !== 0) {
+      parsedMetadata[type] = enhancedMetadata[type];
+    }
+  });
+
+  SECONDARY_METADATA.forEach(type => {
+    if (!isMultipleMetadataType(type)) {
+      if (enhancedMetadata[type] && enhancedMetadata[type] !== 0) {
         parsedMetadata[type as SingleMetadataType] = enhancedMetadata[type];
       }
     }
-  );
+  });
 
+  // Parse multiple metadata with block references
   if (enhancedMetadata.constraints && Array.isArray(enhancedMetadata.constraints)) {
     parsedMetadata.constraints = enhancedMetadata.constraints.map((item: any) => ({
       id: item.id || generateMetadataItemId(),
@@ -161,6 +204,7 @@ export function parseTemplateMetadata(enhancedMetadata: any): PromptMetadata {
 
   return parsedMetadata;
 }
+
 
 export function addMetadataItem(
   metadata: PromptMetadata,

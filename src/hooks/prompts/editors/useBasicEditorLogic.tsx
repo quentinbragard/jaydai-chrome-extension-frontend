@@ -1,11 +1,7 @@
-// src/components/dialogs/templates/editor/BasicEditor.tsx
-import React, { useState, useEffect, useRef } from 'react';
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// src/components/dialogs/prompts/editors/BasicEditor/hooks/useBasicEditorLogic.ts
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Block } from '@/types/prompts/blocks';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { useThemeDetector } from '@/hooks/useThemeDetector';
 import {
   highlightPlaceholders,
   extractPlaceholders,
@@ -13,39 +9,37 @@ import {
 } from '@/utils/templates/placeholderUtils';
 import { htmlToPlainText } from '@/utils/templates/htmlUtils';
 
-interface BasicEditorProps {
-  blocks: Block[];
-  onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
-  mode?: 'create' | 'customize';
-}
-
 interface Placeholder {
   key: string;
   value: string;
 }
 
-/**
- * Basic editor mode - Simple placeholder and content editing (like the original)
- * No block logic exposed to the user
- */
-export const BasicEditor: React.FC<BasicEditorProps> = ({
+interface UseBasicEditorLogicProps {
+  blocks: Block[];
+  onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
+  mode: 'create' | 'customize';
+}
+
+export function useBasicEditorLogic({
   blocks,
   onUpdateBlock,
-  mode = 'customize'
-}) => {
+  mode
+}: UseBasicEditorLogicProps) {
+  // State
   const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
   const [modifiedContent, setModifiedContent] = useState('');
   const [contentMounted, setContentMounted] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Refs
   const editorRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<MutationObserver | null>(null);
   const inputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const activeInputIndex = useRef<number | null>(null);
-  const isDarkMode = useThemeDetector();
   const initialContentRef = useRef('');
 
   // Get combined content from all blocks
-  const getBlockContent = (block: Block): string => {
+  const getBlockContent = useCallback((block: Block): string => {
     if (typeof block.content === 'string') {
       return block.content;
     } else if (block.content && typeof block.content === 'object') {
@@ -53,16 +47,11 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
       return block.content[locale] || block.content.en || Object.values(block.content)[0] || '';
     }
     return '';
-  };
+  }, []);
 
-  const templateContent =
-    mode === 'customize' && initialContentRef.current
-      ? initialContentRef.current
-      : blocks.map(block => getBlockContent(block)).join('\n\n');
-
-  /**
-   * Extract placeholders and highlight function provided by utilities
-   */
+  const templateContent = mode === 'customize' && initialContentRef.current
+    ? initialContentRef.current
+    : blocks.map(block => getBlockContent(block)).join('\n\n');
 
   // Initialize content and placeholders
   useEffect(() => {
@@ -73,7 +62,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         if (modifiedContent !== currentEffectiveContent) {
           setModifiedContent(currentEffectiveContent);
         }
-        if(placeholders.length === 0 && currentEffectiveContent) {
+        if (placeholders.length === 0 && currentEffectiveContent) {
           const extracted = extractPlaceholders(currentEffectiveContent);
           setPlaceholders(extracted);
         }
@@ -81,7 +70,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         setModifiedContent(currentEffectiveContent);
         const extractedPlaceholders = extractPlaceholders(currentEffectiveContent);
         setPlaceholders(extractedPlaceholders);
-        if(!initialContentRef.current && currentEffectiveContent) {
+        if (!initialContentRef.current && currentEffectiveContent) {
           initialContentRef.current = currentEffectiveContent;
         }
       }
@@ -117,12 +106,12 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }, 0);
 
     return () => clearTimeout(timeoutId);
-  }, [templateContent, mode, contentMounted, isEditing, modifiedContent]);
+  }, [templateContent, mode, contentMounted, isEditing, modifiedContent, placeholders.length]);
 
   // Setup mutation observer
   useEffect(() => {
     if (!contentMounted || !editorRef.current || mode === 'create') {
-      if(observerRef.current) observerRef.current.disconnect();
+      if (observerRef.current) observerRef.current.disconnect();
       return;
     }
 
@@ -165,14 +154,15 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     };
   }, [contentMounted, blocks, onUpdateBlock, mode, isEditing, modifiedContent, placeholders]);
 
-  const handleEditorFocus = () => {
+  // Event handlers
+  const handleEditorFocus = useCallback(() => {
     setIsEditing(true);
     if (observerRef.current) {
       observerRef.current.disconnect();
     }
-  };
+  }, []);
 
-  const handleEditorBlur = () => {
+  const handleEditorBlur = useCallback(() => {
     setIsEditing(false);
     if (editorRef.current) {
       const htmlContent = editorRef.current.innerHTML;
@@ -207,20 +197,18 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         }
       }
     }
-  };
+  }, [blocks, mode, onUpdateBlock]);
 
-  const handleEditorInput = () => {
+  const handleEditorInput = useCallback(() => {
     if (!editorRef.current) return;
 
-    const currentRawContent =
-      mode === 'create'
-        ? editorRef.current.textContent || ''
-        : editorRef.current.innerHTML;
+    const currentRawContent = mode === 'create'
+      ? editorRef.current.textContent || ''
+      : editorRef.current.innerHTML;
 
-    const textContent =
-      mode === 'create'
-        ? currentRawContent
-        : htmlToPlainText(currentRawContent);
+    const textContent = mode === 'create'
+      ? currentRawContent
+      : htmlToPlainText(currentRawContent);
     
     setModifiedContent(textContent);
 
@@ -232,10 +220,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     if (blocks.length > 0) {
       onUpdateBlock(blocks[0].id, { content: textContent });
     }
-  };
+  }, [blocks, mode, onUpdateBlock]);
 
-  // FIXED: Proper event handling like in InsertBlockDialog
-  const handleEditorKeyDown = (e: React.KeyboardEvent) => {
+  const handleEditorKeyDown = useCallback((e: React.KeyboardEvent) => {
     // CRITICAL: Stop all key events from bubbling up to prevent dialog from closing
     e.stopPropagation();
     
@@ -246,17 +233,17 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }
     
     // Let all other keys work naturally for contentEditable
-  };
+  }, []);
 
-  const handleEditorKeyPress = (e: React.KeyboardEvent) => {
+  const handleEditorKeyPress = useCallback((e: React.KeyboardEvent) => {
     e.stopPropagation();
-  };
+  }, []);
 
-  const handleEditorKeyUp = (e: React.KeyboardEvent) => {
+  const handleEditorKeyUp = useCallback((e: React.KeyboardEvent) => {
     e.stopPropagation();
-  };
+  }, []);
 
-  const updatePlaceholder = (index: number, value: string) => {
+  const updatePlaceholder = useCallback((index: number, value: string) => {
     if (isEditing && mode === 'customize') return;
 
     activeInputIndex.current = index;
@@ -304,94 +291,31 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         inputRefs.current[activeInputIndex.current]?.focus();
       }
     }, 0);
+  }, [isEditing, mode, placeholders, templateContent, blocks, onUpdateBlock]);
+
+  return {
+    // State
+    placeholders,
+    modifiedContent,
+    contentMounted,
+    isEditing,
+    
+    // Refs
+    editorRef,
+    observerRef,
+    inputRefs,
+    activeInputIndex,
+    
+    // Content management
+    templateContent,
+    
+    // Event handlers
+    handleEditorFocus,
+    handleEditorBlur,
+    handleEditorInput,
+    handleEditorKeyDown,
+    handleEditorKeyPress,
+    handleEditorKeyUp,
+    updatePlaceholder
   };
-
-  // For create mode, show only the editor without the left panel
-  if (mode === 'create') {
-    return (
-      <div className="jd-h-full jd-flex jd-flex-col jd-p-4">
-        <h3 className="jd-text-sm jd-font-medium jd-mb-2">Edit Template</h3>
-        <div
-          ref={editorRef}
-          contentEditable
-          suppressContentEditableWarning
-          onFocus={handleEditorFocus}
-          onBlur={handleEditorBlur}
-          onInput={handleEditorInput}
-          onKeyDown={handleEditorKeyDown}
-          onKeyPress={handleEditorKeyPress}
-          onKeyUp={handleEditorKeyUp}
-          className={`jd-flex-1 jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
-            isDarkMode
-              ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
-              : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
-          }`}          
-        />
-      </div>
-    );
-  }
-
-  // For customize mode, show the full interface with placeholders
-  return (
-    <div className="jd-h-full jd-flex jd-flex-1 jd-overflow-hidden">
-      <ResizablePanelGroup direction="horizontal" className="jd-h-full jd-w-full">
-        <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
-          <div className="jd-h-full jd-space-y-4 jd-overflow-auto jd-p-4">
-            <h3 className="jd-text-sm jd-font-medium jd-mb-2">Replace Placeholders</h3>
-            {placeholders.length > 0 ? (
-              <ScrollArea className="jd-h-full">
-                <div className="jd-space-y-4 jd-pr-4">
-                  {placeholders.map((placeholder, idx) => (
-                    <div key={placeholder.key + idx} className="jd-space-y-1">
-                      <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
-                        <span className="jd-bg-primary/10 jd-px-2 jd-py-1 jd-rounded">{placeholder.key}</span>
-                      </label>
-                      <Input
-                        ref={el => (inputRefs.current[idx] = el)}
-                        onFocus={() => {
-                          activeInputIndex.current = idx;
-                        }}
-                        // FIXED: Proper event handling for inputs
-                        onKeyDown={(e) => e.stopPropagation()}
-                        onKeyPress={(e) => e.stopPropagation()}
-                        onKeyUp={(e) => e.stopPropagation()}
-                        value={placeholder.value}
-                        onChange={(e) => updatePlaceholder(idx, e.target.value)}
-                        placeholder={`Enter value for ${placeholder.key}`}
-                        className="jd-w-full"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            ) : (
-              <div className="jd-text-muted-foreground jd-text-center jd-py-8">No placeholders found</div>
-            )}
-          </div>
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={70} minSize={40}>
-          <div className="jd-h-full jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
-            <h3 className="jd-text-sm jd-font-medium jd-mb-2">Edit Template</h3>
-            <div
-              ref={editorRef}
-              contentEditable
-              suppressContentEditableWarning
-              onFocus={handleEditorFocus}
-              onBlur={handleEditorBlur}
-              onInput={handleEditorInput}
-              onKeyDown={handleEditorKeyDown}
-              onKeyPress={handleEditorKeyPress}
-              onKeyUp={handleEditorKeyUp}
-              className={`jd-flex-1 jd-resize-none jd-border jd-rounded-md jd-p-4 jd-focus-visible:jd-outline-none jd-focus-visible:jd-ring-2 jd-focus-visible:jd-ring-primary jd-overflow-auto jd-whitespace-pre-wrap ${
-                isDarkMode
-                  ? "jd-bg-gray-800 jd-text-gray-100 jd-border-gray-700"
-                  : "jd-bg-white jd-text-gray-900 jd-border-gray-200"
-              }`}
-            />
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
-    </div>
-  );
-};
+}
