@@ -1,4 +1,4 @@
-// src/components/prompts/quick-selector/QuickBlockSelector.tsx
+// src/components/prompts/blocks/quick-selector/QuickBlockSelector.tsx
 // This is a floating dropdown component, NOT a dialog
 // It appears at the cursor position when users type "//j"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
+import { insertTextAtCursor } from '@/utils/templates/placeholderUtils';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { 
   Search, 
@@ -46,13 +46,15 @@ interface QuickBlockSelectorProps {
   onClose: () => void;
   targetElement: HTMLElement;
   onOpenFullDialog: () => void;
+  cursorPosition?: number; // Store the original cursor position
 }
 
 export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({ 
   position, 
   onClose, 
   targetElement,
-  onOpenFullDialog
+  onOpenFullDialog,
+  cursorPosition
 }) => {
   const shadowRoot = useShadowRoot();
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -142,9 +144,29 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const handleSelectBlock = (block: Block) => {
     const content = getLocalizedContent(block.content);
     const text = buildPromptPart(block.type || 'content', content);
-    insertIntoPromptArea(text);
+    
+    console.log('Inserting block:', { block: block.title, text, targetElement, cursorPosition });
+    
+    // Close the selector first to return focus
     onClose();
-    toast.success(`Inserted ${getLocalizedContent(block.title)} block`);
+    
+    // Wait a bit longer for proper focus restoration
+    setTimeout(() => {
+      // Ensure the target element is focused
+      targetElement.focus();
+      
+      // Restore cursor position if we have it stored
+      if (typeof cursorPosition === 'number') {
+        if (targetElement instanceof HTMLTextAreaElement || targetElement instanceof HTMLInputElement) {
+          targetElement.setSelectionRange(cursorPosition, cursorPosition);
+        }
+      }
+      
+      // Insert text at the cursor position
+      insertTextAtCursor(targetElement, text, cursorPosition);
+      
+      toast.success(`Inserted ${getLocalizedContent(block.title)} block`);
+    }, 100);
   };
 
   const openFullDialog = () => {
@@ -187,7 +209,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
     <div
       ref={containerRef}
       className={cn(
-        'jd-fixed jd-z-[2147483647] jd-w-[400px] jd-max-h-[480px]',
+        'jd-fixed jd-z-[2147483647] jd-w-[400px] jd-h-[480px]',
         'jd-bg-background jd-border jd-rounded-lg jd-shadow-xl',
         'jd-flex jd-flex-col jd-animate-in jd-fade-in jd-slide-in-from-bottom-2',
         isDark ? 'jd-border-gray-700' : 'jd-border-gray-200'
@@ -211,7 +233,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
       }}
     >
       {/* Header */}
-      <div className="jd-flex jd-items-center jd-justify-between jd-p-3 jd-border-b">
+      <div className="jd-flex jd-items-center jd-justify-between jd-p-3 jd-border-b jd-flex-shrink-0">
         <div className="jd-flex jd-items-center jd-gap-2">
         <img 
               src={isDark ? darkLogo : lightLogo}
@@ -242,7 +264,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
       </div>
 
       {/* Search */}
-      <div className="jd-p-3 jd-pb-2">
+      <div className="jd-p-3 jd-pb-2 jd-flex-shrink-0">
         <div className="jd-relative">
           <Search className="jd-absolute jd-left-2.5 jd-top-1/2 -jd-translate-y-1/2 jd-h-3.5 jd-w-3.5 jd-text-muted-foreground" />
           <Input
@@ -256,7 +278,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
       </div>
 
       {/* Quick Filters */}
-      <div className="jd-px-3 jd-pb-2">
+      <div className="jd-px-3 jd-pb-2 jd-flex-shrink-0">
         <div className="jd-flex jd-items-center jd-gap-1 jd-flex-wrap">
           {QUICK_FILTERS.map(filter => (
             <button
@@ -277,33 +299,35 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
         </div>
       </div>
 
-      {/* Blocks List */}
-      <ScrollArea className="jd-flex-1 jd-px-3 jd-pb-3">
-        {loading ? (
-          <div className="jd-py-8">
-            <LoadingSpinner size="sm" message="Loading blocks..." />
-          </div>
-        ) : filteredBlocks.length === 0 ? (
-          <div className="jd-py-8 jd-text-center jd-text-sm jd-text-muted-foreground">
-            {search ? `No blocks found for "${search}"` : 'No blocks available'}
-          </div>
-        ) : (
-          <div className="jd-space-y-1">
-            {filteredBlocks.map((block, index) => (
-              <BlockItem
-                key={block.id}
-                block={block}
-                isDark={isDark}
-                onSelect={handleSelectBlock}
-                isActive={index === activeIndex}
-              />
-            ))}
-          </div>
-        )}
-      </ScrollArea>
+      {/* Blocks List - Fixed height with proper scrolling */}
+      <div className="jd-flex-1 jd-px-3 jd-pb-3 jd-min-h-0">
+        <ScrollArea className="jd-h-full">
+          {loading ? (
+            <div className="jd-py-8">
+              <LoadingSpinner size="sm" message="Loading blocks..." />
+            </div>
+          ) : filteredBlocks.length === 0 ? (
+            <div className="jd-py-8 jd-text-center jd-text-sm jd-text-muted-foreground">
+              {search ? `No blocks found for "${search}"` : 'No blocks available'}
+            </div>
+          ) : (
+            <div className="jd-space-y-1 jd-pr-2">
+              {filteredBlocks.map((block, index) => (
+                <BlockItem
+                  key={block.id}
+                  block={block}
+                  isDark={isDark}
+                  onSelect={handleSelectBlock}
+                  isActive={index === activeIndex}
+                />
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </div>
 
       {/* Footer hints */}
-      <div className="jd-px-3 jd-py-2 jd-border-t jd-flex jd-items-center jd-justify-between jd-text-[10px] jd-text-muted-foreground">
+      <div className="jd-px-3 jd-py-2 jd-border-t jd-flex jd-items-center jd-justify-between jd-text-[10px] jd-text-muted-foreground jd-flex-shrink-0">
         <span>↑↓ Navigate • Enter Select • Tab Filter</span>
         <span>{filteredBlocks.length} blocks</span>
       </div>
