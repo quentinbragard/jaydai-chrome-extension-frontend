@@ -12,6 +12,7 @@ export class SlashCommandService extends AbstractBaseService {
   private quickSelectorRoot: Root | null = null;
   private quickSelectorContainer: HTMLDivElement | null = null;
   private isQuickSelectorOpen = false;
+  private isInserting = false; // Prevent double insertion
 
   private constructor() {
     super();
@@ -24,9 +25,89 @@ export class SlashCommandService extends AbstractBaseService {
     return SlashCommandService.instance;
   }
 
+  /**
+   * Safely remove trigger text from contenteditable element
+   */
+  private removeTrigerFromContentEditable(element: HTMLElement, triggerLength: number): void {
+    const selection = window.getSelection();
+    
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      
+      try {
+        // Create a range to select the trigger text
+        const triggerRange = document.createRange();
+        
+        // Get the current text node and position
+        const currentNode = range.startContainer;
+        const currentOffset = range.startOffset;
+        
+        if (currentNode.nodeType === Node.TEXT_NODE) {
+          const startOffset = Math.max(0, currentOffset - triggerLength);
+          triggerRange.setStart(currentNode, startOffset);
+          triggerRange.setEnd(currentNode, currentOffset);
+          
+          // Delete the trigger text
+          triggerRange.deleteContents();
+          
+          // Update selection to the new position
+          const newRange = document.createRange();
+          newRange.setStart(currentNode, startOffset);
+          newRange.setEnd(currentNode, startOffset);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        } else {
+          // Fallback: use the whole element approach
+          const textContent = element.textContent || '';
+          const newText = textContent.replace(/\/\/j\s?$/i, '');
+          element.textContent = newText;
+        }
+        
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        
+      } catch (error) {
+        console.warn('Error removing trigger from contenteditable:', error);
+        // Ultimate fallback
+        const textContent = element.textContent || '';
+        const newText = textContent.replace(/\/\/j\s?$/i, '');
+        element.textContent = newText;
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    } else {
+      // No selection, fallback to text replacement
+      const textContent = element.textContent || '';
+      const newText = textContent.replace(/\/\/j\s?$/i, '');
+      element.textContent = newText;
+      element.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+
+  /**
+   * Publicly accessible method to refresh the listener
+   * Useful after DOM changes or insertions
+   */
+  public refreshListener(): void {
+    console.log('Manually refreshing slash command listener...');
+    this.attachListener();
+  }
+
+  /**
+   * Enhanced initialization with retry mechanism
+   */
   protected async onInitialize(): Promise<void> {
     this.attachListener();
     this.observeDom();
+    
+    // Make the service accessible globally for manual refresh
+    (window as any).slashCommandService = this;
+    
+    // Set up a periodic check to ensure we stay attached
+    setInterval(() => {
+      if (!this.inputEl || !document.contains(this.inputEl) || !this.inputEl.isConnected) {
+        console.log('Periodic check: reattaching listener...');
+        this.attachListener();
+      }
+    }, 2000); // Check every 2 seconds
   }
 
   protected onCleanup(): void {
@@ -36,11 +117,24 @@ export class SlashCommandService extends AbstractBaseService {
       this.observer = null;
     }
     this.closeQuickSelector();
+    
+    // Clean up global reference
+    if ((window as any).slashCommandService === this) {
+      delete (window as any).slashCommandService;
+    }
   }
 
   private observeDom() {
-    this.observer = new MutationObserver(() => this.attachListener());
-    this.observer.observe(document.body, { childList: true, subtree: true });
+    this.observer = new MutationObserver(() => {
+      // Reattach listener more aggressively after DOM changes
+      setTimeout(() => this.attachListener(), 100);
+    });
+    this.observer.observe(document.body, { 
+      childList: true, 
+      subtree: true, 
+      characterData: true,
+      attributes: true 
+    });
   }
 
   private attachListener() {
@@ -48,16 +142,33 @@ export class SlashCommandService extends AbstractBaseService {
     if (!config) return;
 
     const el = document.querySelector(config.domSelectors.PROMPT_TEXTAREA) as HTMLElement | null;
-    if (!el || el === this.inputEl) return;
+    
+    if (!el) return;
 
-    this.detachListener();
-    this.inputEl = el;
-    this.inputEl.addEventListener('input', this.handleInput);
+    // Check if this is actually a different element or if the current one is stale
+    const needsReattach = !this.inputEl || 
+                         el !== this.inputEl || 
+                         !document.contains(this.inputEl) ||
+                         !this.inputEl.isConnected;
+
+    if (needsReattach) {
+      console.log('Attaching/reattaching slash command listener to:', el.tagName, el.className);
+      this.detachListener(); // Always detach first to prevent duplicates
+      this.inputEl = el;
+      
+      // Remove any existing listeners first (safety measure)
+      this.inputEl.removeEventListener('input', this.handleInput);
+      
+      // Add the listener
+      this.inputEl.addEventListener('input', this.handleInput);
+    }
   }
 
   private detachListener() {
     if (this.inputEl) {
+      // Remove listener multiple times to be absolutely sure
       this.inputEl.removeEventListener('input', this.handleInput);
+      this.inputEl.removeEventListener('input', this.handleInput); // Safety duplicate removal
       this.inputEl = null;
     }
   }
@@ -241,69 +352,141 @@ export class SlashCommandService extends AbstractBaseService {
       this.quickSelectorContainer.remove();
       this.quickSelectorContainer = null;
     }
+    
     this.isQuickSelectorOpen = false;
+    
+    // Reset insertion flag as safety measure
+    setTimeout(() => {
+      this.isInserting = false;
+    }, 100);
+  }
+
+  /**
+   * Get current cursor position in text content (not screen coordinates)
+   */
+  private getCurrentCursorPosition(element: HTMLElement): number {
+    if (element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement) {
+      return element.selectionStart || 0;
+    }
+    
+    if (element.isContentEditable) {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        
+        // Calculate character position from start of element
+        const walker = document.createTreeWalker(
+          element,
+          NodeFilter.SHOW_TEXT,
+          null
+        );
+        
+        let position = 0;
+        let currentNode = walker.nextNode();
+        
+        while (currentNode && currentNode !== range.startContainer) {
+          position += currentNode.textContent?.length || 0;
+          currentNode = walker.nextNode();
+        }
+        
+        if (currentNode === range.startContainer) {
+          position += range.startOffset;
+        }
+        
+        return position;
+      }
+    }
+    
+    return 0;
   }
 
   private handleInput = (e: Event) => {
+    // Skip if selector is already open or we're currently inserting
+    if (this.isQuickSelectorOpen || this.isInserting) {
+      return;
+    }
+
     const target = e.target as HTMLTextAreaElement | HTMLElement;
     let value = '';
     let originalCursorPos = 0;
 
+    // Ensure we're still attached to a valid element
+    if (!this.inputEl || !document.contains(this.inputEl)) {
+      console.log('Input element is stale, reattaching...');
+      this.attachListener();
+      return;
+    }
+
+    // Get current values
     if (target instanceof HTMLTextAreaElement) {
       value = target.value;
       originalCursorPos = target.selectionStart || 0;
     } else if (target instanceof HTMLElement && target.isContentEditable) {
-      value = target.innerText;
-      // For contenteditable, we'll handle cursor position differently
-    }
-
-    if (this.isQuickSelectorOpen) {
-      return;
+      // For contenteditable, preserve line breaks properly
+      value = target.innerText || target.textContent || '';
+      originalCursorPos = this.getCurrentCursorPosition(target);
     }
 
     // Check for //j pattern (with optional space)
-    if (/\/\/j\s?$/i.test(value)) {
-      // Calculate the cursor position after removing the trigger
-      const triggerMatch = value.match(/\/\/j\s?$/i);
-      const triggerLength = triggerMatch ? triggerMatch[0].length : 0;
-      const newCursorPos = originalCursorPos - triggerLength;
+    const triggerRegex = /\/\/j\s?$/i;
+    if (triggerRegex.test(value)) {
+      console.log('Slash command detected:', { value: value.substring(Math.max(0, value.length - 20)), originalCursorPos });
       
+      // Set flag to prevent double execution
+      this.isInserting = true;
+      
+      // Calculate the cursor position after removing the trigger
+      const triggerMatch = value.match(triggerRegex);
+      const triggerLength = triggerMatch ? triggerMatch[0].length : 0;
+      
+      // Ensure cursor position never goes negative
+      const newCursorPos = Math.max(0, originalCursorPos - triggerLength);
+      
+      console.log('Cursor calculation:', { 
+        originalCursorPos, 
+        triggerLength, 
+        newCursorPos,
+        valueLength: value.length 
+      });
+
       // Remove the //j trigger from the input
-      const newValue = value.replace(/\/\/j\s?$/i, '');
+      const newValue = value.replace(triggerRegex, '');
 
       if (target instanceof HTMLTextAreaElement) {        
         target.value = newValue;
-        target.setSelectionRange(newCursorPos, newCursorPos);
+        // Ensure cursor position is within bounds
+        const safeCursorPos = Math.min(newCursorPos, newValue.length);
+        target.setSelectionRange(safeCursorPos, safeCursorPos);
         target.dispatchEvent(new Event('input', { bubbles: true }));
+        target.dispatchEvent(new Event('change', { bubbles: true })); // Important for some platforms
       } else if (target instanceof HTMLElement && target.isContentEditable) {
-        target.innerText = newValue;
-        
-        // Set cursor to the correct position in contenteditable
-        const selection = window.getSelection();
-        const range = document.createRange();
-        
-        // Try to set cursor at the calculated position
-        const textNode = target.firstChild;
-        if (textNode && textNode.nodeType === Node.TEXT_NODE) {
-          const maxPos = Math.min(newCursorPos, textNode.textContent?.length || 0);
-          range.setStart(textNode, maxPos);
-          range.setEnd(textNode, maxPos);
-        } else {
-          range.setStart(target, 0);
-          range.setEnd(target, 0);
-        }
-        
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-        
-        target.dispatchEvent(new Event('input', { bubbles: true }));
+        // For contenteditable, be more careful about text replacement
+        this.removeTrigerFromContentEditable(target, triggerLength);
       }
 
       // Get cursor position AFTER updating the text and show selector
       setTimeout(() => {
-        const position = this.getCursorPosition(target);
-        this.showQuickSelector(position, target, newCursorPos);
-      }, 0);
+        try {
+          // Ensure we're still focused on the right element
+          target.focus();
+          
+          const position = this.getCursorPosition(target);
+          // Use the safe cursor position we calculated
+          const safeCursorPos = target instanceof HTMLTextAreaElement 
+            ? Math.min(newCursorPos, target.value.length)
+            : Math.min(newCursorPos, (target.textContent || '').length);
+            
+          console.log('Showing quick selector at position:', { position, safeCursorPos });
+          this.showQuickSelector(position, target, safeCursorPos);
+        } catch (error) {
+          console.error('Error showing quick selector:', error);
+        } finally {
+          // Reset the flag after a delay
+          setTimeout(() => {
+            this.isInserting = false;
+          }, 100);
+        }
+      }, 50); // Reduced timeout for better responsiveness
     }
   };
 }

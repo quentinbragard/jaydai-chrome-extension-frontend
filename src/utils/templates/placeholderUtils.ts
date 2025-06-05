@@ -13,146 +13,376 @@ export function insertTextAtCursor(targetElement: HTMLElement, text: string, sav
     return;
   }
 
-  console.log('insertTextAtCursor called:', { 
-    element: targetElement.tagName, 
-    text: text.substring(0, 50) + '...', 
-    savedCursorPos,
-    elementValue: targetElement instanceof HTMLTextAreaElement ? targetElement.value.substring(0, 50) + '...' : 'N/A'
-  });
-
-  // Try platform-specific insertion first
-  const success = tryPlatformSpecificInsertion(targetElement, text, savedCursorPos);
-  
-  if (success) {
-    console.log('Platform-specific insertion successful');
+  // Prevent multiple simultaneous insertions
+  if ((window as any)._jaydaiInserting) {
+    console.warn('Insertion already in progress, skipping');
     return;
   }
 
-  console.warn('Platform-specific insertion failed, trying fallback methods');
+  (window as any)._jaydaiInserting = true;
 
-  // Original implementation as fallback
-  // Handle textarea elements
-  if (targetElement instanceof HTMLTextAreaElement) {
-    // Use saved cursor position or current selection
-    const start = savedCursorPos !== undefined ? savedCursorPos : (targetElement.selectionStart || 0);
-    const end = savedCursorPos !== undefined ? savedCursorPos : (targetElement.selectionEnd || 0);
-    const value = targetElement.value;
-    
-    console.log('Textarea insertion:', { start, end, valueLength: value.length });
-    
-    // Insert text at cursor position
-    const newValue = value.substring(0, start) + text + value.substring(end);
-    targetElement.value = newValue;
-    
-    // Set cursor position after inserted text
-    const newCursorPos = start + text.length;
-    targetElement.setSelectionRange(newCursorPos, newCursorPos);
-    
-    // Dispatch input event to trigger any listeners
-    targetElement.dispatchEvent(new Event('input', { bubbles: true }));
-    targetElement.focus();
-    
-    console.log('Textarea insertion complete:', { newCursorPos, newValueLength: newValue.length });
-    return;
-  }
+  try {
+    console.log('insertTextAtCursor called:', { 
+      element: targetElement.tagName, 
+      text: text.substring(0, 50) + '...', 
+      savedCursorPos,
+      elementValue: targetElement instanceof HTMLTextAreaElement ? targetElement.value.substring(0, 50) + '...' : 'N/A'
+    });
 
-  // Handle contenteditable elements
-  if (targetElement.isContentEditable) {
-    console.log('Contenteditable insertion');
+    // Validate and sanitize cursor position
+    const sanitizedCursorPos = sanitizeCursorPosition(targetElement, savedCursorPos);
+    console.log('Sanitized cursor position:', sanitizedCursorPos);
+
+    // Try platform-specific insertion first
+    const success = tryPlatformSpecificInsertion(targetElement, text, sanitizedCursorPos);
     
-    // Focus the element first
-    targetElement.focus();
-    
-    // Try to restore cursor position if we have savedCursorPos
-    if (savedCursorPos !== undefined) {
-      const textContent = targetElement.textContent || '';
-      const range = document.createRange();
-      const selection = window.getSelection();
-      
-      // Find the text node and position
-      const walker = document.createTreeWalker(
-        targetElement,
-        NodeFilter.SHOW_TEXT,
-        null
-      );
-      
-      let currentPos = 0;
-      let targetNode = walker.nextNode();
-      
-      while (targetNode && currentPos + (targetNode.textContent?.length || 0) < savedCursorPos) {
-        currentPos += targetNode.textContent?.length || 0;
-        targetNode = walker.nextNode();
-      }
-      
-      if (targetNode) {
-        const offsetInNode = savedCursorPos - currentPos;
-        range.setStart(targetNode, Math.min(offsetInNode, targetNode.textContent?.length || 0));
-        range.setEnd(targetNode, Math.min(offsetInNode, targetNode.textContent?.length || 0));
-      } else {
-        // Fallback to end of content
-        range.selectNodeContents(targetElement);
-        range.collapse(false);
-      }
-      
-      selection?.removeAllRanges();
-      selection?.addRange(range);
+    if (success) {
+      console.log('Platform-specific insertion successful');
+      return;
     }
-    
-    const selection = window.getSelection();
-    
-    if (selection && selection.rangeCount > 0) {
+
+    console.warn('Platform-specific insertion failed, trying fallback methods');
+
+    // Original implementation as fallback
+    // Handle textarea elements
+    if (targetElement instanceof HTMLTextAreaElement) {
+      insertIntoTextarea(targetElement, text, sanitizedCursorPos);
+      return;
+    }
+
+    // Handle contenteditable elements
+    if (targetElement.isContentEditable) {
+      insertIntoContentEditable(targetElement, text, sanitizedCursorPos);
+      return;
+    }
+
+    // Fallback for other input elements
+    if (targetElement instanceof HTMLInputElement) {
+      insertIntoInput(targetElement, text, sanitizedCursorPos);
+      return;
+    }
+
+    // If all specific methods fail, try a more aggressive approach
+    console.warn('All insertion methods failed, trying fallback approach');
+    tryFallbackInsertion(text);
+  } finally {
+    // Always reset the insertion flag
+    setTimeout(() => {
+      (window as any)._jaydaiInserting = false;
+    }, 50);
+  }
+}
+
+/**
+ * Sanitize cursor position to ensure it's valid
+ */
+function sanitizeCursorPosition(targetElement: HTMLElement, savedCursorPos?: number): number | undefined {
+  if (savedCursorPos === undefined) {
+    return undefined;
+  }
+
+  // Check for obviously invalid values (negative or extremely large)
+  if (savedCursorPos < 0 || savedCursorPos > 1000000) {
+    console.warn('Invalid cursor position detected:', savedCursorPos);
+    return undefined;
+  }
+
+  // Get the current content length
+  let contentLength = 0;
+  if (targetElement instanceof HTMLTextAreaElement || targetElement instanceof HTMLInputElement) {
+    contentLength = targetElement.value.length;
+  } else if (targetElement.isContentEditable) {
+    contentLength = (targetElement.textContent || '').length;
+  }
+
+  // Ensure position is within bounds
+  const sanitized = Math.max(0, Math.min(savedCursorPos, contentLength));
+  
+  if (sanitized !== savedCursorPos) {
+    console.warn('Cursor position clamped:', { original: savedCursorPos, sanitized, contentLength });
+  }
+
+  return sanitized;
+}
+
+/**
+ * Insert text into textarea element
+ */
+function insertIntoTextarea(textarea: HTMLTextAreaElement, text: string, cursorPos?: number): void {
+  // Use sanitized cursor position or current selection
+  const start = cursorPos !== undefined ? cursorPos : (textarea.selectionStart || 0);
+  const end = cursorPos !== undefined ? cursorPos : (textarea.selectionEnd || 0);
+  const value = textarea.value;
+  
+  console.log('Textarea insertion:', { start, end, valueLength: value.length });
+  
+  // Double-check bounds
+  const safeStart = Math.max(0, Math.min(start, value.length));
+  const safeEnd = Math.max(0, Math.min(end, value.length));
+  
+  // Insert text at cursor position
+  const newValue = value.substring(0, safeStart) + text + value.substring(safeEnd);
+  textarea.value = newValue;
+  
+  // Set cursor position after inserted text
+  const newCursorPos = safeStart + text.length;
+  try {
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+  } catch (error) {
+    console.warn('Failed to set cursor position in textarea:', error);
+  }
+  
+  // Dispatch input event to trigger any listeners
+  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  textarea.focus();
+  
+  console.log('Textarea insertion complete:', { newCursorPos, newValueLength: newValue.length });
+}
+
+/**
+ * Insert text into input element
+ */
+function insertIntoInput(input: HTMLInputElement, text: string, cursorPos?: number): void {
+  const start = cursorPos !== undefined ? cursorPos : (input.selectionStart || 0);
+  const end = cursorPos !== undefined ? cursorPos : (input.selectionEnd || 0);
+  const value = input.value;
+  
+  // Double-check bounds
+  const safeStart = Math.max(0, Math.min(start, value.length));
+  const safeEnd = Math.max(0, Math.min(end, value.length));
+  
+  const newValue = value.substring(0, safeStart) + text + value.substring(safeEnd);
+  input.value = newValue;
+  
+  const newCursorPos = safeStart + text.length;
+  try {
+    input.setSelectionRange(newCursorPos, newCursorPos);
+  } catch (error) {
+    console.warn('Failed to set cursor position in input:', error);
+  }
+  
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.focus();
+  
+  console.log('Input insertion complete');
+}
+
+/**
+ * Insert text into contenteditable element with improved error handling and line break preservation
+ */
+function insertIntoContentEditable(element: HTMLElement, text: string, cursorPos?: number): void {
+  console.log('Contenteditable insertion with line break preservation');
+  
+  // Focus the element first
+  element.focus();
+  
+  // Try to restore cursor position if we have cursorPos
+  if (cursorPos !== undefined) {
+    const restored = restoreCursorPositionSafely(element, cursorPos);
+    if (!restored) {
+      console.warn('Failed to restore cursor position, using current selection');
+    }
+  }
+  
+  const selection = window.getSelection();
+  
+  if (selection && selection.rangeCount > 0) {
+    try {
       const range = selection.getRangeAt(0);
       
       // Delete any selected content
       range.deleteContents();
       
-      // Create text node and insert
-      const textNode = document.createTextNode(text);
-      range.insertNode(textNode);
+      // For contenteditable, we need to preserve line breaks by creating proper nodes
+      if (text.includes('\n')) {
+        // Split text by line breaks and create text nodes with <br> elements
+        const lines = text.split('\n');
+        const fragment = document.createDocumentFragment();
+        
+        lines.forEach((line, index) => {
+          if (line) {
+            fragment.appendChild(document.createTextNode(line));
+          }
+          
+          // Add <br> for line breaks, except after the last line
+          if (index < lines.length - 1) {
+            fragment.appendChild(document.createElement('br'));
+          }
+        });
+        
+        range.insertNode(fragment);
+        
+        // Move cursor to end of inserted content
+        range.setStartAfter(fragment.lastChild || fragment);
+        range.setEndAfter(fragment.lastChild || fragment);
+      } else {
+        // Simple text insertion
+        const textNode = document.createTextNode(text);
+        range.insertNode(textNode);
+        
+        // Move cursor to end of inserted text
+        range.setStartAfter(textNode);
+        range.setEndAfter(textNode);
+      }
       
-      // Move cursor to end of inserted text
-      range.setStartAfter(textNode);
-      range.setEndAfter(textNode);
       selection.removeAllRanges();
       selection.addRange(range);
       
       // Dispatch input event
-      targetElement.dispatchEvent(new Event('input', { bubbles: true }));
-      targetElement.focus();
+      element.dispatchEvent(new Event('input', { bubbles: true }));
+      element.focus();
       
-      console.log('Contenteditable insertion complete');
+      console.log('Contenteditable insertion complete with line break preservation');
       return;
-    } else {
-      // Fallback: append to end if no selection
-      console.log('Contenteditable fallback: appending to end');
-      targetElement.textContent = (targetElement.textContent || '') + text;
-      targetElement.dispatchEvent(new Event('input', { bubbles: true }));
-      targetElement.focus();
-      return;
+    } catch (error) {
+      console.warn('Error during contenteditable insertion:', error);
     }
   }
+  
+  // Fallback: preserve line breaks when appending to end
+  console.log('Contenteditable fallback: appending to end with line break preservation');
+  
+  if (text.includes('\n')) {
+    // Use innerHTML to properly handle line breaks
+    const currentHTML = element.innerHTML;
+    const lines = text.split('\n');
+    const newHTML = lines.join('<br>');
+    element.innerHTML = currentHTML + newHTML;
+  } else {
+    const currentText = element.textContent || '';
+    element.textContent = currentText + text;
+  }
+  
+  element.dispatchEvent(new Event('input', { bubbles: true }));
+  element.focus();
+}
 
-  // Fallback for other input elements
-  if (targetElement instanceof HTMLInputElement) {
-    const start = savedCursorPos !== undefined ? savedCursorPos : (targetElement.selectionStart || 0);
-    const end = savedCursorPos !== undefined ? savedCursorPos : (targetElement.selectionEnd || 0);
-    const value = targetElement.value;
+/**
+ * Safely restore cursor position in contenteditable element
+ */
+function restoreCursorPositionSafely(element: HTMLElement, targetPos: number): boolean {
+  try {
+    const textContent = element.textContent || '';
     
-    const newValue = value.substring(0, start) + text + value.substring(end);
-    targetElement.value = newValue;
+    // Ensure target position is within bounds
+    const safeTargetPos = Math.max(0, Math.min(targetPos, textContent.length));
     
-    const newCursorPos = start + text.length;
-    targetElement.setSelectionRange(newCursorPos, newCursorPos);
+    if (safeTargetPos !== targetPos) {
+      console.warn('Cursor position adjusted for safety:', { original: targetPos, adjusted: safeTargetPos });
+    }
     
-    targetElement.dispatchEvent(new Event('input', { bubbles: true }));
+    const selection = window.getSelection();
+    if (!selection) return false;
+    
+    const range = document.createRange();
+    
+    // Find the right text node and position
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      null
+    );
+    
+    let currentPos = 0;
+    let targetNode = walker.nextNode();
+    
+    while (targetNode && currentPos + (targetNode.textContent?.length || 0) < safeTargetPos) {
+      currentPos += targetNode.textContent?.length || 0;
+      targetNode = walker.nextNode();
+    }
+    
+    if (targetNode) {
+      const offsetInNode = safeTargetPos - currentPos;
+      const nodeLength = targetNode.textContent?.length || 0;
+      const safeOffset = Math.max(0, Math.min(offsetInNode, nodeLength));
+      
+      if (safeOffset !== offsetInNode) {
+        console.warn('Node offset adjusted for safety:', { original: offsetInNode, adjusted: safeOffset, nodeLength });
+      }
+      
+      range.setStart(targetNode, safeOffset);
+      range.setEnd(targetNode, safeOffset);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      return true;
+    } else {
+      // If no suitable text node found, position at end
+      range.selectNodeContents(element);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      console.warn('No suitable text node found, positioned at end');
+      return true;
+    }
+  } catch (error) {
+    console.error('Error restoring cursor position:', error);
+    return false;
+  }
+}
+
+/**
+ * Platform-specific insertion logic
+ */
+function tryPlatformSpecificInsertion(targetElement: HTMLElement, text: string, savedCursorPos?: number): boolean {
+  const hostname = window.location.hostname;
+  
+  // Claude.ai specific handling
+  if (hostname.includes('claude.ai') && targetElement.isContentEditable) {
+    console.log('Attempting Claude-specific insertion');
+    
     targetElement.focus();
     
-    console.log('Input insertion complete');
-    return;
-  }
+    // Try to restore cursor position for Claude
+    if (typeof savedCursorPos === 'number') {
+      const restored = restoreCursorPositionSafely(targetElement, savedCursorPos);
+      if (!restored) {
+        console.warn('Failed to restore cursor position for Claude');
+      }
+    }
 
-  // If all specific methods fail, try a more aggressive approach
-  console.warn('All insertion methods failed, trying fallback approach');
+    // For Claude, try execCommand with line break support first
+    try {
+      if (document.execCommand && !text.includes('\n')) {
+        // execCommand works well for simple text without line breaks
+        const success = document.execCommand('insertText', false, text);
+        if (success) {
+          console.log('Claude insertion successful via execCommand');
+          return true;
+        }
+      }
+    } catch (e) {
+      console.log('execCommand failed for Claude, trying manual insertion');
+    }
+
+    // For text with line breaks or if execCommand fails, use manual insertion
+    insertIntoContentEditable(targetElement, text, savedCursorPos);
+    console.log('Claude insertion via manual method');
+    return true;
+  }
+  
+  // ChatGPT specific handling
+  if ((hostname.includes('chatgpt.com') || hostname.includes('chat.openai.com')) && targetElement instanceof HTMLTextAreaElement) {
+    console.log('Attempting ChatGPT-specific insertion');
+    
+    insertIntoTextarea(targetElement, text, savedCursorPos);
+    
+    // Important: ChatGPT needs 'change' event too
+    targetElement.dispatchEvent(new Event('change', { bubbles: true }));
+    
+    console.log('ChatGPT insertion successful');
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Try fallback insertion methods
+ */
+function tryFallbackInsertion(text: string): void {
+  console.warn('Trying fallback insertion methods');
   
   // Last resort: try to find any visible text input and append there
   const fallbackSelectors = [
@@ -185,85 +415,6 @@ export function insertTextAtCursor(targetElement: HTMLElement, text: string, sav
   }
   
   console.error('Complete failure: Unable to insert text anywhere');
-}
-
-/**
- * Platform-specific insertion logic
- */
-function tryPlatformSpecificInsertion(targetElement: HTMLElement, text: string, savedCursorPos?: number): boolean {
-  const hostname = window.location.hostname;
-  
-  // Claude.ai specific handling
-  if (hostname.includes('claude.ai') && targetElement.isContentEditable) {
-    console.log('Attempting Claude-specific insertion');
-    
-    targetElement.focus();
-    
-    // Try to restore cursor position for Claude
-    if (typeof savedCursorPos === 'number') {
-      const selection = window.getSelection();
-      const range = document.createRange();
-      
-      const textContent = targetElement.textContent || '';
-      if (savedCursorPos <= textContent.length) {
-        const walker = document.createTreeWalker(targetElement, NodeFilter.SHOW_TEXT, null);
-        
-        let currentPos = 0;
-        let targetNode = walker.nextNode();
-        
-        while (targetNode && currentPos + (targetNode.textContent?.length || 0) < savedCursorPos) {
-          currentPos += targetNode.textContent?.length || 0;
-          targetNode = walker.nextNode();
-        }
-        
-        if (targetNode) {
-          const offsetInNode = savedCursorPos - currentPos;
-          range.setStart(targetNode, Math.min(offsetInNode, targetNode.textContent?.length || 0));
-          range.setEnd(targetNode, Math.min(offsetInNode, targetNode.textContent?.length || 0));
-          selection?.removeAllRanges();
-          selection?.addRange(range);
-        }
-      }
-    }
-
-    // Try execCommand first (works well with Claude)
-    try {
-      if (document.execCommand) {
-        const success = document.execCommand('insertText', false, text);
-        if (success) {
-          console.log('Claude insertion successful via execCommand');
-          return true;
-        }
-      }
-    } catch (e) {
-      console.log('execCommand failed for Claude, trying manual insertion');
-    }
-  }
-  
-  // ChatGPT specific handling
-  if ((hostname.includes('chatgpt.com') || hostname.includes('chat.openai.com')) && targetElement instanceof HTMLTextAreaElement) {
-    console.log('Attempting ChatGPT-specific insertion');
-    
-    const start = savedCursorPos !== undefined ? savedCursorPos : (targetElement.selectionStart || 0);
-    const end = savedCursorPos !== undefined ? savedCursorPos : (targetElement.selectionEnd || 0);
-    const value = targetElement.value;
-    
-    const newValue = value.substring(0, start) + text + value.substring(end);
-    targetElement.value = newValue;
-    
-    const newCursorPos = start + text.length;
-    targetElement.setSelectionRange(newCursorPos, newCursorPos);
-    
-    // Important: ChatGPT needs both 'input' and 'change' events
-    targetElement.dispatchEvent(new Event('input', { bubbles: true }));
-    targetElement.dispatchEvent(new Event('change', { bubbles: true }));
-    targetElement.focus();
-    
-    console.log('ChatGPT insertion successful');
-    return true;
-  }
-  
-  return false;
 }
 
 /**

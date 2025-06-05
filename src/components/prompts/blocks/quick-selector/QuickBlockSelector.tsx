@@ -143,30 +143,130 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
 
   const handleSelectBlock = (block: Block) => {
     const content = getLocalizedContent(block.content);
-    const text = buildPromptPart(block.type || 'content', content);
+    let text = buildPromptPart(block.type || 'content', content);
     
-    console.log('Inserting block:', { block: block.title, text, targetElement, cursorPosition });
+    // Get current content to determine spacing
+    let currentContent = '';
+    if (targetElement instanceof HTMLTextAreaElement) {
+      currentContent = targetElement.value;
+    } else if (targetElement.isContentEditable) {
+      currentContent = targetElement.textContent || '';
+    }
+    
+    // Smart spacing: only add line breaks when actually needed
+    if (typeof cursorPosition === 'number' && currentContent.length > 0) {
+      const beforeCursor = currentContent.substring(0, cursorPosition).trim();
+      const afterCursor = currentContent.substring(cursorPosition).trim();
+      
+      // Only add leading space if there's content before cursor and it doesn't end with newlines
+      if (beforeCursor.length > 0 && !beforeCursor.endsWith('\n')) {
+        text = '\n\n' + text;
+      }
+      
+      // Only add trailing space if there's content after cursor and text doesn't already end with newlines
+      if (afterCursor.length > 0 && !text.endsWith('\n')) {
+        text = text + '\n\n';
+      } else if (afterCursor.length === 0 && !text.endsWith('\n')) {
+        // At end of document, just add one newline
+        text = text + '\n';
+      }
+    } else if (currentContent.length > 0) {
+      // Fallback: only add spacing if there's existing content
+      text = text + '\n';
+    }
+    // If currentContent.length === 0, don't add any extra spacing (empty document)
+    
+    console.log('Inserting block:', { 
+      blockTitle: getLocalizedContent(block.title), 
+      textPreview: JSON.stringify(text.substring(0, 50)), // JSON.stringify to see line breaks
+      textLength: text.length,
+      targetElement: targetElement.tagName,
+      cursorPosition,
+      currentContentLength: currentContent.length,
+      hasLineBreaks: text.includes('\n')
+    });
     
     // Close the selector first to return focus
     onClose();
     
-    // Wait a bit longer for proper focus restoration
+    // Wait a bit for proper focus restoration and DOM updates
     setTimeout(() => {
-      // Ensure the target element is focused
-      targetElement.focus();
-      
-      // Restore cursor position if we have it stored
-      if (typeof cursorPosition === 'number') {
-        if (targetElement instanceof HTMLTextAreaElement || targetElement instanceof HTMLInputElement) {
-          targetElement.setSelectionRange(cursorPosition, cursorPosition);
+      try {
+        // Ensure the target element is focused
+        targetElement.focus();
+        
+        // For textarea elements, restore cursor position if we have it
+        if (targetElement instanceof HTMLTextAreaElement && typeof cursorPosition === 'number') {
+          const safePosition = Math.max(0, Math.min(cursorPosition, targetElement.value.length));
+          targetElement.setSelectionRange(safePosition, safePosition);
+          console.log('Restored textarea cursor to position:', safePosition);
         }
+        
+        // For contenteditable elements, try to restore cursor position
+        if (targetElement.isContentEditable && typeof cursorPosition === 'number') {
+          const textContent = targetElement.textContent || '';
+          const safePosition = Math.max(0, Math.min(cursorPosition, textContent.length));
+          
+          try {
+            const selection = window.getSelection();
+            if (selection) {
+              const range = document.createRange();
+              
+              // Find the right text node and position
+              const walker = document.createTreeWalker(
+                targetElement,
+                NodeFilter.SHOW_TEXT,
+                null
+              );
+              
+              let currentPos = 0;
+              let targetNode = walker.nextNode();
+              
+              while (targetNode && currentPos + (targetNode.textContent?.length || 0) < safePosition) {
+                currentPos += targetNode.textContent?.length || 0;
+                targetNode = walker.nextNode();
+              }
+              
+              if (targetNode) {
+                const offsetInNode = safePosition - currentPos;
+                const nodeLength = targetNode.textContent?.length || 0;
+                const safeOffset = Math.max(0, Math.min(offsetInNode, nodeLength));
+                
+                range.setStart(targetNode, safeOffset);
+                range.setEnd(targetNode, safeOffset);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                console.log('Restored contenteditable cursor to position:', safePosition);
+              }
+            }
+          } catch (error) {
+            console.warn('Failed to restore cursor position in contenteditable:', error);
+          }
+        }
+        
+        // Insert text at the cursor position with error handling
+        try {
+          console.log('About to insert text:', JSON.stringify(text.substring(0, 100)));
+          insertTextAtCursor(targetElement, text, cursorPosition);
+          toast.success(`Inserted ${getLocalizedContent(block.title)} block`);
+          
+          // Force a refresh of the event listener to ensure we can detect //j again
+          setTimeout(() => {
+            if ((window as any).slashCommandService && typeof (window as any).slashCommandService.refreshListener === 'function') {
+              (window as any).slashCommandService.refreshListener();
+            }
+          }, 300);
+          
+        } catch (error) {
+          console.error('Error inserting text:', error);
+          toast.error('Failed to insert block');
+        }
+        
+      } catch (error) {
+        console.error('Error in block selection handler:', error);
+        toast.error('Failed to insert block');
       }
-      
-      // Insert text at the cursor position
-      insertTextAtCursor(targetElement, text, cursorPosition);
-      
-      toast.success(`Inserted ${getLocalizedContent(block.title)} block`);
-    }, 100);
+    }, 100); // Reduced timeout for better responsiveness
   };
 
   const openFullDialog = () => {
