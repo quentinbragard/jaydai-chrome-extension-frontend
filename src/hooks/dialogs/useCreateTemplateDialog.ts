@@ -21,6 +21,7 @@ import {
   validateEnhancedTemplateForm,
   generateEnhancedFinalContent,
   getEnhancedBlockIds,
+  getMetadataBlockMapping,
   parseTemplateMetadata,
   createBlock,
   addBlock as addBlockUtil,
@@ -192,6 +193,7 @@ export function useCreateTemplateDialog() {
 
   const generateFinalContentLocal = () => generateEnhancedFinalContent(content, blocks, metadata, activeTab);
   const getBlockIdsLocal = () => getEnhancedBlockIds(blocks, metadata, activeTab);
+  const getMetadataMappingLocal = () => getMetadataBlockMapping(metadata, activeTab);
 
   const handleSave = async () => {
     if (!validateForm()) {
@@ -207,6 +209,7 @@ export function useCreateTemplateDialog() {
     try {
       const finalContent = generateFinalContentLocal();
       const blockIds = getBlockIdsLocal();
+      const metadataMapping = getMetadataMappingLocal();
 
       const templateData = {
         title: name.trim(),
@@ -215,7 +218,8 @@ export function useCreateTemplateDialog() {
         description: description?.trim(),
         folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined,
         // Include enhanced metadata for future use
-        enhanced_metadata: metadata
+        enhanced_metadata: metadata,
+        metadata: metadataMapping
       };
 
       if (onSave) {
@@ -224,7 +228,8 @@ export function useCreateTemplateDialog() {
           content: finalContent,
           description: description?.trim(),
           folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined,
-          enhanced_metadata: metadata
+          enhanced_metadata: metadata,
+          metadata: metadataMapping
         };
         const success = await onSave(formData);
         if (success) {
