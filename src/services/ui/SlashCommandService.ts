@@ -141,8 +141,13 @@ export class SlashCommandService extends AbstractBaseService {
     const config = getConfigByHostname(window.location.hostname);
     if (!config) return;
 
-    const el = document.querySelector(config.domSelectors.PROMPT_TEXTAREA) as HTMLElement | null;
-    
+    let el = document.querySelector(config.domSelectors.PROMPT_TEXTAREA) as HTMLElement | null;
+
+    if (!el) {
+      const elements = Array.from(document.querySelectorAll(config.domSelectors.PROMPT_TEXTAREA)) as HTMLElement[];
+      el = elements.find(e => e.isConnected && e.offsetParent !== null) || elements[elements.length - 1] || null;
+    }
+
     if (!el) return;
 
     // Check if this is actually a different element or if the current one is stale
