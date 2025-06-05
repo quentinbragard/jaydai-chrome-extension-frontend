@@ -19,6 +19,18 @@ export interface Template {
     type?: 'official' | 'organization' | 'user';
     language?: string;
     based_on_official_id?: number | null;
+    /**
+     * Mapping of metadata types to block IDs when created with the Advanced Editor
+     */
+    metadata?: Record<string, number | number[]>;
+    /**
+     * IDs of blocks used for the content section
+     */
+    blocks?: number[];
+    /**
+     * Full metadata structure including values and references
+     */
+    enhanced_metadata?: any;
   }
   
   /**
