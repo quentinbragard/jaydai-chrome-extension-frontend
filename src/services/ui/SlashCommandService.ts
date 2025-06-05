@@ -8,6 +8,7 @@ import { QuickBlockSelector } from '@/components/prompts/blocks/quick-selector';
 export class SlashCommandService extends AbstractBaseService {
   private static instance: SlashCommandService;
   private inputEl: HTMLElement | null = null;
+  private documentListenerAttached = false;
   private observer: MutationObserver | null = null;
   private quickSelectorRoot: Root | null = null;
   private quickSelectorContainer: HTMLDivElement | null = null;
@@ -103,10 +104,7 @@ export class SlashCommandService extends AbstractBaseService {
     
     // Set up a periodic check to ensure we stay attached
     setInterval(() => {
-      if (!this.inputEl || !document.contains(this.inputEl) || !this.inputEl.isConnected) {
-        console.log('Periodic check: reattaching listener...');
-        this.attachListener();
-      }
+      this.attachListener();
     }, 2000); // Check every 2 seconds
   }
 
@@ -141,41 +139,21 @@ export class SlashCommandService extends AbstractBaseService {
     const config = getConfigByHostname(window.location.hostname);
     if (!config) return;
 
-    let el = document.querySelector(config.domSelectors.PROMPT_TEXTAREA) as HTMLElement | null;
-
-    if (!el) {
-      const elements = Array.from(document.querySelectorAll(config.domSelectors.PROMPT_TEXTAREA)) as HTMLElement[];
-      el = elements.find(e => e.isConnected && e.offsetParent !== null) || elements[elements.length - 1] || null;
+    if (!this.documentListenerAttached) {
+      document.addEventListener('input', this.handleInput, true);
+      this.documentListenerAttached = true;
     }
 
-    if (!el) return;
-
-    // Check if this is actually a different element or if the current one is stale
-    const needsReattach = !this.inputEl || 
-                         el !== this.inputEl || 
-                         !document.contains(this.inputEl) ||
-                         !this.inputEl.isConnected;
-
-    if (needsReattach) {
-      console.log('Attaching/reattaching slash command listener to:', el.tagName, el.className);
-      this.detachListener(); // Always detach first to prevent duplicates
-      this.inputEl = el;
-      
-      // Remove any existing listeners first (safety measure)
-      this.inputEl.removeEventListener('input', this.handleInput);
-      
-      // Add the listener
-      this.inputEl.addEventListener('input', this.handleInput);
-    }
+    const el = document.querySelector(config.domSelectors.PROMPT_TEXTAREA) as HTMLElement | null;
+    if (el) this.inputEl = el;
   }
 
   private detachListener() {
-    if (this.inputEl) {
-      // Remove listener multiple times to be absolutely sure
-      this.inputEl.removeEventListener('input', this.handleInput);
-      this.inputEl.removeEventListener('input', this.handleInput); // Safety duplicate removal
-      this.inputEl = null;
+    if (this.documentListenerAttached) {
+      document.removeEventListener('input', this.handleInput, true);
+      this.documentListenerAttached = false;
     }
+    this.inputEl = null;
   }
 
   /**
@@ -412,15 +390,15 @@ export class SlashCommandService extends AbstractBaseService {
     }
 
     const target = e.target as HTMLTextAreaElement | HTMLElement;
+    const config = getConfigByHostname(window.location.hostname);
+    if (!config) return;
+
+    const promptEl = target.closest(config.domSelectors.PROMPT_TEXTAREA) as HTMLElement | null;
+    if (!promptEl) return;
+
+    this.inputEl = promptEl;
     let value = '';
     let originalCursorPos = 0;
-
-    // Ensure we're still attached to a valid element
-    if (!this.inputEl || !document.contains(this.inputEl)) {
-      console.log('Input element is stale, reattaching...');
-      this.attachListener();
-      return;
-    }
 
     // Get current values
     if (target instanceof HTMLTextAreaElement) {
