@@ -155,6 +155,9 @@ const InlineBlockCreator: React.FC<{
             onChange={(e) => setTitle(e.target.value)}
             placeholder={`${BLOCK_TYPE_LABELS[type]} Block`}
             className="jd-h-8 jd-text-xs"
+            onKeyDown={(e) => e.stopPropagation()}
+            onKeyPress={(e) => e.stopPropagation()}
+            onKeyUp={(e) => e.stopPropagation()}
           />
         </div>
 
@@ -166,6 +169,9 @@ const InlineBlockCreator: React.FC<{
             placeholder={`Enter ${type} content...`}
             className="jd-min-h-[80px] jd-text-xs jd-resize-none"
             rows={4}
+            onKeyDown={(e) => e.stopPropagation()}
+            onKeyPress={(e) => e.stopPropagation()}
+            onKeyUp={(e) => e.stopPropagation()}
           />
         </div>
 
@@ -534,6 +540,9 @@ export const InsertBlockDialog: React.FC = () => {
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search blocks..."
                 className="jd-pl-9"
+                onKeyDown={(e) => e.stopPropagation()}
+                onKeyPress={(e) => e.stopPropagation()}
+                onKeyUp={(e) => e.stopPropagation()}
               />
             </div>
 
