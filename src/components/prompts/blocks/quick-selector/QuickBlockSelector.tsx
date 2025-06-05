@@ -82,8 +82,11 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   // Handle click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        onClose();
+      if (containerRef.current) {
+        const path = e.composedPath ? e.composedPath() : [];
+        if (!path.includes(containerRef.current)) {
+          onClose();
+        }
       }
     };
 
