@@ -32,7 +32,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   const dialogRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   // Keep focus trapped inside the dialog when open
-  useDialogFocusGuard(dialogRef.current, open);
+  //useDialogFocusGuard(dialogRef.current, open);
   
   // Setup effect for mounting state
   useEffect(() => {
