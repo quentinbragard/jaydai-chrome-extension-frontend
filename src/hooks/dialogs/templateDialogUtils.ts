@@ -92,6 +92,39 @@ export function getEnhancedBlockIds(
   return [...metadataIds, ...contentIds];
 }
 
+// Build a mapping of metadata types to block IDs used
+export function getMetadataBlockMapping(
+  metadata: PromptMetadata,
+  activeTab: 'basic' | 'advanced'
+): Record<string, number | number[] | undefined> {
+  if (activeTab === 'basic') return {};
+
+  const mapping: Record<string, number | number[] | undefined> = {};
+
+  ['role', 'context', 'goal', 'audience', 'tone_style', 'output_format'].forEach(
+    type => {
+      const id = metadata[type as SingleMetadataType];
+      if (id && id !== 0) mapping[type] = id;
+    }
+  );
+
+  if (metadata.constraints) {
+    const ids = metadata.constraints
+      .map(c => c.blockId)
+      .filter((id): id is number => typeof id === 'number' && id !== 0);
+    if (ids.length > 0) mapping.constraints = ids;
+  }
+
+  if (metadata.examples) {
+    const ids = metadata.examples
+      .map(e => e.blockId)
+      .filter((id): id is number => typeof id === 'number' && id !== 0);
+    if (ids.length > 0) mapping.examples = ids;
+  }
+
+  return mapping;
+}
+
 
 import { DEFAULT_METADATA } from '@/types/prompts/metadata';
 
