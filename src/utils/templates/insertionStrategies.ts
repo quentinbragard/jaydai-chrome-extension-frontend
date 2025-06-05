@@ -55,15 +55,8 @@ export function insertIntoContentEditable(element: HTMLElement, text: string, cu
         if (i < lines.length - 1) fragment.appendChild(document.createElement('br'));
       });
 
-      const lastNode = fragment.lastChild as ChildNode | null;
       range.insertNode(fragment);
-
-      if (lastNode && lastNode.parentNode) {
-        range.setStartAfter(lastNode);
-        range.setEndAfter(lastNode);
-      } else {
-        range.collapse(false);
-      }
+      range.collapse(false);
     } else {
       const node = document.createTextNode(text);
       range.insertNode(node);
