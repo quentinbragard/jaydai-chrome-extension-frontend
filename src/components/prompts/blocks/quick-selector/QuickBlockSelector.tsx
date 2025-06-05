@@ -141,7 +141,11 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
     setActiveIndex(0);
   }, [search, selectedFilter]);
 
+  const insertingRef = useRef(false);
+
   const handleSelectBlock = (block: Block) => {
+    if (insertingRef.current) return;
+    insertingRef.current = true;
     const content = getLocalizedContent(block.content);
     let text = buildPromptPart(block.type || 'content', content);
     
@@ -155,15 +159,18 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
     
     // Smart spacing: only add line breaks when actually needed
     if (typeof cursorPosition === 'number' && currentContent.length > 0) {
-      const beforeCursor = currentContent.substring(0, cursorPosition).trim();
-      const afterCursor = currentContent.substring(cursorPosition).trim();
-      
-      // Only add leading space if there's content before cursor and it doesn't end with newlines
-      if (beforeCursor.length > 0 && !beforeCursor.endsWith('\n')) {
+      const beforeCursorRaw = currentContent.substring(0, cursorPosition);
+      const afterCursorRaw = currentContent.substring(cursorPosition);
+
+      const beforeCursor = beforeCursorRaw.trim();
+      const afterCursor = afterCursorRaw.trim();
+
+      // Only add leading space if there's real content before the cursor and it doesn't already end with a newline
+      if (beforeCursor.length > 0 && !beforeCursorRaw.endsWith('\n')) {
         text = '\n\n' + text;
       }
-      
-      // Only add trailing space if there's content after cursor and text doesn't already end with newlines
+
+      // Only add trailing space if there's content after the cursor and text doesn't already end with newlines
       if (afterCursor.length > 0 && !text.endsWith('\n')) {
         text = text + '\n\n';
       } else if (afterCursor.length === 0 && !text.endsWith('\n')) {
@@ -261,10 +268,14 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
           console.error('Error inserting text:', error);
           toast.error('Failed to insert block');
         }
-        
+
       } catch (error) {
         console.error('Error in block selection handler:', error);
         toast.error('Failed to insert block');
+      } finally {
+        setTimeout(() => {
+          insertingRef.current = false;
+        }, 50);
       }
     }, 100); // Reduced timeout for better responsiveness
   };
