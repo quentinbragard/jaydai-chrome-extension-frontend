@@ -13,6 +13,10 @@ interface TemplateFormData {
   folder_id?: number | null;
   tags?: string[];
   locale?: string;
+  // Optional advanced editor fields
+  blocks?: number[];
+  metadata?: Record<string, number | number[]>;
+  enhanced_metadata?: any;
 }
 
 interface TemplateValidationErrors {
@@ -38,7 +42,10 @@ export function useTemplateCreation() {
         description: data.description?.trim(),
         folder_id: data.folder_id || null,
         tags: data.tags || [],
-        locale: data.locale || navigator.language || 'en'
+        locale: data.locale || navigator.language || 'en',
+        ...(data.blocks ? { blocks: data.blocks } : {}),
+        ...(data.metadata ? { metadata: data.metadata } : {}),
+        ...(data.enhanced_metadata ? { enhanced_metadata: data.enhanced_metadata } : {})
       };
       
       const response = await promptApi.createTemplate(templateData);
@@ -78,7 +85,10 @@ export function useTemplateCreation() {
         content: data.content.trim(),
         description: data.description?.trim(),
         folder_id: data.folder_id || null,
-        tags: data.tags || []
+        tags: data.tags || [],
+        ...(data.blocks ? { blocks: data.blocks } : {}),
+        ...(data.metadata ? { metadata: data.metadata } : {}),
+        ...(data.enhanced_metadata ? { enhanced_metadata: data.enhanced_metadata } : {})
       };
       
       const response = await promptApi.updateTemplate(id, templateData);

@@ -11,10 +11,10 @@ import {
 } from '@/types/prompts/metadata';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
+import { useTemplateCreation } from '@/hooks/prompts/useTemplateCreation';
 import { getMessage, getCurrentLanguage } from '@/core/utils/i18n';
 import {
   useProcessUserFolders,
-  validateTemplateForm,
   FolderData
 } from '@/components/prompts/templates/templateUtils';
 import {
@@ -53,6 +53,9 @@ export function useCreateTemplateDialog() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [userFoldersList, setUserFoldersList] = useState<FolderData[]>([]);
+
+  // Reuse generic template creation logic
+  const { saveTemplate } = useTemplateCreation();
 
   const currentTemplate = data?.template || null;
   const onSave = data?.onSave;
@@ -220,78 +223,47 @@ export function useCreateTemplateDialog() {
         enhancedMetadata
       });
 
-      const templateData = {
-        title: name.trim(),
+      const formData = {
+        name: name.trim(),
         content: finalContent,
-        
-        // FIXED: Store content block IDs in blocks field
-        blocks: contentBlockIds,
-        
         description: description?.trim(),
         folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined,
-        
-        // FIXED: Store comprehensive metadata structure
+        blocks: contentBlockIds,
         enhanced_metadata: enhancedMetadata,
-        
-        // FIXED: Store metadata block IDs in metadata field
         metadata: metadataBlockMapping
       };
 
       console.log('Final Template Data Structure:', {
-        ...templateData,
+        ...formData,
         explanation: {
-          'blocks': 'Content block IDs (blocks added to content section)',
-          'metadata': 'Metadata block IDs (blocks selected in metadata dropdowns)',
-          'enhanced_metadata': 'Complete metadata structure with values and references'
+          blocks: 'Content block IDs (blocks added to content section)',
+          metadata: 'Metadata block IDs (blocks selected in metadata dropdowns)',
+          enhanced_metadata: 'Complete metadata structure with values and references'
         }
       });
 
+      let success = false;
       if (onSave) {
-        const formData = {
-          name: name.trim(),
-          content: finalContent,
-          description: description?.trim(),
-          folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined,
-          enhanced_metadata: enhancedMetadata,
-          metadata: metadataBlockMapping
-        };
-        const success = await onSave(formData);
-        if (success) {
-          handleClose();
-          return success;
-        }
+        success = await onSave(formData);
       } else {
-        let response;
-        if (currentTemplate?.id) {
-          response = await promptApi.updateTemplate(currentTemplate.id, templateData);
-        } else {
-          response = await promptApi.createTemplate(templateData);
+        success = await saveTemplate(formData, currentTemplate?.id);
+      }
+
+      if (success) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ Template saved successfully with proper block separation:');
+          console.log(`   📝 Content blocks: ${contentBlockIds.length}`);
+          console.log(`   🏷️  Metadata blocks: ${Object.keys(metadataBlockMapping).length}`);
         }
 
-        if (response.success) {
-          toast.success(currentTemplate ? getMessage('templateUpdated') : getMessage('templateCreated'));
-
-          // Show detailed info about what was saved
-          if (process.env.NODE_ENV === 'development') {
-            console.log('✅ Template saved successfully with proper block separation:');
-            console.log(`   📝 Content blocks: ${contentBlockIds.length}`);
-            console.log(`   🏷️  Metadata blocks: ${Object.keys(metadataBlockMapping).length}`);
-            
-            if (Object.keys(metadataBlockMapping).length > 0) {
-              console.log('   Metadata block mapping:', metadataBlockMapping);
-              toast.success(`Template saved with ${Object.keys(metadataBlockMapping).length} metadata blocks tracked`);
-            }
-          }
-
-          if (currentTemplate) {
-            setTimeout(() => {
-              window.location.reload();
-            }, 1000);
-          }
-
-          handleClose();
-          return true;
+        if (currentTemplate) {
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         }
+
+        handleClose();
+        return true;
       }
       return false;
     } catch (error) {
