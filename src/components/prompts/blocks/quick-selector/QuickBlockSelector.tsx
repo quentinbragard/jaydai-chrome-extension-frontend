@@ -4,32 +4,25 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useShadowRoot } from '@/core/utils/componentInjector';
-import { Block, BlockType } from '@/types/prompts/blocks';
-import { blocksApi } from '@/services/api/BlocksApi';
+import { Block } from '@/types/prompts/blocks';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { insertTextAtCursor } from '@/utils/templates/placeholderUtils';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
-import { 
-  Search, 
-  Filter, 
-  Maximize2,
-  X,
-  ChevronRight
-} from 'lucide-react';
+import { Search, Maximize2, X } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
-import { toast } from 'sonner';
 import {
   getBlockTypeIcon,
   getBlockIconColors,
   BLOCK_TYPE_LABELS,
-  getLocalizedContent,
-  buildPromptPart
+  getLocalizedContent
 } from '@/components/prompts/blocks/blockUtils';
 import { BlockItem } from './BlockItem';
+import { useBlocks } from './useBlocks';
+import { useBlockInsertion } from './useBlockInsertion';
+import { calculateDropdownPosition } from './positionUtils';
 
 // Quick filter types
 const QUICK_FILTERS = [
@@ -49,32 +42,21 @@ interface QuickBlockSelectorProps {
   cursorPosition?: number; // Store the original cursor position
 }
 
-export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({ 
-  position, 
-  onClose, 
+export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
+  position,
+  onClose,
   targetElement,
   onOpenFullDialog,
   cursorPosition
 }) => {
   const shadowRoot = useShadowRoot();
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { blocks, loading } = useBlocks();
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [activeIndex, setActiveIndex] = useState(0);
   const isDark = useThemeDetector();
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // Load blocks on mount
-  useEffect(() => {
-    blocksApi.getBlocks().then(res => {
-      if (res.success) {
-        setBlocks(res.data);
-      }
-      setLoading(false);
-    });
-  }, []);
 
   // Focus search input on mount
   useEffect(() => {
@@ -141,144 +123,8 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
     setActiveIndex(0);
   }, [search, selectedFilter]);
 
-  const insertingRef = useRef(false);
-
-  const handleSelectBlock = (block: Block) => {
-    if (insertingRef.current) return;
-    insertingRef.current = true;
-    const content = getLocalizedContent(block.content);
-    let text = buildPromptPart(block.type || 'content', content);
-    
-    // Get current content to determine spacing
-    let currentContent = '';
-    if (targetElement instanceof HTMLTextAreaElement) {
-      currentContent = targetElement.value;
-    } else if (targetElement.isContentEditable) {
-      currentContent = targetElement.textContent || '';
-    }
-    
-    // Smart spacing: only add line breaks when actually needed
-    if (typeof cursorPosition === 'number' && currentContent.length > 0) {
-      const beforeCursorRaw = currentContent.substring(0, cursorPosition);
-      const afterCursorRaw = currentContent.substring(cursorPosition);
-
-      const beforeCursor = beforeCursorRaw.trim();
-      const afterCursor = afterCursorRaw.trim();
-
-      // Only add leading space if there's real content before the cursor and it doesn't already end with a newline
-      if (beforeCursor.length > 0 && !beforeCursorRaw.endsWith('\n')) {
-        text = '\n\n' + text;
-      }
-
-      // Only add trailing space if there's content after the cursor and text doesn't already end with newlines
-      if (afterCursor.length > 0 && !text.endsWith('\n')) {
-        text = text + '\n\n';
-      } else if (afterCursor.length === 0 && !text.endsWith('\n')) {
-        // At end of document, just add one newline
-        text = text + '\n';
-      }
-    } else if (currentContent.length > 0) {
-      // Fallback: only add spacing if there's existing content
-      text = text + '\n';
-    }
-    // If currentContent.length === 0, don't add any extra spacing (empty document)
-    
-    console.log('Inserting block:', { 
-      blockTitle: getLocalizedContent(block.title), 
-      textPreview: JSON.stringify(text.substring(0, 50)), // JSON.stringify to see line breaks
-      textLength: text.length,
-      targetElement: targetElement.tagName,
-      cursorPosition,
-      currentContentLength: currentContent.length,
-      hasLineBreaks: text.includes('\n')
-    });
-    
-    // Close the selector first to return focus
-    onClose();
-    
-    // Wait a bit for proper focus restoration and DOM updates
-    setTimeout(() => {
-      try {
-        // Ensure the target element is focused
-        targetElement.focus();
-        
-        // For textarea elements, restore cursor position if we have it
-        if (targetElement instanceof HTMLTextAreaElement && typeof cursorPosition === 'number') {
-          const safePosition = Math.max(0, Math.min(cursorPosition, targetElement.value.length));
-          targetElement.setSelectionRange(safePosition, safePosition);
-          console.log('Restored textarea cursor to position:', safePosition);
-        }
-        
-        // For contenteditable elements, try to restore cursor position
-        if (targetElement.isContentEditable && typeof cursorPosition === 'number') {
-          const textContent = targetElement.textContent || '';
-          const safePosition = Math.max(0, Math.min(cursorPosition, textContent.length));
-          
-          try {
-            const selection = window.getSelection();
-            if (selection) {
-              const range = document.createRange();
-              
-              // Find the right text node and position
-              const walker = document.createTreeWalker(
-                targetElement,
-                NodeFilter.SHOW_TEXT,
-                null
-              );
-              
-              let currentPos = 0;
-              let targetNode = walker.nextNode();
-              
-              while (targetNode && currentPos + (targetNode.textContent?.length || 0) < safePosition) {
-                currentPos += targetNode.textContent?.length || 0;
-                targetNode = walker.nextNode();
-              }
-              
-              if (targetNode) {
-                const offsetInNode = safePosition - currentPos;
-                const nodeLength = targetNode.textContent?.length || 0;
-                const safeOffset = Math.max(0, Math.min(offsetInNode, nodeLength));
-                
-                range.setStart(targetNode, safeOffset);
-                range.setEnd(targetNode, safeOffset);
-                selection.removeAllRanges();
-                selection.addRange(range);
-                console.log('Restored contenteditable cursor to position:', safePosition);
-              }
-            }
-          } catch (error) {
-            console.warn('Failed to restore cursor position in contenteditable:', error);
-          }
-        }
-        
-        // Insert text at the cursor position with error handling
-        try {
-          console.log('About to insert text:', JSON.stringify(text.substring(0, 100)));
-          insertTextAtCursor(targetElement, text, cursorPosition);
-          toast.success(`Inserted ${getLocalizedContent(block.title)} block`);
-          
-          // Force a refresh of the event listener to ensure we can detect //j again
-          setTimeout(() => {
-            if ((window as any).slashCommandService && typeof (window as any).slashCommandService.refreshListener === 'function') {
-              (window as any).slashCommandService.refreshListener();
-            }
-          }, 300);
-          
-        } catch (error) {
-          console.error('Error inserting text:', error);
-          toast.error('Failed to insert block');
-        }
-
-      } catch (error) {
-        console.error('Error in block selection handler:', error);
-        toast.error('Failed to insert block');
-      } finally {
-        setTimeout(() => {
-          insertingRef.current = false;
-        }, 50);
-      }
-    }, 100); // Reduced timeout for better responsiveness
-  };
+  const { insertBlock } = useBlockInsertion(targetElement, cursorPosition, onClose);
+  const handleSelectBlock = (block: Block) => insertBlock(block);
 
   const openFullDialog = () => {
     onClose();
@@ -286,32 +132,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   };
 
   // Calculate position to avoid viewport edges
-  const calculatePosition = () => {
-    const padding = 10;
-    const maxWidth = 400;
-    const maxHeight = 480;
-    
-    let x = position.x;
-    let y = position.y + 25; // Small offset below cursor
-
-    // Check right edge
-    if (x + maxWidth > window.innerWidth - padding) {
-      x = window.innerWidth - maxWidth - padding;
-    }
-
-    // Check bottom edge
-    if (y + maxHeight > window.innerHeight - padding) {
-      y = position.y - maxHeight - 10; // Show above cursor if no space below
-    }
-
-    // Ensure minimum distance from edges
-    x = Math.max(padding, x);
-    y = Math.max(padding, y);
-
-    return { x, y };
-  };
-
-  const { x, y } = calculatePosition();
+  const { x, y } = calculateDropdownPosition(position);
 
   const darkLogo = chrome.runtime.getURL('images/full-logo-white.png');
   const lightLogo = chrome.runtime.getURL('images/full-logo-dark.png');
