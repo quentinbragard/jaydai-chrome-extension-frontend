@@ -3,6 +3,7 @@
 // It appears at the cursor position when users type "//j"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useShadowRoot } from '@/core/utils/componentInjector';
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { Input } from '@/components/ui/input';
@@ -51,8 +52,9 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   position, 
   onClose, 
   targetElement,
-  onOpenFullDialog 
+  onOpenFullDialog
 }) => {
+  const shadowRoot = useShadowRoot();
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -304,6 +306,6 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
         <span>{filteredBlocks.length} blocks</span>
       </div>
     </div>,
-    document.body
+    shadowRoot || document.body
   );
 };
