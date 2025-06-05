@@ -35,6 +35,9 @@ export class ErrorReporter {
     // Listen for unhandled errors and promises
     if (typeof window !== 'undefined') {
       window.addEventListener('error', (event) => {
+        if (event.message?.includes('ResizeObserver loop completed')) {
+          return;
+        }
         this.captureError(
           new AppError(
             event.message || 'Unhandled error',
@@ -45,9 +48,13 @@ export class ErrorReporter {
       });
       
       window.addEventListener('unhandledrejection', (event) => {
+        const message = event.reason?.message || '';
+        if (message.includes('ResizeObserver loop completed')) {
+          return;
+        }
         this.captureError(
           new AppError(
-            event.reason?.message || 'Unhandled promise rejection',
+            message || 'Unhandled promise rejection',
             ErrorCode.UNHANDLED_REJECTION,
             event.reason
           )
