@@ -14,6 +14,7 @@ import { TokenService } from './auth/TokenService';
 import { NotificationService } from './notifications/NotificationService';
 import { StatsService } from './analytics/StatsService';
 import { UserProfileService } from './user/UserProfileService';
+import { SlashCommandService } from './ui/SlashCommandService';
 
 /**
  * Register all services with the ServiceManager
@@ -31,6 +32,7 @@ export function registerServices(): void {
   // Other services
   serviceManager.registerService('notifications', NotificationService.getInstance());
   serviceManager.registerService('stats', StatsService.getInstance());
+  serviceManager.registerService('ui.slash', SlashCommandService.getInstance());
   
   // Legacy registrations for backward compatibility
   serviceManager.registerService('auth', AuthService.getInstance());
@@ -60,4 +62,5 @@ export {
 export {
   StatsService,
   NotificationService,
+  SlashCommandService,
 };
