@@ -6,6 +6,12 @@ import { Block } from '@/types/prompts/blocks';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useThemeDetector } from '@/hooks/useThemeDetector';
+import {
+  highlightPlaceholders,
+  extractPlaceholders,
+  replacePlaceholders
+} from '@/utils/templates/placeholderUtils';
+import { htmlToPlainText } from '@/utils/templates/htmlUtils';
 
 interface BasicEditorProps {
   blocks: Block[];
@@ -55,51 +61,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
       : blocks.map(block => getBlockContent(block)).join('\n\n');
 
   /**
-   * Extract placeholders from template content
+   * Extract placeholders and highlight function provided by utilities
    */
-  const extractPlaceholders = (content: string) => {
-    const placeholderRegex = /\[(.*?)\]/g;
-    const matches = [...content.matchAll(placeholderRegex)];
-
-    const uniqueKeys = new Set();
-    const uniquePlaceholders: Placeholder[] = [];
-
-    for (const match of matches) {
-      const placeholder = match[0];
-
-      if (uniqueKeys.has(placeholder)) continue;
-      uniqueKeys.add(placeholder);
-
-      const existingPlaceholder = placeholders.find((p) => p.key === placeholder);
-
-      uniquePlaceholders.push({
-        key: placeholder,
-        value: existingPlaceholder ? existingPlaceholder.value : "",
-      });
-    }
-    return uniquePlaceholders;
-  };
-
-  /**
-   * Function to highlight placeholders with improved formatting
-   */
-  const highlightPlaceholders = (content: string) => {
-    const normalizedContent = content.replace(/\r\n/g, '\n');
-    
-    const escapedContent = normalizedContent
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-    
-    const withLineBreaks = escapedContent.replace(/\n/g, '<br>');
-    
-    return withLineBreaks.replace(
-      /\[(.*?)\]/g, 
-      `<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>`
-    );
-  };
 
   // Initialize content and placeholders
   useEffect(() => {
@@ -165,27 +128,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
     observerRef.current = new MutationObserver(() => {
       if (isEditing || !editorRef.current) return;
-      
+
       const htmlContent = editorRef.current.innerHTML;
-      
-      const normalizedHtml = htmlContent
-        .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
-        .replace(/<div><br><\/div>/gi, '<br>')
-        .replace(/<p><br><\/p>/gi, '<br>');
-      
-      const textContent = normalizedHtml
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<div\s*\/?>/gi, '')
-        .replace(/<\/div>/gi, '')
-        .replace(/<p\s*\/?>/gi, '')
-        .replace(/<\/p>/gi, '')
-        .replace(/<\/?span[^>]*>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#039;/g, "'")
-        .replace(/&amp;/g, '&');
+      const textContent = htmlToPlainText(htmlContent);
       
       if (modifiedContent !== textContent) {
         setModifiedContent(textContent);
@@ -231,25 +176,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     setIsEditing(false);
     if (editorRef.current) {
       const htmlContent = editorRef.current.innerHTML;
-      let textContent = '';
-      if (mode === 'create') {
-        textContent = editorRef.current.textContent || '';
-      } else {
-        textContent = htmlContent
-          .replace(/<br\s*\/?>/gi, '\n')
-          .replace(/<div\s*\/?>/gi, '')
-          .replace(/<\/div>/gi, '\n')
-          .replace(/<p\s*\/?>/gi, '')
-          .replace(/<\/p>/gi, '\n')
-          .replace(/<\/?span[^>]*>/g, '')
-          .replace(/&nbsp;/g, ' ')
-          .replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>')
-          .replace(/&quot;/g, '"')
-          .replace(/&#039;/g, "'")
-          .replace(/&amp;/g, '&')
-          .replace(/\n\n+/g, '\n');
-      }
+      const textContent = mode === 'create'
+        ? editorRef.current.textContent || ''
+        : htmlToPlainText(htmlContent);
       
       setModifiedContent(textContent);
 
@@ -283,27 +212,15 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   const handleEditorInput = () => {
     if (!editorRef.current) return;
 
-    const currentRawContent = mode === 'create' ? (editorRef.current.textContent || '') : editorRef.current.innerHTML;
+    const currentRawContent =
+      mode === 'create'
+        ? editorRef.current.textContent || ''
+        : editorRef.current.innerHTML;
 
-    let textContent;
-    if (mode === 'create') {
-      textContent = currentRawContent;
-    } else {
-      textContent = currentRawContent
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<div\s*\/?>/gi, '') 
-        .replace(/<\/div>/gi, '\n')   
-        .replace(/<p\s*\/?>/gi, '')
-        .replace(/<\/p>/gi, '\n')
-        .replace(/<\/?span[^>]*>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#039;/g, "'")
-        .replace(/&amp;/g, '&')
-        .replace(/\n\n+/g, '\n'); 
-    }
+    const textContent =
+      mode === 'create'
+        ? currentRawContent
+        : htmlToPlainText(currentRawContent);
     
     setModifiedContent(textContent);
 
@@ -339,10 +256,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     e.stopPropagation();
   };
 
-  const escapeRegExp = (string: string) => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  };
-
   const updatePlaceholder = (index: number, value: string) => {
     if (isEditing && mode === 'customize') return;
 
@@ -352,14 +265,16 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     updatedPlaceholders[index].value = value;
     setPlaceholders(updatedPlaceholders);
 
-    let baseContent = (mode === 'customize' && initialContentRef.current ? initialContentRef.current : templateContent).replace(/\r\n/g, '\n');
-    
-    updatedPlaceholders.forEach(({ key, value: val }) => {
-      if (val) {
-        const regex = new RegExp(escapeRegExp(key), "g");
-        baseContent = baseContent.replace(regex, val);
-      }
-    });
+    let baseContent = (mode === 'customize' && initialContentRef.current
+      ? initialContentRef.current
+      : templateContent).replace(/\r\n/g, '\n');
+
+    const values = updatedPlaceholders.reduce<Record<string, string>>((acc, p) => {
+      if (p.value) acc[p.key] = p.value;
+      return acc;
+    }, {});
+
+    baseContent = replacePlaceholders(baseContent, values);
 
     setModifiedContent(baseContent);
 
