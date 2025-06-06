@@ -18,6 +18,7 @@ import {
   BLOCK_TYPES 
 } from '@/components/prompts/blocks/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { cn } from '@/core/utils/classNames';
 
 interface AddBlockButtonProps {
@@ -37,6 +38,7 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const isDark = useThemeDetector();
+  const { openInsertBlock } = useDialogActions();
 
   const handleAddNewBlock = (blockType: BlockType) => {
     onAdd(blockType);
@@ -162,10 +164,7 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
             {Object.values(availableBlocks).some(blocks => blocks.length > 3) && (
               <DropdownMenuItem
                 onClick={() => {
-                  // This could open the InsertBlockDialog or a similar interface
-                  if (window.dialogManager) {
-                    window.dialogManager.openDialog('insertBlock', {});
-                  }
+                  openInsertBlock();
                   setIsOpen(false);
                 }}
                 className="jd-flex jd-items-center jd-gap-2 jd-py-2 jd-cursor-pointer jd-text-primary"

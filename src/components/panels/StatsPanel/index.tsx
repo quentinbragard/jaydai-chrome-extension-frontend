@@ -8,7 +8,7 @@ import StatsDetailRow from './StatsDetailRow';
 import BasePanel from '../BasePanel';
 import ErrorBoundary from '../../common/ErrorBoundary';
 import { getMessage } from '@/core/utils/i18n';
-import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import {
   Tooltip,
   TooltipContent,
@@ -103,12 +103,8 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
   const efficiencyValue = Math.min(100, Math.max(0, stats.efficiency || 0));
   const efficiencyColor = getEfficiencyColor(efficiencyValue);
 
-  // Handle opening enhanced stats dialog
-  const handleOpenEnhancedStats = () => {
-    if (window.dialogManager) {
-      window.dialogManager.openDialog(DIALOG_TYPES.ENHANCED_STATS);
-    }
-  };
+  // Handle opening enhanced stats dialog using the dialog context
+  const { openEnhancedStats } = useDialogActions();
 
   return (
     <ErrorBoundary>
@@ -210,10 +206,10 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
                     </span>
                   </span>
                   
-                  <Button 
+                  <Button
                     className="jd-text-[10px] jd-text-blue-500 jd-px-1 hover:jd-underline jd-p-0 jd-h-auto jd-bg-transparent jd-flex jd-items-center jd-gap-1"
                     variant="ghost"
-                    onClick={handleOpenEnhancedStats}
+                    onClick={openEnhancedStats}
                   >
                     {getMessage('viewEnhancedStats', undefined, 'View Enhanced Analytics')}
                     <ExternalLink className="jd-h-3 jd-w-3" />
