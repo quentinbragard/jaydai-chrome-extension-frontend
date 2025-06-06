@@ -18,6 +18,7 @@ import {
   useTemplateMutations,
   useTemplateActions
 } from '@/hooks/prompts';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 
 import { 
   FolderSection, 
@@ -25,7 +26,6 @@ import {
 } from '@/components/prompts/folders';
 
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
-import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
 import { Template, TemplateFolder } from '@/types/prompts/templates';
@@ -75,6 +75,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   
   // Get template actions
   const { useTemplate, createTemplate, editTemplate, createFolderAndTemplate } = useTemplateActions();
+  const { openConfirmation } = useDialogActions();
   
   // Handle navigation to browse panels
   const handleBrowseOfficialTemplates = useCallback(() => {
@@ -169,50 +170,55 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }, [refetchPinned, refetchUser, refetchUnorganized]);
 
   // Template delete handler - works for all templates
-  const handleDeleteTemplate = useCallback((templateId: number) => {
-    if (window.dialogManager) {
-      window.dialogManager.openDialog(DIALOG_TYPES.CONFIRMATION, {
+  const handleDeleteTemplate = useCallback(
+    (templateId: number) => {
+      openConfirmation({
         title: getMessage('deleteTemplate', undefined, 'Delete Template'),
-        description: getMessage('deleteTemplateConfirmation', undefined, 'Are you sure you want to delete this template? This action cannot be undone.'),
+        description: getMessage(
+          'deleteTemplateConfirmation',
+          undefined,
+          'Are you sure you want to delete this template? This action cannot be undone.'
+        ),
         onConfirm: async () => {
           try {
             await deleteTemplate.mutateAsync(templateId);
-            // Refresh data after deletion
-            await Promise.all([
-              refetchUser(),
-              refetchUnorganized()
-            ]);
+            await Promise.all([refetchUser(), refetchUnorganized()]);
             return true;
           } catch (error) {
             console.error('Error deleting template:', error);
             return false;
           }
-        }
+        },
       });
-    }
-  }, [deleteTemplate, refetchUser, refetchUnorganized]);
+    },
+    [openConfirmation, deleteTemplate, refetchUser, refetchUnorganized]
+  );
 
   // Folder delete handler
-  const handleDeleteFolder = useCallback((folderId: number) => {
-    if (window.dialogManager) {
-      window.dialogManager.openDialog(DIALOG_TYPES.CONFIRMATION, {
+  const handleDeleteFolder = useCallback(
+    (folderId: number) => {
+      openConfirmation({
         title: getMessage('deleteFolder', undefined, 'Delete Folder'),
-        description: getMessage('deleteFolderConfirmation', undefined, 'Are you sure you want to delete this folder and all its templates? This action cannot be undone.'),
+        description: getMessage(
+          'deleteFolderConfirmation',
+          undefined,
+          'Are you sure you want to delete this folder and all its templates? This action cannot be undone.'
+        ),
         onConfirm: async () => {
           try {
             await deleteFolder.mutateAsync(folderId);
-            // Refresh user folders after deletion
             await refetchUser();
             return true;
           } catch (error) {
             console.error('Error deleting folder:', error);
             return false;
           }
-        }
+        },
       });
-    }
-    return Promise.resolve(false);
-  }, [deleteFolder, refetchUser]);
+      return Promise.resolve(false);
+    },
+    [openConfirmation, deleteFolder, refetchUser]
+  );
 
   // Template edit handler - works for all templates
   const handleEditTemplate = useCallback((template: Template) => {

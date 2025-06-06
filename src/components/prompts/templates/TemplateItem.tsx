@@ -27,7 +27,12 @@ export function TemplateItem({
   onUseTemplate
 }: TemplateItemProps) {
   // Use our template actions hook
-  const { isProcessing, useTemplate: defaultUseTemplate } = useTemplateActions();
+  const {
+    isProcessing,
+    useTemplate: defaultUseTemplate,
+    editTemplate: defaultEditTemplate,
+    deleteTemplateWithConfirm,
+  } = useTemplateActions();
   
   // Use the provided use function or fall back to the hook's function
   const handleUseTemplate = onUseTemplate || defaultUseTemplate;
@@ -133,6 +138,8 @@ export function TemplateItem({
     e.stopPropagation();
     if (onEditTemplate) {
       onEditTemplate(template);
+    } else {
+      defaultEditTemplate(template);
     }
   };
   
@@ -140,8 +147,9 @@ export function TemplateItem({
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onDeleteTemplate && template.id) {
-      // Call the delete handler
       onDeleteTemplate(template.id);
+    } else if (template.id) {
+      deleteTemplateWithConfirm(template.id);
     }
   };
   

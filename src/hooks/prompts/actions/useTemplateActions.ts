@@ -8,6 +8,7 @@ import { useFolderMutations } from './useFolderMutations';
 import { useQueryClient } from 'react-query';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
+import { getMessage } from '@/core/utils/i18n';
 import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrackets } from '@/utils/templates/insertPrompt';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
 
@@ -18,7 +19,7 @@ import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
  */
 export function useTemplateActions() {
   const [isProcessing, setIsProcessing] = useState(false);
-  const { trackTemplateUsage, createTemplate: createTemplateMutation } = useTemplateMutations();
+  const { trackTemplateUsage, createTemplate: createTemplateMutation, deleteTemplate } = useTemplateMutations();
   const { createFolder: createFolderMutation } = useFolderMutations();
   const queryClient = useQueryClient();
   const dialogManager = useDialogManager();
@@ -265,12 +266,37 @@ const useTemplate = useCallback((template: Template) => {
       template_type: 'user'
     });
   }, [openDialog, queryClient]);
+
+  const deleteTemplateWithConfirm = useCallback((id: number) => {
+    openDialog(DIALOG_TYPES.CONFIRMATION, {
+      title: getMessage('deleteTemplate', undefined, 'Delete Template'),
+      description: getMessage(
+        'deleteTemplateConfirmation',
+        undefined,
+        'Are you sure you want to delete this template? This action cannot be undone.'
+      ),
+      onConfirm: async () => {
+        try {
+          await deleteTemplate.mutateAsync(id);
+          await Promise.all([
+            queryClient.invalidateQueries(QUERY_KEYS.USER_TEMPLATES),
+            queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES),
+          ]);
+          return true;
+        } catch (error) {
+          console.error('Error deleting template:', error);
+          return false;
+        }
+      },
+    });
+  }, [openDialog, deleteTemplate, queryClient]);
   
   return {
     isProcessing,
     useTemplate,
     createTemplate,
     createFolderAndTemplate,
-    editTemplate
+    editTemplate,
+    deleteTemplateWithConfirm
   };
 }
