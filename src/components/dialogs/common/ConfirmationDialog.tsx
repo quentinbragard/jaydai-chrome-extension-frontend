@@ -1,8 +1,8 @@
 // src/components/dialogs/common/ConfirmationDialog.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useDialog } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
+import { useDialogStore } from '@/store/dialogStore';
 import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
 
@@ -10,7 +10,9 @@ import { BaseDialog } from '../BaseDialog';
  * Generic confirmation dialog component
  */
 export const ConfirmationDialog: React.FC = () => {
-  const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.CONFIRMATION);
+  const isOpen = useDialogStore(state => state[DIALOG_TYPES.CONFIRMATION].isOpen);
+  const data = useDialogStore(state => state[DIALOG_TYPES.CONFIRMATION].data);
+  const closeDialog = useDialogStore(state => state.closeDialog);
   
   // Safe extraction of dialog data with defaults
   const title = data?.title || getMessage('confirmAction', undefined, 'Confirm Action');
@@ -23,21 +25,23 @@ export const ConfirmationDialog: React.FC = () => {
   const handleConfirm = (e: React.MouseEvent) => {
     e.stopPropagation();
     onConfirm();
-    dialogProps.onOpenChange(false);
+    closeDialog(DIALOG_TYPES.CONFIRMATION);
   };
   
   const handleCancel = (e: React.MouseEvent) => {
     e.stopPropagation();
     onCancel();
-    dialogProps.onOpenChange(false);
+    closeDialog(DIALOG_TYPES.CONFIRMATION);
   };
   
   if (!isOpen) return null;
   
   return (
-    <BaseDialog 
-      open={isOpen} 
-      onOpenChange={dialogProps.onOpenChange}
+    <BaseDialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) closeDialog(DIALOG_TYPES.CONFIRMATION);
+      }}
       title={title}
       description={description}
       className="jd-max-w-md"

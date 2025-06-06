@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
-import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
+import { useDialogStore } from '@/store/dialogStore';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
@@ -17,7 +17,9 @@ import { getMessage } from '@/core/utils/i18n';
  * Enhanced for dialog stacking scenarios and Claude.ai compatibility
  */
 export const CreateFolderDialog: React.FC = () => {
-  const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.CREATE_FOLDER);
+  const isOpen = useDialogStore(state => state[DIALOG_TYPES.CREATE_FOLDER].isOpen);
+  const data = useDialogStore(state => state[DIALOG_TYPES.CREATE_FOLDER].data);
+  const closeDialog = useDialogStore(state => state.closeDialog);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,7 +65,7 @@ export const CreateFolderDialog: React.FC = () => {
           
           toast.success(`Folder "${name}" created successfully`);
           resetForm();
-          dialogProps.onOpenChange(false);
+          closeDialog(DIALOG_TYPES.CREATE_FOLDER);
           return;
         } else if (customResult && !customResult.success) {
           toast.error(customResult.error || 'Failed to create folder');
@@ -82,7 +84,7 @@ export const CreateFolderDialog: React.FC = () => {
         
         toast.success(`Folder "${name}" created successfully`);
         resetForm();
-        dialogProps.onOpenChange(false);
+        closeDialog(DIALOG_TYPES.CREATE_FOLDER);
       } else {
         toast.error(response.message || 'Failed to create folder');
       }
@@ -102,8 +104,8 @@ export const CreateFolderDialog: React.FC = () => {
   const handleClose = (open: boolean) => {
     if (!open) {
       resetForm();
+      closeDialog(DIALOG_TYPES.CREATE_FOLDER);
     }
-    dialogProps.onOpenChange(open);
   };
 
   if (!isOpen) return null;

@@ -1,7 +1,7 @@
 // src/components/dialogs/auth/AuthDialog.tsx
 import React from 'react';
-import { useDialog } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
+import { useDialogStore } from '@/store/dialogStore';
 import AuthForm from '@/extension/welcome/auth/AuthForm';
 import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
@@ -10,7 +10,9 @@ import { BaseDialog } from '../BaseDialog';
  * Dialog for authentication (sign in/sign up)
  */
 export const AuthDialog: React.FC = () => {
-  const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.AUTH);
+  const isOpen = useDialogStore(state => state[DIALOG_TYPES.AUTH].isOpen);
+  const data = useDialogStore(state => state[DIALOG_TYPES.AUTH].data);
+  const closeDialog = useDialogStore(state => state.closeDialog);
   
   // Safe extraction of dialog data with defaults
   const initialMode = data?.initialMode || 'signin';
@@ -22,7 +24,9 @@ export const AuthDialog: React.FC = () => {
   return (
     <BaseDialog
       open={isOpen}
-      onOpenChange={dialogProps.onOpenChange}
+      onOpenChange={(open) => {
+        if (!open) closeDialog(DIALOG_TYPES.AUTH);
+      }}
       title={initialMode === 'signin' 
         ? getMessage('signIn', undefined, 'Sign In')
         : getMessage('signUp', undefined, 'Sign Up')}
@@ -32,10 +36,10 @@ export const AuthDialog: React.FC = () => {
         <AuthForm
           initialMode={initialMode}
           isSessionExpired={isSessionExpired}
-          onClose={() => dialogProps.onOpenChange(false)}
+          onClose={() => closeDialog(DIALOG_TYPES.AUTH)}
           onSuccess={() => {
             onSuccess();
-            dialogProps.onOpenChange(false);
+            closeDialog(DIALOG_TYPES.AUTH);
           }}
         />
       </div>

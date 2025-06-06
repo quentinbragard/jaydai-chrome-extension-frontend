@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
+import { useDialogStore } from '@/store/dialogStore';
 import { getMessage } from '@/core/utils/i18n';
 import { BaseDialog } from '../BaseDialog';
 
@@ -20,7 +20,8 @@ interface Settings {
  * Dialog for application settings
  */
 export const SettingsDialog: React.FC = () => {
-  const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.SETTINGS);
+  const isOpen = useDialogStore(state => state[DIALOG_TYPES.SETTINGS].isOpen);
+  const closeDialog = useDialogStore(state => state.closeDialog);
   const [settings, setSettings] = useState<Settings>({
     autoSave: true,
     autoSaveInterval: 60,
@@ -69,8 +70,7 @@ export const SettingsDialog: React.FC = () => {
           }
         });
         
-        // Close the dialog
-        dialogProps.onOpenChange(false);
+        closeDialog(DIALOG_TYPES.SETTINGS);
       });
     } catch (error) {
       console.error('Failed to save settings:', error);
@@ -86,7 +86,7 @@ export const SettingsDialog: React.FC = () => {
   };
 
   const handleCancel = () => {
-    dialogProps.onOpenChange(false);
+    closeDialog(DIALOG_TYPES.SETTINGS);
   };
   
   return (
@@ -96,7 +96,6 @@ export const SettingsDialog: React.FC = () => {
         if (!open) {
           handleCancel();
         }
-        dialogProps.onOpenChange(open);
       }}
       title={getMessage('settings', undefined, 'Settings')}
       description={getMessage('settingsDescription', undefined, 'Configure your application settings')}

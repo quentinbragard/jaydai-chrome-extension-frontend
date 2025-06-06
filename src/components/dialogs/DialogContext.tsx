@@ -1,6 +1,7 @@
 // src/components/dialogs/DialogContext.tsx
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { DialogType, DialogProps } from './DialogRegistry';
+import { useDialogStore } from '@/store/dialogStore';
 
 // Define the Dialog Manager context type
 interface DialogManagerContextType {
@@ -140,11 +141,13 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
     if (data !== undefined) {
       setDialogData(prev => ({ ...prev, [type]: data }));
     }
+    useDialogStore.getState().openDialog(type, data);
   }, []);
   
   const closeDialog = useCallback((type: DialogType) => {
     console.log(`Closing dialog: ${type}`);
     setOpenDialogs((prev: Record<DialogType, boolean>) => ({ ...prev, [type]: false }));
+    useDialogStore.getState().closeDialog(type);
   }, []);
   
   const isDialogOpen = useCallback((type: DialogType): boolean => {
