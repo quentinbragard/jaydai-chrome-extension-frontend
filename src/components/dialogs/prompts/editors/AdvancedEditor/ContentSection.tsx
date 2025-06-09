@@ -49,11 +49,15 @@ export const ContentSection: React.FC<ContentSectionProps> = ({
 
       <div className="jd-flex-1 jd-flex jd-flex-col jd-min-h-0 jd-space-y-4">
         {/* Main Content Block */}
-        {contentBlock && (
+        {contentBlock ? (
           <MainContentBlock
             block={contentBlock}
             onUpdateBlock={onUpdateBlock}
           />
+        ) : (
+          <div className="jd-flex jd-items-center jd-justify-center jd-min-h-[200px] jd-border jd-border-dashed jd-rounded-md jd-text-sm jd-text-muted-foreground">
+            No prompt content yet. Use the button below to add your first block.
+          </div>
         )}
 
         {/* Additional Blocks */}
