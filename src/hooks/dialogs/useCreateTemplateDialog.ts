@@ -32,7 +32,7 @@ import {
   updateMetadataItem,
   reorderMetadataItems
 } from './templateDialogUtils';
-import { prefillMetadataFromMapping } from '@/utils/templates/metadataPrefill';
+import { prefillMetadataFromMapping, parseMetadataIds } from '@/utils/templates/metadataPrefill';
 
 export function useCreateTemplateDialog() {
   const createDialog = useDialog('createTemplate');
@@ -82,6 +82,8 @@ export function useCreateTemplateDialog() {
         ]);
 
         if (currentTemplate.metadata) {
+          // Set IDs immediately so metadata cards show selections right away
+          setMetadata(parseMetadataIds(currentTemplate.metadata));
           prefillMetadataFromMapping(currentTemplate.metadata).then(setMetadata);
         }
       } else {

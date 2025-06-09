@@ -25,7 +25,7 @@ import {
   updateMetadataItem,
   reorderMetadataItems
 } from './templateDialogUtils';
-import { prefillMetadataFromMapping } from '@/utils/templates/metadataPrefill';
+import { prefillMetadataFromMapping, parseMetadataIds } from '@/utils/templates/metadataPrefill';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
@@ -64,14 +64,15 @@ export function useCustomizeTemplateDialog() {
           // ✅ Handle metadata properly
           if (data.metadata && Object.keys(data.metadata).length > 0) {
             console.log('Processing template metadata:', data.metadata);
+            // Set IDs immediately for UI selection
+            templateMetadata = parseMetadataIds(data.metadata);
             try {
-              // Convert the metadata mapping back to metadata structure
+              // Convert the metadata mapping back to full metadata structure
               templateMetadata = await prefillMetadataFromMapping(data.metadata);
               console.log('Prefilled metadata:', templateMetadata);
             } catch (metadataError) {
               console.error('Error processing metadata:', metadataError);
-              // Don't fail completely, just use default metadata
-              templateMetadata = { ...DEFAULT_METADATA };
+              // Don't fail completely, just use IDs-only metadata
             }
           }
 
