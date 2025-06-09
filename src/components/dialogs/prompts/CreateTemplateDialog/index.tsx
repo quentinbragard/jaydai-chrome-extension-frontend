@@ -48,14 +48,10 @@ export const CreateTemplateDialog: React.FC = () => {
 
           <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto jd-mt-4">
             <AdvancedEditor
-              blocks={dialog.blocks}
+              content={dialog.content}
               metadata={dialog.metadata}
-              onAddBlock={dialog.handleAddBlock}
-              onRemoveBlock={dialog.handleRemoveBlock}
-              onUpdateBlock={dialog.handleUpdateBlock}
-              onReorderBlocks={dialog.handleReorderBlocks}
+              onContentChange={dialog.setContent}
               onUpdateMetadata={dialog.handleUpdateMetadata}
-              isProcessing={false}
             />
           </TabsContent>
         </Tabs>

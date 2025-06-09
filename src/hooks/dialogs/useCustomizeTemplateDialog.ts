@@ -31,6 +31,7 @@ import { prefillMetadataFromMapping } from '@/utils/templates/metadataPrefill';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
+  const [content, setContent] = useState('');
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [metadata, setMetadata] = useState<PromptMetadata>(DEFAULT_METADATA);
   const [error, setError] = useState<string | null>(null);
@@ -47,12 +48,15 @@ export function useCustomizeTemplateDialog() {
 
         if (data.content) {
           const contentString = getLocalizedContent(data.content);
+          setContent(contentString);
           templateBlocks = [{
             id: Date.now(),
             type: 'custom',
             content: contentString,
             title: { en: 'Template Content' }
           }];
+        } else {
+          setContent('');
         }
 
         setBlocks(templateBlocks);
@@ -166,7 +170,15 @@ export function useCustomizeTemplateDialog() {
   };
 
   const handleUpdateBlock = (blockId: number, updatedBlock: Partial<Block>) => {
-    setBlocks(prev => updateBlockUtil(prev, blockId, updatedBlock));
+    setBlocks(prev => {
+      const newBlocks = updateBlockUtil(prev, blockId, updatedBlock);
+      if (newBlocks.length > 0 && newBlocks[0].id === blockId) {
+        const first = newBlocks[0];
+        const newContent = typeof first.content === 'string' ? first.content : getLocalizedContent(first.content);
+        setContent(newContent);
+      }
+      return newBlocks;
+    });
   };
 
   const handleMoveBlock = (blockId: number, direction: 'up' | 'down') => {
@@ -241,6 +253,8 @@ export function useCustomizeTemplateDialog() {
   return {
     isOpen,
     error,
+    content,
+    setContent,
     blocks,
     metadata,
     isProcessing,

@@ -1,64 +1,40 @@
-// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx
-import React, { useState, useEffect } from 'react';
-import { Block, BlockType } from '@/types/prompts/blocks';
-import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
-import { blocksApi } from '@/services/api/BlocksApi';
-import { useThemeDetector } from '@/hooks/useThemeDetector';
+import React, { useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/core/utils/classNames';
-import { BLOCK_TYPES } from '../../../prompts/blocks/blockUtils';
-
+import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
 import { MetadataSection } from './MetadataSection';
 import { SeparatedPreviewSection } from './SeparatedPreviewSection';
-import { ContentSection } from './ContentSection';
-import { useAdvancedEditorLogic } from '@/hooks/prompts/editors/useAdvancedEditorLogic';
+import { buildCompletePromptPreview } from '@/components/prompts/promptUtils';
+import { highlightPlaceholders } from '@/utils/templates/placeholderHelpers';
+import { useSimpleMetadata } from '@/hooks/prompts/editors/useSimpleMetadata';
 
 interface AdvancedEditorProps {
-  blocks: Block[];
+  content: string;
   metadata?: PromptMetadata;
-  onAddBlock: (
-    position: 'start' | 'end',
-    blockType?: BlockType | null,
-    existingBlock?: Block,
-    duplicate?: boolean
-  ) => void;
-  onRemoveBlock: (blockId: number) => void;
-  onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
-  onReorderBlocks: (blocks: Block[]) => void;
+  onContentChange: (value: string) => void;
   onUpdateMetadata?: (metadata: PromptMetadata) => void;
-  isProcessing: boolean;
+  isProcessing?: boolean;
 }
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
-  blocks,
+  content,
   metadata = DEFAULT_METADATA,
-  onAddBlock,
-  onRemoveBlock,
-  onUpdateBlock,
-  onReorderBlocks,
+  onContentChange,
   onUpdateMetadata,
-  isProcessing
+  isProcessing = false
 }) => {
   const isDarkMode = useThemeDetector();
-  
+  const [showPreview, setShowPreview] = useState(false);
+
   const {
-    // Available blocks state
-    availableMetadataBlocks,
-    availableBlocksByType,
-    
-    // UI state
     expandedMetadata,
     setExpandedMetadata,
-    previewExpanded,
-    setPreviewExpanded,
     activeSecondaryMetadata,
-    
-    // Collapsible sections
     metadataCollapsed,
     setMetadataCollapsed,
     secondaryMetadataCollapsed,
     setSecondaryMetadataCollapsed,
-    
-    // Metadata handlers
     handleSingleMetadataChange,
     handleCustomChange,
     handleAddMetadataItem,
@@ -66,37 +42,20 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     handleUpdateMetadataItem,
     handleReorderMetadataItems,
     addSecondaryMetadata,
-    removeSecondaryMetadata,
-    
-    // Block handlers
-    draggedBlockId,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
-    handleBlockSaved,
-    handleMetadataBlockSaved,
-    
-    // Preview content generation
-    generatePreviewContent,
-    generatePreviewHtml,
-    
-    // Get metadata block mapping for template saving
-    getMetadataBlockMapping
-  } = useAdvancedEditorLogic({
-    metadata,
-    onUpdateMetadata,
-    blocks,
-    onUpdateBlock,
-    onReorderBlocks
-  });
+    removeSecondaryMetadata
+  } = useSimpleMetadata({ metadata, onUpdateMetadata });
 
   if (isProcessing) {
     return (
       <div className="jd-flex jd-items-center jd-justify-center jd-h-full">
-        <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
+        <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full" />
       </div>
     );
   }
+
+  const previewHtml = highlightPlaceholders(
+    buildCompletePromptPreview(metadata, [{ id: 1, type: 'custom', content }])
+  );
 
   return (
     <div
@@ -107,28 +66,9 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
       )}
     >
-      {/* Animated background mesh */}
-      <div className="jd-absolute jd-inset-0 jd-opacity-10">
-        <div className={cn(
-          'jd-absolute jd-inset-0',
-          isDarkMode
-            ? 'jd-bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] jd-from-purple-900 jd-via-transparent jd-to-transparent'
-            : 'jd-bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] jd-from-purple-200 jd-via-transparent jd-to-transparent'
-        )}></div>
-        <div className={cn(
-          'jd-absolute jd-inset-0',
-          isDarkMode
-            ? 'jd-bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] jd-from-blue-900 jd-via-transparent jd-to-transparent'
-            : 'jd-bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] jd-from-blue-200 jd-via-transparent jd-to-transparent'
-        )}></div>
-      </div>
-
-      {/* Content wrapper */}
-      <div className="jd-relative jd-z-10 jd-flex-1 jd-flex jd-flex-col jd-space-y-4 jd-p-6 jd-overflow-hidden">
-        
-        {/* Metadata Section */}
+      <div className="jd-relative jd-z-10 jd-flex-1 jd-flex jd-flex-col jd-space-y-4 jd-p-6 jd-overflow-y-auto">
         <MetadataSection
-          availableMetadataBlocks={availableMetadataBlocks}
+          availableMetadataBlocks={{}}
           metadata={metadata}
           expandedMetadata={expandedMetadata}
           setExpandedMetadata={setExpandedMetadata}
@@ -145,34 +85,31 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           onReorderMetadataItems={handleReorderMetadataItems}
           onAddSecondaryMetadata={addSecondaryMetadata}
           onRemoveSecondaryMetadata={removeSecondaryMetadata}
-          onSaveBlock={handleMetadataBlockSaved}
+          onSaveBlock={() => {}}
         />
 
-        {/* Content Section */}
-        <ContentSection
-          blocks={blocks}
-          availableBlocksByType={availableBlocksByType}
-          draggedBlockId={draggedBlockId}
-          onAddBlock={onAddBlock}
-          onRemoveBlock={onRemoveBlock}
-          onUpdateBlock={onUpdateBlock}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-          onBlockSaved={handleBlockSaved}
-        />
+        <div className="jd-space-y-2">
+          <h3 className="jd-text-lg jd-font-semibold">Main Content</h3>
+          <Textarea
+            value={content}
+            onChange={e => onContentChange(e.target.value)}
+            className="jd-min-h-[200px] jd-text-sm jd-resize-none"
+            placeholder="Enter prompt content..."
+          />
+        </div>
 
-        {/* Preview Section */}
-        {(() => {
-          const { before, content, after } = generateSeparatedPreviewHtml();
-          return (
-            <SeparatedPreviewSection
-              beforeHtml={before}
-              contentHtml={content}
-              afterHtml={after}
-            />
-          );
-        })()}
+        <div className="jd-pt-2">
+          <button
+            className="jd-px-3 jd-py-2 jd-rounded jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90 jd-transition"
+            onClick={() => setShowPreview(prev => !prev)}
+          >
+            {showPreview ? 'Hide Preview' : 'Show Preview'}
+          </button>
+        </div>
+
+        {showPreview && (
+          <SeparatedPreviewSection beforeHtml="" contentHtml={previewHtml} afterHtml="" />
+        )}
       </div>
     </div>
   );
