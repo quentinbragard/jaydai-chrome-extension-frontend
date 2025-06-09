@@ -22,6 +22,8 @@ import { highlightPlaceholders } from '@/utils/templates/placeholderUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { buildPromptPartHtml, BLOCK_TYPES } from '@/components/prompts/blocks/blockUtils';
 
+const PRIMARY_ORDER: SingleMetadataType[] = ['role', 'context', 'goal'];
+
 interface UseAdvancedEditorLogicProps {
   metadata: PromptMetadata;
   onUpdateMetadata?: (metadata: PromptMetadata) => void;
@@ -480,6 +482,56 @@ export function useAdvancedEditorLogic({
     return mapping;
   }, [metadata]);
 
+  const generateSeparatedPreviewHtml = useCallback(() => {
+    const beforeParts: string[] = [];
+    const afterParts: string[] = [];
+
+    PRIMARY_ORDER.forEach(type => {
+      const value = metadata.values?.[type];
+      if (value) {
+        beforeParts.push(formatMetadataForPreview(type, value));
+      }
+    });
+
+    const remainingSingle = [
+      ...PRIMARY_METADATA.filter(t => !PRIMARY_ORDER.includes(t as SingleMetadataType)),
+      ...SECONDARY_METADATA.filter(t => !isMultipleMetadataType(t))
+    ] as SingleMetadataType[];
+
+    remainingSingle.forEach(type => {
+      const value = metadata.values?.[type];
+      if (value) {
+        afterParts.push(formatMetadataForPreview(type, value));
+      }
+    });
+
+    if (metadata.constraints) {
+      metadata.constraints.forEach((c, i) => {
+        if (c.value) {
+          afterParts.push(formatMetadataForPreview('constraint' as any, `${i + 1}. ${c.value}`));
+        }
+      });
+    }
+
+    if (metadata.examples) {
+      metadata.examples.forEach((e, i) => {
+        if (e.value) {
+          afterParts.push(formatMetadataForPreview('example' as any, `Example ${i + 1}: ${e.value}`));
+        }
+      });
+    }
+
+    const contentParts = blocks
+      .map(b => formatBlockForPreview(b))
+      .filter(Boolean);
+
+    return {
+      before: highlightPlaceholders(beforeParts.join('<br><br>')),
+      content: highlightPlaceholders(contentParts.join('<br><br>')),
+      after: highlightPlaceholders(afterParts.join('<br><br>'))
+    };
+  }, [metadata, blocks]);
+
   return {
     // Available blocks state
     availableMetadataBlocks,
@@ -521,6 +573,8 @@ export function useAdvancedEditorLogic({
     // Preview content generation
     generatePreviewContent,
     generatePreviewHtml,
+
+    generateSeparatedPreviewHtml,
     
     // FIXED: Metadata block mapping (ONLY metadata blocks)
     getMetadataBlockMapping
