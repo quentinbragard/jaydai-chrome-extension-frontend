@@ -148,19 +148,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           onSaveBlock={handleMetadataBlockSaved}
         />
 
-        {/* Content Section */}
-        <ContentSection
-          blocks={blocks}
-          availableBlocksByType={availableBlocksByType}
-          draggedBlockId={draggedBlockId}
-          onAddBlock={onAddBlock}
-          onRemoveBlock={onRemoveBlock}
-          onUpdateBlock={onUpdateBlock}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-          onBlockSaved={handleBlockSaved}
-        />
+       
 
         {/* Preview Section */}
         {(() => {
