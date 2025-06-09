@@ -1,6 +1,7 @@
-// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Complete Fixed Version
+// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Completely Fixed Version
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { 
@@ -18,6 +19,7 @@ import { useSimpleMetadata } from '@/hooks/prompts/editors/useSimpleMetadata';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { BLOCK_TYPES, getBlockTextColors } from '@/components/prompts/blocks/blockUtils';
+import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface AdvancedEditorProps {
   content: string;
@@ -35,6 +37,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   isProcessing = false
 }) => {
   const isDarkMode = useThemeDetector();
+  const [showPreview, setShowPreview] = useState(false);
   
   // State for available metadata blocks
   const [availableMetadataBlocks, setAvailableMetadataBlocks] = useState<Record<MetadataType, Block[]>>({} as Record<MetadataType, Block[]>);
@@ -59,7 +62,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     removeSecondaryMetadata
   } = useSimpleMetadata({ metadata, onUpdateMetadata });
 
-  // Define helper functions as constants inside component to avoid hoisting issues
+  // Define all helper functions using useCallback to avoid hoisting issues
   const getMetadataPrefix = useCallback((type: string): string => {
     const prefixes: Record<string, string> = {
       role: 'Ton rôle est de',
@@ -85,7 +88,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     const prefix = getMetadataPrefix(type);
     if (!prefix) return '';
     
-    // Get the block type from metadata config to determine color
     const metadataConfig = METADATA_CONFIGS[type as MetadataType];
     const blockType = metadataConfig?.blockType || 'custom';
     const colorClass = getBlockTextColors(blockType, isDarkMode);
@@ -100,7 +102,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       try {
         const blockMap: Record<BlockType, Block[]> = {} as any;
         
-        // Load blocks for each block type
         await Promise.all(
           BLOCK_TYPES.map(async (blockType) => {
             try {
@@ -113,7 +114,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           })
         );
 
-        // Map block types to metadata types
         const metadataBlocks: Record<MetadataType, Block[]> = {} as any;
         Object.keys(METADATA_CONFIGS).forEach((type) => {
           const metadataType = type as MetadataType;
@@ -123,13 +123,12 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
         setAvailableMetadataBlocks(metadataBlocks);
 
-        // Build block content cache for quick lookup
         const cache: Record<number, string> = {};
         Object.values(blockMap).flat().forEach(block => {
-          const content = typeof block.content === 'string' 
+          const blockContent = typeof block.content === 'string' 
             ? block.content 
             : block.content?.en || '';
-          cache[block.id] = content;
+          cache[block.id] = blockContent;
         });
         setBlockContentCache(cache);
 
@@ -143,9 +142,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     fetchBlocks();
   }, []);
 
-  // Handle block saving
   const handleSaveBlock = useCallback((block: Block) => {
-    // Add to available blocks for future use
     Object.entries(METADATA_CONFIGS).forEach(([metaType, cfg]) => {
       if (cfg.blockType === block.type) {
         setAvailableMetadataBlocks(prev => ({
@@ -155,21 +152,19 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       }
     });
 
-    // Update cache
-    const content = typeof block.content === 'string' 
+    const blockContent = typeof block.content === 'string' 
       ? block.content 
       : block.content?.en || '';
     setBlockContentCache(prev => ({
       ...prev,
-      [block.id]: content
+      [block.id]: blockContent
     }));
   }, []);
 
-  // Enhanced function to build preview with resolved block content (plain text)
+  // Build preview content with all dependencies defined
   const buildEnhancedPreview = useMemo(() => {
     const parts: string[] = [];
 
-    // Helper function to get block content by ID
     const getBlockContentById = (blockId: number): string => {
       return blockContentCache[blockId] || '';
     };
@@ -177,8 +172,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     // Add primary metadata
     ['role', 'context', 'goal'].forEach(type => {
       const metaType = type as SingleMetadataType;
-      
-      // Check if it's a block ID or custom value
       const blockId = metadata[metaType];
       const customValue = metadata.values?.[metaType];
       
@@ -199,7 +192,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     ['audience', 'output_format', 'tone_style'].forEach(type => {
       if (activeSecondaryMetadata.has(type as MetadataType)) {
         const metaType = type as SingleMetadataType;
-        
         const blockId = metadata[metaType];
         const customValue = metadata.values?.[metaType];
         
@@ -217,7 +209,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       }
     });
 
-    // Add multiple metadata (constraints, examples)
+    // Add constraints and examples
     if (metadata.constraints && metadata.constraints.length > 0) {
       metadata.constraints.forEach(item => {
         if (item.value.trim()) {
@@ -234,7 +226,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       });
     }
 
-    // Add main content
     if (content.trim()) {
       parts.push(content);
     }
@@ -242,20 +233,17 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     return parts.filter(Boolean).join('\n\n');
   }, [metadata, activeSecondaryMetadata, content, blockContentCache, getMetadataPrefix]);
 
-  // Enhanced function to build HTML preview with colors like InsertBlockDialog
+  // Build HTML preview with colors - all dependencies included
   const buildEnhancedPreviewHtml = useMemo(() => {
     const parts: string[] = [];
 
-    // Helper function to get block content by ID
     const getBlockContentById = (blockId: number): string => {
       return blockContentCache[blockId] || '';
     };
 
-    // Add primary metadata with colored prefixes
+    // Add primary metadata with colors
     ['role', 'context', 'goal'].forEach(type => {
       const metaType = type as SingleMetadataType;
-      
-      // Check if it's a block ID or custom value
       const blockId = metadata[metaType];
       const customValue = metadata.values?.[metaType];
       
@@ -273,11 +261,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       }
     });
 
-    // Add secondary metadata with colored prefixes
+    // Add secondary metadata with colors
     ['audience', 'output_format', 'tone_style'].forEach(type => {
       if (activeSecondaryMetadata.has(type as MetadataType)) {
         const metaType = type as SingleMetadataType;
-        
         const blockId = metadata[metaType];
         const customValue = metadata.values?.[metaType];
         
@@ -296,7 +283,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       }
     });
 
-    // Add multiple metadata with colored prefixes
+    // Add constraints and examples with colors
     if (metadata.constraints && metadata.constraints.length > 0) {
       metadata.constraints.forEach(item => {
         if (item.value.trim()) {
@@ -317,7 +304,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       });
     }
 
-    // Add main content
     if (content.trim()) {
       parts.push(escapeHtml(content));
     }
@@ -325,14 +311,17 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     return parts.filter(Boolean).join('<br><br>');
   }, [metadata, activeSecondaryMetadata, content, blockContentCache, isDarkMode, getMetadataPrefixHtml, escapeHtml]);
 
-  // Generate final HTML preview with highlighting
+  // Generate final HTML with placeholder highlighting
   const previewHtml = useMemo(() => {
     const htmlContent = buildEnhancedPreviewHtml;
-    // Apply placeholder highlighting to the HTML content
     return htmlContent.replace(/\[([^\]]+)\]/g, 
       '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
     );
   }, [buildEnhancedPreviewHtml]);
+
+  const togglePreview = () => {
+    setShowPreview(prev => !prev);
+  };
 
   if (isProcessing || blocksLoading) {
     return (
@@ -434,23 +423,66 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           />
         </div>
 
-        {/* 4. PREVIEW SECTION - Always visible like InsertBlockDialog */}
+        {/* 4. PREVIEW TOGGLE BUTTON */}
         <div className="jd-flex-shrink-0 jd-pt-4 jd-border-t">
-          <div className="jd-space-y-3">
-            <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-              <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
-              Preview
-              <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground jd-ml-auto">
+          <Button
+            onClick={togglePreview}
+            variant="outline"
+            className={cn(
+              'jd-w-full jd-transition-all jd-duration-300 jd-group',
+              'hover:jd-shadow-lg hover:jd-scale-[1.02]',
+              showPreview 
+                ? 'jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90' 
+                : 'jd-bg-background hover:jd-bg-muted'
+            )}
+          >
+            <div className="jd-flex jd-items-center jd-gap-2">
+              {showPreview ? (
+                <>
+                  <EyeOff className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-scale-110" />
+                  <span>Hide Preview</span>
+                  <ChevronUp className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
+                </>
+              ) : (
+                <>
+                  <Eye className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-scale-110" />
+                  <span>Show Preview</span>
+                  <ChevronDown className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
+                </>
+              )}
+              <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-ml-auto">
                 <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
                 <span>Placeholders</span>
               </div>
-            </h3>
-            <EditablePromptPreview
-              content={buildEnhancedPreview}
-              htmlContent={previewHtml}
-              isDark={isDarkMode}
-              // No onChange to make it read-only like in InsertBlockDialog preview mode
-            />
+            </div>
+          </Button>
+        </div>
+
+        {/* 5. ANIMATED PREVIEW SECTION */}
+        <div 
+          className={cn(
+            'jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out',
+            showPreview ? 'jd-max-h-[500px] jd-opacity-100' : 'jd-max-h-0 jd-opacity-0'
+          )}
+        >
+          <div className={cn(
+            'jd-transform jd-transition-all jd-duration-500 jd-ease-in-out',
+            showPreview ? 'jd-translate-y-0' : 'jd--translate-y-4'
+          )}>
+            <div className="jd-space-y-3 jd-pt-4">
+              <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
+                <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full jd-animate-pulse"></span>
+                Preview
+              </h3>
+              <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-green-500/20 jd-to-teal-500/20">
+                <EditablePromptPreview
+                  content={buildEnhancedPreview}
+                  htmlContent={previewHtml}
+                  isDark={isDarkMode}
+                  enableAdvancedEditing={true}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

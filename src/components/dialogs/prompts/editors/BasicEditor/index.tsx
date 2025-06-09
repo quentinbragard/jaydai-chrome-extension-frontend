@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Enhanced for consistency
+// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Enhanced with block colors
 import React from 'react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { highlightPlaceholders } from '@/utils/templates/placeholderHelpers';
@@ -8,6 +8,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
 import { useBasicEditorLogic } from '@/hooks/prompts/editors/useBasicEditorLogic';
+import { getBlockTextColors } from '@/components/prompts/blocks/blockUtils';
 
 interface BasicEditorProps {
   content: string;
@@ -18,8 +19,81 @@ interface BasicEditorProps {
   isProcessing?: boolean;
 }
 
+// Helper functions for colored preview (same as AdvancedEditor)
+const escapeHtml = (str: string): string => {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
+
+const buildColoredPreviewHtml = (content: string, isDarkMode: boolean): string => {
+  if (!content) {
+    return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
+  }
+
+  // Enhanced pattern matching for block types with colors
+  let htmlContent = escapeHtml(content);
+
+  // Apply colored prefixes for common patterns
+  const patterns = [
+    { 
+      regex: /(Ton rôle est de|Role:|Rôle:)/gi, 
+      blockType: 'role' 
+    },
+    { 
+      regex: /(Le contexte est|Context:|Contexte:)/gi, 
+      blockType: 'context' 
+    },
+    { 
+      regex: /(Ton objectif est|Goal:|Objectif:)/gi, 
+      blockType: 'goal' 
+    },
+    { 
+      regex: /(L'audience ciblée est|Audience:|Public cible:)/gi, 
+      blockType: 'audience' 
+    },
+    { 
+      regex: /(Le format attendu est|Output format:|Format de sortie:)/gi, 
+      blockType: 'output_format' 
+    },
+    { 
+      regex: /(Le ton et style sont|Tone:|Style:)/gi, 
+      blockType: 'tone_style' 
+    },
+    { 
+      regex: /(Contrainte:|Constraint:)/gi, 
+      blockType: 'constraint' 
+    },
+    { 
+      regex: /(Exemple:|Example:)/gi, 
+      blockType: 'example' 
+    }
+  ];
+
+  // Apply colors to each pattern
+  patterns.forEach(({ regex, blockType }) => {
+    const colorClass = getBlockTextColors(blockType as any, isDarkMode);
+    htmlContent = htmlContent.replace(regex, (match) => {
+      return `<span class="${colorClass} jd-font-semibold">${match}</span>`;
+    });
+  });
+
+  // Convert line breaks
+  htmlContent = htmlContent.replace(/\n/g, '<br>');
+
+  // Apply placeholder highlighting
+  htmlContent = htmlContent.replace(/\[([^\]]+)\]/g, 
+    '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
+  );
+
+  return htmlContent;
+};
+
 /**
- * Basic editor mode - Simple placeholder and content editing with enhanced preview consistency
+ * Basic editor mode - Simple placeholder and content editing with enhanced preview consistency and colors
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   content,
@@ -56,7 +130,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   });
 
   const isDark = useThemeDetector();
-  const previewHtml = highlightPlaceholders(modifiedContent);
+  
+  // Build colored HTML preview
+  const coloredPreviewHtml = buildColoredPreviewHtml(modifiedContent, isDark);
 
   if (isProcessing) {
     return (
@@ -67,7 +143,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     );
   }
 
-  // For create mode, show only the editor with preview below
+  // For create mode, show only the editor with colored preview below
   if (mode === 'create') {
     return (
       <div className="jd-h-full jd-flex jd-flex-col jd-p-4 jd-space-y-4">
@@ -89,7 +165,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           />
         </div>
         
-        {/* Preview Section - Consistent with other editors */}
+        {/* Enhanced Preview Section with Colors */}
         <div className="jd-flex-shrink-0 jd-pt-4 jd-border-t">
           <div className="jd-space-y-3">
             <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
@@ -100,19 +176,21 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                 <span>Placeholders</span>
               </div>
             </h3>
-            <EditablePromptPreview
-              content={modifiedContent}
-              htmlContent={previewHtml}
-              isDark={isDark}
-              // No onChange for read-only preview like InsertBlockDialog
-            />
+            <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-green-500/10 jd-to-teal-500/10">
+              <EditablePromptPreview
+                content={modifiedContent}
+                htmlContent={coloredPreviewHtml}
+                isDark={isDark}
+                // No onChange for read-only preview
+              />
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  // For customize mode, show the full interface with placeholders
+  // For customize mode, show the full interface with placeholders and colored previews
   return (
     <div className="jd-h-full jd-flex jd-flex-1 jd-overflow-hidden">
       <ResizablePanelGroup direction="horizontal" className="jd-h-full jd-w-full">
@@ -147,7 +225,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               />
             </div>
             
-            {/* Enhanced Preview Section */}
+            {/* Enhanced Preview Section with Colors */}
             <div className="jd-flex-shrink-0 jd-mt-4 jd-pt-4 jd-border-t">
               <div className="jd-space-y-3">
                 <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
@@ -158,12 +236,14 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                     <span>Placeholders</span>
                   </div>
                 </h3>
-                <EditablePromptPreview
-                  content={modifiedContent}
-                  htmlContent={previewHtml}
-                  onChange={onContentChange} // Allow editing in customize mode
-                  isDark={isDark}
-                />
+                <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-green-500/10 jd-to-teal-500/10">
+                  <EditablePromptPreview
+                    content={modifiedContent}
+                    htmlContent={coloredPreviewHtml}
+                    onChange={onContentChange} // Allow editing in customize mode
+                    isDark={isDark}
+                  />
+                </div>
               </div>
             </div>
           </div>
