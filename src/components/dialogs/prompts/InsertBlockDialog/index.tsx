@@ -20,6 +20,7 @@ import {
   getBlockIconColors,
   BLOCK_TYPES
 } from '@/components/prompts/blocks/blockUtils';
+import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
 import { 
@@ -210,147 +211,6 @@ const InlineBlockCreator: React.FC<{
   );
 };
 
-// Editable preview component with placeholder highlighting and colors
-const EditablePreview: React.FC<{
-  content: string;
-  htmlContent: string;
-  onChange: (content: string) => void;
-  isDark: boolean;
-}> = ({ content, htmlContent, onChange, isDark }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const editorRef = React.useRef<HTMLDivElement>(null);
-
-  const highlightPlaceholders = (text: string) => {
-    if (!text) return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
-    
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\n/g, '<br>')
-      .replace(
-        /\[(.*?)\]/g, 
-        `<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>`
-      );
-  };
-
-  // Update display when not editing
-  React.useEffect(() => {
-    if (editorRef.current && !isEditing) {
-      if (htmlContent && htmlContent.trim()) {
-        const coloredWithPlaceholders = htmlContent.replace(
-          /\[(.*?)\]/g, 
-          `<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>`
-        );
-        editorRef.current.innerHTML = coloredWithPlaceholders;
-      } else {
-        editorRef.current.innerHTML = highlightPlaceholders(content);
-      }
-    }
-  }, [content, htmlContent, isEditing]);
-
-  // Set up editing mode when it changes
-  React.useEffect(() => {
-    if (isEditing && editorRef.current) {
-      // Convert to plain text for editing
-      editorRef.current.textContent = content;
-      editorRef.current.focus();
-
-      // Place cursor at the end
-      setTimeout(() => {
-        if (editorRef.current) {
-          const range = document.createRange();
-          const selection = window.getSelection();
-          range.selectNodeContents(editorRef.current);
-          range.collapse(false);
-          selection?.removeAllRanges();
-          selection?.addRange(range);
-        }
-      }, 0);
-    }
-    // Only run when entering edit mode to preserve cursor position during typing
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditing]);
-
-  const startEditing = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsEditing(true);
-  };
-
-  const stopEditing = () => {
-    if (isEditing && editorRef.current) {
-      const newContent = editorRef.current.textContent || '';
-      onChange(newContent);
-      setIsEditing(false);
-    }
-  };
-
-  const handleInput = () => {
-    if (isEditing && editorRef.current) {
-      const newContent = editorRef.current.textContent || '';
-      onChange(newContent);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // CRITICAL: Stop all key events from bubbling up to prevent dialog from closing
-    e.stopPropagation();
-    
-    if (isEditing && e.key === 'Escape') {
-      e.preventDefault();
-      stopEditing();
-      return;
-    }
-    
-    // Let all other keys work naturally for contentEditable
-  };
-
-  const handleBlur = (e: React.FocusEvent) => {
-    // Only stop editing if focus is going outside the editor
-    const relatedTarget = e.relatedTarget as HTMLElement;
-    if (!editorRef.current?.contains(relatedTarget)) {
-      stopEditing();
-    }
-  };
-
-  return (
-    <div
-      ref={editorRef}
-      contentEditable={isEditing}
-      onClick={!isEditing ? startEditing : undefined}
-      onBlur={handleBlur}
-      onInput={handleInput}
-      onKeyDown={handleKeyDown}
-      // Stop all events from bubbling to prevent interference
-      onKeyPress={(e) => e.stopPropagation()}
-      onKeyUp={(e) => e.stopPropagation()}
-      className={cn(
-        'jd-min-h-[200px] jd-p-4 jd-rounded-lg jd-border jd-text-sm jd-leading-relaxed',
-        'jd-whitespace-pre-wrap jd-break-words jd-transition-all jd-duration-200',
-        'focus:jd-outline-none',
-        isEditing 
-          ? 'jd-ring-2 jd-ring-primary/50 jd-cursor-text jd-bg-opacity-95' 
-          : 'jd-cursor-pointer hover:jd-bg-muted/10 hover:jd-border-primary/30',
-        isDark 
-          ? 'jd-bg-gray-800 jd-border-gray-700 jd-text-white' 
-          : 'jd-bg-white jd-border-gray-200 jd-text-gray-900'
-      )}
-      style={{ 
-        minHeight: '200px',
-        wordBreak: 'break-word',
-        // Ensure text is visible while editing
-        ...(isEditing && {
-          color: isDark ? '#ffffff' : '#000000',
-          backgroundColor: isDark ? '#1f2937' : '#ffffff'
-        })
-      }}
-      suppressContentEditableWarning={true}
-      title={isEditing ? 'Press Escape to finish editing' : 'Click to edit your prompt'}
-      spellCheck={false}
-    />
-  );
-};
 
 export const InsertBlockDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.INSERT_BLOCK);
@@ -712,7 +572,7 @@ export const InsertBlockDialog: React.FC = () => {
                   </div>
                   <ScrollArea className="jd-h-full">
                     <div className="jd-pr-4">
-                      <EditablePreview
+                      <EditablePromptPreview
                         content={editableContent}
                         htmlContent={generateFullPromptHtml()}
                         onChange={handleEditableContentChange}

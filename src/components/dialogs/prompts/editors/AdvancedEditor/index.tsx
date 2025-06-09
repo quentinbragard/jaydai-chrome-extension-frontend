@@ -5,8 +5,8 @@ import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { PromptMetadata, DEFAULT_METADATA, MetadataType, METADATA_CONFIGS } from '@/types/prompts/metadata';
 import { MetadataSection } from './MetadataSection';
-import { SeparatedPreviewSection } from './SeparatedPreviewSection';
-import { buildCompletePromptPreview } from '@/components/prompts/promptUtils';
+import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
+import { buildCompletePrompt, buildCompletePromptPreview } from '@/components/prompts/promptUtils';
 import { highlightPlaceholders } from '@/utils/templates/placeholderHelpers';
 import { useSimpleMetadata } from '@/hooks/prompts/editors/useSimpleMetadata';
 import { blocksApi } from '@/services/api/BlocksApi';
@@ -119,6 +119,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const previewHtml = highlightPlaceholders(
     buildCompletePromptPreview(metadata, [{ id: 1, type: 'custom', content }])
   );
+  const previewText = buildCompletePrompt(metadata, [{ id: 1, type: 'custom', content }]);
 
   return (
     <div
@@ -227,10 +228,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
         {/* 5. PREVIEW SECTION (when enabled) */}
         {showPreview && (
-          <SeparatedPreviewSection 
-            beforeHtml="" 
-            contentHtml={previewHtml} 
-            afterHtml="" 
+          <EditablePromptPreview
+            content={previewText}
+            htmlContent={previewHtml}
+            isDark={isDarkMode}
           />
         )}
       </div>

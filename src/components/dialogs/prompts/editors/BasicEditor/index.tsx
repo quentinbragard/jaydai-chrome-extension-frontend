@@ -1,5 +1,8 @@
 // src/components/dialogs/prompts/editors/BasicEditor/index.tsx
 import React from 'react';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { highlightPlaceholders } from '@/utils/templates/placeholderHelpers';
+import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { PromptMetadata } from '@/types/prompts/metadata';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PlaceholderPanel } from './PlaceholderPanel';
@@ -52,6 +55,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     onContentChange,
     mode
   });
+
+  const isDark = useThemeDetector();
+  const previewHtml = highlightPlaceholders(modifiedContent);
 
   if (isProcessing) {
     return (
@@ -111,6 +117,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               onKeyUp={handleEditorKeyUp}
               className="jd-flex-1"
             />
+            <div className="jd-mt-4">
+              <EditablePromptPreview
+                content={modifiedContent}
+                htmlContent={previewHtml}
+                isDark={isDark}
+              />
+            </div>
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
