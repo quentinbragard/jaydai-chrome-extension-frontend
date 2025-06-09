@@ -50,6 +50,8 @@ export const CreateTemplateDialog: React.FC = () => {
             <AdvancedEditor
               blocks={dialog.blocks}
               metadata={dialog.metadata}
+              onAddBlock={dialog.handleAddBlock}
+              onRemoveBlock={dialog.handleRemoveBlock}
               onUpdateBlock={dialog.handleUpdateBlock}
               onReorderBlocks={dialog.handleReorderBlocks}
               onUpdateMetadata={dialog.handleUpdateMetadata}
