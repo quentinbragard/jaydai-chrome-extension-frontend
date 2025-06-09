@@ -1,9 +1,9 @@
 // src/utils/templates/metadataPrefill.ts
 import { blocksApi } from '@/services/api/BlocksApi';
-import { 
-  PromptMetadata, 
-  DEFAULT_METADATA, 
-  PRIMARY_METADATA, 
+import {
+  PromptMetadata,
+  DEFAULT_METADATA,
+  PRIMARY_METADATA,
   SECONDARY_METADATA,
   SingleMetadataType,
   MultipleMetadataType,
@@ -11,6 +11,39 @@ import {
   generateMetadataItemId
 } from '@/types/prompts/metadata';
 import { getCurrentLanguage } from '@/core/utils/i18n';
+
+// Quickly convert a metadata mapping to a PromptMetadata object using only IDs.
+// This allows dialogs to immediately display selected metadata before block
+// content has been fetched.
+export function parseMetadataIds(
+  metadataMapping: Record<string, number | number[]>
+): PromptMetadata {
+  const metadata: PromptMetadata = {
+    ...DEFAULT_METADATA,
+    values: {}
+  };
+
+  for (const [type, value] of Object.entries(metadataMapping)) {
+    if (typeof value === 'number') {
+      if (value && value > 0) {
+        (metadata as any)[type] = value;
+      }
+    } else if (Array.isArray(value)) {
+      const items = value
+        .filter(id => id && typeof id === 'number' && id > 0)
+        .map(id => ({
+          id: generateMetadataItemId(),
+          blockId: id,
+          value: ''
+        }));
+      if (items.length > 0) {
+        (metadata as any)[type] = items;
+      }
+    }
+  }
+
+  return metadata;
+}
 
 export async function prefillMetadataFromMapping(
   metadataMapping: Record<string, number | number[]>
