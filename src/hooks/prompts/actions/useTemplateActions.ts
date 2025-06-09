@@ -128,16 +128,13 @@ const useTemplate = useCallback(async (template: Template) => {
   try {
     let dialogData: any = {
       content: template.content,
+      metadata: template.metadata,
       title: template.title || 'Untitled Template',
       type: template.type,
       id: template.id,
       onComplete: handleTemplateComplete
     };
 
-    if ((template as any).metadata) {
-      const meta = await prefillMetadataFromMapping((template as any).metadata);
-      dialogData.enhanced_metadata = meta;
-    }
 
     // Open the placeholder editor dialog
     openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, dialogData);

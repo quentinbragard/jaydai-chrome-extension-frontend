@@ -40,35 +40,51 @@ export function useCustomizeTemplateDialog() {
     if (isOpen && data) {
       setError(null);
       setIsProcessing(true);
-      try {
-        let templateBlocks: Block[] = [];
-        let templateMetadata: PromptMetadata = { ...DEFAULT_METADATA };
+      
+      const processTemplateData = async () => {
+        try {
+          let templateBlocks: Block[] = [];
+          let templateMetadata: PromptMetadata = { ...DEFAULT_METADATA };
 
-        if (data.content) {
-          const contentString = getLocalizedContent(data.content);
-          setContent(contentString);
-          templateBlocks = [{
-            id: Date.now(),
-            type: 'custom',
-            content: contentString,
-            title: { en: 'Template Content' }
-          }];
-        } else {
-          setContent('');
+          if (data.content) {
+            const contentString = getLocalizedContent(data.content);
+            setContent(contentString);
+            templateBlocks = [{
+              id: Date.now(),
+              type: 'custom',
+              content: contentString,
+              title: { en: 'Template Content' }
+            }];
+          } else {
+            setContent('');
+          }
+
+          setBlocks(templateBlocks);
+
+          // ✅ Handle metadata properly
+          if (data.metadata && Object.keys(data.metadata).length > 0) {
+            console.log('Processing template metadata:', data.metadata);
+            try {
+              // Convert the metadata mapping back to metadata structure
+              templateMetadata = await prefillMetadataFromMapping(data.metadata);
+              console.log('Prefilled metadata:', templateMetadata);
+            } catch (metadataError) {
+              console.error('Error processing metadata:', metadataError);
+              // Don't fail completely, just use default metadata
+              templateMetadata = { ...DEFAULT_METADATA };
+            }
+          }
+
+          setMetadata(templateMetadata);
+        } catch (err) {
+          console.error('CustomizeTemplateDialog: Error processing template:', err);
+          setError(getMessage('errorProcessingTemplate'));
+        } finally {
+          setIsProcessing(false);
         }
+      };
 
-        setBlocks(templateBlocks);
-        setMetadata(templateMetadata);
-
-        if (data.metadata) {
-          prefillMetadataFromMapping(data.metadata).then(setMetadata);
-        }
-      } catch (err) {
-        console.error('PlaceholderEditor: Error processing template:', err);
-        setError(getMessage('errorProcessingTemplate'));
-      } finally {
-        setIsProcessing(false);
-      }
+      processTemplateData();
     }
   }, [isOpen, data]);
 
