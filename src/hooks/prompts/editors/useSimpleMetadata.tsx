@@ -1,14 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-  PromptMetadata,
-  MetadataType,
-  SingleMetadataType,
+// src/hooks/prompts/editors/useSimpleMetadata.ts - Enhanced version
+import { useState, useCallback, useMemo } from 'react';
+import { 
+  PromptMetadata, 
+  MetadataType, 
+  SingleMetadataType, 
   MultipleMetadataType,
   MetadataItem,
-  PRIMARY_METADATA,
   SECONDARY_METADATA,
-  isMultipleMetadataType,
-  generateMetadataItemId
+  isMultipleMetadataType
 } from '@/types/prompts/metadata';
 
 interface UseSimpleMetadataProps {
@@ -17,107 +16,168 @@ interface UseSimpleMetadataProps {
 }
 
 export function useSimpleMetadata({ metadata, onUpdateMetadata }: UseSimpleMetadataProps) {
+  // UI state
   const [expandedMetadata, setExpandedMetadata] = useState<MetadataType | null>(null);
-  const [activeSecondaryMetadata, setActiveSecondaryMetadata] = useState<Set<MetadataType>>(new Set());
   const [metadataCollapsed, setMetadataCollapsed] = useState(false);
   const [secondaryMetadataCollapsed, setSecondaryMetadataCollapsed] = useState(false);
 
-  useEffect(() => {
-    const active = new Set<MetadataType>();
+  // Calculate active secondary metadata based on what's currently set
+  const activeSecondaryMetadata = useMemo(() => {
+    const activeSet = new Set<MetadataType>();
+    
     SECONDARY_METADATA.forEach(type => {
       if (isMultipleMetadataType(type)) {
-        const items = metadata[type as MultipleMetadataType];
-        if (items && items.length > 0) active.add(type);
+        const multiType = type as MultipleMetadataType;
+        if (metadata[multiType] && metadata[multiType]!.length > 0) {
+          activeSet.add(type);
+        }
       } else {
-        const value = metadata.values?.[type as SingleMetadataType];
-        if (value) active.add(type);
+        const singleType = type as SingleMetadataType;
+        // Check if there's either a selected block ID or a custom value
+        const hasBlockId = metadata[singleType] && metadata[singleType] !== 0;
+        const hasCustomValue = metadata.values?.[singleType]?.trim();
+        if (hasBlockId || hasCustomValue) {
+          activeSet.add(type);
+        }
       }
     });
-    setActiveSecondaryMetadata(active);
+    
+    return activeSet;
   }, [metadata]);
 
-  const handleSingleMetadataChange = useCallback(
-    (type: SingleMetadataType, value: string) => {
-      if (!onUpdateMetadata) return;
-      const newValues = { ...(metadata.values || {}), [type]: value };
-      onUpdateMetadata({ ...metadata, values: newValues });
-    },
-    [metadata, onUpdateMetadata]
-  );
+  // Update metadata helper
+  const updateMetadata = useCallback((updates: Partial<PromptMetadata>) => {
+    if (onUpdateMetadata) {
+      onUpdateMetadata({ ...metadata, ...updates });
+    }
+  }, [metadata, onUpdateMetadata]);
 
-  const handleCustomChange = handleSingleMetadataChange;
-
-  const handleAddMetadataItem = useCallback(
-    (type: MultipleMetadataType) => {
-      if (!onUpdateMetadata) return;
-      const items = metadata[type] || [];
-      onUpdateMetadata({ ...metadata, [type]: [...items, { id: generateMetadataItemId(), value: '' }] });
-    },
-    [metadata, onUpdateMetadata]
-  );
-
-  const handleRemoveMetadataItem = useCallback(
-    (type: MultipleMetadataType, itemId: string) => {
-      if (!onUpdateMetadata) return;
-      const items = (metadata[type] || []).filter(i => i.id !== itemId);
-      onUpdateMetadata({ ...metadata, [type]: items });
-    },
-    [metadata, onUpdateMetadata]
-  );
-
-  const handleUpdateMetadataItem = useCallback(
-    (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => {
-      if (!onUpdateMetadata) return;
-      const items = (metadata[type] || []).map(i => (i.id === itemId ? { ...i, ...updates } : i));
-      onUpdateMetadata({ ...metadata, [type]: items });
-    },
-    [metadata, onUpdateMetadata]
-  );
-
-  const handleReorderMetadataItems = useCallback(
-    (type: MultipleMetadataType, newItems: MetadataItem[]) => {
-      if (!onUpdateMetadata) return;
-      onUpdateMetadata({ ...metadata, [type]: newItems });
-    },
-    [metadata, onUpdateMetadata]
-  );
-
-  const addSecondaryMetadata = useCallback(
-    (type: MetadataType) => {
-      setActiveSecondaryMetadata(prev => new Set([...prev, type]));
-      if (!onUpdateMetadata) return;
-      if (isMultipleMetadataType(type)) {
-        onUpdateMetadata({ ...metadata, [type]: [] });
-      } else {
-        const newValues = { ...(metadata.values || {}), [type as SingleMetadataType]: '' };
-        onUpdateMetadata({ ...metadata, values: newValues });
+  // Handle single metadata changes (for dropdowns that select block IDs)
+  const handleSingleMetadataChange = useCallback((type: SingleMetadataType, value: string) => {
+    const numericValue = parseInt(value, 10);
+    const blockId = isNaN(numericValue) ? 0 : numericValue;
+    
+    updateMetadata({
+      [type]: blockId,
+      // Clear custom value when selecting a block
+      values: {
+        ...metadata.values,
+        [type]: blockId === 0 ? (metadata.values?.[type] || '') : ''
       }
-    },
-    [metadata, onUpdateMetadata]
-  );
+    });
+  }, [metadata, updateMetadata]);
 
-  const removeSecondaryMetadata = useCallback(
-    (type: MetadataType) => {
-      setActiveSecondaryMetadata(prev => {
-        const n = new Set(prev);
-        n.delete(type);
-        return n;
+  // Handle custom value changes (for text inputs)
+  const handleCustomChange = useCallback((type: SingleMetadataType, value: string) => {
+    updateMetadata({
+      // Clear block ID when entering custom value
+      [type]: value.trim() ? 0 : (metadata[type] || 0),
+      values: {
+        ...metadata.values,
+        [type]: value
+      }
+    });
+  }, [metadata, updateMetadata]);
+
+  // Handle adding metadata items for multiple types (constraints, examples)
+  const handleAddMetadataItem = useCallback((type: MultipleMetadataType) => {
+    const newItem: MetadataItem = {
+      id: `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      value: '',
+      blockId: undefined
+    };
+
+    const currentItems = metadata[type] || [];
+    updateMetadata({
+      [type]: [...currentItems, newItem]
+    });
+  }, [metadata, updateMetadata]);
+
+  // Handle removing metadata items
+  const handleRemoveMetadataItem = useCallback((type: MultipleMetadataType, itemId: string) => {
+    const currentItems = metadata[type] || [];
+    const filteredItems = currentItems.filter(item => item.id !== itemId);
+    
+    updateMetadata({
+      [type]: filteredItems
+    });
+  }, [metadata, updateMetadata]);
+
+  // Handle updating metadata items
+  const handleUpdateMetadataItem = useCallback((type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => {
+    const currentItems = metadata[type] || [];
+    const updatedItems = currentItems.map(item => 
+      item.id === itemId ? { ...item, ...updates } : item
+    );
+    
+    updateMetadata({
+      [type]: updatedItems
+    });
+  }, [metadata, updateMetadata]);
+
+  // Handle reordering metadata items
+  const handleReorderMetadataItems = useCallback((type: MultipleMetadataType, newItems: MetadataItem[]) => {
+    updateMetadata({
+      [type]: newItems
+    });
+  }, [updateMetadata]);
+
+  // Add secondary metadata type
+  const addSecondaryMetadata = useCallback((type: MetadataType) => {
+    if (isMultipleMetadataType(type)) {
+      // For multiple types, add an empty item
+      const multiType = type as MultipleMetadataType;
+      const newItem: MetadataItem = {
+        id: `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        value: '',
+        blockId: undefined
+      };
+      
+      updateMetadata({
+        [multiType]: [newItem]
       });
-      if (!onUpdateMetadata) return;
-      const newMetadata = { ...metadata } as PromptMetadata;
-      if (isMultipleMetadataType(type)) {
-        delete (newMetadata as any)[type];
-      } else {
-        const values = { ...(metadata.values || {}) };
-        delete values[type as SingleMetadataType];
-        newMetadata.values = values;
-      }
-      onUpdateMetadata(newMetadata);
-    },
-    [metadata, onUpdateMetadata]
-  );
+    } else {
+      // For single types, just initialize with empty values
+      const singleType = type as SingleMetadataType;
+      updateMetadata({
+        [singleType]: 0,
+        values: {
+          ...metadata.values,
+          [singleType]: ''
+        }
+      });
+    }
+    
+    // Expand the newly added metadata
+    setExpandedMetadata(type);
+  }, [metadata, updateMetadata]);
+
+  // Remove secondary metadata type
+  const removeSecondaryMetadata = useCallback((type: MetadataType) => {
+    if (isMultipleMetadataType(type)) {
+      const multiType = type as MultipleMetadataType;
+      updateMetadata({
+        [multiType]: []
+      });
+    } else {
+      const singleType = type as SingleMetadataType;
+      updateMetadata({
+        [singleType]: 0,
+        values: {
+          ...metadata.values,
+          [singleType]: ''
+        }
+      });
+    }
+    
+    // Close expanded state if removing the currently expanded item
+    if (expandedMetadata === type) {
+      setExpandedMetadata(null);
+    }
+  }, [metadata, updateMetadata, expandedMetadata]);
 
   return {
+    // UI state
     expandedMetadata,
     setExpandedMetadata,
     activeSecondaryMetadata,
@@ -125,6 +185,8 @@ export function useSimpleMetadata({ metadata, onUpdateMetadata }: UseSimpleMetad
     setMetadataCollapsed,
     secondaryMetadataCollapsed,
     setSecondaryMetadataCollapsed,
+    
+    // Handlers
     handleSingleMetadataChange,
     handleCustomChange,
     handleAddMetadataItem,

@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/editors/BasicEditor/index.tsx
+// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Enhanced for consistency
 import React from 'react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { highlightPlaceholders } from '@/utils/templates/placeholderHelpers';
@@ -19,8 +19,7 @@ interface BasicEditorProps {
 }
 
 /**
- * Basic editor mode - Simple placeholder and content editing
- * No block logic exposed to the user
+ * Basic editor mode - Simple placeholder and content editing with enhanced preview consistency
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   content,
@@ -68,22 +67,47 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     );
   }
 
-  // For create mode, show only the editor without the left panel
+  // For create mode, show only the editor with preview below
   if (mode === 'create') {
     return (
-      <div className="jd-h-full jd-flex jd-flex-col jd-p-4">
-        <h3 className="jd-text-sm jd-font-medium jd-mb-2">Edit Template</h3>
-        <ContentEditor
-          ref={editorRef}
-          mode={mode}
-          onFocus={handleEditorFocus}
-          onBlur={handleEditorBlur}
-          onInput={handleEditorInput}
-          onKeyDown={handleEditorKeyDown}
-          onKeyPress={handleEditorKeyPress}
-          onKeyUp={handleEditorKeyUp}
-          className="jd-flex-1"
-        />
+      <div className="jd-h-full jd-flex jd-flex-col jd-p-4 jd-space-y-4">
+        <div className="jd-flex-shrink-0">
+          <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-mb-2">
+            <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
+            Edit Template
+          </h3>
+          <ContentEditor
+            ref={editorRef}
+            mode={mode}
+            onFocus={handleEditorFocus}
+            onBlur={handleEditorBlur}
+            onInput={handleEditorInput}
+            onKeyDown={handleEditorKeyDown}
+            onKeyPress={handleEditorKeyPress}
+            onKeyUp={handleEditorKeyUp}
+            className="jd-min-h-[250px]"
+          />
+        </div>
+        
+        {/* Preview Section - Consistent with other editors */}
+        <div className="jd-flex-shrink-0 jd-pt-4 jd-border-t">
+          <div className="jd-space-y-3">
+            <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
+              <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
+              Preview
+              <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground jd-ml-auto">
+                <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
+                <span>Placeholders</span>
+              </div>
+            </h3>
+            <EditablePromptPreview
+              content={modifiedContent}
+              htmlContent={previewHtml}
+              isDark={isDark}
+              // No onChange for read-only preview like InsertBlockDialog
+            />
+          </div>
+        </div>
       </div>
     );
   }
@@ -105,24 +129,42 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         
         <ResizablePanel defaultSize={70} minSize={40}>
           <div className="jd-h-full jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
-            <h3 className="jd-text-sm jd-font-medium jd-mb-2">Edit Template</h3>
-            <ContentEditor
-              ref={editorRef}
-              mode={mode}
-              onFocus={handleEditorFocus}
-              onBlur={handleEditorBlur}
-              onInput={handleEditorInput}
-              onKeyDown={handleEditorKeyDown}
-              onKeyPress={handleEditorKeyPress}
-              onKeyUp={handleEditorKeyUp}
-              className="jd-flex-1"
-            />
-            <div className="jd-mt-4">
-              <EditablePromptPreview
-                content={modifiedContent}
-                htmlContent={previewHtml}
-                isDark={isDark}
+            <div className="jd-flex-shrink-0">
+              <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-mb-2">
+                <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
+                Edit Template
+              </h3>
+              <ContentEditor
+                ref={editorRef}
+                mode={mode}
+                onFocus={handleEditorFocus}
+                onBlur={handleEditorBlur}
+                onInput={handleEditorInput}
+                onKeyDown={handleEditorKeyDown}
+                onKeyPress={handleEditorKeyPress}
+                onKeyUp={handleEditorKeyUp}
+                className="jd-min-h-[200px]"
               />
+            </div>
+            
+            {/* Enhanced Preview Section */}
+            <div className="jd-flex-shrink-0 jd-mt-4 jd-pt-4 jd-border-t">
+              <div className="jd-space-y-3">
+                <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
+                  <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
+                  Preview
+                  <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground jd-ml-auto">
+                    <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
+                    <span>Placeholders</span>
+                  </div>
+                </h3>
+                <EditablePromptPreview
+                  content={modifiedContent}
+                  htmlContent={previewHtml}
+                  onChange={onContentChange} // Allow editing in customize mode
+                  isDark={isDark}
+                />
+              </div>
             </div>
           </div>
         </ResizablePanel>
