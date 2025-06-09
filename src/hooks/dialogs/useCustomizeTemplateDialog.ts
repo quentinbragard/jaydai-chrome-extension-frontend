@@ -1,4 +1,4 @@
-// src/hooks/dialogs/useCustomizeTemplateDialog.ts - Enhanced version
+// src/hooks/dialogs/useCustomizeTemplateDialog.ts
 import { useState, useEffect } from 'react';
 import { useDialog } from '@/hooks/dialogs/useDialog';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
@@ -9,9 +9,7 @@ import {
   PromptMetadata,
   DEFAULT_METADATA,
   MetadataItem,
-  MultipleMetadataType,
-  SingleMetadataType,
-  generateMetadataItemId
+  MultipleMetadataType
 } from '@/types/prompts/metadata';
 import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
 import { buildCompletePrompt } from '@/components/prompts/promptUtils';
@@ -74,82 +72,6 @@ export function useCustomizeTemplateDialog() {
     }
   }, [isOpen, data]);
 
-  // Helper function to parse enhanced metadata from template data
-  const parseEnhancedMetadata = (enhancedMetadata: any): PromptMetadata => {
-    const parsedMetadata: PromptMetadata = { ...DEFAULT_METADATA };
-
-    // Parse single metadata values
-    if (enhancedMetadata.values) {
-      parsedMetadata.values = { ...enhancedMetadata.values };
-    }
-
-    // Parse single metadata block references
-    ['role', 'context', 'goal', 'audience', 'tone_style', 'output_format'].forEach(type => {
-      if (enhancedMetadata[type]) {
-        parsedMetadata[type as SingleMetadataType] = enhancedMetadata[type];
-      }
-    });
-
-    // Parse multiple metadata items
-    if (enhancedMetadata.constraints && Array.isArray(enhancedMetadata.constraints)) {
-      parsedMetadata.constraints = enhancedMetadata.constraints.map((item: any) => ({
-        id: item.id || generateMetadataItemId(),
-        blockId: item.blockId,
-        value: item.value || ''
-      }));
-    }
-
-    if (enhancedMetadata.examples && Array.isArray(enhancedMetadata.examples)) {
-      parsedMetadata.examples = enhancedMetadata.examples.map((item: any) => ({
-        id: item.id || generateMetadataItemId(),
-        blockId: item.blockId,
-        value: item.value || ''
-      }));
-    }
-
-    return parsedMetadata;
-  };
-
-  // Helper function to extract metadata from content string (basic parsing)
-  const extractMetadataFromContent = (content: string): PromptMetadata => {
-    const extractedMetadata: PromptMetadata = { ...DEFAULT_METADATA };
-    
-    // Simple parsing logic - look for patterns like "Ton rôle est de: ..."
-    const lines = content.split('\n').filter(line => line.trim());
-    
-    const constraintItems: MetadataItem[] = [];
-    const exampleItems: MetadataItem[] = [];
-    
-    lines.forEach(line => {
-      const trimmedLine = line.trim();
-      
-      // Look for constraints
-      if (trimmedLine.startsWith('Contrainte:')) {
-        constraintItems.push({
-          id: generateMetadataItemId(),
-          value: trimmedLine.replace('Contrainte:', '').trim()
-        });
-      }
-      
-      // Look for examples
-      if (trimmedLine.startsWith('Exemple:')) {
-        exampleItems.push({
-          id: generateMetadataItemId(),
-          value: trimmedLine.replace('Exemple:', '').trim()
-        });
-      }
-    });
-
-    if (constraintItems.length > 0) {
-      extractedMetadata.constraints = constraintItems;
-    }
-
-    if (exampleItems.length > 0) {
-      extractedMetadata.examples = exampleItems;
-    }
-
-    return extractedMetadata;
-  };
 
   const handleAddBlock = (
     position: 'start' | 'end',
@@ -216,7 +138,6 @@ export function useCustomizeTemplateDialog() {
 
   const handleComplete = () => {
     try {
-      // Use the enhanced prompt building function
       const finalContent = buildCompletePrompt(metadata, blocks);
       
       if (data && data.onComplete) {
