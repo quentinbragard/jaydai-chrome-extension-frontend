@@ -1,9 +1,8 @@
-// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Enhanced with block colors
-import React from 'react';
+// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Enhanced with metadata preview
+import React, { useMemo } from 'react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { highlightPlaceholders } from '@/utils/templates/placeholderHelpers';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
-import { PromptMetadata } from '@/types/prompts/metadata';
+import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
@@ -19,7 +18,7 @@ interface BasicEditorProps {
   isProcessing?: boolean;
 }
 
-// Helper functions for colored preview (same as AdvancedEditor)
+// Helper functions for building complete preview with metadata
 const escapeHtml = (str: string): string => {
   return str
     .replace(/&/g, '&amp;')
@@ -29,75 +28,251 @@ const escapeHtml = (str: string): string => {
     .replace(/'/g, '&#039;');
 };
 
-const buildColoredPreviewHtml = (content: string, isDarkMode: boolean): string => {
-  if (!content) {
+const getMetadataPrefix = (type: string): string => {
+  const prefixes: Record<string, string> = {
+    role: 'Ton rôle est de',
+    context: 'Le contexte est',
+    goal: 'Ton objectif est',
+    audience: "L'audience ciblée est",
+    output_format: 'Le format attendu est',
+    tone_style: 'Le ton et style sont'
+  };
+  return prefixes[type] || '';
+};
+
+const getMetadataPrefixHtml = (type: string, isDarkMode: boolean): string => {
+  const prefix = getMetadataPrefix(type);
+  if (!prefix) return '';
+  
+  // Map metadata types to block types for consistent coloring
+  const typeMapping: Record<string, string> = {
+    role: 'role',
+    context: 'context', 
+    goal: 'goal',
+    audience: 'audience',
+    output_format: 'output_format',
+    tone_style: 'tone_style'
+  };
+  
+  const blockType = typeMapping[type] || 'custom';
+  const colorClass = getBlockTextColors(blockType as any, isDarkMode);
+  
+  return `<span class="${colorClass} jd-font-semibold">${escapeHtml(prefix)}</span>`;
+};
+
+// Build metadata-only preview (without main content)
+const buildMetadataOnlyPreview = (metadata: PromptMetadata): string => {
+  const parts: string[] = [];
+
+  // Add primary metadata
+  ['role', 'context', 'goal'].forEach(type => {
+    const value = metadata.values?.[type];
+    if (value?.trim()) {
+      const prefix = getMetadataPrefix(type);
+      parts.push(prefix ? `${prefix} ${value}` : value);
+    }
+  });
+
+  // Add secondary metadata (only if they exist in metadata)
+  ['audience', 'output_format', 'tone_style'].forEach(type => {
+    const value = metadata.values?.[type];
+    if (value?.trim()) {
+      const prefix = getMetadataPrefix(type);
+      parts.push(prefix ? `${prefix} ${value}` : value);
+    }
+  });
+
+  // Add constraints
+  if (metadata.constraints && metadata.constraints.length > 0) {
+    metadata.constraints.forEach(item => {
+      if (item.value.trim()) {
+        parts.push(`Contrainte: ${item.value}`);
+      }
+    });
+  }
+
+  // Add examples
+  if (metadata.examples && metadata.examples.length > 0) {
+    metadata.examples.forEach(item => {
+      if (item.value.trim()) {
+        parts.push(`Exemple: ${item.value}`);
+      }
+    });
+  }
+
+  return parts.filter(Boolean).join('\n\n');
+};
+
+// Extract content from complete template by removing metadata part
+const extractContentFromCompleteTemplate = (completeTemplate: string, metadataPart: string): string => {
+  if (!metadataPart) {
+    // No metadata, so the complete template is the content
+    return completeTemplate;
+  }
+  
+  // If the complete template starts with the metadata part, extract what comes after
+  if (completeTemplate.startsWith(metadataPart)) {
+    const contentPart = completeTemplate.substring(metadataPart.length).trim();
+    // Remove leading line breaks
+    return contentPart.replace(/^\n+/, '');
+  }
+  
+  // If it doesn't start with metadata (user might have edited metadata), 
+  // try to find where the content starts by looking for the last recognizable metadata block
+  const metadataKeywords = [
+    'Ton rôle est de', 'Le contexte est', 'Ton objectif est',
+    'L\'audience ciblée est', 'Le format attendu est', 'Le ton et style sont',
+    'Contrainte:', 'Exemple:'
+  ];
+  
+  const lines = completeTemplate.split('\n\n');
+  let contentStartIndex = 0;
+  
+  // Find the last line that starts with a metadata keyword
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i].trim();
+    const startsWithMetadata = metadataKeywords.some(keyword => line.startsWith(keyword));
+    if (startsWithMetadata) {
+      contentStartIndex = i + 1;
+      break;
+    }
+  }
+  
+  // Extract content from that point onward
+  if (contentStartIndex < lines.length) {
+    return lines.slice(contentStartIndex).join('\n\n').trim();
+  }
+  
+  // Fallback: return the last part that doesn't look like metadata
+  const lastLine = lines[lines.length - 1];
+  const looksLikeMetadata = metadataKeywords.some(keyword => lastLine.startsWith(keyword));
+  return looksLikeMetadata ? '' : lastLine;
+};
+// Build complete preview with metadata + content
+const buildCompletePreview = (metadata: PromptMetadata, content: string): string => {
+  const parts: string[] = [];
+
+  // Debug: Check if metadata has any values
+  console.log('BasicEditor metadata:', metadata);
+  console.log('Metadata values:', metadata.values);
+
+  // Add primary metadata
+  ['role', 'context', 'goal'].forEach(type => {
+    const value = metadata.values?.[type];
+    console.log(`Checking ${type}:`, value);
+    if (value?.trim()) {
+      const prefix = getMetadataPrefix(type);
+      parts.push(prefix ? `${prefix} ${value}` : value);
+    }
+  });
+
+  // Add secondary metadata (only if they exist in metadata)
+  ['audience', 'output_format', 'tone_style'].forEach(type => {
+    const value = metadata.values?.[type];
+    if (value?.trim()) {
+      const prefix = getMetadataPrefix(type);
+      parts.push(prefix ? `${prefix} ${value}` : value);
+    }
+  });
+
+  // Add constraints
+  if (metadata.constraints && metadata.constraints.length > 0) {
+    metadata.constraints.forEach(item => {
+      if (item.value.trim()) {
+        parts.push(`Contrainte: ${item.value}`);
+      }
+    });
+  }
+
+  // Add examples
+  if (metadata.examples && metadata.examples.length > 0) {
+    metadata.examples.forEach(item => {
+      if (item.value.trim()) {
+        parts.push(`Exemple: ${item.value}`);
+      }
+    });
+  }
+
+  // Add main content
+  if (content.trim()) {
+    parts.push(content);
+  }
+
+  const result = parts.filter(Boolean).join('\n\n');
+  console.log('Final preview parts:', parts);
+  console.log('Final preview result:', result);
+  
+  return result;
+};
+
+// Build complete HTML preview with metadata + content
+const buildCompletePreviewHtml = (metadata: PromptMetadata, content: string, isDarkMode: boolean): string => {
+  const parts: string[] = [];
+
+  // Add primary metadata with colors
+  ['role', 'context', 'goal'].forEach(type => {
+    const value = metadata.values?.[type];
+    if (value?.trim()) {
+      const prefixHtml = getMetadataPrefixHtml(type, isDarkMode);
+      const escapedContent = escapeHtml(value);
+      parts.push(prefixHtml ? `${prefixHtml} ${escapedContent}` : escapedContent);
+    }
+  });
+
+  // Add secondary metadata with colors
+  ['audience', 'output_format', 'tone_style'].forEach(type => {
+    const value = metadata.values?.[type];
+    if (value?.trim()) {
+      const prefixHtml = getMetadataPrefixHtml(type, isDarkMode);
+      const escapedContent = escapeHtml(value);
+      parts.push(prefixHtml ? `${prefixHtml} ${escapedContent}` : escapedContent);
+    }
+  });
+
+  // Add constraints with colors
+  if (metadata.constraints && metadata.constraints.length > 0) {
+    metadata.constraints.forEach(item => {
+      if (item.value.trim()) {
+        const colorClass = getBlockTextColors('constraint', isDarkMode);
+        const prefixHtml = `<span class="${colorClass} jd-font-semibold">Contrainte:</span>`;
+        parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
+      }
+    });
+  }
+
+  // Add examples with colors
+  if (metadata.examples && metadata.examples.length > 0) {
+    metadata.examples.forEach(item => {
+      if (item.value.trim()) {
+        const colorClass = getBlockTextColors('example', isDarkMode);
+        const prefixHtml = `<span class="${colorClass} jd-font-semibold">Exemple:</span>`;
+        parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
+      }
+    });
+  }
+
+  // Add main content
+  if (content.trim()) {
+    parts.push(escapeHtml(content));
+  }
+
+  if (parts.length === 0) {
     return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
   }
 
-  // Enhanced pattern matching for block types with colors
-  let htmlContent = escapeHtml(content);
-
-  // Apply colored prefixes for common patterns
-  const patterns = [
-    { 
-      regex: /(Ton rôle est de|Role:|Rôle:)/gi, 
-      blockType: 'role' 
-    },
-    { 
-      regex: /(Le contexte est|Context:|Contexte:)/gi, 
-      blockType: 'context' 
-    },
-    { 
-      regex: /(Ton objectif est|Goal:|Objectif:)/gi, 
-      blockType: 'goal' 
-    },
-    { 
-      regex: /(L'audience ciblée est|Audience:|Public cible:)/gi, 
-      blockType: 'audience' 
-    },
-    { 
-      regex: /(Le format attendu est|Output format:|Format de sortie:)/gi, 
-      blockType: 'output_format' 
-    },
-    { 
-      regex: /(Le ton et style sont|Tone:|Style:)/gi, 
-      blockType: 'tone_style' 
-    },
-    { 
-      regex: /(Contrainte:|Constraint:)/gi, 
-      blockType: 'constraint' 
-    },
-    { 
-      regex: /(Exemple:|Example:)/gi, 
-      blockType: 'example' 
-    }
-  ];
-
-  // Apply colors to each pattern
-  patterns.forEach(({ regex, blockType }) => {
-    const colorClass = getBlockTextColors(blockType as any, isDarkMode);
-    htmlContent = htmlContent.replace(regex, (match) => {
-      return `<span class="${colorClass} jd-font-semibold">${match}</span>`;
-    });
-  });
-
-  // Convert line breaks
-  htmlContent = htmlContent.replace(/\n/g, '<br>');
-
-  // Apply placeholder highlighting
-  htmlContent = htmlContent.replace(/\[([^\]]+)\]/g, 
+  // Convert to HTML and add placeholder highlighting
+  const htmlContent = parts.join('<br><br>');
+  return htmlContent.replace(/\[([^\]]+)\]/g, 
     '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
   );
-
-  return htmlContent;
 };
 
 /**
- * Basic editor mode - Simple placeholder and content editing with enhanced preview consistency and colors
+ * Basic editor mode - Simple placeholder and content editing with complete metadata preview
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   content,
-  metadata,
+  metadata = DEFAULT_METADATA,
   onContentChange,
   onUpdateMetadata,
   mode = 'customize',
@@ -131,8 +306,14 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
   const isDark = useThemeDetector();
   
-  // Build colored HTML preview
-  const coloredPreviewHtml = buildColoredPreviewHtml(modifiedContent, isDark);
+  // Build complete preview including metadata + content
+  const completePreviewText = useMemo(() => {
+    return buildCompletePreview(metadata, modifiedContent);
+  }, [metadata, modifiedContent]);
+  
+  const completePreviewHtml = useMemo(() => {
+    return buildCompletePreviewHtml(metadata, modifiedContent, isDark);
+  }, [metadata, modifiedContent, isDark]);
 
   if (isProcessing) {
     return (
@@ -143,14 +324,14 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     );
   }
 
-  // For create mode, show only the editor with colored preview below
+  // For create mode, show only the editor with complete preview below
   if (mode === 'create') {
     return (
       <div className="jd-h-full jd-flex jd-flex-col jd-p-4 jd-space-y-4">
         <div className="jd-flex-shrink-0">
           <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-mb-2">
             <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-            Edit Template
+            Edit Template Content
           </h3>
           <ContentEditor
             ref={editorRef}
@@ -165,23 +346,28 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           />
         </div>
         
-        {/* Enhanced Preview Section with Colors */}
+        {/* Complete Preview Section with Metadata + Content */}
         <div className="jd-flex-shrink-0 jd-pt-4 jd-border-t">
           <div className="jd-space-y-3">
             <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
               <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
-              Preview
+              Complete Template Preview
               <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground jd-ml-auto">
                 <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
                 <span>Placeholders</span>
               </div>
             </h3>
+            <div className="jd-text-xs jd-text-muted-foreground jd-mb-2">
+              Complete template preview - click to edit the content part
+            </div>
             <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-green-500/10 jd-to-teal-500/10">
               <EditablePromptPreview
-                content={modifiedContent}
-                htmlContent={coloredPreviewHtml}
+                content={completePreviewText}
+                htmlContent={completePreviewHtml}
                 isDark={isDark}
-                // No onChange for read-only preview
+                showColors={true}
+                enableAdvancedEditing={true}
+                // No onChange for read-only preview in create mode
               />
             </div>
           </div>
@@ -190,7 +376,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     );
   }
 
-  // For customize mode, show the full interface with placeholders and colored previews
+  // For customize mode, show the full interface with placeholders and complete preview
   return (
     <div className="jd-h-full jd-flex jd-flex-1 jd-overflow-hidden">
       <ResizablePanelGroup direction="horizontal" className="jd-h-full jd-w-full">
@@ -207,41 +393,33 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         
         <ResizablePanel defaultSize={70} minSize={40}>
           <div className="jd-h-full jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
-            <div className="jd-flex-shrink-0">
-              <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-mb-2">
-                <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-                Edit Template
-              </h3>
-              <ContentEditor
-                ref={editorRef}
-                mode={mode}
-                onFocus={handleEditorFocus}
-                onBlur={handleEditorBlur}
-                onInput={handleEditorInput}
-                onKeyDown={handleEditorKeyDown}
-                onKeyPress={handleEditorKeyPress}
-                onKeyUp={handleEditorKeyUp}
-                className="jd-min-h-[200px]"
-              />
-            </div>
             
-            {/* Enhanced Preview Section with Colors */}
+            {/* Complete Preview Section with Metadata + Content */}
             <div className="jd-flex-shrink-0 jd-mt-4 jd-pt-4 jd-border-t">
               <div className="jd-space-y-3">
                 <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
                   <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
-                  Preview
+                  Complete Template Preview
                   <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground jd-ml-auto">
                     <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
                     <span>Placeholders</span>
                   </div>
                 </h3>
+                <div className="jd-text-xs jd-text-muted-foreground jd-mb-2">
+                  Complete template preview - click to edit the content part
+                </div>
                 <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-green-500/10 jd-to-teal-500/10">
                   <EditablePromptPreview
-                    content={modifiedContent}
-                    htmlContent={coloredPreviewHtml}
-                    onChange={onContentChange} // Allow editing in customize mode
+                    content={completePreviewText}
+                    htmlContent={completePreviewHtml}
+                    onChange={(newCompleteContent) => {
+                      // Extract the content part from the edited complete template
+                      const originalMetadataPart = buildMetadataOnlyPreview(metadata);
+                      const newContent = extractContentFromCompleteTemplate(newCompleteContent, originalMetadataPart);
+                      onContentChange(newContent);
+                    }}
                     isDark={isDark}
+                    showColors={true}
                   />
                 </div>
               </div>

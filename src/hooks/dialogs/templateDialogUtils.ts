@@ -57,7 +57,7 @@ export function generateEnhancedFinalContent(
   activeTab: 'basic' | 'advanced'
 ): string {
   if (activeTab === 'basic') return content;
-  return buildCompletePrompt(metadata, blocks);
+  return buildCompletePrompt(metadata);
 }
 
 /**

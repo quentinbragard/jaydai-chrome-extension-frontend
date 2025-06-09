@@ -14,7 +14,6 @@ import {
 import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
 import { buildCompletePrompt } from '@/components/prompts/promptUtils';
 import {
-  createBlock,
   addMetadataItem,
   removeMetadataItem,
   updateMetadataItem,
@@ -83,7 +82,7 @@ export function useCustomizeTemplateDialog() {
 
   const handleComplete = () => {
     try {
-      const finalContent = buildCompletePrompt(metadata, blocks);
+      const finalContent = buildCompletePrompt(metadata);
       
       if (data && data.onComplete) {
         data.onComplete(finalContent);

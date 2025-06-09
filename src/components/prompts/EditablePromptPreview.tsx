@@ -1,10 +1,10 @@
-// src/components/prompts/EditablePromptPreview.tsx - Enhanced with better editing
+// src/components/prompts/EditablePromptPreview.tsx - Enhanced with dynamic height
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/core/utils/classNames';
 import { buildEnhancedPreview } from '@/utils/templates/placeholderHelpers';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Edit3, Check, X } from 'lucide-react';
+import { Edit3, Check, X, Maximize2, Minimize2 } from 'lucide-react';
 
 interface EditablePromptPreviewProps {
   content: string;
@@ -12,12 +12,11 @@ interface EditablePromptPreviewProps {
   onChange?: (content: string) => void;
   isDark: boolean;
   showColors?: boolean;
-  enableAdvancedEditing?: boolean; // New prop for better editing experience
+  enableAdvancedEditing?: boolean;
 }
 
 /**
- * Enhanced preview component with much better editing experience.
- * Fixes cursor positioning issues and allows editing specific parts.
+ * Enhanced preview component with dynamic height and better editing experience.
  */
 export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
   content,
@@ -29,6 +28,7 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingContent, setEditingContent] = useState(content);
+  const [isFullHeight, setIsFullHeight] = useState(false);
   const displayRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -41,6 +41,30 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
       setEditingContent(content);
     }
   }, [content, isEditing]);
+
+  // Calculate dynamic height based on content
+  const calculateTextareaHeight = useCallback((text: string) => {
+    const lines = text.split('\n').length;
+    const avgLineHeight = 24; // pixels per line
+    const padding = 32; // top and bottom padding
+    const minHeight = 250; // minimum height in pixels
+    const maxHeight = isFullHeight ? window.innerHeight * 0.7 : 400; // max height
+    
+    const calculatedHeight = Math.max(
+      minHeight,
+      Math.min(maxHeight, (lines * avgLineHeight) + padding)
+    );
+    
+    return `${calculatedHeight}px`;
+  }, [isFullHeight]);
+
+  // Auto-resize textarea when content changes
+  useEffect(() => {
+    if (textareaRef.current && isEditing) {
+      const height = calculateTextareaHeight(editingContent);
+      textareaRef.current.style.height = height;
+    }
+  }, [editingContent, isEditing, calculateTextareaHeight]);
 
   const highlightPlaceholders = useCallback((text: string) => {
     if (!text) {
@@ -60,7 +84,6 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
   useEffect(() => {
     if (displayRef.current && !isEditing) {
       if (enhancedHtmlContent && enhancedHtmlContent.trim()) {
-        // Use the enhanced HTML content with colors and placeholders
         const finalHtml = enhancedHtmlContent.includes('jd-bg-yellow-300') 
           ? enhancedHtmlContent 
           : enhancedHtmlContent.replace(/\[(.*?)\]/g,
@@ -68,7 +91,6 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
             );
         displayRef.current.innerHTML = finalHtml;
       } else {
-        // Fallback to basic highlighting
         displayRef.current.innerHTML = highlightPlaceholders(content);
       }
     }
@@ -89,47 +111,64 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
       if (textareaRef.current) {
         textareaRef.current.focus();
         
+        // Set initial height
+        const height = calculateTextareaHeight(content);
+        textareaRef.current.style.height = height;
+        
         // If we clicked on a specific position, try to estimate cursor position
         if (e && displayRef.current) {
           const rect = displayRef.current.getBoundingClientRect();
           const y = e.clientY - rect.top;
-          const lineHeight = 24; // Approximate line height
+          const lineHeight = 24;
           const lineNumber = Math.floor(y / lineHeight);
           const lines = content.split('\n');
           
           let position = 0;
           for (let i = 0; i < Math.min(lineNumber, lines.length); i++) {
-            position += lines[i].length + 1; // +1 for newline
+            position += lines[i].length + 1;
           }
           
-          // Set cursor position
           textareaRef.current.setSelectionRange(position, position);
         }
       }
     }, 50);
-  }, [onChange, content]);
+  }, [onChange, content, calculateTextareaHeight]);
 
   const stopEditing = useCallback((save: boolean = true) => {
     if (save && onChange) {
       onChange(editingContent);
     } else {
-      setEditingContent(content); // Reset to original content
+      setEditingContent(content);
     }
     setIsEditing(false);
+    setIsFullHeight(false); // Reset full height when stopping edit
   }, [onChange, editingContent, content]);
+
+  const toggleFullHeight = useCallback(() => {
+    setIsFullHeight(prev => !prev);
+  }, []);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     e.stopPropagation();
     if (e.key === 'Escape') {
       e.preventDefault();
-      stopEditing(false); // Don't save changes
+      stopEditing(false);
     } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
-      stopEditing(true); // Save changes
+      stopEditing(true);
     }
   }, [stopEditing]);
 
-  // Enhanced editing mode for advanced editing
+  const handleTextareaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setEditingContent(newValue);
+    
+    // Auto-resize textarea
+    const height = calculateTextareaHeight(newValue);
+    e.target.style.height = height;
+  }, [calculateTextareaHeight]);
+
+  // Enhanced editing mode
   if (enableAdvancedEditing && isEditing) {
     return (
       <div className="jd-relative jd-group">
@@ -140,6 +179,15 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
             <span className="jd-text-sm jd-font-medium">Editing Preview</span>
           </div>
           <div className="jd-flex jd-items-center jd-gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={toggleFullHeight}
+              className="jd-h-7 jd-px-2 jd-text-muted-foreground hover:jd-bg-muted"
+              title={isFullHeight ? "Minimize editor" : "Maximize editor"}
+            >
+              {isFullHeight ? <Minimize2 className="jd-h-3 jd-w-3" /> : <Maximize2 className="jd-h-3 jd-w-3" />}
+            </Button>
             <Button
               size="sm"
               variant="ghost"
@@ -161,23 +209,29 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
           </div>
         </div>
 
-        {/* Enhanced textarea for editing */}
+        {/* Enhanced textarea with dynamic height */}
         <Textarea
           ref={textareaRef}
           value={editingContent}
-          onChange={(e) => setEditingContent(e.target.value)}
+          onChange={handleTextareaChange}
           onKeyDown={handleKeyDown}
           onKeyPress={(e) => e.stopPropagation()}
           onKeyUp={(e) => e.stopPropagation()}
           className={cn(
-            'jd-min-h-[200px] jd-text-sm jd-resize-none jd-transition-all jd-duration-200',
+            'jd-text-sm jd-resize-none jd-transition-all jd-duration-200',
             'focus:jd-ring-2 focus:jd-ring-primary/50 jd-rounded-t-none',
+            'jd-overflow-y-auto', // Enable scrolling when content exceeds height
             isDark 
               ? 'jd-bg-gray-800 jd-border-gray-700 jd-text-white' 
               : 'jd-bg-white jd-border-gray-200 jd-text-gray-900'
           )}
           placeholder="Enter your prompt content here..."
           spellCheck={false}
+          style={{
+            height: calculateTextareaHeight(editingContent),
+            minHeight: '250px',
+            maxHeight: isFullHeight ? `${window.innerHeight * 0.7}px` : '400px'
+          }}
         />
 
         {/* Edit mode footer with tips */}
@@ -192,28 +246,53 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
     );
   }
 
-  // Standard editing mode (for backward compatibility)
+  // Standard editing mode with improved height
   if (isEditing && !enableAdvancedEditing) {
     return (
       <div className="jd-relative">
+        {/* Header for standard mode */}
+        <div className="jd-flex jd-items-center jd-justify-end jd-mb-2 jd-gap-1">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={toggleFullHeight}
+            className="jd-h-7 jd-px-2 jd-text-muted-foreground hover:jd-bg-muted"
+            title={isFullHeight ? "Minimize editor" : "Maximize editor"}
+          >
+            {isFullHeight ? <Minimize2 className="jd-h-3 jd-w-3" /> : <Maximize2 className="jd-h-3 jd-w-3" />}
+          </Button>
+        </div>
+        
         <Textarea
           ref={textareaRef}
           value={editingContent}
-          onChange={(e) => setEditingContent(e.target.value)}
+          onChange={handleTextareaChange}
           onKeyDown={handleKeyDown}
           onBlur={() => stopEditing(true)}
           onKeyPress={(e) => e.stopPropagation()}
           onKeyUp={(e) => e.stopPropagation()}
           className={cn(
-            'jd-min-h-[200px] jd-text-sm jd-resize-none jd-transition-all jd-duration-200',
+            'jd-text-sm jd-resize-none jd-transition-all jd-duration-200',
             'focus:jd-ring-2 focus:jd-ring-primary/50',
+            'jd-overflow-y-auto',
             isDark 
               ? 'jd-bg-gray-800 jd-border-gray-700 jd-text-white' 
               : 'jd-bg-white jd-border-gray-200 jd-text-gray-900'
           )}
           autoFocus
           spellCheck={false}
+          style={{
+            height: calculateTextareaHeight(editingContent),
+            minHeight: '250px',
+            maxHeight: isFullHeight ? `${window.innerHeight * 0.7}px` : '400px'
+          }}
         />
+        
+        {/* Footer for standard mode */}
+        <div className="jd-flex jd-justify-between jd-items-center jd-mt-1 jd-text-xs jd-text-muted-foreground">
+          <span>{editingContent.length} characters • {editingContent.split('\n').length} lines</span>
+          <span className="jd-text-primary">Esc to cancel</span>
+        </div>
       </div>
     );
   }
@@ -249,7 +328,6 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
           isDark 
             ? 'jd-bg-gray-800 jd-border-gray-700 jd-text-white' 
             : 'jd-bg-white jd-border-gray-200 jd-text-gray-900',
-          // Enhanced styling for color previews
           showColors && 'jd-prose jd-prose-sm jd-max-w-none'
         )}
         style={{
