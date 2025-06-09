@@ -131,13 +131,10 @@ const useTemplate = useCallback(async (template: Template) => {
       title: template.title || 'Untitled Template',
       type: template.type,
       id: template.id,
-      expanded_blocks: (template as any).expanded_blocks,
       onComplete: handleTemplateComplete
     };
 
-    if ((template as any).enhanced_metadata) {
-      dialogData.enhanced_metadata = (template as any).enhanced_metadata;
-    } else if ((template as any).metadata) {
+    if ((template as any).metadata) {
       const meta = await prefillMetadataFromMapping((template as any).metadata);
       dialogData.enhanced_metadata = meta;
     }

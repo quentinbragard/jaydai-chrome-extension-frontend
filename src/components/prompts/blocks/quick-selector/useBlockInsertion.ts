@@ -18,7 +18,7 @@ export function useBlockInsertion(
     if (insertingRef.current) return;
     insertingRef.current = true;
     const content = getLocalizedContent(block.content);
-    let text = buildPromptPart(block.type || 'content', content);
+    let text = buildPromptPart(block.type || 'custom', content);
 
     let currentContent = '';
     if (targetElement instanceof HTMLTextAreaElement) {

@@ -66,7 +66,7 @@ export function SortableSelectedBlock({ block, isDark, onRemove, isExpanded, onT
           <div className="jd-flex jd-items-center jd-gap-2 jd-mb-1">
             <h4 className="jd-text-sm jd-font-medium jd-truncate">{title}</h4>
             <Badge variant="secondary" className="jd-text-xs">
-              {BLOCK_TYPE_LABELS[block.type || 'content']}
+              {BLOCK_TYPE_LABELS[block.type || 'custom']}
             </Badge>
           </div>
           <div className="jd-text-xs jd-text-muted-foreground">

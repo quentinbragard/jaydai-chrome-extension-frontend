@@ -1,15 +1,14 @@
 // src/types/prompts/blocks.ts
-export type BlockType = 
-  | 'role' 
-  | 'context' 
-  | 'goal' 
-  | 'content' 
-  | 'custom' 
-  | 'output_format' 
-  | 'example' 
-  | 'constraint' 
-  | 'tone_style' 
-  | 'audience' 
+export type BlockType =
+  | 'role'
+  | 'context'
+  | 'goal'
+  | 'custom'
+  | 'output_format'
+  | 'example'
+  | 'constraint'
+  | 'tone_style'
+  | 'audience'
   | 'thinking_step';
 
 export interface Block {

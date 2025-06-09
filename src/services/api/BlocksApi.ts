@@ -11,7 +11,6 @@ export interface BlockResponse {
   user_id?: string;
   organization_id?: string;
   company_id?: string;
-  is_owned?: boolean;
   created_at: string;
 }
 

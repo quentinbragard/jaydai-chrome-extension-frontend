@@ -142,7 +142,7 @@ const AdditionalBlocks: React.FC<{
         <div key={block.id} className="jd-animate-in jd-slide-in-from-bottom-2 jd-duration-300">
           <BlockCard
             block={block}
-            availableBlocks={availableBlocksByType[block.type || 'content'] || []}
+            availableBlocks={availableBlocksByType[block.type || 'custom'] || []}
             onRemove={onRemoveBlock}
             onUpdate={onUpdateBlock}
             onDragStart={onDragStart}

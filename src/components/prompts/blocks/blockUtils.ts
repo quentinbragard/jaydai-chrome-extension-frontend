@@ -22,7 +22,6 @@ export const BLOCK_TYPES: BlockType[] = [
   'role',
   'context',
   'goal',
-  'content',
   'custom',
   'output_format',
   'example',
@@ -36,7 +35,6 @@ export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   role: 'Role',
   context: 'Context',
   goal: 'Goal',
-  content: 'Content',
   custom: 'Custom',
   output_format: 'Output Format',
   example: 'Example',
@@ -50,7 +48,6 @@ export const BLOCK_TYPE_ICONS: Record<BlockType, React.ComponentType<any>> = {
   role: User,
   context: MessageSquare,
   goal: Target,
-  content: FileText,
   custom: Sparkles,
   output_format: Type,
   example: Layout,
@@ -64,7 +61,6 @@ export const BLOCK_TYPE_DESCRIPTIONS: Record<BlockType, string> = {
   role: "Define the AI's role",
   context: 'Provide context information',
   goal: 'Specify the goal',
-  content: 'Main content for the prompt',
   custom: 'Custom user content',
   output_format: 'Desired output format',
   example: 'Provide an example',
@@ -79,7 +75,6 @@ export const BLOCK_CARD_COLORS_LIGHT: Record<BlockType, string> = {
   role: 'jd-bg-gradient-to-br jd-from-purple-50 jd-to-purple-100 jd-border-purple-200 jd-text-purple-900',
   context: 'jd-bg-gradient-to-br jd-from-green-50 jd-to-green-100 jd-border-green-200 jd-text-green-900',
   goal: 'jd-bg-gradient-to-br jd-from-pink-50 jd-to-pink-100 jd-border-pink-200 jd-text-pink-900',
-  content: 'jd-bg-gradient-to-br jd-from-slate-50 jd-to-slate-100 jd-border-slate-200 jd-text-slate-900',
   custom: 'jd-bg-gradient-to-br jd-from-amber-50 jd-to-amber-100 jd-border-amber-200 jd-text-amber-900',
   output_format: 'jd-bg-gradient-to-br jd-from-cyan-50 jd-to-cyan-100 jd-border-cyan-200 jd-text-cyan-900',
   example: 'jd-bg-gradient-to-br jd-from-orange-50 jd-to-orange-100 jd-border-orange-200 jd-text-orange-900',
@@ -93,7 +88,6 @@ export const BLOCK_CARD_COLORS_DARK: Record<BlockType, string> = {
   role: 'jd-bg-gradient-to-br jd-from-purple-800/40 jd-to-purple-900/40 jd-border-purple-700 jd-text-purple-200',
   context: 'jd-bg-gradient-to-br jd-from-green-800/40 jd-to-green-900/40 jd-border-green-700 jd-text-green-200',
   goal: 'jd-bg-gradient-to-br jd-from-pink-800/40 jd-to-pink-900/40 jd-border-pink-700 jd-text-pink-200',
-  content: 'jd-bg-gradient-to-br jd-from-slate-700/40 jd-to-slate-800/40 jd-border-slate-600 jd-text-slate-200',
   custom: 'jd-bg-gradient-to-br jd-from-amber-800/40 jd-to-amber-900/40 jd-border-amber-700 jd-text-amber-200',
   output_format: 'jd-bg-gradient-to-br jd-from-cyan-800/40 jd-to-cyan-900/40 jd-border-cyan-700 jd-text-cyan-200',
   example: 'jd-bg-gradient-to-br jd-from-orange-800/40 jd-to-orange-900/40 jd-border-orange-700 jd-text-orange-200',
@@ -108,7 +102,6 @@ export const BLOCK_ICON_COLORS_LIGHT: Record<BlockType, string> = {
   role: 'jd-bg-purple-100 jd-text-purple-700',
   context: 'jd-bg-green-100 jd-text-green-700',
   goal: 'jd-bg-pink-100 jd-text-pink-700',
-  content: 'jd-bg-slate-100 jd-text-slate-700',
   custom: 'jd-bg-amber-100 jd-text-amber-700',
   output_format: 'jd-bg-cyan-100 jd-text-cyan-700',
   example: 'jd-bg-orange-100 jd-text-orange-700',
@@ -122,7 +115,6 @@ export const BLOCK_ICON_COLORS_DARK: Record<BlockType, string> = {
   role: 'jd-bg-purple-800 jd-text-purple-300',
   context: 'jd-bg-green-800 jd-text-green-300',
   goal: 'jd-bg-pink-800 jd-text-pink-300',
-  content: 'jd-bg-slate-700 jd-text-slate-200',
   custom: 'jd-bg-amber-800 jd-text-amber-300',
   output_format: 'jd-bg-cyan-800 jd-text-cyan-300',
   example: 'jd-bg-orange-800 jd-text-orange-300',
@@ -136,7 +128,6 @@ export const BLOCK_TEXT_COLORS_LIGHT: Record<BlockType, string> = {
   role: 'jd-text-purple-700',
   context: 'jd-text-green-700',
   goal: 'jd-text-pink-700',
-  content: 'jd-text-slate-700',
   custom: 'jd-text-amber-700',
   output_format: 'jd-text-cyan-700',
   example: 'jd-text-orange-700',
@@ -150,7 +141,6 @@ export const BLOCK_TEXT_COLORS_DARK: Record<BlockType, string> = {
   role: 'jd-text-purple-300',
   context: 'jd-text-green-300',
   goal: 'jd-text-pink-300',
-  content: 'jd-text-slate-300',
   custom: 'jd-text-amber-300',
   output_format: 'jd-text-cyan-300',
   example: 'jd-text-orange-300',
@@ -191,7 +181,6 @@ const PROMPT_PREFIXES_FR: Record<BlockType, string> = {
   role: "Role:\n ",
   context: 'Contexte:\n ',
   goal: 'Objectif:\n ',
-  content: '',
   custom: '',
   output_format: 'Format de sortie:\n ',
   example: 'Exemples:\n ',
@@ -211,7 +200,7 @@ const escapeHtml = (str: string): string =>
     .replace(/\n/g, '<br>');
 
 export const buildPromptPart = (type: BlockType | null | undefined, content: string): string => {
-  if (!type || type === 'custom' || type === 'content') {
+  if (!type || type === 'custom') {
     return content;
   }
   const prefix = PROMPT_PREFIXES_FR[type];
@@ -219,7 +208,7 @@ export const buildPromptPart = (type: BlockType | null | undefined, content: str
 };
 
 export const buildPromptPartHtml = (type: BlockType | null | undefined, content: string, isDarkMode: boolean): string => {
-  if (!type || type === 'custom' || type === 'content') {
+  if (!type || type === 'custom') {
     return escapeHtml(content);
   }
   const prefix = PROMPT_PREFIXES_FR[type];
@@ -235,7 +224,7 @@ export const isMetadataBlock = (type: BlockType): boolean => {
 };
 
 export const isContentBlock = (type: BlockType): boolean => {
-  return type === 'content';
+  return type === 'custom';
 };
 
 export const isCustomBlock = (type: BlockType): boolean => {
@@ -247,11 +236,10 @@ export const isMultipleValueBlock = (type: BlockType): boolean => {
 };
 
 // Helper to categorize blocks for UI organization
-export const getBlockCategory = (type: BlockType): 'primary' | 'secondary' | 'multiple' | 'content' | 'custom' => {
+export const getBlockCategory = (type: BlockType): 'primary' | 'secondary' | 'multiple' | 'custom' => {
   if (['role', 'context', 'goal'].includes(type)) return 'primary';
   if (['audience', 'tone_style', 'output_format'].includes(type)) return 'secondary';
   if (['constraint', 'example'].includes(type)) return 'multiple';
-  if (type === 'content') return 'content';
   return 'custom';
 };
 
@@ -294,7 +282,7 @@ export const getSuggestedBlockTypes = (existingBlocks: Block[]): BlockType[] => 
   const available = getAvailableBlockTypesForAdding();
   
   // Prioritize missing essential types
-  const essential: BlockType[] = ['content'];
+  const essential: BlockType[] = ['custom'];
   const recommended: BlockType[] = ['example', 'constraint'];
   
   const suggestions: BlockType[] = [];

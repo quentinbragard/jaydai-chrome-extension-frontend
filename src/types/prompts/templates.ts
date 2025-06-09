@@ -1,12 +1,21 @@
 // src/types/prompts/templates.ts
 
-/**
- * Template interface
- */
+export interface TemplateMetadata {
+  role?: number;
+  context?: number;
+  goal?: number;
+  tone_style?: number;
+  output_format?: number;
+  audience?: number;
+  examples?: number[];
+  constraints?: number[];
+  thinking_steps?: number[];
+}
+
 export interface Template {
     id: number;
     title: string;
-    content: string;
+    content: string | Record<string, string>;
     description?: string;
     folder_id?: number | null;
     user_id?: number;
@@ -15,22 +24,10 @@ export interface Template {
     updated_at?: string;
     last_used_at?: string;
     usage_count?: number;
-    tags?: string[];
     type?: 'official' | 'organization' | 'user';
     language?: string;
     based_on_official_id?: number | null;
-    /**
-     * Mapping of metadata types to block IDs when created with the Advanced Editor
-     */
-    metadata?: Record<string, number | number[]>;
-    /**
-     * IDs of blocks used for the content section
-     */
-    blocks?: number[];
-    /**
-     * Full metadata structure including values and references
-     */
-    enhanced_metadata?: any;
+    metadata?: TemplateMetadata;
   }
   
   /**

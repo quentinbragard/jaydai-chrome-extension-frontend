@@ -73,8 +73,8 @@ export interface ApiResponse<T = unknown> {
     content: string;
     description?: string;
     folder_id?: number | null;
-    tags?: string[];
     locale?: string;
+    metadata?: Record<string, number | number[]>;
     type?: string;
   }
   
@@ -83,7 +83,7 @@ export interface ApiResponse<T = unknown> {
     content?: string;
     description?: string;
     folder_id?: number | null;
-    tags?: string[];
+    metadata?: Record<string, number | number[]>;
   }
   
   export interface TemplateResponse {
@@ -94,7 +94,7 @@ export interface ApiResponse<T = unknown> {
       content: string;
       description?: string;
       folder_id?: number;
-      tags?: string[];
+      metadata?: Record<string, number | number[]>;
       created_at: string;
       [key: string]: any;
     };

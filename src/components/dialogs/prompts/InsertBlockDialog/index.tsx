@@ -76,7 +76,7 @@ const InlineBlockCreator: React.FC<{
   onBlockCreated: (block: Block) => void;
   onCancel: () => void;
 }> = ({ onBlockCreated, onCancel }) => {
-  const [type, setType] = useState<BlockType>('content');
+  const [type, setType] = useState<BlockType>('custom');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -402,7 +402,7 @@ export const InsertBlockDialog: React.FC = () => {
   useEffect(() => {
     const parts = selectedBlocks.map(b => {
       const text = blockContents[b.id] ?? (typeof b.content === 'string' ? b.content : b.content.en || '');
-      return buildPromptPart(b.type || 'content', text);
+      return buildPromptPart(b.type || 'custom', text);
     });
     setEditableContent(parts.join('\n\n'));
   }, [selectedBlocks, blockContents]);
@@ -413,7 +413,7 @@ export const InsertBlockDialog: React.FC = () => {
     return selectedBlocks
       .map(b => {
         const text = blockContents[b.id] ?? (typeof b.content === 'string' ? b.content : b.content.en || '');
-        return buildPromptPartHtml(b.type || 'content', text, isDark);
+        return buildPromptPartHtml(b.type || 'custom', text, isDark);
       })
       .join('<br><br>');
   }, [selectedBlocks, blockContents, isDark]);
@@ -441,7 +441,7 @@ export const InsertBlockDialog: React.FC = () => {
       const updated = { ...prev };
       selectedBlocks.forEach((b, idx) => {
         let seg = segments[idx] ?? '';
-        const prefix = buildPromptPart(b.type || 'content', '');
+        const prefix = buildPromptPart(b.type || 'custom', '');
         if (prefix && seg.startsWith(prefix)) {
           seg = seg.slice(prefix.length);
         }
@@ -480,7 +480,7 @@ export const InsertBlockDialog: React.FC = () => {
   });
 
   // Get unique block types for filter
-  const blockTypes = Array.from(new Set(blocks.map(b => b.type || 'content')));
+  const blockTypes = Array.from(new Set(blocks.map(b => b.type || 'custom')));
 
   const toggleExpanded = (id: number) => {
     setExpandedBlocks(prev => {

@@ -24,7 +24,7 @@ export interface AvailableBlockCardProps {
 export function AvailableBlockCard({ block, isDark, onAdd, isSelected = false, onRemove }: AvailableBlockCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const Icon = getBlockTypeIcon(block.type);
-  const cardColors = getBlockTypeColors(block.type || 'content', isDark);
+  const cardColors = getBlockTypeColors(block.type || 'custom', isDark);
   const iconBg = getBlockIconColors(block.type, isDark);
   const title = typeof block.title === 'string' ? block.title : block.title?.en || 'Untitled';
   const content = typeof block.content === 'string' ? block.content : block.content.en || '';
@@ -58,7 +58,7 @@ export function AvailableBlockCard({ block, isDark, onAdd, isSelected = false, o
             <div className="jd-flex jd-items-center jd-gap-2 jd-mb-2">
               <h3 className="jd-font-semibold jd-text-sm jd-truncate jd-flex-1">{title}</h3>
               <Badge variant="secondary" className="jd-text-xs jd-px-2 jd-py-1 jd-h-auto jd-flex-shrink-0">
-                {BLOCK_TYPE_LABELS[block.type || 'content']}
+                {BLOCK_TYPE_LABELS[block.type || 'custom']}
               </Badge>
             </div>
             
