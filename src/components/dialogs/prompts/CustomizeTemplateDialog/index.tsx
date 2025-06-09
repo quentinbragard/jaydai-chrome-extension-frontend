@@ -21,6 +21,8 @@ export const CustomizeTemplateDialog: React.FC = () => {
     isProcessing,
     activeTab,
     setActiveTab,
+    content,
+    setContent,
     handleAddBlock,
     handleRemoveBlock,
     handleUpdateBlock,
@@ -62,12 +64,9 @@ export const CustomizeTemplateDialog: React.FC = () => {
   };
 
   const advancedProps = {
-    blocks,
+    content,
     metadata,
-    onAddBlock: handleAddBlock,
-    onRemoveBlock: handleRemoveBlock,
-    onUpdateBlock: handleUpdateBlock,
-    onReorderBlocks: handleReorderBlocks,
+    onContentChange: setContent,
     onUpdateMetadata: handleUpdateMetadata,
     isProcessing
   };

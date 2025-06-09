@@ -317,6 +317,8 @@ export function useCreateTemplateDialog() {
     handleFolderSelect,
     userFoldersList,
     validationErrors,
+    content,
+    setContent,
     blocks,
     metadata,
     activeTab,
