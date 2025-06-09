@@ -41,12 +41,15 @@ export function useTemplateCreation() {
         content: data.content.trim(),
         description: data.description?.trim(),
         folder_id: data.folder_id || null,
+        metadata: data.metadata || {},
         tags: data.tags || [],
         locale: data.locale || navigator.language || 'en',
         ...(data.blocks ? { blocks: data.blocks } : {}),
         ...(data.metadata ? { metadata: data.metadata } : {}),
         ...(data.enhanced_metadata ? { enhanced_metadata: data.enhanced_metadata } : {})
       };
+
+      console.log("TEMPLATE DATA", templateData);
       
       const response = await promptApi.createTemplate(templateData);
       if (!response.success) {
@@ -135,6 +138,8 @@ export function useTemplateCreation() {
     data: TemplateFormData, 
     templateId?: number
   ): Promise<boolean> => {
+
+    console.log("DATAAAAAAA", data);
     // Validate the form data first
     if (!validateTemplateForm(data)) {
       return false;

@@ -27,6 +27,7 @@ import {
   updateMetadataItem,
   reorderMetadataItems
 } from './templateDialogUtils';
+import { prefillMetadataFromMapping } from '@/utils/templates/metadataPrefill';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
@@ -72,6 +73,10 @@ export function useCustomizeTemplateDialog() {
 
         setBlocks(templateBlocks);
         setMetadata(templateMetadata);
+
+        if (!data.enhanced_metadata && data.metadata) {
+          prefillMetadataFromMapping(data.metadata).then(setMetadata);
+        }
       } catch (err) {
         console.error('PlaceholderEditor: Error processing template:', err);
         setError(getMessage('errorProcessingTemplate'));

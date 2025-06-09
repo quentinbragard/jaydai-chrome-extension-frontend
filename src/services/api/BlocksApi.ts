@@ -119,6 +119,22 @@ export class BlocksApi {
   }
 
   /**
+   * Fetch a single block by ID
+   */
+  async getBlock(blockId: number): Promise<any> {
+    try {
+      return await apiClient.request(`/prompts/blocks/${blockId}`);
+    } catch (error) {
+      console.error('Error fetching block:', error);
+      return {
+        success: false,
+        data: null,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
    * Get all available block types
    */
   async getBlockTypes(): Promise<any> {

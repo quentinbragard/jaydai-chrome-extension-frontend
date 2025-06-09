@@ -22,8 +22,6 @@ import {
   generateEnhancedFinalContent,
   getEnhancedContentBlockIds, // FIXED: Use this for content blocks
   getMetadataBlockMapping,    // FIXED: Use this for metadata blocks
-  createEnhancedMetadataForSaving,
-  parseTemplateMetadata,
   createBlock,
   addBlock as addBlockUtil,
   removeBlock as removeBlockUtil,
@@ -34,6 +32,7 @@ import {
   updateMetadataItem,
   reorderMetadataItems
 } from './templateDialogUtils';
+import { prefillMetadataFromMapping } from '@/utils/templates/metadataPrefill';
 
 export function useCreateTemplateDialog() {
   const createDialog = useDialog('createTemplate');
@@ -58,7 +57,6 @@ export function useCreateTemplateDialog() {
   const { saveTemplate } = useTemplateCreation();
 
   const currentTemplate = data?.template || null;
-  const onSave = data?.onSave;
   const userFolders = data?.userFolders || [];
   const selectedFolder = data?.selectedFolder;
 
@@ -72,12 +70,6 @@ export function useCreateTemplateDialog() {
         setName(currentTemplate.title || '');
         setDescription(currentTemplate.description || '');
         setSelectedFolderId(currentTemplate.folder_id ? currentTemplate.folder_id.toString() : '');
-
-        if (currentTemplate.enhanced_metadata) {
-          // Load enhanced metadata structure
-          const enhancedMetadata = parseTemplateMetadata(currentTemplate.enhanced_metadata);
-          setMetadata(enhancedMetadata);
-        }
 
         if (currentTemplate.expanded_blocks && Array.isArray(currentTemplate.expanded_blocks)) {
           const templateBlocks: Block[] = currentTemplate.expanded_blocks.map((block: any, index: number) => ({
@@ -98,6 +90,12 @@ export function useCreateTemplateDialog() {
               title: { en: 'Template Content' }
             }
           ]);
+        }
+
+        if (currentTemplate.enhanced_metadata) {
+          setMetadata(currentTemplate.enhanced_metadata);
+        } else if (currentTemplate.metadata) {
+          prefillMetadataFromMapping(currentTemplate.metadata).then(setMetadata);
         }
       } else {
         setName('');
@@ -213,14 +211,12 @@ export function useCreateTemplateDialog() {
       const contentBlockIds = getContentBlockIdsLocal(); // FIXED: Content blocks only
       const metadataBlockMapping = getMetadataMappingLocal(); // FIXED: Metadata blocks only
       
-      // FIXED: Create comprehensive enhanced metadata for saving
-      const enhancedMetadata = createEnhancedMetadataForSaving(metadata, activeTab);
+
 
       console.log('FIXED Template Save Data:', {
         finalContent,
         contentBlockIds,      // FIXED: These are content blocks
         metadataBlockMapping, // FIXED: These are metadata blocks
-        enhancedMetadata
       });
 
       const formData = {
@@ -229,25 +225,11 @@ export function useCreateTemplateDialog() {
         description: description?.trim(),
         folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined,
         blocks: contentBlockIds,
-        enhanced_metadata: enhancedMetadata,
         metadata: metadataBlockMapping
       };
 
-      console.log('Final Template Data Structure:', {
-        ...formData,
-        explanation: {
-          blocks: 'Content block IDs (blocks added to content section)',
-          metadata: 'Metadata block IDs (blocks selected in metadata dropdowns)',
-          enhanced_metadata: 'Complete metadata structure with values and references'
-        }
-      });
-
       let success = false;
-      if (onSave) {
-        success = await onSave(formData);
-      } else {
-        success = await saveTemplate(formData, currentTemplate?.id);
-      }
+      success = await saveTemplate(formData, currentTemplate?.id);
 
       if (success) {
         if (process.env.NODE_ENV === 'development') {

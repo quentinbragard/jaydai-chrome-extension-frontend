@@ -11,6 +11,7 @@ import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { getMessage } from '@/core/utils/i18n';
 import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrackets } from '@/utils/templates/insertPrompt';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
+import { prefillMetadataFromMapping } from '@/utils/templates/metadataPrefill';
 
 
 /**
@@ -102,7 +103,7 @@ const handleTemplateComplete = useCallback((finalContent: string) => {
 }, []);
 
 // Updated useTemplate function with cross-platform support
-const useTemplate = useCallback((template: Template) => {
+const useTemplate = useCallback(async (template: Template) => {
   // Validation
   if (!template) {
     toast.error('Invalid template data');
@@ -125,14 +126,24 @@ const useTemplate = useCallback((template: Template) => {
   setIsProcessing(true);
   
   try {
-    // Open the placeholder editor dialog
-    openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
+    let dialogData: any = {
       content: template.content,
       title: template.title || 'Untitled Template',
       type: template.type,
       id: template.id,
+      expanded_blocks: (template as any).expanded_blocks,
       onComplete: handleTemplateComplete
-    });
+    };
+
+    if ((template as any).enhanced_metadata) {
+      dialogData.enhanced_metadata = (template as any).enhanced_metadata;
+    } else if ((template as any).metadata) {
+      const meta = await prefillMetadataFromMapping((template as any).metadata);
+      dialogData.enhanced_metadata = meta;
+    }
+
+    // Open the placeholder editor dialog
+    openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, dialogData);
     trackEvent(EVENTS.PLACEHOLDER_EDITOR_OPENED, {
       template_id: template.id,
       template_name: template.title,
