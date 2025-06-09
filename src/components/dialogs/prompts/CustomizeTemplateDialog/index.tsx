@@ -64,8 +64,6 @@ export const CustomizeTemplateDialog: React.FC = () => {
   const advancedProps = {
     blocks,
     metadata,
-    onAddBlock: handleAddBlock,
-    onRemoveBlock: handleRemoveBlock,
     onUpdateBlock: handleUpdateBlock,
     onReorderBlocks: handleReorderBlocks,
     onUpdateMetadata: handleUpdateMetadata,

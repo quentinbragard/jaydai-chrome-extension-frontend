@@ -8,20 +8,12 @@ import { cn } from '@/core/utils/classNames';
 import { BLOCK_TYPES } from '../../../prompts/blocks/blockUtils';
 
 import { MetadataSection } from './MetadataSection';
-import { ContentSection } from './ContentSection';
-import { EnhancedPreviewSection } from './EnhancedPreviewSection';
+import { SeparatedPreviewSection } from './SeparatedPreviewSection';
 import { useAdvancedEditorLogic } from '@/hooks/prompts/editors/useAdvancedEditorLogic';
 
 interface AdvancedEditorProps {
   blocks: Block[];
   metadata?: PromptMetadata;
-  onAddBlock: (
-    position: 'start' | 'end',
-    blockType?: BlockType | null,
-    existingBlock?: Block,
-    duplicate?: boolean
-  ) => void;
-  onRemoveBlock: (blockId: number) => void;
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
   onReorderBlocks: (blocks: Block[]) => void;
   onUpdateMetadata?: (metadata: PromptMetadata) => void;
@@ -31,8 +23,6 @@ interface AdvancedEditorProps {
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   blocks,
   metadata = DEFAULT_METADATA,
-  onAddBlock,
-  onRemoveBlock,
   onUpdateBlock,
   onReorderBlocks,
   onUpdateMetadata,
@@ -43,7 +33,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const {
     // Available blocks state
     availableMetadataBlocks,
-    availableBlocksByType,
     
     // UI state
     expandedMetadata,
@@ -57,12 +46,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     setMetadataCollapsed,
     secondaryMetadataCollapsed,
     setSecondaryMetadataCollapsed,
-    
-    // Drag and drop
-    draggedBlockId,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
     
     // Metadata handlers
     handleSingleMetadataChange,
@@ -150,28 +133,17 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           onSaveBlock={handleMetadataBlockSaved}
         />
 
-        {/* Content Section */}
-        <ContentSection
-          blocks={blocks}
-          availableBlocksByType={availableBlocksByType}
-          draggedBlockId={draggedBlockId}
-          onAddBlock={onAddBlock}
-          onRemoveBlock={onRemoveBlock}
-          onUpdateBlock={onUpdateBlock}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-          onBlockSaved={handleBlockSaved}
-        />
-
         {/* Preview Section */}
-        <EnhancedPreviewSection
-          content={generatePreviewContent()}
-          htmlContent={generatePreviewHtml()}
-          expanded={previewExpanded}
-          onToggle={() => setPreviewExpanded(!previewExpanded)}
-          metadataBlockMapping={getMetadataBlockMapping()}
-        />
+        {(() => {
+          const { before, content, after } = generateSeparatedPreviewHtml();
+          return (
+            <SeparatedPreviewSection
+              beforeHtml={before}
+              contentHtml={content}
+              afterHtml={after}
+            />
+          );
+        })()}
       </div>
     </div>
   );
