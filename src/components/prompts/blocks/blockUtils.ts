@@ -10,7 +10,6 @@ import {
   Ban,
   Palette,
   User,
-  BrainCog,
   Sparkles
 } from 'lucide-react';
 import { BlockType, Block } from '@/types/prompts/blocks';
@@ -27,8 +26,7 @@ export const BLOCK_TYPES: BlockType[] = [
   'example',
   'constraint',
   'tone_style',
-  'audience',
-  'thinking_step'
+  'audience'
 ];
 
 export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
@@ -40,8 +38,7 @@ export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   example: 'Example',
   constraint: 'Constraint',
   tone_style: 'Tone & Style',
-  audience: 'Audience',
-  thinking_step: 'Thinking Step'
+  audience: 'Audience'
 };
 
 export const BLOCK_TYPE_ICONS: Record<BlockType, React.ComponentType<any>> = {
@@ -53,8 +50,7 @@ export const BLOCK_TYPE_ICONS: Record<BlockType, React.ComponentType<any>> = {
   example: Layout,
   constraint: Ban,
   tone_style: Palette,
-  audience: Users,
-  thinking_step: BrainCog
+  audience: Users
 };
 
 export const BLOCK_TYPE_DESCRIPTIONS: Record<BlockType, string> = {
@@ -66,8 +62,7 @@ export const BLOCK_TYPE_DESCRIPTIONS: Record<BlockType, string> = {
   example: 'Provide an example',
   constraint: 'Specify constraints or limitations',
   tone_style: 'Define tone and style',
-  audience: 'Describe the target audience',
-  thinking_step: 'Guide the reasoning process'
+  audience: 'Describe the target audience'
 };
 
 // Enhanced gradient card colors with better visual hierarchy
@@ -80,8 +75,7 @@ export const BLOCK_CARD_COLORS_LIGHT: Record<BlockType, string> = {
   example: 'jd-bg-gradient-to-br jd-from-orange-50 jd-to-orange-100 jd-border-orange-200 jd-text-orange-900',
   constraint: 'jd-bg-gradient-to-br jd-from-red-50 jd-to-red-100 jd-border-red-200 jd-text-red-900',
   tone_style: 'jd-bg-gradient-to-br jd-from-indigo-50 jd-to-indigo-100 jd-border-indigo-200 jd-text-indigo-900',
-  audience: 'jd-bg-gradient-to-br jd-from-teal-50 jd-to-teal-100 jd-border-teal-200 jd-text-teal-900',
-  thinking_step: 'jd-bg-gradient-to-br jd-from-yellow-50 jd-to-yellow-100 jd-border-yellow-200 jd-text-yellow-900'
+  audience: 'jd-bg-gradient-to-br jd-from-teal-50 jd-to-teal-100 jd-border-teal-200 jd-text-teal-900'
 };
 
 export const BLOCK_CARD_COLORS_DARK: Record<BlockType, string> = {
@@ -93,8 +87,7 @@ export const BLOCK_CARD_COLORS_DARK: Record<BlockType, string> = {
   example: 'jd-bg-gradient-to-br jd-from-orange-800/40 jd-to-orange-900/40 jd-border-orange-700 jd-text-orange-200',
   constraint: 'jd-bg-gradient-to-br jd-from-red-800/40 jd-to-red-900/40 jd-border-red-700 jd-text-red-200',
   tone_style: 'jd-bg-gradient-to-br jd-from-indigo-800/40 jd-to-indigo-900/40 jd-border-indigo-700 jd-text-indigo-200',
-  audience: 'jd-bg-gradient-to-br jd-from-teal-800/40 jd-to-teal-900/40 jd-border-teal-700 jd-text-teal-200',
-  thinking_step: 'jd-bg-gradient-to-br jd-from-yellow-800/40 jd-to-yellow-900/40 jd-border-yellow-700 jd-text-yellow-200'
+  audience: 'jd-bg-gradient-to-br jd-from-teal-800/40 jd-to-teal-900/40 jd-border-teal-700 jd-text-teal-200'
 };
 
 // Icon background colors
@@ -107,8 +100,7 @@ export const BLOCK_ICON_COLORS_LIGHT: Record<BlockType, string> = {
   example: 'jd-bg-orange-100 jd-text-orange-700',
   constraint: 'jd-bg-red-100 jd-text-red-700',
   tone_style: 'jd-bg-indigo-100 jd-text-indigo-700',
-  audience: 'jd-bg-teal-100 jd-text-teal-700',
-  thinking_step: 'jd-bg-yellow-100 jd-text-yellow-700'
+  audience: 'jd-bg-teal-100 jd-text-teal-700'
 };
 
 export const BLOCK_ICON_COLORS_DARK: Record<BlockType, string> = {
@@ -120,8 +112,7 @@ export const BLOCK_ICON_COLORS_DARK: Record<BlockType, string> = {
   example: 'jd-bg-orange-800 jd-text-orange-300',
   constraint: 'jd-bg-red-800 jd-text-red-300',
   tone_style: 'jd-bg-indigo-800 jd-text-indigo-300',
-  audience: 'jd-bg-teal-800 jd-text-teal-300',
-  thinking_step: 'jd-bg-yellow-800 jd-text-yellow-300'
+  audience: 'jd-bg-teal-800 jd-text-teal-300'
 };
 
 export const BLOCK_TEXT_COLORS_LIGHT: Record<BlockType, string> = {
@@ -133,8 +124,7 @@ export const BLOCK_TEXT_COLORS_LIGHT: Record<BlockType, string> = {
   example: 'jd-text-orange-700',
   constraint: 'jd-text-red-700',
   tone_style: 'jd-text-indigo-700',
-  audience: 'jd-text-teal-700',
-  thinking_step: 'jd-text-yellow-700'
+  audience: 'jd-text-teal-700'
 };
 
 export const BLOCK_TEXT_COLORS_DARK: Record<BlockType, string> = {
@@ -146,8 +136,7 @@ export const BLOCK_TEXT_COLORS_DARK: Record<BlockType, string> = {
   example: 'jd-text-orange-300',
   constraint: 'jd-text-red-300',
   tone_style: 'jd-text-indigo-300',
-  audience: 'jd-text-teal-300',
-  thinking_step: 'jd-text-yellow-300'
+  audience: 'jd-text-teal-300'
 };
 
 // Utility functions
@@ -187,7 +176,6 @@ const PROMPT_PREFIXES_FR: Record<BlockType, string> = {
   constraint: 'Contraintes:\n ',
   tone_style: 'Ton et style:\n ',
   audience: 'Audience cible:\n ',
-  thinking_step: 'Étape de réflexion:\n '
 };
 
 const escapeHtml = (str: string): string =>

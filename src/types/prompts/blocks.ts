@@ -8,8 +8,7 @@ export type BlockType =
   | 'example'
   | 'constraint'
   | 'tone_style'
-  | 'audience'
-  | 'thinking_step';
+  | 'audience';
 
 export interface Block {
   id: number;

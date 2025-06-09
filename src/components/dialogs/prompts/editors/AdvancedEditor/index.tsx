@@ -86,50 +86,17 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           onAddSecondaryMetadata={addSecondaryMetadata}
           onRemoveSecondaryMetadata={removeSecondaryMetadata}
           onSaveBlock={() => {}}
-          showPrimary
-          showSecondary={false}
         />
 
         <div className="jd-space-y-2">
           <h3 className="jd-text-lg jd-font-semibold">Main Content</h3>
-          <div className="jd-border jd-rounded-lg jd-bg-background jd-p-4 jd-space-y-2">
-            <Textarea
-              value={content}
-              onChange={e => onContentChange(e.target.value)}
-              className="jd-min-h-[200px] jd-text-sm jd-resize-none"
-              placeholder="Enter prompt content..."
-            />
-            {content && (
-              <div className="jd-flex jd-justify-between jd-text-xs jd-text-muted-foreground">
-                <span>{content.length} characters</span>
-                <span>{content.split('\n').length} lines</span>
-              </div>
-            )}
-          </div>
+          <Textarea
+            value={content}
+            onChange={e => onContentChange(e.target.value)}
+            className="!jd-min-h-[250px] jd-text-sm jd-resize-none"
+            placeholder="Enter prompt content..."
+          />
         </div>
-
-        <MetadataSection
-          availableMetadataBlocks={{}}
-          metadata={metadata}
-          expandedMetadata={expandedMetadata}
-          setExpandedMetadata={setExpandedMetadata}
-          activeSecondaryMetadata={activeSecondaryMetadata}
-          metadataCollapsed={metadataCollapsed}
-          setMetadataCollapsed={setMetadataCollapsed}
-          secondaryMetadataCollapsed={secondaryMetadataCollapsed}
-          setSecondaryMetadataCollapsed={setSecondaryMetadataCollapsed}
-          onSingleMetadataChange={handleSingleMetadataChange}
-          onCustomChange={handleCustomChange}
-          onAddMetadataItem={handleAddMetadataItem}
-          onRemoveMetadataItem={handleRemoveMetadataItem}
-          onUpdateMetadataItem={handleUpdateMetadataItem}
-          onReorderMetadataItems={handleReorderMetadataItems}
-          onAddSecondaryMetadata={addSecondaryMetadata}
-          onRemoveSecondaryMetadata={removeSecondaryMetadata}
-          onSaveBlock={() => {}}
-          showPrimary={false}
-          showSecondary
-        />
 
         <div className="jd-pt-2">
           <button

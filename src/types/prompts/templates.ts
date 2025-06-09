@@ -9,7 +9,6 @@ export interface TemplateMetadata {
   audience?: number;
   examples?: number[];
   constraints?: number[];
-  thinking_steps?: number[];
 }
 
 export interface Template {
