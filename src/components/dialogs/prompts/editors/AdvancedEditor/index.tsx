@@ -9,11 +9,19 @@ import { BLOCK_TYPES } from '../../../prompts/blocks/blockUtils';
 
 import { MetadataSection } from './MetadataSection';
 import { SeparatedPreviewSection } from './SeparatedPreviewSection';
+import { ContentSection } from './ContentSection';
 import { useAdvancedEditorLogic } from '@/hooks/prompts/editors/useAdvancedEditorLogic';
 
 interface AdvancedEditorProps {
   blocks: Block[];
   metadata?: PromptMetadata;
+  onAddBlock: (
+    position: 'start' | 'end',
+    blockType?: BlockType | null,
+    existingBlock?: Block,
+    duplicate?: boolean
+  ) => void;
+  onRemoveBlock: (blockId: number) => void;
   onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
   onReorderBlocks: (blocks: Block[]) => void;
   onUpdateMetadata?: (metadata: PromptMetadata) => void;
@@ -23,6 +31,8 @@ interface AdvancedEditorProps {
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   blocks,
   metadata = DEFAULT_METADATA,
+  onAddBlock,
+  onRemoveBlock,
   onUpdateBlock,
   onReorderBlocks,
   onUpdateMetadata,
@@ -33,6 +43,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const {
     // Available blocks state
     availableMetadataBlocks,
+    availableBlocksByType,
     
     // UI state
     expandedMetadata,
@@ -58,6 +69,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     removeSecondaryMetadata,
     
     // Block handlers
+    draggedBlockId,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
     handleBlockSaved,
     handleMetadataBlockSaved,
     
@@ -131,6 +146,20 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           onAddSecondaryMetadata={addSecondaryMetadata}
           onRemoveSecondaryMetadata={removeSecondaryMetadata}
           onSaveBlock={handleMetadataBlockSaved}
+        />
+
+        {/* Content Section */}
+        <ContentSection
+          blocks={blocks}
+          availableBlocksByType={availableBlocksByType}
+          draggedBlockId={draggedBlockId}
+          onAddBlock={onAddBlock}
+          onRemoveBlock={onRemoveBlock}
+          onUpdateBlock={onUpdateBlock}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onBlockSaved={handleBlockSaved}
         />
 
         {/* Preview Section */}
