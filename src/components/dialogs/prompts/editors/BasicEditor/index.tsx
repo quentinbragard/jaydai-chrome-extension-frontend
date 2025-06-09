@@ -1,16 +1,18 @@
 // src/components/dialogs/prompts/editors/BasicEditor/index.tsx
 import React from 'react';
-import { Block } from '@/types/prompts/blocks';
+import { PromptMetadata } from '@/types/prompts/metadata';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
 import { useBasicEditorLogic } from '@/hooks/prompts/editors/useBasicEditorLogic';
 
 interface BasicEditorProps {
-  blocks: Block[];
-  onUpdateBlock: (blockId: number, updatedBlock: Partial<Block>) => void;
+  content: string;
+  metadata?: PromptMetadata;
+  onContentChange: (content: string) => void;
+  onUpdateMetadata?: (metadata: PromptMetadata) => void;
   mode?: 'create' | 'customize';
+  isProcessing?: boolean;
 }
 
 /**
@@ -18,9 +20,12 @@ interface BasicEditorProps {
  * No block logic exposed to the user
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
-  blocks,
-  onUpdateBlock,
-  mode = 'customize'
+  content,
+  metadata,
+  onContentChange,
+  onUpdateMetadata,
+  mode = 'customize',
+  isProcessing = false
 }) => {
   const {
     // State
@@ -31,12 +36,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     
     // Refs
     editorRef,
-    observerRef,
     inputRefs,
     activeInputIndex,
-    
-    // Content management
-    templateContent,
     
     // Event handlers
     handleEditorFocus,
@@ -47,10 +48,19 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     handleEditorKeyUp,
     updatePlaceholder
   } = useBasicEditorLogic({
-    blocks,
-    onUpdateBlock,
+    content,
+    onContentChange,
     mode
   });
+
+  if (isProcessing) {
+    return (
+      <div className="jd-flex jd-items-center jd-justify-center jd-h-full">
+        <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full" />
+        <span className="jd-ml-3 jd-text-gray-600">Loading template...</span>
+      </div>
+    );
+  }
 
   // For create mode, show only the editor without the left panel
   if (mode === 'create') {

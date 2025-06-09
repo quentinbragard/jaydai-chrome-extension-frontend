@@ -16,18 +16,12 @@ export const CustomizeTemplateDialog: React.FC = () => {
   const {
     isOpen,
     error,
-    blocks,
     metadata,
     isProcessing,
     activeTab,
     setActiveTab,
     content,
     setContent,
-    handleAddBlock,
-    handleRemoveBlock,
-    handleUpdateBlock,
-    handleMoveBlock,
-    handleReorderBlocks,
     handleUpdateMetadata,
     handleComplete,
     handleClose
@@ -35,7 +29,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
 
   if (!isOpen) return null;
 
-  if (error && blocks.length === 0 && !isProcessing) {
+  if (error && !isProcessing) {
     return (
       <BaseDialog
         open={isOpen}
@@ -59,8 +53,11 @@ export const CustomizeTemplateDialog: React.FC = () => {
   }
 
   const basicProps = {
-    blocks,
-    onUpdateBlock: handleUpdateBlock
+    content,
+    metadata,
+    onContentChange: setContent,
+    onUpdateMetadata: handleUpdateMetadata,
+    isProcessing
   };
 
   const advancedProps = {
@@ -119,7 +116,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
           <Button variant="outline" onClick={handleClose}>
             {getMessage('cancel', undefined, 'Cancel')}
           </Button>
-          <Button onClick={handleComplete} disabled={blocks.length === 0 || isProcessing}>
+          <Button onClick={handleComplete} disabled={isProcessing}>
             {getMessage('useTemplate', undefined, 'Use Template')}
           </Button>
         </div>
