@@ -16,7 +16,7 @@ import { BLOCK_TYPE_LABELS, getBlockTypeIcon, getBlockTypeColors } from '@/compo
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 const AVAILABLE_BLOCK_TYPES: BlockType[] = [
-  'content', 'role', 'context', 'goal', 'custom', 
+  'role', 'context', 'goal', 'custom',
   'output_format', 'example', 'constraint', 'tone_style', 'audience'
 ];
 
@@ -26,7 +26,7 @@ export const CreateBlockDialog: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
-  const [blockType, setBlockType] = useState<BlockType>('content');
+  const [blockType, setBlockType] = useState<BlockType>('custom');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   
@@ -43,7 +43,7 @@ export const CreateBlockDialog: React.FC = () => {
   useEffect(() => {
     if (isOpen) {
       setContent(initialContent);
-      setBlockType(initialType || 'content');
+      setBlockType(initialType || 'custom');
       setName('');
       setDescription('');
       setValidationErrors({});
@@ -120,7 +120,7 @@ export const CreateBlockDialog: React.FC = () => {
     setName('');
     setDescription('');
     setContent('');
-    setBlockType('content');
+    setBlockType('custom');
     setValidationErrors({});
     setIsSubmitting(false);
     dialogProps.onOpenChange(false);

@@ -71,30 +71,17 @@ export function useCreateTemplateDialog() {
         setDescription(currentTemplate.description || '');
         setSelectedFolderId(currentTemplate.folder_id ? currentTemplate.folder_id.toString() : '');
 
-        if (currentTemplate.expanded_blocks && Array.isArray(currentTemplate.expanded_blocks)) {
-          const templateBlocks: Block[] = currentTemplate.expanded_blocks.map((block: any, index: number) => ({
-            id: block.id || Date.now() + index,
-            type: block.type || 'content',
-            content: block.content || '',
-            title: block.title,
-            description: block.description
-          }));
-          setBlocks(templateBlocks);
-        } else {
-          setContent(currentTemplate.content || '');
-          setBlocks([
-            {
-              id: Date.now(),
-              type: 'content',
-              content: currentTemplate.content || '',
-              title: { en: 'Template Content' }
-            }
-          ]);
-        }
+        setContent(currentTemplate.content || '');
+        setBlocks([
+          {
+            id: Date.now(),
+            type: 'custom',
+            content: currentTemplate.content || '',
+            title: { en: 'Template Content' }
+          }
+        ]);
 
-        if (currentTemplate.enhanced_metadata) {
-          setMetadata(currentTemplate.enhanced_metadata);
-        } else if (currentTemplate.metadata) {
+        if (currentTemplate.metadata) {
           prefillMetadataFromMapping(currentTemplate.metadata).then(setMetadata);
         }
       } else {
@@ -104,7 +91,7 @@ export function useCreateTemplateDialog() {
         setBlocks([
           {
             id: Date.now(),
-            type: 'content',
+            type: 'custom',
             content: '',
             title: { en: 'Template Content' }
           }
@@ -131,7 +118,7 @@ export function useCreateTemplateDialog() {
     setBlocks([
       {
         id: Date.now(),
-        type: 'content',
+        type: 'custom',
         content: '',
         title: { en: 'Template Content' }
       }

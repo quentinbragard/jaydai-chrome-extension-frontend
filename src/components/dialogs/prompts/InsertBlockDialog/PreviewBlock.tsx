@@ -22,13 +22,13 @@ export function PreviewBlock({ block, isDark }: PreviewBlockProps) {
         </span>
         <span className="jd-text-sm jd-font-medium">{title}</span>
         <Badge variant="outline" className="jd-text-xs">
-          {BLOCK_TYPE_LABELS[block.type || 'content']}
+          {BLOCK_TYPE_LABELS[block.type || 'custom']}
         </Badge>
       </div>
       <div
         className="jd-text-sm jd-text-muted-foreground jd-pl-6"
         dangerouslySetInnerHTML={{
-          __html: buildPromptPartHtml(block.type || 'content', content, isDark),
+          __html: buildPromptPartHtml(block.type || 'custom', content, isDark),
         }}
       />
     </div>

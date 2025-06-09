@@ -49,7 +49,7 @@ export const BlockItem: React.FC<BlockItemProps> = ({
           <div className="jd-flex jd-items-center jd-gap-2">
             <h4 className="jd-text-sm jd-font-medium jd-truncate">{title}</h4>
             <span className="jd-text-[10px] jd-px-1.5 jd-py-0.5 jd-bg-muted jd-rounded jd-text-muted-foreground">
-              {BLOCK_TYPE_LABELS[block.type || 'content']}
+              {BLOCK_TYPE_LABELS[block.type || 'custom']}
             </span>
           </div>
           <p className="jd-text-xs jd-text-muted-foreground jd-line-clamp-1 jd-mt-0.5">

@@ -185,7 +185,7 @@ export const InlineBlockForm: React.FC<{
   onSave: (blockData: { type: BlockType; title: string; content: string }) => void;
   onCancel: () => void;
   initialType?: BlockType;
-}> = ({ onSave, onCancel, initialType = 'content' }) => {
+}> = ({ onSave, onCancel, initialType = 'custom' }) => {
   const [type, setType] = useState<BlockType>(initialType);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');

@@ -45,36 +45,20 @@ export function useCustomizeTemplateDialog() {
         let templateBlocks: Block[] = [];
         let templateMetadata: PromptMetadata = { ...DEFAULT_METADATA };
 
-        if (data.expanded_blocks && Array.isArray(data.expanded_blocks)) {
-          templateBlocks = data.expanded_blocks.map((block: any, index: number) => ({
-            id: block.id || Date.now() + index,
-            type: block.type || 'content',
-            content: getLocalizedContent(block.content) || '',
-            title: block.title || { en: `${(block.type || 'content').charAt(0).toUpperCase() + (block.type || 'content').slice(1)} Block` },
-            description: block.description || ''
-          }));
-
-          // Parse enhanced metadata from blocks if available
-          if (data.enhanced_metadata) {
-            templateMetadata = parseEnhancedMetadata(data.enhanced_metadata);
-          }
-        } else if (data.content) {
+        if (data.content) {
           const contentString = getLocalizedContent(data.content);
           templateBlocks = [{
             id: Date.now(),
-            type: 'content',
+            type: 'custom',
             content: contentString,
             title: { en: 'Template Content' }
           }];
-
-          // Try to extract metadata from content structure if it follows the enhanced format
-          templateMetadata = extractMetadataFromContent(contentString);
         }
 
         setBlocks(templateBlocks);
         setMetadata(templateMetadata);
 
-        if (!data.enhanced_metadata && data.metadata) {
+        if (data.metadata) {
           prefillMetadataFromMapping(data.metadata).then(setMetadata);
         }
       } catch (err) {

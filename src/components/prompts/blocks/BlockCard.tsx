@@ -45,9 +45,9 @@ export const BlockCard: React.FC<BlockCardProps> = ({
   onSave
 }) => {
   const isDark = useThemeDetector();
-  const Icon = getBlockTypeIcon(block.type || 'content');
-  const cardColors = getBlockTypeColors(block.type || 'content', isDark);
-  const iconBg = getBlockIconColors(block.type || 'content', isDark);
+  const Icon = getBlockTypeIcon(block.type || 'custom');
+  const cardColors = getBlockTypeColors(block.type || 'custom', isDark);
+  const iconBg = getBlockIconColors(block.type || 'custom', isDark);
   const content = typeof block.content === 'string' 
     ? block.content 
     : block.content[getCurrentLanguage()] || block.content.en || '';
@@ -76,7 +76,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
     setHasUnsavedChanges(content !== originalContent || newType !== originalType);
   };
 
-  const isContentType = block.type === 'content';
+  const isContentType = block.type === 'custom';
   const blocksForType = block.type ? availableBlocks : [];
   const existing = blocksForType.find(b => b.id === block.id);
   const readOnly = !block.isNew;
@@ -117,7 +117,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
 
   const handleSaveClick = () => {
     openDialog(DIALOG_TYPES.CREATE_BLOCK, {
-      initialType: block.type || 'content',
+      initialType: block.type || 'custom',
       initialContent: content,
       onBlockCreated: handleBlockCreated
     });
