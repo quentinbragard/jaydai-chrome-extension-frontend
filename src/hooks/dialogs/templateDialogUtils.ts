@@ -11,7 +11,7 @@ import {
   isMultipleMetadataType,
   METADATA_CONFIGS
 } from '@/types/prompts/metadata';
-import { buildCompletePrompt } from '@/components/prompts/promptUtils';
+import { buildCompletePrompt } from '@/utils/prompts/promptUtils';
 import { blocksApi } from '@/services/api/BlocksApi';
 
 export function validateEnhancedTemplateForm(

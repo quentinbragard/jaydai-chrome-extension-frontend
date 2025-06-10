@@ -17,7 +17,7 @@ import {
   getBlockTypeIcon,
   getBlockTypeColors,
   getBlockIconColors
-} from './blockUtils';
+} from '@/utils/prompts/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
 

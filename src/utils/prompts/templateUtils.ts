@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { getBlockContent } from '../blocks/blockUtils';
-import { formatBlockForPrompt, formatMetadataForPrompt } from '@/components/prompts/promptUtils';
+import { getBlockContent } from '@/utils/prompts/blockUtils';
+import { formatBlockForPrompt, formatMetadataForPrompt } from '@/utils/prompts/promptUtils';
 import { ALL_METADATA_TYPES, PromptMetadata } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 
