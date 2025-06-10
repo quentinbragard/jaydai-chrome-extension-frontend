@@ -24,7 +24,7 @@ export function useSimpleMetadata({ metadata, onUpdateMetadata }: UseSimpleMetad
   // Calculate active secondary metadata based on what's currently set
   const activeSecondaryMetadata = useMemo(() => {
     const activeSet = new Set<MetadataType>();
-    
+
     SECONDARY_METADATA.forEach(type => {
       if (isMultipleMetadataType(type)) {
         const multiType = type as MultipleMetadataType;
@@ -33,15 +33,16 @@ export function useSimpleMetadata({ metadata, onUpdateMetadata }: UseSimpleMetad
         }
       } else {
         const singleType = type as SingleMetadataType;
-        // Check if there's either a selected block ID or a custom value
-        const hasBlockId = metadata[singleType] && metadata[singleType] !== 0;
-        const hasCustomValue = metadata.values?.[singleType]?.trim();
-        if (hasBlockId || hasCustomValue) {
+        // Consider the metadata active if the field exists in metadata or values
+        const hasField = Object.prototype.hasOwnProperty.call(metadata, singleType) ||
+          (metadata.values && Object.prototype.hasOwnProperty.call(metadata.values, singleType));
+
+        if (hasField) {
           activeSet.add(type);
         }
       }
     });
-    
+
     return activeSet;
   }, [metadata]);
 
@@ -154,27 +155,29 @@ export function useSimpleMetadata({ metadata, onUpdateMetadata }: UseSimpleMetad
 
   // Remove secondary metadata type
   const removeSecondaryMetadata = useCallback((type: MetadataType) => {
+    let newMetadata: PromptMetadata = { ...metadata };
+
     if (isMultipleMetadataType(type)) {
       const multiType = type as MultipleMetadataType;
-      updateMetadata({
-        [multiType]: []
-      });
+      delete (newMetadata as any)[multiType];
     } else {
       const singleType = type as SingleMetadataType;
-      updateMetadata({
-        [singleType]: 0,
-        values: {
-          ...metadata.values,
-          [singleType]: ''
-        }
-      });
+      delete (newMetadata as any)[singleType];
+      if (newMetadata.values) {
+        const { [singleType]: _removed, ...restValues } = newMetadata.values;
+        newMetadata.values = restValues;
+      }
+    }
+
+    if (onUpdateMetadata) {
+      onUpdateMetadata(newMetadata);
     }
     
     // Close expanded state if removing the currently expanded item
     if (expandedMetadata === type) {
       setExpandedMetadata(null);
     }
-  }, [metadata, updateMetadata, expandedMetadata]);
+  }, [metadata, onUpdateMetadata, expandedMetadata]);
 
   return {
     // UI state
