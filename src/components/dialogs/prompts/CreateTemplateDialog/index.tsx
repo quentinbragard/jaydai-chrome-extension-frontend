@@ -41,10 +41,10 @@ export const CreateTemplateDialog: React.FC = () => {
     addNewBlock(newBlock);
   };
 
-  // Handle save with resolved content
+  // Handle save action
   const handleSaveWithResolvedContent = () => {
-    // The dialog's handleSave should use the final prompt content
-    dialog.handleSave(finalPromptContent);
+    // Save only the main content, metadata is handled separately
+    dialog.handleSave();
   };
 
   if (!dialog.isOpen) return null;
