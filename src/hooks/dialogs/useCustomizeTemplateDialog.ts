@@ -25,6 +25,7 @@ export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
   const [content, setContent] = useState('');
   const [metadata, setMetadata] = useState<PromptMetadata>(DEFAULT_METADATA);
+  const [finalPromptContent, setFinalPromptContent] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
@@ -33,7 +34,7 @@ export function useCustomizeTemplateDialog() {
     if (isOpen && data) {
       setError(null);
       setIsProcessing(true);
-      
+
       const processTemplateData = async () => {
         try {
           if (data.content) {
@@ -54,6 +55,11 @@ export function useCustomizeTemplateDialog() {
       processTemplateData();
     }
   }, [isOpen, data]);
+
+  // Keep final prompt content in sync with metadata and content
+  useEffect(() => {
+    setFinalPromptContent(buildCompletePrompt(metadata, content));
+  }, [metadata, content]);
 
   const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
     setMetadata(newMetadata);
@@ -82,7 +88,7 @@ export function useCustomizeTemplateDialog() {
 
   const handleComplete = () => {
     try {
-      const finalContent = buildCompletePrompt(metadata, content);
+      const finalContent = finalPromptContent;
       
       if (data && data.onComplete) {
         data.onComplete(finalContent);
@@ -124,6 +130,7 @@ export function useCustomizeTemplateDialog() {
     isProcessing,
     activeTab,
     setActiveTab,
+    finalPromptContent,
     handleUpdateMetadata,
     // Enhanced metadata handlers
     handleAddMetadataItem,
