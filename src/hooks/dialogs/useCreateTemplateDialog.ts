@@ -180,12 +180,10 @@ export function useCreateTemplateDialog() {
     return Object.keys(errors).length === 0;
   };
 
-  // FIXED: Proper separation of content blocks vs metadata blocks
-  const generateFinalContentLocal = () => generateEnhancedFinalContent(content, blocks, metadata, activeTab);
-  const getContentBlockIdsLocal = () => getEnhancedContentBlockIds(blocks, activeTab); // FIXED: Only content blocks
-  const getMetadataMappingLocal = () => getMetadataBlockMapping(metadata, activeTab); // FIXED: Only metadata blocks
 
-  const handleSave = async () => {
+  // Save the template using final prompt content computed by the dialog
+  // If no content is provided, rebuild it from current state
+  const handleSave = async (finalContentFromDialog?: string) => {
     if (!validateForm()) {
       if (validationErrors.name) {
         toast.error(validationErrors.name);
@@ -201,7 +199,8 @@ export function useCreateTemplateDialog() {
       const metadataWithBlocks = await ensureMetadataBlocks(metadata);
       setMetadata(metadataWithBlocks);
 
-      const finalContent = generateEnhancedFinalContent(content, blocks, metadataWithBlocks, activeTab);
+      const finalContent = finalContentFromDialog ??
+        generateEnhancedFinalContent(content, blocks, metadataWithBlocks, activeTab);
       const contentBlockIds = getEnhancedContentBlockIds(blocks, activeTab);
       const metadataBlockMapping = getMetadataBlockMapping(metadataWithBlocks, activeTab);
       
@@ -342,9 +341,6 @@ export function useCreateTemplateDialog() {
     handleReorderMetadataItems,
     handleSave,
     handleClose,
-    isSubmitting,
-    // FIXED: Expose both mappings for debugging/development
-    getContentBlockIds: () => getContentBlockIdsLocal(),
-    getMetadataBlockMapping: () => getMetadataMappingLocal()
+    isSubmitting
   };
 }
