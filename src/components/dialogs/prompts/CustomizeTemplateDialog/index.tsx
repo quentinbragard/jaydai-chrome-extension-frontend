@@ -15,10 +15,6 @@ export const CustomizeTemplateDialog: React.FC = () => {
     setContent,
     // ✅ Use unified metadata handlers
     handleUpdateMetadata,
-    handleAddMetadata,
-    handleRemoveMetadata,
-    handleUpdateMetadataItem,
-    handleReorderMetadataItems,
     handleComplete,
     handleClose,
   } = useCustomizeTemplateDialog();
