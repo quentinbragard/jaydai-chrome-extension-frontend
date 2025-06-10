@@ -20,7 +20,7 @@ import {
   FolderData
 } from '@/utils/prompts/templateUtils';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
-import { useTemplateMetadata } from '@/hooks/dialogs/shared/useTemplateMetada'; // ✅ Use shared metadata hook
+import { useTemplateMetadataHandlers } from '@/hooks/prompts/useTemplateMetadata'; // ✅ Use shared metadata hook
 
 export function useCreateTemplateDialog() {
   // ✅ Restore original dialog integration
@@ -50,7 +50,7 @@ export function useCreateTemplateDialog() {
     handleRemoveMetadata,
     handleUpdateMetadataItem,
     handleReorderMetadataItems
-  } = useTemplateMetadata({ metadata, setMetadata });
+  } = useTemplateMetadataHandlers({ metadata, setMetadata });
 
   // Reuse generic template creation logic
   const { saveTemplate } = useTemplateCreation();

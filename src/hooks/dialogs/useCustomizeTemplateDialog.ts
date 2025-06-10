@@ -13,7 +13,7 @@ import {
   MultipleMetadataType
 } from '@/types/prompts/metadata';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
-import { useTemplateMetadata } from '@/hooks/dialogs/shared/useTemplateMetada'; // ✅ Use shared metadata hook
+import { useTemplateMetadataHandlers } from '@/hooks/prompts/useTemplateMetadata'; // ✅ Use shared metadata hook
 
 export function useCustomizeTemplateDialog() {
   // ✅ Restore original dialog integration
@@ -32,7 +32,7 @@ export function useCustomizeTemplateDialog() {
     handleRemoveMetadata,
     handleUpdateMetadataItem,
     handleReorderMetadataItems
-  } = useTemplateMetadata({ metadata, setMetadata });
+  } = useTemplateMetadataHandlers({ metadata, setMetadata });
 
   useEffect(() => {
     if (isOpen && data) {
