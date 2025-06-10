@@ -21,10 +21,6 @@ import {
 } from '@/utils/prompts/templateUtils';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { useTemplateMetadataHandlers } from '@/hooks/prompts/useTemplateMetadata'; // ✅ Use shared metadata hook
-import {
-  ensureMetadataBlocks,
-  getMetadataBlockMapping
-} from './templateDialogUtils';
 
 export function useCreateTemplateDialog() {
   // ✅ Restore original dialog integration
@@ -162,20 +158,12 @@ export function useCreateTemplateDialog() {
   const handleComplete = async (content: string, metadata: PromptMetadata) => {
     setIsSubmitting(true);
     try {
-      // Ensure all metadata values are persisted as blocks so we can
-      // pass only block ID mappings to the API.
-      const processedMetadata = await ensureMetadataBlocks(metadata);
-      const metadataMapping = getMetadataBlockMapping(processedMetadata, activeTab);
-
-      // Update local state with block IDs so the dialog stays in sync
-      setMetadata(processedMetadata);
-
       const formData = {
         name: name.trim(),
         content: content,
         description: description?.trim(),
         folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined,
-        metadata: metadataMapping
+        metadata: metadata
       };
 
       let success = false;
