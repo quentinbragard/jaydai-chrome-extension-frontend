@@ -1,7 +1,19 @@
 // src/components/dialogs/prompts/editors/AdvancedEditor/MetadataSection.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, ChevronDown, ChevronUp, User, MessageSquare, Target, Users, Type, Layout, Palette, Ban } from 'lucide-react';
+import {
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  User,
+  MessageSquare,
+  Target,
+  Users,
+  Type,
+  Layout,
+  Palette,
+  Ban
+} from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
@@ -19,6 +31,7 @@ import {
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { useTemplateMetadata } from '@/hooks/prompts/useTemplateMetadata';
+import { extractCustomValues } from '@/utils/prompts/metadataUtils';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: User,
@@ -31,8 +44,7 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   constraint: Ban
 };
 
-interface MetadataSectionProps {
-  availableMetadataBlocks: Record<MetadataType, Block[]>;
+interface MetadataState {
   expandedMetadata: MetadataType | null;
   setExpandedMetadata: (type: MetadataType | null) => void;
   activeSecondaryMetadata: Set<MetadataType>;
@@ -40,6 +52,9 @@ interface MetadataSectionProps {
   setMetadataCollapsed: (collapsed: boolean) => void;
   secondaryMetadataCollapsed: boolean;
   setSecondaryMetadataCollapsed: (collapsed: boolean) => void;
+}
+
+interface MetadataHandlers {
   onSingleMetadataChange: (type: SingleMetadataType, value: string) => void;
   onCustomChange: (type: SingleMetadataType, value: string) => void;
   onAddMetadataItem: (type: MultipleMetadataType) => void;
@@ -49,48 +64,49 @@ interface MetadataSectionProps {
   onAddSecondaryMetadata: (type: MetadataType) => void;
   onRemoveSecondaryMetadata: (type: MetadataType) => void;
   onSaveBlock: (block: Block) => void;
+}
+
+interface MetadataSectionProps {
+  availableMetadataBlocks: Record<MetadataType, Block[]>;
+  state: MetadataState;
+  handlers: MetadataHandlers;
   showPrimary?: boolean;
   showSecondary?: boolean;
 }
 
 export const MetadataSection: React.FC<MetadataSectionProps> = ({
   availableMetadataBlocks,
-  expandedMetadata,
-  setExpandedMetadata,
-  activeSecondaryMetadata,
-  metadataCollapsed,
-  setMetadataCollapsed,
-  secondaryMetadataCollapsed,
-  setSecondaryMetadataCollapsed,
-  onSingleMetadataChange,
-  onCustomChange,
-  onAddMetadataItem,
-  onRemoveMetadataItem,
-  onUpdateMetadataItem,
-  onReorderMetadataItems,
-  onAddSecondaryMetadata,
-  onRemoveSecondaryMetadata,
-  onSaveBlock,
+  state,
+  handlers,
   showPrimary = true,
   showSecondary = true
 }) => {
+  const {
+    expandedMetadata,
+    setExpandedMetadata,
+    activeSecondaryMetadata,
+    metadataCollapsed,
+    setMetadataCollapsed,
+    secondaryMetadataCollapsed,
+    setSecondaryMetadataCollapsed
+  } = state;
+
+  const {
+    onSingleMetadataChange,
+    onCustomChange,
+    onAddMetadataItem,
+    onRemoveMetadataItem,
+    onUpdateMetadataItem,
+    onReorderMetadataItems,
+    onAddSecondaryMetadata,
+    onRemoveSecondaryMetadata,
+    onSaveBlock
+  } = handlers;
   const isDarkMode = useThemeDetector();
   const { metadata } = useTemplateMetadata();
 
-  // Extract custom values from metadata for primary metadata
-  const customValues = React.useMemo(() => {
-    const values: Record<SingleMetadataType, string> = {} as Record<SingleMetadataType, string>;
-    PRIMARY_METADATA.forEach(type => {
-      values[type] = metadata.values?.[type] || '';
-    });
-    // Also include secondary single metadata
-    SECONDARY_METADATA.forEach(type => {
-      if (!isMultipleMetadataType(type)) {
-        values[type as SingleMetadataType] = metadata.values?.[type as SingleMetadataType] || '';
-      }
-    });
-    return values;
-  }, [metadata.values]);
+  // Extract custom values for all single metadata types
+  const customValues = React.useMemo(() => extractCustomValues(metadata), [metadata]);
 
   return (
     <>
