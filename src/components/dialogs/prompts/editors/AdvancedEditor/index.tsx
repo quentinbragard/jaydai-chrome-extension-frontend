@@ -4,9 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { 
-  PromptMetadata,
-  DEFAULT_METADATA,
+import {
   MetadataType,
   Block,
   BlockType
@@ -14,14 +12,13 @@ import {
 import { MetadataSection } from './MetadataSection';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useSimpleMetadata } from '@/hooks/prompts/editors/useSimpleMetadata';
+import { useTemplateMetadata } from '@/hooks/prompts/useTemplateMetadata';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
  
 
 interface AdvancedEditorProps {
   content: string;
-  metadata?: PromptMetadata;
   onContentChange: (value: string) => void;
-  onUpdateMetadata?: (metadata: PromptMetadata) => void;
   isProcessing?: boolean;
   
   // New props passed from dialog
@@ -34,9 +31,7 @@ interface AdvancedEditorProps {
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   content,
-  metadata = DEFAULT_METADATA,
   onContentChange,
-  onUpdateMetadata,
   isProcessing = false,
   availableMetadataBlocks = {},
   availableBlocksByType = {},
@@ -46,6 +41,11 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 }) => {
   const isDarkMode = useThemeDetector();
   const [showPreview, setShowPreview] = useState(false);
+
+  const {
+    metadata,
+    handleUpdateMetadata,
+  } = useTemplateMetadata();
 
   const {
     expandedMetadata,
@@ -63,7 +63,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     handleReorderMetadataItems,
     addSecondaryMetadata,
     removeSecondaryMetadata
-  } = useSimpleMetadata({ metadata, onUpdateMetadata });
+  } = useSimpleMetadata({ metadata, onUpdateMetadata: handleUpdateMetadata });
 
 
 
@@ -114,7 +114,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         <div className="jd-flex-shrink-0">
           <MetadataSection
             availableMetadataBlocks={availableMetadataBlocks}
-            metadata={metadata}
             expandedMetadata={expandedMetadata}
             setExpandedMetadata={setExpandedMetadata}
             activeSecondaryMetadata={activeSecondaryMetadata}
@@ -165,7 +164,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         <div className="jd-flex-shrink-0">
           <MetadataSection
             availableMetadataBlocks={availableMetadataBlocks}
-            metadata={metadata}
             expandedMetadata={expandedMetadata}
             setExpandedMetadata={setExpandedMetadata}
             activeSecondaryMetadata={activeSecondaryMetadata}

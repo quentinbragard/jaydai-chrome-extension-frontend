@@ -7,9 +7,8 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 import { MetadataCard } from '@/components/prompts/blocks/MetadataCard';
 import { MultipleMetadataCard } from '@/components/prompts/blocks/MultipleMetadataCard';
-import { 
-  PromptMetadata, 
-  MetadataType, 
+import {
+  MetadataType,
   SingleMetadataType,
   MultipleMetadataType,
   MetadataItem,
@@ -19,6 +18,7 @@ import {
   isMultipleMetadataType
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
+import { useTemplateMetadata } from '@/hooks/prompts/useTemplateMetadata';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: User,
@@ -33,7 +33,6 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
 
 interface MetadataSectionProps {
   availableMetadataBlocks: Record<MetadataType, Block[]>;
-  metadata: PromptMetadata;
   expandedMetadata: MetadataType | null;
   setExpandedMetadata: (type: MetadataType | null) => void;
   activeSecondaryMetadata: Set<MetadataType>;
@@ -56,7 +55,6 @@ interface MetadataSectionProps {
 
 export const MetadataSection: React.FC<MetadataSectionProps> = ({
   availableMetadataBlocks,
-  metadata,
   expandedMetadata,
   setExpandedMetadata,
   activeSecondaryMetadata,
@@ -77,6 +75,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
   showSecondary = true
 }) => {
   const isDarkMode = useThemeDetector();
+  const { metadata } = useTemplateMetadata();
 
   // Extract custom values from metadata for primary metadata
   const customValues = React.useMemo(() => {

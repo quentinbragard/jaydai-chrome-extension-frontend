@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 import { BasicEditor, AdvancedEditor } from '../editors';
+import { TemplateMetadataProvider } from '@/hooks/prompts/useTemplateMetadata';
 import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
 import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
 
@@ -118,11 +119,15 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             </span>
           </div>
         ) : (
-          <Tabs
-            value={activeTab}
-            onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
-            className="jd-flex-1 jd-flex jd-flex-col"
+          <TemplateMetadataProvider
+            initialMetadata={resolvedMetadata}
+            onMetadataChange={onUpdateMetadata}
           >
+            <Tabs
+              value={activeTab}
+              onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
+              className="jd-flex-1 jd-flex jd-flex-col"
+            >
             <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4">
               <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
               <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
@@ -131,9 +136,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto">
               <BasicEditor
                 content={content}
-                metadata={resolvedMetadata}
                 onContentChange={setContent}
-                onUpdateMetadata={onUpdateMetadata}
                 mode={mode}
                 isProcessing={false}
                 finalPromptContent={finalPromptContent}
@@ -143,9 +146,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
               <AdvancedEditor
                 content={content}
-                metadata={resolvedMetadata || DEFAULT_METADATA}
                 onContentChange={setContent}
-                onUpdateMetadata={onUpdateMetadata}
                 isProcessing={false}
                 availableMetadataBlocks={availableMetadataBlocks}
                 availableBlocksByType={availableBlocksByType}
@@ -155,6 +156,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
               />
             </TabsContent>
           </Tabs>
+          </TemplateMetadataProvider>
         )}
         <div className="jd-flex jd-justify-end jd-gap-2 jd-pt-4 jd-border-t">
           <Button variant="outline" onClick={onClose}>
