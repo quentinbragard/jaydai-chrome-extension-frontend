@@ -82,7 +82,7 @@ export function useCustomizeTemplateDialog() {
 
   const handleComplete = () => {
     try {
-      const finalContent = buildCompletePrompt(metadata);
+      const finalContent = buildCompletePrompt(metadata, content);
       
       if (data && data.onComplete) {
         data.onComplete(finalContent);
