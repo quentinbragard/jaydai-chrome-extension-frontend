@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Enhanced with metadata preview
+// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Updated
 import React, { useMemo } from 'react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
@@ -7,12 +7,6 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
 import { useBasicEditorLogic } from '@/hooks/prompts/editors/useBasicEditorLogic';
-import {
-  buildMetadataOnlyPreview,
-  buildCompletePreview,
-  buildCompletePreviewHtml,
-  extractContentFromCompleteTemplate
-} from '@/utils/templates/promptPreviewUtils';
 
 interface BasicEditorProps {
   content: string;
@@ -21,11 +15,14 @@ interface BasicEditorProps {
   onUpdateMetadata?: (metadata: PromptMetadata) => void;
   mode?: 'create' | 'customize';
   isProcessing?: boolean;
+  
+  // New prop for consistent final content
+  finalPromptContent?: string;
 }
-
 
 /**
  * Basic editor mode - Simple placeholder and content editing with complete metadata preview
+ * Now uses finalPromptContent for consistency with AdvancedEditor
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   content,
@@ -33,7 +30,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   onContentChange,
   onUpdateMetadata,
   mode = 'customize',
-  isProcessing = false
+  isProcessing = false,
+  finalPromptContent
 }) => {
   const {
     // State
@@ -63,14 +61,27 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
   const isDark = useThemeDetector();
   
-  // Build complete preview including metadata + content
+  // Use final prompt content if provided, otherwise build from current state
   const completePreviewText = useMemo(() => {
-    return buildCompletePreview(metadata, modifiedContent);
-  }, [metadata, modifiedContent]);
+    if (finalPromptContent) {
+      return finalPromptContent;
+    }
+    
+    // Fallback: build from current metadata and content
+    return buildMetadataPreview(metadata, modifiedContent);
+  }, [finalPromptContent, metadata, modifiedContent]);
   
+  // Build HTML preview with placeholder highlighting
   const completePreviewHtml = useMemo(() => {
-    return buildCompletePreviewHtml(metadata, modifiedContent, isDark);
-  }, [metadata, modifiedContent, isDark]);
+    return completePreviewText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>')
+      .replace(/\[([^\]]+)\]/g,
+        '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
+      );
+  }, [completePreviewText]);
 
   if (isProcessing) {
     return (
@@ -112,6 +123,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground jd-ml-auto">
                 <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
                 <span>Placeholders</span>
+                {finalPromptContent && (
+                  <span className="jd-text-green-600 jd-ml-2">• Resolved content</span>
+                )}
               </div>
             </h3>
             <div className="jd-text-xs jd-text-muted-foreground jd-mb-2">
@@ -160,23 +174,26 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                   <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground jd-ml-auto">
                     <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
                     <span>Placeholders</span>
+                    {finalPromptContent && (
+                      <span className="jd-text-green-600 jd-ml-2">• Resolved content</span>
+                    )}
                   </div>
                 </h3>
                 <div className="jd-text-xs jd-text-muted-foreground jd-mb-2">
-                  Complete template preview - click to edit the content part
+                  Complete template preview - edit placeholders on the left to see changes
                 </div>
                 <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-green-500/10 jd-to-teal-500/10">
                   <EditablePromptPreview
                     content={completePreviewText}
                     htmlContent={completePreviewHtml}
                     onChange={(newCompleteContent) => {
-                      // Extract the content part from the edited complete template
-                      const originalMetadataPart = buildMetadataOnlyPreview(metadata);
-                      const newContent = extractContentFromCompleteTemplate(newCompleteContent, originalMetadataPart);
-                      onContentChange(newContent);
+                      // For customize mode, we can extract content changes
+                      // but typically we rely on placeholder editing
+                      console.log('Preview content changed:', newCompleteContent);
                     }}
                     isDark={isDark}
                     showColors={true}
+                    enableAdvancedEditing={false} // Disable direct editing in customize mode
                   />
                 </div>
               </div>
@@ -187,3 +204,55 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     </div>
   );
 };
+
+// Helper function to build metadata preview (fallback when finalPromptContent is not available)
+function buildMetadataPreview(metadata: PromptMetadata, content: string): string {
+  const parts: string[] = [];
+  
+  // Add metadata values
+  const metadataOrder = ['role', 'context', 'goal', 'audience', 'output_format', 'tone_style'];
+  metadataOrder.forEach(type => {
+    const value = metadata.values?.[type as keyof typeof metadata.values];
+    if (value?.trim()) {
+      const prefix = getMetadataPrefix(type);
+      parts.push(prefix ? `${prefix} ${value}` : value);
+    }
+  });
+  
+  // Add constraints
+  if (metadata.constraints) {
+    metadata.constraints.forEach(constraint => {
+      if (constraint.value.trim()) {
+        parts.push(`Contrainte: ${constraint.value}`);
+      }
+    });
+  }
+  
+  // Add examples
+  if (metadata.examples) {
+    metadata.examples.forEach(example => {
+      if (example.value.trim()) {
+        parts.push(`Exemple: ${example.value}`);
+      }
+    });
+  }
+  
+  // Add main content
+  if (content?.trim()) {
+    parts.push(content.trim());
+  }
+  
+  return parts.filter(Boolean).join('\n\n');
+}
+
+function getMetadataPrefix(type: string): string {
+  const prefixes: Record<string, string> = {
+    role: 'Ton rôle est de',
+    context: 'Le contexte est',
+    goal: 'Ton objectif est',
+    audience: "L'audience ciblée est",
+    output_format: 'Le format attendu est',
+    tone_style: 'Le ton et style sont'
+  };
+  return prefixes[type] || '';
+}
