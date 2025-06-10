@@ -24,10 +24,6 @@ export const CreateTemplateDialog: React.FC = () => {
     validationErrors,
     // ✅ Use unified metadata handlers
     handleUpdateMetadata,
-    handleAddMetadata,
-    handleRemoveMetadata,
-    handleUpdateMetadataItem,
-    handleReorderMetadataItems,
     handleComplete,
     handleClose,
   } = useCreateTemplateDialog();
