@@ -1,4 +1,4 @@
-// src/components/prompts/promptUtils.ts - Enhanced version
+// src/utils/prompts/promptUtils.ts - Enhanced version
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { 
   MetadataType, 
