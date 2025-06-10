@@ -12,7 +12,7 @@ import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { BlockType } from '@/types/prompts/blocks';
-import { BLOCK_TYPE_LABELS, getBlockTypeIcon, getBlockTypeColors } from '@/components/prompts/blocks/blockUtils';
+import { BLOCK_TYPE_LABELS, getBlockTypeIcon, getBlockTypeColors } from '@/utils/prompts/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 const AVAILABLE_BLOCK_TYPES: BlockType[] = [

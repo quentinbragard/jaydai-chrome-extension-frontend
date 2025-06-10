@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Block } from '@/types/prompts/blocks';
-import { getBlockTypeIcon, getBlockIconColors, buildPromptPartHtml, BLOCK_TYPE_LABELS } from '@/components/prompts/blocks/blockUtils';
+import { getBlockTypeIcon, getBlockIconColors, buildPromptPartHtml, BLOCK_TYPE_LABELS } from '@/utils/prompts/blockUtils';
 
 export interface PreviewBlockProps {
   block: Block;

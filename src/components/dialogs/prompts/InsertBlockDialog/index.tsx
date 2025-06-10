@@ -19,7 +19,7 @@ import {
   getBlockTypeIcon,
   getBlockIconColors,
   BLOCK_TYPES
-} from '@/components/prompts/blocks/blockUtils';
+} from '@/utils/prompts/blockUtils';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';

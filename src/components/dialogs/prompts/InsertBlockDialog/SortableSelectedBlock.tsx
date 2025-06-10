@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Block } from '@/types/prompts/blocks';
-import { getBlockTypeIcon, getBlockIconColors, BLOCK_TYPE_LABELS } from '@/components/prompts/blocks/blockUtils';
+import { getBlockTypeIcon, getBlockIconColors, BLOCK_TYPE_LABELS } from '@/utils/prompts/blockUtils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, X } from 'lucide-react';

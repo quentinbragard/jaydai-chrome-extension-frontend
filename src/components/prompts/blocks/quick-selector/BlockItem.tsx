@@ -8,7 +8,7 @@ import {
   getBlockIconColors,
   BLOCK_TYPE_LABELS,
   getLocalizedContent
-} from '@/components/prompts/blocks/blockUtils';
+} from '@/utils/prompts/blockUtils';
 
 interface BlockItemProps {
   block: Block;

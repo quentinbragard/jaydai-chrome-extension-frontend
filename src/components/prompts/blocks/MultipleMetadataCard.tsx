@@ -12,7 +12,7 @@ import {
   getBlockTypeColors,
   getBlockIconColors,
   getBlockTextColors
-} from '@/components/prompts/blocks/blockUtils';
+} from '@/utils/prompts/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { useClickOutside } from '@/hooks/useClickOutside';
 import { useDialogManager } from '@/components/dialogs/DialogContext';

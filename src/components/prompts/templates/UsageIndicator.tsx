@@ -5,7 +5,7 @@ import { Sparkles, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Template } from '@/types/prompts/templates';
-import { formatUsageDate } from './templateUtils';
+import { formatUsageDate } from '@/utils/prompts/templateUtils';
 import { getMessage } from '@/core/utils/i18n';
 
 interface UsageIndicatorProps {

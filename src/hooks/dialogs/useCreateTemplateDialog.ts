@@ -18,8 +18,8 @@ import { getMessage } from '@/core/utils/i18n';
 import {
   useProcessUserFolders,
   FolderData
-} from '@/components/prompts/templates/templateUtils';
-import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
+} from '@/utils/prompts/templateUtils';
+import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { useTemplateMetadata } from '@/hooks/dialogs/shared/useTemplateMetada'; // ✅ Use shared metadata hook
 
 export function useCreateTemplateDialog() {

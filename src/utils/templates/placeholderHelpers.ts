@@ -1,5 +1,5 @@
 // src/utils/templates/placeholderHelpers.ts - Enhanced with block colors
-import { getBlockTextColors } from '@/components/prompts/blocks/blockUtils';
+import { getBlockTextColors } from '@/utils/prompts/blockUtils';
 
 export interface PlaceholderMatch {
   key: string;
