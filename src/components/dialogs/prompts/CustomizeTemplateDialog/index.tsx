@@ -24,7 +24,8 @@ export const CustomizeTemplateDialog: React.FC = () => {
     setContent,
     handleUpdateMetadata,
     handleComplete,
-    handleClose
+    handleClose,
+    finalPromptContent
   } = useCustomizeTemplateDialog();
 
   if (!isOpen) return null;
@@ -116,7 +117,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
           <Button variant="outline" onClick={handleClose}>
             {getMessage('cancel', undefined, 'Cancel')}
           </Button>
-          <Button onClick={handleComplete} disabled={isProcessing}>
+          <Button onClick={() => handleComplete(finalPromptContent)} disabled={isProcessing}>
             {getMessage('useTemplate', undefined, 'Use Template')}
           </Button>
         </div>

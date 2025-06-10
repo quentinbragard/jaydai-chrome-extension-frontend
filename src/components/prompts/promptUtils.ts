@@ -50,6 +50,7 @@ function getHighlightClass(type: BlockType | MetadataType | null): string {
 
 // Enhanced metadata formatting for single types
 export function formatMetadataForPrompt(type: SingleMetadataType, value: string): string {
+  console.log('FORMAT METADATA FOR PROMPT', type, value);
   const prefix = PREFIXES[type];
   const content = value.trim();
   return prefix ? `${prefix} ${content}` : content;
@@ -119,11 +120,18 @@ export function formatBlockForPreview(block: Block): string {
 export function buildCompletePrompt(metadata: PromptMetadata, content = ''): string {
   const parts: string[] = [];
 
+  console.log('metadataaaaaaaa', metadata);
+  console.log('contentaaaaaaa', content);
+
   // Add single metadata values
   PRIMARY_METADATA.forEach(type => {
+    console.log('type', type);
     if (!isMultipleMetadataType(type)) {
       const singleType = type as SingleMetadataType;
-      const value = metadata.values?.[singleType];
+      const blockId = metadata[singleType];
+      const value = blockId ? getBlockContent(blockId) : '';
+      console.log('value', value);
+      console.log("singleType", singleType);
       if (value?.trim()) {
         parts.push(formatMetadataForPrompt(singleType, value));
       }

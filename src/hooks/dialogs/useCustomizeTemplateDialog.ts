@@ -59,6 +59,7 @@ export function useCustomizeTemplateDialog() {
   // Keep final prompt content in sync with metadata and content
   useEffect(() => {
     setFinalPromptContent(buildCompletePrompt(metadata, content));
+    console.log('finalPromptContent', finalPromptContent);
   }, [metadata, content]);
 
   const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
