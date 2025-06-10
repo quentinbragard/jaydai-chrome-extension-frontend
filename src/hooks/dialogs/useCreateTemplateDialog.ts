@@ -1,6 +1,8 @@
-// src/hooks/dialogs/useCreateTemplateDialog.ts - FIXED: Proper metadata vs content block separation
+// src/hooks/dialogs/useCreateTemplateDialog.ts - FIXED: Restored original dialog integration
+
 import { useState, useEffect } from 'react';
-import { useDialog } from '@/hooks/dialogs/useDialog';
+import { useDialog } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { Block, BlockType } from '@/types/prompts/blocks';
 import {
   PromptMetadata,
@@ -12,22 +14,18 @@ import {
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { useTemplateCreation } from '@/hooks/prompts/useTemplateCreation';
-import { getMessage, getCurrentLanguage } from '@/core/utils/i18n';
+import { getMessage } from '@/core/utils/i18n';
 import {
   useProcessUserFolders,
   FolderData
 } from '@/components/prompts/templates/templateUtils';
 import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
-import {
-  addMetadataItem,
-  removeMetadataItem,
-  updateMetadataItem,
-  reorderMetadataItems
-} from './templateDialogUtils';
+import { useTemplateMetadata } from '@/hooks/dialogs/shared/useTemplateMetada'; // ✅ Use shared metadata hook
 
 export function useCreateTemplateDialog() {
-  const createDialog = useDialog('createTemplate');
-  const editDialog = useDialog('editTemplate');
+  // ✅ Restore original dialog integration
+  const createDialog = useDialog(DIALOG_TYPES.CREATE_TEMPLATE);
+  const editDialog = useDialog(DIALOG_TYPES.EDIT_TEMPLATE);
 
   const isOpen = createDialog.isOpen || editDialog.isOpen;
   const isEditMode = editDialog.isOpen;
@@ -44,6 +42,15 @@ export function useCreateTemplateDialog() {
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [userFoldersList, setUserFoldersList] = useState<FolderData[]>([]);
+
+  // ✅ Use shared metadata hook
+  const {
+    handleUpdateMetadata,
+    handleAddMetadata,
+    handleRemoveMetadata,
+    handleUpdateMetadataItem,
+    handleReorderMetadataItems
+  } = useTemplateMetadata({ metadata, setMetadata });
 
   // Reuse generic template creation logic
   const { saveTemplate } = useTemplateCreation();
@@ -66,33 +73,34 @@ export function useCreateTemplateDialog() {
 
         const processTemplateData = async () => {
           try {
-            if (content) {
+            // ✅ Fixed: Check template's content, not current state
+            if (currentTemplate.content) {
               const contentString = getLocalizedContent(currentTemplate.content);
               setContent(contentString);
             } else {
               setContent('');
             }
-            setMetadata(currentTemplate.metadata);
+            setMetadata(currentTemplate.metadata || DEFAULT_METADATA);
           } catch (err) {
-            console.error('CustomizeTemplateDialog: Error processing template:', err);
+            console.error('Error processing template:', err);
             setError(getMessage('errorProcessingTemplate'));
           } finally {
             setIsProcessing(false);
           }
         };
-  
+
         processTemplateData();
-      }
       } else {
+        // New template
         setName('');
         setDescription('');
         setContent('');
-        
-        setMetadata({});
+        setMetadata(DEFAULT_METADATA);
         setSelectedFolderId(selectedFolder?.id?.toString() || '');
       }
 
       processUserFolders();
+    }
   }, [isOpen, currentTemplate, selectedFolder, processUserFolders]);
 
   const handleClose = () => {
@@ -106,14 +114,6 @@ export function useCreateTemplateDialog() {
     setDescription('');
     setSelectedFolderId('');
     setContent('');
-    setBlocks([
-      {
-        id: Date.now(),
-        type: 'custom',
-        content: '',
-        title: { en: 'Template Content' }
-      }
-    ]);
     setMetadata(DEFAULT_METADATA);
     setValidationErrors({});
     setActiveTab('basic');
@@ -122,7 +122,7 @@ export function useCreateTemplateDialog() {
   const handleFolderSelect = (folderId: string) => {
     if (folderId === 'new') {
       if (window.dialogManager) {
-        window.dialogManager.openDialog('createFolder', {
+        window.dialogManager.openDialog(DIALOG_TYPES.CREATE_FOLDER, {
           onSaveFolder: async (folderData: { name: string; path: string; description: string }) => {
             try {
               const response = await promptApi.createFolder(folderData);
@@ -154,15 +154,10 @@ export function useCreateTemplateDialog() {
     setSelectedFolderId(folderId);
   };
 
-
   // Save the template using final prompt content computed by the dialog
-  // If no content is provided, rebuild it from current state
   const handleComplete = async (content: string, metadata: PromptMetadata) => {
-
     setIsSubmitting(true);
     try {
-      // Ensure any custom metadata values are saved as blocks so they can be persisted
-
       const formData = {
         name: name.trim(),
         content: content,
@@ -175,12 +170,6 @@ export function useCreateTemplateDialog() {
       success = await saveTemplate(formData, currentTemplate?.id);
 
       if (success) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('✅ Template saved successfully with proper block separation:');
-          console.log(`   📝 Content blocks: ${contentBlockIds.length}`);
-          console.log(`   🏷️  Metadata blocks: ${Object.keys(metadataBlockMapping).length}`);
-        }
-
         if (currentTemplate) {
           setTimeout(() => {
             window.location.reload();
@@ -200,32 +189,9 @@ export function useCreateTemplateDialog() {
     }
   };
 
-  // Enhanced metadata handlers
-  const handleAddMetadataItem = (type: MultipleMetadataType) => {
-    setMetadata(prev => addMetadataItem(prev, type));
-  };
-
-  const handleRemoveMetadataItem = (type: MultipleMetadataType, itemId: string) => {
-    setMetadata(prev => removeMetadataItem(prev, type, itemId));
-  };
-
-  const handleUpdateMetadataItem = (
-    type: MultipleMetadataType,
-    itemId: string,
-    updates: Partial<MetadataItem>
-  ) => {
-    setMetadata(prev => updateMetadataItem(prev, type, itemId, updates));
-  };
-
-  const handleReorderMetadataItems = (type: MultipleMetadataType, newItems: MetadataItem[]) => {
-    setMetadata(prev => reorderMetadataItems(prev, type, newItems));
-  };
-
-  const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
-    setMetadata(newMetadata);
-  };
-
-  const dialogTitle = isEditMode ? getMessage('editTemplate', undefined, 'Edit Template') : getMessage('createTemplate', undefined, 'Create Template');
+  const dialogTitle = isEditMode 
+    ? getMessage('editTemplate', undefined, 'Edit Template') 
+    : getMessage('createTemplate', undefined, 'Create Template');
 
   return {
     isOpen,
@@ -244,14 +210,16 @@ export function useCreateTemplateDialog() {
     validationErrors,
     activeTab,
     setActiveTab,
+    error,
+    isProcessing,
+    isSubmitting,
+    // ✅ Unified metadata handlers
     handleUpdateMetadata,
-    // Enhanced metadata handlers
-    handleAddMetadataItem,
-    handleRemoveMetadataItem,
+    handleAddMetadata,
+    handleRemoveMetadata,
     handleUpdateMetadataItem,
     handleReorderMetadataItems,
     handleComplete,
-    handleClose,
-    isSubmitting
+    handleClose
   };
 }

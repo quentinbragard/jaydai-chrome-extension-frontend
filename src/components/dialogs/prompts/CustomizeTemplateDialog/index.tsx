@@ -1,3 +1,5 @@
+// src/components/dialogs/prompts/CustomizeTemplateDialog/index.tsx
+
 import React from 'react';
 import { getMessage } from '@/core/utils/i18n';
 import { useCustomizeTemplateDialog } from '@/hooks/dialogs/useCustomizeTemplateDialog';
@@ -7,11 +9,16 @@ export const CustomizeTemplateDialog: React.FC = () => {
   const {
     isOpen,
     error,
-    metadata: rawMetadata,
+    metadata,
     isProcessing,
     content,
     setContent,
+    // ✅ Use unified metadata handlers
     handleUpdateMetadata,
+    handleAddMetadata,
+    handleRemoveMetadata,
+    handleUpdateMetadataItem,
+    handleReorderMetadataItems,
     handleComplete,
     handleClose,
   } = useCustomizeTemplateDialog();
@@ -20,11 +27,16 @@ export const CustomizeTemplateDialog: React.FC = () => {
     <TemplateEditorDialog
       isOpen={isOpen}
       error={error}
-      rawMetadata={rawMetadata}
+      rawMetadata={metadata}
       isProcessing={isProcessing}
       content={content}
       setContent={setContent}
       onUpdateMetadata={handleUpdateMetadata}
+      // ✅ Pass unified metadata handlers
+      onAddMetadata={handleAddMetadata}
+      onRemoveMetadata={handleRemoveMetadata}
+      onUpdateMetadataItem={handleUpdateMetadataItem}
+      onReorderMetadataItems={handleReorderMetadataItems}
       onComplete={handleComplete}
       onClose={handleClose}
       dialogTitle={getMessage('CustomizeTemplateDialog', undefined, 'Prompt Block Editor')}

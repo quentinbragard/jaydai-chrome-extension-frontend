@@ -1,3 +1,5 @@
+// src/components/dialogs/prompts/CreateTemplateDialog/index.tsx
+
 import React from 'react';
 import { getMessage } from '@/core/utils/i18n';
 import { useCreateTemplateDialog } from '@/hooks/dialogs/useCreateTemplateDialog';
@@ -8,7 +10,7 @@ export const CreateTemplateDialog: React.FC = () => {
   const {
     isOpen,
     error,
-    metadata: rawMetadata,
+    metadata,
     isProcessing,
     name,
     setName,
@@ -20,7 +22,12 @@ export const CreateTemplateDialog: React.FC = () => {
     handleFolderSelect,
     userFoldersList,
     validationErrors,
+    // ✅ Use unified metadata handlers
     handleUpdateMetadata,
+    handleAddMetadata,
+    handleRemoveMetadata,
+    handleUpdateMetadataItem,
+    handleReorderMetadataItems,
     handleComplete,
     handleClose,
   } = useCreateTemplateDialog();
@@ -40,18 +47,23 @@ export const CreateTemplateDialog: React.FC = () => {
 
   const onComplete = (finalContent: string) => {
     // Create dialog saves original content and metadata
-    handleComplete(content, rawMetadata);
+    handleComplete(content, metadata);
   };
 
   return (
     <TemplateEditorDialog
       isOpen={isOpen}
       error={error}
-      rawMetadata={rawMetadata}
+      rawMetadata={metadata}
       isProcessing={isProcessing}
       content={content}
       setContent={setContent}
       onUpdateMetadata={handleUpdateMetadata}
+      // ✅ Pass unified metadata handlers
+      onAddMetadata={handleAddMetadata}
+      onRemoveMetadata={handleRemoveMetadata}
+      onUpdateMetadataItem={handleUpdateMetadataItem}
+      onReorderMetadataItems={handleReorderMetadataItems}
       onComplete={onComplete}
       onClose={handleClose}
       dialogTitle={getMessage('CreateTemplateDialog', undefined, 'Prompt Block Editor')}

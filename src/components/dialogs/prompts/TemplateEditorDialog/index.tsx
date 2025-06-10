@@ -21,7 +21,7 @@ interface TemplateEditorDialogProps {
   onClose: () => void;
   dialogTitle: string;
   dialogDescription: string;
-  mode: 'create' | 'customize';
+  mode: 'create' | 'customize' | 'edit';
   infoForm?: React.ReactNode;
 }
 
@@ -161,7 +161,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             {getMessage('cancel', undefined, 'Cancel')}
           </Button>
           <Button onClick={handleCompleteWithResolvedContent} disabled={isLoading}>
-            {getMessage('useTemplate', undefined, 'Use Template')}
+            {mode === 'create' ? getMessage('createTemplate', undefined, 'Create Template') :  getMessage('saveTemplate', undefined, 'Save Template')}
           </Button>
         </div>
         {process.env.NODE_ENV === 'development' && (

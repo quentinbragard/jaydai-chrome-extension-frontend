@@ -1,6 +1,8 @@
-// src/hooks/dialogs/useCustomizeTemplateDialog.ts
+// src/hooks/dialogs/useCustomizeTemplateDialog.ts - FIXED: Restored original dialog integration
+
 import { useState, useEffect } from 'react';
-import { useDialog } from '@/hooks/dialogs/useDialog';
+import { useDialog } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
@@ -11,20 +13,26 @@ import {
   MultipleMetadataType
 } from '@/types/prompts/metadata';
 import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
-import {
-  addMetadataItem,
-  removeMetadataItem,
-  updateMetadataItem,
-  reorderMetadataItems
-} from './templateDialogUtils';
+import { useTemplateMetadata } from '@/hooks/dialogs/shared/useTemplateMetada'; // ✅ Use shared metadata hook
 
 export function useCustomizeTemplateDialog() {
-  const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
+  // ✅ Restore original dialog integration
+  const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
+  
   const [content, setContent] = useState('');
   const [metadata, setMetadata] = useState<PromptMetadata>(DEFAULT_METADATA);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
+
+  // ✅ Use shared metadata hook
+  const {
+    handleUpdateMetadata,
+    handleAddMetadata,
+    handleRemoveMetadata,
+    handleUpdateMetadataItem,
+    handleReorderMetadataItems
+  } = useTemplateMetadata({ metadata, setMetadata });
 
   useEffect(() => {
     if (isOpen && data) {
@@ -33,13 +41,14 @@ export function useCustomizeTemplateDialog() {
 
       const processTemplateData = async () => {
         try {
+          // ✅ Fixed: Check template's content, not current state
           if (data.content) {
             const contentString = getLocalizedContent(data.content);
             setContent(contentString);
           } else {
             setContent('');
           }
-          setMetadata(data.metadata);
+          setMetadata(data.metadata || DEFAULT_METADATA);
         } catch (err) {
           console.error('CustomizeTemplateDialog: Error processing template:', err);
           setError(getMessage('errorProcessingTemplate'));
@@ -52,35 +61,8 @@ export function useCustomizeTemplateDialog() {
     }
   }, [isOpen, data]);
 
-
-  const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
-    setMetadata(newMetadata);
-  };
-
-  // Enhanced metadata handlers
-  const handleAddMetadataItem = (type: MultipleMetadataType) => {
-    setMetadata(prev => addMetadataItem(prev, type));
-  };
-
-  const handleRemoveMetadataItem = (type: MultipleMetadataType, itemId: string) => {
-    setMetadata(prev => removeMetadataItem(prev, type, itemId));
-  };
-
-  const handleUpdateMetadataItem = (
-    type: MultipleMetadataType,
-    itemId: string,
-    updates: Partial<MetadataItem>
-  ) => {
-    setMetadata(prev => updateMetadataItem(prev, type, itemId, updates));
-  };
-
-  const handleReorderMetadataItems = (type: MultipleMetadataType, newItems: MetadataItem[]) => {
-    setMetadata(prev => reorderMetadataItems(prev, type, newItems));
-  };
-
   const handleComplete = (finalContent: string) => {
     try {
-
       if (data && data.onComplete) {
         data.onComplete(finalContent);
       }
@@ -121,10 +103,10 @@ export function useCustomizeTemplateDialog() {
     isProcessing,
     activeTab,
     setActiveTab,
+    // ✅ Unified metadata handlers
     handleUpdateMetadata,
-    // Enhanced metadata handlers
-    handleAddMetadataItem,
-    handleRemoveMetadataItem,
+    handleAddMetadata,
+    handleRemoveMetadata,
     handleUpdateMetadataItem,
     handleReorderMetadataItems,
     handleComplete,
