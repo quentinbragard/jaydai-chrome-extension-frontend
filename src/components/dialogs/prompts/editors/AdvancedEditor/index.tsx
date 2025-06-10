@@ -5,20 +5,21 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { 
-  PromptMetadata, 
-  DEFAULT_METADATA, 
-  MetadataType, 
-  METADATA_CONFIGS,
-  SingleMetadataType,
-  MultipleMetadataType,
-  isMultipleMetadataType 
+  PromptMetadata,
+  DEFAULT_METADATA,
+  MetadataType,
+  METADATA_CONFIGS
 } from '@/types/prompts/metadata';
 import { MetadataSection } from './MetadataSection';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useSimpleMetadata } from '@/hooks/prompts/editors/useSimpleMetadata';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { Block, BlockType } from '@/types/prompts/blocks';
-import { BLOCK_TYPES, getBlockTextColors } from '@/components/prompts/blocks/blockUtils';
+import { BLOCK_TYPES } from '@/components/prompts/blocks/blockUtils';
+import {
+  buildCompletePreviewWithBlocks,
+  buildCompletePreviewHtmlWithBlocks
+} from '@/utils/templates/promptPreviewUtils';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface AdvancedEditorProps {
@@ -61,39 +62,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     addSecondaryMetadata,
     removeSecondaryMetadata
   } = useSimpleMetadata({ metadata, onUpdateMetadata });
-
-  // Define all helper functions using useCallback to avoid hoisting issues
-  const getMetadataPrefix = useCallback((type: string): string => {
-    const prefixes: Record<string, string> = {
-      role: 'Ton rôle est de',
-      context: 'Le contexte est',
-      goal: 'Ton objectif est',
-      audience: "L'audience ciblée est",
-      output_format: 'Le format attendu est',
-      tone_style: 'Le ton et style sont'
-    };
-    return prefixes[type] || '';
-  }, []);
-
-  const escapeHtml = useCallback((str: string): string => {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }, []);
-
-  const getMetadataPrefixHtml = useCallback((type: string): string => {
-    const prefix = getMetadataPrefix(type);
-    if (!prefix) return '';
-    
-    const metadataConfig = METADATA_CONFIGS[type as MetadataType];
-    const blockType = metadataConfig?.blockType || 'custom';
-    const colorClass = getBlockTextColors(blockType, isDarkMode);
-    
-    return `<span class="${colorClass} jd-font-semibold">${escapeHtml(prefix)}</span>`;
-  }, [getMetadataPrefix, escapeHtml, isDarkMode]);
 
   // Load available blocks for each metadata type
   useEffect(() => {
@@ -161,163 +129,21 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     }));
   }, []);
 
-  // Build preview content with all dependencies defined
-  const buildEnhancedPreview = useMemo(() => {
-    const parts: string[] = [];
+  const buildEnhancedPreview = useMemo(
+    () => buildCompletePreviewWithBlocks(metadata, content, blockContentCache),
+    [metadata, content, blockContentCache]
+  );
 
-    const getBlockContentById = (blockId: number): string => {
-      return blockContentCache[blockId] || '';
-    };
-
-    // Add primary metadata
-    ['role', 'context', 'goal'].forEach(type => {
-      const metaType = type as SingleMetadataType;
-      const blockId = metadata[metaType];
-      const customValue = metadata.values?.[metaType];
-      
-      let contentText = '';
-      if (blockId && blockId !== 0) {
-        contentText = getBlockContentById(blockId);
-      } else if (customValue?.trim()) {
-        contentText = customValue;
-      }
-      
-      if (contentText) {
-        const prefix = getMetadataPrefix(metaType);
-        parts.push(prefix ? `${prefix} ${contentText}` : contentText);
-      }
-    });
-
-    // Add secondary metadata
-    ['audience', 'output_format', 'tone_style'].forEach(type => {
-      if (activeSecondaryMetadata.has(type as MetadataType)) {
-        const metaType = type as SingleMetadataType;
-        const blockId = metadata[metaType];
-        const customValue = metadata.values?.[metaType];
-        
-        let contentText = '';
-        if (blockId && blockId !== 0) {
-          contentText = getBlockContentById(blockId);
-        } else if (customValue?.trim()) {
-          contentText = customValue;
-        }
-        
-        if (contentText) {
-          const prefix = getMetadataPrefix(metaType);
-          parts.push(prefix ? `${prefix} ${contentText}` : contentText);
-        }
-      }
-    });
-
-    // Add constraints and examples
-    if (metadata.constraints && metadata.constraints.length > 0) {
-      metadata.constraints.forEach(item => {
-        if (item.value.trim()) {
-          parts.push(`Contrainte: ${item.value}`);
-        }
-      });
-    }
-
-    if (metadata.examples && metadata.examples.length > 0) {
-      metadata.examples.forEach(item => {
-        if (item.value.trim()) {
-          parts.push(`Exemple: ${item.value}`);
-        }
-      });
-    }
-
-    if (content.trim()) {
-      parts.push(content);
-    }
-
-    return parts.filter(Boolean).join('\n\n');
-  }, [metadata, activeSecondaryMetadata, content, blockContentCache, getMetadataPrefix]);
-
-  // Build HTML preview with colors - all dependencies included
-  const buildEnhancedPreviewHtml = useMemo(() => {
-    const parts: string[] = [];
-
-    const getBlockContentById = (blockId: number): string => {
-      return blockContentCache[blockId] || '';
-    };
-
-    // Add primary metadata with colors
-    ['role', 'context', 'goal'].forEach(type => {
-      const metaType = type as SingleMetadataType;
-      const blockId = metadata[metaType];
-      const customValue = metadata.values?.[metaType];
-      
-      let contentText = '';
-      if (blockId && blockId !== 0) {
-        contentText = getBlockContentById(blockId);
-      } else if (customValue?.trim()) {
-        contentText = customValue;
-      }
-      
-      if (contentText) {
-        const prefixHtml = getMetadataPrefixHtml(metaType);
-        const escapedContent = escapeHtml(contentText);
-        parts.push(prefixHtml ? `${prefixHtml} ${escapedContent}` : escapedContent);
-      }
-    });
-
-    // Add secondary metadata with colors
-    ['audience', 'output_format', 'tone_style'].forEach(type => {
-      if (activeSecondaryMetadata.has(type as MetadataType)) {
-        const metaType = type as SingleMetadataType;
-        const blockId = metadata[metaType];
-        const customValue = metadata.values?.[metaType];
-        
-        let contentText = '';
-        if (blockId && blockId !== 0) {
-          contentText = getBlockContentById(blockId);
-        } else if (customValue?.trim()) {
-          contentText = customValue;
-        }
-        
-        if (contentText) {
-          const prefixHtml = getMetadataPrefixHtml(metaType);
-          const escapedContent = escapeHtml(contentText);
-          parts.push(prefixHtml ? `${prefixHtml} ${escapedContent}` : escapedContent);
-        }
-      }
-    });
-
-    // Add constraints and examples with colors
-    if (metadata.constraints && metadata.constraints.length > 0) {
-      metadata.constraints.forEach(item => {
-        if (item.value.trim()) {
-          const colorClass = getBlockTextColors('constraint', isDarkMode);
-          const prefixHtml = `<span class="${colorClass} jd-font-semibold">Contrainte:</span>`;
-          parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
-        }
-      });
-    }
-
-    if (metadata.examples && metadata.examples.length > 0) {
-      metadata.examples.forEach(item => {
-        if (item.value.trim()) {
-          const colorClass = getBlockTextColors('example', isDarkMode);
-          const prefixHtml = `<span class="${colorClass} jd-font-semibold">Exemple:</span>`;
-          parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
-        }
-      });
-    }
-
-    if (content.trim()) {
-      parts.push(escapeHtml(content));
-    }
-
-    return parts.filter(Boolean).join('<br><br>');
-  }, [metadata, activeSecondaryMetadata, content, blockContentCache, isDarkMode, getMetadataPrefixHtml, escapeHtml]);
-
-  // Generate final HTML with placeholder highlighting
-  const previewHtml = useMemo(() => {
-    const htmlContent = buildEnhancedPreviewHtml;
-    return htmlContent.replace(/\[([^\]]+)\]/g, 
-      '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
-    );
-  }, [buildEnhancedPreviewHtml]);
+  const previewHtml = useMemo(
+    () =>
+      buildCompletePreviewHtmlWithBlocks(
+        metadata,
+        content,
+        blockContentCache,
+        isDarkMode
+      ),
+    [metadata, content, blockContentCache, isDarkMode]
+  );
 
   const togglePreview = () => {
     setShowPreview(prev => !prev);
