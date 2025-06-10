@@ -1,5 +1,8 @@
 // src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Updated
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/core/utils/classNames';
+import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 
@@ -59,6 +62,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   });
 
   const isDark = useThemeDetector();
+  const [showPreview, setShowPreview] = useState(false);
+  const togglePreview = () => setShowPreview(prev => !prev);
   
   // Use final prompt content if provided, otherwise build from current state
   const completePreviewText = useMemo(() => {
@@ -82,8 +87,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     );
   }
 
-  // For create mode, show only the editor with complete preview below
+  // For create mode, show only the editor and allow toggling the preview
   if (mode === 'create') {
+
     return (
       <div className="jd-h-full jd-flex jd-flex-col jd-p-4 jd-space-y-4">
         <div className="jd-flex-shrink-0">
@@ -104,19 +110,54 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           />
         </div>
         
-        {/* Complete Preview Section with Metadata + Content */}
+        {/* Toggle preview button */}
         <div className="jd-flex-shrink-0 jd-pt-4 jd-border-t">
-          <div className="jd-space-y-3">
-            <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-              <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
-              Complete Template Preview
-              <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground jd-ml-auto">
+          <Button
+            onClick={togglePreview}
+            variant="outline"
+            className={cn(
+              'jd-w-full jd-transition-all jd-duration-300 jd-group',
+              showPreview
+                ? 'jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90'
+                : 'jd-bg-background hover:jd-bg-muted'
+            )}
+          >
+            <div className="jd-flex jd-items-center jd-gap-2">
+              {showPreview ? (
+                <>
+                  <EyeOff className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-scale-110" />
+                  <span>Hide Preview</span>
+                  <ChevronUp className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
+                </>
+              ) : (
+                <>
+                  <Eye className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-scale-110" />
+                  <span>Show Preview</span>
+                  <ChevronDown className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
+                </>
+              )}
+              <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-ml-auto">
                 <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
                 <span>Placeholders</span>
                 {finalPromptContent && (
                   <span className="jd-text-green-600 jd-ml-2">• Resolved content</span>
                 )}
               </div>
+            </div>
+          </Button>
+        </div>
+
+        {/* Animated preview section */}
+        <div
+          className={cn(
+            'jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out',
+            showPreview ? 'jd-max-h-[500px] jd-opacity-100' : 'jd-max-h-0 jd-opacity-0'
+          )}
+        >
+          <div className="jd-space-y-3 jd-pt-4">
+            <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
+              <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
+              Complete Template Preview
             </h3>
             <div className="jd-text-xs jd-text-muted-foreground jd-mb-2">
               Complete template preview - click to edit the content part
@@ -128,7 +169,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                 isDark={isDark}
                 showColors={true}
                 enableAdvancedEditing={true}
-                // No onChange for read-only preview in create mode
               />
             </div>
           </div>
