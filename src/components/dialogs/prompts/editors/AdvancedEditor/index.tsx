@@ -114,21 +114,26 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         <div className="jd-flex-shrink-0">
           <MetadataSection
             availableMetadataBlocks={availableMetadataBlocks}
-            expandedMetadata={expandedMetadata}
-            setExpandedMetadata={setExpandedMetadata}
-            activeSecondaryMetadata={activeSecondaryMetadata}
-            metadataCollapsed={metadataCollapsed}
-            setMetadataCollapsed={setMetadataCollapsed}
-            secondaryMetadataCollapsed={secondaryMetadataCollapsed}
-            setSecondaryMetadataCollapsed={setSecondaryMetadataCollapsed}
-            onSingleMetadataChange={handleSingleMetadataChange}
-            onCustomChange={handleCustomChange}
-            onAddMetadataItem={handleAddMetadataItem}
-            onRemoveMetadataItem={handleRemoveMetadataItem}
-            onUpdateMetadataItem={handleUpdateMetadataItem}
-            onReorderMetadataItems={handleReorderMetadataItems}
-            onAddSecondaryMetadata={addSecondaryMetadata}
-            onRemoveSecondaryMetadata={removeSecondaryMetadata}
+            state={{
+              expandedMetadata,
+              setExpandedMetadata,
+              activeSecondaryMetadata,
+              metadataCollapsed,
+              setMetadataCollapsed,
+              secondaryMetadataCollapsed,
+              setSecondaryMetadataCollapsed
+            }}
+            handlers={{
+              onSingleMetadataChange: handleSingleMetadataChange,
+              onCustomChange: handleCustomChange,
+              onAddMetadataItem: handleAddMetadataItem,
+              onRemoveMetadataItem: handleRemoveMetadataItem,
+              onUpdateMetadataItem: handleUpdateMetadataItem,
+              onReorderMetadataItems: handleReorderMetadataItems,
+              onAddSecondaryMetadata: addSecondaryMetadata,
+              onRemoveSecondaryMetadata: removeSecondaryMetadata,
+              onSaveBlock: onBlockSaved ?? (() => {})
+            }}
             showPrimary={true}
             showSecondary={false}
           />
@@ -164,21 +169,26 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         <div className="jd-flex-shrink-0">
           <MetadataSection
             availableMetadataBlocks={availableMetadataBlocks}
-            expandedMetadata={expandedMetadata}
-            setExpandedMetadata={setExpandedMetadata}
-            activeSecondaryMetadata={activeSecondaryMetadata}
-            metadataCollapsed={metadataCollapsed}
-            setMetadataCollapsed={setMetadataCollapsed}
-            secondaryMetadataCollapsed={secondaryMetadataCollapsed}
-            setSecondaryMetadataCollapsed={setSecondaryMetadataCollapsed}
-            onSingleMetadataChange={handleSingleMetadataChange}
-            onCustomChange={handleCustomChange}
-            onAddMetadataItem={handleAddMetadataItem}
-            onRemoveMetadataItem={handleRemoveMetadataItem}
-            onUpdateMetadataItem={handleUpdateMetadataItem}
-            onReorderMetadataItems={handleReorderMetadataItems}
-            onAddSecondaryMetadata={addSecondaryMetadata}
-            onRemoveSecondaryMetadata={removeSecondaryMetadata}
+            state={{
+              expandedMetadata,
+              setExpandedMetadata,
+              activeSecondaryMetadata,
+              metadataCollapsed,
+              setMetadataCollapsed,
+              secondaryMetadataCollapsed,
+              setSecondaryMetadataCollapsed
+            }}
+            handlers={{
+              onSingleMetadataChange: handleSingleMetadataChange,
+              onCustomChange: handleCustomChange,
+              onAddMetadataItem: handleAddMetadataItem,
+              onRemoveMetadataItem: handleRemoveMetadataItem,
+              onUpdateMetadataItem: handleUpdateMetadataItem,
+              onReorderMetadataItems: handleReorderMetadataItems,
+              onAddSecondaryMetadata: addSecondaryMetadata,
+              onRemoveSecondaryMetadata: removeSecondaryMetadata,
+              onSaveBlock: onBlockSaved ?? (() => {})
+            }}
             showPrimary={false}
             showSecondary={true}
           />
