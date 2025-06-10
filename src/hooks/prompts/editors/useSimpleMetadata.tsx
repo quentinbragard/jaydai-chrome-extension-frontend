@@ -33,15 +33,12 @@ export function useSimpleMetadata({ metadata, onUpdateMetadata }: UseSimpleMetad
         }
       } else {
         const singleType = type as SingleMetadataType;
-        const blockId = metadata[singleType];
-        const value = metadata.values?.[singleType];
+        const hasField =
+          Object.prototype.hasOwnProperty.call(metadata, singleType) ||
+          (metadata.values &&
+            Object.prototype.hasOwnProperty.call(metadata.values, singleType));
 
-        const hasValue = (
-          (typeof blockId === 'number' && blockId !== 0) ||
-          (typeof value === 'string' && value.trim() !== '')
-        );
-
-        if (hasValue) {
+        if (hasField) {
           activeSet.add(type);
         }
       }
