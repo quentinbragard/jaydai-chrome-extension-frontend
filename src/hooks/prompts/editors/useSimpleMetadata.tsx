@@ -33,11 +33,15 @@ export function useSimpleMetadata({ metadata, onUpdateMetadata }: UseSimpleMetad
         }
       } else {
         const singleType = type as SingleMetadataType;
-        // Consider the metadata active if the field exists in metadata or values
-        const hasField = Object.prototype.hasOwnProperty.call(metadata, singleType) ||
-          (metadata.values && Object.prototype.hasOwnProperty.call(metadata.values, singleType));
+        const blockId = metadata[singleType];
+        const value = metadata.values?.[singleType];
 
-        if (hasField) {
+        const hasValue = (
+          (typeof blockId === 'number' && blockId !== 0) ||
+          (typeof value === 'string' && value.trim() !== '')
+        );
+
+        if (hasValue) {
           activeSet.add(type);
         }
       }
