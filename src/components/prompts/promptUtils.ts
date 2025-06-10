@@ -116,7 +116,7 @@ export function formatBlockForPreview(block: Block): string {
 }
 
 // Enhanced function to build complete prompt from metadata and blocks
-export function buildCompletePrompt(metadata: PromptMetadata): string {
+export function buildCompletePrompt(metadata: PromptMetadata, content = ''): string {
   const parts: string[] = [];
 
   // Add single metadata values
@@ -150,6 +150,11 @@ export function buildCompletePrompt(metadata: PromptMetadata): string {
     const exampleTexts = formatMultipleMetadataForPrompt('example', metadata.examples);
     parts.push(...exampleTexts);
   }
+
+  if (content.trim()) {
+    parts.push(content.trim());
+  }
+
   return parts.filter(Boolean).join('\n\n');
 }
 

@@ -1,0 +1,110 @@
+import { PromptMetadata } from '@/types/prompts/metadata';
+import { getBlockTypeLabel, getBlockTextColors } from '@/components/prompts/blocks/blockUtils';
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function getBlockTypeLabelHtml(type: string, isDarkMode: boolean): string {
+  const prefix = getBlockTypeLabel(type);
+  if (!prefix) return '';
+  const colorClass = getBlockTextColors(type as any, isDarkMode);
+  return `<span class="${colorClass} jd-font-semibold">${escapeHtml(prefix)}</span>`;
+}
+
+export function buildMetadataOnlyPreview(metadata: PromptMetadata): string {
+  const parts: string[] = [];
+  ['role','context','goal','audience','output_format','tone_style'].forEach(t => {
+    const value = metadata.values?.[t as keyof typeof metadata.values];
+    if (value?.trim()) {
+      const prefix = getBlockTypeLabel(t);
+      parts.push(prefix ? `${prefix} ${value}` : value);
+    }
+  });
+  if (metadata.constraints) {
+    metadata.constraints.forEach(item => {
+      if (item.value.trim()) parts.push(`Contrainte: ${item.value}`);
+    });
+  }
+  if (metadata.examples) {
+    metadata.examples.forEach(item => {
+      if (item.value.trim()) parts.push(`Exemple: ${item.value}`);
+    });
+  }
+  return parts.filter(Boolean).join('\n\n');
+}
+
+export function buildMetadataOnlyPreviewHtml(metadata: PromptMetadata, isDark: boolean): string {
+  const parts: string[] = [];
+  ['role','context','goal','audience','output_format','tone_style'].forEach(t => {
+    const value = metadata.values?.[t as keyof typeof metadata.values];
+    if (value?.trim()) {
+      const prefixHtml = getBlockTypeLabelHtml(t, isDark);
+      parts.push(prefixHtml ? `${prefixHtml} ${escapeHtml(value)}` : escapeHtml(value));
+    }
+  });
+  if (metadata.constraints) {
+    metadata.constraints.forEach(item => {
+      if (item.value.trim()) {
+        const prefixHtml = getBlockTypeLabelHtml('constraint', isDark);
+        parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
+      }
+    });
+  }
+  if (metadata.examples) {
+    metadata.examples.forEach(item => {
+      if (item.value.trim()) {
+        const prefixHtml = getBlockTypeLabelHtml('example', isDark);
+        parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
+      }
+    });
+  }
+  if (parts.length === 0) {
+    return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
+  }
+  return parts.join('<br><br>');
+}
+
+export function buildCompletePreview(metadata: PromptMetadata, content: string): string {
+  const meta = buildMetadataOnlyPreview(metadata);
+  const parts = [meta, content.trim()].filter(Boolean);
+  return parts.join('\n\n');
+}
+
+export function buildCompletePreviewHtml(metadata: PromptMetadata, content: string, isDark: boolean): string {
+  const metaHtml = buildMetadataOnlyPreviewHtml(metadata, isDark);
+  const parts = [metaHtml, content.trim() ? escapeHtml(content) : ''].filter(Boolean);
+  const html = parts.join('<br><br>');
+  return html.replace(/\[([^\]]+)\]/g,
+    '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
+  );
+}
+
+export function extractContentFromCompleteTemplate(complete: string, metadataPart: string): string {
+  if (!metadataPart) return complete;
+  if (complete.startsWith(metadataPart)) {
+    const content = complete.substring(metadataPart.length).trim();
+    return content.replace(/^\n+/, '');
+  }
+  const lines = complete.split('\n\n');
+  const keywords = [
+    'Ton rôle est de','Le contexte est','Ton objectif est',
+    "L'audience ciblée est",'Le format attendu est','Le ton et style sont',
+    'Contrainte:','Exemple:'
+  ];
+  let start = 0;
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i].trim();
+    if (keywords.some(k => line.startsWith(k))) { start = i + 1; break; }
+  }
+  if (start < lines.length) return lines.slice(start).join('\n\n').trim();
+  const last = lines[lines.length - 1];
+  const looksLike = keywords.some(k => last.startsWith(k));
+  return looksLike ? '' : last;
+}
+
