@@ -8,7 +8,7 @@ import {
   MetadataItem, 
   PromptMetadata,
 } from '@/types/prompts/metadata';
-import { isMultipleValueBlock } from '@/components/prompts/blocks/blockUtils';
+import { isMultipleValueBlock } from '@/utils/prompts/blockUtils';
 
 interface UseTemplateMetadataParams {
   metadata: PromptMetadata;

@@ -9,7 +9,7 @@ import {
   getBlockTypeColors, 
   getBlockIconColors, 
   BLOCK_TYPE_LABELS 
-} from '@/components/prompts/blocks/blockUtils';
+} from '@/utils/prompts/blockUtils';
 import { Plus, ChevronDown, ChevronRight, Check, X } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 

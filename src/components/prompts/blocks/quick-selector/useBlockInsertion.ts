@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import {
   buildPromptPart,
   getLocalizedContent,
-} from '@/components/prompts/blocks/blockUtils';
+} from '@/utils/prompts/blockUtils';
 import { insertTextAtCursor } from '@/utils/templates/placeholderUtils';
 
 export function useBlockInsertion(

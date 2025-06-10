@@ -12,7 +12,7 @@ import {
   MetadataItem,
   MultipleMetadataType
 } from '@/types/prompts/metadata';
-import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
+import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { useTemplateMetadata } from '@/hooks/dialogs/shared/useTemplateMetada'; // ✅ Use shared metadata hook
 
 export function useCustomizeTemplateDialog() {

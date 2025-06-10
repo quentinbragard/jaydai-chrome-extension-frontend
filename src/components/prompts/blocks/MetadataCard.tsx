@@ -16,7 +16,7 @@ import {
   getBlockTypeColors,
   getBlockIconColors,
   getBlockTextColors
-} from '@/components/prompts/blocks/blockUtils';
+} from '@/utils/prompts/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface MetadataCardProps {

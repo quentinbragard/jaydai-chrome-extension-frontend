@@ -10,7 +10,7 @@ import {
   isMultipleMetadataType 
 } from '@/types/prompts/metadata';
 import { blocksApi } from '@/services/api/BlocksApi';
-import { BLOCK_TYPES } from '@/components/prompts/blocks/blockUtils';
+import { BLOCK_TYPES } from '@/utils/prompts/blockUtils';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 
 interface UseBlockManagerReturn {

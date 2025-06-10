@@ -16,7 +16,7 @@ import {
   getBlockTypeIcon, 
   getBlockIconColors,
   BLOCK_TYPES 
-} from '@/components/prompts/blocks/blockUtils';
+} from '@/utils/prompts/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { cn } from '@/core/utils/classNames';

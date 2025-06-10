@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FolderPlus } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
-import { FolderData, truncateFolderPath } from '@/components/prompts/templates/templateUtils';
+import { FolderData, truncateFolderPath } from '@/utils/prompts/templateUtils';
 
 interface Props {
   name: string;
