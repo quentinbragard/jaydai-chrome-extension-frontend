@@ -32,11 +32,6 @@ export const CustomizeTemplateDialog: React.FC = () => {
       content={content}
       setContent={setContent}
       onUpdateMetadata={handleUpdateMetadata}
-      // ✅ Pass unified metadata handlers
-      onAddMetadata={handleAddMetadata}
-      onRemoveMetadata={handleRemoveMetadata}
-      onUpdateMetadataItem={handleUpdateMetadataItem}
-      onReorderMetadataItems={handleReorderMetadataItems}
       onComplete={handleComplete}
       onClose={handleClose}
       dialogTitle={getMessage('CustomizeTemplateDialog', undefined, 'Prompt Block Editor')}

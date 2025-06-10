@@ -2,7 +2,8 @@
 import React, { useMemo } from 'react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
-import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
+
+import { useTemplateMetadata } from '@/hooks/prompts/useTemplateMetadata';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
@@ -11,9 +12,7 @@ import { formatPromptText, formatPromptHtml } from '@/utils/prompts/promptFormat
 
 interface BasicEditorProps {
   content: string;
-  metadata?: PromptMetadata;
   onContentChange: (content: string) => void;
-  onUpdateMetadata?: (metadata: PromptMetadata) => void;
   mode?: 'create' | 'customize';
   isProcessing?: boolean;
   
@@ -27,13 +26,12 @@ interface BasicEditorProps {
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   content,
-  metadata = DEFAULT_METADATA,
   onContentChange,
-  onUpdateMetadata,
   mode = 'customize',
   isProcessing = false,
   finalPromptContent
 }) => {
+  const { metadata } = useTemplateMetadata();
   const {
     // State
     placeholders,
