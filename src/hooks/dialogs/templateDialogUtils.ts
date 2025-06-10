@@ -8,9 +8,11 @@ import {
   generateMetadataItemId,
   PRIMARY_METADATA,
   SECONDARY_METADATA,
-  isMultipleMetadataType
+  isMultipleMetadataType,
+  METADATA_CONFIGS
 } from '@/types/prompts/metadata';
 import { buildCompletePrompt } from '@/components/prompts/promptUtils';
+import { blocksApi } from '@/services/api/BlocksApi';
 
 export function validateEnhancedTemplateForm(
   name: string,
@@ -250,5 +252,59 @@ export function moveBlock(
   const updated = [...blocks];
   const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
   [updated[currentIndex], updated[targetIndex]] = [updated[targetIndex], updated[currentIndex]];
+  return updated;
+}
+
+/**
+ * Ensure all metadata items have associated blocks. Any metadata value without
+ * a block ID will be saved as a new block so that the backend can persist it
+ * properly. Returns an updated metadata object with the newly created block IDs.
+ */
+export async function ensureMetadataBlocks(metadata: PromptMetadata): Promise<PromptMetadata> {
+  let updated: PromptMetadata = { ...metadata, values: { ...(metadata.values || {}) } };
+
+  const createBlockFor = async (type: SingleMetadataType | MultipleMetadataType, value: string): Promise<number | null> => {
+    try {
+      const res = await blocksApi.createBlock({
+        type: METADATA_CONFIGS[type].blockType,
+        content: { en: value }
+      });
+      return res.success && res.data ? res.data.id : null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Handle single metadata types
+  const singleTypes: SingleMetadataType[] = ['role','context','goal','audience','tone_style','output_format'];
+  for (const type of singleTypes) {
+    const id = updated[type];
+    const val = updated.values?.[type];
+    if ((!id || id === 0) && val && val.trim()) {
+      const newId = await createBlockFor(type, val.trim());
+      if (newId) {
+        updated = { ...updated, [type]: newId };
+      }
+    }
+  }
+
+  // Helper for multiple metadata arrays
+  const processItems = async (items: MetadataItem[] | undefined, type: MultipleMetadataType) => {
+    if (!items) return [] as MetadataItem[];
+    const result: MetadataItem[] = [];
+    for (const item of items) {
+      let newItem = { ...item };
+      if ((!item.blockId || item.blockId === 0) && item.value.trim()) {
+        const id = await createBlockFor(type, item.value.trim());
+        if (id) newItem.blockId = id;
+      }
+      result.push(newItem);
+    }
+    return result;
+  };
+
+  updated.constraints = await processItems(updated.constraints, 'constraint');
+  updated.examples = await processItems(updated.examples, 'example');
+
   return updated;
 }
