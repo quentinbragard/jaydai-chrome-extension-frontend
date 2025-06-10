@@ -7,6 +7,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
 import { useBasicEditorLogic } from '@/hooks/prompts/editors/useBasicEditorLogic';
+import { formatPromptText, formatPromptHtml } from '@/utils/prompts/promptFormatter';
 
 interface BasicEditorProps {
   content: string;
@@ -66,22 +67,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     if (finalPromptContent) {
       return finalPromptContent;
     }
-    
-    // Fallback: build from current metadata and content
-    return buildMetadataPreview(metadata, modifiedContent);
+    return formatPromptText(metadata, modifiedContent);
   }, [finalPromptContent, metadata, modifiedContent]);
   
   // Build HTML preview with placeholder highlighting
   const completePreviewHtml = useMemo(() => {
-    return completePreviewText
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\n/g, '<br>')
-      .replace(/\[([^\]]+)\]/g,
-        '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
-      );
-  }, [completePreviewText]);
+    return formatPromptHtml(metadata, modifiedContent, isDark);
+  }, [metadata, modifiedContent, isDark]);
 
   if (isProcessing) {
     return (
@@ -204,55 +196,3 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     </div>
   );
 };
-
-// Helper function to build metadata preview (fallback when finalPromptContent is not available)
-function buildMetadataPreview(metadata: PromptMetadata, content: string): string {
-  const parts: string[] = [];
-  
-  // Add metadata values
-  const metadataOrder = ['role', 'context', 'goal', 'audience', 'output_format', 'tone_style'];
-  metadataOrder.forEach(type => {
-    const value = metadata.values?.[type as keyof typeof metadata.values];
-    if (value?.trim()) {
-      const prefix = getMetadataPrefix(type);
-      parts.push(prefix ? `${prefix} ${value}` : value);
-    }
-  });
-  
-  // Add constraints
-  if (metadata.constraints) {
-    metadata.constraints.forEach(constraint => {
-      if (constraint.value.trim()) {
-        parts.push(`Contrainte: ${constraint.value}`);
-      }
-    });
-  }
-  
-  // Add examples
-  if (metadata.examples) {
-    metadata.examples.forEach(example => {
-      if (example.value.trim()) {
-        parts.push(`Exemple: ${example.value}`);
-      }
-    });
-  }
-  
-  // Add main content
-  if (content?.trim()) {
-    parts.push(content.trim());
-  }
-  
-  return parts.filter(Boolean).join('\n\n');
-}
-
-function getMetadataPrefix(type: string): string {
-  const prefixes: Record<string, string> = {
-    role: 'Ton rôle est de',
-    context: 'Le contexte est',
-    goal: 'Ton objectif est',
-    audience: "L'audience ciblée est",
-    output_format: 'Le format attendu est',
-    tone_style: 'Le ton et style sont'
-  };
-  return prefixes[type] || '';
-}
