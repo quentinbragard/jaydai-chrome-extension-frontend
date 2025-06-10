@@ -58,8 +58,9 @@ export function generateEnhancedFinalContent(
   metadata: PromptMetadata,
   activeTab: 'basic' | 'advanced'
 ): string {
-  if (activeTab === 'basic') return content;
-  return buildCompletePrompt(metadata, content);
+  // Regardless of editor mode we only persist the main content.
+  // Metadata is stored separately in the template.metadata field.
+  return content;
 }
 
 /**
