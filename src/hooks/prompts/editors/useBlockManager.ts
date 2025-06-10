@@ -171,6 +171,8 @@ export function useBlockManager(): UseBlockManagerReturn {
       parts.push(content.trim());
     }
 
+    console.log("FINAL PROMPT CONTENT", parts.filter(Boolean).join('\n\n'));
+
     return parts.filter(Boolean).join('\n\n');
   }, [resolveMetadataToContent]);
 

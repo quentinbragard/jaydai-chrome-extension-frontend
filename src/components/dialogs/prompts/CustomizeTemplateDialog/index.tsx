@@ -36,7 +36,6 @@ export const CustomizeTemplateDialog: React.FC = () => {
     blockContentCache,
     resolveMetadataToContent,
     buildFinalPromptContent,
-    buildFinalPromptHtml,
     addNewBlock
   } = useBlockManager();
 

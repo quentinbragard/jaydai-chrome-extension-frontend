@@ -4,7 +4,6 @@ import { useDialog } from '@/hooks/dialogs/useDialog';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
-import { Block, BlockType } from '@/types/prompts/blocks';
 import {
   PromptMetadata,
   DEFAULT_METADATA,
@@ -12,20 +11,17 @@ import {
   MultipleMetadataType
 } from '@/types/prompts/metadata';
 import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
-import { buildCompletePrompt } from '@/components/prompts/promptUtils';
 import {
   addMetadataItem,
   removeMetadataItem,
   updateMetadataItem,
   reorderMetadataItems
 } from './templateDialogUtils';
-import { prefillMetadataFromMapping, parseMetadataIds } from '@/utils/templates/metadataPrefill';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog('placeholderEditor');
   const [content, setContent] = useState('');
   const [metadata, setMetadata] = useState<PromptMetadata>(DEFAULT_METADATA);
-  const [finalPromptContent, setFinalPromptContent] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
@@ -56,11 +52,6 @@ export function useCustomizeTemplateDialog() {
     }
   }, [isOpen, data]);
 
-  // Keep final prompt content in sync with metadata and content
-  useEffect(() => {
-    setFinalPromptContent(buildCompletePrompt(metadata, content));
-    console.log('finalPromptContent', finalPromptContent);
-  }, [metadata, content]);
 
   const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
     setMetadata(newMetadata);
@@ -87,10 +78,9 @@ export function useCustomizeTemplateDialog() {
     setMetadata(prev => reorderMetadataItems(prev, type, newItems));
   };
 
-  const handleComplete = () => {
+  const handleComplete = (finalContent: string) => {
     try {
-      const finalContent = finalPromptContent;
-      
+
       if (data && data.onComplete) {
         data.onComplete(finalContent);
       }
@@ -131,7 +121,6 @@ export function useCustomizeTemplateDialog() {
     isProcessing,
     activeTab,
     setActiveTab,
-    finalPromptContent,
     handleUpdateMetadata,
     // Enhanced metadata handlers
     handleAddMetadataItem,
