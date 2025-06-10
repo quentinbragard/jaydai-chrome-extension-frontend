@@ -35,8 +35,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
     availableBlocksByType,
     blockContentCache,
     resolveMetadataToContent,
-    buildFinalPromptContent,
-    addNewBlock
+    buildFinalPromptContent
   } = useBlockManager();
 
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
@@ -63,10 +62,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
     handleUpdateMetadata(newMetadata);
   };
 
-  // Handle block saves
-  const handleBlockSaved = (newBlock: any) => {
-    addNewBlock(newBlock);
-  };
+
 
   if (!isOpen) return null;
 
@@ -147,7 +143,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
             <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
               <AdvancedEditor
                 content={content}
-                metadata={rawMetadata || DEFAULT_METADATA} // Pass raw metadata with block IDs
+                metadata={resolvedMetadata || DEFAULT_METADATA} // Pass raw metadata with block IDs
                 onContentChange={setContent}
                 onUpdateMetadata={handleMetadataUpdate}
                 isProcessing={false}
@@ -155,7 +151,6 @@ export const CustomizeTemplateDialog: React.FC = () => {
                 availableMetadataBlocks={availableMetadataBlocks}
                 availableBlocksByType={availableBlocksByType}
                 blockContentCache={blockContentCache}
-                onBlockSaved={handleBlockSaved}
                 // Pass resolved metadata for preview
                 resolvedMetadata={resolvedMetadata}
                 finalPromptContent={finalPromptContent}

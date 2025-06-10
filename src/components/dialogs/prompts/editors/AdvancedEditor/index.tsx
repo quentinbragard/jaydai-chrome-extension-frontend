@@ -15,6 +15,7 @@ import { MetadataSection } from './MetadataSection';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useSimpleMetadata } from '@/hooks/prompts/editors/useSimpleMetadata';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
+ 
 
 interface AdvancedEditorProps {
   content: string;
@@ -28,7 +29,6 @@ interface AdvancedEditorProps {
   availableBlocksByType?: Record<BlockType, Block[]>;
   blockContentCache?: Record<number, string>;
   onBlockSaved?: (block: Block) => void;
-  resolvedMetadata?: PromptMetadata;
   finalPromptContent?: string;
 }
 
@@ -42,7 +42,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   availableBlocksByType = {},
   blockContentCache = {},
   onBlockSaved,
-  resolvedMetadata,
   finalPromptContent
 }) => {
   const isDarkMode = useThemeDetector();
@@ -66,14 +65,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     removeSecondaryMetadata
   } = useSimpleMetadata({ metadata, onUpdateMetadata });
 
-  const handleSaveBlock = useCallback((block: Block) => {
-    if (onBlockSaved) {
-      onBlockSaved(block);
-    }
-  }, [onBlockSaved]);
 
-  // Use resolved metadata for preview if available, otherwise use raw metadata
-  const previewMetadata = resolvedMetadata || metadata;
+
   
   // Use final prompt content if available, otherwise build from current state
   const previewContent = finalPromptContent || content;
@@ -137,7 +130,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             onReorderMetadataItems={handleReorderMetadataItems}
             onAddSecondaryMetadata={addSecondaryMetadata}
             onRemoveSecondaryMetadata={removeSecondaryMetadata}
-            onSaveBlock={handleSaveBlock}
             showPrimary={true}
             showSecondary={false}
           />
@@ -189,7 +181,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             onReorderMetadataItems={handleReorderMetadataItems}
             onAddSecondaryMetadata={addSecondaryMetadata}
             onRemoveSecondaryMetadata={removeSecondaryMetadata}
-            onSaveBlock={handleSaveBlock}
             showPrimary={false}
             showSecondary={true}
           />
