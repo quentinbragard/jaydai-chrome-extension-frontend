@@ -1,4 +1,4 @@
-import { PromptMetadata } from '@/types/prompts/metadata';
+import { PromptMetadata, SingleMetadataType } from '@/types/prompts/metadata';
 import { getBlockTypeLabel, getBlockTextColors } from '@/components/prompts/blocks/blockUtils';
 
 function escapeHtml(str: string): string {
@@ -106,5 +106,66 @@ export function extractContentFromCompleteTemplate(complete: string, metadataPar
   const last = lines[lines.length - 1];
   const looksLike = keywords.some(k => last.startsWith(k));
   return looksLike ? '' : last;
+}
+
+/** Resolve metadata values using block content cache */
+export function resolveMetadataValues(
+  metadata: PromptMetadata,
+  blockMap: Record<number, string>
+): PromptMetadata {
+  const resolved: PromptMetadata = {
+    ...metadata,
+    values: { ...(metadata.values || {}) }
+  };
+
+  const singleTypes: SingleMetadataType[] = [
+    'role',
+    'context',
+    'goal',
+    'audience',
+    'output_format',
+    'tone_style'
+  ];
+
+  singleTypes.forEach(t => {
+    const id = (metadata as any)[t];
+    if (id && id !== 0) {
+      resolved.values![t] = blockMap[id] || '';
+    }
+  });
+
+  const resolveItems = (items?: { blockId?: number; value: string }[]) =>
+    items?.map(item => ({
+      ...item,
+      value: item.blockId && blockMap[item.blockId]
+        ? blockMap[item.blockId]
+        : item.value
+    }));
+
+  resolved.constraints = resolveItems(metadata.constraints) as any;
+  resolved.examples = resolveItems(metadata.examples) as any;
+
+  return resolved;
+}
+
+/** Build preview text using block content */
+export function buildCompletePreviewWithBlocks(
+  metadata: PromptMetadata,
+  content: string,
+  blockMap: Record<number, string>
+): string {
+  const resolved = resolveMetadataValues(metadata, blockMap);
+  return buildCompletePreview(resolved, content);
+}
+
+/** Build preview HTML using block content */
+export function buildCompletePreviewHtmlWithBlocks(
+  metadata: PromptMetadata,
+  content: string,
+  blockMap: Record<number, string>,
+  isDark: boolean
+): string {
+  const resolved = resolveMetadataValues(metadata, blockMap);
+  return buildCompletePreviewHtml(resolved, content, isDark);
 }
 
