@@ -42,7 +42,13 @@ export function useCustomizeTemplateDialog() {
           } else {
             setContent('');
           }
-          setMetadata(data.metadata);
+
+          if (data.metadata) {
+            setMetadata(parseMetadataIds(data.metadata));
+            prefillMetadataFromMapping(data.metadata).then(setMetadata);
+          } else {
+            setMetadata(DEFAULT_METADATA);
+          }
         } catch (err) {
           console.error('CustomizeTemplateDialog: Error processing template:', err);
           setError(getMessage('errorProcessingTemplate'));
