@@ -7,7 +7,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
 import { useBasicEditorLogic } from '@/hooks/prompts/editors/useBasicEditorLogic';
-import { getBlockTextColors } from '@/components/prompts/blocks/blockUtils';
+import { getBlockTypeLabel, getBlockTextColors } from '@/components/prompts/blocks/blockUtils';
 
 interface BasicEditorProps {
   content: string;
@@ -28,20 +28,8 @@ const escapeHtml = (str: string): string => {
     .replace(/'/g, '&#039;');
 };
 
-const getMetadataPrefix = (type: string): string => {
-  const prefixes: Record<string, string> = {
-    role: 'Ton rôle est de',
-    context: 'Le contexte est',
-    goal: 'Ton objectif est',
-    audience: "L'audience ciblée est",
-    output_format: 'Le format attendu est',
-    tone_style: 'Le ton et style sont'
-  };
-  return prefixes[type] || '';
-};
-
-const getMetadataPrefixHtml = (type: string, isDarkMode: boolean): string => {
-  const prefix = getMetadataPrefix(type);
+const getBlockTypeLabelHtml = (type: string, isDarkMode: boolean): string => {
+  const prefix = getBlockTypeLabel(type);
   if (!prefix) return '';
   
   // Map metadata types to block types for consistent coloring
@@ -68,7 +56,7 @@ const buildMetadataOnlyPreview = (metadata: PromptMetadata): string => {
   ['role', 'context', 'goal'].forEach(type => {
     const value = metadata.values?.[type];
     if (value?.trim()) {
-      const prefix = getMetadataPrefix(type);
+      const prefix = getBlockTypeLabel(type);
       parts.push(prefix ? `${prefix} ${value}` : value);
     }
   });
@@ -77,7 +65,7 @@ const buildMetadataOnlyPreview = (metadata: PromptMetadata): string => {
   ['audience', 'output_format', 'tone_style'].forEach(type => {
     const value = metadata.values?.[type];
     if (value?.trim()) {
-      const prefix = getMetadataPrefix(type);
+      const prefix = getBlockTypeLabel(type);
       parts.push(prefix ? `${prefix} ${value}` : value);
     }
   });
@@ -161,7 +149,7 @@ const buildCompletePreview = (metadata: PromptMetadata, content: string): string
     const value = metadata.values?.[type];
     console.log(`Checking ${type}:`, value);
     if (value?.trim()) {
-      const prefix = getMetadataPrefix(type);
+      const prefix = getBlockTypeLabel(type);
       parts.push(prefix ? `${prefix} ${value}` : value);
     }
   });
@@ -170,7 +158,7 @@ const buildCompletePreview = (metadata: PromptMetadata, content: string): string
   ['audience', 'output_format', 'tone_style'].forEach(type => {
     const value = metadata.values?.[type];
     if (value?.trim()) {
-      const prefix = getMetadataPrefix(type);
+      const prefix = getBlockTypeLabel(type);
       parts.push(prefix ? `${prefix} ${value}` : value);
     }
   });
@@ -213,7 +201,7 @@ const buildCompletePreviewHtml = (metadata: PromptMetadata, content: string, isD
   ['role', 'context', 'goal'].forEach(type => {
     const value = metadata.values?.[type];
     if (value?.trim()) {
-      const prefixHtml = getMetadataPrefixHtml(type, isDarkMode);
+      const prefixHtml = getBlockTypeLabelHtml(type, isDarkMode);
       const escapedContent = escapeHtml(value);
       parts.push(prefixHtml ? `${prefixHtml} ${escapedContent}` : escapedContent);
     }
@@ -223,7 +211,7 @@ const buildCompletePreviewHtml = (metadata: PromptMetadata, content: string, isD
   ['audience', 'output_format', 'tone_style'].forEach(type => {
     const value = metadata.values?.[type];
     if (value?.trim()) {
-      const prefixHtml = getMetadataPrefixHtml(type, isDarkMode);
+      const prefixHtml = getBlockTypeLabelHtml(type, isDarkMode);
       const escapedContent = escapeHtml(value);
       parts.push(prefixHtml ? `${prefixHtml} ${escapedContent}` : escapedContent);
     }

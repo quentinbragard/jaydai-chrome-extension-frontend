@@ -76,7 +76,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
       }}
       title={getMessage('CustomizeTemplateDialog', undefined, 'Prompt Block Editor')}
       description={getMessage('CustomizeTemplateDialogDescription', undefined, 'Build your prompt using blocks')}
-      className="jd-max-w-6xl jd-h-[90vh]"
+      className="jd-max-w-6xl jd-h-[100vh]"
     >
       <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">
         {error && (
