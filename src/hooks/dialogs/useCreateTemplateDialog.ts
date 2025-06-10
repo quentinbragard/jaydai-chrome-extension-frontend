@@ -17,23 +17,13 @@ import {
   useProcessUserFolders,
   FolderData
 } from '@/components/prompts/templates/templateUtils';
+import { getLocalizedContent } from '@/components/prompts/blocks/blockUtils';
 import {
-  validateEnhancedTemplateForm,
-  generateEnhancedFinalContent,
-  getEnhancedContentBlockIds, // FIXED: Use this for content blocks
-  getMetadataBlockMapping,    // FIXED: Use this for metadata blocks
-  createBlock,
-  addBlock as addBlockUtil,
-  removeBlock as removeBlockUtil,
-  updateBlock as updateBlockUtil,
-  reorderBlocks as reorderBlocksUtil,
   addMetadataItem,
   removeMetadataItem,
   updateMetadataItem,
-  reorderMetadataItems,
-  ensureMetadataBlocks
+  reorderMetadataItems
 } from './templateDialogUtils';
-import { prefillMetadataFromMapping, parseMetadataIds } from '@/utils/templates/metadataPrefill';
 
 export function useCreateTemplateDialog() {
   const createDialog = useDialog('createTemplate');
@@ -47,10 +37,11 @@ export function useCreateTemplateDialog() {
   const [description, setDescription] = useState('');
   const [selectedFolderId, setSelectedFolderId] = useState<string>('');
   const [content, setContent] = useState('');
-  const [blocks, setBlocks] = useState<Block[]>([]);
   const [metadata, setMetadata] = useState<PromptMetadata>(DEFAULT_METADATA);
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [userFoldersList, setUserFoldersList] = useState<FolderData[]>([]);
 
@@ -68,43 +59,40 @@ export function useCreateTemplateDialog() {
       setValidationErrors({});
 
       if (currentTemplate) {
+        console.log('currentTemplate', currentTemplate);
         setName(currentTemplate.title || '');
         setDescription(currentTemplate.description || '');
         setSelectedFolderId(currentTemplate.folder_id ? currentTemplate.folder_id.toString() : '');
 
-        setContent(currentTemplate.content || '');
-        setBlocks([
-          {
-            id: Date.now(),
-            type: 'custom',
-            content: currentTemplate.content || '',
-            title: { en: 'Template Content' }
+        const processTemplateData = async () => {
+          try {
+            if (content) {
+              const contentString = getLocalizedContent(currentTemplate.content);
+              setContent(contentString);
+            } else {
+              setContent('');
+            }
+            setMetadata(currentTemplate.metadata);
+          } catch (err) {
+            console.error('CustomizeTemplateDialog: Error processing template:', err);
+            setError(getMessage('errorProcessingTemplate'));
+          } finally {
+            setIsProcessing(false);
           }
-        ]);
-
-        if (currentTemplate.metadata) {
-          // Set IDs immediately so metadata cards show selections right away
-          setMetadata(parseMetadataIds(currentTemplate.metadata));
-          prefillMetadataFromMapping(currentTemplate.metadata).then(setMetadata);
-        }
+        };
+  
+        processTemplateData();
+      }
       } else {
         setName('');
         setDescription('');
         setContent('');
-        setBlocks([
-          {
-            id: Date.now(),
-            type: 'custom',
-            content: '',
-            title: { en: 'Template Content' }
-          }
-        ]);
-        setMetadata(DEFAULT_METADATA);
+        
+        setMetadata({});
         setSelectedFolderId(selectedFolder?.id?.toString() || '');
       }
 
       processUserFolders();
-    }
   }, [isOpen, currentTemplate, selectedFolder, processUserFolders]);
 
   const handleClose = () => {
@@ -166,59 +154,21 @@ export function useCreateTemplateDialog() {
     setSelectedFolderId(folderId);
   };
 
-  const validateForm = () => {
-    const errors = validateEnhancedTemplateForm(
-      name,
-      content,
-      blocks,
-      metadata,
-      activeTab
-    );
-    setValidationErrors(
-      Object.fromEntries(Object.entries(errors).map(([k, v]) => [k, getMessage(v as any)]))
-    );
-    return Object.keys(errors).length === 0;
-  };
-
 
   // Save the template using final prompt content computed by the dialog
   // If no content is provided, rebuild it from current state
-  const handleSave = async (finalContentFromDialog?: string) => {
-    if (!validateForm()) {
-      if (validationErrors.name) {
-        toast.error(validationErrors.name);
-      } else if (validationErrors.content) {
-        toast.error(validationErrors.content);
-      }
-      return;
-    }
+  const handleComplete = async (content: string, metadata: PromptMetadata) => {
 
     setIsSubmitting(true);
     try {
       // Ensure any custom metadata values are saved as blocks so they can be persisted
-      const metadataWithBlocks = await ensureMetadataBlocks(metadata);
-      setMetadata(metadataWithBlocks);
-
-      const finalContent = finalContentFromDialog ??
-        generateEnhancedFinalContent(content, blocks, metadataWithBlocks, activeTab);
-      const contentBlockIds = getEnhancedContentBlockIds(blocks, activeTab);
-      const metadataBlockMapping = getMetadataBlockMapping(metadataWithBlocks, activeTab);
-      
-
-
-      console.log('FIXED Template Save Data:', {
-        finalContent,
-        contentBlockIds,      // FIXED: These are content blocks
-        metadataBlockMapping, // FIXED: These are metadata blocks
-      });
 
       const formData = {
         name: name.trim(),
-        content: finalContent,
+        content: content,
         description: description?.trim(),
         folder_id: selectedFolderId ? parseInt(selectedFolderId, 10) : undefined,
-        blocks: contentBlockIds,
-        metadata: metadataBlockMapping
+        metadata: metadata
       };
 
       let success = false;
@@ -271,41 +221,6 @@ export function useCreateTemplateDialog() {
     setMetadata(prev => reorderMetadataItems(prev, type, newItems));
   };
 
-  // Content block handlers (these only affect content blocks, not metadata)
-  const handleAddBlock = (
-    position: 'start' | 'end',
-    blockType?: BlockType | null,
-    existingBlock?: Block,
-    duplicate?: boolean
-  ) => {
-    const newBlock = createBlock(blockType, existingBlock, duplicate);
-    setBlocks(prev => addBlockUtil(prev, position, newBlock));
-  };
-
-  const handleRemoveBlock = (blockId: number) => {
-    setBlocks(prev => removeBlockUtil(prev, blockId));
-  };
-
-  const handleUpdateBlock = (blockId: number, updatedBlock: Partial<Block>) => {
-    setBlocks(prev => {
-      const newBlocks = updateBlockUtil(prev, blockId, updatedBlock);
-      if (activeTab === 'basic' && newBlocks.length > 0 && newBlocks[0].id === blockId) {
-        const first = newBlocks[0];
-        const lang = getCurrentLanguage();
-        const newContent =
-          typeof first.content === 'string'
-            ? first.content
-            : (first.content as any)[lang] || (first.content as any).en || '';
-        setContent(newContent);
-      }
-      return newBlocks;
-    });
-  };
-
-  const handleReorderBlocks = (newBlocks: Block[]) => {
-    setBlocks(prev => reorderBlocksUtil(prev, newBlocks));
-  };
-
   const handleUpdateMetadata = (newMetadata: PromptMetadata) => {
     setMetadata(newMetadata);
   };
@@ -319,27 +234,23 @@ export function useCreateTemplateDialog() {
     setName,
     description,
     setDescription,
+    content,
+    setContent,
+    metadata,
+    setMetadata,
     selectedFolderId,
     handleFolderSelect,
     userFoldersList,
     validationErrors,
-    content,
-    setContent,
-    blocks,
-    metadata,
     activeTab,
     setActiveTab,
-    handleAddBlock,
-    handleRemoveBlock,
-    handleUpdateBlock,
-    handleReorderBlocks,
     handleUpdateMetadata,
     // Enhanced metadata handlers
     handleAddMetadataItem,
     handleRemoveMetadataItem,
     handleUpdateMetadataItem,
     handleReorderMetadataItems,
-    handleSave,
+    handleComplete,
     handleClose,
     isSubmitting
   };
