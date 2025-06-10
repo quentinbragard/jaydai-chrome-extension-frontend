@@ -30,7 +30,8 @@ import {
   addMetadataItem,
   removeMetadataItem,
   updateMetadataItem,
-  reorderMetadataItems
+  reorderMetadataItems,
+  ensureMetadataBlocks
 } from './templateDialogUtils';
 import { prefillMetadataFromMapping, parseMetadataIds } from '@/utils/templates/metadataPrefill';
 
@@ -196,9 +197,13 @@ export function useCreateTemplateDialog() {
 
     setIsSubmitting(true);
     try {
-      const finalContent = generateFinalContentLocal();
-      const contentBlockIds = getContentBlockIdsLocal(); // FIXED: Content blocks only
-      const metadataBlockMapping = getMetadataMappingLocal(); // FIXED: Metadata blocks only
+      // Ensure any custom metadata values are saved as blocks so they can be persisted
+      const metadataWithBlocks = await ensureMetadataBlocks(metadata);
+      setMetadata(metadataWithBlocks);
+
+      const finalContent = generateEnhancedFinalContent(content, blocks, metadataWithBlocks, activeTab);
+      const contentBlockIds = getEnhancedContentBlockIds(blocks, activeTab);
+      const metadataBlockMapping = getMetadataBlockMapping(metadataWithBlocks, activeTab);
       
 
 
