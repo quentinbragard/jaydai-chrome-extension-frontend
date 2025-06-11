@@ -5,8 +5,7 @@ import { cn } from '@/core/utils/classNames';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
-
-import { useTemplateMetadata } from '@/hooks/prompts/useTemplateMetadata';
+import { PromptMetadata } from '@/types/prompts/metadata';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
@@ -19,22 +18,25 @@ interface BasicEditorProps {
   mode?: 'create' | 'customize';
   isProcessing?: boolean;
   
+  // Metadata props - passed down from dialog
+  metadata: PromptMetadata;
+  
   // New prop for consistent final content
   finalPromptContent?: string;
 }
 
 /**
  * Basic editor mode - Simple placeholder and content editing with complete metadata preview
- * Now uses finalPromptContent for consistency with AdvancedEditor
+ * Now receives metadata as props instead of using context
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   content,
   onContentChange,
   mode = 'customize',
   isProcessing = false,
+  metadata,
   finalPromptContent
 }) => {
-  const { metadata } = useTemplateMetadata();
   const {
     // State
     placeholders,
@@ -89,7 +91,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
   // For create mode, show only the editor and allow toggling the preview
   if (mode === 'create') {
-
     return (
       <div className="jd-h-full jd-flex jd-flex-col jd-p-4 jd-space-y-4">
         <div className="jd-flex-shrink-0">

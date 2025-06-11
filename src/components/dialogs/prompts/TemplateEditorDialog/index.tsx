@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx
+// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx - Updated
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -8,12 +8,19 @@ import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 import { BasicEditor, AdvancedEditor } from '../editors';
 import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
+import { 
+  PromptMetadata, 
+  MetadataType, 
+  SingleMetadataType, 
+  MultipleMetadataType, 
+  MetadataItem 
+} from '@/types/prompts/metadata';
 
 interface TemplateEditorDialogProps {
   // State from base hook
   isOpen: boolean;
   error: string | null;
-  metadata: any;
+  metadata: PromptMetadata;
   isProcessing: boolean;
   content: string;
   activeTab: 'basic' | 'advanced';
@@ -26,19 +33,19 @@ interface TemplateEditorDialogProps {
   handleClose: () => void;
   
   // Metadata actions from base hook
-  updateSingleMetadataValue: (type: any, value: string) => void;
-  updateCustomMetadataValue: (type: any, value: string) => void;
-  addMultipleMetadataItem: (type: any) => void;
-  removeMultipleMetadataItem: (type: any, itemId: string) => void;
-  updateMultipleMetadataItem: (type: any, itemId: string, updates: any) => void;
-  reorderMultipleMetadataItems: (type: any, newItems: any[]) => void;
-  addSecondaryMetadataType: (type: any) => void;
-  removeSecondaryMetadataType: (type: any) => void;
+  updateSingleMetadataValue: (type: SingleMetadataType, value: string) => void;
+  updateCustomMetadataValue: (type: SingleMetadataType, value: string) => void;
+  addMultipleMetadataItem: (type: MultipleMetadataType) => void;
+  removeMultipleMetadataItem: (type: MultipleMetadataType, itemId: string) => void;
+  updateMultipleMetadataItem: (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => void;
+  reorderMultipleMetadataItems: (type: MultipleMetadataType, newItems: MetadataItem[]) => void;
+  addSecondaryMetadataType: (type: MetadataType) => void;
+  removeSecondaryMetadataType: (type: MetadataType) => void;
   
   // UI state from base hook
-  expandedMetadata: any;
-  setExpandedMetadata: (type: any) => void;
-  activeSecondaryMetadata: Set<any>;
+  expandedMetadata: MetadataType | null;
+  setExpandedMetadata: (type: MetadataType | null) => void;
+  activeSecondaryMetadata: Set<MetadataType>;
   metadataCollapsed: boolean;
   setMetadataCollapsed: (collapsed: boolean) => void;
   secondaryMetadataCollapsed: boolean;
@@ -108,6 +115,48 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     if (blocksLoading) return '';
     return buildFinalPromptContent(metadata, content);
   }, [metadata, content, buildFinalPromptContent, blocksLoading]);
+
+  // Create metadata handlers object for AdvancedEditor
+  const metadataHandlers = React.useMemo(() => ({
+    updateSingleMetadataValue,
+    updateCustomMetadataValue,
+    addMultipleMetadataItem,
+    removeMultipleMetadataItem,
+    updateMultipleMetadataItem,
+    reorderMultipleMetadataItems,
+    addSecondaryMetadataType,
+    removeSecondaryMetadataType
+  }), [
+    updateSingleMetadataValue,
+    updateCustomMetadataValue,
+    addMultipleMetadataItem,
+    removeMultipleMetadataItem,
+    updateMultipleMetadataItem,
+    reorderMultipleMetadataItems,
+    addSecondaryMetadataType,
+    removeSecondaryMetadataType
+  ]);
+
+  // Create metadata UI state object for AdvancedEditor
+  const metadataUIState = React.useMemo(() => ({
+    expandedMetadata,
+    setExpandedMetadata,
+    activeSecondaryMetadata,
+    metadataCollapsed,
+    setMetadataCollapsed,
+    secondaryMetadataCollapsed,
+    setSecondaryMetadataCollapsed,
+    customValues
+  }), [
+    expandedMetadata,
+    setExpandedMetadata,
+    activeSecondaryMetadata,
+    metadataCollapsed,
+    setMetadataCollapsed,
+    secondaryMetadataCollapsed,
+    setSecondaryMetadataCollapsed,
+    customValues
+  ]);
 
   if (!isOpen) return null;
 
@@ -179,6 +228,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 onContentChange={setContent}
                 mode={mode as any}
                 isProcessing={false}
+                metadata={metadata}
                 finalPromptContent={finalPromptContent}
               />
             </TabsContent>
@@ -188,34 +238,14 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 content={content}
                 onContentChange={setContent}
                 isProcessing={false}
+                resolvedMetadata={metadata}
+                metadataHandlers={metadataHandlers}
+                metadataUIState={metadataUIState}
                 availableMetadataBlocks={availableMetadataBlocks}
                 availableBlocksByType={availableBlocksByType}
                 blockContentCache={blockContentCache}
-                resolvedMetadata={metadata}
-                finalPromptContent={finalPromptContent}
                 onBlockSaved={addNewBlock}
-                // Pass metadata handlers
-                metadataHandlers={{
-                  updateSingleMetadataValue,
-                  updateCustomMetadataValue,
-                  addMultipleMetadataItem,
-                  removeMultipleMetadataItem,
-                  updateMultipleMetadataItem,
-                  reorderMultipleMetadataItems,
-                  addSecondaryMetadataType,
-                  removeSecondaryMetadataType
-                }}
-                // Pass UI state
-                metadataUIState={{
-                  expandedMetadata,
-                  setExpandedMetadata,
-                  activeSecondaryMetadata,
-                  metadataCollapsed,
-                  setMetadataCollapsed,
-                  secondaryMetadataCollapsed,
-                  setSecondaryMetadataCollapsed,
-                  customValues
-                }}
+                finalPromptContent={finalPromptContent}
               />
             </TabsContent>
           </Tabs>

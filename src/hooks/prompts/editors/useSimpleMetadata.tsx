@@ -1,4 +1,4 @@
-// src/hooks/prompts/editors/useSimpleMetadata.ts - Enhanced version
+// src/hooks/prompts/editors/useSimpleMetadata.ts - Enhanced version without context dependency
 import { useState, useCallback, useMemo } from 'react';
 import { 
   PromptMetadata, 
@@ -15,6 +15,10 @@ interface UseSimpleMetadataProps {
   onUpdateMetadata?: (metadata: PromptMetadata) => void;
 }
 
+/**
+ * Hook for managing metadata UI state and providing handlers
+ * Now works with direct props instead of context
+ */
 export function useSimpleMetadata({ metadata, onUpdateMetadata }: UseSimpleMetadataProps) {
   // UI state
   const [expandedMetadata, setExpandedMetadata] = useState<MetadataType | null>(null);
