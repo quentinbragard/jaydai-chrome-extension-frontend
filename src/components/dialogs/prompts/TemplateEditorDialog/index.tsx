@@ -13,8 +13,9 @@ import {
   MetadataType, 
   SingleMetadataType, 
   MultipleMetadataType, 
-  MetadataItem 
+  MetadataItem
 } from '@/types/prompts/metadata';
+import { TemplateEditorProvider } from './TemplateEditorContext';
 
 interface TemplateEditorDialogProps {
   // State from base hook
@@ -103,8 +104,9 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   }, [metadata, content, buildFinalPromptContent, blocksLoading]);
 
 
-  // Create metadata UI state object for AdvancedEditor
-  const metadataUIState = React.useMemo(() => ({
+  const contextValue = React.useMemo(() => ({
+    metadata,
+    setMetadata,
     expandedMetadata,
     setExpandedMetadata,
     activeSecondaryMetadata,
@@ -114,6 +116,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     setSecondaryMetadataCollapsed,
     customValues
   }), [
+    metadata,
+    setMetadata,
     expandedMetadata,
     setExpandedMetadata,
     activeSecondaryMetadata,
@@ -162,6 +166,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       className="jd-max-w-6xl jd-h-[100vh]"
     >
       {infoForm}
+      <TemplateEditorProvider value={contextValue}>
       <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">
         {error && (
           <Alert variant="destructive" className="jd-mb-2">
@@ -194,7 +199,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 onContentChange={setContent}
                 mode={mode as any}
                 isProcessing={false}
-                metadata={metadata}
                 finalPromptContent={finalPromptContent}
               />
             </TabsContent>
@@ -204,9 +208,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 content={content}
                 onContentChange={setContent}
                 isProcessing={false}
-                resolvedMetadata={metadata}
-                setMetadata={setMetadata}
-                metadataUIState={metadataUIState}
                 availableMetadataBlocks={availableMetadataBlocks}
                 availableBlocksByType={availableBlocksByType}
                 blockContentCache={blockContentCache}
@@ -239,6 +240,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           </div>
         )}
       </div>
+      </TemplateEditorProvider>
     </BaseDialog>
   );
 };

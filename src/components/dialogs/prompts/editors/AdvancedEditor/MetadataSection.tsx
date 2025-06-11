@@ -19,7 +19,6 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 import { MetadataCard } from '@/components/prompts/blocks/MetadataCard';
 import {
-  PromptMetadata,
   MetadataType,
   SingleMetadataType,
   MultipleMetadataType,
@@ -30,6 +29,7 @@ import {
   isMultipleMetadataType
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
+import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import {
   updateSingleMetadata,
   updateCustomValue,
@@ -52,35 +52,20 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   constraint: Ban
 };
 
-interface MetadataState {
-  expandedMetadata: MetadataType | null;
-  setExpandedMetadata: (type: MetadataType | null) => void;
-  activeSecondaryMetadata: Set<MetadataType>;
-  metadataCollapsed: boolean;
-  setMetadataCollapsed: (collapsed: boolean) => void;
-  secondaryMetadataCollapsed: boolean;
-  setSecondaryMetadataCollapsed: (collapsed: boolean) => void;
-}
-
 interface MetadataSectionProps {
-  // Add metadata as a prop instead of using context
-  metadata: PromptMetadata;
   availableMetadataBlocks: Record<MetadataType, Block[]>;
-  state: MetadataState;
-  setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
   showPrimary?: boolean;
   showSecondary?: boolean;
 }
 
 export const MetadataSection: React.FC<MetadataSectionProps> = ({
-  metadata,
   availableMetadataBlocks,
-  state,
-  setMetadata,
   showPrimary = true,
   showSecondary = true
 }) => {
   const {
+    metadata,
+    setMetadata,
     expandedMetadata,
     setExpandedMetadata,
     activeSecondaryMetadata,
@@ -88,7 +73,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
     setMetadataCollapsed,
     secondaryMetadataCollapsed,
     setSecondaryMetadataCollapsed
-  } = state;
+  } = useTemplateEditor();
 
   const handleSingleMetadataChange = useCallback(
     (type: SingleMetadataType, value: string) => {
