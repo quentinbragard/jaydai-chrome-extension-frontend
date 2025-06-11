@@ -1,13 +1,24 @@
-// src/components/prompts/blocks/MetadataCard.tsx - Enhanced version
+// src/components/prompts/blocks/MetadataCard.tsx
 import React from 'react';
-import { Block, MetadataType, METADATA_CONFIGS } from '@/types/prompts/metadata';
+import {
+  Block,
+  MetadataItem,
+  MetadataType,
+  METADATA_CONFIGS,
+  isMultipleMetadataType,
+  generateMetadataItemId
+} from '@/types/prompts/metadata';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
-import { getCurrentLanguage } from '@/core/utils/i18n';
 import { useClickOutside } from '@/hooks/useClickOutside';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
@@ -15,104 +26,107 @@ import {
   getLocalizedContent,
   getBlockTypeColors,
   getBlockIconColors,
-  getBlockTextColors
+  getBlockTextColors,
+  getBlockTypeIcon
 } from '@/utils/prompts/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface MetadataCardProps {
   type: MetadataType;
-  icon: React.ComponentType<any>;
   availableBlocks: Block[];
   expanded: boolean;
-  selectedId: number;
-  customValue: string;
+  value?: number;
+  items?: MetadataItem[];
   isPrimary?: boolean;
-  onSelect: (value: string) => void;
-  onCustomChange: (value: string) => void;
+  onChange: (value: number | MetadataItem[]) => void;
   onToggle: () => void;
   onRemove?: () => void;
-  onSaveBlock?: (block: Block) => void;
 }
 
 export const MetadataCard: React.FC<MetadataCardProps> = ({
   type,
-  icon: Icon,
   availableBlocks,
   expanded,
-  selectedId,
-  customValue,
+  value = 0,
+  items = [],
   isPrimary = false,
-  onSelect,
-  onCustomChange,
+  onChange,
   onToggle,
-  onRemove,
-  onSaveBlock
+  onRemove
 }) => {
   const config = METADATA_CONFIGS[type];
   const isDarkMode = useThemeDetector();
   const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
   const iconColors = getBlockIconColors(config.blockType, isDarkMode);
+  const Icon = getBlockTypeIcon(config.blockType);
   const { openDialog } = useDialogManager();
 
-  // Find the selected block
-  const selectedBlock = selectedId && selectedId !== 0 
-    ? availableBlocks.find(b => b.id === selectedId) 
-    : null;
-
-  // Get the display content - either from selected block or custom value
-  const getDisplayContent = (): string => {
-    if (selectedBlock) {
-      return getLocalizedContent(selectedBlock.content) || '';
-    }
-    return customValue || '';
-  };
-
-  // Get the display title
-  const getDisplayTitle = (): string => {
-    if (selectedBlock) {
-      return getLocalizedContent(selectedBlock.title) || `${type} block`;
-    }
-    if (customValue?.trim()) {
-      return 'Custom value';
-    }
-    return `Click to set ${type}`;
-  };
-
-  // Click outside handler to collapse the card
   const cardRef = useClickOutside<HTMLDivElement>(() => {
     if (expanded) {
       onToggle();
     }
   }, expanded);
 
-  // Handle card click - only toggle if clicking on the card itself, not on interactive elements
-  const handleCardClick = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const isInteractive = target.closest('button') || 
-                         target.closest('[role="combobox"]') || 
-                         target.closest('select') || 
-                         target.closest('textarea') ||
-                         target.closest('input') ||
-                         target.closest('[data-radix-collection-item]') ||
-                         target.closest('[data-radix-select-trigger]') ||
-                         target.closest('[data-radix-select-content]');
-    
-    if (!isInteractive) {
-      e.preventDefault();
-      e.stopPropagation();
-      onToggle();
-    }
-  };
-
-  // Stop propagation for interactive elements
   const stopPropagation = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
 
+  const handleSelect = (val: string) => {
+    if (val === 'create') {
+      openDialog(DIALOG_TYPES.CREATE_BLOCK, {
+        initialType: config.blockType,
+        onBlockCreated: b => {
+          onChange(b.id);
+          onToggle();
+        }
+      });
+      return;
+    }
+    onChange(parseInt(val, 10));
+    if (val !== '0') onToggle();
+  };
+
+  const handleItemSelect = (id: string, val: string) => {
+    if (val === 'create') {
+      openDialog(DIALOG_TYPES.CREATE_BLOCK, {
+        initialType: config.blockType,
+        onBlockCreated: b => {
+          const updated = items.map(it =>
+            it.id === id ? { ...it, blockId: b.id, value: getLocalizedContent(b.content) } : it
+          );
+          onChange(updated);
+        }
+      });
+      return;
+    }
+
+    const blockId = parseInt(val, 10);
+    const block = availableBlocks.find(b => b.id === blockId);
+    const updated = items.map(it =>
+      it.id === id ? { ...it, blockId, value: block ? getLocalizedContent(block.content) : '' } : it
+    );
+    onChange(updated);
+  };
+
+  const addItem = () => {
+    const newItem: MetadataItem = { id: generateMetadataItemId(), value: '', blockId: 0 };
+    onChange([...items, newItem]);
+  };
+
+  const removeItem = (id: string) => {
+    onChange(items.filter(it => it.id !== id));
+  };
+
+  const selectedBlock = value && value !== 0 ? availableBlocks.find(b => b.id === value) : null;
+
   return (
     <Card
       ref={cardRef}
-      onClick={handleCardClick}
+      onClick={(e) => {
+        const target = e.target as HTMLElement;
+        const isInteractive = target.closest('button') || target.closest('[role="combobox"]');
+        if (!isInteractive) onToggle();
+      }}
       className={cn(
         'jd-transition-all jd-duration-300 jd-cursor-pointer hover:jd-shadow-md',
         'jd-border-2 jd-backdrop-blur-sm jd-py-2 jd-select-none',
@@ -132,6 +146,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
             </div>
             <span className={cn('jd-font-medium', getBlockTextColors(config.blockType, isDarkMode))}>
               {config.label}
+              {isMultipleMetadataType(type) && items.length > 0 ? ` (${items.length})` : ''}
             </span>
           </div>
           <div className="jd-flex jd-items-center jd-gap-1" onClick={stopPropagation}>
@@ -139,10 +154,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove();
-                }}
+                onClick={onRemove}
                 className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-destructive"
               >
                 <Trash2 className="jd-h-3 jd-w-3" />
@@ -164,102 +176,98 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 
         {expanded ? (
           <div className="jd-space-y-3 jd-mt-3" onClick={stopPropagation}>
-            {/* Block Selection Dropdown */}
-            <Select
-              value={selectedId ? String(selectedId) : '0'}
-              onValueChange={(value) => {
-                if (value === 'custom') {
-                  openDialog(DIALOG_TYPES.CREATE_BLOCK, {
-                    initialType: config.blockType,
-                    onBlockCreated: (b) => {
-                      onSaveBlock && onSaveBlock(b);
-                      onSelect(String(b.id));
-                      onToggle();
-                    }
-                  });
-                  return;
-                }
-                onSelect(value);
-                if (value !== '0') {
-                  onToggle();
-                }
-              }}
-            >
-              <SelectTrigger className="jd-w-full">
-                <SelectValue placeholder="Select or create custom" />
-              </SelectTrigger>
-              <SelectContent className="jd-z-[10010]">
-                <SelectItem value="0">None</SelectItem>
-                {availableBlocks.map((block) => (
-                  <SelectItem key={block.id} value={String(block.id)}>
+            {!isMultipleMetadataType(type) ? (
+              <Select value={value ? String(value) : '0'} onValueChange={handleSelect}>
+                <SelectTrigger className="jd-w-full">
+                  <SelectValue placeholder={`Select ${config.label.toLowerCase()}`} />
+                </SelectTrigger>
+                <SelectContent className="jd-z-[10010]">
+                  <SelectItem value="0">None</SelectItem>
+                  {availableBlocks.map((block) => (
+                    <SelectItem key={block.id} value={String(block.id)}>
+                      {getLocalizedContent(block.title) || `${config.label} block`}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="create">
                     <div className="jd-flex jd-items-center jd-gap-2">
-                      <span className="jd-font-medium jd-truncate jd-max-w-32">
-                        {getLocalizedContent(block.title) || `${type} block`}
-                      </span>
-                      <span className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-48">
-                        {typeof block.content === 'string'
-                          ? block.content.substring(0, 40) + (block.content.length > 40 ? '...' : '')
-                          : (block.content[getCurrentLanguage()] || '').substring(0, 40) + 
-                            ((block.content[getCurrentLanguage()] || '').length > 40 ? '...' : '')}
-                      </span>
+                      <Plus className="jd-h-3 jd-w-3" />
+                      Create {config.label.toLowerCase()} block
                     </div>
                   </SelectItem>
-                ))}
-                <SelectItem value="custom">
-                  <div className="jd-flex jd-items-center jd-gap-2">
-                    <Plus className="jd-h-3 jd-w-3" />
-                    Create custom {type}
+                </SelectContent>
+              </Select>
+            ) : (
+              <>
+                {items.map((item) => (
+                  <div key={item.id} className="jd-flex jd-items-center jd-gap-2">
+                    <Select
+                      value={item.blockId ? String(item.blockId) : '0'}
+                      onValueChange={(v) => handleItemSelect(item.id, v)}
+                      className="jd-flex-1"
+                    >
+                      <SelectTrigger className="jd-w-full">
+                        <SelectValue placeholder={`Select ${config.label.toLowerCase()}`} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">None</SelectItem>
+                        {availableBlocks.map((block) => (
+                          <SelectItem key={block.id} value={String(block.id)}>
+                            {getLocalizedContent(block.title) || `${config.label} block`}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="create">
+                          <div className="jd-flex jd-items-center jd-gap-2">
+                            <Plus className="jd-h-3 jd-w-3" />
+                            Create {config.label.toLowerCase()} block
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeItem(item.id)}
+                      className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-destructive"
+                    >
+                      <Trash2 className="jd-h-3 jd-w-3" />
+                    </Button>
                   </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Custom Value Input - Only show when no block is selected */}
-            {(!selectedId || selectedId === 0) && (
-              <div className="jd-space-y-2">
-                <label className="jd-text-xs jd-font-medium jd-text-muted-foreground">
-                  Custom {type}:
-                </label>
-                <Textarea
-                  value={customValue}
-                  onChange={(e) => onCustomChange(e.target.value)}
-                  placeholder={`Enter custom ${type}...`}
-                  className="jd-min-h-[80px] jd-text-sm jd-resize-none"
-                  rows={3}
-                  onKeyDown={(e) => e.stopPropagation()}
-                  onKeyPress={(e) => e.stopPropagation()}
-                  onKeyUp={(e) => e.stopPropagation()}
-                />
-              </div>
-            )}
-
-            {/* Block Content Preview - Show when a block is selected */}
-            {selectedBlock && (
-              <div className="jd-space-y-2">
-                <label className="jd-text-xs jd-font-medium jd-text-muted-foreground">
-                  Selected {type} content:
-                </label>
-                <div className="jd-p-3 jd-rounded jd-bg-muted/50 jd-text-sm jd-max-h-20 jd-overflow-y-auto">
-                  {getLocalizedContent(selectedBlock.content) || 'No content'}
-                </div>
-              </div>
+                ))}
+                <Button variant="outline" size="sm" onClick={addItem} className="jd-w-full jd-border-dashed">
+                  <Plus className="jd-h-4 jd-w-4 jd-mr-2" /> Add {config.label}
+                </Button>
+              </>
             )}
           </div>
         ) : (
-          // Collapsed view - show content preview
           <div className="jd-text-sm jd-text-muted-foreground jd-mt-2">
-            <div className="jd-font-medium jd-text-xs jd-text-foreground jd-mb-1">
-              {getDisplayTitle()}
-            </div>
-            <div className="jd-text-xs jd-line-clamp-2">
-              {getDisplayContent() 
-                ? (getDisplayContent().substring(0, 60) + (getDisplayContent().length > 60 ? '...' : ''))
-                : `Click to set ${type}`
-              }
-            </div>
+            {!isMultipleMetadataType(type) ? (
+              value && selectedBlock ? (
+                <div className="jd-text-xs jd-line-clamp-2">
+                  {getLocalizedContent(selectedBlock.content).substring(0, 60)}
+                  {getLocalizedContent(selectedBlock.content).length > 60 ? '...' : ''}
+                </div>
+              ) : (
+                <div className="jd-text-xs">Click to set {config.label.toLowerCase()}</div>
+              )
+            ) : items.length > 0 ? (
+              <>
+                {items.slice(0, 2).map((it, idx) => (
+                  <div key={it.id} className="jd-truncate">
+                    {idx + 1}. {it.value.substring(0, 50)}{it.value.length > 50 ? '...' : ''}
+                  </div>
+                ))}
+                {items.length > 2 && (
+                  <div className="jd-text-xs jd-opacity-75">+{items.length - 2} more...</div>
+                )}
+              </>
+            ) : (
+              <div className="jd-text-xs">Click to add {config.label.toLowerCase()}</div>
+            )}
           </div>
         )}
       </CardContent>
     </Card>
   );
 };
+
