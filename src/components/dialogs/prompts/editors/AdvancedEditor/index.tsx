@@ -46,87 +46,11 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   onContentChange,
   isProcessing = false,
   availableMetadataBlocks = {},
-  availableBlocksByType = {},
-  blockContentCache = {},
-  onBlockSaved,
   finalPromptContent
 }) => {
   const isDarkMode = useThemeDetector();
   const [showPreview, setShowPreview] = useState(false);
 
-  const {
-    metadata: resolvedMetadata,
-    setMetadata,
-    expandedMetadata,
-    setExpandedMetadata,
-    activeSecondaryMetadata,
-    metadataCollapsed,
-    setMetadataCollapsed,
-    secondaryMetadataCollapsed,
-    setSecondaryMetadataCollapsed,
-    customValues
-  } = useTemplateEditor();
-
-  const handleSingleMetadataChange = useCallback(
-    (type: SingleMetadataType, value: string) => {
-      const numeric = parseInt(value, 10);
-      const blockId = isNaN(numeric) ? 0 : numeric;
-      setMetadata(prev => updateSingleMetadata(prev, type, blockId));
-    },
-    [setMetadata]
-  );
-
-  const handleCustomChange = useCallback(
-    (type: SingleMetadataType, value: string) => {
-      setMetadata(prev => updateCustomValue(prev, type, value));
-    },
-    [setMetadata]
-  );
-
-  const handleAddMetadataItem = useCallback(
-    (type: MultipleMetadataType) => {
-      setMetadata(prev => addMetadataItem(prev, type));
-    },
-    [setMetadata]
-  );
-
-  const handleRemoveMetadataItem = useCallback(
-    (type: MultipleMetadataType, itemId: string) => {
-      setMetadata(prev => removeMetadataItem(prev, type, itemId));
-    },
-    [setMetadata]
-  );
-
-  const handleUpdateMetadataItem = useCallback(
-    (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => {
-      setMetadata(prev => updateMetadataItem(prev, type, itemId, updates));
-    },
-    [setMetadata]
-  );
-
-  const handleReorderItems = useCallback(
-    (type: MultipleMetadataType, newItems: MetadataItem[]) => {
-      setMetadata(prev => reorderMetadataItems(prev, type, newItems));
-    },
-    [setMetadata]
-  );
-
-  const handleAddSecondary = useCallback(
-    (type: MetadataType) => {
-      setMetadata(prev => addSecondaryMetadata(prev, type));
-      setExpandedMetadata(type);
-    },
-    [setMetadata, setExpandedMetadata]
-  );
-
-  const handleRemoveSecondary = useCallback(
-    (type: MetadataType) => {
-      setMetadata(prev => removeSecondaryMetadata(prev, type));
-      if (expandedMetadata === type) setExpandedMetadata(null);
-    },
-    [setMetadata, expandedMetadata, setExpandedMetadata]
-  );
-  
   // Use final prompt content if available, otherwise build from current state
   const previewContent = finalPromptContent || content;
 

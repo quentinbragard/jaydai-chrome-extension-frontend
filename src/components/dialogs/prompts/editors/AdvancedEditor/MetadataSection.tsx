@@ -32,10 +32,6 @@ import { Block } from '@/types/prompts/blocks';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import {
   updateSingleMetadata,
-  updateCustomValue,
-  addMetadataItem,
-  removeMetadataItem,
-  updateMetadataItem,
   reorderMetadataItems,
   addSecondaryMetadata,
   removeSecondaryMetadata
@@ -77,36 +73,9 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
 
   const handleSingleMetadataChange = useCallback(
     (type: SingleMetadataType, value: string) => {
+      console.log("AAAAAAAAAH")
       const blockId = parseInt(value, 10);
       setMetadata(prev => updateSingleMetadata(prev, type, isNaN(blockId) ? 0 : blockId));
-    },
-    [setMetadata]
-  );
-
-  const handleCustomChange = useCallback(
-    (type: SingleMetadataType, value: string) => {
-      setMetadata(prev => updateCustomValue(prev, type, value));
-    },
-    [setMetadata]
-  );
-
-  const handleAddMetadataItem = useCallback(
-    (type: MultipleMetadataType) => {
-      setMetadata(prev => addMetadataItem(prev, type));
-    },
-    [setMetadata]
-  );
-
-  const handleRemoveMetadataItem = useCallback(
-    (type: MultipleMetadataType, itemId: string) => {
-      setMetadata(prev => removeMetadataItem(prev, type, itemId));
-    },
-    [setMetadata]
-  );
-
-  const handleUpdateMetadataItem = useCallback(
-    (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => {
-      setMetadata(prev => updateMetadataItem(prev, type, itemId, updates));
     },
     [setMetadata]
   );

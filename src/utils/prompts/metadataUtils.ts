@@ -95,6 +95,7 @@ export function addMetadataItem(
   type: MultipleMetadataType,
   item?: Partial<MetadataItem>
 ): PromptMetadata {
+  console.log('Adding metadata item:', type, item);
   const updated = cloneMetadata(metadata);
   
   const newItem: MetadataItem = {

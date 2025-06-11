@@ -87,6 +87,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   };
 
   const handleItemSelect = (id: string, val: string) => {
+    console.log("OOOOOH")
     if (val === 'create') {
       openDialog(DIALOG_TYPES.CREATE_BLOCK, {
         initialType: config.blockType,
@@ -105,10 +106,12 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
     const updated = items.map(it =>
       it.id === id ? { ...it, blockId, value: block ? getLocalizedContent(block.content) : '' } : it
     );
+    console.log('UPDATED---->', updated);
     onChange(updated);
   };
 
   const addItem = () => {
+    console.log('a==========ddItem', items);
     const newItem: MetadataItem = { id: generateMetadataItemId(), value: '', blockId: 0 };
     onChange([...items, newItem]);
   };
