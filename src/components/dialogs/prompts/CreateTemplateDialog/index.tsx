@@ -23,7 +23,6 @@ export const CreateTemplateDialog: React.FC = () => {
     userFoldersList,
     validationErrors,
     // ✅ Use unified metadata handlers
-    handleUpdateMetadata,
     handleComplete,
     handleClose,
   } = useCreateTemplateDialog();
@@ -50,11 +49,11 @@ export const CreateTemplateDialog: React.FC = () => {
     <TemplateEditorDialog
       isOpen={isOpen}
       error={error}
-      rawMetadata={metadata}
+      metadata={metadata}
       isProcessing={isProcessing}
       content={content}
       setContent={setContent}
-      onUpdateMetadata={handleUpdateMetadata}
+      onMetadataChange={handleUpdateMetadata}
       onComplete={onComplete}
       onClose={handleClose}
       dialogTitle={getMessage('CreateTemplateDialog', undefined, 'Prompt Block Editor')}

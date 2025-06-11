@@ -12,7 +12,7 @@ import {
 import { MetadataSection } from './MetadataSection';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useSimpleMetadata } from '@/hooks/prompts/editors/useSimpleMetadata';
-import { useTemplateMetadata } from '@/hooks/prompts/useTemplateMetadata';
+import { PromptMetadata } from '@/types/prompts/metadata';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
  
 
@@ -27,6 +27,9 @@ interface AdvancedEditorProps {
   blockContentCache?: Record<number, string>;
   onBlockSaved?: (block: Block) => void;
   finalPromptContent?: string;
+
+  metadata: PromptMetadata;
+  onMetadataChange: (metadata: PromptMetadata) => void;
 }
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
@@ -37,15 +40,17 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   availableBlocksByType = {},
   blockContentCache = {},
   onBlockSaved,
-  finalPromptContent
+  finalPromptContent,
+  metadata,
+  onMetadataChange
 }) => {
   const isDarkMode = useThemeDetector();
   const [showPreview, setShowPreview] = useState(false);
 
-  const {
-    metadata,
-    handleUpdateMetadata,
-  } = useTemplateMetadata();
+  const handleUpdateMetadata = useCallback(
+    (newMetadata: PromptMetadata) => onMetadataChange(newMetadata),
+    [onMetadataChange]
+  );
 
   const {
     expandedMetadata,
@@ -136,6 +141,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             }}
             showPrimary={true}
             showSecondary={false}
+            metadata={metadata}
           />
         </div>
 
@@ -191,6 +197,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             }}
             showPrimary={false}
             showSecondary={true}
+            metadata={metadata}
           />
         </div>
 

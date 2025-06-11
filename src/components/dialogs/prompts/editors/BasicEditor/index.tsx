@@ -6,7 +6,7 @@ import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 
-import { useTemplateMetadata } from '@/hooks/prompts/useTemplateMetadata';
+import { PromptMetadata } from '@/types/prompts/metadata';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
@@ -18,6 +18,8 @@ interface BasicEditorProps {
   onContentChange: (content: string) => void;
   mode?: 'create' | 'customize';
   isProcessing?: boolean;
+
+  metadata: PromptMetadata;
   
   // New prop for consistent final content
   finalPromptContent?: string;
@@ -32,9 +34,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   onContentChange,
   mode = 'customize',
   isProcessing = false,
-  finalPromptContent
+  finalPromptContent,
+  metadata
 }) => {
-  const { metadata } = useTemplateMetadata();
   const {
     // State
     placeholders,

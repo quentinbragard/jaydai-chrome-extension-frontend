@@ -6,18 +6,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 import { BasicEditor, AdvancedEditor } from '../editors';
-import { TemplateMetadataProvider } from '@/hooks/prompts/useTemplateMetadata';
 import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
 import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
 
 interface TemplateEditorDialogProps {
   isOpen: boolean;
   error: string | null;
-  rawMetadata: PromptMetadata;
+  metadata: PromptMetadata;
   isProcessing: boolean;
   content: string;
   setContent: (content: string) => void;
-  onUpdateMetadata: (item: TemplateMetadataItem, mode: 'add' | 'remove') => void;
+  onMetadataChange: (metadata: PromptMetadata) => void;
   onComplete: (finalContent: string) => void;
   onClose: () => void;
   dialogTitle: string;
@@ -29,11 +28,11 @@ interface TemplateEditorDialogProps {
 export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   isOpen,
   error,
-  rawMetadata,
+  metadata,
   isProcessing,
   content,
   setContent,
-  onUpdateMetadata,
+  onMetadataChange,
   onComplete,
   onClose,
   dialogTitle,
@@ -53,14 +52,14 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
 
   const resolvedMetadata = useMemo(() => {
-    if (!rawMetadata || blocksLoading) return DEFAULT_METADATA;
-    return resolveMetadataToContent(rawMetadata);
-  }, [rawMetadata, resolveMetadataToContent, blocksLoading]);
+    if (!metadata || blocksLoading) return DEFAULT_METADATA;
+    return resolveMetadataToContent(metadata);
+  }, [metadata, resolveMetadataToContent, blocksLoading]);
 
   const finalPromptContent = useMemo(() => {
     if (blocksLoading) return '';
-    return buildFinalPromptContent(rawMetadata || DEFAULT_METADATA, content);
-  }, [rawMetadata, content, buildFinalPromptContent, blocksLoading]);
+    return buildFinalPromptContent(metadata || DEFAULT_METADATA, content);
+  }, [metadata, content, buildFinalPromptContent, blocksLoading]);
 
   const handleCompleteWithResolvedContent = () => {
     onComplete(finalPromptContent);
@@ -119,15 +118,11 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             </span>
           </div>
         ) : (
-          <TemplateMetadataProvider
-            initialMetadata={resolvedMetadata}
-            onMetadataChange={onUpdateMetadata}
+          <Tabs
+            value={activeTab}
+            onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
+            className="jd-flex-1 jd-flex jd-flex-col"
           >
-            <Tabs
-              value={activeTab}
-              onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
-              className="jd-flex-1 jd-flex jd-flex-col"
-            >
             <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4">
               <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
               <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
@@ -140,6 +135,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 mode={mode}
                 isProcessing={false}
                 finalPromptContent={finalPromptContent}
+                metadata={resolvedMetadata}
               />
             </TabsContent>
 
@@ -153,10 +149,11 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 blockContentCache={blockContentCache}
                 resolvedMetadata={resolvedMetadata}
                 finalPromptContent={finalPromptContent}
+                metadata={metadata}
+                onMetadataChange={onMetadataChange}
               />
             </TabsContent>
           </Tabs>
-          </TemplateMetadataProvider>
         )}
         <div className="jd-flex jd-justify-end jd-gap-2 jd-pt-4 jd-border-t">
           <Button variant="outline" onClick={onClose}>

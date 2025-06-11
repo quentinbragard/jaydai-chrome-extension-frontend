@@ -23,11 +23,11 @@ export const CustomizeTemplateDialog: React.FC = () => {
     <TemplateEditorDialog
       isOpen={isOpen}
       error={error}
-      rawMetadata={metadata}
+      metadata={metadata}
       isProcessing={isProcessing}
       content={content}
       setContent={setContent}
-      onUpdateMetadata={handleUpdateMetadata}
+      onMetadataChange={handleUpdateMetadata}
       onComplete={handleComplete}
       onClose={handleClose}
       dialogTitle={getMessage('CustomizeTemplateDialog', undefined, 'Prompt Block Editor')}

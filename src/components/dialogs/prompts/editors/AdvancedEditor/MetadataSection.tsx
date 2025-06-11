@@ -30,7 +30,7 @@ import {
   isMultipleMetadataType
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
-import { useTemplateMetadata } from '@/hooks/prompts/useTemplateMetadata';
+import { PromptMetadata } from '@/types/prompts/metadata';
 import { extractCustomValues } from '@/utils/prompts/metadataUtils';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
@@ -72,6 +72,7 @@ interface MetadataSectionProps {
   handlers: MetadataHandlers;
   showPrimary?: boolean;
   showSecondary?: boolean;
+  metadata: PromptMetadata;
 }
 
 export const MetadataSection: React.FC<MetadataSectionProps> = ({
@@ -79,7 +80,8 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
   state,
   handlers,
   showPrimary = true,
-  showSecondary = true
+  showSecondary = true,
+  metadata
 }) => {
   const {
     expandedMetadata,
@@ -103,7 +105,6 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
     onSaveBlock
   } = handlers;
   const isDarkMode = useThemeDetector();
-  const { metadata } = useTemplateMetadata();
 
   // Extract custom values for all single metadata types
   const customValues = React.useMemo(() => extractCustomValues(metadata), [metadata]);

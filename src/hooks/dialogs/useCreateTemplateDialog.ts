@@ -7,9 +7,7 @@ import { Block, BlockType } from '@/types/prompts/blocks';
 import {
   PromptMetadata,
   DEFAULT_METADATA,
-  MetadataItem,
-  MultipleMetadataType,
-  SingleMetadataType
+  MetadataItem
 } from '@/types/prompts/metadata';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
@@ -21,7 +19,6 @@ import {
 } from '@/utils/prompts/templateUtils';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { useTemplateMetadataHandlers } from '@/hooks/prompts/useTemplateMetadata'; // ✅ Use shared metadata hook
-import { updateMetadata } from '@/utils/prompts/metadataUtils';
 
 export function useCreateTemplateDialog() {
   // ✅ Restore original dialog integration
@@ -46,15 +43,12 @@ export function useCreateTemplateDialog() {
 
   // ✅ Use shared metadata hook
   const {
+    handleUpdateMetadata,
     handleAddMetadata,
     handleRemoveMetadata,
     handleUpdateMetadataItem,
     handleReorderMetadataItems
   } = useTemplateMetadataHandlers({ metadata, setMetadata });
-
-  const handleUpdateMetadata = (item: TemplateMetadataItem, mode: 'add' | 'remove') => {
-    setMetadata(updateMetadata(metadata, item, mode));
-  };
 
   // Reuse generic template creation logic
   const { saveTemplate } = useTemplateCreation();
