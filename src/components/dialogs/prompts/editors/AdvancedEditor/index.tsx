@@ -14,6 +14,7 @@ import {
   BlockType
 } from '@/types/prompts/metadata';
 import { MetadataSection } from './MetadataSection';
+import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import {
@@ -27,26 +28,10 @@ import {
   removeSecondaryMetadata
 } from '@/utils/prompts/metadataUtils';
 
-interface MetadataUIState {
-  expandedMetadata: MetadataType | null;
-  setExpandedMetadata: (type: MetadataType | null) => void;
-  activeSecondaryMetadata: Set<MetadataType>;
-  metadataCollapsed: boolean;
-  setMetadataCollapsed: (collapsed: boolean) => void;
-  secondaryMetadataCollapsed: boolean;
-  setSecondaryMetadataCollapsed: (collapsed: boolean) => void;
-  customValues: Record<string, string>;
-}
-
 interface AdvancedEditorProps {
   content: string;
   onContentChange: (value: string) => void;
   isProcessing?: boolean;
-  
-  // Metadata props - passed down from dialog instead of using context
-  resolvedMetadata: PromptMetadata;
-  setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
-  metadataUIState: MetadataUIState;
   
   // Block-related props passed from dialog
   availableMetadataBlocks?: Record<MetadataType, Block[]>;
@@ -60,9 +45,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   content,
   onContentChange,
   isProcessing = false,
-  resolvedMetadata,
-  setMetadata,
-  metadataUIState,
   availableMetadataBlocks = {},
   availableBlocksByType = {},
   blockContentCache = {},
@@ -73,6 +55,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const [showPreview, setShowPreview] = useState(false);
 
   const {
+    metadata: resolvedMetadata,
+    setMetadata,
     expandedMetadata,
     setExpandedMetadata,
     activeSecondaryMetadata,
@@ -81,7 +65,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     secondaryMetadataCollapsed,
     setSecondaryMetadataCollapsed,
     customValues
-  } = metadataUIState;
+  } = useTemplateEditor();
 
   const handleSingleMetadataChange = useCallback(
     (type: SingleMetadataType, value: string) => {
@@ -186,21 +170,9 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       <div className="jd-relative jd-z-10 jd-flex-1 jd-flex jd-flex-col jd-space-y-6 jd-p-6 jd-overflow-y-auto">
         
          {/* 1. PRIMARY METADATA SECTION */}
-         <div className="jd-flex-shrink-0">
+        <div className="jd-flex-shrink-0">
           <MetadataSection
-            metadata={resolvedMetadata}
             availableMetadataBlocks={availableMetadataBlocks}
-            state={{
-              expandedMetadata,
-              setExpandedMetadata,
-              activeSecondaryMetadata,
-              metadataCollapsed,
-              setMetadataCollapsed,
-              secondaryMetadataCollapsed,
-              setSecondaryMetadataCollapsed
-            }}
-            setMetadata={setMetadata}
-            onSaveBlock={onBlockSaved ?? (() => {})}
             showPrimary={true}
             showSecondary={false}
           />
@@ -234,19 +206,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
        {/* 3. SECONDARY METADATA SECTION */}
        <div className="jd-flex-shrink-0">
           <MetadataSection
-            metadata={resolvedMetadata}
             availableMetadataBlocks={availableMetadataBlocks}
-            state={{
-              expandedMetadata,
-              setExpandedMetadata,
-              activeSecondaryMetadata,
-              metadataCollapsed,
-              setMetadataCollapsed,
-              secondaryMetadataCollapsed,
-              setSecondaryMetadataCollapsed
-            }}
-            setMetadata={setMetadata}
-            onSaveBlock={onBlockSaved ?? (() => {})}
             showPrimary={false}
             showSecondary={true}
           />
