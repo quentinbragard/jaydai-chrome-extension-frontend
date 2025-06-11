@@ -72,6 +72,9 @@ export interface TemplateDialogActions {
   reorderMultipleMetadataItems: (type: MultipleMetadataType, newItems: MetadataItem[]) => void;
   addSecondaryMetadataType: (type: MetadataType) => void;
   removeSecondaryMetadataType: (type: MetadataType) => void;
+
+  // Direct metadata setter
+  setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
   
   // UI actions
   setActiveTab: (tab: 'basic' | 'advanced') => void;
@@ -206,6 +209,14 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       expandedMetadata: prev.expandedMetadata === type ? null : prev.expandedMetadata
     }));
   }, []);
+
+  // Generic metadata setter for more modular updates
+  const setMetadata = useCallback(
+    (updater: (metadata: PromptMetadata) => PromptMetadata) => {
+      setState(prev => ({ ...prev, metadata: updater(prev.metadata) }));
+    },
+    []
+  );
   
   // ============================================================================
   // UI ACTIONS
@@ -363,6 +374,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     reorderMultipleMetadataItems,
     addSecondaryMetadataType,
     removeSecondaryMetadataType,
+    setMetadata,
     
     // UI actions
     setActiveTab,

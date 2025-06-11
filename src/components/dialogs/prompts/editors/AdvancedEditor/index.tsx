@@ -16,17 +16,16 @@ import {
 import { MetadataSection } from './MetadataSection';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
-
-interface MetadataHandlers {
-  updateSingleMetadataValue: (type: SingleMetadataType, value: string) => void;
-  updateCustomMetadataValue: (type: SingleMetadataType, value: string) => void;
-  addMultipleMetadataItem: (type: MultipleMetadataType) => void;
-  removeMultipleMetadataItem: (type: MultipleMetadataType, itemId: string) => void;
-  updateMultipleMetadataItem: (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => void;
-  reorderMultipleMetadataItems: (type: MultipleMetadataType, newItems: MetadataItem[]) => void;
-  addSecondaryMetadataType: (type: MetadataType) => void;
-  removeSecondaryMetadataType: (type: MetadataType) => void;
-}
+import {
+  updateSingleMetadata,
+  updateCustomValue,
+  addMetadataItem,
+  removeMetadataItem,
+  updateMetadataItem,
+  reorderMetadataItems,
+  addSecondaryMetadata,
+  removeSecondaryMetadata
+} from '@/utils/prompts/metadataUtils';
 
 interface MetadataUIState {
   expandedMetadata: MetadataType | null;
@@ -46,7 +45,7 @@ interface AdvancedEditorProps {
   
   // Metadata props - passed down from dialog instead of using context
   resolvedMetadata: PromptMetadata;
-  metadataHandlers: MetadataHandlers;
+  setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
   metadataUIState: MetadataUIState;
   
   // Block-related props passed from dialog
@@ -62,7 +61,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   onContentChange,
   isProcessing = false,
   resolvedMetadata,
-  metadataHandlers,
+  setMetadata,
   metadataUIState,
   availableMetadataBlocks = {},
   availableBlocksByType = {},
@@ -84,16 +83,65 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     customValues
   } = metadataUIState;
 
-  const {
-    updateSingleMetadataValue,
-    updateCustomMetadataValue,
-    addMultipleMetadataItem,
-    removeMultipleMetadataItem,
-    updateMultipleMetadataItem,
-    reorderMultipleMetadataItems,
-    addSecondaryMetadataType,
-    removeSecondaryMetadataType
-  } = metadataHandlers;
+  const handleSingleMetadataChange = useCallback(
+    (type: SingleMetadataType, value: string) => {
+      const numeric = parseInt(value, 10);
+      const blockId = isNaN(numeric) ? 0 : numeric;
+      setMetadata(prev => updateSingleMetadata(prev, type, blockId));
+    },
+    [setMetadata]
+  );
+
+  const handleCustomChange = useCallback(
+    (type: SingleMetadataType, value: string) => {
+      setMetadata(prev => updateCustomValue(prev, type, value));
+    },
+    [setMetadata]
+  );
+
+  const handleAddMetadataItem = useCallback(
+    (type: MultipleMetadataType) => {
+      setMetadata(prev => addMetadataItem(prev, type));
+    },
+    [setMetadata]
+  );
+
+  const handleRemoveMetadataItem = useCallback(
+    (type: MultipleMetadataType, itemId: string) => {
+      setMetadata(prev => removeMetadataItem(prev, type, itemId));
+    },
+    [setMetadata]
+  );
+
+  const handleUpdateMetadataItem = useCallback(
+    (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => {
+      setMetadata(prev => updateMetadataItem(prev, type, itemId, updates));
+    },
+    [setMetadata]
+  );
+
+  const handleReorderItems = useCallback(
+    (type: MultipleMetadataType, newItems: MetadataItem[]) => {
+      setMetadata(prev => reorderMetadataItems(prev, type, newItems));
+    },
+    [setMetadata]
+  );
+
+  const handleAddSecondary = useCallback(
+    (type: MetadataType) => {
+      setMetadata(prev => addSecondaryMetadata(prev, type));
+      setExpandedMetadata(type);
+    },
+    [setMetadata, setExpandedMetadata]
+  );
+
+  const handleRemoveSecondary = useCallback(
+    (type: MetadataType) => {
+      setMetadata(prev => removeSecondaryMetadata(prev, type));
+      if (expandedMetadata === type) setExpandedMetadata(null);
+    },
+    [setMetadata, expandedMetadata, setExpandedMetadata]
+  );
   
   // Use final prompt content if available, otherwise build from current state
   const previewContent = finalPromptContent || content;
@@ -140,7 +188,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
          {/* 1. PRIMARY METADATA SECTION */}
          <div className="jd-flex-shrink-0">
           <MetadataSection
-            metadata={resolvedMetadata} // Add this line
+            metadata={resolvedMetadata}
             availableMetadataBlocks={availableMetadataBlocks}
             state={{
               expandedMetadata,
@@ -151,17 +199,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               secondaryMetadataCollapsed,
               setSecondaryMetadataCollapsed
             }}
-            handlers={{
-              onSingleMetadataChange: updateSingleMetadataValue,
-              onCustomChange: updateCustomMetadataValue,
-              onAddMetadataItem: addMultipleMetadataItem,
-              onRemoveMetadataItem: removeMultipleMetadataItem,
-              onUpdateMetadataItem: updateMultipleMetadataItem,
-              onReorderMetadataItems: reorderMultipleMetadataItems,
-              onAddSecondaryMetadata: addSecondaryMetadataType,
-              onRemoveSecondaryMetadata: removeSecondaryMetadataType,
-              onSaveBlock: onBlockSaved ?? (() => {})
-            }}
+            setMetadata={setMetadata}
+            onSaveBlock={onBlockSaved ?? (() => {})}
             showPrimary={true}
             showSecondary={false}
           />
@@ -195,7 +234,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
        {/* 3. SECONDARY METADATA SECTION */}
        <div className="jd-flex-shrink-0">
           <MetadataSection
-            metadata={resolvedMetadata} // Add this line
+            metadata={resolvedMetadata}
             availableMetadataBlocks={availableMetadataBlocks}
             state={{
               expandedMetadata,
@@ -206,17 +245,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               secondaryMetadataCollapsed,
               setSecondaryMetadataCollapsed
             }}
-            handlers={{
-              onSingleMetadataChange: updateSingleMetadataValue,
-              onCustomChange: updateCustomMetadataValue,
-              onAddMetadataItem: addMultipleMetadataItem,
-              onRemoveMetadataItem: removeMultipleMetadataItem,
-              onUpdateMetadataItem: updateMultipleMetadataItem,
-              onReorderMetadataItems: reorderMultipleMetadataItems,
-              onAddSecondaryMetadata: addSecondaryMetadataType,
-              onRemoveSecondaryMetadata: removeSecondaryMetadataType,
-              onSaveBlock: onBlockSaved ?? (() => {})
-            }}
+            setMetadata={setMetadata}
+            onSaveBlock={onBlockSaved ?? (() => {})}
             showPrimary={false}
             showSecondary={true}
           />
