@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
@@ -6,20 +7,45 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 import { BasicEditor, AdvancedEditor } from '../editors';
-import { TemplateMetadataProvider } from '@/hooks/prompts/useTemplateMetadata';
 import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
-import { PromptMetadata, DEFAULT_METADATA } from '@/types/prompts/metadata';
 
 interface TemplateEditorDialogProps {
+  // State from base hook
   isOpen: boolean;
   error: string | null;
-  rawMetadata: PromptMetadata;
+  metadata: any;
   isProcessing: boolean;
   content: string;
+  activeTab: 'basic' | 'advanced';
+  isSubmitting: boolean;
+  
+  // Actions from base hook
   setContent: (content: string) => void;
-  onUpdateMetadata: (item: TemplateMetadataItem, mode: 'add' | 'remove') => void;
-  onComplete: (finalContent: string) => void;
-  onClose: () => void;
+  setActiveTab: (tab: 'basic' | 'advanced') => void;
+  handleComplete: () => Promise<void>;
+  handleClose: () => void;
+  
+  // Metadata actions from base hook
+  updateSingleMetadataValue: (type: any, value: string) => void;
+  updateCustomMetadataValue: (type: any, value: string) => void;
+  addMultipleMetadataItem: (type: any) => void;
+  removeMultipleMetadataItem: (type: any, itemId: string) => void;
+  updateMultipleMetadataItem: (type: any, itemId: string, updates: any) => void;
+  reorderMultipleMetadataItems: (type: any, newItems: any[]) => void;
+  addSecondaryMetadataType: (type: any) => void;
+  removeSecondaryMetadataType: (type: any) => void;
+  
+  // UI state from base hook
+  expandedMetadata: any;
+  setExpandedMetadata: (type: any) => void;
+  activeSecondaryMetadata: Set<any>;
+  metadataCollapsed: boolean;
+  setMetadataCollapsed: (collapsed: boolean) => void;
+  secondaryMetadataCollapsed: boolean;
+  setSecondaryMetadataCollapsed: (collapsed: boolean) => void;
+  customValues: Record<string, string>;
+  
+  // Dialog config
   dialogTitle: string;
   dialogDescription: string;
   mode: 'create' | 'customize' | 'edit';
@@ -27,15 +53,42 @@ interface TemplateEditorDialogProps {
 }
 
 export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
+  // State
   isOpen,
   error,
-  rawMetadata,
+  metadata,
   isProcessing,
   content,
+  activeTab,
+  isSubmitting,
+  
+  // Actions
   setContent,
-  onUpdateMetadata,
-  onComplete,
-  onClose,
+  setActiveTab,
+  handleComplete,
+  handleClose,
+  
+  // Metadata actions
+  updateSingleMetadataValue,
+  updateCustomMetadataValue,
+  addMultipleMetadataItem,
+  removeMultipleMetadataItem,
+  updateMultipleMetadataItem,
+  reorderMultipleMetadataItems,
+  addSecondaryMetadataType,
+  removeSecondaryMetadataType,
+  
+  // UI state
+  expandedMetadata,
+  setExpandedMetadata,
+  activeSecondaryMetadata,
+  metadataCollapsed,
+  setMetadataCollapsed,
+  secondaryMetadataCollapsed,
+  setSecondaryMetadataCollapsed,
+  customValues,
+  
+  // Config
   dialogTitle,
   dialogDescription,
   mode,
@@ -46,25 +99,15 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     availableMetadataBlocks,
     availableBlocksByType,
     blockContentCache,
-    resolveMetadataToContent,
-    buildFinalPromptContent
+    buildFinalPromptContent,
+    addNewBlock
   } = useBlockManager();
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'advanced'>('basic');
-
-  const resolvedMetadata = useMemo(() => {
-    if (!rawMetadata || blocksLoading) return DEFAULT_METADATA;
-    return resolveMetadataToContent(rawMetadata);
-  }, [rawMetadata, resolveMetadataToContent, blocksLoading]);
-
-  const finalPromptContent = useMemo(() => {
+  // Build final content for preview
+  const finalPromptContent = React.useMemo(() => {
     if (blocksLoading) return '';
-    return buildFinalPromptContent(rawMetadata || DEFAULT_METADATA, content);
-  }, [rawMetadata, content, buildFinalPromptContent, blocksLoading]);
-
-  const handleCompleteWithResolvedContent = () => {
-    onComplete(finalPromptContent);
-  };
+    return buildFinalPromptContent(metadata, content);
+  }, [metadata, content, buildFinalPromptContent, blocksLoading]);
 
   if (!isOpen) return null;
 
@@ -73,7 +116,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       <BaseDialog
         open={isOpen}
         onOpenChange={(open: boolean) => {
-          if (!open) onClose();
+          if (!open) handleClose();
         }}
         title={dialogTitle}
         className="jd-max-w-4xl jd-h-[80vh]"
@@ -83,7 +126,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             <AlertTriangle className="jd-h-4 jd-w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-          <Button onClick={onClose} variant="outline">
+          <Button onClick={handleClose} variant="outline">
             {getMessage('close')}
           </Button>
         </div>
@@ -97,7 +140,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     <BaseDialog
       open={isOpen}
       onOpenChange={(open: boolean) => {
-        if (!open) onClose();
+        if (!open) handleClose();
       }}
       title={dialogTitle}
       description={dialogDescription}
@@ -111,6 +154,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
+        
         {isLoading ? (
           <div className="jd-flex jd-items-center jd-justify-center jd-h-64">
             <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
@@ -119,15 +163,11 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             </span>
           </div>
         ) : (
-          <TemplateMetadataProvider
-            initialMetadata={resolvedMetadata}
-            onMetadataChange={onUpdateMetadata}
+          <Tabs
+            value={activeTab}
+            onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
+            className="jd-flex-1 jd-flex jd-flex-col"
           >
-            <Tabs
-              value={activeTab}
-              onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
-              className="jd-flex-1 jd-flex jd-flex-col"
-            >
             <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4">
               <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
               <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
@@ -137,7 +177,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
               <BasicEditor
                 content={content}
                 onContentChange={setContent}
-                mode={mode}
+                mode={mode as any}
                 isProcessing={false}
                 finalPromptContent={finalPromptContent}
               />
@@ -151,21 +191,52 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 availableMetadataBlocks={availableMetadataBlocks}
                 availableBlocksByType={availableBlocksByType}
                 blockContentCache={blockContentCache}
-                resolvedMetadata={resolvedMetadata}
+                resolvedMetadata={metadata}
                 finalPromptContent={finalPromptContent}
+                onBlockSaved={addNewBlock}
+                // Pass metadata handlers
+                metadataHandlers={{
+                  updateSingleMetadataValue,
+                  updateCustomMetadataValue,
+                  addMultipleMetadataItem,
+                  removeMultipleMetadataItem,
+                  updateMultipleMetadataItem,
+                  reorderMultipleMetadataItems,
+                  addSecondaryMetadataType,
+                  removeSecondaryMetadataType
+                }}
+                // Pass UI state
+                metadataUIState={{
+                  expandedMetadata,
+                  setExpandedMetadata,
+                  activeSecondaryMetadata,
+                  metadataCollapsed,
+                  setMetadataCollapsed,
+                  secondaryMetadataCollapsed,
+                  setSecondaryMetadataCollapsed,
+                  customValues
+                }}
               />
             </TabsContent>
           </Tabs>
-          </TemplateMetadataProvider>
         )}
+        
         <div className="jd-flex jd-justify-end jd-gap-2 jd-pt-4 jd-border-t">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
             {getMessage('cancel', undefined, 'Cancel')}
           </Button>
-          <Button onClick={handleCompleteWithResolvedContent} disabled={isLoading}>
-            {mode === 'create' ? getMessage('createTemplate', undefined, 'Create Template') :  getMessage('saveTemplate', undefined, 'Save Template')}
+          <Button onClick={handleComplete} disabled={isLoading || isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <div className="jd-animate-spin jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-rounded-full jd-mr-2"></div>
+                {getMessage('saving', undefined, 'Saving...')}
+              </>
+            ) : (
+              mode === 'create' ? getMessage('createTemplate', undefined, 'Create Template') :  getMessage('saveTemplate', undefined, 'Save Template')
+            )}
           </Button>
         </div>
+        
         {process.env.NODE_ENV === 'development' && (
           <div className="jd-text-xs jd-text-gray-500 jd-mt-2">
             Final content length: {finalPromptContent.length} chars

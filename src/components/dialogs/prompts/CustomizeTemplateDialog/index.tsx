@@ -1,37 +1,53 @@
-// src/components/dialogs/prompts/CustomizeTemplateDialog/index.tsx
 
+// src/components/dialogs/prompts/CustomizeTemplateDialog/index.tsx
 import React from 'react';
 import { getMessage } from '@/core/utils/i18n';
 import { useCustomizeTemplateDialog } from '@/hooks/dialogs/useCustomizeTemplateDialog';
 import { TemplateEditorDialog } from '../TemplateEditorDialog';
 
 export const CustomizeTemplateDialog: React.FC = () => {
-  const {
-    isOpen,
-    error,
-    metadata,
-    isProcessing,
-    content,
-    setContent,
-    // ✅ Use unified metadata handlers
-    handleUpdateMetadata,
-    handleComplete,
-    handleClose,
-  } = useCustomizeTemplateDialog();
+  const hook = useCustomizeTemplateDialog();
 
   return (
     <TemplateEditorDialog
-      isOpen={isOpen}
-      error={error}
-      rawMetadata={metadata}
-      isProcessing={isProcessing}
-      content={content}
-      setContent={setContent}
-      onUpdateMetadata={handleUpdateMetadata}
-      onComplete={handleComplete}
-      onClose={handleClose}
-      dialogTitle={getMessage('CustomizeTemplateDialog', undefined, 'Prompt Block Editor')}
-      dialogDescription={getMessage('CustomizeTemplateDialogDescription', undefined, 'Build your prompt using blocks')}
+      // State
+      isOpen={hook.isOpen}
+      error={hook.error}
+      metadata={hook.metadata}
+      isProcessing={hook.isProcessing}
+      content={hook.content}
+      activeTab={hook.activeTab}
+      isSubmitting={hook.isSubmitting}
+      
+      // Actions
+      setContent={hook.setContent}
+      setActiveTab={hook.setActiveTab}
+      handleComplete={hook.handleComplete}
+      handleClose={hook.handleClose}
+      
+      // Metadata actions
+      updateSingleMetadataValue={hook.updateSingleMetadataValue}
+      updateCustomMetadataValue={hook.updateCustomMetadataValue}
+      addMultipleMetadataItem={hook.addMultipleMetadataItem}
+      removeMultipleMetadataItem={hook.removeMultipleMetadataItem}
+      updateMultipleMetadataItem={hook.updateMultipleMetadataItem}
+      reorderMultipleMetadataItems={hook.reorderMultipleMetadataItems}
+      addSecondaryMetadataType={hook.addSecondaryMetadataType}
+      removeSecondaryMetadataType={hook.removeSecondaryMetadataType}
+      
+      // UI state
+      expandedMetadata={hook.expandedMetadata}
+      setExpandedMetadata={hook.setExpandedMetadata}
+      activeSecondaryMetadata={hook.activeSecondaryMetadata}
+      metadataCollapsed={hook.metadataCollapsed}
+      setMetadataCollapsed={hook.setMetadataCollapsed}
+      secondaryMetadataCollapsed={hook.secondaryMetadataCollapsed}
+      setSecondaryMetadataCollapsed={hook.setSecondaryMetadataCollapsed}
+      customValues={hook.customValues}
+      
+      // Config
+      dialogTitle={getMessage('CustomizeTemplateDialog', undefined, 'Customize Template')}
+      dialogDescription={getMessage('CustomizeTemplateDialogDescription', undefined, 'Customize your prompt template')}
       mode="customize"
     />
   );
