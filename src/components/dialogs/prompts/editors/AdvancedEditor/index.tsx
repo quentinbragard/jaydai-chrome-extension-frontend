@@ -137,9 +137,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     >
       <div className="jd-relative jd-z-10 jd-flex-1 jd-flex jd-flex-col jd-space-y-6 jd-p-6 jd-overflow-y-auto">
         
-        {/* 1. PRIMARY METADATA SECTION */}
-        <div className="jd-flex-shrink-0">
+         {/* 1. PRIMARY METADATA SECTION */}
+         <div className="jd-flex-shrink-0">
           <MetadataSection
+            metadata={resolvedMetadata} // Add this line
             availableMetadataBlocks={availableMetadataBlocks}
             state={{
               expandedMetadata,
@@ -165,7 +166,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             showSecondary={false}
           />
         </div>
-
         {/* 2. MAIN CONTENT SECTION */}
         <div className="jd-flex-shrink-0">
           <div className="jd-space-y-3">
@@ -192,9 +192,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           </div>
         </div>
 
-        {/* 3. SECONDARY METADATA SECTION */}
-        <div className="jd-flex-shrink-0">
+       {/* 3. SECONDARY METADATA SECTION */}
+       <div className="jd-flex-shrink-0">
           <MetadataSection
+            metadata={resolvedMetadata} // Add this line
             availableMetadataBlocks={availableMetadataBlocks}
             state={{
               expandedMetadata,

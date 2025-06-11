@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { getBlockContent } from '@/utils/prompts/blockUtils';
 import { formatBlockForPrompt, formatMetadataForPrompt } from '@/utils/prompts/promptUtils';
 import { ALL_METADATA_TYPES, PromptMetadata } from '@/types/prompts/metadata';
@@ -10,30 +9,32 @@ export interface FolderData {
   fullPath: string;
 }
 
-export const useProcessUserFolders = (userFolders: any[], setUserFoldersList: (folders: FolderData[]) => void) =>
-  useCallback(() => {
-    if (!userFolders || !Array.isArray(userFolders)) {
-      setUserFoldersList([]);
-      return;
-    }
-    const flattenFolderHierarchy = (
-      folders: any[],
-      path = '',
-      result: FolderData[] = []
-    ) => {
-      folders.forEach(folder => {
-        if (!folder || typeof folder.id !== 'number' || !folder.name) return;
-        const folderPath = path ? `${path} / ${folder.name}` : folder.name;
-        result.push({ id: folder.id, name: folder.name, fullPath: folderPath });
-        if (folder.Folders && Array.isArray(folder.Folders) && folder.Folders.length > 0) {
-          flattenFolderHierarchy(folder.Folders, folderPath, result);
-        }
-      });
-      return result;
-    };
-    const flattened = flattenFolderHierarchy(userFolders);
-    setUserFoldersList(flattened || []);
-  }, [userFolders, setUserFoldersList]);
+/**
+ * Process user folders into a flat list with full paths
+ */
+export function processUserFolders(userFolders: any[]): FolderData[] {
+  if (!userFolders || !Array.isArray(userFolders)) {
+    return [];
+  }
+
+  const flattenFolderHierarchy = (
+    folders: any[],
+    path = '',
+    result: FolderData[] = []
+  ): FolderData[] => {
+    folders.forEach(folder => {
+      if (!folder || typeof folder.id !== 'number' || !folder.name) return;
+      const folderPath = path ? `${path} / ${folder.name}` : folder.name;
+      result.push({ id: folder.id, name: folder.name, fullPath: folderPath });
+      if (folder.Folders && Array.isArray(folder.Folders) && folder.Folders.length > 0) {
+        flattenFolderHierarchy(folder.Folders, folderPath, result);
+      }
+    });
+    return result;
+  };
+
+  return flattenFolderHierarchy(userFolders);
+}
 
 export const truncateFolderPath = (path: string, maxLength = 35): string => {
   if (!path || path.length <= maxLength) return path;
@@ -105,7 +106,6 @@ export const getBlockIds = (
   const contentIds = blocks.filter(b => b.id > 0 && !b.isNew).map(b => b.id);
   return [...metadataIds, ...contentIds];
 };
-
 
 import { Template } from '@/types/prompts/templates';
 

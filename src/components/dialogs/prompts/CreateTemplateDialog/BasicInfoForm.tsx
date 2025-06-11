@@ -27,6 +27,9 @@ export const BasicInfoForm: React.FC<Props> = ({
   userFoldersList,
   validationErrors
 }) => {
+  // Defensive programming: ensure userFoldersList is always an array
+  const safeFoldersList = Array.isArray(userFoldersList) ? userFoldersList : [];
+
   return (
     <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-3 jd-gap-4">
       <div>
@@ -66,7 +69,7 @@ export const BasicInfoForm: React.FC<Props> = ({
               ) : selectedFolderId ? (
                 <span className="jd-truncate">
                   {truncateFolderPath(
-                    userFoldersList.find(f => f.id.toString() === selectedFolderId)?.fullPath || ''
+                    safeFoldersList.find(f => f.id.toString() === selectedFolderId)?.fullPath || ''
                   )}
                 </span>
               ) : null}
@@ -76,7 +79,7 @@ export const BasicInfoForm: React.FC<Props> = ({
             <SelectItem value="root">
               <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
             </SelectItem>
-            {userFoldersList.map(folder => (
+            {safeFoldersList.map(folder => (
               <SelectItem
                 key={folder.id}
                 value={folder.id.toString()}

@@ -20,6 +20,7 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { MetadataCard } from '@/components/prompts/blocks/MetadataCard';
 import { MultipleMetadataCard } from '@/components/prompts/blocks/MultipleMetadataCard';
 import {
+  PromptMetadata,
   MetadataType,
   SingleMetadataType,
   MultipleMetadataType,
@@ -30,7 +31,6 @@ import {
   isMultipleMetadataType
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
-import { useTemplateMetadata } from '@/hooks/prompts/useTemplateMetadata';
 import { extractCustomValues } from '@/utils/prompts/metadataUtils';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
@@ -67,6 +67,8 @@ interface MetadataHandlers {
 }
 
 interface MetadataSectionProps {
+  // Add metadata as a prop instead of using context
+  metadata: PromptMetadata;
   availableMetadataBlocks: Record<MetadataType, Block[]>;
   state: MetadataState;
   handlers: MetadataHandlers;
@@ -75,6 +77,7 @@ interface MetadataSectionProps {
 }
 
 export const MetadataSection: React.FC<MetadataSectionProps> = ({
+  metadata, // Now received as prop
   availableMetadataBlocks,
   state,
   handlers,
@@ -102,10 +105,10 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
     onRemoveSecondaryMetadata,
     onSaveBlock
   } = handlers;
+  
   const isDarkMode = useThemeDetector();
-  const { metadata } = useTemplateMetadata();
 
-  // Extract custom values for all single metadata types
+  // Extract custom values for all single metadata types using the received metadata
   const customValues = React.useMemo(() => extractCustomValues(metadata), [metadata]);
 
   return (
