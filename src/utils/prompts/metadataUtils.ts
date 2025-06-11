@@ -3,7 +3,8 @@ import {
   PRIMARY_METADATA,
   SECONDARY_METADATA,
   SingleMetadataType,
-  isMultipleMetadataType
+  isSingleMetadataType,
+  isMultipleMetadataType,
 } from '@/types/prompts/metadata';
 
 export function extractCustomValues(metadata: PromptMetadata): Record<SingleMetadataType, string> {
@@ -14,4 +15,22 @@ export function extractCustomValues(metadata: PromptMetadata): Record<SingleMeta
     }
   });
   return values;
+}
+
+export function updateMetadata(metadata: PromptMetadata, item: TemplateMetadataItem, mode: 'add' | 'remove') {
+  const { type, blockId } = item;
+  if (isSingleMetadataType(type)) {
+    if (mode === 'add') {
+      metadata[type] = blockId;
+    } else if (mode === 'remove') {
+      metadata[type] = null;
+    }
+  }
+  else {
+    if (mode === 'add') {
+      metadata[type] = [...(metadata[type] || []), blockId];
+    } else if (mode === 'remove') {
+      metadata[type] = metadata[type].filter((id) => id !== blockId);
+    }
+  }
 }

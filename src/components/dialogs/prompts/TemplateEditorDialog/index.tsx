@@ -17,7 +17,7 @@ interface TemplateEditorDialogProps {
   isProcessing: boolean;
   content: string;
   setContent: (content: string) => void;
-  onUpdateMetadata: (metadata: PromptMetadata) => void;
+  onUpdateMetadata: (item: TemplateMetadataItem, mode: 'add' | 'remove') => void;
   onComplete: (finalContent: string) => void;
   onClose: () => void;
   dialogTitle: string;
