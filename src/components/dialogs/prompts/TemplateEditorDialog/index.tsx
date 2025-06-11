@@ -32,15 +32,8 @@ interface TemplateEditorDialogProps {
   handleComplete: () => Promise<void>;
   handleClose: () => void;
   
-  // Metadata actions from base hook
-  updateSingleMetadataValue: (type: SingleMetadataType, value: string) => void;
-  updateCustomMetadataValue: (type: SingleMetadataType, value: string) => void;
-  addMultipleMetadataItem: (type: MultipleMetadataType) => void;
-  removeMultipleMetadataItem: (type: MultipleMetadataType, itemId: string) => void;
-  updateMultipleMetadataItem: (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => void;
-  reorderMultipleMetadataItems: (type: MultipleMetadataType, newItems: MetadataItem[]) => void;
-  addSecondaryMetadataType: (type: MetadataType) => void;
-  removeSecondaryMetadataType: (type: MetadataType) => void;
+  // Metadata setter for child components
+  setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
   
   // UI state from base hook
   expandedMetadata: MetadataType | null;
@@ -74,16 +67,9 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   setActiveTab,
   handleComplete,
   handleClose,
-  
-  // Metadata actions
-  updateSingleMetadataValue,
-  updateCustomMetadataValue,
-  addMultipleMetadataItem,
-  removeMultipleMetadataItem,
-  updateMultipleMetadataItem,
-  reorderMultipleMetadataItems,
-  addSecondaryMetadataType,
-  removeSecondaryMetadataType,
+
+  // Metadata
+  setMetadata,
   
   // UI state
   expandedMetadata,
@@ -116,26 +102,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     return buildFinalPromptContent(metadata, content);
   }, [metadata, content, buildFinalPromptContent, blocksLoading]);
 
-  // Create metadata handlers object for AdvancedEditor
-  const metadataHandlers = React.useMemo(() => ({
-    updateSingleMetadataValue,
-    updateCustomMetadataValue,
-    addMultipleMetadataItem,
-    removeMultipleMetadataItem,
-    updateMultipleMetadataItem,
-    reorderMultipleMetadataItems,
-    addSecondaryMetadataType,
-    removeSecondaryMetadataType
-  }), [
-    updateSingleMetadataValue,
-    updateCustomMetadataValue,
-    addMultipleMetadataItem,
-    removeMultipleMetadataItem,
-    updateMultipleMetadataItem,
-    reorderMultipleMetadataItems,
-    addSecondaryMetadataType,
-    removeSecondaryMetadataType
-  ]);
 
   // Create metadata UI state object for AdvancedEditor
   const metadataUIState = React.useMemo(() => ({
@@ -239,7 +205,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 onContentChange={setContent}
                 isProcessing={false}
                 resolvedMetadata={metadata}
-                metadataHandlers={metadataHandlers}
+                setMetadata={setMetadata}
                 metadataUIState={metadataUIState}
                 availableMetadataBlocks={availableMetadataBlocks}
                 availableBlocksByType={availableBlocksByType}

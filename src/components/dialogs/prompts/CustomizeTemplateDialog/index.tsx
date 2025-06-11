@@ -25,15 +25,8 @@ export const CustomizeTemplateDialog: React.FC = () => {
       handleComplete={hook.handleComplete}
       handleClose={hook.handleClose}
       
-      // Metadata actions
-      updateSingleMetadataValue={hook.updateSingleMetadataValue}
-      updateCustomMetadataValue={hook.updateCustomMetadataValue}
-      addMultipleMetadataItem={hook.addMultipleMetadataItem}
-      removeMultipleMetadataItem={hook.removeMultipleMetadataItem}
-      updateMultipleMetadataItem={hook.updateMultipleMetadataItem}
-      reorderMultipleMetadataItems={hook.reorderMultipleMetadataItems}
-      addSecondaryMetadataType={hook.addSecondaryMetadataType}
-      removeSecondaryMetadataType={hook.removeSecondaryMetadataType}
+      // Metadata update
+      setMetadata={hook.setMetadata}
       
       // UI state
       expandedMetadata={hook.expandedMetadata}

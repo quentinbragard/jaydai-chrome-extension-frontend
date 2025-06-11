@@ -1,5 +1,5 @@
 // src/components/dialogs/prompts/editors/AdvancedEditor/MetadataSection.tsx
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Plus,
@@ -30,6 +30,16 @@ import {
   isMultipleMetadataType
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
+import {
+  updateSingleMetadata,
+  updateCustomValue,
+  addMetadataItem,
+  removeMetadataItem,
+  updateMetadataItem,
+  reorderMetadataItems,
+  addSecondaryMetadata,
+  removeSecondaryMetadata
+} from '@/utils/prompts/metadataUtils';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: User,
@@ -52,33 +62,21 @@ interface MetadataState {
   setSecondaryMetadataCollapsed: (collapsed: boolean) => void;
 }
 
-interface MetadataHandlers {
-  onSingleMetadataChange: (type: SingleMetadataType, value: string) => void;
-  onCustomChange: (type: SingleMetadataType, value: string) => void;
-  onAddMetadataItem: (type: MultipleMetadataType) => void;
-  onRemoveMetadataItem: (type: MultipleMetadataType, itemId: string) => void;
-  onUpdateMetadataItem: (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => void;
-  onReorderMetadataItems: (type: MultipleMetadataType, newItems: MetadataItem[]) => void;
-  onAddSecondaryMetadata: (type: MetadataType) => void;
-  onRemoveSecondaryMetadata: (type: MetadataType) => void;
-  onSaveBlock: (block: Block) => void;
-}
-
 interface MetadataSectionProps {
   // Add metadata as a prop instead of using context
   metadata: PromptMetadata;
   availableMetadataBlocks: Record<MetadataType, Block[]>;
   state: MetadataState;
-  handlers: MetadataHandlers;
+  setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
   showPrimary?: boolean;
   showSecondary?: boolean;
 }
 
 export const MetadataSection: React.FC<MetadataSectionProps> = ({
-  metadata, // Now received as prop
+  metadata,
   availableMetadataBlocks,
   state,
-  handlers,
+  setMetadata,
   showPrimary = true,
   showSecondary = true
 }) => {
@@ -92,17 +90,64 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
     setSecondaryMetadataCollapsed
   } = state;
 
-  const {
-    onSingleMetadataChange,
-    onCustomChange,
-    onAddMetadataItem,
-    onRemoveMetadataItem,
-    onUpdateMetadataItem,
-    onReorderMetadataItems,
-    onAddSecondaryMetadata,
-    onRemoveSecondaryMetadata,
-    onSaveBlock
-  } = handlers;
+  const handleSingleMetadataChange = useCallback(
+    (type: SingleMetadataType, value: string) => {
+      const blockId = parseInt(value, 10);
+      setMetadata(prev => updateSingleMetadata(prev, type, isNaN(blockId) ? 0 : blockId));
+    },
+    [setMetadata]
+  );
+
+  const handleCustomChange = useCallback(
+    (type: SingleMetadataType, value: string) => {
+      setMetadata(prev => updateCustomValue(prev, type, value));
+    },
+    [setMetadata]
+  );
+
+  const handleAddMetadataItem = useCallback(
+    (type: MultipleMetadataType) => {
+      setMetadata(prev => addMetadataItem(prev, type));
+    },
+    [setMetadata]
+  );
+
+  const handleRemoveMetadataItem = useCallback(
+    (type: MultipleMetadataType, itemId: string) => {
+      setMetadata(prev => removeMetadataItem(prev, type, itemId));
+    },
+    [setMetadata]
+  );
+
+  const handleUpdateMetadataItem = useCallback(
+    (type: MultipleMetadataType, itemId: string, updates: Partial<MetadataItem>) => {
+      setMetadata(prev => updateMetadataItem(prev, type, itemId, updates));
+    },
+    [setMetadata]
+  );
+
+  const handleReorderMetadataItems = useCallback(
+    (type: MultipleMetadataType, newItems: MetadataItem[]) => {
+      setMetadata(prev => reorderMetadataItems(prev, type, newItems));
+    },
+    [setMetadata]
+  );
+
+  const handleAddSecondaryMetadata = useCallback(
+    (type: MetadataType) => {
+      setMetadata(prev => addSecondaryMetadata(prev, type));
+      setExpandedMetadata(type);
+    },
+    [setMetadata, setExpandedMetadata]
+  );
+
+  const handleRemoveSecondaryMetadata = useCallback(
+    (type: MetadataType) => {
+      setMetadata(prev => removeSecondaryMetadata(prev, type));
+      if (expandedMetadata === type) setExpandedMetadata(null);
+    },
+    [setMetadata, expandedMetadata, setExpandedMetadata]
+  );
   
   const isDarkMode = useThemeDetector();
 
@@ -134,7 +179,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
                     expanded={expandedMetadata === type}
                     value={metadata[type] || 0}
                     isPrimary
-                    onChange={(v) => onSingleMetadataChange(type, String(v))}
+                    onChange={(v) => handleSingleMetadataChange(type, String(v))}
                     onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
                   />
                 </div>
@@ -174,13 +219,13 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
                         items={isMultipleMetadataType(type) ? (metadata[type] || []) : undefined}
                         onChange={(val) => {
                           if (isMultipleMetadataType(type)) {
-                            onReorderMetadataItems(type as MultipleMetadataType, val as MetadataItem[]);
+                            handleReorderMetadataItems(type as MultipleMetadataType, val as MetadataItem[]);
                           } else {
-                            onSingleMetadataChange(type as SingleMetadataType, String(val));
+                            handleSingleMetadataChange(type as SingleMetadataType, String(val));
                           }
                         }}
                         onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
-                        onRemove={() => onRemoveSecondaryMetadata(type)}
+                        onRemove={() => handleRemoveSecondaryMetadata(type)}
                       />
                     </div>
                   ))}
@@ -198,7 +243,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
                         key={type}
                         variant="outline"
                         size="sm"
-                        onClick={() => onAddSecondaryMetadata(type)}
+                        onClick={() => handleAddSecondaryMetadata(type)}
                         className={cn(
                           'jd-flex jd-items-center jd-gap-1 jd-text-xs',
                           'jd-transition-all jd-duration-300',
