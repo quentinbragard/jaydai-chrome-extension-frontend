@@ -20,22 +20,13 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { MetadataCard } from '@/components/prompts/blocks/MetadataCard';
 import {
   MetadataType,
-  SingleMetadataType,
-  MultipleMetadataType,
-  MetadataItem,
   PRIMARY_METADATA,
   SECONDARY_METADATA,
-  METADATA_CONFIGS,
-  isMultipleMetadataType
+  METADATA_CONFIGS
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
-import {
-  updateSingleMetadata,
-  reorderMetadataItems,
-  addSecondaryMetadata,
-  removeSecondaryMetadata
-} from '@/utils/prompts/metadataUtils';
+import { addSecondaryMetadata, removeSecondaryMetadata } from '@/utils/prompts/metadataUtils';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: User,
@@ -71,21 +62,6 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
     setSecondaryMetadataCollapsed
   } = useTemplateEditor();
 
-  const handleSingleMetadataChange = useCallback(
-    (type: SingleMetadataType, value: string) => {
-      console.log("AAAAAAAAAH")
-      const blockId = parseInt(value, 10);
-      setMetadata(prev => updateSingleMetadata(prev, type, isNaN(blockId) ? 0 : blockId));
-    },
-    [setMetadata]
-  );
-
-  const handleReorderMetadataItems = useCallback(
-    (type: MultipleMetadataType, newItems: MetadataItem[]) => {
-      setMetadata(prev => reorderMetadataItems(prev, type, newItems));
-    },
-    [setMetadata]
-  );
 
   const handleAddSecondaryMetadata = useCallback(
     (type: MetadataType) => {
@@ -131,9 +107,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
                     type={type}
                     availableBlocks={availableMetadataBlocks[type] || []}
                     expanded={expandedMetadata === type}
-                    value={metadata[type] || 0}
                     isPrimary
-                    onChange={(v) => handleSingleMetadataChange(type, String(v))}
                     onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
                   />
                 </div>
@@ -169,15 +143,6 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
                         type={type}
                         availableBlocks={availableMetadataBlocks[type] || []}
                         expanded={expandedMetadata === type}
-                        value={!isMultipleMetadataType(type) ? (metadata[type as SingleMetadataType] || 0) : undefined}
-                        items={isMultipleMetadataType(type) ? (metadata[type] || []) : undefined}
-                        onChange={(val) => {
-                          if (isMultipleMetadataType(type)) {
-                            handleReorderMetadataItems(type as MultipleMetadataType, val as MetadataItem[]);
-                          } else {
-                            handleSingleMetadataChange(type as SingleMetadataType, String(val));
-                          }
-                        }}
                         onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
                         onRemove={() => handleRemoveSecondaryMetadata(type)}
                       />

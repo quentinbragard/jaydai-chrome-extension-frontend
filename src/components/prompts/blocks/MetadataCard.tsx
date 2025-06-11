@@ -6,7 +6,8 @@ import {
   MetadataType,
   METADATA_CONFIGS,
   isMultipleMetadataType,
-  generateMetadataItemId
+  SingleMetadataType,
+  MultipleMetadataType
 } from '@/types/prompts/metadata';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,15 +31,19 @@ import {
   getBlockTypeIcon
 } from '@/utils/prompts/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { useTemplateEditor } from '@/components/dialogs/prompts/TemplateEditorDialog/TemplateEditorContext';
+import {
+  updateSingleMetadata,
+  addMetadataItem,
+  removeMetadataItem,
+  updateMetadataItem
+} from '@/utils/prompts/metadataUtils';
 
 interface MetadataCardProps {
   type: MetadataType;
   availableBlocks: Block[];
   expanded: boolean;
-  value?: number;
-  items?: MetadataItem[];
   isPrimary?: boolean;
-  onChange: (value: number | MetadataItem[]) => void;
   onToggle: () => void;
   onRemove?: () => void;
 }
@@ -47,10 +52,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   type,
   availableBlocks,
   expanded,
-  value = 0,
-  items = [],
   isPrimary = false,
-  onChange,
   onToggle,
   onRemove
 }) => {
@@ -60,6 +62,16 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   const iconColors = getBlockIconColors(config.blockType, isDarkMode);
   const Icon = getBlockTypeIcon(config.blockType);
   const { openDialog } = useDialogManager();
+  const { metadata, setMetadata } = useTemplateEditor();
+
+  const value =
+    !isMultipleMetadataType(type)
+      ? (metadata[type as SingleMetadataType] as number) || 0
+      : undefined;
+  const items =
+    isMultipleMetadataType(type)
+      ? metadata[type as MultipleMetadataType] || []
+      : [];
 
   const cardRef = useClickOutside<HTMLDivElement>(() => {
     if (expanded) {
@@ -76,26 +88,36 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
       openDialog(DIALOG_TYPES.CREATE_BLOCK, {
         initialType: config.blockType,
         onBlockCreated: b => {
-          onChange(b.id);
+          setMetadata(prev =>
+            updateSingleMetadata(prev, type as SingleMetadataType, b.id)
+          );
           onToggle();
         }
       });
       return;
     }
-    onChange(parseInt(val, 10));
+    const blockId = parseInt(val, 10);
+    setMetadata(prev =>
+      updateSingleMetadata(
+        prev,
+        type as SingleMetadataType,
+        isNaN(blockId) ? 0 : blockId
+      )
+    );
     if (val !== '0') onToggle();
   };
 
   const handleItemSelect = (id: string, val: string) => {
-    console.log("OOOOOH")
     if (val === 'create') {
       openDialog(DIALOG_TYPES.CREATE_BLOCK, {
         initialType: config.blockType,
         onBlockCreated: b => {
-          const updated = items.map(it =>
-            it.id === id ? { ...it, blockId: b.id, value: getLocalizedContent(b.content) } : it
+          setMetadata(prev =>
+            updateMetadataItem(prev, type as MultipleMetadataType, id, {
+              blockId: b.id,
+              value: getLocalizedContent(b.content)
+            })
           );
-          onChange(updated);
         }
       });
       return;
@@ -103,21 +125,20 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 
     const blockId = parseInt(val, 10);
     const block = availableBlocks.find(b => b.id === blockId);
-    const updated = items.map(it =>
-      it.id === id ? { ...it, blockId, value: block ? getLocalizedContent(block.content) : '' } : it
+    setMetadata(prev =>
+      updateMetadataItem(prev, type as MultipleMetadataType, id, {
+        blockId: isNaN(blockId) ? 0 : blockId,
+        value: block ? getLocalizedContent(block.content) : ''
+      })
     );
-    console.log('UPDATED---->', updated);
-    onChange(updated);
   };
 
   const addItem = () => {
-    console.log('a==========ddItem', items);
-    const newItem: MetadataItem = { id: generateMetadataItemId(), value: '', blockId: 0 };
-    onChange([...items, newItem]);
+    setMetadata(prev => addMetadataItem(prev, type as MultipleMetadataType));
   };
 
   const removeItem = (id: string) => {
-    onChange(items.filter(it => it.id !== id));
+    setMetadata(prev => removeMetadataItem(prev, type as MultipleMetadataType, id));
   };
 
   const selectedBlock = value && value !== 0 ? availableBlocks.find(b => b.id === value) : null;
