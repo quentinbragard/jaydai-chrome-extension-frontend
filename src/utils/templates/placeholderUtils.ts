@@ -14,7 +14,8 @@ import {
   extractPlaceholders,
   replacePlaceholders
 } from './placeholderHelpers';
-import { getCursorPosition, setCursorPosition } from './cursorUtils';
+import { getCursorPosition } from '@/utils/pompts/templates/getCursorPosition';
+import { setCursorPosition } from '@/utils/pompts/templates/setCursorPosition';
 
 export { highlightPlaceholders, extractPlaceholders, replacePlaceholders, getCursorPosition, setCursorPosition, restoreCursorPositionSafely };
 
