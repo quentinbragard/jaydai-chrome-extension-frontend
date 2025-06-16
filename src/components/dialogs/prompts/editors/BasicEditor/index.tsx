@@ -18,6 +18,12 @@ interface BasicEditorProps {
   mode?: 'create' | 'customize';
   isProcessing?: boolean;
   finalPromptContent?: string;
+  /**
+   * Mapping of block IDs to their content for resolving metadata
+   * when building the preview. This is provided by the dialog's
+   * block manager.
+   */
+  blockContentCache?: Record<number, string>;
 }
 
 /**
@@ -29,7 +35,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   onContentChange,
   mode = 'customize',
   isProcessing = false,
-  finalPromptContent
+  finalPromptContent,
+  blockContentCache
 }) => {
   const { metadata } = useTemplateEditor();
   const {
@@ -67,13 +74,19 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     if (finalPromptContent) {
       return finalPromptContent;
     }
+    if (blockContentCache) {
+      return formatPromptText(metadata, modifiedContent, blockContentCache);
+    }
     return formatPromptText(metadata, modifiedContent);
-  }, [finalPromptContent, metadata, modifiedContent]);
+  }, [finalPromptContent, metadata, modifiedContent, blockContentCache]);
   
   // Build HTML preview with placeholder highlighting
   const completePreviewHtml = useMemo(() => {
+    if (blockContentCache) {
+      return formatPromptHtml(metadata, modifiedContent, isDark, blockContentCache);
+    }
     return formatPromptHtml(metadata, modifiedContent, isDark);
-  }, [metadata, modifiedContent, isDark]);
+  }, [metadata, modifiedContent, isDark, blockContentCache]);
 
   if (isProcessing) {
     return (
