@@ -32,6 +32,18 @@ export const BasicInfoForm: React.FC<Props> = ({
   const safeFoldersList = Array.isArray(userFoldersList) ? userFoldersList : [];
   const { openCreateFolder } = useDialogActions();
 
+  // Pre-render folder items so they can be inserted before the "create new" action
+  const folderListItems = safeFoldersList.map(folder => (
+    <SelectItem
+      key={folder.id}
+      value={folder.id.toString()}
+      className="jd-truncate"
+      title={folder.fullPath}
+    >
+      {folder.fullPath}
+    </SelectItem>
+  ));
+
   const onFolderChange = (value: string) => {
     if (value === 'new') {
       openCreateFolder({});
@@ -89,16 +101,8 @@ export const BasicInfoForm: React.FC<Props> = ({
             <SelectItem value="root">
               <span className="jd-text-muted-foreground">{getMessage('noFolder')}</span>
             </SelectItem>
-            {safeFoldersList.map(folder => (
-              <SelectItem
-                key={folder.id}
-                value={folder.id.toString()}
-                className="jd-truncate"
-                title={folder.fullPath}
-              >
-                {folder.fullPath}
-              </SelectItem>
-            ))}
+            {/* Folder list should appear before the create folder action */}
+            {folderListItems}
             <SelectItem value="new" className="jd-text-primary jd-font-medium">
               <div className="jd-flex jd-items-center">
                 <FolderPlus className="jd-h-4 jd-w-4 jd-mr-2" />
