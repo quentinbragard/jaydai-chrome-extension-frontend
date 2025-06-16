@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FolderPlus } from 'lucide-react';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { getMessage } from '@/core/utils/i18n';
 import { FolderData, truncateFolderPath } from '@/utils/prompts/templateUtils';
 
@@ -29,6 +30,15 @@ export const BasicInfoForm: React.FC<Props> = ({
 }) => {
   // Defensive programming: ensure userFoldersList is always an array
   const safeFoldersList = Array.isArray(userFoldersList) ? userFoldersList : [];
+  const { openCreateFolder } = useDialogActions();
+
+  const onFolderChange = (value: string) => {
+    if (value === 'new') {
+      openCreateFolder({});
+      return;
+    }
+    handleFolderSelect(value);
+  };
 
   return (
     <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-3 jd-gap-4 jd-mb-4">
@@ -61,7 +71,7 @@ export const BasicInfoForm: React.FC<Props> = ({
       </div>
       <div>
         <label className="jd-text-sm jd-font-medium">{getMessage('folder')}</label>
-        <Select value={selectedFolderId || 'root'} onValueChange={handleFolderSelect}>
+        <Select value={selectedFolderId || 'root'} onValueChange={onFolderChange}>
           <SelectTrigger className="jd-w-full jd-mt-1">
             <SelectValue placeholder={getMessage('selectFolder')}>
               {selectedFolderId === 'root' ? (
