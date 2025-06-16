@@ -7,7 +7,8 @@ import {
   SingleMetadataType,
   MultipleMetadataType,
   MetadataItem,
-  isMultipleMetadataType
+  isMultipleMetadataType,
+  PRIMARY_METADATA
 } from '@/types/prompts/metadata';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { getMessage } from '@/core/utils/i18n';
@@ -23,8 +24,7 @@ import {
   removeSecondaryMetadata,
   getActiveSecondaryMetadata,
   extractCustomValues,
-  validateMetadata,
-  getFirstActiveMetadataType
+  validateMetadata
 } from '@/utils/prompts/metadataUtils';
 
 export interface TemplateDialogConfig {
@@ -46,7 +46,7 @@ export interface TemplateDialogState {
   
   // UI state
   activeTab: 'basic' | 'advanced';
-  expandedMetadata: MetadataType | null;
+  expandedMetadata: Set<MetadataType>;
   metadataCollapsed: boolean;
   secondaryMetadataCollapsed: boolean;
   
@@ -79,7 +79,7 @@ export interface TemplateDialogActions {
   
   // UI actions
   setActiveTab: (tab: 'basic' | 'advanced') => void;
-  setExpandedMetadata: (type: MetadataType | null) => void;
+  toggleExpandedMetadata: (type: MetadataType) => void;
   setMetadataCollapsed: (collapsed: boolean) => void;
   setSecondaryMetadataCollapsed: (collapsed: boolean) => void;
   
@@ -108,7 +108,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     
     // UI state
     activeTab: 'basic',
-    expandedMetadata: null,
+    expandedMetadata: new Set(PRIMARY_METADATA),
     metadataCollapsed: false,
     secondaryMetadataCollapsed: false,
     
@@ -199,15 +199,15 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     setState(prev => ({
       ...prev,
       metadata: addSecondaryMetadata(prev.metadata, type),
-      expandedMetadata: type
+      expandedMetadata: new Set(prev.expandedMetadata).add(type)
     }));
   }, []);
-  
+
   const removeSecondaryMetadataType = useCallback((type: MetadataType) => {
     setState(prev => ({
       ...prev,
       metadata: removeSecondaryMetadata(prev.metadata, type),
-      expandedMetadata: prev.expandedMetadata === type ? null : prev.expandedMetadata
+      expandedMetadata: (() => { const s = new Set(prev.expandedMetadata); s.delete(type); return s; })()
     }));
   }, []);
 
@@ -226,9 +226,13 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   const setActiveTab = useCallback((activeTab: 'basic' | 'advanced') => {
     setState(prev => ({ ...prev, activeTab }));
   }, []);
-  
-  const setExpandedMetadata = useCallback((expandedMetadata: MetadataType | null) => {
-    setState(prev => ({ ...prev, expandedMetadata }));
+
+  const toggleExpandedMetadata = useCallback((type: MetadataType) => {
+    setState(prev => {
+      const newSet = new Set(prev.expandedMetadata);
+      if (newSet.has(type)) newSet.delete(type); else newSet.add(type);
+      return { ...prev, expandedMetadata: newSet };
+    });
   }, []);
   
   const setMetadataCollapsed = useCallback((metadataCollapsed: boolean) => {
@@ -301,7 +305,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       selectedFolderId: '',
       metadata: createMetadata(),
       activeTab: 'basic',
-      expandedMetadata: null,
+      expandedMetadata: new Set(PRIMARY_METADATA),
       metadataCollapsed: false,
       secondaryMetadataCollapsed: false,
       isProcessing: false,
@@ -335,7 +339,10 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             content: getLocalizedContent(initialData.template?.content || ''),
             selectedFolderId: initialData.selectedFolder?.id?.toString() || '',
             metadata: meta,
-            expandedMetadata: getFirstActiveMetadataType(meta),
+            expandedMetadata: new Set([
+              ...PRIMARY_METADATA,
+              ...Array.from(getActiveSecondaryMetadata(meta))
+            ]),
             isProcessing: false
           }));
         } else if (dialogType === 'customize') {
@@ -344,7 +351,10 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             ...prev,
             content: getLocalizedContent(initialData.content || ''),
             metadata: meta,
-            expandedMetadata: getFirstActiveMetadataType(meta),
+            expandedMetadata: new Set([
+              ...PRIMARY_METADATA,
+              ...Array.from(getActiveSecondaryMetadata(meta))
+            ]),
             isProcessing: false
           }));
         }
@@ -383,7 +393,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     
     // UI actions
     setActiveTab,
-    setExpandedMetadata,
+    toggleExpandedMetadata,
     setMetadataCollapsed,
     setSecondaryMetadataCollapsed,
     
