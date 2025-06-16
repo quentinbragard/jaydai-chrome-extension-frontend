@@ -73,10 +73,11 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
     !isMultipleMetadataType(type)
       ? (metadata[type as SingleMetadataType] as number) || 0
       : undefined;
-  const items =
-    isMultipleMetadataType(type)
-      ? metadata[type as MultipleMetadataType] || []
-      : [];
+  const items = isMultipleMetadataType(type)
+    ? type === 'constraint'
+      ? metadata.constraints || []
+      : metadata.examples || []
+    : [];
 
   const [addMenuOpen, setAddMenuOpen] = React.useState(false);
 
