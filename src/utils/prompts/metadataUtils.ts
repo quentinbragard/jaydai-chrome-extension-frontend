@@ -429,12 +429,7 @@ export function blockMappingToMetadata(
   for (const [type, value] of Object.entries(mapping)) {
     if (typeof value === 'number') {
       if (value && value > 0) {
-        const key =
-          type === 'constraint'
-            ? 'constraints'
-            : type === 'example'
-            ? 'examples'
-            : type;
+        const key = type;
         (metadata as any)[key] = value;
       }
     } else if (Array.isArray(value)) {
