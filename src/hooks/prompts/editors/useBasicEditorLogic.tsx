@@ -75,9 +75,9 @@ export function useBasicEditorLogic({
           }
         } else {
           if (!contentMounted) {
-            editorRef.current.textContent = normalizedContent;
-          } else if (!isEditing && editorRef.current.textContent !== normalizedContent) {
-            editorRef.current.textContent = normalizedContent;
+            editorRef.current.innerHTML = normalizedContent.replace(/\n/g, '<br>');
+          } else if (!isEditing && editorRef.current.innerText !== normalizedContent) {
+            editorRef.current.innerHTML = normalizedContent.replace(/\n/g, '<br>');
           }
         }
 
@@ -146,9 +146,7 @@ export function useBasicEditorLogic({
     setIsEditing(false);
     if (editorRef.current) {
       const htmlContent = editorRef.current.innerHTML;
-      const textContent = mode === 'create'
-        ? editorRef.current.textContent || ''
-        : htmlToPlainText(htmlContent);
+      const textContent = htmlToPlainText(htmlContent);
       
       setModifiedContent(textContent);
 
@@ -180,13 +178,8 @@ export function useBasicEditorLogic({
   const handleEditorInput = useCallback(() => {
     if (!editorRef.current) return;
 
-    const currentRawContent = mode === 'create'
-      ? editorRef.current.textContent || ''
-      : editorRef.current.innerHTML;
-
-    const textContent = mode === 'create'
-      ? currentRawContent
-      : htmlToPlainText(currentRawContent);
+    const currentHtml = editorRef.current.innerHTML;
+    const textContent = htmlToPlainText(currentHtml);
     
     setModifiedContent(textContent);
 
@@ -256,7 +249,7 @@ export function useBasicEditorLogic({
         });
       }
     } else if (editorRef.current && mode === 'create') {
-      editorRef.current.textContent = baseContent;
+      editorRef.current.innerHTML = baseContent.replace(/\n/g, '<br>');
     }
 
     setTimeout(() => {
