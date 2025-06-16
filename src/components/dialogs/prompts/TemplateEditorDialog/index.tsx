@@ -200,6 +200,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 mode={mode as any}
                 isProcessing={false}
                 finalPromptContent={finalPromptContent}
+                blockContentCache={blockContentCache}
               />
             </TabsContent>
 
