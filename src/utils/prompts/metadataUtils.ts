@@ -113,7 +113,9 @@ export function addMetadataItem(
   
   const key = MULTI_TYPE_KEY_MAP[type];
   const currentItems = (updated as any)[key] || [];
-  (updated as any)[key] = [...currentItems, newItem];
+  // Insert the new item at the beginning so that recently added blocks
+  // always appear before the "add new block" button in the UI.
+  (updated as any)[key] = [newItem, ...currentItems];
   
   return updated;
 }
