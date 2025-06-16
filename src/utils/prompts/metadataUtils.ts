@@ -105,8 +105,9 @@ export function addMetadataItem(
     ...item
   };
   
-  const currentItems = updated[type] || [];
-  (updated as any)[type] = [...currentItems, newItem];
+  const prop = type === 'constraint' ? 'constraints' : 'examples';
+  const currentItems = (updated as any)[prop] || [];
+  (updated as any)[prop] = [...currentItems, newItem];
   
   return updated;
 }
@@ -120,8 +121,9 @@ export function removeMetadataItem(
   itemId: string
 ): PromptMetadata {
   const updated = cloneMetadata(metadata);
-  const currentItems = updated[type] || [];
-  (updated as any)[type] = currentItems.filter(item => item.id !== itemId);
+  const prop = type === 'constraint' ? 'constraints' : 'examples';
+  const currentItems = (updated as any)[prop] || [];
+  (updated as any)[prop] = currentItems.filter(item => item.id !== itemId);
   return updated;
 }
 
@@ -135,9 +137,10 @@ export function updateMetadataItem(
   updates: Partial<MetadataItem>
 ): PromptMetadata {
   const updated = cloneMetadata(metadata);
-  const currentItems = updated[type] || [];
-  
-  (updated as any)[type] = currentItems.map(item =>
+  const prop = type === 'constraint' ? 'constraints' : 'examples';
+  const currentItems = (updated as any)[prop] || [];
+
+  (updated as any)[prop] = currentItems.map(item =>
     item.id === itemId ? { ...item, ...updates } : item
   );
   
@@ -153,7 +156,8 @@ export function reorderMetadataItems(
   newItems: MetadataItem[]
 ): PromptMetadata {
   const updated = cloneMetadata(metadata);
-  (updated as any)[type] = newItems.map(item => ({ ...item }));
+  const prop = type === 'constraint' ? 'constraints' : 'examples';
+  (updated as any)[prop] = newItems.map(item => ({ ...item }));
   return updated;
 }
 
@@ -194,7 +198,8 @@ export function removeSecondaryMetadata(
   
   if (isMultipleMetadataType(type)) {
     const multiType = type as MultipleMetadataType;
-    delete (updated as any)[multiType];
+    const prop = multiType === 'constraint' ? 'constraints' : 'examples';
+    delete (updated as any)[prop];
   } else {
     const singleType = type as SingleMetadataType;
     delete (updated as any)[singleType];
@@ -219,7 +224,8 @@ export function getActiveSecondaryMetadata(metadata: PromptMetadata): Set<Metada
   SECONDARY_METADATA.forEach(type => {
     if (isMultipleMetadataType(type)) {
       const multiType = type as MultipleMetadataType;
-      if (metadata[multiType] && metadata[multiType]!.length > 0) {
+      const prop = multiType === 'constraint' ? 'constraints' : 'examples';
+      if ((metadata as any)[prop] && (metadata as any)[prop]!.length > 0) {
         activeSet.add(type);
       }
     } else {
