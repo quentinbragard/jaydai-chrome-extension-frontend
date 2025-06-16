@@ -352,15 +352,17 @@ export function metadataToBlockMapping(metadata: PromptMetadata): Record<string,
       .map(c => c.blockId)
       .filter((id): id is number => typeof id === 'number' && id !== 0);
     if (constraintBlockIds.length > 0) {
+      mapping.constraint = constraintBlockIds;
       mapping.constraints = constraintBlockIds;
     }
   }
-  
+
   if (metadata.examples && metadata.examples.length > 0) {
     const exampleBlockIds = metadata.examples
       .map(e => e.blockId)
       .filter((id): id is number => typeof id === 'number' && id !== 0);
     if (exampleBlockIds.length > 0) {
+      mapping.example = exampleBlockIds;
       mapping.examples = exampleBlockIds;
     }
   }

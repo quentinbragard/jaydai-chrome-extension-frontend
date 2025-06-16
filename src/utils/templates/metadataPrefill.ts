@@ -23,7 +23,13 @@ export function parseMetadataIds(
     values: {}
   };
 
-  for (const [type, value] of Object.entries(metadataMapping)) {
+  const keyMap: Record<string, 'constraints' | 'examples'> = {
+    constraint: 'constraints',
+    example: 'examples'
+  };
+
+  for (const [rawType, value] of Object.entries(metadataMapping)) {
+    const type = (keyMap[rawType] || rawType) as string;
     if (typeof value === 'number') {
       if (value && value > 0) {
         (metadata as any)[type] = value;
@@ -49,14 +55,20 @@ export async function prefillMetadataFromMapping(
   metadataMapping: Record<string, number | number[]>
 ): Promise<PromptMetadata> {
   console.log('Prefilling metadata from mapping:', metadataMapping);
-  
-  const metadata: PromptMetadata = { 
+
+  const metadata: PromptMetadata = {
     ...DEFAULT_METADATA,
     values: {}
   };
-  
+
+  const keyMap: Record<string, 'constraints' | 'examples'> = {
+    constraint: 'constraints',
+    example: 'examples'
+  };
+
   try {
-    for (const [type, value] of Object.entries(metadataMapping)) {
+    for (const [rawType, value] of Object.entries(metadataMapping)) {
+      const type = (keyMap[rawType] || rawType) as string;
       console.log(`Processing metadata type: ${type}, value:`, value);
       
       // Handle single metadata types (role, context, goal, etc.)
