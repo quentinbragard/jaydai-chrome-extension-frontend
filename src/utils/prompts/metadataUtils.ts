@@ -237,9 +237,8 @@ export function getActiveSecondaryMetadata(metadata: PromptMetadata): Set<Metada
       const key = MULTI_TYPE_KEY_MAP[multiType];
       const items = (metadata as any)[key];
       
-      // Include if the field exists (was added), even if items are empty
-      // This allows newly added constraints/examples to show up immediately
-      if (items && Array.isArray(items)) {
+      // Include only if the array contains at least one item
+      if (items && Array.isArray(items) && items.length > 0) {
         activeSet.add(type);
       }
     } else {

@@ -172,8 +172,8 @@ const PROMPT_PREFIXES_FR: Record<BlockType, string> = {
   goal: 'Objectif:\n ',
   custom: '',
   output_format: 'Format de sortie:\n ',
-  example: 'Exemples:\n ',
-  constraint: 'Contraintes:\n ',
+  example: 'Exemple:\n ',
+  constraint: 'Contrainte:\n ',
   tone_style: 'Ton et style:\n ',
   audience: 'Audience cible:\n ',
 };
