@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FolderPlus } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import { FolderData, truncateFolderPath } from '@/utils/prompts/templateUtils';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 
 interface Props {
   name: string;
@@ -29,6 +30,22 @@ export const BasicInfoForm: React.FC<Props> = ({
 }) => {
   // Defensive programming: ensure userFoldersList is always an array
   const safeFoldersList = Array.isArray(userFoldersList) ? userFoldersList : [];
+  const { openCreateFolder } = useDialogActions();
+
+  const handleSelectChange = React.useCallback(
+    (value: string) => {
+      if (value === 'new') {
+        openCreateFolder({
+          onFolderCreated: (folder: any) => {
+            handleFolderSelect(folder.id.toString());
+          }
+        });
+        return;
+      }
+      handleFolderSelect(value);
+    },
+    [openCreateFolder, handleFolderSelect]
+  );
 
   return (
     <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-3 jd-gap-4 jd-mb-4">
@@ -61,7 +78,7 @@ export const BasicInfoForm: React.FC<Props> = ({
       </div>
       <div>
         <label className="jd-text-sm jd-font-medium">{getMessage('folder')}</label>
-        <Select value={selectedFolderId || 'root'} onValueChange={handleFolderSelect}>
+        <Select value={selectedFolderId || 'root'} onValueChange={handleSelectChange}>
           <SelectTrigger className="jd-w-full jd-mt-1">
             <SelectValue placeholder={getMessage('selectFolder')}>
               {selectedFolderId === 'root' ? (
