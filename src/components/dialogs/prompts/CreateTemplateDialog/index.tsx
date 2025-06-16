@@ -57,7 +57,7 @@ export const CreateTemplateDialog: React.FC = () => {
       
       // UI state
       expandedMetadata={hook.expandedMetadata}
-      setExpandedMetadata={hook.setExpandedMetadata}
+      toggleExpandedMetadata={hook.toggleExpandedMetadata}
       activeSecondaryMetadata={hook.activeSecondaryMetadata}
       metadataCollapsed={hook.metadataCollapsed}
       setMetadataCollapsed={hook.setMetadataCollapsed}

@@ -37,8 +37,8 @@ interface TemplateEditorDialogProps {
   setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
   
   // UI state from base hook
-  expandedMetadata: MetadataType | null;
-  setExpandedMetadata: (type: MetadataType | null) => void;
+  expandedMetadata: Set<MetadataType>;
+  toggleExpandedMetadata: (type: MetadataType) => void;
   activeSecondaryMetadata: Set<MetadataType>;
   metadataCollapsed: boolean;
   setMetadataCollapsed: (collapsed: boolean) => void;
@@ -74,7 +74,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   
   // UI state
   expandedMetadata,
-  setExpandedMetadata,
+  toggleExpandedMetadata,
   activeSecondaryMetadata,
   metadataCollapsed,
   setMetadataCollapsed,
@@ -104,29 +104,32 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   }, [metadata, content, buildFinalPromptContent, blocksLoading]);
 
 
-  const contextValue = React.useMemo(() => ({
-    metadata,
-    setMetadata,
-    expandedMetadata,
-    setExpandedMetadata,
-    activeSecondaryMetadata,
-    metadataCollapsed,
-    setMetadataCollapsed,
-    secondaryMetadataCollapsed,
-    setSecondaryMetadataCollapsed,
-    customValues
-  }), [
-    metadata,
-    setMetadata,
-    expandedMetadata,
-    setExpandedMetadata,
-    activeSecondaryMetadata,
-    metadataCollapsed,
-    setMetadataCollapsed,
-    secondaryMetadataCollapsed,
-    setSecondaryMetadataCollapsed,
-    customValues
-  ]);
+  const contextValue = React.useMemo(
+    () => ({
+      metadata,
+      setMetadata,
+      expandedMetadata,
+      toggleExpandedMetadata,
+      activeSecondaryMetadata,
+      metadataCollapsed,
+      setMetadataCollapsed,
+      secondaryMetadataCollapsed,
+      setSecondaryMetadataCollapsed,
+      customValues
+    }),
+    [
+      metadata,
+      setMetadata,
+      expandedMetadata,
+      toggleExpandedMetadata,
+      activeSecondaryMetadata,
+      metadataCollapsed,
+      setMetadataCollapsed,
+      secondaryMetadataCollapsed,
+      setSecondaryMetadataCollapsed,
+      customValues
+    ]
+  );
 
   if (!isOpen) return null;
 

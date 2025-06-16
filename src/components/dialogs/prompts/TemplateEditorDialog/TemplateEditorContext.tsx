@@ -2,8 +2,8 @@ import React, { createContext, useContext } from 'react';
 import { PromptMetadata, MetadataType } from '@/types/prompts/metadata';
 
 export interface MetadataUIState {
-  expandedMetadata: MetadataType | null;
-  setExpandedMetadata: (type: MetadataType | null) => void;
+  expandedMetadata: Set<MetadataType>;
+  toggleExpandedMetadata: (type: MetadataType) => void;
   activeSecondaryMetadata: Set<MetadataType>;
   metadataCollapsed: boolean;
   setMetadataCollapsed: (collapsed: boolean) => void;

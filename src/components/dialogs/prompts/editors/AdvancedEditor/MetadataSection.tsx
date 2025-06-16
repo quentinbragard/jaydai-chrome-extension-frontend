@@ -54,7 +54,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
     metadata,
     setMetadata,
     expandedMetadata,
-    setExpandedMetadata,
+    toggleExpandedMetadata,
     activeSecondaryMetadata,
     metadataCollapsed,
     setMetadataCollapsed,
@@ -66,17 +66,17 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
   const handleAddSecondaryMetadata = useCallback(
     (type: MetadataType) => {
       setMetadata(prev => addSecondaryMetadata(prev, type));
-      setExpandedMetadata(type);
+      if (!expandedMetadata.has(type)) toggleExpandedMetadata(type);
     },
-    [setMetadata, setExpandedMetadata]
+    [setMetadata, expandedMetadata, toggleExpandedMetadata]
   );
 
   const handleRemoveSecondaryMetadata = useCallback(
     (type: MetadataType) => {
       setMetadata(prev => removeSecondaryMetadata(prev, type));
-      if (expandedMetadata === type) setExpandedMetadata(null);
+      if (expandedMetadata.has(type)) toggleExpandedMetadata(type);
     },
-    [setMetadata, expandedMetadata, setExpandedMetadata]
+    [setMetadata, expandedMetadata, toggleExpandedMetadata]
   );
   
   const isDarkMode = useThemeDetector();
@@ -106,9 +106,9 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
                   <MetadataCard
                     type={type}
                     availableBlocks={availableMetadataBlocks[type] || []}
-                    expanded={expandedMetadata === type}
+                    expanded={expandedMetadata.has(type)}
                     isPrimary
-                    onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
+                    onToggle={() => toggleExpandedMetadata(type)}
                   />
                 </div>
               ))}
@@ -142,8 +142,8 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
                       <MetadataCard
                         type={type}
                         availableBlocks={availableMetadataBlocks[type] || []}
-                        expanded={expandedMetadata === type}
-                        onToggle={() => setExpandedMetadata(expandedMetadata === type ? null : type)}
+                        expanded={expandedMetadata.has(type)}
+                        onToggle={() => toggleExpandedMetadata(type)}
                         onRemove={() => handleRemoveSecondaryMetadata(type)}
                       />
                     </div>
