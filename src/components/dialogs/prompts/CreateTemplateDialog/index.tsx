@@ -4,40 +4,23 @@ import { getMessage } from '@/core/utils/i18n';
 import { useCreateTemplateDialog } from '@/hooks/dialogs/useCreateTemplateDialog';
 import { TemplateEditorDialog } from '../TemplateEditorDialog';
 import { BasicInfoForm } from './BasicInfoForm';
-import { FolderData } from '@/utils/prompts/templateUtils';
+import { processUserFolders } from '@/utils/prompts/templateUtils';
+import { useUserFolders } from '@/hooks/prompts';
 
-// Helper function to process user folders
-function processUserFolders(userFolders: any[]): FolderData[] {
-  if (!userFolders || !Array.isArray(userFolders)) {
-    return [];
-  }
-
-  const flattenFolderHierarchy = (
-    folders: any[],
-    path = '',
-    result: FolderData[] = []
-  ): FolderData[] => {
-    folders.forEach(folder => {
-      if (!folder || typeof folder.id !== 'number' || !folder.name) return;
-      const folderPath = path ? `${path} / ${folder.name}` : folder.name;
-      result.push({ id: folder.id, name: folder.name, fullPath: folderPath });
-      if (folder.Folders && Array.isArray(folder.Folders) && folder.Folders.length > 0) {
-        flattenFolderHierarchy(folder.Folders, folderPath, result);
-      }
-    });
-    return result;
-  };
-
-  return flattenFolderHierarchy(userFolders);
-}
 
 export const CreateTemplateDialog: React.FC = () => {
   const hook = useCreateTemplateDialog();
-  
+  const { data: fetchedUserFolders = [] } = useUserFolders();
+
+  // Choose folders from dialog data if available, otherwise fallback to fetched data
+  const foldersSource = hook.data?.userFolders && hook.data.userFolders.length > 0
+    ? hook.data.userFolders
+    : fetchedUserFolders;
+
   // Process user folders using useMemo for performance
   const userFoldersList = useMemo(() => {
-    return processUserFolders(hook.data?.userFolders || []);
-  }, [hook.data?.userFolders]);
+    return processUserFolders(foldersSource);
+  }, [foldersSource]);
 
   const infoForm = hook.isOpen && (
     <BasicInfoForm
