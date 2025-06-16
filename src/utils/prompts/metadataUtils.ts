@@ -268,6 +268,32 @@ export function extractCustomValues(metadata: PromptMetadata): Record<SingleMeta
 }
 
 /**
+ * Get the first metadata type that contains a value. Useful for
+ * automatically expanding metadata sections when editing templates.
+ */
+export function getFirstActiveMetadataType(metadata: PromptMetadata): MetadataType | null {
+  const allTypes: MetadataType[] = [...PRIMARY_METADATA, ...SECONDARY_METADATA];
+
+  for (const type of allTypes) {
+    if (isMultipleMetadataType(type)) {
+      const key = MULTI_TYPE_KEY_MAP[type];
+      if ((metadata as any)[key] && (metadata as any)[key].length > 0) {
+        return type;
+      }
+    } else {
+      const singleType = type as SingleMetadataType;
+      const blockId = metadata[singleType];
+      const customValue = metadata.values?.[singleType];
+      if ((blockId && blockId !== 0) || (customValue && customValue.trim())) {
+        return type;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
  * Validate metadata completeness
  */
 export function validateMetadata(metadata: PromptMetadata): {
