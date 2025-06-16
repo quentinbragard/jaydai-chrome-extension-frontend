@@ -224,26 +224,36 @@ export function removeSecondaryMetadata(
 // ============================================================================
 
 /**
- * Get active secondary metadata types
+ * Get active secondary metadata types - includes types that have been added to the metadata
+ * FIXED: Now correctly shows added metadata (even if empty) but not uninitialized metadata
  */
 export function getActiveSecondaryMetadata(metadata: PromptMetadata): Set<MetadataType> {
   const activeSet = new Set<MetadataType>();
   
   SECONDARY_METADATA.forEach(type => {
     if (isMultipleMetadataType(type)) {
+      // For multiple metadata types (constraints, examples)
       const multiType = type as MultipleMetadataType;
       const key = MULTI_TYPE_KEY_MAP[multiType];
-      if ((metadata as any)[key] && (metadata as any)[key]!.length > 0) {
+      const items = (metadata as any)[key];
+      
+      // Include if the field exists (was added), even if items are empty
+      // This allows newly added constraints/examples to show up immediately
+      if (items && Array.isArray(items)) {
         activeSet.add(type);
       }
     } else {
+      // For single metadata types (audience, output_format, tone_style)
       const singleType = type as SingleMetadataType;
-      const hasField =
-        Object.prototype.hasOwnProperty.call(metadata, singleType) ||
-        (metadata.values &&
-          Object.prototype.hasOwnProperty.call(metadata.values, singleType));
+      const blockId = metadata[singleType];
+      const customValue = metadata.values?.[singleType];
       
-      if (hasField) {
+      // Include if the field has been initialized (exists in metadata object)
+      // This means either a block was selected, custom value exists, or it was added to the form
+      if (
+        Object.prototype.hasOwnProperty.call(metadata, singleType) ||
+        (metadata.values && Object.prototype.hasOwnProperty.call(metadata.values, singleType))
+      ) {
         activeSet.add(type);
       }
     }
@@ -436,12 +446,7 @@ export function blockMappingToMetadata(
           value: ''
         }));
       if (items.length > 0) {
-        const key =
-          type === 'constraint'
-            ? 'constraints'
-            : type === 'example'
-            ? 'examples'
-            : type;
+        const key = type;
         (metadata as any)[key] = items;
       }
     }
