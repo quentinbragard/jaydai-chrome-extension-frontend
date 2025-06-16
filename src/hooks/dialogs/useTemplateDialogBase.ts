@@ -23,7 +23,8 @@ import {
   removeSecondaryMetadata,
   getActiveSecondaryMetadata,
   extractCustomValues,
-  validateMetadata
+  validateMetadata,
+  getFirstActiveMetadataType
 } from '@/utils/prompts/metadataUtils';
 
 export interface TemplateDialogConfig {
@@ -326,20 +327,24 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       try {
         // Initialize form data
         if (dialogType === 'create') {
+          const meta = initialData.template?.metadata || createMetadata();
           setState(prev => ({
             ...prev,
             name: initialData.template?.title || '',
             description: initialData.template?.description || '',
             content: getLocalizedContent(initialData.template?.content || ''),
             selectedFolderId: initialData.selectedFolder?.id?.toString() || '',
-            metadata: initialData.template?.metadata || createMetadata(),
+            metadata: meta,
+            expandedMetadata: getFirstActiveMetadataType(meta),
             isProcessing: false
           }));
         } else if (dialogType === 'customize') {
+          const meta = initialData.metadata || createMetadata();
           setState(prev => ({
             ...prev,
             content: getLocalizedContent(initialData.content || ''),
-            metadata: initialData.metadata || createMetadata(),
+            metadata: meta,
+            expandedMetadata: getFirstActiveMetadataType(meta),
             isProcessing: false
           }));
         }
