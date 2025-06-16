@@ -13,6 +13,12 @@ import {
   generateMetadataItemId
 } from '@/types/prompts/metadata';
 
+// Map singular metadata types to their property keys on PromptMetadata
+const MULTI_TYPE_KEY_MAP: Record<MultipleMetadataType, 'constraints' | 'examples'> = {
+  constraint: 'constraints',
+  example: 'examples'
+};
+
 // ============================================================================
 // CORE METADATA OPERATIONS
 // ============================================================================
@@ -105,8 +111,9 @@ export function addMetadataItem(
     ...item
   };
   
-  const currentItems = updated[type] || [];
-  (updated as any)[type] = [...currentItems, newItem];
+  const key = MULTI_TYPE_KEY_MAP[type];
+  const currentItems = (updated as any)[key] || [];
+  (updated as any)[key] = [...currentItems, newItem];
   
   return updated;
 }
@@ -120,8 +127,9 @@ export function removeMetadataItem(
   itemId: string
 ): PromptMetadata {
   const updated = cloneMetadata(metadata);
-  const currentItems = updated[type] || [];
-  (updated as any)[type] = currentItems.filter(item => item.id !== itemId);
+  const key = MULTI_TYPE_KEY_MAP[type];
+  const currentItems = (updated as any)[key] || [];
+  (updated as any)[key] = currentItems.filter((item: MetadataItem) => item.id !== itemId);
   return updated;
 }
 
@@ -135,12 +143,13 @@ export function updateMetadataItem(
   updates: Partial<MetadataItem>
 ): PromptMetadata {
   const updated = cloneMetadata(metadata);
-  const currentItems = updated[type] || [];
-  
-  (updated as any)[type] = currentItems.map(item =>
+  const key = MULTI_TYPE_KEY_MAP[type];
+  const currentItems: MetadataItem[] = (updated as any)[key] || [];
+
+  (updated as any)[key] = currentItems.map(item =>
     item.id === itemId ? { ...item, ...updates } : item
   );
-  
+
   return updated;
 }
 
@@ -153,7 +162,8 @@ export function reorderMetadataItems(
   newItems: MetadataItem[]
 ): PromptMetadata {
   const updated = cloneMetadata(metadata);
-  (updated as any)[type] = newItems.map(item => ({ ...item }));
+  const key = MULTI_TYPE_KEY_MAP[type];
+  (updated as any)[key] = newItems.map(item => ({ ...item }));
   return updated;
 }
 
@@ -194,7 +204,8 @@ export function removeSecondaryMetadata(
   
   if (isMultipleMetadataType(type)) {
     const multiType = type as MultipleMetadataType;
-    delete (updated as any)[multiType];
+    const key = MULTI_TYPE_KEY_MAP[multiType];
+    delete (updated as any)[key];
   } else {
     const singleType = type as SingleMetadataType;
     delete (updated as any)[singleType];
@@ -219,7 +230,8 @@ export function getActiveSecondaryMetadata(metadata: PromptMetadata): Set<Metada
   SECONDARY_METADATA.forEach(type => {
     if (isMultipleMetadataType(type)) {
       const multiType = type as MultipleMetadataType;
-      if (metadata[multiType] && metadata[multiType]!.length > 0) {
+      const key = MULTI_TYPE_KEY_MAP[multiType];
+      if ((metadata as any)[key] && (metadata as any)[key]!.length > 0) {
         activeSet.add(type);
       }
     } else {
@@ -352,16 +364,16 @@ export function metadataToBlockMapping(metadata: PromptMetadata): Record<string,
       .map(c => c.blockId)
       .filter((id): id is number => typeof id === 'number' && id !== 0);
     if (constraintBlockIds.length > 0) {
-      mapping.constraints = constraintBlockIds;
+      mapping.constraint = constraintBlockIds;
     }
   }
-  
+
   if (metadata.examples && metadata.examples.length > 0) {
     const exampleBlockIds = metadata.examples
       .map(e => e.blockId)
       .filter((id): id is number => typeof id === 'number' && id !== 0);
     if (exampleBlockIds.length > 0) {
-      mapping.examples = exampleBlockIds;
+      mapping.example = exampleBlockIds;
     }
   }
   
@@ -379,7 +391,13 @@ export function blockMappingToMetadata(
   for (const [type, value] of Object.entries(mapping)) {
     if (typeof value === 'number') {
       if (value && value > 0) {
-        (metadata as any)[type] = value;
+        const key =
+          type === 'constraint'
+            ? 'constraints'
+            : type === 'example'
+            ? 'examples'
+            : type;
+        (metadata as any)[key] = value;
       }
     } else if (Array.isArray(value)) {
       const items = value
@@ -390,7 +408,13 @@ export function blockMappingToMetadata(
           value: ''
         }));
       if (items.length > 0) {
-        (metadata as any)[type] = items;
+        const key =
+          type === 'constraint'
+            ? 'constraints'
+            : type === 'example'
+            ? 'examples'
+            : type;
+        (metadata as any)[key] = items;
       }
     }
   }

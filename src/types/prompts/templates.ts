@@ -7,8 +7,8 @@ export interface TemplateMetadata {
   tone_style?: number;
   output_format?: number;
   audience?: number;
-  examples?: number[];
-  constraints?: number[];
+  example?: number[];
+  constraint?: number[];
 }
 
 export interface Template {
