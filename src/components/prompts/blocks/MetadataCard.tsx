@@ -2,7 +2,6 @@
 import React from 'react';
 import {
   Block,
-  MetadataItem,
   MetadataType,
   METADATA_CONFIGS,
   isMultipleMetadataType,
@@ -19,6 +18,12 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/core/utils/classNames';
 import { useClickOutside } from '@/hooks/useClickOutside';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
@@ -72,6 +77,8 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
     isMultipleMetadataType(type)
       ? metadata[type as MultipleMetadataType] || []
       : [];
+
+  const [addMenuOpen, setAddMenuOpen] = React.useState(false);
 
   const cardRef = useClickOutside<HTMLDivElement>(() => {
     if (expanded) {
@@ -133,12 +140,36 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
     );
   };
 
-  const addItem = () => {
-    setMetadata(prev => addMetadataItem(prev, type as MultipleMetadataType));
-  };
-
   const removeItem = (id: string) => {
     setMetadata(prev => removeMetadataItem(prev, type as MultipleMetadataType, id));
+  };
+
+  const handleAddSelect = (val: string) => {
+    if (val === 'create') {
+      openDialog(DIALOG_TYPES.CREATE_BLOCK, {
+        initialType: config.blockType,
+        onBlockCreated: b => {
+          setMetadata(prev =>
+            addMetadataItem(prev, type as MultipleMetadataType, {
+              blockId: b.id,
+              value: getLocalizedContent(b.content)
+            })
+          );
+        }
+      });
+      setAddMenuOpen(false);
+      return;
+    }
+
+    const blockId = parseInt(val, 10);
+    const block = availableBlocks.find(b => b.id === blockId);
+    setMetadata(prev =>
+      addMetadataItem(prev, type as MultipleMetadataType, {
+        blockId: isNaN(blockId) ? undefined : blockId,
+        value: block ? getLocalizedContent(block.content) : ''
+      })
+    );
+    setAddMenuOpen(false);
   };
 
   const selectedBlock = value && value !== 0 ? availableBlocks.find(b => b.id === value) : null;
@@ -257,9 +288,26 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                     </Button>
                   </div>
                 ))}
-                <Button variant="outline" size="sm" onClick={addItem} className="jd-w-full jd-border-dashed">
-                  <Plus className="jd-h-4 jd-w-4 jd-mr-2" /> Add {config.label}
-                </Button>
+                <DropdownMenu open={addMenuOpen} onOpenChange={setAddMenuOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="jd-w-full jd-border-dashed">
+                      <Plus className="jd-h-4 jd-w-4 jd-mr-2" /> Add {config.label}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="jd-w-full jd-z-[10010]">
+                    {availableBlocks.map(block => (
+                      <DropdownMenuItem key={block.id} onClick={() => handleAddSelect(String(block.id))}>
+                        {getLocalizedContent(block.title) || `${config.label} block`}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuItem onClick={() => handleAddSelect('create')}>
+                      <div className="jd-flex jd-items-center jd-gap-2">
+                        <Plus className="jd-h-3 jd-w-3" />
+                        Create {config.label.toLowerCase()} block
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             )}
           </div>
