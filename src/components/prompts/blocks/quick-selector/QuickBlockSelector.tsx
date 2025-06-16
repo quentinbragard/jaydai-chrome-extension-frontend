@@ -30,8 +30,8 @@ const QUICK_FILTERS = [
   { type: 'role', label: 'Role', icon: '👤' },
   { type: 'context', label: 'Context', icon: '📝' },
   { type: 'goal', label: 'Goal', icon: '🎯' },
-  { type: 'example', label: 'Examples', icon: '💡' },
-  { type: 'constraint', label: 'Constraints', icon: '🚫' },
+  { type: 'example', label: 'Example', icon: '💡' },
+  { type: 'constraint', label: 'Constraint', icon: '🚫' },
 ] as const;
 
 interface QuickBlockSelectorProps {
