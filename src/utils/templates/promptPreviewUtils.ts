@@ -64,9 +64,6 @@ export function buildMetadataOnlyPreviewHtml(metadata: PromptMetadata, isDark: b
       }
     });
   }
-  if (parts.length === 0) {
-    return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
-  }
   return parts.join('<br><br>');
 }
 

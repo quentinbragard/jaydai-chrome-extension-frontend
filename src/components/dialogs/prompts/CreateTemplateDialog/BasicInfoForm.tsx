@@ -31,7 +31,7 @@ export const BasicInfoForm: React.FC<Props> = ({
   const safeFoldersList = Array.isArray(userFoldersList) ? userFoldersList : [];
 
   return (
-    <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-3 jd-gap-4">
+    <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-3 jd-gap-4 jd-mb-4">
       <div>
         <label className="jd-text-sm jd-font-medium">{getMessage('templateName')}</label>
         <Input
