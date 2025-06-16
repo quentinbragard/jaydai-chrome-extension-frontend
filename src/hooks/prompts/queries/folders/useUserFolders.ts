@@ -16,28 +16,26 @@ export function useUserFolders() {
     const templatesResponse = await promptApi.getUserTemplates();
 
     if (templatesResponse.success && templatesResponse.data) {
-      // Create a map of folder ID to folder for easy lookup
-      const folderMap = new Map<number, TemplateFolder>();
+      // Map folder ID to folder object and track existing template IDs to avoid duplicates
+      const folderMap = new Map<number, { folder: TemplateFolder; idSet: Set<number> }>();
+
       response.data.forEach((folder: TemplateFolder) => {
-        folderMap.set(folder.id, folder);
-        
-        // Initialize templates array if not present
-        if (!folder.templates) {
-          folder.templates = [];
-        }
+        const templatesArray = Array.isArray(folder.templates) ? folder.templates : [];
+        folder.templates = templatesArray;
+        const idSet = new Set<number>(templatesArray.map(t => t.id));
+        folderMap.set(folder.id, { folder, idSet });
       });
-      
-      // Process all templates
+
+      // Assign templates to their folders, skipping duplicates and unorganized templates
       templatesResponse.data.forEach(template => {
         if (template.folder_id === null) {
-          // We'll handle unorganized templates separately
-          return;
-        } else if (folderMap.has(template.folder_id)) {
-          // For templates with a valid folder_id, add to the corresponding folder
-          const folder = folderMap.get(template.folder_id);
-          if (folder) {
-            folder.templates.push(template);
-          }
+          return; // unorganized template handled elsewhere
+        }
+
+        const mapEntry = folderMap.get(template.folder_id);
+        if (mapEntry && !mapEntry.idSet.has(template.id)) {
+          mapEntry.folder.templates.push(template);
+          mapEntry.idSet.add(template.id);
         }
       });
     }
