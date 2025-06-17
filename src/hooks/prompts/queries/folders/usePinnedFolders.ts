@@ -18,14 +18,13 @@ export function usePinnedFolders() {
     
     // Get official pinned folders with locale filtering
     const officialIds = metadata.data?.pinned_official_folder_ids || [];
-    console.log('officialIds------------------>>', officialIds);
     let officialFolders: TemplateFolder[] = [];
-    
+
     if (officialIds.length > 0) {
-      const officialResponse = await promptApi.getAllFolders('official', false, userLocale);
-      console.log('officialResponse------------------>>', officialResponse);
+      const officialResponse = await promptApi.getFolders('official', true, true, userLocale);
       if (officialResponse.success) {
-        officialFolders = officialResponse.data
+        const allFolders = (officialResponse.data.folders.official || []) as TemplateFolder[];
+        officialFolders = allFolders
           .filter((folder: TemplateFolder) => officialIds.includes(folder.id))
           .map((folder: TemplateFolder) => ({
             ...folder,
@@ -37,11 +36,12 @@ export function usePinnedFolders() {
     // Get organization pinned folders with locale filtering
     const orgIds = metadata.data?.pinned_organization_folder_ids || [];
     let orgFolders: TemplateFolder[] = [];
-    
+
     if (orgIds.length > 0) {
-      const orgResponse = await promptApi.getAllFolders('organization', false, userLocale);
+      const orgResponse = await promptApi.getFolders('organization', true, true, userLocale);
       if (orgResponse.success) {
-        orgFolders = orgResponse.data
+        const allFolders = (orgResponse.data.folders.organization || []) as TemplateFolder[];
+        orgFolders = allFolders
           .filter((folder: TemplateFolder) => orgIds.includes(folder.id))
           .map((folder: TemplateFolder) => ({
             ...folder,

@@ -2,6 +2,7 @@
 import { 
         getAllFolders,
         getUserFolders,
+        getFolders,
         updatePinnedFolders,
         toggleFolderPin,
         createFolder,
@@ -23,6 +24,15 @@ class PromptApiClient {
   
   async getAllFolders(type: string, empty: boolean = false, locale?: string): Promise<any> {
     return getAllFolders(type, empty, locale);
+  }
+
+  async getFolders(
+    type?: string,
+    withSubfolders: boolean = false,
+    withTemplates: boolean = false,
+    locale?: string
+  ): Promise<any> {
+    return getFolders(type, withSubfolders, withTemplates, locale);
   }
   
   async updatePinnedFolders(type: 'official' | 'organization', folderIds: number[]): Promise<any> {
