@@ -279,8 +279,7 @@ export type Database = {
           name: string | null
           organization_id: string | null
           phone_number: string | null
-          pinned_official_folder_ids: number[] | null
-          pinned_organization_folder_ids: number[] | null
+          pinned_folder_ids: number[] | null
           preferences_metadata: Json | null
           user_id: string | null
         }
@@ -292,8 +291,7 @@ export type Database = {
           name?: string | null
           organization_id?: string | null
           phone_number?: string | null
-          pinned_official_folder_ids?: number[] | null
-          pinned_organization_folder_ids?: number[] | null
+          pinned_folder_ids?: number[] | null
           preferences_metadata?: Json | null
           user_id?: string | null
         }
@@ -305,8 +303,7 @@ export type Database = {
           name?: string | null
           organization_id?: string | null
           phone_number?: string | null
-          pinned_official_folder_ids?: number[] | null
-          pinned_organization_folder_ids?: number[] | null
+          pinned_folder_ids?: number[] | null
           preferences_metadata?: Json | null
           user_id?: string | null
         }

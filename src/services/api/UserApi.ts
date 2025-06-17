@@ -9,8 +9,7 @@ export interface UserMetadata {
   picture?: string | null;
   additional_emails?: string[];
   additional_organizations?: string[];
-  pinned_official_folder_ids?: number[];
-  pinned_organization_folder_ids?: number[];
+  pinned_folder_ids?: number[];
   preferences_metadata?: Record<string, any>;
 }
 

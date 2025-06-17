@@ -8,6 +8,10 @@
 export const QUERY_KEYS = {
     // Template and folder related queries
     USER_FOLDERS: 'userFolders',
+    COMPANY_FOLDERS: 'companyFolders',
+    ORGANIZATION_FOLDERS: 'organizationFolders',
+    OFFICIAL_FOLDERS: 'officialFolders',
+    MIXED_FOLDERS: 'mixedFolders',
     ALL_FOLDERS: 'allFolders',
     USER_TEMPLATES: 'userTemplates',
     UNORGANIZED_TEMPLATES: 'unorganizedTemplates',

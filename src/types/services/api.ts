@@ -169,8 +169,7 @@ export interface ApiResponse<T = unknown> {
       additional_email: string | null;
       phone_number: string | null;
       additional_organization: string | null;
-      pinned_official_folder_ids: number[] | null;
-      pinned_organization_folder_ids: number[] | null;
+      pinned_folder_ids: number[] | null;
       [key: string]: any;
     };
     message?: string;
