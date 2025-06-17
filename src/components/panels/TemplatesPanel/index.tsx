@@ -130,6 +130,29 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   const [orderedIds, setOrderedIds] = useState<string[]>([]);
 
+  // Get current items for display
+  const getCurrentUserItems = useMemo(() => {
+    let items: (TemplateFolder | Template)[] = [];
+
+    if (!userFolderNav.currentFolder) {
+      // Root level: show all user folders and root templates
+      items = [
+        ...userFolders,
+        // Add root templates (templates not in any folder)
+        ...(userFolders.flatMap((f) => f.templates?.filter((t) => !t.folder_id) || []))
+      ];
+    } else {
+      // Inside a folder: show subfolders and templates
+      const currentFolder = userFolderNav.currentFolder;
+      items = [
+        ...(currentFolder.Folders || []),
+        ...(currentFolder.templates || [])
+      ];
+    }
+
+    return items;
+  }, [userFolders, userFolderNav.currentFolder]);
+
   useEffect(() => {
     const ids = getCurrentUserItems.map((item) =>
       'templates' in item ? `folder-${item.id}` : `template-${item.id}`
@@ -268,28 +291,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     return null;
   }, []);
 
-  // Get current items for display
-  const getCurrentUserItems = useMemo(() => {
-    let items: (TemplateFolder | Template)[] = [];
-    
-    if (!userFolderNav.currentFolder) {
-      // Root level: show all user folders and root templates
-      items = [
-        ...userFolders,
-        // Add root templates (templates not in any folder)
-        ...(userFolders.flatMap(f => f.templates?.filter(t => !t.folder_id) || []))
-      ];
-    } else {
-      // Inside a folder: show subfolders and templates
-      const currentFolder = userFolderNav.currentFolder;
-      items = [
-        ...(currentFolder.Folders || []),
-        ...(currentFolder.templates || [])
-      ];
-    }
-    
-    return items;
-  }, [userFolders, userFolderNav.currentFolder]);
 
   // Pagination helpers
   const paginateItems = useCallback((items: any[], page: number) => {
