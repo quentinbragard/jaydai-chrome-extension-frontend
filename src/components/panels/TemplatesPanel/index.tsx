@@ -10,10 +10,9 @@ import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Import hooks with the new structure
-import { 
-  usePinnedFolders, 
-  useUserFolders, 
-  useUnorganizedTemplates,
+import {
+  usePinnedFolders,
+  useUserFolders,
   useFolderMutations,
   useTemplateMutations,
   useTemplateActions
@@ -62,12 +61,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     refetch: refetchUser
   } = useUserFolders();
 
-  const {
-    data: unorganizedTemplates = [],
-    isLoading: loadingUnorganized,
-    error: unorganizedError,
-    refetch: refetchUnorganized
-  } = useUnorganizedTemplates();
   
   // Get mutations from the hooks
   const { toggleFolderPin, deleteFolder } = useFolderMutations();
@@ -134,25 +127,23 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   
   // Memoize combined loading and error states to prevent unnecessary renders
   const { isLoading, hasError, errorMessage } = useMemo(() => ({
-    isLoading: loadingPinned || loadingUser || loadingUnorganized,
-    hasError: !!pinnedError || !!userError || !!unorganizedError,
-    errorMessage: (pinnedError || userError || unorganizedError)?.message || 'Unknown error'
+    isLoading: loadingPinned || loadingUser,
+    hasError: !!pinnedError || !!userError,
+    errorMessage: (pinnedError || userError)?.message || 'Unknown error'
   }), [
-    loadingPinned, loadingUser, loadingUnorganized,
-    pinnedError, userError, unorganizedError
+    loadingPinned, loadingUser,
+    pinnedError, userError
   ]);
   
   // Memoize isEmpty check to prevent recalculation on every render
   const isEmpty = useMemo(() => (
-    (!pinnedFolders?.official?.length && 
-     !pinnedFolders?.organization?.length && 
-     !userFolders?.length &&
-     !unorganizedTemplates?.length)
+    (!pinnedFolders?.official?.length &&
+     !pinnedFolders?.organization?.length &&
+     !userFolders?.length)
   ), [
     pinnedFolders?.official?.length,
-    pinnedFolders?.organization?.length, 
-    userFolders?.length,
-    unorganizedTemplates?.length
+    pinnedFolders?.organization?.length,
+    userFolders?.length
   ]);
 
   // Handle refresh with loading state - memoized to prevent recreation on render
@@ -160,14 +151,13 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     trackEvent(EVENTS.TEMPLATE_REFRESH);
     try {
       await Promise.all([
-        refetchPinned(), 
-        refetchUser(),
-        refetchUnorganized()
+        refetchPinned(),
+        refetchUser()
       ]);
     } catch (error) {
       console.error('Failed to refresh templates:', error);
     }
-  }, [refetchPinned, refetchUser, refetchUnorganized]);
+  }, [refetchPinned, refetchUser]);
 
   // Template delete handler - works for all templates
   const handleDeleteTemplate = useCallback(
@@ -182,7 +172,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         onConfirm: async () => {
           try {
             await deleteTemplate.mutateAsync(templateId);
-            await Promise.all([refetchUser(), refetchUnorganized()]);
+            await refetchUser();
             return true;
           } catch (error) {
             console.error('Error deleting template:', error);
@@ -191,7 +181,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         },
       });
     },
-    [openConfirmation, deleteTemplate, refetchUser, refetchUnorganized]
+    [openConfirmation, deleteTemplate, refetchUser]
   );
 
   // Folder delete handler
@@ -408,7 +398,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           onCreateTemplate={createTemplate}
           showCreateButton={true}
         >
-          {userFolders?.length || unorganizedTemplates?.length ? (
+          {userFolders?.length ? (
             <>
               {/* Display user folders if any */}
               {userFolders?.length > 0 && (
@@ -424,27 +414,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 />
               )}
               
-              {/* Display unorganized templates section if any */}
-              {unorganizedTemplates?.length > 0 && (
-                <div className="jd-mt-4">
-                  <div className="jd-text-xs jd-font-medium jd-text-muted-foreground jd-mb-1 jd-px-2 jd-flex jd-items-center">
-                    <FolderOpen className="jd-h-3.5 jd-w-3.5 jd-mr-1 jd-text-muted-foreground/70" />
-                    {getMessage('unorganizedTemplates', undefined, 'Unorganized Templates')}
-                  </div>
-                  <div className="jd-space-y-1 jd-mt-2">
-                    {unorganizedTemplates.map((template) => (
-                      <TemplateItem
-                        key={`template-${template.id}`}
-                        template={template}
-                        type="user"
-                        onEditTemplate={handleEditTemplate}
-                        onDeleteTemplate={handleDeleteTemplate}
-                        onUseTemplate={useTemplate}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
             </>
           ) : (
             <div className="jd-p-4 jd-bg-accent/30 jd-border jd-border-[var(--border)] jd-rounded-lg jd-mb-4">

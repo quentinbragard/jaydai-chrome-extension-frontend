@@ -10,8 +10,8 @@ export function useAllFolders() {
   
   return useQuery(QUERY_KEYS.ALL_FOLDERS, async () => {
     const [officialResponse, organizationResponse] = await Promise.all([
-      promptApi.getAllFolders('official', false, userLocale),
-      promptApi.getAllFolders('organization', false, userLocale)
+      promptApi.getFolders('official', true, true, userLocale),
+      promptApi.getFolders('organization', true, true, userLocale)
     ]);
 
     if (!officialResponse.success || !organizationResponse.success) {
@@ -19,8 +19,8 @@ export function useAllFolders() {
     }
 
     return {
-      official: officialResponse.folders as TemplateFolder[],
-      organization: organizationResponse.folders as TemplateFolder[]
+      official: (officialResponse.data.folders.official || []) as TemplateFolder[],
+      organization: (organizationResponse.data.folders.organization || []) as TemplateFolder[]
     };
   }, {
     refetchOnWindowFocus: false,

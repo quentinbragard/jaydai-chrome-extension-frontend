@@ -93,3 +93,37 @@ export function groupFoldersByType(folders: TemplateFolder[]): {
     }
   );
 }
+
+/**
+ * Normalize folder data coming from the API. The backend uses
+ * the property `subfolders` while the frontend expects `Folders`.
+ * This helper recursively converts the structure so existing
+ * components can render nested folders correctly.
+ */
+export function normalizeFolder(folder: any): TemplateFolder {
+  if (!folder || typeof folder !== 'object') {
+    return {} as TemplateFolder;
+  }
+
+  const { subfolders, templates, ...rest } = folder;
+
+  const normalized: TemplateFolder = {
+    ...(rest as TemplateFolder),
+    templates: Array.isArray(templates) ? templates : [],
+    Folders: []
+  };
+
+  if (Array.isArray(subfolders)) {
+    normalized.Folders = subfolders.map(f => normalizeFolder(f));
+  }
+
+  return normalized;
+}
+
+/**
+ * Normalize an array of folders from the API
+ */
+export function normalizeFolders(folders: any[]): TemplateFolder[] {
+  if (!Array.isArray(folders)) return [];
+  return folders.map(f => normalizeFolder(f));
+}
