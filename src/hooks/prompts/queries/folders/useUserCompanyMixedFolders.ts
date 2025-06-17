@@ -1,10 +1,10 @@
-// src/hooks/prompts/queries/folders/useUserFolders.ts
+// src/hooks/prompts/queries/folders/useUserCompanyMixedFolders.ts
 import { useQuery } from 'react-query';
 import { promptApi } from '@/services/api';
 import { toast } from 'sonner';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { QUERY_KEYS } from '@/constants/queryKeys';
-import { TemplateFolder, Template } from '@/types/prompts/templates';
+import { TemplateFolder } from '@/types/prompts/templates';
 
 
 
@@ -37,7 +37,7 @@ export function useCompanyFolders() {
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load company folders');
     }
-    return foldersResponse.data.folders.user || [];
+    return foldersResponse.data.folders.company || [];
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
@@ -56,7 +56,7 @@ export function useMixedFolders() {
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load mixed folders');
     }
-    return foldersResponse.data.folders.user || [];
+    return foldersResponse.data.folders.mixed || [];
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {

@@ -6,8 +6,8 @@ import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 
 interface FolderListProps {
   folders: TemplateFolder[];
-  type: 'official' | 'organization' | 'user';
-  onTogglePin?: (folderId: number, isPinned: boolean) => Promise<void> | void;
+  type: 'official' | 'organization' | 'user' | 'mixed';
+  onTogglePin?: (folderId: number, isPinned: boolean, folderType?: 'official' | 'organization' | 'user') => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
   onUseTemplate?: (template: Template) => void;
   onEditTemplate?: (template: Template) => void;
@@ -67,7 +67,7 @@ const FolderList: React.FC<FolderListProps> = ({
             key={`folder-${folder.id}-${type}`}
             folder={folder}
             type={type}
-            onTogglePin={onTogglePin}
+            onTogglePin={onTogglePin ? ((id, pinned) => onTogglePin(id, pinned, folder.type)) : undefined}
             onDeleteFolder={onDeleteFolder}
             onUseTemplate={onUseTemplate}
             onEditTemplate={onEditTemplate}

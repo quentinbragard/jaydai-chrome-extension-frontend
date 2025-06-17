@@ -13,8 +13,8 @@ const ITEMS_PER_PAGE = 5;
 
 interface FolderItemProps {
   folder: TemplateFolder;
-  type: 'official' | 'organization' | 'user';
-  onTogglePin?: (folderId: number, isPinned: boolean) => Promise<void> | void;
+  type: 'official' | 'organization' | 'user' | 'mixed';
+  onTogglePin?: (folderId: number, isPinned: boolean, folderType?: 'official' | 'organization' | 'user') => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
   onUseTemplate?: (template: Template) => void;
   onEditTemplate?: (template: Template) => void;
@@ -106,7 +106,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
       isPinOperationInProgress.current = true;
       setIsPinned(prevPinned => !prevPinned);
       
-      Promise.resolve(onTogglePin(folder.id, isPinned))
+      Promise.resolve(onTogglePin(folder.id, isPinned, folder.type))
         .catch(err => {
           console.error('Pin operation failed:', err);
           setIsPinned(isPinned);

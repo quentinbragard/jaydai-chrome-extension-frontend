@@ -13,14 +13,17 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import {
   usePinnedFolders,
   useUserFolders,
+  useCompanyFolders,
+  useMixedFolders,
   useFolderMutations,
   useTemplateMutations,
   useTemplateActions
 } from '@/hooks/prompts';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 
-import { 
-  FolderSection 
+import {
+  FolderSection,
+  FolderList
 } from '@/components/prompts/folders';
 
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
@@ -76,12 +79,26 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     refetch: refetchPinned
   } = usePinnedFolders();
   
-  const { 
-    data: userFolders = [], 
+  const {
+    data: userFolders = [],
     isLoading: loadingUser,
     error: userError,
     refetch: refetchUser
   } = useUserFolders();
+
+  const {
+    data: companyFolders = [],
+    isLoading: loadingCompany,
+    error: companyError,
+    refetch: refetchCompany
+  } = useCompanyFolders();
+
+  const {
+    data: mixedFoldersData = [],
+    isLoading: loadingMixed,
+    error: mixedError,
+    refetch: refetchMixed
+  } = useMixedFolders();
 
   console.log("userFolders", userFolders);
 
@@ -93,20 +110,44 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   // Loading and error states
   const { isLoading, hasError, errorMessage } = useMemo(() => ({
-    isLoading: loadingPinned || loadingUser,
-    hasError: !!pinnedError || !!userError,
-    errorMessage: (pinnedError || userError)?.message || 'Unknown error'
-  }), [loadingPinned, loadingUser, pinnedError, userError]);
+    isLoading:
+      loadingPinned ||
+      loadingUser ||
+      loadingCompany ||
+      loadingMixed,
+    hasError:
+      !!pinnedError ||
+      !!userError ||
+      !!companyError ||
+      !!mixedError,
+    errorMessage:
+      (pinnedError || userError || companyError || mixedError)?.message ||
+      'Unknown error'
+  }), [
+    loadingPinned,
+    loadingUser,
+    loadingCompany,
+    loadingMixed,
+    pinnedError,
+    userError,
+    companyError,
+    mixedError
+  ]);
 
   // Refresh handler
   const handleRefresh = useCallback(async () => {
     trackEvent(EVENTS.TEMPLATE_REFRESH);
     try {
-      await Promise.all([refetchPinned(), refetchUser()]);
+      await Promise.all([
+        refetchPinned(),
+        refetchUser(),
+        refetchCompany(),
+        refetchMixed()
+      ]);
     } catch (error) {
       console.error('Failed to refresh templates:', error);
     }
-  }, [refetchPinned, refetchUser]);
+  }, [refetchPinned, refetchUser, refetchCompany, refetchMixed]);
 
   // Navigation handlers
   const handleBrowseMore = useCallback(() => {
@@ -246,10 +287,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }, [editTemplate]);
 
   // Get mixed official + organization folders
-  const mixedFolders = useMemo(() => [
-    ...pinnedFolders.official,
-    ...pinnedFolders.organization
-  ], [pinnedFolders]);
+  const mixedFolders = useMemo(
+    () => mixedFoldersData,
+    [mixedFoldersData]
+  );
 
   // Error handling
   if (hasError) {
@@ -294,6 +335,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   // Get paginated data
   const userItems = paginateItems(getCurrentUserItems, userPage);
+  const companyItems = paginateItems(companyFolders, companyPage);
   const mixedItems = paginateItems(mixedFolders, mixedPage);
 
   return (
@@ -437,12 +479,47 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         <FolderSection
           title={getMessage('companyTemplates', undefined, 'Company Templates')}
           iconType="organization"
-          isEmpty={true} // Always show CTA for now
           showBrowseMore={false}
         >
-          <EmptyMessage>
-            {getMessage('noCompanyAccess', undefined, 'Contact your company admin to access company templates.')}
-          </EmptyMessage>
+          {companyItems.items.length === 0 ? (
+            <EmptyMessage>
+              {getMessage('noCompanyAccess', undefined, 'Contact your company admin to access company templates.')}
+            </EmptyMessage>
+          ) : (
+            <FolderList
+              folders={companyItems.items as TemplateFolder[]}
+              type="organization"
+              onUseTemplate={useTemplate}
+            />
+          )}
+
+          {companyItems.totalPages > 1 && (
+            <div className="jd-flex jd-justify-center jd-mt-2">
+              <div className="jd-flex jd-items-center jd-space-x-1 jd-bg-background/80 jd-border jd-border-border/30 jd-rounded jd-px-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setCompanyPage(p => Math.max(0, p - 1))}
+                  disabled={!companyItems.hasPrev}
+                  className="jd-h-6 jd-w-6"
+                >
+                  <ChevronLeft className="jd-h-4 jd-w-4" />
+                </Button>
+                <span className="jd-text-xs jd-text-muted-foreground jd-px-1">
+                  {companyPage + 1}/{companyItems.totalPages}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setCompanyPage(p => Math.min(companyItems.totalPages - 1, p + 1))}
+                  disabled={!companyItems.hasNext}
+                  className="jd-h-6 jd-w-6"
+                >
+                  <ChevronRight className="jd-h-4 jd-w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </FolderSection>
 
         <Separator />
@@ -482,7 +559,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               {/* Mixed folders display */}
               <div className="jd-space-y-1 jd-px-2">
                 {mixedItems.items.map((folder) => (
-                  <div 
+                  <div
                     key={`mixed-folder-${folder.id}`}
                     className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
                   >
@@ -493,13 +570,13 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                         {folder.templates.length} templates
                       </span>
                     )}
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="jd-opacity-0 group-hover:jd-opacity-100"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const type = pinnedFolders.official.find(f => f.id === folder.id) ? 'official' : 'organization';
+                        const type = (folder as TemplateFolder).type === 'official' ? 'official' : 'organization';
                         toggleFolderPin.mutate({ folderId: folder.id, isPinned: true, type });
                       }}
                     >

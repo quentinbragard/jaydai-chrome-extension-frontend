@@ -18,7 +18,7 @@ import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 
 interface BrowseTemplatesPanelProps {
-  folderType: 'official' | 'organization';
+  folderType: 'official' | 'organization' | 'mixed';
   pinnedFolderIds?: number[];
   onPinChange?: (folderId: number, isPinned: boolean) => Promise<void>;
   onBackToTemplates: () => void;
@@ -51,6 +51,16 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
     error,
     refetch: refetchFolders
   } = useAllFoldersOfType(folderType);
+
+  // Map folder ID to its actual type (official or organization)
+  const folderTypeMap = React.useMemo(() => {
+    const map: Record<number, 'official' | 'organization'> = {};
+    folders.forEach(f => {
+      const t = (f.type === 'official') ? 'official' : 'organization';
+      map[f.id] = t;
+    });
+    return map;
+  }, [folders]);
   
   // Get pinned folders query client for invalidation
   const { refetch: refetchPinnedFolders } = usePinnedFolders();
@@ -82,10 +92,11 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
     
     try {
       // Call the mutation to update the backend
-      await toggleFolderPin.mutateAsync({ 
-        folderId, 
-        isPinned, 
-        type: folderType 
+      const typeToUse = folderType === 'mixed' ? folderTypeMap[folderId] : folderType;
+      await toggleFolderPin.mutateAsync({
+        folderId,
+        isPinned,
+        type: typeToUse as 'official' | 'organization'
       });
       
       // Call the onPinChange prop if provided (after successful backend update)
@@ -104,7 +115,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
         setLocalPinnedIds(prev => prev.filter(id => id !== folderId));
       }
     }
-  }, [toggleFolderPin, folderType, onPinChange, refetchPinnedFolders]);
+  }, [toggleFolderPin, folderType, folderTypeMap, onPinChange, refetchPinnedFolders]);
 
   // Add pinned status to folders using our local state
   const foldersWithPinStatus = React.useMemo(() => {
