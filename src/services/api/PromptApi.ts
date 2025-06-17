@@ -6,7 +6,9 @@ import {
         updatePinnedFolders,
         toggleFolderPin,
         createFolder,
-        deleteFolder
+        deleteFolder,
+        updateFolder,
+        reorderFolders
       } from './prompts/folders';
 import {
         createTemplate,
@@ -14,7 +16,8 @@ import {
         deleteTemplate,
         getUnorganizedTemplates,
         getUserTemplates,
-        trackTemplateUsage
+        trackTemplateUsage,
+        reorderTemplates
       } from './prompts/templates';
 
 /**
@@ -77,6 +80,18 @@ class PromptApiClient {
 
   async trackTemplateUsage(templateId: number): Promise<any> {
     return trackTemplateUsage(templateId);
+  }
+
+  async updateFolder(folderId: number, data: any): Promise<any> {
+    return updateFolder(folderId, data);
+  }
+
+  async reorderFolders(parentId: number | null, ids: number[]): Promise<any> {
+    return reorderFolders(parentId, ids);
+  }
+
+  async reorderTemplates(folderId: number | null, ids: number[]): Promise<any> {
+    return reorderTemplates(folderId, ids);
   }
 
 }

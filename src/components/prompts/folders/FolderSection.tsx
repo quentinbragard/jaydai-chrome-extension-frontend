@@ -10,8 +10,10 @@ interface FolderSectionProps {
   iconType: 'official' | 'organization' | 'user';
   onBrowseMore?: () => void;
   onCreateTemplate?: () => void;
+  onCreateFolder?: () => void;
   showBrowseMore?: boolean;
   showCreateButton?: boolean;
+  showCreateFolderButton?: boolean;
   isEmpty?: boolean;
   children: ReactNode;
 }
@@ -21,8 +23,10 @@ export function FolderSection({
   iconType,
   onBrowseMore,
   onCreateTemplate,
+  onCreateFolder,
   showBrowseMore = false,
   showCreateButton = false,
+  showCreateFolderButton = false,
   isEmpty = false,
   children
 }: FolderSectionProps) {
@@ -127,6 +131,28 @@ export function FolderSection({
               title={getMessage('newTemplate', undefined, 'New Template')}
             >
               <PlusCircle className="jd-h-4 jd-w-4" /> {/* Ensure icon color contrasts */}
+            </Button>
+          )}
+
+          {showCreateFolderButton && onCreateFolder && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onCreateFolder}
+              title={getMessage('newFolder', undefined, 'New Folder')}
+            >
+              <Folder className="jd-h-4 jd-w-4" />
+            </Button>
+          )}
+
+          {onCreateFolder && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => document.dispatchEvent(new CustomEvent('jaydai:toggle-organize'))}
+              title={getMessage('organize', undefined, 'Organize')}
+            >
+              <ChevronDown className="jd-h-4 jd-w-4" />
             </Button>
           )}
         </div>

@@ -213,11 +213,55 @@ export function useTemplateMutations() {
       };
     }
   })();
+
+  // Reorder templates mutation
+  const reorderTemplates = (() => {
+    try {
+      return useMutation(
+        async ({ folderId, ids }: { folderId: number | null; ids: number[] }) => {
+          const response = await promptApi.reorderTemplates(folderId, ids);
+          if (!response.success) {
+            throw new Error(response.message || 'Failed to reorder templates');
+          }
+          return response.data;
+        },
+        {
+          onSuccess: () => {
+            invalidateTemplateQueries();
+          },
+          onError: (error: Error) => {
+            console.error('Error reordering templates:', error);
+            toast.error(`Failed to reorder templates: ${error.message}`);
+          }
+        }
+      );
+    } catch (error) {
+      return {
+        mutateAsync: async ({ folderId, ids }: { folderId: number | null; ids: number[] }) => {
+          try {
+            const response = await promptApi.reorderTemplates(folderId, ids);
+            if (!response.success) {
+              throw new Error(response.message || 'Failed to reorder templates');
+            }
+            return response.data;
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            console.error('Error reordering templates:', error);
+            toast.error(`Failed to reorder templates: ${errorMessage}`);
+            throw error;
+          }
+        },
+        isLoading: false,
+        reset: () => {}
+      };
+    }
+  })();
   
   return {
     createTemplate,
     updateTemplate,
     deleteTemplate,
-    trackTemplateUsage
+    trackTemplateUsage,
+    reorderTemplates
   };
 }

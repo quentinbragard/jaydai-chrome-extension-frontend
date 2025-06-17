@@ -1,5 +1,8 @@
 // src/components/panels/TemplatesPanel/index.tsx
-import React, { useCallback, memo, useMemo, useState } from 'react';
+import React, { useCallback, memo, useMemo, useState, useEffect } from 'react';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -42,6 +45,19 @@ interface FolderNavigation {
   path: { id: number; name: string }[];
   currentFolder: TemplateFolder | null;
 }
+
+const SortableItem: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
+    </div>
+  );
+};
 
 // Pagination constants
 const ITEMS_PER_PAGE = 5;
@@ -103,10 +119,51 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   console.log("userFolders", userFolders);
 
   // Mutations and actions
-  const { toggleFolderPin, deleteFolder } = useFolderMutations();
-  const { deleteTemplate } = useTemplateMutations();
+  const { toggleFolderPin, deleteFolder, reorderFolders } = useFolderMutations();
+  const { deleteTemplate, reorderTemplates } = useTemplateMutations();
   const { useTemplate, createTemplate, editTemplate, createFolderAndTemplate } = useTemplateActions();
   const { openConfirmation } = useDialogActions();
+
+  const [isOrganize, setIsOrganize] = useState(false);
+
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const [orderedIds, setOrderedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const ids = getCurrentUserItems.map((item) =>
+      'templates' in item ? `folder-${item.id}` : `template-${item.id}`
+    );
+    setOrderedIds(ids);
+  }, [getCurrentUserItems]);
+
+  React.useEffect(() => {
+    const toggle = () => setIsOrganize((v) => !v);
+    document.addEventListener('jaydai:toggle-organize', toggle);
+    return () => document.removeEventListener('jaydai:toggle-organize', toggle);
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      setOrderedIds((ids) => {
+        const oldIndex = ids.indexOf(active.id as string);
+        const newIndex = ids.indexOf(over.id as string);
+        const newIds = arrayMove(ids, oldIndex, newIndex);
+        const folderIds = newIds
+          .filter((id) => id.startsWith('folder-'))
+          .map((id) => Number(id.replace('folder-', '')));
+        const templateIds = newIds
+          .filter((id) => id.startsWith('template-'))
+          .map((id) => Number(id.replace('template-', '')));
+        reorderFolders.mutate({ parentId: userFolderNav.currentFolder?.id || null, ids: folderIds });
+        reorderTemplates.mutate({ folderId: userFolderNav.currentFolder?.id || null, ids: templateIds });
+        return newIds;
+      });
+    },
+    [reorderFolders, reorderTemplates, userFolderNav.currentFolder]
+  );
 
   // Loading and error states
   const { isLoading, hasError, errorMessage } = useMemo(() => ({
@@ -355,6 +412,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           iconType="user"
           onCreateTemplate={createTemplate}
           showCreateButton={true}
+          showCreateFolderButton={true}
+          onCreateFolder={createFolderAndTemplate}
         >
           {/* Navigation breadcrumb */}
           {userFolderNav.path.length > 0 && (
@@ -400,45 +459,90 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             <>
               {/* Items display */}
               <div className="jd-space-y-1 jd-px-2">
-                {userItems.items.map((item) => (
-                  'templates' in item ? (
-                    // It's a folder
-                    <div 
-                      key={`folder-${item.id}`}
-                      className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
-                      onClick={() => navigateToFolder(item)}
-                    >
-                      <FolderOpen className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
-                      <span className="jd-text-sm jd-flex-1 jd-truncate">{item.name}</span>
-                      <span className="jd-text-xs jd-text-muted-foreground jd-mr-2">
-                        {((item.Folders?.length || 0) + (item.templates?.length || 0))} items
-                      </span>
-                      <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteFolder(item.id);
-                          }}
+                {isOrganize ? (
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
+                      {userItems.items.map((item) => (
+                        <SortableItem
+                          key={'templates' in item ? `folder-${item.id}` : `template-${item.id}`}
+                          id={'templates' in item ? `folder-${item.id}` : `template-${item.id}`}
                         >
-                          <FileText className="jd-h-4 jd-w-4" />
-                        </Button>
+                          {'templates' in item ? (
+                            <div
+                              className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
+                              onClick={() => navigateToFolder(item)}
+                            >
+                              <FolderOpen className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
+                              <span className="jd-text-sm jd-flex-1 jd-truncate">{item.name}</span>
+                              <span className="jd-text-xs jd-text-muted-foreground jd-mr-2">
+                                {((item.Folders?.length || 0) + (item.templates?.length || 0))} items
+                              </span>
+                              <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteFolder(item.id);
+                                  }}
+                                >
+                                  <FileText className="jd-h-4 jd-w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <TemplateItem
+                              template={item as Template}
+                              type="user"
+                              onUseTemplate={(template) => useTemplate(template)}
+                              onEditTemplate={handleEditTemplate}
+                              onDeleteTemplate={handleDeleteTemplate}
+                            />
+                          )}
+                        </SortableItem>
+                      ))}
+                    </SortableContext>
+                  </DndContext>
+                ) : (
+                  userItems.items.map((item) => (
+                    'templates' in item ? (
+                      <div
+                        key={`folder-${item.id}`}
+                        className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
+                        onClick={() => navigateToFolder(item)}
+                      >
+                        <FolderOpen className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
+                        <span className="jd-text-sm jd-flex-1 jd-truncate">{item.name}</span>
+                        <span className="jd-text-xs jd-text-muted-foreground jd-mr-2">
+                          {((item.Folders?.length || 0) + (item.templates?.length || 0))} items
+                        </span>
+                        <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteFolder(item.id);
+                            }}
+                          >
+                            <FileText className="jd-h-4 jd-w-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    // It's a template
-                    <TemplateItem
-                      key={`template-${item.id}`}
-                      template={item}
-                      type="user"
-                      onUseTemplate={(template) => useTemplate(template)}
-                      onEditTemplate={handleEditTemplate}
-                      onDeleteTemplate={handleDeleteTemplate}
-                    />
-                  )
-                ))}
+                    ) : (
+                      <TemplateItem
+                        key={`template-${item.id}`}
+                        template={item as Template}
+                        type="user"
+                        onUseTemplate={(template) => useTemplate(template)}
+                        onEditTemplate={handleEditTemplate}
+                        onDeleteTemplate={handleDeleteTemplate}
+                      />
+                    )
+                  ))
+                )}
               </div>
 
               {/* User pagination */}
