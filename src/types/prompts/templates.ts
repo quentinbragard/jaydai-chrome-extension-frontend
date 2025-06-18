@@ -71,6 +71,7 @@ export interface Template {
     CREATE_TEMPLATE: 'createTemplate',
     EDIT_TEMPLATE: 'editTemplate',
     CREATE_FOLDER: 'createFolder',
+    FOLDER_MANAGER: 'folderManager',
     SETTINGS: 'settings',
     AUTH: 'auth',
     PLACEHOLDER_EDITOR: 'placeholderEditor',

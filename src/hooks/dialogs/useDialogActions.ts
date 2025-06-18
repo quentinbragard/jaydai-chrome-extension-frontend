@@ -22,6 +22,11 @@ export function useDialogActions() {
     [openDialog]
   );
 
+  const openFolderManager = useCallback(
+    (props?: any) => openDialog(DIALOG_TYPES.FOLDER_MANAGER, props),
+    [openDialog]
+  );
+
   const openAuth = useCallback(
     (props?: any) => openDialog(DIALOG_TYPES.AUTH, props),
     [openDialog]
@@ -57,6 +62,7 @@ export function useDialogActions() {
     openCreateTemplate,
     openEditTemplate,
     openCreateFolder,
+    openFolderManager,
     openAuth,
     openPlaceholderEditor,
     openConfirmation,

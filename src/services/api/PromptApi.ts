@@ -6,7 +6,8 @@ import {
         updatePinnedFolders,
         toggleFolderPin,
         createFolder,
-        deleteFolder
+        deleteFolder,
+        updateFolder
       } from './prompts/folders';
 import {
         createTemplate,
@@ -73,6 +74,10 @@ class PromptApiClient {
 
   async deleteFolder(folderId: number): Promise<{ success: boolean; message?: string; data?: any }> {
     return deleteFolder(folderId);
+  }
+
+  async updateFolder(folderId: number, data: { name?: string; description?: string; parent_id?: number | null }): Promise<any> {
+    return updateFolder(folderId, data);
   }
 
   async trackTemplateUsage(templateId: number): Promise<any> {
