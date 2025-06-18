@@ -28,14 +28,10 @@ interface EnhancedEditablePreviewProps {
 }
 
 export const EnhancedEditablePreview: React.FC<EnhancedEditablePreviewProps> = ({
-  metadata,
-  content,
   blockContentCache,
   isDarkMode,
   finalPromptContent,
   onFinalContentChange,
-  onContentChange, // Kept for backward compatibility but not used
-  onMetadataChange, // Kept for backward compatibility but not used
   className = '',
   title = 'Complete Preview',
   collapsible = false,

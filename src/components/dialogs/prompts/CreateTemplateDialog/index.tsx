@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { getMessage } from '@/core/utils/i18n';
 import { useCreateTemplateDialog } from '@/hooks/dialogs/useCreateTemplateDialog';
 import { TemplateEditorDialog } from '../TemplateEditorDialog';
-import { BasicInfoForm } from './BasicInfoForm';
+import { BasicInfoForm } from '../UnifiedTemplateDialog/BasicInfoForm';
 import { processUserFolders } from '@/utils/prompts/templateUtils';
 import { useUserFolders } from '@/hooks/prompts';
 
