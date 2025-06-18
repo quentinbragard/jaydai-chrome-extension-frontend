@@ -198,6 +198,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
 
             <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto">
               <BasicEditor
+                key={`basic-${activeTab}`}
                 content={content}
                 onContentChange={setContent}
                 mode={mode as any}
@@ -209,6 +210,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
 
             <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
               <AdvancedEditor
+                key={`advanced-${activeTab}`}
                 content={content}
                 onContentChange={setContent}
                 isProcessing={false}

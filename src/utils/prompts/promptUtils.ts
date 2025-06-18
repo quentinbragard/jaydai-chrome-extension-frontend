@@ -117,45 +117,37 @@ export function formatBlockForPreview(block: Block): string {
 }
 
 // Enhanced function to build complete prompt from metadata and blocks
-export function buildCompletePrompt(metadata: PromptMetadata, content = ''): string {
+export function buildCompletePrompt(
+  metadata: PromptMetadata,
+  content = '',
+  blockContentMap: Record<number, string> = {}
+): string {
+  const resolved = resolveMetadataWithMap(metadata, blockContentMap);
   const parts: string[] = [];
 
-  console.log('metadataaaaaaaa', metadata);
-  console.log('contentaaaaaaa', content);
+  const singleTypes: SingleMetadataType[] = [
+    'role',
+    'context',
+    'goal',
+    'audience',
+    'output_format',
+    'tone_style'
+  ];
 
-  // Add single metadata values
-  PRIMARY_METADATA.forEach(type => {
-    console.log('type', type);
-    if (!isMultipleMetadataType(type)) {
-      const singleType = type as SingleMetadataType;
-      const blockId = metadata[singleType];
-      const value = blockId ? getBlockContent(blockId) : '';
-      console.log('value', value);
-      console.log("singleType", singleType);
-      if (value?.trim()) {
-        parts.push(formatMetadataForPrompt(singleType, value));
-      }
+  singleTypes.forEach(type => {
+    const value = resolved.values?.[type];
+    if (value?.trim()) {
+      parts.push(formatMetadataForPrompt(type, value));
     }
   });
 
-  SECONDARY_METADATA.forEach(type => {
-    if (!isMultipleMetadataType(type)) {
-      const singleType = type as SingleMetadataType;
-      const value = metadata.values?.[singleType];
-      if (value?.trim()) {
-        parts.push(formatMetadataForPrompt(singleType, value));
-      }
-    }
-  });
-
-  // Add multiple metadata values
-  if (metadata.constraints && metadata.constraints.length > 0) {
-    const constraintTexts = formatMultipleMetadataForPrompt('constraint', metadata.constraints);
+  if (resolved.constraints && resolved.constraints.length > 0) {
+    const constraintTexts = formatMultipleMetadataForPrompt('constraint', resolved.constraints);
     parts.push(...constraintTexts);
   }
 
-  if (metadata.examples && metadata.examples.length > 0) {
-    const exampleTexts = formatMultipleMetadataForPrompt('example', metadata.examples);
+  if (resolved.examples && resolved.examples.length > 0) {
+    const exampleTexts = formatMultipleMetadataForPrompt('example', resolved.examples);
     parts.push(...exampleTexts);
   }
 
@@ -164,6 +156,48 @@ export function buildCompletePrompt(metadata: PromptMetadata, content = ''): str
   }
 
   return parts.filter(Boolean).join('\n\n');
+}
+
+function resolveMetadataWithMap(
+  metadata: PromptMetadata,
+  map: Record<number, string>
+): PromptMetadata {
+  const resolved: PromptMetadata = {
+    ...metadata,
+    values: { ...(metadata.values || {}) }
+  };
+
+  const singleTypes: SingleMetadataType[] = [
+    'role',
+    'context',
+    'goal',
+    'audience',
+    'output_format',
+    'tone_style'
+  ];
+
+  singleTypes.forEach(type => {
+    const blockId = metadata[type];
+    if (blockId && map[blockId]) {
+      resolved.values![type] = map[blockId];
+    }
+  });
+
+  if (metadata.constraints) {
+    resolved.constraints = metadata.constraints.map(item => ({
+      ...item,
+      value: item.blockId && map[item.blockId] ? map[item.blockId] : item.value
+    }));
+  }
+
+  if (metadata.examples) {
+    resolved.examples = metadata.examples.map(item => ({
+      ...item,
+      value: item.blockId && map[item.blockId] ? map[item.blockId] : item.value
+    }));
+  }
+
+  return resolved;
 }
 
 // Enhanced function to build HTML preview
