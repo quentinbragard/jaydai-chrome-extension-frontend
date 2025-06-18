@@ -1,6 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx
 import React, { useCallback, memo, useMemo, useState } from 'react';
-import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
+import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -27,6 +27,7 @@ import {
 } from '@/components/prompts/folders';
 
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
 import { Template, TemplateFolder } from '@/types/prompts/templates';
@@ -43,8 +44,8 @@ interface FolderNavigation {
   currentFolder: TemplateFolder | null;
 }
 
-// Pagination constants
-const ITEMS_PER_PAGE = 5;
+// Load more constants
+const ITEMS_PER_LOAD = 20;
 
 /**
  * Updated TemplatesPanel with new structure:
@@ -66,10 +67,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     currentFolder: null
   });
   
-  // Pagination states
-  const [userPage, setUserPage] = useState(0);
-  const [companyPage, setCompanyPage] = useState(0);
-  const [mixedPage, setMixedPage] = useState(0);
+  // Visible item counts for load-more behavior
+  const [userVisibleCount, setUserVisibleCount] = useState(ITEMS_PER_LOAD);
+  const [companyVisibleCount, setCompanyVisibleCount] = useState(ITEMS_PER_LOAD);
+  const [mixedVisibleCount, setMixedVisibleCount] = useState(ITEMS_PER_LOAD);
 
   // Data fetching
   const { 
@@ -175,7 +176,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       path: [...prev.path, { id: folder.id, name: folder.name }],
       currentFolder: folder
     }));
-    setUserPage(0); // Reset pagination when navigating
+    setUserVisibleCount(ITEMS_PER_LOAD); // Reset visible items when navigating
   }, []);
 
   const navigateBack = useCallback(() => {
@@ -191,12 +192,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         currentFolder: newCurrentFolder
       };
     });
-    setUserPage(0);
+    setUserVisibleCount(ITEMS_PER_LOAD);
   }, [userFolders]);
 
   const navigateToRoot = useCallback(() => {
     setUserFolderNav({ path: [], currentFolder: null });
-    setUserPage(0);
+    setUserVisibleCount(ITEMS_PER_LOAD);
   }, []);
 
   // Helper function to find folder by ID
@@ -234,15 +235,11 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     return items;
   }, [userFolders, userFolderNav.currentFolder]);
 
-  // Pagination helpers
-  const paginateItems = useCallback((items: any[], page: number) => {
-    const startIdx = page * ITEMS_PER_PAGE;
-    const endIdx = startIdx + ITEMS_PER_PAGE;
+  // Helper to slice items based on visible count
+  const getVisibleItems = useCallback((items: any[], count: number) => {
     return {
-      items: items.slice(startIdx, endIdx),
-      totalPages: Math.ceil(items.length / ITEMS_PER_PAGE),
-      hasNext: endIdx < items.length,
-      hasPrev: page > 0
+      items: items.slice(0, count),
+      hasMore: items.length > count
     };
   }, []);
 
@@ -333,10 +330,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     );
   }
 
-  // Get paginated data
-  const userItems = paginateItems(getCurrentUserItems, userPage);
-  const companyItems = paginateItems(companyFolders, companyPage);
-  const mixedItems = paginateItems(mixedFolders, mixedPage);
+  // Get visible data
+  const userItems = getVisibleItems(getCurrentUserItems, userVisibleCount);
+  const companyItems = getVisibleItems(companyFolders, companyVisibleCount);
+  const mixedItems = getVisibleItems(mixedFolders, mixedVisibleCount);
 
   return (
     <BasePanel
@@ -399,74 +396,60 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           ) : (
             <>
               {/* Items display */}
-              <div className="jd-space-y-1 jd-px-2">
-                {userItems.items.map((item) => (
-                  'templates' in item ? (
-                    // It's a folder
-                    <div 
-                      key={`folder-${item.id}`}
-                      className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
-                      onClick={() => navigateToFolder(item)}
-                    >
-                      <FolderOpen className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
-                      <span className="jd-text-sm jd-flex-1 jd-truncate">{item.name}</span>
-                      <span className="jd-text-xs jd-text-muted-foreground jd-mr-2">
-                        {((item.Folders?.length || 0) + (item.templates?.length || 0))} items
-                      </span>
-                      <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteFolder(item.id);
-                          }}
-                        >
-                          <FileText className="jd-h-4 jd-w-4" />
-                        </Button>
+              <ScrollArea className="jd-max-h-60">
+                <div className="jd-space-y-1 jd-px-2">
+                  {userItems.items.map((item) => (
+                    'templates' in item ? (
+                      // It's a folder
+                      <div
+                        key={`folder-${item.id}`}
+                        className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
+                        onClick={() => navigateToFolder(item)}
+                      >
+                        <FolderOpen className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
+                        <span className="jd-text-sm jd-flex-1 jd-truncate">{item.name}</span>
+                        <span className="jd-text-xs jd-text-muted-foreground jd-mr-2">
+                          {((item.Folders?.length || 0) + (item.templates?.length || 0))} items
+                        </span>
+                        <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteFolder(item.id);
+                            }}
+                          >
+                            <FileText className="jd-h-4 jd-w-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    // It's a template
-                    <TemplateItem
-                      key={`template-${item.id}`}
-                      template={item}
-                      type="user"
-                      onUseTemplate={(template) => useTemplate(template)}
-                      onEditTemplate={handleEditTemplate}
-                      onDeleteTemplate={handleDeleteTemplate}
-                    />
-                  )
-                ))}
-              </div>
+                    ) : (
+                      // It's a template
+                      <TemplateItem
+                        key={`template-${item.id}`}
+                        template={item}
+                        type="user"
+                        onUseTemplate={(template) => useTemplate(template)}
+                        onEditTemplate={handleEditTemplate}
+                        onDeleteTemplate={handleDeleteTemplate}
+                      />
+                    )
+                  ))}
+                </div>
+              </ScrollArea>
 
-              {/* User pagination */}
-              {userItems.totalPages > 1 && (
+              {/* Load more */}
+              {userItems.hasMore && (
                 <div className="jd-flex jd-justify-center jd-mt-2">
-                  <div className="jd-flex jd-items-center jd-space-x-1 jd-bg-background/80 jd-border jd-border-border/30 jd-rounded jd-px-1">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => setUserPage(p => Math.max(0, p - 1))}
-                      disabled={!userItems.hasPrev}
-                      className="jd-h-6 jd-w-6"
-                    >
-                      <ChevronLeft className="jd-h-4 jd-w-4" />
-                    </Button>
-                    <span className="jd-text-xs jd-text-muted-foreground jd-px-1">
-                      {userPage + 1}/{userItems.totalPages}
-                    </span>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => setUserPage(p => Math.min(userItems.totalPages - 1, p + 1))}
-                      disabled={!userItems.hasNext}
-                      className="jd-h-6 jd-w-6"
-                    >
-                      <ChevronRight className="jd-h-4 jd-w-4" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setUserVisibleCount((c) => c + ITEMS_PER_LOAD)}
+                  >
+                    Load more
+                  </Button>
                 </div>
               )}
             </>
@@ -486,38 +469,24 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               {getMessage('noCompanyAccess', undefined, 'Contact your company admin to access company templates.')}
             </EmptyMessage>
           ) : (
-            <FolderList
-              folders={companyItems.items as TemplateFolder[]}
-              type="organization"
-              onUseTemplate={useTemplate}
-            />
+            <ScrollArea className="jd-max-h-60">
+              <FolderList
+                folders={companyItems.items as TemplateFolder[]}
+                type="organization"
+                onUseTemplate={useTemplate}
+              />
+            </ScrollArea>
           )}
 
-          {companyItems.totalPages > 1 && (
+          {companyItems.hasMore && (
             <div className="jd-flex jd-justify-center jd-mt-2">
-              <div className="jd-flex jd-items-center jd-space-x-1 jd-bg-background/80 jd-border jd-border-border/30 jd-rounded jd-px-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setCompanyPage(p => Math.max(0, p - 1))}
-                  disabled={!companyItems.hasPrev}
-                  className="jd-h-6 jd-w-6"
-                >
-                  <ChevronLeft className="jd-h-4 jd-w-4" />
-                </Button>
-                <span className="jd-text-xs jd-text-muted-foreground jd-px-1">
-                  {companyPage + 1}/{companyItems.totalPages}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setCompanyPage(p => Math.min(companyItems.totalPages - 1, p + 1))}
-                  disabled={!companyItems.hasNext}
-                  className="jd-h-6 jd-w-6"
-                >
-                  <ChevronRight className="jd-h-4 jd-w-4" />
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCompanyVisibleCount((c) => c + ITEMS_PER_LOAD)}
+              >
+                Load more
+              </Button>
             </div>
           )}
         </FolderSection>
@@ -557,8 +526,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           ) : (
             <>
               {/* Mixed folders display */}
-              <div className="jd-space-y-1 jd-px-2">
-                {mixedItems.items.map((folder) => (
+              <ScrollArea className="jd-max-h-60">
+                <div className="jd-space-y-1 jd-px-2">
+                  {mixedItems.items.map((folder) => (
                   <div
                     key={`mixed-folder-${folder.id}`}
                     className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
@@ -584,34 +554,19 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                     </Button>
                   </div>
                 ))}
-              </div>
+                </div>
+              </ScrollArea>
 
-              {/* Mixed pagination */}
-              {mixedItems.totalPages > 1 && (
+              {/* Load more */}
+              {mixedItems.hasMore && (
                 <div className="jd-flex jd-justify-center jd-mt-2">
-                  <div className="jd-flex jd-items-center jd-space-x-1 jd-bg-background/80 jd-border jd-border-border/30 jd-rounded jd-px-1">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => setMixedPage(p => Math.max(0, p - 1))}
-                      disabled={!mixedItems.hasPrev}
-                      className="jd-h-6 jd-w-6"
-                    >
-                      <ChevronLeft className="jd-h-4 jd-w-4" />
-                    </Button>
-                    <span className="jd-text-xs jd-text-muted-foreground jd-px-1">
-                      {mixedPage + 1}/{mixedItems.totalPages}
-                    </span>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => setMixedPage(p => Math.min(mixedItems.totalPages - 1, p + 1))}
-                      disabled={!mixedItems.hasNext}
-                      className="jd-h-6 jd-w-6"
-                    >
-                      <ChevronRight className="jd-h-4 jd-w-4" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setMixedVisibleCount((c) => c + ITEMS_PER_LOAD)}
+                  >
+                    Load more
+                  </Button>
                 </div>
               )}
             </>
