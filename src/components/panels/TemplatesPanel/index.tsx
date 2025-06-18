@@ -23,7 +23,8 @@ import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 
 import {
   FolderSection,
-  FolderList
+  FolderList,
+  FolderSearch
 } from '@/components/prompts/folders';
 
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
@@ -62,6 +63,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     path: [],
     currentFolder: null
   });
+
+  // Search query state
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Data fetching
   const { 
@@ -270,6 +274,42 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     [mixedFoldersData]
   );
 
+  // Flatten folders recursively to collect all items for search
+  const flattenFolders = useCallback((folders: TemplateFolder[]): (TemplateFolder | Template)[] => {
+    const result: (TemplateFolder | Template)[] = [];
+    folders.forEach(folder => {
+      if (!folder) return;
+      result.push(folder);
+      if (folder.templates) {
+        result.push(...folder.templates);
+      }
+      if (folder.Folders) {
+        result.push(...flattenFolders(folder.Folders));
+      }
+    });
+    return result;
+  }, []);
+
+  // Compute search results across all folders and templates
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [] as (TemplateFolder | Template)[];
+    const query = searchQuery.toLowerCase();
+    const allItems: (TemplateFolder | Template)[] = [
+      ...flattenFolders(userFolders),
+      ...flattenFolders(companyFolders),
+      ...flattenFolders(mixedFolders)
+    ];
+    return allItems.filter(item => {
+      if ('title' in item) {
+        return (
+          item.title?.toLowerCase().includes(query) ||
+          item.description?.toLowerCase().includes(query)
+        );
+      }
+      return item.name?.toLowerCase().includes(query);
+    });
+  }, [searchQuery, userFolders, companyFolders, mixedFolders, flattenFolders]);
+
   // Error handling
   if (hasError) {
     return (
@@ -325,8 +365,45 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       onClose={onClose}
       className="w-80"
     >
-      <div className="jd-space-y-4">
-        
+      <FolderSearch
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        placeholderText="Search templates..."
+        onReset={() => setSearchQuery('')}
+      />
+
+      {searchQuery ? (
+        <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
+          {searchResults.length === 0 ? (
+            <EmptyMessage>
+              {`No items matching "${searchQuery}"`}
+            </EmptyMessage>
+          ) : (
+            searchResults.map(item => (
+              'title' in item ? (
+                <TemplateItem
+                  key={`search-template-${item.id}`}
+                  template={item}
+                  type={item.type as 'official' | 'organization' | 'user'}
+                  onUseTemplate={useTemplate}
+                  onEditTemplate={handleEditTemplate}
+                  onDeleteTemplate={handleDeleteTemplate}
+                />
+              ) : (
+                <div
+                  key={`search-folder-${item.id}`}
+                  className="jd-flex jd-items-center jd-p-2 jd-rounded-sm jd-bg-accent/50"
+                >
+                  <FolderOpen className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
+                  <span className="jd-text-sm jd-flex-1 jd-truncate">{item.name}</span>
+                </div>
+              )
+            ))
+          )}
+        </div>
+      ) : (
+        <div className="jd-space-y-4">
+
         {/* User Templates and Folders Section */}
         <FolderSection
           title={getMessage('myTemplates', undefined, 'My Templates')}
@@ -512,6 +589,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           )}
         </FolderSection>
       </div>
+      )}
     </BasePanel>
   );
 };
