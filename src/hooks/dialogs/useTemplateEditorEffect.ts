@@ -18,8 +18,7 @@ export function useTemplateEditorEffects() {
       
       try {
         if (state.dialog.mode === 'customize' || state.dialog.mode === 'edit') {
-          // Load existing template data
-          const templateId = (state as any).templateId; // This would come from dialog data
+          const templateId = state.dialog.template?.id;
           if (templateId) {
             const data = await TemplateEditorService.loadTemplate(templateId);
             
