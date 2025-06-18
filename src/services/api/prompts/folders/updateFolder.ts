@@ -5,7 +5,7 @@ import { apiClient } from "@/services/api/ApiClient";
  */
 export async function updateFolder(
   folderId: number,
-  data: { name?: string; description?: string; parent_id?: number | null }
+  data: { title?: string; description?: string; parent_folder_id?: number | null }
 ): Promise<{ success: boolean; message?: string; data?: any }> {
   try {
     const response = await apiClient.request(`/prompts/folders/${folderId}`, {

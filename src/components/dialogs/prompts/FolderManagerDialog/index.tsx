@@ -18,7 +18,7 @@ interface FolderManagerData {
 
 export const FolderManagerDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.FOLDER_MANAGER);
-  const [name, setName] = useState('');
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [parentId, setParentId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,7 +29,7 @@ export const FolderManagerDialog: React.FC = () => {
 
   useEffect(() => {
     if (isOpen && folder) {
-      setName(folder.name || '');
+      setTitle(folder.title || '');
       setDescription(folder.description || '');
       setParentId(folder.parent_id ?? null);
       setIsSubmitting(false);
@@ -44,14 +44,14 @@ export const FolderManagerDialog: React.FC = () => {
     setIsSubmitting(true);
     try {
       const res = await promptApi.updateFolder(folder.id, {
-        name,
+        title,
         description,
         parent_id: parentId
       });
       if (res.success) {
         toast.success('Folder updated');
         if (dialogData.onUpdated) {
-          dialogData.onUpdated({ ...folder, name, description, parent_id: parentId });
+          dialogData.onUpdated({ ...folder, title, description, parent_folder_id: parentId });
         }
         dialogProps.onOpenChange(false);
       } else {
@@ -76,7 +76,7 @@ export const FolderManagerDialog: React.FC = () => {
       <form onSubmit={handleSave} className="jd-space-y-4 jd-mt-4">
         <div>
           <label className="jd-text-sm jd-font-medium">Name</label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} className="jd-mt-1" />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} className="jd-mt-1" />
         </div>
         <div>
           <label className="jd-text-sm jd-font-medium">Description</label>
@@ -97,7 +97,7 @@ export const FolderManagerDialog: React.FC = () => {
               <SelectItem value="root">None</SelectItem>
 
               {folders.filter(f => f.id !== folder.id).map(f => (
-                <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>
+                <SelectItem key={f.id} value={String(f.id)}>{f.title}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -106,7 +106,7 @@ export const FolderManagerDialog: React.FC = () => {
           <Button type="button" variant="outline" onClick={() => dialogProps.onOpenChange(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting || !name.trim()}>Save</Button>
+          <Button type="submit" disabled={isSubmitting || !title.trim()}>Save</Button>
         </div>
       </form>
     </BaseDialog>
