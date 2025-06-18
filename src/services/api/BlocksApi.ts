@@ -29,6 +29,23 @@ interface ApiResponse<T = any> {
 
 class BlocksApiClient {
   /**
+   * Get all blocks
+   */
+  async getBlocks(): Promise<ApiResponse<Block[]>> {
+    try {
+      const response = await apiClient.request('/prompts/blocks');
+      return response;
+    } catch (error) {
+      console.error('Error fetching blocks:', error);
+      return {
+        success: false,
+        data: [],
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
    * Get all blocks of a specific type
    */
   async getBlocksByType(type: BlockType): Promise<ApiResponse<Block[]>> {
