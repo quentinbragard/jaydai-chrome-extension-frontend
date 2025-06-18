@@ -84,12 +84,18 @@ export const FolderManagerDialog: React.FC = () => {
         </div>
         <div>
           <label className="jd-text-sm jd-font-medium">Parent Folder</label>
-          <Select value={parentId ? String(parentId) : ''} onValueChange={(val) => setParentId(val ? parseInt(val) : null)}>
+          <Select
+            value={parentId !== null ? String(parentId) : 'root'}
+            onValueChange={(val) =>
+              setParentId(val === 'root' ? null : parseInt(val))
+            }
+          >
             <SelectTrigger className="jd-mt-1">
               <SelectValue placeholder="None" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">None</SelectItem>
+              <SelectItem value="root">None</SelectItem>
+
               {folders.filter(f => f.id !== folder.id).map(f => (
                 <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>
               ))}
