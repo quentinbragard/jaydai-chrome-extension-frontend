@@ -36,7 +36,7 @@ import {
   getBlockTypeIcon
 } from '@/utils/prompts/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { useTemplateEditor } from '@/components/dialogs/prompts/TemplateEditorDialog/TemplateEditorContext';
+import { useTemplateEditor } from '@/core/contexts/TemplateEditorContext';
 import {
   updateSingleMetadata,
   addMetadataItem,

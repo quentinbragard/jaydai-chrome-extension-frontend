@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
 import { Eye, EyeOff, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
+import { useTemplateEditor } from '@/core/contexts/TemplateEditorContext';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';

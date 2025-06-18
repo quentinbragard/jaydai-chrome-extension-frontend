@@ -15,7 +15,7 @@ import {
   MultipleMetadataType, 
   MetadataItem
 } from '@/types/prompts/metadata';
-import { TemplateEditorProvider } from './TemplateEditorContext';
+import { TemplateEditorProvider } from '@/core/contexts/TemplateEditorContext';
 
 interface TemplateEditorDialogProps {
   // State from base hook
