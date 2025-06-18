@@ -32,8 +32,8 @@ export function useDialogActions() {
     [openDialog]
   );
 
-  const openPlaceholderEditor = useCallback(
-    (props?: any) => openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, props),
+  const openUnifiedTemplate = useCallback(
+    (props?: any) => openDialog(DIALOG_TYPES.UNIFIED_TEMPLATE, props),
     [openDialog]
   );
 
@@ -64,7 +64,7 @@ export function useDialogActions() {
     openCreateFolder,
     openFolderManager,
     openAuth,
-    openPlaceholderEditor,
+    openUnifiedTemplate,
     openConfirmation,
     openEnhancedStats,
     openCreateBlock,

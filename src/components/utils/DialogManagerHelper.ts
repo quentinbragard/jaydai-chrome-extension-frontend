@@ -130,12 +130,12 @@ export class DialogManagerHelper {
   /**
    * Open the placeholder editor dialog for a template
    */
-  public openPlaceholderEditor(
+  public openUnifiedTemplate(
     templateContent: string, 
     templateTitle: string = 'Template', 
     onComplete?: (finalContent: string) => void
   ): Promise<boolean> {
-    return this.openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
+    return this.openDialog(DIALOG_TYPES.UNIFIED_TEMPLATE, {
       content: templateContent,
       title: templateTitle,
       onComplete: onComplete || (() => {})

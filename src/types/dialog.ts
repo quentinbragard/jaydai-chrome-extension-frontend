@@ -12,7 +12,7 @@ export const DIALOG_TYPES = {
   EDIT_TEMPLATE: 'editTemplate',
   CREATE_FOLDER: 'createFolder',
   FOLDER_MANAGER: 'folderManager',
-  PLACEHOLDER_EDITOR: 'placeholderEditor',
+  UNIFIED_TEMPLATE: 'unifiedTemplate',
   AUTH: 'auth',
   CONFIRMATION: 'confirmation'
 } as const;
@@ -60,7 +60,7 @@ export interface AuthDialogData {
 /**
  * Placeholder editor dialog data
  */
-export interface PlaceholderEditorData {
+export interface UnifiedTemplateDialogData {
   content: string;
   title?: string;
   onComplete: (modifiedContent: string) => void;
@@ -72,6 +72,7 @@ export interface PlaceholderEditorData {
 export interface FolderDialogData {
   onSaveFolder: (folderData: { name: string; path: string; description: string }) => Promise<any>;
   onFolderCreated?: (folder: any) => void;
+  userFolders?: any[];
 }
 
 export interface FolderManagerData {
