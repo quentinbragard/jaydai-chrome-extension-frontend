@@ -10,9 +10,24 @@ export const AdvancedEditor: React.FC = () => {
 
   return (
     <div className="jd-h-full jd-flex jd-flex-col jd-space-y-6">
-      <MetadataSection />
-      <ContentSection />
-      <PreviewSection />
+      <MetadataSection availableMetadataBlocks={state.blocks.availableMetadataBlocks} />
+      <ContentSection
+        blocks={[]}
+        availableBlocksByType={state.blocks.availableBlocksByType}
+        draggedBlockId={null}
+        onAddBlock={() => {}}
+        onRemoveBlock={() => {}}
+        onUpdateBlock={() => {}}
+        onDragStart={() => {}}
+        onDragOver={() => {}}
+        onDragEnd={() => {}}
+        onBlockSaved={() => {}}
+      />
+      <PreviewSection
+        content={state.content.content}
+        expanded={false}
+        onToggle={() => {}}
+      />
     </div>
   );
 };
