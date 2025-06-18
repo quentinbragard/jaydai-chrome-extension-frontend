@@ -1,11 +1,6 @@
-// src/hooks/prompts/editors/useBasicEditorLogic.tsx
-import { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  highlightPlaceholders,
-  extractPlaceholders,
-  replacePlaceholders
-} from '@/utils/templates/placeholderUtils';
-import { htmlToPlainText } from '@/utils/templates/htmlUtils';
+// src/hooks/prompts/editors/useBasicEditorLogic.ts
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { extractPlaceholders, replacePlaceholders } from '@/utils/templates/placeholderUtils';
 
 interface Placeholder {
   key: string;
@@ -23,185 +18,90 @@ export function useBasicEditorLogic({
   onContentChange,
   mode
 }: UseBasicEditorLogicProps) {
-  // State
+  // Core state
   const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
-  const [modifiedContent, setModifiedContent] = useState('');
-  const [contentMounted, setContentMounted] = useState(false);
+  const [modifiedContent, setModifiedContent] = useState(content);
   const [isEditing, setIsEditing] = useState(false);
+  const [contentMounted, setContentMounted] = useState(false);
 
-  // Refs
+  // Refs for DOM elements
   const editorRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<MutationObserver | null>(null);
   const inputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const activeInputIndex = useRef<number | null>(null);
-  const initialContentRef = useRef('');
+
+  // Track pending changes that need to be committed
+  const pendingChangesRef = useRef<string | null>(null);
+  const lastCommittedContentRef = useRef(content);
 
   // Initialize content and placeholders
   useEffect(() => {
-    const normalizedContent = content ? content.replace(/\r\n/g, '\n') : '';
-
+    setModifiedContent(content);
+    lastCommittedContentRef.current = content;
+    
     if (mode === 'customize') {
-      // For customize mode, extract placeholders and set up highlighting
-      if (initialContentRef.current === '' && normalizedContent) {
-        initialContentRef.current = normalizedContent;
-      }
-      
-      if (modifiedContent !== normalizedContent) {
-        setModifiedContent(normalizedContent);
-      }
-      
-      if (placeholders.length === 0 && normalizedContent) {
-        const extracted = extractPlaceholders(normalizedContent);
-        setPlaceholders(extracted);
-      }
-    } else {
-      // For create mode, just set the content
-      if (!contentMounted) {
-        setModifiedContent(normalizedContent);
-        if (!initialContentRef.current && normalizedContent) {
-          initialContentRef.current = normalizedContent;
-        }
-      } else if (!isEditing && modifiedContent !== normalizedContent) {
-        setModifiedContent(normalizedContent);
-      }
+      const extracted = extractPlaceholders(content);
+      const uniqueKeys = Array.from(new Set(extracted.map(p => p.key)));
+      setPlaceholders(uniqueKeys.map(key => ({ key, value: '' })));
     }
+    
+    setContentMounted(true);
+  }, [content, mode]);
 
-    // Update editor display
+  // Commit pending changes function
+  const commitPendingChanges = useCallback(() => {
+    if (pendingChangesRef.current !== null && pendingChangesRef.current !== lastCommittedContentRef.current) {
+      onContentChange(pendingChangesRef.current);
+      lastCommittedContentRef.current = pendingChangesRef.current;
+      pendingChangesRef.current = null;
+    }
+  }, [onContentChange]);
+
+  // Update content with debouncing and change tracking
+  const updateContentInternal = useCallback((newContent: string) => {
+    setModifiedContent(newContent);
+    pendingChangesRef.current = newContent;
+    
+    // Debounced commit
     const timeoutId = setTimeout(() => {
-      if (editorRef.current) {
-        if (mode === 'customize') {
-          if (!contentMounted) {
-            editorRef.current.innerHTML = highlightPlaceholders(normalizedContent);
-          }
-        } else {
-          if (!contentMounted) {
-            editorRef.current.innerHTML = normalizedContent.replace(/\n/g, '<br>');
-          } else if (!isEditing && editorRef.current.innerText !== normalizedContent) {
-            editorRef.current.innerHTML = normalizedContent.replace(/\n/g, '<br>');
-          }
-        }
-
-        if (!contentMounted) {
-          setContentMounted(true);
-        }
-      }
-    }, 0);
-
+      commitPendingChanges();
+    }, 500);
+    
     return () => clearTimeout(timeoutId);
-  }, [content, mode, contentMounted, isEditing, modifiedContent, placeholders.length]);
+  }, [commitPendingChanges]);
 
-  // Setup mutation observer for customize mode
-  useEffect(() => {
-    if (!contentMounted || !editorRef.current || mode === 'create') {
-      if (observerRef.current) observerRef.current.disconnect();
-      return;
-    }
-
-    observerRef.current = new MutationObserver(() => {
-      if (isEditing || !editorRef.current) return;
-
-      const htmlContent = editorRef.current.innerHTML;
-      const textContent = htmlToPlainText(htmlContent);
-      
-      if (modifiedContent !== textContent) {
-        setModifiedContent(textContent);
-
-        if (mode === 'customize') {
-          const extracted = extractPlaceholders(textContent);
-          const oldKeys = placeholders.map(p => p.key).join();
-          const newKeys = extracted.map(p => p.key).join();
-          if (oldKeys !== newKeys) {
-            setPlaceholders(extracted);
-          }
-        }
-        
-        onContentChange(textContent);
-      }
-    });
-
-    observerRef.current.observe(editorRef.current, { 
-      childList: true, 
-      subtree: true, 
-      characterData: true,
-      attributes: false 
-    });
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-        observerRef.current = null;
-      }
-    };
-  }, [contentMounted, onContentChange, mode, isEditing, modifiedContent, placeholders]);
-
-  // Event handlers
+  //  editor event handlers
   const handleEditorFocus = useCallback(() => {
     setIsEditing(true);
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
   }, []);
 
   const handleEditorBlur = useCallback(() => {
     setIsEditing(false);
+    // Commit changes when losing focus
+    setTimeout(commitPendingChanges, 100);
+  }, [commitPendingChanges]);
+
+  const handleEditorInput = useCallback(() => {
     if (editorRef.current) {
-      const htmlContent = editorRef.current.innerHTML;
-      const textContent = htmlToPlainText(htmlContent);
-      
-      setModifiedContent(textContent);
+      const newContent = editorRef.current.textContent || '';
+      updateContentInternal(newContent);
+    }
+  }, [updateContentInternal]);
 
-      if (mode === 'customize') {
-        const extracted = extractPlaceholders(textContent);
-        setPlaceholders(extracted);
-      }
-      
-      onContentChange(textContent);
-
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-      
-      if (mode === 'customize') {
-        editorRef.current.innerHTML = highlightPlaceholders(textContent);
-        if (observerRef.current && editorRef.current) {
-          observerRef.current.observe(editorRef.current, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-            attributes: false
-          });
+  const handleEditorKeyDown = useCallback((e: React.KeyboardEvent) => {
+    e.stopPropagation();
+    
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      // Focus next placeholder input if available
+      if (activeInputIndex.current !== null) {
+        const nextIndex = activeInputIndex.current + 1;
+        const nextInput = inputRefs.current[nextIndex];
+        if (nextInput) {
+          nextInput.focus();
+          activeInputIndex.current = nextIndex;
         }
       }
     }
-  }, [onContentChange, mode]);
-
-  const handleEditorInput = useCallback(() => {
-    if (!editorRef.current) return;
-
-    const currentHtml = editorRef.current.innerHTML;
-    const textContent = htmlToPlainText(currentHtml);
-    
-    setModifiedContent(textContent);
-
-    if (mode === 'customize') {
-      const extracted = extractPlaceholders(textContent);
-      setPlaceholders(extracted);
-    }
-    
-    onContentChange(textContent);
-  }, [onContentChange, mode]);
-
-  const handleEditorKeyDown = useCallback((e: React.KeyboardEvent) => {
-    // CRITICAL: Stop all key events from bubbling up to prevent dialog from closing
-    e.stopPropagation();
-    
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      editorRef.current?.blur();
-      return;
-    }
-    
-    // Let all other keys work naturally for contentEditable
   }, []);
 
   const handleEditorKeyPress = useCallback((e: React.KeyboardEvent) => {
@@ -212,52 +112,43 @@ export function useBasicEditorLogic({
     e.stopPropagation();
   }, []);
 
+  //  placeholder update with immediate preview update
   const updatePlaceholder = useCallback((index: number, value: string) => {
-    if (isEditing && mode === 'customize') return;
+    setPlaceholders(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], value };
+      
+      // Update content with new placeholder values
+      const placeholderMap = updated.reduce((acc, p) => {
+        acc[p.key] = p.value;
+        return acc;
+      }, {} as Record<string, string>);
+      
+      const newContent = replacePlaceholders(content, placeholderMap);
+      updateContentInternal(newContent);
+      
+      return updated;
+    });
+  }, [content, updateContentInternal]);
 
-    activeInputIndex.current = index;
+  // Cleanup effect to commit changes when component unmounts or content changes externally
+  useEffect(() => {
+    return () => {
+      commitPendingChanges();
+    };
+  }, [commitPendingChanges]);
 
-    const updatedPlaceholders = [...placeholders];
-    updatedPlaceholders[index].value = value;
-    setPlaceholders(updatedPlaceholders);
-
-    let baseContent = (mode === 'customize' && initialContentRef.current
-      ? initialContentRef.current
-      : content).replace(/\r\n/g, '\n');
-
-    const values = updatedPlaceholders.reduce<Record<string, string>>((acc, p) => {
-      if (p.value) acc[p.key] = p.value;
-      return acc;
-    }, {});
-
-    baseContent = replacePlaceholders(baseContent, values);
-
-    setModifiedContent(baseContent);
-    onContentChange(baseContent);
-
-    if (editorRef.current && !isEditing && mode === 'customize') {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-      editorRef.current.innerHTML = highlightPlaceholders(baseContent);
-      if (observerRef.current && editorRef.current) {
-        observerRef.current.observe(editorRef.current, { 
-          childList: true, 
-          subtree: true, 
-          characterData: true,
-          attributes: false 
-        });
-      }
-    } else if (editorRef.current && mode === 'create') {
-      editorRef.current.innerHTML = baseContent.replace(/\n/g, '<br>');
+  // Commit changes when content prop changes (e.g., tab switching)
+  useEffect(() => {
+    if (content !== lastCommittedContentRef.current) {
+      commitPendingChanges();
     }
+  }, [content, commitPendingChanges]);
 
-    setTimeout(() => {
-      if (activeInputIndex.current !== null && inputRefs.current[activeInputIndex.current]) {
-        inputRefs.current[activeInputIndex.current]?.focus();
-      }
-    }, 0);
-  }, [isEditing, mode, placeholders, content, onContentChange]);
+  // Public method to force commit (useful for tab switching)
+  const forceCommitChanges = useCallback(() => {
+    commitPendingChanges();
+  }, [commitPendingChanges]);
 
   return {
     // State
@@ -278,6 +169,12 @@ export function useBasicEditorLogic({
     handleEditorKeyDown,
     handleEditorKeyPress,
     handleEditorKeyUp,
-    updatePlaceholder
+    updatePlaceholder,
+    
+    //  methods
+    forceCommitChanges,
+    
+    // State indicators
+    hasPendingChanges: pendingChangesRef.current !== null,
   };
 }

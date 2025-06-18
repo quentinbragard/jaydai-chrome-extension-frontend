@@ -2,15 +2,14 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
-import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
+import { Eye, EyeOff, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
 import { useBasicEditorLogic } from '@/hooks/prompts/editors/useBasicEditorLogic';
-import { formatPromptText, formatPromptHtml } from '@/utils/prompts/promptFormatter';
+import { EnhancedEditablePreview } from '@/components/prompts/EnhancedEditablePreview';
 
 interface BasicEditorProps {
   content: string;
@@ -28,7 +27,6 @@ interface BasicEditorProps {
 
 /**
  * Basic editor mode - Simple placeholder and content editing with complete metadata preview
- * Now receives metadata as props instead of using context
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   content,
@@ -58,7 +56,11 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     handleEditorKeyDown,
     handleEditorKeyPress,
     handleEditorKeyUp,
-    updatePlaceholder
+    updatePlaceholder,
+    
+    // Enhanced methods
+    forceCommitChanges,
+    hasPendingChanges
   } = useBasicEditorLogic({
     content,
     onContentChange,
@@ -66,27 +68,15 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   });
 
   const isDark = useThemeDetector();
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(mode === 'customize'); // Show by default in customize mode
   const togglePreview = () => setShowPreview(prev => !prev);
-  
-  // Use final prompt content if provided, otherwise build from current state
-  const completePreviewText = useMemo(() => {
-    if (finalPromptContent) {
-      return finalPromptContent;
-    }
-    if (blockContentCache) {
-      return formatPromptText(metadata, modifiedContent, blockContentCache);
-    }
-    return formatPromptText(metadata, modifiedContent);
-  }, [finalPromptContent, metadata, modifiedContent, blockContentCache]);
-  
-  // Build HTML preview with placeholder highlighting
-  const completePreviewHtml = useMemo(() => {
-    if (blockContentCache) {
-      return formatPromptHtml(metadata, modifiedContent, isDark, blockContentCache);
-    }
-    return formatPromptHtml(metadata, modifiedContent, isDark);
-  }, [metadata, modifiedContent, isDark, blockContentCache]);
+
+  // Cleanup effect to commit pending changes when component unmounts
+  React.useEffect(() => {
+    return () => {
+      forceCommitChanges();
+    };
+  }, [forceCommitChanges]);
 
   if (isProcessing) {
     return (
@@ -105,6 +95,12 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-mb-2">
             <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
             Edit Template Content
+            {hasPendingChanges && (
+              <span className="jd-inline-flex jd-items-center jd-gap-1 jd-text-xs jd-text-amber-600 jd-bg-amber-50 jd-px-2 jd-py-1 jd-rounded-full">
+                <span className="jd-w-2 jd-h-2 jd-bg-amber-500 jd-rounded-full jd-animate-pulse"></span>
+                Unsaved changes
+              </span>
+            )}
           </h3>
           <ContentEditor
             ref={editorRef}
@@ -145,13 +141,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                   <ChevronDown className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
                 </>
               )}
-              <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-ml-auto">
-                <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
-                <span>Placeholders</span>
-                {finalPromptContent && (
-                  <span className="jd-text-green-600 jd-ml-2">• Resolved content</span>
-                )}
-              </div>
             </div>
           </Button>
         </div>
@@ -164,22 +153,15 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           )}
         >
           <div className="jd-space-y-3 jd-pt-4">
-            <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-              <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
-              Complete Template Preview
-            </h3>
-            <div className="jd-text-xs jd-text-muted-foreground jd-mb-2">
-              Complete template preview - click to edit the content part
-            </div>
-            <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-green-500/10 jd-to-teal-500/10">
-              <EditablePromptPreview
-                content={completePreviewText}
-                htmlContent={completePreviewHtml}
-                isDark={isDark}
-                showColors={true}
-                enableAdvancedEditing={true}
-              />
-            </div>
+            <EnhancedEditablePreview
+              metadata={metadata}
+              content={modifiedContent}
+              blockContentCache={blockContentCache}
+              isDarkMode={isDark}
+              onContentChange={onContentChange}
+              title="Complete Template Preview"
+              collapsible={false}
+            />
           </div>
         </div>
       </div>
@@ -204,38 +186,18 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         <ResizablePanel defaultSize={70} minSize={40}>
           <div className="jd-h-full jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
             
-            {/* Complete Preview Section with Metadata + Content */}
-            <div className="jd-flex-shrink-0 jd-mt-4 jd-pt-4 jd-border-t">
-              <div className="jd-space-y-3">
-                <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-                  <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
-                  Complete Template Preview
-                  <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground jd-ml-auto">
-                    <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
-                    <span>Placeholders</span>
-                    {finalPromptContent && (
-                      <span className="jd-text-green-600 jd-ml-2">• Resolved content</span>
-                    )}
-                  </div>
-                </h3>
-                <div className="jd-text-xs jd-text-muted-foreground jd-mb-2">
-                  Complete template preview - edit placeholders on the left to see changes
-                </div>
-                <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-green-500/10 jd-to-teal-500/10">
-                  <EditablePromptPreview
-                    content={completePreviewText}
-                    htmlContent={completePreviewHtml}
-                    onChange={(newCompleteContent) => {
-                      // For customize mode, we can extract content changes
-                      // but typically we rely on placeholder editing
-                      console.log('Preview content changed:', newCompleteContent);
-                    }}
-                    isDark={isDark}
-                    showColors={true}
-                    enableAdvancedEditing={false} // Disable direct editing in customize mode
-                  />
-                </div>
-              </div>
+            {/* Enhanced Preview Section with Full Editing Capabilities */}
+            <div className="jd-flex-1 jd-min-h-0">
+              <EnhancedEditablePreview
+                metadata={metadata}
+                content={modifiedContent}
+                blockContentCache={blockContentCache}
+                isDarkMode={isDark}
+                onContentChange={onContentChange}
+                title="Complete Template Preview"
+                collapsible={false}
+                className="jd-h-full jd-overflow-auto"
+              />
             </div>
           </div>
         </ResizablePanel>
