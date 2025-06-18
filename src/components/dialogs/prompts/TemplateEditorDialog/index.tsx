@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx - Enhanced Version
+// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx - Fixed Version
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -207,8 +207,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     >
       {infoForm}
       
-      {/* Preview changes now apply automatically */}
-
       <TemplateEditorProvider value={contextValue}>
       <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">
         {error && (
@@ -236,9 +234,9 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
               <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
             </TabsList>
 
+            {/* ✅ FIXED: Removed dynamic keys to prevent unnecessary remounting */}
             <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto">
               <BasicEditor
-                key={`basic-${activeTab}`}
                 content={content}
                 onContentChange={setContent}
                 mode={mode as any}
@@ -251,7 +249,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
 
             <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
               <AdvancedEditor
-                key={`advanced-${activeTab}`}
                 content={content}
                 onContentChange={setContent}
                 isProcessing={false}

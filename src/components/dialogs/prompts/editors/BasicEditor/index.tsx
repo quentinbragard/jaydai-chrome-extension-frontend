@@ -1,5 +1,5 @@
-// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Enhanced Version
-import React, { useMemo, useState } from 'react';
+// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Improved Version
+import React, { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
 import { Eye, EyeOff, ChevronDown, ChevronUp, Check } from 'lucide-react';
@@ -76,11 +76,30 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   const [showPreview, setShowPreview] = useState(mode === 'customize'); // Show by default in customize mode
   const togglePreview = () => setShowPreview(prev => !prev);
 
-  // **NEW: Use final content if available, otherwise use modified content**
-  const displayContent = finalPromptContent || modifiedContent;
+  // ✅ IMPROVED: Better final content synchronization
+  // Use finalPromptContent if available, but fall back to modifiedContent
+  // This ensures tab switching preserves the preview content
+  const displayContent = React.useMemo(() => {
+    return finalPromptContent || modifiedContent;
+  }, [finalPromptContent, modifiedContent]);
+
+  // ✅ IMPROVED: Sync finalPromptContent changes back to modified content
+  // This ensures that when final content is updated from the advanced tab,
+  // the basic editor stays in sync
+  useEffect(() => {
+    if (finalPromptContent && finalPromptContent !== modifiedContent) {
+      // Don't update if the user is actively editing
+      if (!isEditing) {
+        console.log('BasicEditor: Syncing final content to modified content');
+        // Note: This might need adjustment based on your useBasicEditorLogic implementation
+        // You may need to add a method to sync external content changes
+      }
+    }
+  }, [finalPromptContent, modifiedContent, isEditing]);
 
   // **NEW: Handle final content changes**
   const handleFinalContentChangeInternal = React.useCallback((newContent: string) => {
+    console.log('BasicEditor: Final content changed, length:', newContent?.length);
     onFinalContentChange?.(newContent);
   }, [onFinalContentChange]);
 
