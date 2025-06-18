@@ -232,7 +232,7 @@ interface TemplateEditorContextValue {
   };
 }
 
-const TemplateEditorContext = createContext<TemplateEditorContextValue | null>(null);
+export const TemplateEditorContext = createContext<TemplateEditorContextValue | null>(null);
 
 // === PROVIDER ===
 export const TemplateEditorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
