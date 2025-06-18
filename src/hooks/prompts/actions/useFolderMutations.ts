@@ -6,9 +6,9 @@ import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useSafeQuery } from '@/providers/QueryProvider';
 
 interface FolderData {
-  name: string;
-  path: string;
+  title: string;
   description?: string;
+  parent_folder_id?: number | null;
 }
 
 interface TogglePinParams {
@@ -190,7 +190,7 @@ export function useFolderMutations() {
   const updateFolder = (() => {
     try {
       return useMutation(
-        async ({ id, data }: { id: number; data: { name?: string; description?: string; parent_id?: number | null } }) => {
+        async ({ id, data }: { id: number; data: { title?: string; description?: string; parent_folder_id?: number | null } }) => {
           const response = await promptApi.updateFolder(id, data);
           if (!response.success) {
             throw new Error(response.message || 'Failed to update folder');
@@ -209,7 +209,7 @@ export function useFolderMutations() {
       );
     } catch (error) {
       return {
-        mutateAsync: async ({ id, data }: { id: number; data: { name?: string; description?: string; parent_id?: number | null } }) => {
+        mutateAsync: async ({ id, data }: { id: number; data: { title?: string; description?: string; parent_folder_id?: number | null } }) => {
           try {
             const response = await promptApi.updateFolder(id, data);
             if (!response.success) {

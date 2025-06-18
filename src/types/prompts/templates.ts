@@ -32,17 +32,22 @@ export interface Template {
   /**
    * Template folder interface
    */
-  export interface TemplateFolder {
-    id: number;
-    name: string;
-    path?: string;
-    description?: string;
-    templates?: Template[];
-    Folders?: TemplateFolder[];
-    parent_id?: number | null;
-    type?: 'official' | 'organization' | 'user';
-    is_pinned?: boolean;
-  }
+export interface TemplateFolder {
+  id: number;
+  /** Localized title returned by the backend */
+  title?: string | Record<string, string>;
+  /** @deprecated use `title` */
+  name?: string;
+  path?: string;
+  description?: string | Record<string, string>;
+  templates?: Template[];
+  Folders?: TemplateFolder[];
+  parent_folder_id?: number | null;
+  /** @deprecated use `parent_folder_id` */
+  parent_id?: number | null;
+  type?: 'official' | 'organization' | 'user';
+  is_pinned?: boolean;
+}
   
   /**
    * Template placeholder for dynamic content

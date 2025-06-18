@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
@@ -29,9 +30,11 @@ export const FolderManagerDialog: React.FC = () => {
 
   useEffect(() => {
     if (isOpen && folder) {
-      setTitle(folder.title || '');
-      setDescription(folder.description || '');
-      setParentId(folder.parent_id ?? null);
+      const folderTitle = folder.title ?? folder.name;
+      const folderDesc = folder.description;
+      setTitle(getLocalizedContent(folderTitle) || '');
+      setDescription(getLocalizedContent(folderDesc) || '');
+      setParentId(folder.parent_folder_id ?? folder.parent_id ?? null);
       setIsSubmitting(false);
     }
   }, [isOpen, folder]);
@@ -46,7 +49,7 @@ export const FolderManagerDialog: React.FC = () => {
       const res = await promptApi.updateFolder(folder.id, {
         title,
         description,
-        parent_id: parentId
+        parent_folder_id: parentId,
       });
       if (res.success) {
         toast.success('Folder updated');
@@ -76,11 +79,22 @@ export const FolderManagerDialog: React.FC = () => {
       <form onSubmit={handleSave} className="jd-space-y-4 jd-mt-4">
         <div>
           <label className="jd-text-sm jd-font-medium">Name</label>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} className="jd-mt-1" />
+          <Input
+            value={title}
+            placeholder="Folder name"
+            onChange={(e) => setTitle(e.target.value)}
+            className="jd-mt-1"
+          />
         </div>
         <div>
           <label className="jd-text-sm jd-font-medium">Description</label>
-          <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="jd-mt-1" />
+          <Textarea
+            value={description}
+            placeholder="Optional description"
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            className="jd-mt-1"
+          />
         </div>
         <div>
           <label className="jd-text-sm jd-font-medium">Parent Folder</label>
@@ -97,7 +111,9 @@ export const FolderManagerDialog: React.FC = () => {
               <SelectItem value="root">None</SelectItem>
 
               {folders.filter(f => f.id !== folder.id).map(f => (
-                <SelectItem key={f.id} value={String(f.id)}>{f.title}</SelectItem>
+                <SelectItem key={f.id} value={String(f.id)}>
+                  {getLocalizedContent(f.title ?? f.name)}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -106,7 +122,13 @@ export const FolderManagerDialog: React.FC = () => {
           <Button type="button" variant="outline" onClick={() => dialogProps.onOpenChange(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting || !title.trim()}>Save</Button>
+          <Button type="submit" disabled={isSubmitting || !title.trim()}
+            className="jd-flex jd-items-center jd-gap-1">
+            {isSubmitting && (
+              <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full"></div>
+            )}
+            <span>Save</span>
+          </Button>
         </div>
       </form>
     </BaseDialog>
