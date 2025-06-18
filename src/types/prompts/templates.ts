@@ -73,8 +73,6 @@ export interface TemplateFolder {
    * Dialog types registry - needed for certain Dialog operations
    */
   export const DIALOG_TYPES = {
-    CREATE_TEMPLATE: 'createTemplate',
-    EDIT_TEMPLATE: 'editTemplate',
     CREATE_FOLDER: 'createFolder',
     FOLDER_MANAGER: 'folderManager',
     SETTINGS: 'settings',

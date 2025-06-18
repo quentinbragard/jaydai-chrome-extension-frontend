@@ -136,8 +136,11 @@ const useTemplate = useCallback(async (template: Template) => {
     };
 
 
-    // Open the placeholder editor dialog
-    openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, dialogData);
+    // Open the unified template dialog in customize mode
+    openDialog(DIALOG_TYPES.UNIFIED_TEMPLATE, {
+      ...dialogData,
+      mode: 'customize'
+    });
     trackEvent(EVENTS.PLACEHOLDER_EDITOR_OPENED, {
       template_id: template.id,
       template_name: template.title,
@@ -202,7 +205,7 @@ const useTemplate = useCallback(async (template: Template) => {
       }
     };
     
-    openDialog(DIALOG_TYPES.CREATE_TEMPLATE, dialogData);
+    openDialog(DIALOG_TYPES.UNIFIED_TEMPLATE, { ...dialogData, mode: 'create' });
   }, [openDialog, createTemplateMutation, queryClient]);
   
   /**
@@ -264,7 +267,7 @@ const useTemplate = useCallback(async (template: Template) => {
       // The saving will be handled by the dialog's internal logic
     };
     
-    openDialog(DIALOG_TYPES.EDIT_TEMPLATE, dialogData);
+    openDialog(DIALOG_TYPES.UNIFIED_TEMPLATE, { ...dialogData, mode: 'edit' });
     trackEvent(EVENTS.TEMPLATE_EDIT_DIALOG_OPENED, {
       template_id: template.id,
       template_name: template.title,
