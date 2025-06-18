@@ -11,7 +11,7 @@ import {
 } from '@/types/prompts/metadata';
 import { MetadataSection } from './MetadataSection';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
-import { EnhancedEditablePreview } from '@/components/prompts/EnhancedEditablePreview';
+import TemplatePreview from '@/components/prompts/TemplatePreview';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface AdvancedEditorProps {
@@ -203,15 +203,13 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             showPreview ? 'jd-translate-y-0' : 'jd--translate-y-4'
           )}>
             <div className="jd-space-y-3 jd-pt-4">
-              <EnhancedEditablePreview
+              <TemplatePreview
                 metadata={metadata}
                 content={content}
                 blockContentCache={blockContentCache}
                 isDarkMode={isDarkMode}
                 finalPromptContent={displayContent}
                 onFinalContentChange={handleFinalContentChangeInternal}
-                title="Final Preview"
-                collapsible={false}
                 className="jd-max-h-[500px] jd-overflow-auto"
               />
             </div>
