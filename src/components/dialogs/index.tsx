@@ -3,6 +3,7 @@ import React from 'react';
 import { DialogProvider as DialogContextProvider } from './DialogContext';
 import { CreateTemplateDialog } from './prompts/CreateTemplateDialog';
 import { CreateFolderDialog } from './prompts/CreateFolderDialog';
+import { FolderManagerDialog } from './prompts/FolderManagerDialog';
 import { CustomizeTemplateDialog } from './prompts/CustomizeTemplateDialog';
 import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
@@ -39,6 +40,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       {/* Register all dialogs here */}
       <CreateTemplateDialog />
       <CreateFolderDialog  />
+      <FolderManagerDialog />
       <CustomizeTemplateDialog />
       <AuthDialog />
       <SettingsDialog />
@@ -58,4 +60,5 @@ export { AuthDialog } from './auth/AuthDialog';
 export { SettingsDialog } from './settings/SettingsDialog';
 export { ConfirmationDialog } from './common/ConfirmationDialog';
 export { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
+export { FolderManagerDialog } from './prompts/FolderManagerDialog';
 export { BaseDialog } from './BaseDialog';

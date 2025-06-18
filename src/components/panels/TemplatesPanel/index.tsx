@@ -1,6 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx
 import React, { useCallback, memo, useMemo, useState } from 'react';
-import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, ArrowLeft } from "lucide-react";
+import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -102,7 +102,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const { toggleFolderPin, deleteFolder } = useFolderMutations();
   const { deleteTemplate } = useTemplateMutations();
   const { useTemplate, createTemplate, editTemplate, createFolderAndTemplate } = useTemplateActions();
-  const { openConfirmation } = useDialogActions();
+  const { openConfirmation, openFolderManager } = useDialogActions();
 
   // Loading and error states
   const { isLoading, hasError, errorMessage } = useMemo(() => ({
@@ -263,6 +263,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     });
     return Promise.resolve(false);
   }, [openConfirmation, deleteFolder, refetchUser]);
+
+  const handleEditFolder = useCallback((folder: TemplateFolder) => {
+    openFolderManager({ folder, userFolders });
+  }, [openFolderManager, userFolders]);
 
   const handleEditTemplate = useCallback((template: Template) => {
     editTemplate(template);
@@ -469,16 +473,19 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                         {((item.Folders?.length || 0) + (item.templates?.length || 0))} items
                       </span>
                       <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleEditFolder(item); }}>
+                          <Pencil className="jd-h-4 jd-w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteFolder(item.id);
                           }}
                         >
-                          <FileText className="jd-h-4 jd-w-4" />
+                          <Trash2 className="jd-h-4 jd-w-4" />
                         </Button>
                       </div>
                     </div>
