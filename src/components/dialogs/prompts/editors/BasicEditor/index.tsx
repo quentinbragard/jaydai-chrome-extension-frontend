@@ -6,7 +6,7 @@ import { PlaceholderPanel } from './PlaceholderPanel';
 import { EnhancedEditablePreview } from '@/components/prompts/EnhancedEditablePreview';
 
 export const BasicEditor: React.FC = () => {
-  const { state, actions } = useTemplateEditor();
+  const { state, actions, dispatch } = useTemplateEditor();
 
   // All the complex logic is now in the context and service layer
   // This component just handles UI rendering and user interactions
@@ -32,8 +32,8 @@ export const BasicEditor: React.FC = () => {
               content={state.content.content}
               blockContentCache={state.blocks.blockContentCache}
               finalPromptContent={state.content.finalPromptContent}
-              onFinalContentChange={(content) => 
-                actions.dispatch({ type: 'UPDATE_FINAL_CONTENT', payload: content })
+              onFinalContentChange={(content) =>
+                dispatch({ type: 'UPDATE_FINAL_CONTENT', payload: content })
               }
             />
           </div>
