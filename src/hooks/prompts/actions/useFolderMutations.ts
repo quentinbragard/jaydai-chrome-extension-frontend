@@ -185,10 +185,54 @@ export function useFolderMutations() {
       };
     }
   })();
+
+  // Update folder mutation - with direct API fallback
+  const updateFolder = (() => {
+    try {
+      return useMutation(
+        async ({ id, data }: { id: number; data: { name?: string; description?: string; parent_id?: number | null } }) => {
+          const response = await promptApi.updateFolder(id, data);
+          if (!response.success) {
+            throw new Error(response.message || 'Failed to update folder');
+          }
+          return response.data;
+        },
+        {
+          onSuccess: () => {
+            invalidateFolderQueries();
+          },
+          onError: (error: Error) => {
+            console.error('Error updating folder:', error);
+            toast.error(`Failed to update folder: ${error.message}`);
+          }
+        }
+      );
+    } catch (error) {
+      return {
+        mutateAsync: async ({ id, data }: { id: number; data: { name?: string; description?: string; parent_id?: number | null } }) => {
+          try {
+            const response = await promptApi.updateFolder(id, data);
+            if (!response.success) {
+              throw new Error(response.message || 'Failed to update folder');
+            }
+            return response.data;
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            console.error('Error updating folder:', error);
+            toast.error(`Failed to update folder: ${errorMessage}`);
+            throw error;
+          }
+        },
+        isLoading: false,
+        reset: () => {}
+      };
+    }
+  })();
   
   return {
     createFolder,
     deleteFolder,
-    toggleFolderPin
+    toggleFolderPin,
+    updateFolder
   };
 }
