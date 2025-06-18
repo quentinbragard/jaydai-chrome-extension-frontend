@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { useDialog } from '@/components/dialogs/DialogContext';
@@ -11,6 +12,8 @@ import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
+import { useUserFolders } from '@/hooks/prompts/queries/folders';
+import { processUserFolders, truncateFolderPath } from '@/utils/prompts/templateUtils';
 
 /**
  * Dialog for creating new template folders
@@ -21,6 +24,10 @@ export const CreateFolderDialog: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [parentId, setParentId] = useState<number | null>(null);
+
+  const { data: userFolders = [] } = useUserFolders();
+  const folderOptions = processUserFolders(data?.userFolders || userFolders);
   
   // Reset form when dialog opens
   useEffect(() => {
@@ -28,6 +35,7 @@ export const CreateFolderDialog: React.FC = () => {
       setName('');
       setDescription('');
       setIsSubmitting(false);
+      setParentId(null);
     }
   }, [isOpen]);
   
@@ -50,7 +58,7 @@ export const CreateFolderDialog: React.FC = () => {
       const folderData = {
         title: name.trim(),
         description: description.trim(),
-        parent_folder_id: null,
+        parent_folder_id: parentId,
       };
       
       // Call the provided callback with folder data if it exists
@@ -97,6 +105,7 @@ export const CreateFolderDialog: React.FC = () => {
   const resetForm = () => {
     setName('');
     setDescription('');
+    setParentId(null);
   };
 
   const handleClose = (open: boolean) => {
@@ -137,6 +146,26 @@ export const CreateFolderDialog: React.FC = () => {
               onKeyPress={(e) => e.stopPropagation()}
               onKeyUp={(e) => e.stopPropagation()}
             />
+          </div>
+
+          <div>
+            <label className="jd-text-sm jd-font-medium">Parent Folder</label>
+            <Select
+              value={parentId !== null ? String(parentId) : 'root'}
+              onValueChange={(val) => setParentId(val === 'root' ? null : parseInt(val))}
+            >
+              <SelectTrigger className="jd-mt-1">
+                <SelectValue placeholder="None" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="root">None</SelectItem>
+                {folderOptions.map((f) => (
+                  <SelectItem key={f.id} value={String(f.id)}>
+                    {truncateFolderPath(f.fullPath)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           <div>

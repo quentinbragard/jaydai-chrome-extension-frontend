@@ -72,6 +72,7 @@ export interface UnifiedTemplateDialogData {
 export interface FolderDialogData {
   onSaveFolder: (folderData: { name: string; path: string; description: string }) => Promise<any>;
   onFolderCreated?: (folder: any) => void;
+  userFolders?: any[];
 }
 
 export interface FolderManagerData {
