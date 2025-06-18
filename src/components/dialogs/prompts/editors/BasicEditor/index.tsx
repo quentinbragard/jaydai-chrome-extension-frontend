@@ -9,7 +9,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
 import { useBasicEditorLogic } from '@/hooks/prompts/editors/useBasicEditorLogic';
-import { EnhancedEditablePreview } from '@/components/prompts/EnhancedEditablePreview';
+import TemplatePreview from '@/components/prompts/TemplatePreview';
 
 interface BasicEditorProps {
   content: string;
@@ -166,15 +166,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           )}
         >
           <div className="jd-space-y-3 jd-pt-4">
-            <EnhancedEditablePreview
+            <TemplatePreview
               metadata={metadata}
               content={modifiedContent}
               blockContentCache={blockContentCache}
               isDarkMode={isDark}
               finalPromptContent={displayContent}
               onFinalContentChange={handleFinalContentChangeInternal}
-              title="Complete Template Preview"
-              collapsible={false}
             />
           </div>
         </div>
@@ -202,15 +200,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             
             {/* Enhanced Preview Section with Full Editing Capabilities */}
             <div className="jd-flex-1 jd-min-h-0">
-              <EnhancedEditablePreview
+              <TemplatePreview
                 metadata={metadata}
                 content={modifiedContent}
                 blockContentCache={blockContentCache}
                 isDarkMode={isDark}
                 finalPromptContent={displayContent}
                 onFinalContentChange={handleFinalContentChangeInternal}
-                title="Complete Template Preview"
-                collapsible={false}
                 className="jd-h-full jd-overflow-auto"
               />
             </div>
