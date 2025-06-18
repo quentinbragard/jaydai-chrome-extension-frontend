@@ -6,7 +6,7 @@ export type SingleMetadataType = 'role' | 'context' | 'goal' | 'audience' | 'ton
 export type MultipleMetadataType = 'constraint' | 'example';
 export type MetadataType = SingleMetadataType | MultipleMetadataType;
 
-// Metadata item for multiple types (constraints, examples)
+// Metadata item for multiple types (constraint, example)
 export interface MetadataItem {
   id: string; // Unique identifier for the item
   blockId?: number; // Reference to a saved block
@@ -24,8 +24,8 @@ export interface PromptMetadata {
   output_format?: number;
   
   // Multiple value metadata (arrays)
-  constraints?: MetadataItem[];
-  examples?: MetadataItem[];
+  constraint?: MetadataItem[];
+  example?: MetadataItem[];
   
   // Custom values for single metadata types
   values?: Record<SingleMetadataType, string>;
@@ -112,8 +112,8 @@ export const ALL_METADATA_TYPES: MetadataType[] = [...PRIMARY_METADATA, ...SECON
 
 // Default metadata state
 export const DEFAULT_METADATA: PromptMetadata = {
-  constraints: [],
-  examples: [],
+  constraint: [],
+  example: [],
   values: {} as Record<SingleMetadataType, string>
 };
 

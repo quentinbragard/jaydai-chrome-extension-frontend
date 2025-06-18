@@ -233,9 +233,7 @@ export function getActiveSecondaryMetadata(metadata: PromptMetadata): Set<Metada
   SECONDARY_METADATA.forEach(type => {
     if (isMultipleMetadataType(type)) {
       // For multiple metadata types (constraints, examples)
-      const multiType = type as MultipleMetadataType;
-      const key = MULTI_TYPE_KEY_MAP[multiType];
-      const items = (metadata as any)[key];
+      const items = metadata[type];
       
       // Include only if the array contains at least one item
       if (items && Array.isArray(items) && items.length > 0) {
@@ -243,16 +241,11 @@ export function getActiveSecondaryMetadata(metadata: PromptMetadata): Set<Metada
       }
     } else {
       // For single metadata types (audience, output_format, tone_style)
-      const singleType = type as SingleMetadataType;
-      const blockId = metadata[singleType];
-      const customValue = metadata.values?.[singleType];
+      const blockId = metadata[type];
       
       // Include if the field has been initialized (exists in metadata object)
       // This means either a block was selected, custom value exists, or it was added to the form
-      if (
-        Object.prototype.hasOwnProperty.call(metadata, singleType) ||
-        (metadata.values && Object.prototype.hasOwnProperty.call(metadata.values, singleType))
-      ) {
+      if (blockId) {
         activeSet.add(type);
       }
     }
