@@ -303,6 +303,32 @@ export function getFirstActiveMetadataType(metadata: PromptMetadata): MetadataTy
 }
 
 /**
+ * Get metadata types that currently contain meaningful values.
+ */
+export function getFilledMetadataTypes(metadata: PromptMetadata): Set<MetadataType> {
+  const filled = new Set<MetadataType>();
+
+  [...PRIMARY_METADATA, ...SECONDARY_METADATA].forEach(type => {
+    if (isMultipleMetadataType(type)) {
+      const key = MULTI_TYPE_KEY_MAP[type];
+      const items = (metadata as any)[key];
+      if (Array.isArray(items) && items.some((item: MetadataItem) => item.value && item.value.trim())) {
+        filled.add(type);
+      }
+    } else {
+      const singleType = type as SingleMetadataType;
+      const blockId = metadata[singleType];
+      const customValue = metadata.values?.[singleType];
+      if ((blockId && blockId !== 0) || (customValue && customValue.trim())) {
+        filled.add(type);
+      }
+    }
+  });
+
+  return filled;
+}
+
+/**
  * Validate metadata completeness
  */
 export function validateMetadata(metadata: PromptMetadata): {
