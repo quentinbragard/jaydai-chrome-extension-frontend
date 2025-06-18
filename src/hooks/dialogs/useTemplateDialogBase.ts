@@ -150,40 +150,31 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   // FINAL CONTENT MANAGEMENT - FIXED
   // ============================================================================
   
-  const setFinalPromptContent = useCallback((content: string, markAsChanged: boolean = true) => {
-    console.log('setFinalPromptContent called:', { 
-      content: content.substring(0, 50) + '...', 
-      markAsChanged, 
-      isInitializing: isInitializingRef.current,
-      baseline: baselineContentRef.current.substring(0, 50) + '...'
+  const setFinalPromptContent = useCallback((content: string) => {
+    console.log('setFinalPromptContent called:', {
+      content: content.substring(0, 50) + '...',
+      isInitializing: isInitializingRef.current
     });
-    
-    setState(prev => {
-      // **FIX: Only mark as changed if we're not initializing and content actually differs**
-      const shouldMarkAsChanged = markAsChanged && 
-        !isInitializingRef.current && 
-        content !== baselineContentRef.current;
-      
-      console.log('setFinalPromptContent decision:', { shouldMarkAsChanged });
-      
-      return {
-        ...prev,
-        finalPromptContent: content,
-        hasUnsavedFinalChanges: shouldMarkAsChanged ? true : prev.hasUnsavedFinalChanges
-      };
-    });
+
+    // **Automatically apply preview changes**
+    baselineContentRef.current = content;
+
+    setState(prev => ({
+      ...prev,
+      finalPromptContent: content,
+      hasUnsavedFinalChanges: false
+    }));
   }, []);
 
   const updateBlockContent = useCallback((blockId: number, newContent: string) => {
     console.log('updateBlockContent called:', { blockId, newContent: newContent.substring(0, 50) + '...' });
-    
+
     setState(prev => ({
       ...prev,
       modifiedBlocks: {
         ...prev.modifiedBlocks,
         [blockId]: newContent
-      },
-      hasUnsavedFinalChanges: !isInitializingRef.current
+      }
     }));
   }, []);
 

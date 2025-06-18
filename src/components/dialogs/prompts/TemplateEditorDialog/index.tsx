@@ -207,34 +207,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     >
       {infoForm}
       
-      {/* **NEW: Unsaved changes notification** */}
-      {hasUnsavedFinalChanges && (
-        <Alert className="jd-mb-4 jd-bg-amber-50 jd-border-amber-200 jd-text-amber-800">
-          <AlertTriangle className="jd-h-4 jd-w-4" />
-          <AlertDescription className="jd-flex jd-items-center jd-justify-between">
-            <span>You have unsaved changes in the preview</span>
-            <div className="jd-flex jd-gap-2">
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={handleDiscardChanges}
-                className="jd-h-6 jd-px-2 jd-text-xs"
-              >
-                <RotateCcw className="jd-h-3 jd-w-3 jd-mr-1" />
-                Discard
-              </Button>
-              <Button 
-                size="sm" 
-                onClick={handleApplyChanges}
-                className="jd-h-6 jd-px-2 jd-text-xs jd-bg-amber-600 hover:jd-bg-amber-700"
-              >
-                <Save className="jd-h-3 jd-w-3 jd-mr-1" />
-                Apply
-              </Button>
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Preview changes now apply automatically */}
 
       <TemplateEditorProvider value={contextValue}>
       <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">
