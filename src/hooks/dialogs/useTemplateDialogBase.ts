@@ -437,7 +437,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       try {
         // Initialize form data
         if (dialogType === 'create') {
-          const meta = initialData.template?.metadata || createMetadata();
+          const meta = createMetadata(initialData.template?.metadata || {});
           const content = getLocalizedContent(initialData.template?.content || '');
           
           // **FIX: Set baseline content before setting final content**
@@ -459,7 +459,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             isProcessing: false
           }));
         } else if (dialogType === 'customize') {
-          const meta = initialData.metadata || createMetadata();
+          const meta = createMetadata(initialData.metadata || {});
           const content = getLocalizedContent(initialData.content || '');
           
           // **FIX: Set baseline content before setting final content**
