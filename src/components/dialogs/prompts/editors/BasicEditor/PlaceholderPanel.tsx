@@ -22,7 +22,7 @@ export const PlaceholderPanel: React.FC<PlaceholderPanelProps> = ({
   onUpdatePlaceholder
 }) => {
   return (
-    <div className="jd-h-full jd-space-y-4 jd-overflow-auto jd-p-4">
+    <div className="jd-h-[60vh] jd-space-y-4 jd-overflow-auto jd-p-4">
       <h3 className="jd-text-sm jd-font-medium jd-mb-2">Replace Placeholders</h3>
       
       {placeholders.length > 0 ? (
