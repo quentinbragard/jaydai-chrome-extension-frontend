@@ -133,6 +133,84 @@ function templateEditorReducer(
         }
       };
 
+    case 'SET_PROCESSING':
+      return {
+        ...state,
+        dialog: {
+          ...state.dialog,
+          isProcessing: action.payload
+        }
+      };
+
+    case 'SET_SUBMITTING':
+      return {
+        ...state,
+        dialog: {
+          ...state.dialog,
+          isSubmitting: action.payload
+        }
+      };
+
+    case 'SET_ERROR':
+      return {
+        ...state,
+        dialog: {
+          ...state.dialog,
+          error: action.payload
+        }
+      };
+
+    case 'SET_ACTIVE_TAB':
+      return {
+        ...state,
+        content: {
+          ...state.content,
+          activeTab: action.payload
+        }
+      };
+
+    case 'TOGGLE_METADATA_EXPANDED':
+      const expanded = new Set(state.metadata.expandedMetadata);
+      if (expanded.has(action.payload)) {
+        expanded.delete(action.payload);
+      } else {
+        expanded.add(action.payload);
+      }
+      return {
+        ...state,
+        metadata: {
+          ...state.metadata,
+          expandedMetadata: expanded
+        }
+      };
+
+    case 'SET_METADATA_COLLAPSED':
+      return {
+        ...state,
+        metadata: {
+          ...state.metadata,
+          metadataCollapsed: action.payload
+        }
+      };
+
+    case 'SET_BLOCKS_DATA':
+      return {
+        ...state,
+        blocks: {
+          ...state.blocks,
+          ...action.payload
+        }
+      };
+
+    case 'UPDATE_FORM':
+      return {
+        ...state,
+        form: {
+          ...state.form,
+          ...action.payload
+        }
+      };
+
     case 'UPDATE_BLOCK_CONTENT':
       return {
         ...state,
@@ -220,7 +298,13 @@ interface TemplateEditorContextValue {
     openDialog: (mode: DialogState['mode'], data?: any) => void;
     closeDialog: () => void;
     updateContent: (content: string) => void;
+    updateActiveTab: (tab: 'basic' | 'advanced') => void;
     updateMetadata: (metadata: Partial<PromptMetadata>) => void;
+    setMetadata: (updater: (m: PromptMetadata) => PromptMetadata) => void;
+    toggleExpandedMetadata: (key: string) => void;
+    setMetadataCollapsed: (collapsed: boolean) => void;
+    setSecondaryMetadataCollapsed: (collapsed: boolean) => void;
+    updateForm: (updates: Partial<FormState>) => void;
     saveTemplate: () => Promise<void>;
     // ... other action creators
   };
@@ -249,8 +333,27 @@ export const TemplateEditorProvider: React.FC<{ children: React.ReactNode }> = (
     updateContent: (content: string) => {
       dispatch({ type: 'UPDATE_CONTENT', payload: content });
     },
+    updateActiveTab: (tab: 'basic' | 'advanced') => {
+      dispatch({ type: 'SET_ACTIVE_TAB', payload: tab });
+    },
     updateMetadata: (metadata: Partial<PromptMetadata>) => {
       dispatch({ type: 'UPDATE_METADATA', payload: metadata });
+    },
+    setMetadata: (updater: (m: PromptMetadata) => PromptMetadata) => {
+      const newMeta = updater(state.metadata.metadata);
+      dispatch({ type: 'UPDATE_METADATA', payload: newMeta });
+    },
+    toggleExpandedMetadata: (key: string) => {
+      dispatch({ type: 'TOGGLE_METADATA_EXPANDED', payload: key });
+    },
+    setMetadataCollapsed: (collapsed: boolean) => {
+      dispatch({ type: 'SET_METADATA_COLLAPSED', payload: collapsed });
+    },
+    setSecondaryMetadataCollapsed: (collapsed: boolean) => {
+      dispatch({ type: 'UPDATE_METADATA', payload: { secondaryMetadataCollapsed: collapsed } as any });
+    },
+    updateForm: (updates: Partial<FormState>) => {
+      dispatch({ type: 'UPDATE_FORM', payload: updates });
     },
     saveTemplate: async () => {
       dispatch({ type: 'SET_SUBMITTING', payload: true });

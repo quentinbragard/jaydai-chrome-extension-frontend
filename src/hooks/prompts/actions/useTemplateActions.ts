@@ -8,6 +8,7 @@ import { useFolderMutations } from './useFolderMutations';
 import { useQueryClient } from 'react-query';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
+import { useTemplateDialogs } from '@/hooks/dialogs/useTemplateDialog';
 import { getMessage } from '@/core/utils/i18n';
 import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrackets } from '@/utils/templates/insertPrompt';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
@@ -24,6 +25,7 @@ export function useTemplateActions() {
   const { createFolder: createFolderMutation } = useFolderMutations();
   const queryClient = useQueryClient();
   const dialogManager = useDialogManager();
+  const { openCreateDialog, openCustomizeDialog, openEditDialog } = useTemplateDialogs();
   
   /**
    * Safely open a dialog with fallback mechanisms
@@ -136,8 +138,8 @@ const useTemplate = useCallback(async (template: Template) => {
     };
 
 
-    // Open the placeholder editor dialog
-    openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, dialogData);
+    // Open the new customize dialog
+    openCustomizeDialog(template);
     trackEvent(EVENTS.PLACEHOLDER_EDITOR_OPENED, {
       template_id: template.id,
       template_name: template.title,
@@ -149,17 +151,14 @@ const useTemplate = useCallback(async (template: Template) => {
       trackTemplateUsage.mutate(template.id);
     }
     
-    // Close all panels when template is used
-    // Note: We're closing panels here even before template editing completes
-    // because the template dialog will be visible instead
-    document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+    // Panels remain open with the unified editor
   } catch (error) {
     console.error('Error using template:', error);
     toast.error('Failed to open template editor');
   } finally {
     setIsProcessing(false);
   }
-}, [openDialog, handleTemplateComplete, trackTemplateUsage]);
+}, [openCustomizeDialog, handleTemplateComplete, trackTemplateUsage]);
   
   /**
    * Open template editor to create a new template
@@ -202,8 +201,8 @@ const useTemplate = useCallback(async (template: Template) => {
       }
     };
     
-    openDialog(DIALOG_TYPES.CREATE_TEMPLATE, dialogData);
-  }, [openDialog, createTemplateMutation, queryClient]);
+    openCreateDialog(dialogData);
+  }, [openCreateDialog, createTemplateMutation, queryClient]);
   
   /**
    * Create a folder and then open template creation
@@ -264,13 +263,13 @@ const useTemplate = useCallback(async (template: Template) => {
       // The saving will be handled by the dialog's internal logic
     };
     
-    openDialog(DIALOG_TYPES.EDIT_TEMPLATE, dialogData);
+    openEditDialog(template);
     trackEvent(EVENTS.TEMPLATE_EDIT_DIALOG_OPENED, {
       template_id: template.id,
       template_name: template.title,
       template_type: 'user'
     });
-  }, [openDialog, queryClient]);
+  }, [openEditDialog, queryClient]);
 
   const deleteTemplateWithConfirm = useCallback((id: number) => {
     openDialog(DIALOG_TYPES.CONFIRMATION, {
