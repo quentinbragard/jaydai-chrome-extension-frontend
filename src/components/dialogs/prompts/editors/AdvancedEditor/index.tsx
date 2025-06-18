@@ -1,5 +1,5 @@
 // src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Updated
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
@@ -42,6 +42,34 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const isDarkMode = useThemeDetector();
   const [showPreview, setShowPreview] = useState(true); // Show by default in advanced mode
   const { metadata } = useTemplateEditor();
+
+  const pendingContentRef = useRef(content);
+  const [hasPendingContentChanges, setHasPendingContentChanges] = useState(false);
+
+  useEffect(() => {
+    pendingContentRef.current = content;
+    setHasPendingContentChanges(false);
+  }, [content]);
+
+  const handleContentChangeEnhanced = useCallback((value: string) => {
+    pendingContentRef.current = value;
+    setHasPendingContentChanges(value !== content);
+  }, [content]);
+
+  const commitContentChanges = useCallback(() => {
+    if (hasPendingContentChanges) {
+      onContentChange(pendingContentRef.current);
+      setHasPendingContentChanges(false);
+    }
+  }, [hasPendingContentChanges, onContentChange]);
+
+  useEffect(() => {
+    return () => {
+      commitContentChanges();
+    };
+  }, [commitContentChanges]);
+
+  const hasPendingChanges = hasPendingContentChanges;
 
   const togglePreview = () => {
     setShowPreview(prev => !prev);
