@@ -133,6 +133,33 @@ function templateEditorReducer(
         }
       };
 
+    case 'SET_ACTIVE_TAB':
+      return {
+        ...state,
+        content: {
+          ...state.content,
+          activeTab: action.payload
+        }
+      };
+
+    case 'SET_BLOCKS_DATA':
+      return {
+        ...state,
+        blocks: {
+          ...state.blocks,
+          ...action.payload
+        }
+      };
+
+    case 'UPDATE_FORM':
+      return {
+        ...state,
+        form: {
+          ...state.form,
+          ...action.payload
+        }
+      };
+
     case 'UPDATE_BLOCK_CONTENT':
       return {
         ...state,
@@ -220,7 +247,9 @@ interface TemplateEditorContextValue {
     openDialog: (mode: DialogState['mode'], data?: any) => void;
     closeDialog: () => void;
     updateContent: (content: string) => void;
+    updateActiveTab: (tab: 'basic' | 'advanced') => void;
     updateMetadata: (metadata: Partial<PromptMetadata>) => void;
+    updateForm: (form: Partial<FormState>) => void;
     saveTemplate: () => Promise<void>;
     // ... other action creators
   };
@@ -249,8 +278,14 @@ export const TemplateEditorProvider: React.FC<{ children: React.ReactNode }> = (
     updateContent: (content: string) => {
       dispatch({ type: 'UPDATE_CONTENT', payload: content });
     },
+    updateActiveTab: (tab: 'basic' | 'advanced') => {
+      dispatch({ type: 'SET_ACTIVE_TAB', payload: tab });
+    },
     updateMetadata: (metadata: Partial<PromptMetadata>) => {
       dispatch({ type: 'UPDATE_METADATA', payload: metadata });
+    },
+    updateForm: (form: Partial<FormState>) => {
+      dispatch({ type: 'UPDATE_FORM', payload: form });
     },
     saveTemplate: async () => {
       dispatch({ type: 'SET_SUBMITTING', payload: true });
