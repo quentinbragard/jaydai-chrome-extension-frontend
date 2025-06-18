@@ -1,5 +1,7 @@
 // src/contexts/TemplateEditorContext.tsx
-import React, { createContext, useContext, useReducer, useMemo } from 'react';
+import React, { createContext, useContext, useReducer, useMemo, useEffect } from 'react';
+import { useDialog } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { PromptMetadata } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 
@@ -114,6 +116,15 @@ function templateEditorReducer(
         }
       };
 
+    case 'SET_ACTIVE_TAB':
+      return {
+        ...state,
+        content: {
+          ...state.content,
+          activeTab: action.payload
+        }
+      };
+
     case 'UPDATE_FINAL_CONTENT':
       return {
         ...state,
@@ -143,6 +154,15 @@ function templateEditorReducer(
             [action.payload.blockId]: action.payload.content
           },
           hasUnsavedChanges: true
+        }
+      };
+
+    case 'UPDATE_FORM':
+      return {
+        ...state,
+        form: {
+          ...state.form,
+          ...action.payload
         }
       };
 
@@ -221,6 +241,8 @@ interface TemplateEditorContextValue {
     closeDialog: () => void;
     updateContent: (content: string) => void;
     updateMetadata: (metadata: Partial<PromptMetadata>) => void;
+    updateForm: (payload: Partial<FormState>) => void;
+    updateActiveTab: (tab: 'basic' | 'advanced') => void;
     saveTemplate: () => Promise<void>;
     // ... other action creators
   };
@@ -238,12 +260,39 @@ export const TemplateEditorContext = createContext<TemplateEditorContextValue | 
 export const TemplateEditorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(templateEditorReducer, initialState);
 
+  // Tie into global dialog manager
+  const createDialog = useDialog(DIALOG_TYPES.CREATE_TEMPLATE);
+  const editDialog = useDialog(DIALOG_TYPES.EDIT_TEMPLATE);
+  const placeholderDialog = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
+
+  // Sync local state with dialog context
+  useEffect(() => {
+    if (createDialog.isOpen) {
+      dispatch({ type: 'OPEN_DIALOG', payload: { mode: 'create', data: createDialog.data } });
+    } else if (editDialog.isOpen) {
+      dispatch({ type: 'OPEN_DIALOG', payload: { mode: 'edit', data: editDialog.data } });
+    } else if (placeholderDialog.isOpen) {
+      dispatch({ type: 'OPEN_DIALOG', payload: { mode: 'customize', data: placeholderDialog.data } });
+    } else {
+      dispatch({ type: 'CLOSE_DIALOG' });
+    }
+  }, [createDialog.isOpen, editDialog.isOpen, placeholderDialog.isOpen]);
+
   // Action creators
   const actions = useMemo(() => ({
     openDialog: (mode: DialogState['mode'], data?: any) => {
-      dispatch({ type: 'OPEN_DIALOG', payload: { mode, data } });
+      if (mode === 'create') {
+        createDialog.open(data);
+      } else if (mode === 'edit') {
+        editDialog.open(data);
+      } else {
+        placeholderDialog.open(data);
+      }
     },
     closeDialog: () => {
+      createDialog.close();
+      editDialog.close();
+      placeholderDialog.close();
       dispatch({ type: 'CLOSE_DIALOG' });
     },
     updateContent: (content: string) => {
@@ -251,6 +300,12 @@ export const TemplateEditorProvider: React.FC<{ children: React.ReactNode }> = (
     },
     updateMetadata: (metadata: Partial<PromptMetadata>) => {
       dispatch({ type: 'UPDATE_METADATA', payload: metadata });
+    },
+    updateForm: (payload: Partial<FormState>) => {
+      dispatch({ type: 'UPDATE_FORM', payload });
+    },
+    updateActiveTab: (tab: 'basic' | 'advanced') => {
+      dispatch({ type: 'SET_ACTIVE_TAB', payload: tab });
     },
     saveTemplate: async () => {
       dispatch({ type: 'SET_SUBMITTING', payload: true });
@@ -265,7 +320,7 @@ export const TemplateEditorProvider: React.FC<{ children: React.ReactNode }> = (
         dispatch({ type: 'SET_SUBMITTING', payload: false });
       }
     }
-  }), [state]);
+  }), [state, createDialog, editDialog, placeholderDialog]);
 
   // Computed values
   const computed = useMemo(() => ({

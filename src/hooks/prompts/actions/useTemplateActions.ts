@@ -8,6 +8,7 @@ import { useFolderMutations } from './useFolderMutations';
 import { useQueryClient } from 'react-query';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
+import { useTemplateEditor } from '@/contexts/TemplateEditorContext';
 import { getMessage } from '@/core/utils/i18n';
 import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrackets } from '@/utils/templates/insertPrompt';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
@@ -24,6 +25,7 @@ export function useTemplateActions() {
   const { createFolder: createFolderMutation } = useFolderMutations();
   const queryClient = useQueryClient();
   const dialogManager = useDialogManager();
+  const { actions: templateEditor } = useTemplateEditor();
   
   /**
    * Safely open a dialog with fallback mechanisms
@@ -136,8 +138,8 @@ const useTemplate = useCallback(async (template: Template) => {
     };
 
 
-    // Open the placeholder editor dialog
-    openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, dialogData);
+    // Open the unified template editor dialog
+    templateEditor.openDialog('customize', dialogData);
     trackEvent(EVENTS.PLACEHOLDER_EDITOR_OPENED, {
       template_id: template.id,
       template_name: template.title,
@@ -159,7 +161,7 @@ const useTemplate = useCallback(async (template: Template) => {
   } finally {
     setIsProcessing(false);
   }
-}, [openDialog, handleTemplateComplete, trackTemplateUsage]);
+}, [templateEditor, handleTemplateComplete, trackTemplateUsage]);
   
   /**
    * Open template editor to create a new template
@@ -202,8 +204,8 @@ const useTemplate = useCallback(async (template: Template) => {
       }
     };
     
-    openDialog(DIALOG_TYPES.CREATE_TEMPLATE, dialogData);
-  }, [openDialog, createTemplateMutation, queryClient]);
+    templateEditor.openDialog('create', dialogData);
+  }, [templateEditor, createTemplateMutation, queryClient]);
   
   /**
    * Create a folder and then open template creation
@@ -264,13 +266,13 @@ const useTemplate = useCallback(async (template: Template) => {
       // The saving will be handled by the dialog's internal logic
     };
     
-    openDialog(DIALOG_TYPES.EDIT_TEMPLATE, dialogData);
+    templateEditor.openDialog('edit', dialogData);
     trackEvent(EVENTS.TEMPLATE_EDIT_DIALOG_OPENED, {
       template_id: template.id,
       template_name: template.title,
       template_type: 'user'
     });
-  }, [openDialog, queryClient]);
+  }, [templateEditor, queryClient]);
 
   const deleteTemplateWithConfirm = useCallback((id: number) => {
     openDialog(DIALOG_TYPES.CONFIRMATION, {

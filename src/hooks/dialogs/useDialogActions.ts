@@ -1,20 +1,22 @@
 import { useCallback } from 'react';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
+import { useTemplateEditor } from '@/contexts/TemplateEditorContext';
 
 export function useDialogActions() {
   const { openDialog } = useDialogManager();
+  const { actions: templateEditor } = useTemplateEditor();
 
   const openSettings = useCallback(() => openDialog(DIALOG_TYPES.SETTINGS, {}), [openDialog]);
 
   const openCreateTemplate = useCallback(
-    (props?: any) => openDialog(DIALOG_TYPES.CREATE_TEMPLATE, props),
-    [openDialog]
+    (props?: any) => templateEditor.openDialog('create', props),
+    [templateEditor]
   );
 
   const openEditTemplate = useCallback(
-    (props?: any) => openDialog(DIALOG_TYPES.EDIT_TEMPLATE, props),
-    [openDialog]
+    (props?: any) => templateEditor.openDialog('edit', props),
+    [templateEditor]
   );
 
   const openCreateFolder = useCallback(
@@ -33,8 +35,8 @@ export function useDialogActions() {
   );
 
   const openPlaceholderEditor = useCallback(
-    (props?: any) => openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, props),
-    [openDialog]
+    (props?: any) => templateEditor.openDialog('customize', props),
+    [templateEditor]
   );
 
   const openConfirmation = useCallback(
