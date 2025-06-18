@@ -23,6 +23,7 @@ import {
   addSecondaryMetadata,
   removeSecondaryMetadata,
   getActiveSecondaryMetadata,
+  getFilledMetadataTypes,
   extractCustomValues,
   validateMetadata
 } from '@/utils/prompts/metadataUtils';
@@ -453,7 +454,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             hasUnsavedFinalChanges: false, // **FIX: Explicitly set to false**
             expandedMetadata: new Set([
               ...PRIMARY_METADATA,
-              ...Array.from(getActiveSecondaryMetadata(meta))
+              ...Array.from(getFilledMetadataTypes(meta))
             ]),
             isProcessing: false
           }));
@@ -472,7 +473,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             hasUnsavedFinalChanges: false, // **FIX: Explicitly set to false**
             expandedMetadata: new Set([
               ...PRIMARY_METADATA,
-              ...Array.from(getActiveSecondaryMetadata(meta))
+              ...Array.from(getFilledMetadataTypes(meta))
             ]),
             isProcessing: false
           }));
