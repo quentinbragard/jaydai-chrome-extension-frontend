@@ -7,8 +7,9 @@ import {
   buildCompletePreviewWithBlocks,
   buildCompletePreviewHtmlWithBlocks,
   buildCompletePreview,
-  buildCompletePreviewHtml 
+  buildCompletePreviewHtml
 } from '@/utils/templates/promptPreviewUtils';
+import { applyBlockOverridesToMetadata } from '@/utils/prompts/metadataUtils';
 
 interface UseEditablePromptPreviewProps {
   metadata: PromptMetadata;
@@ -179,13 +180,38 @@ export function useEditablePromptPreview({
     if (onContentChange && contentOverride !== content) {
       onContentChange(contentOverride);
     }
+    if (
+      onMetadataChange &&
+      Object.keys(blockContentOverrides).length > 0
+    ) {
+      const newMeta = applyBlockOverridesToMetadata(
+        metadata,
+        blockContentOverrides
+      );
+      onMetadataChange(newMeta);
+    }
     // Note: Block overrides are for preview only and shouldn't modify original blocks
-  }, [contentOverride, content, onContentChange]);
+  }, [
+    contentOverride,
+    content,
+    onContentChange,
+    onMetadataChange,
+    blockContentOverrides,
+    metadata
+  ]);
 
   // Check if there are any modifications
   const hasModifications = useMemo(() => {
     return Object.keys(blockContentOverrides).length > 0 || contentOverride !== content;
   }, [blockContentOverrides, contentOverride, content]);
+
+  useEffect(() => {
+    return () => {
+      if (hasModifications) {
+        applyOverrides();
+      }
+    };
+  }, [hasModifications, applyOverrides]);
 
   return {
     // Preview content
