@@ -4,6 +4,7 @@ import { DialogManagerProvider } from './DialogContext';
 import { CreateTemplateDialog } from '@/components/dialogs/prompts/CreateTemplateDialog';
 import { CreateFolderDialog } from './prompts/CreateFolderDialog';
 import { CustomizeTemplateDialog } from './prompts/CustomizeTemplateDialog';
+import { FolderManagerDialog } from './prompts/FolderManagerDialog';
 import { CreateBlockDialog } from './prompts/CreateBlockDialog';
 import { InsertBlockDialog } from './prompts/InsertBlockDialog';
 import { AuthDialog } from './auth/AuthDialog';
@@ -58,6 +59,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       {/* Register all dialogs here */}
       <CreateTemplateDialog />
       <CreateFolderDialog />
+      <FolderManagerDialog />
       <CustomizeTemplateDialog />
       <CreateBlockDialog />
       <InsertBlockDialog />

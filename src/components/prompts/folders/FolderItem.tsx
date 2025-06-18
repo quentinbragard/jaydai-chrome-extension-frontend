@@ -16,6 +16,7 @@ interface FolderItemProps {
   type: 'company' | 'organization' | 'user';
   onTogglePin?: (folderId: number, isPinned: boolean, folderType?: 'official' | 'organization' | 'user') => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
+  onEditFolder?: (folder: TemplateFolder) => void;
   onUseTemplate?: (template: Template) => void;
   onEditTemplate?: (template: Template) => void;
   onDeleteTemplate?: (templateId: number) => Promise<boolean> | void;
@@ -33,6 +34,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
   type,
   onTogglePin,
   onDeleteFolder,
+  onEditFolder,
   onUseTemplate,
   onEditTemplate,
   onDeleteTemplate,
@@ -125,6 +127,13 @@ const FolderItem: React.FC<FolderItemProps> = ({
       onDeleteFolder(folder.id);
     }
   }, [folder.id, onDeleteFolder]);
+
+  const handleEditFolder = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEditFolder) {
+      onEditFolder(folder);
+    }
+  }, [folder, onEditFolder]);
   
   // Create action buttons for folder header
   const actionButtons = (
@@ -140,6 +149,20 @@ const FolderItem: React.FC<FolderItemProps> = ({
       
       {type === 'user' && (
         <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+          {onEditFolder && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="sm" onClick={handleEditFolder}>
+                    <Pencil className="jd-h-4 jd-w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Edit folder</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
           {showDeleteControls && onDeleteFolder && (
             <TooltipProvider>
               <Tooltip>

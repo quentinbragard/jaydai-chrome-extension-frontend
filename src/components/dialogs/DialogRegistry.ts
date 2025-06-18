@@ -6,6 +6,7 @@ export const DIALOG_TYPES = {
   CREATE_TEMPLATE: 'createTemplate',
   EDIT_TEMPLATE: 'editTemplate',
   CREATE_FOLDER: 'createFolder',
+  FOLDER_MANAGER: 'folderManager',
   PLACEHOLDER_EDITOR: 'placeholderEditor',
   AUTH: 'auth',
   CONFIRMATION: 'confirmation',
@@ -42,6 +43,12 @@ export interface DialogProps {
   [DIALOG_TYPES.CREATE_FOLDER]: {
     onSaveFolder?: (folderData: any) => Promise<any>;
     onFolderCreated?: (folder: any) => void;
+  };
+
+  [DIALOG_TYPES.FOLDER_MANAGER]: {
+    folder: any;
+    userFolders: any[];
+    onUpdated?: (folder: any) => void;
   };
   
   [DIALOG_TYPES.AUTH]: {
