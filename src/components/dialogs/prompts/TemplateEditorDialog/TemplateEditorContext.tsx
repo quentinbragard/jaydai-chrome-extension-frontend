@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { PromptMetadata, MetadataType } from '@/types/prompts/metadata';
+import { Block } from '@/types/prompts/blocks';
 
 export interface MetadataUIState {
   expandedMetadata: Set<MetadataType>;
@@ -15,6 +16,16 @@ export interface MetadataUIState {
 export interface TemplateEditorContextValue extends MetadataUIState {
   metadata: PromptMetadata;
   setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
+
+  // Editor state
+  content: string;
+  setContent: (content: string) => void;
+  finalPromptContent: string;
+  setFinalPromptContent: (content: string) => void;
+
+  // Blocks
+  blockContentCache: Record<number, string>;
+  availableMetadataBlocks: Record<MetadataType, Block[]>;
 }
 
 const TemplateEditorContext = createContext<TemplateEditorContextValue | undefined>(undefined);

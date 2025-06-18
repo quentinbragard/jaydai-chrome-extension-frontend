@@ -4,44 +4,30 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import {
-  MetadataType,
-  Block,
-  BlockType
-} from '@/types/prompts/metadata';
+
 import { MetadataSection } from './MetadataSection';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import TemplatePreview from '@/components/prompts/TemplatePreview';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface AdvancedEditorProps {
-  content: string;
-  onContentChange: (value: string) => void;
   isProcessing?: boolean;
-  
-  // Block-related props passed from dialog
-  availableMetadataBlocks?: Record<MetadataType, Block[]>;
-  availableBlocksByType?: Record<BlockType, Block[]>;
-  blockContentCache?: Record<number, string>;
-  onBlockSaved?: (block: Block) => void;
-  
-  // **NEW: Final content management**
-  finalPromptContent?: string;
-  onFinalContentChange?: (content: string) => void;
 }
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
-  content,
-  onContentChange,
-  isProcessing = false,
-  availableMetadataBlocks = {},
-  blockContentCache,
-  finalPromptContent,
-  onFinalContentChange
+  isProcessing = false
 }) => {
+  const {
+    metadata,
+    content,
+    setContent,
+    finalPromptContent,
+    setFinalPromptContent,
+    availableMetadataBlocks,
+    blockContentCache
+  } = useTemplateEditor();
   const isDarkMode = useThemeDetector();
   const [showPreview, setShowPreview] = useState(true); // Show by default in advanced mode
-  const { metadata } = useTemplateEditor();
 
   const [pendingContent, setPendingContent] = useState(content);
   const [hasPendingContentChanges, setHasPendingContentChanges] = useState(false);
@@ -58,10 +44,10 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
   const commitContentChanges = useCallback(() => {
     if (hasPendingContentChanges) {
-      onContentChange(pendingContent);
+      setContent(pendingContent);
       setHasPendingContentChanges(false);
     }
-  }, [hasPendingContentChanges, onContentChange, pendingContent]);
+  }, [hasPendingContentChanges, setContent, pendingContent]);
 
   useEffect(() => {
     return () => {
@@ -74,8 +60,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
   // **NEW: Handle final content changes**
   const handleFinalContentChangeInternal = useCallback((newContent: string) => {
-    onFinalContentChange?.(newContent);
-  }, [onFinalContentChange]);
+    setFinalPromptContent(newContent);
+  }, [setFinalPromptContent]);
 
   const hasPendingChanges = hasPendingContentChanges;
 

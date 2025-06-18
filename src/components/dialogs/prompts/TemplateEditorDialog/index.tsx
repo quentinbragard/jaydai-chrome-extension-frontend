@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, Save, RotateCcw } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
@@ -127,19 +127,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     dialogType: mode === 'create' ? 'create' : 'customize'
   });
 
-  // **NEW: Handle final content changes from preview**
-  const handleFinalContentChange = React.useCallback((newContent: string) => {
-    setFinalPromptContent(newContent);
-  }, [setFinalPromptContent]);
-
-  // **NEW: Handle apply/discard changes**
-  const handleApplyChanges = React.useCallback(() => {
-    applyFinalContentChanges();
-  }, [applyFinalContentChanges]);
-
-  const handleDiscardChanges = React.useCallback(() => {
-    discardFinalContentChanges();
-  }, [discardFinalContentChanges]);
 
   const contextValue = React.useMemo(
     () => ({
@@ -152,7 +139,13 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       setMetadataCollapsed,
       secondaryMetadataCollapsed,
       setSecondaryMetadataCollapsed,
-      customValues
+      customValues,
+      content,
+      setContent,
+      finalPromptContent,
+      setFinalPromptContent,
+      blockContentCache,
+      availableMetadataBlocks
     }),
     [
       metadata,
@@ -164,7 +157,13 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       setMetadataCollapsed,
       secondaryMetadataCollapsed,
       setSecondaryMetadataCollapsed,
-      customValues
+      customValues,
+      content,
+      setContent,
+      finalPromptContent,
+      setFinalPromptContent,
+      blockContentCache,
+      availableMetadataBlocks
     ]
   );
 
@@ -236,29 +235,11 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
 
             {/* ✅ FIXED: Removed dynamic keys to prevent unnecessary remounting */}
             <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto">
-              <BasicEditor
-                content={content}
-                onContentChange={setContent}
-                mode={mode as any}
-                isProcessing={false}
-                finalPromptContent={finalPromptContent}
-                blockContentCache={blockContentCache}
-                onFinalContentChange={handleFinalContentChange}
-              />
+              <BasicEditor mode={mode as any} isProcessing={false} />
             </TabsContent>
 
             <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
-              <AdvancedEditor
-                content={content}
-                onContentChange={setContent}
-                isProcessing={false}
-                availableMetadataBlocks={availableMetadataBlocks}
-                availableBlocksByType={availableBlocksByType}
-                blockContentCache={blockContentCache}
-                onBlockSaved={addNewBlock}
-                finalPromptContent={finalPromptContent}
-                onFinalContentChange={handleFinalContentChange}
-              />
+              <AdvancedEditor isProcessing={false} />
             </TabsContent>
           </Tabs>
         )}
