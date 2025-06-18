@@ -43,9 +43,6 @@ interface FolderNavigation {
   currentFolder: TemplateFolder | null;
 }
 
-// Scroll batch size
-const ITEMS_PER_BATCH = 20;
-
 /**
  * Updated TemplatesPanel with new structure:
  * 1. User folders and templates (with nested navigation)
@@ -65,11 +62,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     path: [],
     currentFolder: null
   });
-  
-  // Visible item counts for scrollable sections
-  const [userVisibleCount, setUserVisibleCount] = useState(ITEMS_PER_BATCH);
-  const [companyVisibleCount, setCompanyVisibleCount] = useState(ITEMS_PER_BATCH);
-  const [mixedVisibleCount, setMixedVisibleCount] = useState(ITEMS_PER_BATCH);
 
   // Data fetching
   const { 
@@ -175,7 +167,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       path: [...prev.path, { id: folder.id, name: folder.name }],
       currentFolder: folder
     }));
-    setUserVisibleCount(ITEMS_PER_BATCH); // Reset visible count when navigating
   }, []);
 
   const navigateBack = useCallback(() => {
@@ -191,12 +182,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         currentFolder: newCurrentFolder
       };
     });
-    setUserVisibleCount(ITEMS_PER_BATCH);
   }, [userFolders]);
 
   const navigateToRoot = useCallback(() => {
     setUserFolderNav({ path: [], currentFolder: null });
-    setUserVisibleCount(ITEMS_PER_BATCH);
   }, []);
 
   // Helper function to find folder by ID
@@ -234,13 +223,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     return items;
   }, [userFolders, userFolderNav.currentFolder]);
 
-  // Helper to slice visible items
-  const getVisibleItems = useCallback((items: any[], count: number) => {
-    return {
-      items: items.slice(0, count),
-      hasMore: count < items.length
-    };
-  }, []);
 
   // Template and folder handlers
   const handleDeleteTemplate = useCallback((templateId: number) => {
@@ -330,9 +312,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }
 
   // Get visible data for each section
-  const userItems = getVisibleItems(getCurrentUserItems, userVisibleCount);
-  const companyItems = getVisibleItems(companyFolders, companyVisibleCount);
-  const mixedItems = getVisibleItems(mixedFolders, mixedVisibleCount);
+  const userItems = getCurrentUserItems;
+  const companyItems = companyFolders;
+  const mixedItems = mixedFolders;
 
   return (
     <BasePanel
@@ -370,7 +352,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </div>
           )}
 
-          {userItems.items.length === 0 ? (
+          {userItems.length === 0 ? (
             <div className="jd-p-4 jd-bg-accent/30 jd-border jd-border-[var(--border)] jd-rounded-lg jd-mb-4">
               <div className="jd-flex jd-flex-col jd-items-center jd-space-y-3 jd-text-center jd-py-3">
                 <FileText className="jd-h-8 jd-w-8 jd-text-[var(--primary)]/40" />
@@ -396,7 +378,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             <>
               {/* Items display */}
               <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-                {userItems.items.map((item) => (
+                {userItems.map((item) => (
                   'templates' in item ? (
                     // It's a folder
                     <div 
@@ -436,15 +418,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                   )
                 ))}
               </div>
-
-              {/* Load more */}
-              {userItems.hasMore && (
-                <div className="jd-flex jd-justify-center jd-mt-2">
-                  <Button variant="ghost" size="sm" onClick={() => setUserVisibleCount(c => c + ITEMS_PER_BATCH)}>
-                    {getMessage('loadMore', undefined, 'Load More')}
-                  </Button>
-                </div>
-              )}
             </>
           )}
         </FolderSection>
@@ -457,24 +430,17 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           iconType="organization"
           showBrowseMore={false}
         >
-          {companyItems.items.length === 0 ? (
+          {companyItems.length === 0 ? (
             <EmptyMessage>
               {getMessage('noCompanyAccess', undefined, 'Contact your company admin to access company templates.')}
             </EmptyMessage>
           ) : (
             <div className="jd-max-h-96 jd-overflow-y-auto">
               <FolderList
-                folders={companyItems.items as TemplateFolder[]}
+                folders={companyItems as TemplateFolder[]}
                 type="organization"
                 onUseTemplate={useTemplate}
               />
-            </div>
-          )}
-          {companyItems.hasMore && (
-            <div className="jd-flex jd-justify-center jd-mt-2">
-              <Button variant="ghost" size="sm" onClick={() => setCompanyVisibleCount(c => c + ITEMS_PER_BATCH)}>
-                {getMessage('loadMore', undefined, 'Load More')}
-              </Button>
             </div>
           )}
         </FolderSection>
@@ -488,7 +454,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           showBrowseMore={true}
           onBrowseMore={handleBrowseMore}
         >
-          {mixedItems.items.length === 0 ? (
+          {mixedItems.length === 0 ? (
             <div className="jd-p-4 jd-bg-accent/30 jd-border jd-border-[var(--border)] jd-rounded-lg jd-mb-4">
               <div className="jd-flex jd-flex-col jd-items-center jd-space-y-3 jd-text-center jd-py-3">
                 <FolderOpen className="jd-h-8 jd-w-8 jd-text-[var(--primary)]/40" />
@@ -515,7 +481,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             <>
               {/* Mixed folders display */}
               <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-                {mixedItems.items.map((folder) => (
+                {mixedItems.map((folder) => (
                   <div
                     key={`mixed-folder-${folder.id}`}
                     className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
@@ -542,15 +508,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                   </div>
                 ))}
               </div>
-
-              {/* Load more */}
-              {mixedItems.hasMore && (
-                <div className="jd-flex jd-justify-center jd-mt-2">
-                  <Button variant="ghost" size="sm" onClick={() => setMixedVisibleCount(c => c + ITEMS_PER_BATCH)}>
-                    {getMessage('loadMore', undefined, 'Load More')}
-                  </Button>
-                </div>
-              )}
             </>
           )}
         </FolderSection>
