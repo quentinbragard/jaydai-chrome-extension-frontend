@@ -10,7 +10,7 @@ import {
   BlockType
 } from '@/types/prompts/metadata';
 import { MetadataSection } from './MetadataSection';
-import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
+import { useTemplateEditor } from '@/core/contexts/TemplateEditorContext';
 import { EnhancedEditablePreview } from '@/components/prompts/EnhancedEditablePreview';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 

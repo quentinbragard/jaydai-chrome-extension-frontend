@@ -25,7 +25,7 @@ import {
   METADATA_CONFIGS
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
-import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
+import { useTemplateEditor } from '@/core/contexts/TemplateEditorContext';
 import { addSecondaryMetadata, removeSecondaryMetadata } from '@/utils/prompts/metadataUtils';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
