@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
+import { PromptMetadata } from '@/types/prompts/metadata';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
@@ -12,6 +12,12 @@ import { useBasicEditorLogic } from '@/hooks/prompts/editors/useBasicEditorLogic
 import TemplatePreview from '@/components/prompts/TemplatePreview';
 
 interface BasicEditorProps {
+  metadata: PromptMetadata;
+  content: string;
+  setContent: (content: string) => void;
+  finalPromptContent: string;
+  setFinalPromptContent: (content: string) => void;
+  blockContentCache: Record<number, string>;
   mode?: 'create' | 'customize';
   isProcessing?: boolean;
 }
@@ -20,17 +26,15 @@ interface BasicEditorProps {
  * Basic editor mode - Simple placeholder and content editing with complete metadata preview
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
+  metadata,
+  content,
+  setContent,
+  finalPromptContent,
+  setFinalPromptContent,
+  blockContentCache,
   mode = 'customize',
   isProcessing = false
 }) => {
-  const {
-    metadata,
-    content,
-    setContent,
-    finalPromptContent,
-    setFinalPromptContent,
-    blockContentCache
-  } = useTemplateEditor();
   const {
     // State
     placeholders,

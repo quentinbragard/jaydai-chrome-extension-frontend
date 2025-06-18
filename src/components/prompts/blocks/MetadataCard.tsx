@@ -36,7 +36,7 @@ import {
   getBlockTypeIcon
 } from '@/utils/prompts/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { useTemplateEditor } from '@/components/dialogs/prompts/TemplateEditorDialog/TemplateEditorContext';
+import { PromptMetadata } from '@/types/prompts/metadata';
 import {
   updateSingleMetadata,
   addMetadataItem,
@@ -48,6 +48,8 @@ interface MetadataCardProps {
   type: MetadataType;
   availableBlocks: Block[];
   expanded: boolean;
+  metadata: PromptMetadata;
+  setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
   isPrimary?: boolean;
   onToggle: () => void;
   onRemove?: () => void;
@@ -59,6 +61,8 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   expanded,
   isPrimary = false,
   onToggle,
+  metadata,
+  setMetadata,
   onRemove
 }) => {
   const config = METADATA_CONFIGS[type];
@@ -67,7 +71,6 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   const iconColors = getBlockIconColors(config.blockType, isDarkMode);
   const Icon = getBlockTypeIcon(config.blockType);
   const { openDialog } = useDialogManager();
-  const { metadata, setMetadata } = useTemplateEditor();
 
   const value =
     !isMultipleMetadataType(type)

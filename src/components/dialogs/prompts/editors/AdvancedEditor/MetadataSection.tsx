@@ -25,7 +25,7 @@ import {
   METADATA_CONFIGS
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
-import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
+import { PromptMetadata } from '@/types/prompts/metadata';
 import { addSecondaryMetadata, removeSecondaryMetadata } from '@/utils/prompts/metadataUtils';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
@@ -41,25 +41,33 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
 
 interface MetadataSectionProps {
   availableMetadataBlocks: Record<MetadataType, Block[]>;
+  metadata: PromptMetadata;
+  setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
+  expandedMetadata: Set<MetadataType>;
+  toggleExpandedMetadata: (type: MetadataType) => void;
+  activeSecondaryMetadata: Set<MetadataType>;
+  metadataCollapsed: boolean;
+  setMetadataCollapsed: (collapsed: boolean) => void;
+  secondaryMetadataCollapsed: boolean;
+  setSecondaryMetadataCollapsed: (collapsed: boolean) => void;
   showPrimary?: boolean;
   showSecondary?: boolean;
 }
 
 export const MetadataSection: React.FC<MetadataSectionProps> = ({
   availableMetadataBlocks,
+  metadata,
+  setMetadata,
+  expandedMetadata,
+  toggleExpandedMetadata,
+  activeSecondaryMetadata,
+  metadataCollapsed,
+  setMetadataCollapsed,
+  secondaryMetadataCollapsed,
+  setSecondaryMetadataCollapsed,
   showPrimary = true,
   showSecondary = true
 }) => {
-  const {
-    setMetadata,
-    expandedMetadata,
-    toggleExpandedMetadata,
-    activeSecondaryMetadata,
-    metadataCollapsed,
-    setMetadataCollapsed,
-    secondaryMetadataCollapsed,
-    setSecondaryMetadataCollapsed
-  } = useTemplateEditor();
 
 
   const handleAddSecondaryMetadata = useCallback(
@@ -99,6 +107,8 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
             type={type}
             availableBlocks={availableMetadataBlocks[type] || []}
             expanded={expandedMetadata.has(type)}
+            metadata={metadata}
+            setMetadata={setMetadata}
             isPrimary={isPrimary}
             onToggle={() => toggleExpandedMetadata(type)}
             onRemove={onRemove ? () => onRemove(type) : undefined}

@@ -6,26 +6,47 @@ import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 import { MetadataSection } from './MetadataSection';
-import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
+import { PromptMetadata, MetadataType } from '@/types/prompts/metadata';
 import TemplatePreview from '@/components/prompts/TemplatePreview';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface AdvancedEditorProps {
+  metadata: PromptMetadata;
+  setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
+  content: string;
+  setContent: (content: string) => void;
+  finalPromptContent: string;
+  setFinalPromptContent: (content: string) => void;
+  availableMetadataBlocks: Record<MetadataType, Block[]>;
+  blockContentCache: Record<number, string>;
+  expandedMetadata: Set<MetadataType>;
+  toggleExpandedMetadata: (type: MetadataType) => void;
+  activeSecondaryMetadata: Set<MetadataType>;
+  metadataCollapsed: boolean;
+  setMetadataCollapsed: (collapsed: boolean) => void;
+  secondaryMetadataCollapsed: boolean;
+  setSecondaryMetadataCollapsed: (collapsed: boolean) => void;
   isProcessing?: boolean;
 }
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
+  metadata,
+  setMetadata,
+  content,
+  setContent,
+  finalPromptContent,
+  setFinalPromptContent,
+  availableMetadataBlocks,
+  blockContentCache,
+  expandedMetadata,
+  toggleExpandedMetadata,
+  activeSecondaryMetadata,
+  metadataCollapsed,
+  setMetadataCollapsed,
+  secondaryMetadataCollapsed,
+  setSecondaryMetadataCollapsed,
   isProcessing = false
 }) => {
-  const {
-    metadata,
-    content,
-    setContent,
-    finalPromptContent,
-    setFinalPromptContent,
-    availableMetadataBlocks,
-    blockContentCache
-  } = useTemplateEditor();
   const isDarkMode = useThemeDetector();
   const [showPreview, setShowPreview] = useState(true); // Show by default in advanced mode
 
@@ -93,6 +114,14 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         <div className="jd-flex-shrink-0">
           <MetadataSection
             availableMetadataBlocks={availableMetadataBlocks}
+            setMetadata={setMetadata}
+            expandedMetadata={expandedMetadata}
+            toggleExpandedMetadata={toggleExpandedMetadata}
+            activeSecondaryMetadata={activeSecondaryMetadata}
+            metadataCollapsed={metadataCollapsed}
+            setMetadataCollapsed={setMetadataCollapsed}
+            secondaryMetadataCollapsed={secondaryMetadataCollapsed}
+            setSecondaryMetadataCollapsed={setSecondaryMetadataCollapsed}
             showPrimary={true}
             showSecondary={false}
           />
@@ -137,6 +166,14 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
        <div className="jd-flex-shrink-0">
           <MetadataSection
             availableMetadataBlocks={availableMetadataBlocks}
+            setMetadata={setMetadata}
+            expandedMetadata={expandedMetadata}
+            toggleExpandedMetadata={toggleExpandedMetadata}
+            activeSecondaryMetadata={activeSecondaryMetadata}
+            metadataCollapsed={metadataCollapsed}
+            setMetadataCollapsed={setMetadataCollapsed}
+            secondaryMetadataCollapsed={secondaryMetadataCollapsed}
+            setSecondaryMetadataCollapsed={setSecondaryMetadataCollapsed}
             showPrimary={false}
             showSecondary={true}
           />

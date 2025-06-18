@@ -15,7 +15,6 @@ import {
   MultipleMetadataType, 
   MetadataItem
 } from '@/types/prompts/metadata';
-import { TemplateEditorProvider } from './TemplateEditorContext';
 
 interface TemplateEditorDialogProps {
   // State from base hook
@@ -128,44 +127,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   });
 
 
-  const contextValue = React.useMemo(
-    () => ({
-      metadata,
-      setMetadata,
-      expandedMetadata,
-      toggleExpandedMetadata,
-      activeSecondaryMetadata,
-      metadataCollapsed,
-      setMetadataCollapsed,
-      secondaryMetadataCollapsed,
-      setSecondaryMetadataCollapsed,
-      customValues,
-      content,
-      setContent,
-      finalPromptContent,
-      setFinalPromptContent,
-      blockContentCache,
-      availableMetadataBlocks
-    }),
-    [
-      metadata,
-      setMetadata,
-      expandedMetadata,
-      toggleExpandedMetadata,
-      activeSecondaryMetadata,
-      metadataCollapsed,
-      setMetadataCollapsed,
-      secondaryMetadataCollapsed,
-      setSecondaryMetadataCollapsed,
-      customValues,
-      content,
-      setContent,
-      finalPromptContent,
-      setFinalPromptContent,
-      blockContentCache,
-      availableMetadataBlocks
-    ]
-  );
 
   if (!isOpen) return null;
 
@@ -205,8 +166,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       className="jd-max-w-6xl jd-h-[100vh]"
     >
       {infoForm}
-      
-      <TemplateEditorProvider value={contextValue}>
+
       <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">
         {error && (
           <Alert variant="destructive" className="jd-mb-2">
@@ -235,11 +195,37 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
 
             {/* ✅ FIXED: Removed dynamic keys to prevent unnecessary remounting */}
             <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto">
-              <BasicEditor mode={mode as any} isProcessing={false} />
+              <BasicEditor
+                metadata={metadata}
+                content={content}
+                setContent={setContent}
+                finalPromptContent={finalPromptContent}
+                setFinalPromptContent={setFinalPromptContent}
+                blockContentCache={blockContentCache}
+                mode={mode as any}
+                isProcessing={false}
+              />
             </TabsContent>
 
             <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
-              <AdvancedEditor isProcessing={false} />
+              <AdvancedEditor
+                metadata={metadata}
+                setMetadata={setMetadata}
+                content={content}
+                setContent={setContent}
+                finalPromptContent={finalPromptContent}
+                setFinalPromptContent={setFinalPromptContent}
+                availableMetadataBlocks={availableMetadataBlocks}
+                blockContentCache={blockContentCache}
+                expandedMetadata={expandedMetadata}
+                toggleExpandedMetadata={toggleExpandedMetadata}
+                activeSecondaryMetadata={activeSecondaryMetadata}
+                metadataCollapsed={metadataCollapsed}
+                setMetadataCollapsed={setMetadataCollapsed}
+                secondaryMetadataCollapsed={secondaryMetadataCollapsed}
+                setSecondaryMetadataCollapsed={setSecondaryMetadataCollapsed}
+                isProcessing={false}
+              />
             </TabsContent>
           </Tabs>
         )}
@@ -268,7 +254,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           </div>
         )}
       </div>
-      </TemplateEditorProvider>
     </BaseDialog>
   );
 };
