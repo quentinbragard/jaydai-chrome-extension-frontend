@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
-import { Eye, EyeOff, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
@@ -12,36 +12,25 @@ import { useBasicEditorLogic } from '@/hooks/prompts/editors/useBasicEditorLogic
 import TemplatePreview from '@/components/prompts/TemplatePreview';
 
 interface BasicEditorProps {
-  content: string;
-  onContentChange: (content: string) => void;
   mode?: 'create' | 'customize';
   isProcessing?: boolean;
-  
-  // **NEW: Final content management**
-  finalPromptContent?: string;
-  onFinalContentChange?: (content: string) => void;
-  
-  /**
-   * Mapping of block IDs to their content for resolving metadata
-   * when building the preview. This is provided by the dialog's
-   * block manager.
-   */
-  blockContentCache?: Record<number, string>;
 }
 
 /**
  * Basic editor mode - Simple placeholder and content editing with complete metadata preview
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
-  content,
-  onContentChange,
   mode = 'customize',
-  isProcessing = false,
-  finalPromptContent,
-  onFinalContentChange,
-  blockContentCache
+  isProcessing = false
 }) => {
-  const { metadata } = useTemplateEditor();
+  const {
+    metadata,
+    content,
+    setContent,
+    finalPromptContent,
+    setFinalPromptContent,
+    blockContentCache
+  } = useTemplateEditor();
   const {
     // State
     placeholders,
@@ -68,7 +57,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     hasPendingChanges
   } = useBasicEditorLogic({
     content,
-    onContentChange,
+    onContentChange: setContent,
     mode
   });
 
@@ -100,8 +89,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   // **NEW: Handle final content changes**
   const handleFinalContentChangeInternal = React.useCallback((newContent: string) => {
     console.log('BasicEditor: Final content changed, length:', newContent?.length);
-    onFinalContentChange?.(newContent);
-  }, [onFinalContentChange]);
+    setFinalPromptContent(newContent);
+  }, [setFinalPromptContent]);
 
   // Cleanup effect to commit pending changes when component unmounts
   React.useEffect(() => {
