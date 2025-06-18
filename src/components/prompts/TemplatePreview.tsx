@@ -4,7 +4,6 @@ import { PromptMetadata } from '@/types/prompts/metadata';
 
 interface TemplatePreviewProps {
   metadata: PromptMetadata;
-  content: string;
   blockContentCache?: Record<number, string>;
   isDarkMode: boolean;
   finalPromptContent: string;
@@ -14,7 +13,6 @@ interface TemplatePreviewProps {
 
 export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   metadata,
-  content,
   blockContentCache,
   isDarkMode,
   finalPromptContent,
@@ -23,7 +21,6 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
 }) => (
   <EnhancedEditablePreview
     metadata={metadata}
-    content={content}
     blockContentCache={blockContentCache}
     isDarkMode={isDarkMode}
     finalPromptContent={finalPromptContent}
