@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Updated
+// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Enhanced Version
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
@@ -16,7 +16,11 @@ interface BasicEditorProps {
   onContentChange: (content: string) => void;
   mode?: 'create' | 'customize';
   isProcessing?: boolean;
+  
+  // **NEW: Final content management**
   finalPromptContent?: string;
+  onFinalContentChange?: (content: string) => void;
+  
   /**
    * Mapping of block IDs to their content for resolving metadata
    * when building the preview. This is provided by the dialog's
@@ -34,6 +38,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   mode = 'customize',
   isProcessing = false,
   finalPromptContent,
+  onFinalContentChange,
   blockContentCache
 }) => {
   const { metadata } = useTemplateEditor();
@@ -70,6 +75,14 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   const isDark = useThemeDetector();
   const [showPreview, setShowPreview] = useState(mode === 'customize'); // Show by default in customize mode
   const togglePreview = () => setShowPreview(prev => !prev);
+
+  // **NEW: Use final content if available, otherwise use modified content**
+  const displayContent = finalPromptContent || modifiedContent;
+
+  // **NEW: Handle final content changes**
+  const handleFinalContentChangeInternal = React.useCallback((newContent: string) => {
+    onFinalContentChange?.(newContent);
+  }, [onFinalContentChange]);
 
   // Cleanup effect to commit pending changes when component unmounts
   React.useEffect(() => {
@@ -158,7 +171,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               content={modifiedContent}
               blockContentCache={blockContentCache}
               isDarkMode={isDark}
-              onContentChange={onContentChange}
+              finalPromptContent={displayContent}
+              onFinalContentChange={handleFinalContentChangeInternal}
               title="Complete Template Preview"
               collapsible={false}
             />
@@ -193,7 +207,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                 content={modifiedContent}
                 blockContentCache={blockContentCache}
                 isDarkMode={isDark}
-                onContentChange={onContentChange}
+                finalPromptContent={displayContent}
+                onFinalContentChange={handleFinalContentChangeInternal}
                 title="Complete Template Preview"
                 collapsible={false}
                 className="jd-h-full jd-overflow-auto"

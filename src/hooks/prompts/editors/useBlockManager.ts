@@ -1,5 +1,5 @@
-// src/hooks/prompts/editors/useBlockManager.ts
-import { useState, useEffect, useMemo, useCallback } from 'react';
+// src/hooks/prompts/editors/useBlockManager.ts - Fixed Version
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { 
   PromptMetadata, 
@@ -12,6 +12,7 @@ import {
 import { blocksApi } from '@/services/api/BlocksApi';
 import { BLOCK_TYPES } from '@/utils/prompts/blockUtils';
 import { getCurrentLanguage } from '@/core/utils/i18n';
+import { buildCompletePreviewWithBlocks, buildCompletePreview } from '@/utils/templates/promptPreviewUtils';
 
 interface UseBlockManagerReturn {
   // Loading state
@@ -24,21 +25,72 @@ interface UseBlockManagerReturn {
   // Block content cache for quick lookup
   blockContentCache: Record<number, string>;
   
+  // Final content management
+  finalContent: string;
+  hasModifications: boolean;
+  modifiedBlocks: Record<number, string>;
+  
   // Utility functions
   resolveMetadataToContent: (metadata: PromptMetadata) => PromptMetadata;
-  buildFinalPromptContent: (metadata: PromptMetadata, content: string) => string;
-  buildFinalPromptHtml: (metadata: PromptMetadata, content: string, isDark: boolean) => string;
+  buildFinalPromptContent: (metadata: PromptMetadata, content: string, modifications?: Record<number, string>) => string;
+  buildFinalPromptHtml: (metadata: PromptMetadata, content: string, isDark: boolean, modifications?: Record<number, string>) => string;
+  
+  // Final content management functions
+  updateFinalContent: (newContent: string) => void;
+  applyModifications: (modifications: Record<number, string>) => void;
+  resetModifications: () => void;
+  getEffectiveBlockContent: (blockId: number) => string;
   
   // Block management
   addNewBlock: (block: Block) => void;
   refreshBlocks: () => Promise<void>;
+  
+  // For create dialog - creating new blocks from modifications
+  createBlocksFromModifications: () => Promise<Record<number, Block>>;
 }
 
-export function useBlockManager(): UseBlockManagerReturn {
+interface UseBlockManagerProps {
+  metadata: PromptMetadata;
+  content: string;
+  onFinalContentChange?: (content: string) => void;
+  onBlockModification?: (blockId: number, newContent: string) => void;
+  dialogType?: 'create' | 'customize';
+}
+
+export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerReturn {
+  const {
+    metadata = {} as PromptMetadata,
+    content = '',
+    onFinalContentChange,
+    onBlockModification,
+    dialogType = 'customize'
+  } = props || {};
+
   const [isLoading, setIsLoading] = useState(true);
   const [availableMetadataBlocks, setAvailableMetadataBlocks] = useState<Record<MetadataType, Block[]>>({} as Record<MetadataType, Block[]>);
   const [availableBlocksByType, setAvailableBlocksByType] = useState<Record<BlockType, Block[]>>({} as Record<BlockType, Block[]>);
   const [blockContentCache, setBlockContentCache] = useState<Record<number, string>>({});
+  
+  // Final content state management
+  const [modifiedBlocks, setModifiedBlocks] = useState<Record<number, string>>({});
+  const [finalContent, setFinalContent] = useState('');
+  
+  // **FIX: Prevent multiple updates with refs**
+  const isUpdatingFinalContentRef = useRef(false);
+  const lastComputedContentRef = useRef('');
+
+  // Compute effective block map (original + modifications)
+  const effectiveBlockMap = useMemo(() => {
+    return {
+      ...blockContentCache,
+      ...modifiedBlocks
+    };
+  }, [blockContentCache, modifiedBlocks]);
+
+  // Check if there are any modifications
+  const hasModifications = useMemo(() => {
+    return Object.keys(modifiedBlocks).length > 0;
+  }, [modifiedBlocks]);
 
   // Fetch all blocks
   const fetchBlocks = useCallback(async () => {
@@ -91,6 +143,42 @@ export function useBlockManager(): UseBlockManagerReturn {
     fetchBlocks();
   }, [fetchBlocks]);
 
+  // **FIX: Update final content when metadata, content, or modifications change (with debouncing)**
+  useEffect(() => {
+    if (isUpdatingFinalContentRef.current) {
+      console.log('useBlockManager: Already updating final content, skipping');
+      return;
+    }
+    
+    const newFinalContent = buildFinalPromptContent(metadata, content, modifiedBlocks);
+    
+    // **FIX: Only update if content actually changed**
+    if (newFinalContent !== lastComputedContentRef.current) {
+      console.log('useBlockManager: Final content changed', {
+        old: lastComputedContentRef.current.substring(0, 50) + '...',
+        new: newFinalContent.substring(0, 50) + '...'
+      });
+      
+      lastComputedContentRef.current = newFinalContent;
+      setFinalContent(newFinalContent);
+      
+      // **FIX: Debounce the external notification**
+      if (onFinalContentChange) {
+        isUpdatingFinalContentRef.current = true;
+        
+        const timeoutId = setTimeout(() => {
+          onFinalContentChange(newFinalContent);
+          isUpdatingFinalContentRef.current = false;
+        }, 50); // Small delay to prevent rapid-fire updates
+        
+        return () => {
+          clearTimeout(timeoutId);
+          isUpdatingFinalContentRef.current = false;
+        };
+      }
+    }
+  }, [metadata, content, modifiedBlocks, onFinalContentChange]);
+
   // Resolve metadata block IDs to actual content
   const resolveMetadataToContent = useCallback((metadata: PromptMetadata): PromptMetadata => {
     const resolved: PromptMetadata = {
@@ -105,8 +193,11 @@ export function useBlockManager(): UseBlockManagerReturn {
 
     singleTypes.forEach(type => {
       const blockId = metadata[type];
-      if (blockId && blockId !== 0 && blockContentCache[blockId]) {
-        resolved.values![type] = blockContentCache[blockId];
+      if (blockId && blockId !== 0) {
+        const effectiveContent = effectiveBlockMap[blockId];
+        if (effectiveContent) {
+          resolved.values![type] = effectiveContent;
+        }
       }
     });
 
@@ -114,8 +205,8 @@ export function useBlockManager(): UseBlockManagerReturn {
     if (metadata.constraints) {
       resolved.constraints = metadata.constraints.map(item => ({
         ...item,
-        value: item.blockId && blockContentCache[item.blockId] 
-          ? blockContentCache[item.blockId] 
+        value: item.blockId && effectiveBlockMap[item.blockId] 
+          ? effectiveBlockMap[item.blockId] 
           : item.value
       }));
     }
@@ -123,64 +214,111 @@ export function useBlockManager(): UseBlockManagerReturn {
     if (metadata.examples) {
       resolved.examples = metadata.examples.map(item => ({
         ...item,
-        value: item.blockId && blockContentCache[item.blockId] 
-          ? blockContentCache[item.blockId] 
+        value: item.blockId && effectiveBlockMap[item.blockId] 
+          ? effectiveBlockMap[item.blockId] 
           : item.value
       }));
     }
 
     return resolved;
-  }, [blockContentCache]);
+  }, [effectiveBlockMap]);
 
   // Build final prompt content with resolved metadata
-  const buildFinalPromptContent = useCallback((metadata: PromptMetadata, content: string): string => {
-    const resolvedMetadata = resolveMetadataToContent(metadata);
-    const parts: string[] = [];
-
-    // Add resolved metadata values
-    const metadataOrder: SingleMetadataType[] = ['role', 'context', 'goal', 'audience', 'output_format', 'tone_style'];
+  const buildFinalPromptContent = useCallback((
+    metadata: PromptMetadata, 
+    content: string, 
+    modifications?: Record<number, string>
+  ): string => {
+    const blockMap = modifications ? { ...blockContentCache, ...modifications } : effectiveBlockMap;
     
-    metadataOrder.forEach(type => {
-      const value = resolvedMetadata.values?.[type];
-      if (value?.trim()) {
-        const prefix = getMetadataPrefix(type);
-        parts.push(prefix ? `${prefix} ${value}` : value);
-      }
-    });
-
-    // Add constraints
-    if (resolvedMetadata.constraints) {
-      resolvedMetadata.constraints.forEach((constraint, index) => {
-        if (constraint.value.trim()) {
-          parts.push(`Contrainte: ${constraint.value}`);
-        }
-      });
+    if (Object.keys(blockMap).length > 0) {
+      return buildCompletePreviewWithBlocks(metadata, content, blockMap);
     }
-
-    // Add examples
-    if (resolvedMetadata.examples) {
-      resolvedMetadata.examples.forEach((example, index) => {
-        if (example.value.trim()) {
-          parts.push(`Exemple: ${example.value}`);
-        }
-      });
-    }
-
-    // Add main content
-    if (content?.trim()) {
-      parts.push(content.trim());
-    }
-
-
-    return parts.filter(Boolean).join('\n\n');
-  }, [resolveMetadataToContent]);
+    return buildCompletePreview(metadata, content);
+  }, [blockContentCache, effectiveBlockMap]);
 
   // Build final prompt HTML with resolved metadata
-  const buildFinalPromptHtml = useCallback((metadata: PromptMetadata, content: string, isDark: boolean): string => {
-    const resolvedMetadata = resolveMetadataToContent(metadata);
+  const buildFinalPromptHtml = useCallback((
+    metadata: PromptMetadata, 
+    content: string, 
+    isDark: boolean, 
+    modifications?: Record<number, string>
+  ): string => {
+    const blockMap = modifications ? { ...blockContentCache, ...modifications } : effectiveBlockMap;
+    
     // Use existing utility from promptPreviewUtils
+    const resolvedMetadata = resolveMetadataToContent(metadata);
     return buildCompletePreviewHtml(resolvedMetadata, content, isDark);
-  }, [resolveMetadataToContent]);
+  }, [blockContentCache, effectiveBlockMap, resolveMetadataToContent]);
+
+  // Final content management functions
+  const updateFinalContent = useCallback((newContent: string) => {
+    console.log('useBlockManager: updateFinalContent called');
+    setFinalContent(newContent);
+    lastComputedContentRef.current = newContent;
+    // Note: Don't call onFinalContentChange here to avoid loops
+  }, []);
+
+  const applyModifications = useCallback((modifications: Record<number, string>) => {
+    console.log('useBlockManager: applyModifications called', modifications);
+    
+    setModifiedBlocks(prev => ({
+      ...prev,
+      ...modifications
+    }));
+
+    // Notify parent about individual block modifications
+    Object.entries(modifications).forEach(([blockId, content]) => {
+      onBlockModification?.(parseInt(blockId, 10), content);
+    });
+  }, [onBlockModification]);
+
+  const resetModifications = useCallback(() => {
+    console.log('useBlockManager: resetModifications called');
+    setModifiedBlocks({});
+  }, []);
+
+  const getEffectiveBlockContent = useCallback((blockId: number): string => {
+    return effectiveBlockMap[blockId] || '';
+  }, [effectiveBlockMap]);
+
+  // Create new blocks from modifications (for create dialog)
+  const createBlocksFromModifications = useCallback(async (): Promise<Record<number, Block>> => {
+    if (dialogType !== 'create' || Object.keys(modifiedBlocks).length === 0) {
+      return {};
+    }
+
+    console.log('useBlockManager: Creating blocks from modifications', modifiedBlocks);
+    const newBlocks: Record<number, Block> = {};
+
+    try {
+      // Create new blocks for each modification
+      for (const [originalBlockId, newContent] of Object.entries(modifiedBlocks)) {
+        const originalBlockIdNum = parseInt(originalBlockId, 10);
+        const originalBlock = await blocksApi.getBlock(originalBlockIdNum);
+
+        if (originalBlock.success && originalBlock.data) {
+          // Create a new block with modified content and is_published = false
+          const newBlockData = {
+            title: `${originalBlock.data.title} (Modified)`,
+            content: newContent,
+            type: originalBlock.data.type,
+            is_published: false,
+            parent_block_id: originalBlockIdNum
+          };
+
+          const createResponse = await blocksApi.createBlock(newBlockData);
+          if (createResponse.success) {
+            newBlocks[originalBlockIdNum] = createResponse.data;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error creating blocks from modifications:', error);
+    }
+
+    return newBlocks;
+  }, [dialogType, modifiedBlocks]);
 
   // Add a new block to the cache
   const addNewBlock = useCallback((block: Block) => {
@@ -215,11 +353,29 @@ export function useBlockManager(): UseBlockManagerReturn {
     availableMetadataBlocks,
     availableBlocksByType,
     blockContentCache,
+    
+    // Final content state
+    finalContent,
+    hasModifications,
+    modifiedBlocks,
+    
+    // Utility functions
     resolveMetadataToContent,
     buildFinalPromptContent,
     buildFinalPromptHtml,
+    
+    // Final content management
+    updateFinalContent,
+    applyModifications,
+    resetModifications,
+    getEffectiveBlockContent,
+    
+    // Block management
     addNewBlock,
-    refreshBlocks: fetchBlocks
+    refreshBlocks: fetchBlocks,
+    
+    // Create dialog specific
+    createBlocksFromModifications
   };
 }
 

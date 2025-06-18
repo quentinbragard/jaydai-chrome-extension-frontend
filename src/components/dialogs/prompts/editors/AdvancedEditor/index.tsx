@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Updated
+// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Enhanced Version
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,10 @@ interface AdvancedEditorProps {
   availableBlocksByType?: Record<BlockType, Block[]>;
   blockContentCache?: Record<number, string>;
   onBlockSaved?: (block: Block) => void;
+  
+  // **NEW: Final content management**
   finalPromptContent?: string;
+  onFinalContentChange?: (content: string) => void;
 }
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
@@ -33,7 +36,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   isProcessing = false,
   availableMetadataBlocks = {},
   blockContentCache,
-  finalPromptContent
+  finalPromptContent,
+  onFinalContentChange
 }) => {
   const isDarkMode = useThemeDetector();
   const [showPreview, setShowPreview] = useState(true); // Show by default in advanced mode
@@ -64,6 +68,14 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       commitContentChanges();
     };
   }, [commitContentChanges]);
+
+  // **NEW: Use final content if available**
+  const displayContent = finalPromptContent || content;
+
+  // **NEW: Handle final content changes**
+  const handleFinalContentChangeInternal = useCallback((newContent: string) => {
+    onFinalContentChange?.(newContent);
+  }, [onFinalContentChange]);
 
   const hasPendingChanges = hasPendingContentChanges;
 
@@ -196,7 +208,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                 content={content}
                 blockContentCache={blockContentCache}
                 isDarkMode={isDarkMode}
-                onContentChange={onContentChange}
+                finalPromptContent={displayContent}
+                onFinalContentChange={handleFinalContentChangeInternal}
                 title="Final Preview"
                 collapsible={false}
                 className="jd-max-h-[500px] jd-overflow-auto"

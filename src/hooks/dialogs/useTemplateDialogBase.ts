@@ -1,5 +1,5 @@
-// src/hooks/dialogs/useTemplateDialogBase.ts
-import { useState, useEffect, useCallback } from 'react';
+// src/hooks/dialogs/useTemplateDialogBase.ts - Fixed Version
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { 
   PromptMetadata, 
   DEFAULT_METADATA,
@@ -30,7 +30,7 @@ import {
 export interface TemplateDialogConfig {
   dialogType: 'create' | 'customize';
   initialData?: any;
-  onComplete: (content: string, metadata: PromptMetadata) => Promise<boolean> | boolean;
+  onComplete: (content: string, metadata: PromptMetadata, finalContent?: string) => Promise<boolean> | boolean;
   onClose: () => void;
 }
 
@@ -43,6 +43,11 @@ export interface TemplateDialogState {
   
   // Metadata state
   metadata: PromptMetadata;
+  
+  // Final content state
+  finalPromptContent: string;
+  hasUnsavedFinalChanges: boolean;
+  modifiedBlocks: Record<number, string>;
   
   // UI state
   activeTab: 'basic' | 'advanced';
@@ -63,6 +68,12 @@ export interface TemplateDialogActions {
   setDescription: (description: string) => void;
   setContent: (content: string) => void;
   setSelectedFolderId: (folderId: string) => void;
+  
+  // Final content management
+  setFinalPromptContent: (content: string, markAsChanged?: boolean) => void;
+  applyFinalContentChanges: () => void;
+  discardFinalContentChanges: () => void;
+  updateBlockContent: (blockId: number, newContent: string) => void;
   
   // Metadata actions
   updateSingleMetadataValue: (type: SingleMetadataType, blockId: string) => void;
@@ -92,6 +103,10 @@ export interface TemplateDialogActions {
 export function useTemplateDialogBase(config: TemplateDialogConfig) {
   const { dialogType, initialData, onComplete, onClose } = config;
   
+  // **FIX: Track baseline content to detect real changes**
+  const baselineContentRef = useRef<string>('');
+  const isInitializingRef = useRef(true);
+  
   // ============================================================================
   // STATE MANAGEMENT
   // ============================================================================
@@ -105,6 +120,11 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     
     // Metadata state
     metadata: createMetadata(),
+    
+    // Final content state
+    finalPromptContent: '',
+    hasUnsavedFinalChanges: false,
+    modifiedBlocks: {},
     
     // UI state
     activeTab: 'basic',
@@ -127,7 +147,82 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   const customValues = extractCustomValues(state.metadata);
   
   // ============================================================================
-  // FORM ACTIONS
+  // FINAL CONTENT MANAGEMENT - FIXED
+  // ============================================================================
+  
+  const setFinalPromptContent = useCallback((content: string, markAsChanged: boolean = true) => {
+    console.log('setFinalPromptContent called:', { 
+      content: content.substring(0, 50) + '...', 
+      markAsChanged, 
+      isInitializing: isInitializingRef.current,
+      baseline: baselineContentRef.current.substring(0, 50) + '...'
+    });
+    
+    setState(prev => {
+      // **FIX: Only mark as changed if we're not initializing and content actually differs**
+      const shouldMarkAsChanged = markAsChanged && 
+        !isInitializingRef.current && 
+        content !== baselineContentRef.current;
+      
+      console.log('setFinalPromptContent decision:', { shouldMarkAsChanged });
+      
+      return {
+        ...prev,
+        finalPromptContent: content,
+        hasUnsavedFinalChanges: shouldMarkAsChanged ? true : prev.hasUnsavedFinalChanges
+      };
+    });
+  }, []);
+
+  const updateBlockContent = useCallback((blockId: number, newContent: string) => {
+    console.log('updateBlockContent called:', { blockId, newContent: newContent.substring(0, 50) + '...' });
+    
+    setState(prev => ({
+      ...prev,
+      modifiedBlocks: {
+        ...prev.modifiedBlocks,
+        [blockId]: newContent
+      },
+      hasUnsavedFinalChanges: !isInitializingRef.current
+    }));
+  }, []);
+
+  const applyFinalContentChanges = useCallback(() => {
+    console.log('applyFinalContentChanges called');
+    
+    // For customize dialog, just update the content
+    if (dialogType === 'customize') {
+      setState(prev => ({
+        ...prev,
+        content: prev.finalPromptContent,
+        hasUnsavedFinalChanges: false
+      }));
+      // **FIX: Update baseline to new content**
+      baselineContentRef.current = state.finalPromptContent;
+      return;
+    }
+
+    // For create dialog, the modifications will be handled during save
+    setState(prev => ({
+      ...prev,
+      hasUnsavedFinalChanges: false
+    }));
+    baselineContentRef.current = state.finalPromptContent;
+  }, [dialogType, state.finalPromptContent]);
+
+  const discardFinalContentChanges = useCallback(() => {
+    console.log('discardFinalContentChanges called');
+    
+    setState(prev => ({
+      ...prev,
+      finalPromptContent: baselineContentRef.current,
+      hasUnsavedFinalChanges: false,
+      modifiedBlocks: {}
+    }));
+  }, []);
+  
+  // ============================================================================
+  // FORM ACTIONS (keeping existing implementations)
   // ============================================================================
   
   const setName = useCallback((name: string) => {
@@ -147,7 +242,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   }, []);
   
   // ============================================================================
-  // METADATA ACTIONS
+  // METADATA ACTIONS (keeping existing implementations)
   // ============================================================================
   
   const updateSingleMetadataValue = useCallback((type: SingleMetadataType, value: string) => {
@@ -211,7 +306,6 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     }));
   }, []);
 
-  // Generic metadata setter for more modular updates
   const setMetadata = useCallback(
     (updater: (metadata: PromptMetadata) => PromptMetadata) => {
       setState(prev => ({ ...prev, metadata: updater(prev.metadata) }));
@@ -220,7 +314,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   );
   
   // ============================================================================
-  // UI ACTIONS
+  // UI ACTIONS (keeping existing implementations)
   // ============================================================================
   
   const setActiveTab = useCallback((activeTab: 'basic' | 'advanced') => {
@@ -244,7 +338,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   }, []);
   
   // ============================================================================
-  // FORM VALIDATION
+  // FORM VALIDATION (updated to consider final content)
   // ============================================================================
   
   const validateForm = useCallback((): boolean => {
@@ -255,7 +349,9 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       errors.name = getMessage('templateNameRequired', undefined, 'Template name is required');
     }
     
-    if (state.activeTab === 'basic' && !state.content.trim()) {
+    // Check final content instead of just content
+    const contentToValidate = state.finalPromptContent || state.content;
+    if (!contentToValidate.trim()) {
       errors.content = getMessage('templateContentRequired', undefined, 'Template content is required');
     }
     
@@ -268,10 +364,10 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     
     setState(prev => ({ ...prev, validationErrors: errors }));
     return Object.keys(errors).length === 0;
-  }, [dialogType, state.name, state.content, state.activeTab, state.metadata]);
+  }, [dialogType, state.name, state.content, state.finalPromptContent, state.activeTab, state.metadata]);
   
   // ============================================================================
-  // FORM SUBMISSION
+  // FORM SUBMISSION (updated to handle final content and block modifications)
   // ============================================================================
   
   const handleComplete = useCallback(async () => {
@@ -282,7 +378,15 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     setState(prev => ({ ...prev, isSubmitting: true, error: null }));
     
     try {
-      const success = await onComplete(state.content, state.metadata);
+      // Use final content if available, otherwise use base content
+      const contentToSave = state.finalPromptContent || state.content;
+      
+      const success = await onComplete(
+        contentToSave, 
+        state.metadata, 
+        state.finalPromptContent
+      );
+      
       if (success) {
         onClose();
       }
@@ -295,15 +399,22 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     } finally {
       setState(prev => ({ ...prev, isSubmitting: false }));
     }
-  }, [validateForm, onComplete, onClose, state.content, state.metadata]);
+  }, [validateForm, onComplete, onClose, state.content, state.metadata, state.finalPromptContent]);
   
   const handleClose = useCallback(() => {
+    // **FIX: Reset initialization flag**
+    isInitializingRef.current = true;
+    baselineContentRef.current = '';
+    
     setState({
       name: '',
       description: '',
       content: '',
       selectedFolderId: '',
       metadata: createMetadata(),
+      finalPromptContent: '',
+      hasUnsavedFinalChanges: false,
+      modifiedBlocks: {},
       activeTab: 'basic',
       expandedMetadata: new Set(PRIMARY_METADATA),
       metadataCollapsed: false,
@@ -317,11 +428,14 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   }, [onClose]);
   
   // ============================================================================
-  // INITIALIZATION
+  // INITIALIZATION - FIXED
   // ============================================================================
   
   useEffect(() => {
     if (initialData) {
+      console.log('Initializing dialog with data:', initialData);
+      isInitializingRef.current = true;
+      
       setState(prev => ({
         ...prev,
         isProcessing: true,
@@ -332,13 +446,20 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
         // Initialize form data
         if (dialogType === 'create') {
           const meta = initialData.template?.metadata || createMetadata();
+          const content = getLocalizedContent(initialData.template?.content || '');
+          
+          // **FIX: Set baseline content before setting final content**
+          baselineContentRef.current = content;
+          
           setState(prev => ({
             ...prev,
             name: initialData.template?.title || '',
             description: initialData.template?.description || '',
-            content: getLocalizedContent(initialData.template?.content || ''),
+            content,
             selectedFolderId: initialData.selectedFolder?.id?.toString() || '',
             metadata: meta,
+            finalPromptContent: content,
+            hasUnsavedFinalChanges: false, // **FIX: Explicitly set to false**
             expandedMetadata: new Set([
               ...PRIMARY_METADATA,
               ...Array.from(getActiveSecondaryMetadata(meta))
@@ -347,10 +468,17 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
           }));
         } else if (dialogType === 'customize') {
           const meta = initialData.metadata || createMetadata();
+          const content = getLocalizedContent(initialData.content || '');
+          
+          // **FIX: Set baseline content before setting final content**
+          baselineContentRef.current = content;
+          
           setState(prev => ({
             ...prev,
-            content: getLocalizedContent(initialData.content || ''),
+            content,
             metadata: meta,
+            finalPromptContent: content,
+            hasUnsavedFinalChanges: false, // **FIX: Explicitly set to false**
             expandedMetadata: new Set([
               ...PRIMARY_METADATA,
               ...Array.from(getActiveSecondaryMetadata(meta))
@@ -358,6 +486,13 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             isProcessing: false
           }));
         }
+        
+        // **FIX: Mark initialization as complete after a short delay**
+        setTimeout(() => {
+          isInitializingRef.current = false;
+          console.log('Dialog initialization complete');
+        }, 100);
+        
       } catch (error) {
         console.error('Error initializing template dialog:', error);
         setState(prev => ({
@@ -365,6 +500,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
           error: getMessage('errorProcessingTemplate', undefined, 'Error processing template'),
           isProcessing: false
         }));
+        isInitializingRef.current = false;
       }
     }
   }, [initialData, dialogType]);
@@ -379,6 +515,12 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     setDescription,
     setContent,
     setSelectedFolderId,
+    
+    // Final content actions
+    setFinalPromptContent,
+    applyFinalContentChanges,
+    discardFinalContentChanges,
+    updateBlockContent,
     
     // Metadata actions
     updateSingleMetadataValue,

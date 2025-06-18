@@ -1,4 +1,4 @@
-// src/hooks/dialogs/useCustomizeTemplateDialog.ts
+// src/hooks/dialogs/useCustomizeTemplateDialog.ts - Enhanced Version
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { useTemplateDialogBase } from './useTemplateDialogBase';
@@ -6,20 +6,21 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { PromptMetadata } from '@/types/prompts/metadata';
-import { buildCompletePrompt } from '@/utils/prompts/promptUtils';
-import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
-  const { blockContentCache } = useBlockManager();
   
-  const handleComplete = async (content: string, metadata: PromptMetadata): Promise<boolean> => {
+  const handleComplete = async (
+    content: string, 
+    metadata: PromptMetadata, 
+    finalContent?: string
+  ): Promise<boolean> => {
     try {
-      // Build final content with metadata
-      const finalContent = buildCompletePrompt(metadata, content, blockContentCache);
+      // **NEW: Use final content if available, otherwise use base content**
+      const contentToUse = finalContent || content;
       
       if (data && data.onComplete) {
-        data.onComplete(finalContent);
+        data.onComplete(contentToUse);
       }
       
       // Track usage
@@ -29,7 +30,9 @@ export function useCustomizeTemplateDialog() {
         template_type: data?.type,
         metadata_items_count: Object.keys(metadata.values || {}).length + 
                               (metadata.constraints?.length || 0) + 
-                              (metadata.examples?.length || 0)
+                              (metadata.examples?.length || 0),
+        final_content_length: contentToUse.length,
+        content_modified: finalContent !== undefined && finalContent !== content
       });
       
       // Trigger cleanup events

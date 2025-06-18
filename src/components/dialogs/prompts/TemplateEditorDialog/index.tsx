@@ -1,8 +1,8 @@
-// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx - Updated
+// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx - Enhanced Version
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Save, RotateCcw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
@@ -27,11 +27,22 @@ interface TemplateEditorDialogProps {
   activeTab: 'basic' | 'advanced';
   isSubmitting: boolean;
   
+  // **NEW: Final content state**
+  finalPromptContent: string;
+  hasUnsavedFinalChanges: boolean;
+  modifiedBlocks: Record<number, string>;
+  
   // Actions from base hook
   setContent: (content: string) => void;
   setActiveTab: (tab: 'basic' | 'advanced') => void;
   handleComplete: () => Promise<void>;
   handleClose: () => void;
+  
+  // **NEW: Final content actions**
+  setFinalPromptContent: (content: string) => void;
+  applyFinalContentChanges: () => void;
+  discardFinalContentChanges: () => void;
+  updateBlockContent: (blockId: number, newContent: string) => void;
   
   // Metadata setter for child components
   setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
@@ -63,11 +74,22 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   activeTab,
   isSubmitting,
   
+  // **NEW: Final content state**
+  finalPromptContent,
+  hasUnsavedFinalChanges,
+  modifiedBlocks,
+  
   // Actions
   setContent,
   setActiveTab,
   handleComplete,
   handleClose,
+
+  // **NEW: Final content actions**
+  setFinalPromptContent,
+  applyFinalContentChanges,
+  discardFinalContentChanges,
+  updateBlockContent,
 
   // Metadata
   setMetadata,
@@ -94,15 +116,30 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     availableBlocksByType,
     blockContentCache,
     buildFinalPromptContent,
-    addNewBlock
-  } = useBlockManager();
+    addNewBlock,
+    applyModifications,
+    getEffectiveBlockContent
+  } = useBlockManager({
+    metadata,
+    content,
+    onFinalContentChange: setFinalPromptContent,
+    onBlockModification: updateBlockContent,
+    dialogType: mode === 'create' ? 'create' : 'customize'
+  });
 
-  // Build final content for preview
-  const finalPromptContent = React.useMemo(() => {
-    if (blocksLoading) return '';
-    return buildFinalPromptContent(metadata, content);
-  }, [metadata, content, buildFinalPromptContent, blocksLoading]);
+  // **NEW: Handle final content changes from preview**
+  const handleFinalContentChange = React.useCallback((newContent: string) => {
+    setFinalPromptContent(newContent);
+  }, [setFinalPromptContent]);
 
+  // **NEW: Handle apply/discard changes**
+  const handleApplyChanges = React.useCallback(() => {
+    applyFinalContentChanges();
+  }, [applyFinalContentChanges]);
+
+  const handleDiscardChanges = React.useCallback(() => {
+    discardFinalContentChanges();
+  }, [discardFinalContentChanges]);
 
   const contextValue = React.useMemo(
     () => ({
@@ -169,6 +206,36 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       className="jd-max-w-6xl jd-h-[100vh]"
     >
       {infoForm}
+      
+      {/* **NEW: Unsaved changes notification** */}
+      {hasUnsavedFinalChanges && (
+        <Alert className="jd-mb-4 jd-bg-amber-50 jd-border-amber-200 jd-text-amber-800">
+          <AlertTriangle className="jd-h-4 jd-w-4" />
+          <AlertDescription className="jd-flex jd-items-center jd-justify-between">
+            <span>You have unsaved changes in the preview</span>
+            <div className="jd-flex jd-gap-2">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={handleDiscardChanges}
+                className="jd-h-6 jd-px-2 jd-text-xs"
+              >
+                <RotateCcw className="jd-h-3 jd-w-3 jd-mr-1" />
+                Discard
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={handleApplyChanges}
+                className="jd-h-6 jd-px-2 jd-text-xs jd-bg-amber-600 hover:jd-bg-amber-700"
+              >
+                <Save className="jd-h-3 jd-w-3 jd-mr-1" />
+                Apply
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <TemplateEditorProvider value={contextValue}>
       <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">
         {error && (
@@ -205,6 +272,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 isProcessing={false}
                 finalPromptContent={finalPromptContent}
                 blockContentCache={blockContentCache}
+                onFinalContentChange={handleFinalContentChange}
               />
             </TabsContent>
 
@@ -219,6 +287,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 blockContentCache={blockContentCache}
                 onBlockSaved={addNewBlock}
                 finalPromptContent={finalPromptContent}
+                onFinalContentChange={handleFinalContentChange}
               />
             </TabsContent>
           </Tabs>
@@ -242,7 +311,9 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
         
         {process.env.NODE_ENV === 'development' && (
           <div className="jd-text-xs jd-text-gray-500 jd-mt-2">
-            Final content length: {finalPromptContent.length} chars
+            <div>Final content length: {finalPromptContent.length} chars</div>
+            <div>Has unsaved changes: {hasUnsavedFinalChanges.toString()}</div>
+            <div>Modified blocks: {Object.keys(modifiedBlocks).length}</div>
           </div>
         )}
       </div>

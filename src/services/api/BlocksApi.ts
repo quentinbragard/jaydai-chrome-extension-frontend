@@ -1,45 +1,42 @@
-// src/services/api/BlocksApi.ts
+// src/services/api/BlocksApi.ts - Enhanced Version
 import { apiClient } from './ApiClient';
 import { Block, BlockType } from '@/types/prompts/blocks';
 
-export interface BlockResponse {
-  id: number;
+interface CreateBlockData {
+  title: string;
+  content: string | Record<string, string>;
   type: BlockType;
-  content: Record<string, string>;
-  title?: Record<string, string>;
-  description?: Record<string, string>;
-  user_id?: string;
-  organization_id?: string;
-  company_id?: string;
-  created_at: string;
+  description?: string;
+  is_published?: boolean;
+  parent_block_id?: number;
+  tags?: string[];
 }
 
-export interface CreateBlockData {
-  type: BlockType;
-  content: Record<string, string>;
-  title?: Record<string, string>;
-  description?: Record<string, string>;
-  organization_id?: string;
-  company_id?: string;
+interface UpdateBlockData {
+  title?: string;
+  content?: string | Record<string, string>;
+  description?: string;
+  is_published?: boolean;
+  tags?: string[];
 }
 
-export interface UpdateBlockData {
-  type?: BlockType;
-  content?: Record<string, string>;
-  title?: Record<string, string>;
-  description?: Record<string, string>;
+interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
 }
 
-export class BlocksApi {
+class BlocksApiClient {
   /**
-   * Get all blocks accessible to the user
+   * Get all blocks of a specific type
    */
-  async getBlocks(type?: BlockType): Promise<any> {
+  async getBlocksByType(type: BlockType): Promise<ApiResponse<Block[]>> {
     try {
-      const params = type ? `?type=${type}` : '';
-      return await apiClient.request(`/prompts/blocks${params}`);
+      const response = await apiClient.request(`/prompts/blocks?type=${type}`);
+      return response;
     } catch (error) {
-      console.error('Error fetching blocks:', error);
+      console.error(`Error fetching blocks of type ${type}:`, error);
       return {
         success: false,
         data: [],
@@ -49,30 +46,63 @@ export class BlocksApi {
   }
 
   /**
-   * Get blocks by specific type
+   * Get a single block by ID
    */
-  async getBlocksByType(blockType: BlockType): Promise<any> {
+  async getBlock(id: number): Promise<ApiResponse<Block>> {
     try {
-      return await apiClient.request(`/prompts/blocks/by-type/${blockType}`);
+      const response = await apiClient.request(`/prompts/blocks/${id}`);
+      return response;
     } catch (error) {
-      console.error(`Error fetching ${blockType} blocks:`, error);
+      console.error(`Error fetching block ${id}:`, error);
       return {
         success: false,
-        data: [],
         message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
 
   /**
-   * Create a new block
+   * **NEW: Get a single block by ID (alias for compatibility)**
    */
-  async createBlock(blockData: CreateBlockData): Promise<any> {
+  async getBlockById(id: number): Promise<ApiResponse<Block>> {
+    return this.getBlock(id);
+  }
+
+  /**
+   * **NEW: Create a new block**
+   */
+  async createBlock(data: CreateBlockData): Promise<ApiResponse<Block>> {
     try {
-      return await apiClient.request('/prompts/blocks', {
+      console.log('Creating new block:', data);
+      
+      // Validate required fields
+      if (!data.title || !data.content || !data.type) {
+        return {
+          success: false,
+          message: 'Title, content, and type are required'
+        };
+      }
+
+      const requestBody = {
+        title: data.title,
+        content: data.content,
+        type: data.type,
+        description: data.description || '',
+        is_published: data.is_published ?? true, // Default to published
+        parent_block_id: data.parent_block_id || null,
+        tags: data.tags || []
+      };
+
+      const response = await apiClient.request('/prompts/blocks', {
         method: 'POST',
-        body: JSON.stringify(blockData)
+        body: JSON.stringify(requestBody)
       });
+
+      if (response.success) {
+        console.log('Block created successfully:', response.data);
+      }
+
+      return response;
     } catch (error) {
       console.error('Error creating block:', error);
       return {
@@ -83,16 +113,24 @@ export class BlocksApi {
   }
 
   /**
-   * Update an existing block
+   * **NEW: Update an existing block**
    */
-  async updateBlock(blockId: number, blockData: UpdateBlockData): Promise<any> {
+  async updateBlock(id: number, data: UpdateBlockData): Promise<ApiResponse<Block>> {
     try {
-      return await apiClient.request(`/prompts/blocks/${blockId}`, {
+      console.log(`Updating block ${id}:`, data);
+      
+      const response = await apiClient.request(`/prompts/blocks/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(blockData)
+        body: JSON.stringify(data)
       });
+
+      if (response.success) {
+        console.log('Block updated successfully:', response.data);
+      }
+
+      return response;
     } catch (error) {
-      console.error('Error updating block:', error);
+      console.error(`Error updating block ${id}:`, error);
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Unknown error'
@@ -101,15 +139,23 @@ export class BlocksApi {
   }
 
   /**
-   * Delete a block
+   * **NEW: Delete a block**
    */
-  async deleteBlock(blockId: number): Promise<any> {
+  async deleteBlock(id: number): Promise<ApiResponse<void>> {
     try {
-      return await apiClient.request(`/prompts/blocks/${blockId}`, {
+      console.log(`Deleting block ${id}`);
+      
+      const response = await apiClient.request(`/prompts/blocks/${id}`, {
         method: 'DELETE'
       });
+
+      if (response.success) {
+        console.log('Block deleted successfully');
+      }
+
+      return response;
     } catch (error) {
-      console.error('Error deleting block:', error);
+      console.error(`Error deleting block ${id}:`, error);
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Unknown error'
@@ -118,29 +164,72 @@ export class BlocksApi {
   }
 
   /**
-   * Fetch a single block by ID
+   * **NEW: Duplicate a block with modifications**
    */
-  async getBlock(blockId: number): Promise<any> {
+  async duplicateBlock(
+    originalId: number, 
+    modifications: Partial<CreateBlockData>
+  ): Promise<ApiResponse<Block>> {
     try {
-      return await apiClient.request(`/prompts/blocks/${blockId}`);
+      // First, get the original block
+      const originalResponse = await this.getBlock(originalId);
+      if (!originalResponse.success || !originalResponse.data) {
+        return {
+          success: false,
+          message: 'Could not fetch original block'
+        };
+      }
+
+      const original = originalResponse.data;
+      
+      // Create new block data
+      const newBlockData: CreateBlockData = {
+        title: modifications.title || `${original.title} (Copy)`,
+        content: modifications.content || original.content,
+        type: modifications.type || original.type,
+        description: modifications.description || original.description,
+        is_published: modifications.is_published ?? false, // Default to unpublished for copies
+        parent_block_id: modifications.parent_block_id ?? originalId,
+        tags: modifications.tags || original.tags || []
+      };
+
+      return this.createBlock(newBlockData);
     } catch (error) {
-      console.error('Error fetching block:', error);
+      console.error(`Error duplicating block ${originalId}:`, error);
       return {
         success: false,
-        data: null,
         message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
 
   /**
-   * Get all available block types
+   * **NEW: Bulk create blocks (useful for batch operations)**
    */
-  async getBlockTypes(): Promise<any> {
+  async createBlocks(blocksData: CreateBlockData[]): Promise<ApiResponse<Block[]>> {
     try {
-      return await apiClient.request('/prompts/blocks/types');
+      console.log('Creating multiple blocks:', blocksData.length);
+      
+      const results = await Promise.all(
+        blocksData.map(data => this.createBlock(data))
+      );
+
+      const successful = results.filter(r => r.success);
+      const failed = results.filter(r => !r.success);
+
+      if (failed.length > 0) {
+        console.warn(`${failed.length} blocks failed to create`);
+      }
+
+      return {
+        success: successful.length > 0,
+        data: successful.map(r => r.data!),
+        message: failed.length > 0 
+          ? `${successful.length} blocks created, ${failed.length} failed`
+          : `${successful.length} blocks created successfully`
+      };
     } catch (error) {
-      console.error('Error fetching block types:', error);
+      console.error('Error creating multiple blocks:', error);
       return {
         success: false,
         data: [],
@@ -150,21 +239,42 @@ export class BlocksApi {
   }
 
   /**
-   * Seed sample blocks (development only)
+   * **NEW: Search blocks by content or title**
    */
-  async seedSampleBlocks(): Promise<any> {
+  async searchBlocks(query: string, type?: BlockType): Promise<ApiResponse<Block[]>> {
     try {
-      return await apiClient.request('/prompts/blocks/seed-sample-blocks', {
-        method: 'POST'
-      });
+      const params = new URLSearchParams({ q: query });
+      if (type) params.append('type', type);
+      
+      const response = await apiClient.request(`/prompts/blocks/search?${params.toString()}`);
+      return response;
     } catch (error) {
-      console.error('Error seeding sample blocks:', error);
+      console.error('Error searching blocks:', error);
       return {
         success: false,
+        data: [],
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * **NEW: Get blocks by parent ID (for finding modified versions)**
+   */
+  async getBlocksByParent(parentId: number): Promise<ApiResponse<Block[]>> {
+    try {
+      const response = await apiClient.request(`/prompts/blocks?parent_id=${parentId}`);
+      return response;
+    } catch (error) {
+      console.error(`Error fetching child blocks of ${parentId}:`, error);
+      return {
+        success: false,
+        data: [],
         message: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
 }
 
-export const blocksApi = new BlocksApi();
+// Export singleton instance
+export const blocksApi = new BlocksApiClient();

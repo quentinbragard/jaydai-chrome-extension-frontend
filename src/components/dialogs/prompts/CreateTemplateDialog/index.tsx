@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/CreateTemplateDialog/index.tsx
+// src/components/dialogs/prompts/CreateTemplateDialog/index.tsx - Updated
 import React, { useMemo } from 'react';
 import { getMessage } from '@/core/utils/i18n';
 import { useCreateTemplateDialog } from '@/hooks/dialogs/useCreateTemplateDialog';
@@ -6,7 +6,6 @@ import { TemplateEditorDialog } from '../TemplateEditorDialog';
 import { BasicInfoForm } from './BasicInfoForm';
 import { processUserFolders } from '@/utils/prompts/templateUtils';
 import { useUserFolders } from '@/hooks/prompts';
-
 
 export const CreateTemplateDialog: React.FC = () => {
   const hook = useCreateTemplateDialog();
@@ -46,11 +45,22 @@ export const CreateTemplateDialog: React.FC = () => {
       activeTab={hook.activeTab}
       isSubmitting={hook.isSubmitting}
       
+      // **NEW: Final content state**
+      finalPromptContent={hook.finalPromptContent}
+      hasUnsavedFinalChanges={hook.hasUnsavedFinalChanges}
+      modifiedBlocks={hook.modifiedBlocks}
+      
       // Actions
       setContent={hook.setContent}
       setActiveTab={hook.setActiveTab}
       handleComplete={hook.handleComplete}
       handleClose={hook.handleClose}
+      
+      // **NEW: Final content actions**
+      setFinalPromptContent={hook.setFinalPromptContent}
+      applyFinalContentChanges={hook.applyFinalContentChanges}
+      discardFinalContentChanges={hook.discardFinalContentChanges}
+      updateBlockContent={hook.updateBlockContent}
       
       // Metadata update
       setMetadata={hook.setMetadata}

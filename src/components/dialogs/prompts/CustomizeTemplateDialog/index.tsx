@@ -1,5 +1,4 @@
-
-// src/components/dialogs/prompts/CustomizeTemplateDialog/index.tsx
+// src/components/dialogs/prompts/CustomizeTemplateDialog/index.tsx - Updated
 import React from 'react';
 import { getMessage } from '@/core/utils/i18n';
 import { useCustomizeTemplateDialog } from '@/hooks/dialogs/useCustomizeTemplateDialog';
@@ -19,11 +18,22 @@ export const CustomizeTemplateDialog: React.FC = () => {
       activeTab={hook.activeTab}
       isSubmitting={hook.isSubmitting}
       
+      // **NEW: Final content state**
+      finalPromptContent={hook.finalPromptContent}
+      hasUnsavedFinalChanges={hook.hasUnsavedFinalChanges}
+      modifiedBlocks={hook.modifiedBlocks}
+      
       // Actions
       setContent={hook.setContent}
       setActiveTab={hook.setActiveTab}
       handleComplete={hook.handleComplete}
       handleClose={hook.handleClose}
+      
+      // **NEW: Final content actions**
+      setFinalPromptContent={hook.setFinalPromptContent}
+      applyFinalContentChanges={hook.applyFinalContentChanges}
+      discardFinalContentChanges={hook.discardFinalContentChanges}
+      updateBlockContent={hook.updateBlockContent}
       
       // Metadata update
       setMetadata={hook.setMetadata}
