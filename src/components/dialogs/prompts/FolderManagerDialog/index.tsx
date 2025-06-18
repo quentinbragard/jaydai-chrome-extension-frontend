@@ -95,6 +95,7 @@ export const FolderManagerDialog: React.FC = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="root">None</SelectItem>
+
               {folders.filter(f => f.id !== folder.id).map(f => (
                 <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>
               ))}

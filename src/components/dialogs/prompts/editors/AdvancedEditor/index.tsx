@@ -15,18 +15,8 @@ import {
 } from '@/types/prompts/metadata';
 import { MetadataSection } from './MetadataSection';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
-import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
-import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
-import {
-  updateSingleMetadata,
-  updateCustomValue,
-  addMetadataItem,
-  removeMetadataItem,
-  updateMetadataItem,
-  reorderMetadataItems,
-  addSecondaryMetadata,
-  removeSecondaryMetadata
-} from '@/utils/prompts/metadataUtils';
+import { EnhancedEditablePreview } from '@/components/prompts/EnhancedEditablePreview';
+import { Eye, EyeOff, ChevronDown, ChevronUp, Check } from 'lucide-react';
 
 interface AdvancedEditorProps {
   content: string;
@@ -46,28 +36,12 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   onContentChange,
   isProcessing = false,
   availableMetadataBlocks = {},
+  blockContentCache,
   finalPromptContent
 }) => {
   const isDarkMode = useThemeDetector();
-  const [showPreview, setShowPreview] = useState(false);
-
-  // Use final prompt content if available, otherwise build from current state
-  const previewContent = finalPromptContent || content;
-
-  // Build preview HTML using resolved content
-  const previewHtml = useMemo(() => {
-    if (!previewContent) return '';
-    
-    // Simple HTML conversion with placeholder highlighting
-    return previewContent
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\n/g, '<br>')
-      .replace(/\[([^\]]+)\]/g,
-        '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
-      );
-  }, [previewContent]);
+  const [showPreview, setShowPreview] = useState(true); // Show by default in advanced mode
+  const { metadata } = useTemplateEditor();
 
   const togglePreview = () => {
     setShowPreview(prev => !prev);
@@ -101,26 +75,36 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             showSecondary={false}
           />
         </div>
+
         {/* 2. MAIN CONTENT SECTION */}
         <div className="jd-flex-shrink-0">
           <div className="jd-space-y-3">
             <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
               <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
               Main Content
+              {hasPendingChanges && (
+                <span className="jd-inline-flex jd-items-center jd-gap-1 jd-text-xs jd-text-amber-600 jd-bg-amber-50 jd-px-2 jd-py-1 jd-rounded-full">
+                  <span className="jd-w-2 jd-h-2 jd-bg-amber-500 jd-rounded-full jd-animate-pulse"></span>
+                  Unsaved changes
+                </span>
+              )}
             </h3>
             <div className="jd-relative">
               <Textarea
-                value={content}
-                onChange={e => onContentChange(e.target.value)}
+                value={pendingContentRef.current}
+                onChange={e => handleContentChangeEnhanced(e.target.value)}
                 className="!jd-min-h-[200px] jd-text-sm jd-resize-none jd-transition-all jd-duration-200 focus:jd-ring-2 focus:jd-ring-primary/50"
                 placeholder="Enter your main prompt content here..."
                 onKeyDown={(e) => e.stopPropagation()}
                 onKeyPress={(e) => e.stopPropagation()}
                 onKeyUp={(e) => e.stopPropagation()}
               />
-              {content && (
+              {pendingContentRef.current && (
                 <div className="jd-absolute jd-bottom-2 jd-right-3 jd-text-xs jd-text-muted-foreground jd-bg-background/80 jd-px-2 jd-py-1 jd-rounded">
-                  {content.length} characters
+                  {pendingContentRef.current.length} characters
+                  {hasPendingContentChanges && (
+                    <span className="jd-text-amber-600 jd-ml-2">• Modified</span>
+                  )}
                 </div>
               )}
             </div>
@@ -165,17 +149,17 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               )}
               <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-ml-auto">
                 <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
-                <span>Placeholders</span>
+                <span>Editable</span>
               </div>
             </div>
           </Button>
         </div>
 
-        {/* 5. ANIMATED PREVIEW SECTION */}
+        {/* 5. ANIMATED PREVIEW SECTION WITH FULL EDITING */}
         <div 
           className={cn(
             'jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out',
-            showPreview ? 'jd-max-h-[500px] jd-opacity-100' : 'jd-max-h-0 jd-opacity-0'
+            showPreview ? 'jd-max-h-[600px] jd-opacity-100' : 'jd-max-h-0 jd-opacity-0'
           )}
         >
           <div className={cn(
@@ -183,21 +167,16 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             showPreview ? 'jd-translate-y-0' : 'jd--translate-y-4'
           )}>
             <div className="jd-space-y-3 jd-pt-4">
-              <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-                <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full jd-animate-pulse"></span>
-                Final Preview
-                <div className="jd-text-xs jd-text-muted-foreground jd-ml-auto">
-                  {finalPromptContent ? 'Using resolved content' : 'Using current state'}
-                </div>
-              </h3>
-              <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-green-500/20 jd-to-teal-500/20">
-                <EditablePromptPreview
-                  content={previewContent}
-                  htmlContent={previewHtml}
-                  isDark={isDarkMode}
-                  enableAdvancedEditing={false} // Read-only in advanced editor
-                />
-              </div>
+              <EnhancedEditablePreview
+                metadata={metadata}
+                content={content}
+                blockContentCache={blockContentCache}
+                isDarkMode={isDarkMode}
+                onContentChange={onContentChange}
+                title="Final Preview"
+                collapsible={false}
+                className="jd-max-h-[500px] jd-overflow-auto"
+              />
             </div>
           </div>
         </div>
