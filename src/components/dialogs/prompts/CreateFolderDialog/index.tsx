@@ -48,9 +48,9 @@ export const CreateFolderDialog: React.FC = () => {
     try {
       // Prepare folder data
       const folderData = {
-        name: name.trim(),
-        path: name.trim().toLowerCase().replace(/\s+/g, '-'),
-        description: description.trim()
+        title: name.trim(),
+        description: description.trim(),
+        parent_folder_id: null,
       };
       
       // Call the provided callback with folder data if it exists

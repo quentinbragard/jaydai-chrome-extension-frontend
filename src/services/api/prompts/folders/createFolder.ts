@@ -4,26 +4,30 @@
 
 import { apiClient } from "@/services/api/ApiClient";
 
-export async function createFolder(folderData: { name: string, path: string, description?: string }): Promise<any> {
-    try {
-      if (!folderData.name) {
-        return {
-          success: false,
-          message: 'Folder name is required'
-        };
-      }
-
-      const response = await apiClient.request('/prompts/folders', {
-        method: 'POST',
-        body: JSON.stringify(folderData)
-      });
-      return response;
-    } catch (error) {
-      console.error('Error creating folder:', error);
+export async function createFolder(folderData: {
+  title: string;
+  description?: string;
+  parent_folder_id?: number | null;
+}): Promise<any> {
+  try {
+    if (!folderData.title) {
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: 'Folder title is required',
       };
     }
+
+    const response = await apiClient.request('/prompts/folders', {
+      method: 'POST',
+      body: JSON.stringify(folderData),
+    });
+    return response;
+  } catch (error) {
+    console.error('Error creating folder:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error',
+    };
   }
+}
   

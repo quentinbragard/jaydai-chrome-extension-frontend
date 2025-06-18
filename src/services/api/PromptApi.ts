@@ -68,7 +68,7 @@ class PromptApiClient {
     return getUserTemplates();
   }
 
-  async createFolder(folderData: { name: string, path: string, description?: string }): Promise<any> {
+  async createFolder(folderData: { title: string; description?: string; parent_folder_id?: number | null }): Promise<any> {
     return createFolder(folderData);
   }
 
@@ -76,7 +76,7 @@ class PromptApiClient {
     return deleteFolder(folderId);
   }
 
-  async updateFolder(folderId: number, data: { name?: string; description?: string; parent_id?: number | null }): Promise<any> {
+  async updateFolder(folderId: number, data: { title?: string; description?: string; parent_folder_id?: number | null }): Promise<any> {
     return updateFolder(folderId, data);
   }
 
