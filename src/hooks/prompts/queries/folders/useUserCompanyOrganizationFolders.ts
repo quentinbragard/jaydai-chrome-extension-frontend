@@ -1,4 +1,4 @@
-// src/hooks/prompts/queries/folders/useUserCompanyMixedFolders.ts
+// src/hooks/prompts/queries/folders/useUserCompanyOrganizationFolders.ts
 import { useQuery } from 'react-query';
 import { promptApi } from '@/services/api';
 import { toast } from 'sonner';
@@ -46,21 +46,21 @@ export function useCompanyFolders() {
   });
 }
 
-export function useMixedFolders() {
+export function useOrganizationFolders() {
   const locale = getCurrentLanguage();
 
-  return useQuery(QUERY_KEYS.MIXED_FOLDERS, async (): Promise<TemplateFolder[]> => {
+  return useQuery(QUERY_KEYS.ORGANIZATION_FOLDERS, async (): Promise<TemplateFolder[]> => {
     // Get folders
-    const foldersResponse = await promptApi.getFolders('mixed', true, true, locale);
+    const foldersResponse = await promptApi.getFolders('organization', true, true, locale);
     console.log("foldersResponse", foldersResponse);
     if (!foldersResponse.success) {
-      throw new Error(foldersResponse.message || 'Failed to load mixed folders');
+      throw new Error(foldersResponse.message || 'Failed to load organization folders');
     }
-    return foldersResponse.data.folders.mixed || [];
+    return foldersResponse.data.folders.organization || [];
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
-      toast.error(`Failed to load mixed folders: ${error.message}`);
+      toast.error(`Failed to load organization folders: ${error.message}`);
     }
   });
 }

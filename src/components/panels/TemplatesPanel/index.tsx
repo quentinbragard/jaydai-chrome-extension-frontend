@@ -14,7 +14,7 @@ import {
   usePinnedFolders,
   useUserFolders,
   useCompanyFolders,
-  useMixedFolders,
+  useOrganizationFolders,
   useFolderMutations,
   useTemplateMutations,
   useTemplateActions
@@ -94,7 +94,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     isLoading: loadingMixed,
     error: mixedError,
     refetch: refetchMixed
-  } = useMixedFolders();
+  } = useOrganizationFolders();
 
   console.log("userFolders", userFolders);
 

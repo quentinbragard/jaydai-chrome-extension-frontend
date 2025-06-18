@@ -1,4 +1,4 @@
-// src/utils/templates/placeholderHelpers.ts - Enhanced with block colors
+// src/utils/templates/placeholderHelpers.ts - Enhanced with unified preview generation
 import { getBlockTextColors } from '@/utils/prompts/blockUtils';
 
 export interface PlaceholderMatch {
@@ -45,40 +45,41 @@ export function highlightPlaceholders(text: string, options?: {
 
 /**
  * Add block type colors to content based on common patterns
+ * This is the UNIFIED approach that should be used everywhere
  */
 export function addBlockTypeColors(htmlContent: string, isDarkMode: boolean): string {
-  // Define patterns for different block types
+  // Define patterns for different block types with their exact prefixes
   const patterns = [
     { 
-      regex: /(Ton rôle est de|Role:|Rôle:)/gi, 
+      regex: /(Role:\s*|Ton rôle est de\s*)/gi, 
       blockType: 'role' 
     },
     { 
-      regex: /(Le contexte est|Context:|Contexte:)/gi, 
+      regex: /(Contexte:\s*|Le contexte est\s*|Context:\s*)/gi, 
       blockType: 'context' 
     },
     { 
-      regex: /(Ton objectif est|Goal:|Objectif:)/gi, 
+      regex: /(Objectif:\s*|Ton objectif est\s*|Goal:\s*)/gi, 
       blockType: 'goal' 
     },
     { 
-      regex: /(L'audience ciblée est|Audience:|Public cible:)/gi, 
+      regex: /(Audience cible:\s*|L'audience ciblée est\s*|Audience:\s*)/gi, 
       blockType: 'audience' 
     },
     { 
-      regex: /(Le format attendu est|Output format:|Format de sortie:)/gi, 
+      regex: /(Format de sortie:\s*|Le format attendu est\s*|Output format:\s*)/gi, 
       blockType: 'output_format' 
     },
     { 
-      regex: /(Le ton et style sont|Tone:|Style:)/gi, 
+      regex: /(Ton et style:\s*|Le ton et style sont\s*|Tone:\s*|Style:\s*)/gi, 
       blockType: 'tone_style' 
     },
     { 
-      regex: /(Contrainte:|Constraint:)/gi, 
+      regex: /(Contrainte:\s*|Constraint:\s*)/gi, 
       blockType: 'constraint' 
     },
     { 
-      regex: /(Exemple:|Example:)/gi, 
+      regex: /(Exemple:\s*|Example:\s*)/gi, 
       blockType: 'example' 
     }
   ];
@@ -95,10 +96,39 @@ export function addBlockTypeColors(htmlContent: string, isDarkMode: boolean): st
 }
 
 /**
+ * UNIFIED function for generating preview HTML with colors and placeholder highlighting
+ * This should be used in ALL preview components for consistency
+ */
+export function generateUnifiedPreviewHtml(content: string, isDarkMode: boolean): string {
+  if (!content?.trim()) {
+    return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
+  }
+
+  // Step 1: Escape HTML
+  let htmlContent = content
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .replace(/\n/g, '<br>');
+
+  // Step 2: Add block type colors
+  htmlContent = addBlockTypeColors(htmlContent, isDarkMode);
+
+  // Step 3: Add placeholder highlighting
+  htmlContent = htmlContent.replace(/\[([^\]]+)\]/g, 
+    '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
+  );
+
+  return htmlContent;
+}
+
+/**
  * Enhanced highlight function specifically for InsertBlockDialog compatibility
  */
 export function highlightPlaceholdersWithColors(text: string, isDarkMode: boolean = false): string {
-  return highlightPlaceholders(text, { addColors: true, isDarkMode });
+  return generateUnifiedPreviewHtml(text, isDarkMode);
 }
 
 /**
@@ -195,6 +225,15 @@ export function formatPreviewText(text: string, options?: {
     isDarkMode = false
   } = options || {};
 
+  if (!text?.trim()) {
+    return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
+  }
+
+  // Use the unified function for consistency
+  if (addColors && shouldHighlight) {
+    return generateUnifiedPreviewHtml(text, isDarkMode);
+  }
+
   let formatted = text;
 
   if (escapeHtml) {
@@ -220,7 +259,7 @@ export function formatPreviewText(text: string, options?: {
     );
   }
 
-  return formatted || '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
+  return formatted;
 }
 
 /**
@@ -270,18 +309,8 @@ export function getPlaceholderStats(text: string): {
 
 /**
  * Build enhanced preview content with colors for any editor
+ * This is the MAIN function that should be used everywhere
  */
 export function buildEnhancedPreview(content: string, isDarkMode: boolean): string {
-  if (!content.trim()) {
-    return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
-  }
-
-  // Process the content with colors and placeholder highlighting
-  return formatPreviewText(content, {
-    highlightPlaceholders: true,
-    escapeHtml: true,
-    preserveLineBreaks: true,
-    addColors: true,
-    isDarkMode
-  });
+  return generateUnifiedPreviewHtml(content, isDarkMode);
 }

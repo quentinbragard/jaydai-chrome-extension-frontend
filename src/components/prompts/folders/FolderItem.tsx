@@ -13,7 +13,7 @@ const ITEMS_PER_PAGE = 5;
 
 interface FolderItemProps {
   folder: TemplateFolder;
-  type: 'official' | 'organization' | 'user' | 'mixed';
+  type: 'company' | 'organization' | 'user';
   onTogglePin?: (folderId: number, isPinned: boolean, folderType?: 'official' | 'organization' | 'user') => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
   onUseTemplate?: (template: Template) => void;

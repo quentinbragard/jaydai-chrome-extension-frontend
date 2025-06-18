@@ -6,8 +6,8 @@ import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 
 interface FolderListProps {
   folders: TemplateFolder[];
-  type: 'official' | 'organization' | 'user' | 'mixed';
-  onTogglePin?: (folderId: number, isPinned: boolean, folderType?: 'official' | 'organization' | 'user') => Promise<void> | void;
+  type: 'company' | 'organization' | 'user';
+  onTogglePin?: (folderId: number, isPinned: boolean, folderType?: 'company' | 'organization' | 'user') => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
   onUseTemplate?: (template: Template) => void;
   onEditTemplate?: (template: Template) => void;

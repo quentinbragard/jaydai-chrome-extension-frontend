@@ -18,7 +18,7 @@ import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 
 interface BrowseTemplatesPanelProps {
-  folderType: 'official' | 'organization' | 'mixed';
+  folderType: 'official' | 'organization' | 'company';
   pinnedFolderIds?: number[];
   onPinChange?: (folderId: number, isPinned: boolean) => Promise<void>;
   onBackToTemplates: () => void;
@@ -54,7 +54,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
 
   // Map folder ID to its actual type (official or organization)
   const folderTypeMap = React.useMemo(() => {
-    const map: Record<number, 'official' | 'organization'> = {};
+    const map: Record<number, 'official' | 'organization' | 'company'> = {};
     folders.forEach(f => {
       const t = (f.type === 'official') ? 'official' : 'organization';
       map[f.id] = t;
@@ -92,11 +92,11 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
     
     try {
       // Call the mutation to update the backend
-      const typeToUse = folderType === 'mixed' ? folderTypeMap[folderId] : folderType;
+      const typeToUse = folderType === 'organization' ? folderTypeMap[folderId] : folderType;
       await toggleFolderPin.mutateAsync({
         folderId,
         isPinned,
-        type: typeToUse as 'official' | 'organization'
+        type: typeToUse as 'official' | 'organization' | 'company'
       });
       
       // Call the onPinChange prop if provided (after successful backend update)
