@@ -1,22 +1,18 @@
 // src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Updated
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import {
-  PromptMetadata,
   MetadataType,
-  SingleMetadataType,
-  MultipleMetadataType,
-  MetadataItem,
   Block,
   BlockType
 } from '@/types/prompts/metadata';
 import { MetadataSection } from './MetadataSection';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import { EnhancedEditablePreview } from '@/components/prompts/EnhancedEditablePreview';
-import { Eye, EyeOff, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface AdvancedEditorProps {
   content: string;
@@ -43,25 +39,25 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const [showPreview, setShowPreview] = useState(true); // Show by default in advanced mode
   const { metadata } = useTemplateEditor();
 
-  const pendingContentRef = useRef(content);
+  const [pendingContent, setPendingContent] = useState(content);
   const [hasPendingContentChanges, setHasPendingContentChanges] = useState(false);
 
   useEffect(() => {
-    pendingContentRef.current = content;
+    setPendingContent(content);
     setHasPendingContentChanges(false);
   }, [content]);
 
   const handleContentChangeEnhanced = useCallback((value: string) => {
-    pendingContentRef.current = value;
+    setPendingContent(value);
     setHasPendingContentChanges(value !== content);
   }, [content]);
 
   const commitContentChanges = useCallback(() => {
     if (hasPendingContentChanges) {
-      onContentChange(pendingContentRef.current);
+      onContentChange(pendingContent);
       setHasPendingContentChanges(false);
     }
-  }, [hasPendingContentChanges, onContentChange]);
+  }, [hasPendingContentChanges, onContentChange, pendingContent]);
 
   useEffect(() => {
     return () => {
@@ -119,7 +115,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
             </h3>
             <div className="jd-relative">
               <Textarea
-                value={pendingContentRef.current}
+                value={pendingContent}
                 onChange={e => handleContentChangeEnhanced(e.target.value)}
                 className="!jd-min-h-[200px] jd-text-sm jd-resize-none jd-transition-all jd-duration-200 focus:jd-ring-2 focus:jd-ring-primary/50"
                 placeholder="Enter your main prompt content here..."
@@ -127,9 +123,9 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                 onKeyPress={(e) => e.stopPropagation()}
                 onKeyUp={(e) => e.stopPropagation()}
               />
-              {pendingContentRef.current && (
+              {pendingContent && (
                 <div className="jd-absolute jd-bottom-2 jd-right-3 jd-text-xs jd-text-muted-foreground jd-bg-background/80 jd-px-2 jd-py-1 jd-rounded">
-                  {pendingContentRef.current.length} characters
+                  {pendingContent.length} characters
                   {hasPendingContentChanges && (
                     <span className="jd-text-amber-600 jd-ml-2">• Modified</span>
                   )}

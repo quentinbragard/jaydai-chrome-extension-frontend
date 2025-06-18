@@ -448,3 +448,52 @@ export function blockMappingToMetadata(
   
   return metadata;
 }
+
+/**
+ * Apply content overrides keyed by block ID to the metadata structure.
+ * This keeps the original block references while updating the associated
+ * custom values so modified text persists across editors.
+ */
+export function applyBlockOverridesToMetadata(
+  metadata: PromptMetadata,
+  overrides: Record<number, string>
+): PromptMetadata {
+  const updated = cloneMetadata(metadata);
+
+  const singleTypes: SingleMetadataType[] = [
+    'role',
+    'context',
+    'goal',
+    'audience',
+    'output_format',
+    'tone_style'
+  ];
+
+  singleTypes.forEach(type => {
+    const blockId = metadata[type];
+    if (blockId && overrides.hasOwnProperty(blockId)) {
+      if (!updated.values) updated.values = {} as any;
+      updated.values[type] = overrides[blockId];
+    }
+  });
+
+  if (metadata.constraints) {
+    updated.constraints = metadata.constraints.map(item => {
+      if (item.blockId && overrides.hasOwnProperty(item.blockId)) {
+        return { ...item, value: overrides[item.blockId] };
+      }
+      return item;
+    });
+  }
+
+  if (metadata.examples) {
+    updated.examples = metadata.examples.map(item => {
+      if (item.blockId && overrides.hasOwnProperty(item.blockId)) {
+        return { ...item, value: overrides[item.blockId] };
+      }
+      return item;
+    });
+  }
+
+  return updated;
+}
