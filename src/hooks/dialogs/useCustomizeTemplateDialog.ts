@@ -7,14 +7,16 @@ import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { PromptMetadata } from '@/types/prompts/metadata';
 import { buildCompletePrompt } from '@/utils/prompts/promptUtils';
+import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
+  const { blockContentCache } = useBlockManager();
   
   const handleComplete = async (content: string, metadata: PromptMetadata): Promise<boolean> => {
     try {
       // Build final content with metadata
-      const finalContent = buildCompletePrompt(metadata, content);
+      const finalContent = buildCompletePrompt(metadata, content, blockContentCache);
       
       if (data && data.onComplete) {
         data.onComplete(finalContent);
