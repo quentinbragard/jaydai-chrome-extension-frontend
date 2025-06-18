@@ -8,12 +8,14 @@ export function useDialogActions() {
   const openSettings = useCallback(() => openDialog(DIALOG_TYPES.SETTINGS, {}), [openDialog]);
 
   const openCreateTemplate = useCallback(
-    (props?: any) => openDialog(DIALOG_TYPES.CREATE_TEMPLATE, props),
+    (props?: any) =>
+      openDialog(DIALOG_TYPES.UNIFIED_TEMPLATE, { ...props, mode: 'create' }),
     [openDialog]
   );
 
   const openEditTemplate = useCallback(
-    (props?: any) => openDialog(DIALOG_TYPES.EDIT_TEMPLATE, props),
+    (props?: any) =>
+      openDialog(DIALOG_TYPES.UNIFIED_TEMPLATE, { ...props, mode: 'edit' }),
     [openDialog]
   );
 

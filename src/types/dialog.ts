@@ -8,8 +8,6 @@ import { Template } from './services/api';
 // Enum of dialog types (use these constants rather than string literals)
 export const DIALOG_TYPES = {
   SETTINGS: 'settings',
-  CREATE_TEMPLATE: 'createTemplate',
-  EDIT_TEMPLATE: 'editTemplate',
   CREATE_FOLDER: 'createFolder',
   FOLDER_MANAGER: 'folderManager',
   UNIFIED_TEMPLATE: 'unifiedTemplate',

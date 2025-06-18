@@ -18,9 +18,11 @@ export function useOpenDialog() {
   return {
     openSettings: () => openDialog('settings', {}),
     
-    openCreateTemplate: (props: any) => openDialog('createTemplate', props),
-    
-    openEditTemplate: (props: any) => openDialog('editTemplate', props),
+    openCreateTemplate: (props: any = {}) =>
+      openDialog('unifiedTemplate', { ...props, mode: 'create' }),
+
+    openEditTemplate: (props: any = {}) =>
+      openDialog('unifiedTemplate', { ...props, mode: 'edit' }),
     
     openCreateFolder: (props: any) => openDialog('createFolder', props),
     
