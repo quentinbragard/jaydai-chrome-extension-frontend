@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import EditablePreviewContent from './EditablePreviewContent';
 import { PromptMetadata, BlockRangeMap } from '@/types/prompts/metadata';
+
 
 interface EditablePromptPreviewProps {
   metadata: PromptMetadata;
@@ -13,6 +14,7 @@ interface EditablePromptPreviewProps {
   finalPromptContent: string;
   onFinalContentChange: (content: string) => void;
   blockRanges?: BlockRangeMap;
+
   className?: string;
   title?: string;
   collapsible?: boolean;
@@ -56,6 +58,13 @@ const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
   const toggleCollapsed = () => {
     setIsCollapsed(prev => !prev);
   };
+
+  useEffect(() => {
+    if (onRangesChange) {
+      const ranges = calculateBlockRanges(finalPromptContent, metadata);
+      onRangesChange(ranges);
+    }
+  }, [finalPromptContent, metadata, onRangesChange]);
 
   return (
     <div className={cn('jd-space-y-3', className)}>
