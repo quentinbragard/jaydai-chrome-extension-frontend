@@ -233,8 +233,9 @@ export function getActiveSecondaryMetadata(metadata: PromptMetadata): Set<Metada
   SECONDARY_METADATA.forEach(type => {
     if (isMultipleMetadataType(type)) {
       // For multiple metadata types (constraints, examples)
-      const items = metadata[type];
-      
+      const key = MULTI_TYPE_KEY_MAP[type];
+      const items = (metadata as any)[key];
+
       // Include only if the array contains at least one item
       if (items && Array.isArray(items) && items.length > 0) {
         activeSet.add(type);
