@@ -110,7 +110,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Enter your template content here..."
-            className="jd-min-h-[300px] jd-resize-none"
+            className="!jd-min-h-[40vh] jd-resize-none"
             onKeyDown={(e) => e.stopPropagation()}
             onKeyPress={(e) => e.stopPropagation()}
             onKeyUp={(e) => e.stopPropagation()}
