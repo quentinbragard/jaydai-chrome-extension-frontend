@@ -5,6 +5,13 @@ import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import EditablePreviewContent from './EditablePreviewContent';
 import { PromptMetadata } from '@/types/prompts/metadata';
+import {
+  buildMetadataOnlyPreview,
+  buildMetadataOnlyPreviewHtml,
+  extractContentFromCompleteTemplate,
+  resolveMetadataValues
+} from '@/utils/templates/promptPreviewUtils';
+import { generateUnifiedPreviewHtml } from '@/utils/templates/placeholderHelpers';
 
 interface EditablePromptPreviewProps {
   metadata: PromptMetadata;
@@ -12,6 +19,10 @@ interface EditablePromptPreviewProps {
   isDarkMode: boolean;
   finalPromptContent: string;
   onFinalContentChange: (content: string) => void;
+  /** Base template content */
+  promptContent: string;
+  /** Called when the template content changes */
+  onPromptContentChange: (content: string) => void;
   className?: string;
   title?: string;
   collapsible?: boolean;
@@ -24,6 +35,8 @@ const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
   isDarkMode,
   finalPromptContent,
   onFinalContentChange,
+  promptContent,
+  onPromptContentChange,
   className = '',
   title = 'Complete Preview',
   collapsible = false,
@@ -31,25 +44,14 @@ const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
-  const previewHtml = useMemo(() => {
-    if (!finalPromptContent?.trim()) {
-      return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
-    }
-
-    let html = finalPromptContent
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
-      .replace(/\n/g, '<br>');
-
-    html = html.replace(/\[([^\]]+)\]/g,
-      '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
-    );
-
-    return html;
-  }, [finalPromptContent]);
+  const { metadataHtml, contentHtml } = useMemo(() => {
+    const resolved = resolveMetadataValues(metadata, blockContentCache || {});
+    const metaText = buildMetadataOnlyPreview(resolved);
+    const metaHtml = buildMetadataOnlyPreviewHtml(resolved, isDarkMode);
+    const extractedContent = extractContentFromCompleteTemplate(finalPromptContent || '', metaText);
+    const html = generateUnifiedPreviewHtml(extractedContent, isDarkMode);
+    return { metadataHtml: metaHtml, contentHtml: html };
+  }, [metadata, blockContentCache, finalPromptContent, isDarkMode]);
 
   const toggleCollapsed = () => {
     setIsCollapsed(prev => !prev);
@@ -87,28 +89,30 @@ const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
       </div>
 
       {!isCollapsed && (
-        <div className="jd-text-xs jd-text-muted-foreground jd-flex jd-items-center jd-gap-4">
-          <span>Click to edit your complete prompt preview</span>
-          <div className="jd-flex jd-items-center jd-gap-1">
-            <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
-            <span>Placeholders</span>
-          </div>
-        </div>
-      )}
-
-      {!isCollapsed && (
         <div className={cn(
-          'jd-border jd-rounded-lg jd-p-1',
+          'jd-border jd-rounded-lg jd-p-2',
           'jd-bg-gradient-to-r jd-from-green-500/10 jd-to-teal-500/10 jd-border-green-200 jd-dark:jd-border-green-700'
         )}>
-          <EditablePreviewContent
-            content={finalPromptContent}
-            htmlContent={previewHtml}
-            onChange={onFinalContentChange}
-            isDark={isDarkMode}
-            showColors={true}
-            enableAdvancedEditing={true}
-          />
+          <div className="jd-space-y-3">
+            {/* Metadata preview */}
+            <div dangerouslySetInnerHTML={{ __html: metadataHtml }} />
+
+            {/* Prompt content area with dashed border */}
+            <div className="jd-border-2 jd-border-dashed jd-border-muted jd-rounded-md jd-p-2">
+              {(promptContent.trim() || contentHtml.trim()) ? (
+                <EditablePreviewContent
+                  content={promptContent}
+                  htmlContent={contentHtml}
+                  onChange={onPromptContentChange}
+                  isDark={isDarkMode}
+                  showColors={true}
+                  enableAdvancedEditing={true}
+                />
+              ) : (
+                <div className="jd-min-h-[80px]" />
+              )}
+            </div>
+          </div>
         </div>
       )}
 

@@ -128,6 +128,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                     isDarkMode={isDarkMode}
                     finalPromptContent={displayContent}
                     onFinalContentChange={handleFinalContentChangeInternal}
+                    promptContent={pendingContent}
+                    onPromptContentChange={handleContentChangeEnhanced}
                     className="jd-max-h-[500px] jd-overflow-auto"
                   />
                 </div>

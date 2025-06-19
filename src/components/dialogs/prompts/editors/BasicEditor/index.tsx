@@ -119,6 +119,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               isDarkMode={isDark}
               finalPromptContent={displayContent}
               onFinalContentChange={handleFinalContentChangeInternal}
+              promptContent={content}
+              onPromptContentChange={setContent}
             />
           </div>
       </div>
@@ -151,6 +153,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                 isDarkMode={isDark}
                 finalPromptContent={displayContent}
                 onFinalContentChange={handleFinalContentChangeInternal}
+                promptContent={content}
+                onPromptContentChange={setContent}
                 className="jd-h-full jd-overflow-auto"
               />
             </div>
