@@ -20,7 +20,7 @@ import {
   getBlockIconColors,
   BLOCK_TYPES
 } from '@/utils/prompts/blockUtils';
-import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
+import EditablePreviewContent from '@/components/prompts/EditablePreviewContent';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
 import { 
@@ -572,7 +572,7 @@ export const InsertBlockDialog: React.FC = () => {
                   </div>
                   <ScrollArea className="jd-h-full">
                     <div className="jd-pr-4">
-                      <EditablePromptPreview
+                      <EditablePreviewContent
                         content={editableContent}
                         htmlContent={generateFullPromptHtml()}
                         onChange={handleEditableContentChange}
