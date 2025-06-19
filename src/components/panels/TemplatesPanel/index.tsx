@@ -153,7 +153,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     pushPanel({ 
       type: 'templatesBrowse',
       props: {
-        folderType: 'mixed', // New mixed type for official + organization
+        folderType: 'organization', 
         pinnedFolderIds: [...pinnedFolders.official.map(f => f.id), ...pinnedFolders.organization.map(f => f.id)],
         onPinChange: async (folderId, isPinned, type) => {
           try {
