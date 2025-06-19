@@ -31,7 +31,7 @@ export const EnhancedEditablePreview: React.FC<EnhancedEditablePreviewProps> = (
   title = 'Complete Preview',
   collapsible = false,
   defaultCollapsed = false,
-  editable = true
+  editable = false
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 

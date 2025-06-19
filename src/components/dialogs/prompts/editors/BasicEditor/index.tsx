@@ -28,7 +28,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     content,
     setContent,
     finalPromptContent,
-    setFinalPromptContent,
     blockContentCache
   } = useTemplateEditor();
   
@@ -93,10 +92,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   }, [finalPromptContent, modifiedContent, isEditing]);
 
   // Handle final content changes
-  const handleFinalContentChangeInternal = React.useCallback((newContent: string) => {
-    console.log('BasicEditor: Final content changed, length:', newContent?.length);
-    setFinalPromptContent(newContent);
-  }, [setFinalPromptContent]);
 
   // Cleanup effect to commit pending changes when component unmounts
   React.useEffect(() => {
@@ -186,7 +181,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               blockContentCache={blockContentCache}
               isDarkMode={isDark}
               finalPromptContent={displayContent}
-              onFinalContentChange={handleFinalContentChangeInternal}
+              editable={false}
             />
           </div>
         </div>
@@ -221,7 +216,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                 blockContentCache={blockContentCache}
                 isDarkMode={isDark}
                 finalPromptContent={displayContent}
-                onFinalContentChange={handleFinalContentChangeInternal}
                 editable={false}
                 className="jd-h-full jd-overflow-auto"
               />

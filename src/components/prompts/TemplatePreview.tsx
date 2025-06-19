@@ -19,7 +19,7 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   finalPromptContent,
   onFinalContentChange,
   className,
-  editable = true
+  editable = false
 }) => (
   <EnhancedEditablePreview
     metadata={metadata}
