@@ -194,6 +194,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
         isExpanded={isExpanded}
         onToggle={toggleExpansion}
         actionButtons={actionButtons}
+        level={level}
       />
       
       {isExpanded && (
