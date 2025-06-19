@@ -65,6 +65,15 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   const [showPreview, setShowPreview] = useState(mode === 'customize'); // Show by default in customize mode
   const togglePreview = () => setShowPreview(prev => !prev);
 
+  // When the editor mounts or when the stored content changes (e.g. after
+  // switching tabs), make sure the content editable div reflects the latest
+  // modifiedContent. This keeps BasicEditor text in sync with template.content.
+  useEffect(() => {
+    if (editorRef.current && !isEditing && editorRef.current.textContent !== modifiedContent) {
+      editorRef.current.textContent = modifiedContent;
+    }
+  }, [modifiedContent, isEditing]);
+
   // ✅ IMPROVED: Better final content synchronization
   // Use finalPromptContent if available, but fall back to modifiedContent
   // This ensures tab switching preserves the preview content
