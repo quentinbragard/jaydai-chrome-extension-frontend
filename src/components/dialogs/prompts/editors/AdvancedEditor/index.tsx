@@ -24,7 +24,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     content,
     setContent,
     finalPromptContent,
-    setFinalPromptContent,
     availableMetadataBlocks,
     blockContentCache
   } = useTemplateEditor();
@@ -60,10 +59,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   // **NEW: Use final content if available**
   const displayContent = finalPromptContent || content;
 
-  // **NEW: Handle final content changes**
-  const handleFinalContentChangeInternal = useCallback((newContent: string) => {
-    setFinalPromptContent(newContent);
-  }, [setFinalPromptContent]);
 
   const hasPendingChanges = hasPendingContentChanges;
 
@@ -130,8 +125,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                     blockContentCache={blockContentCache}
                     isDarkMode={isDarkMode}
                     finalPromptContent={displayContent}
-                    onFinalContentChange={handleFinalContentChangeInternal}
-                    editable={mode !== 'customize'}
+                    editable={false}
                     className="jd-max-h-[500px] jd-overflow-auto"
                   />
                 </div>
