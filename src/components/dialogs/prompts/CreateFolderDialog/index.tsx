@@ -1,5 +1,5 @@
 // src/components/dialogs/templates/CreateFolderDialog.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +11,9 @@ import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
+import { useUserFolders } from '@/hooks/prompts';
+import { FolderPicker } from '@/components/prompts/folders';
+import { TemplateFolder } from '@/types/prompts/templates';
 
 /**
  * Dialog for creating new template folders
@@ -21,6 +24,10 @@ export const CreateFolderDialog: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [parentId, setParentId] = useState<number | null>(null);
+  const [parentPath, setParentPath] = useState('Root');
+
+  const { data: userFolders = [] } = useUserFolders();
   
   // Reset form when dialog opens
   useEffect(() => {
@@ -28,12 +35,19 @@ export const CreateFolderDialog: React.FC = () => {
       setName('');
       setDescription('');
       setIsSubmitting(false);
+      setParentId(null);
+      setParentPath('Root');
     }
   }, [isOpen]);
   
   // Safe extraction of dialog data with defaults
   const onSaveFolder = data?.onSaveFolder || (() => Promise.resolve(false));
   const onFolderCreated = data?.onFolderCreated;
+
+  const handleParentSelect = useCallback((folder: TemplateFolder | null, path: string) => {
+    setParentId(folder?.id ?? null);
+    setParentPath(path || 'Root');
+  }, []);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +64,7 @@ export const CreateFolderDialog: React.FC = () => {
       const folderData = {
         title: name.trim(),
         description: description.trim(),
-        parent_folder_id: null,
+        parent_folder_id: parentId,
       };
       
       // Call the provided callback with folder data if it exists
@@ -143,9 +157,9 @@ export const CreateFolderDialog: React.FC = () => {
             <label className="jd-text-sm jd-font-medium">
               {getMessage('description', undefined, 'Description')}
             </label>
-            <Textarea 
-              value={description} 
-              onChange={(e) => setDescription(e.target.value)}
+          <Textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
               placeholder={getMessage('enterFolderDescription', undefined, 'Enter folder description (optional)')}
               className="jd-mt-1"
               rows={3}
@@ -160,6 +174,17 @@ export const CreateFolderDialog: React.FC = () => {
               onKeyPress={(e) => e.stopPropagation()}
               onKeyUp={(e) => e.stopPropagation()}
             />
+          </div>
+
+          <div>
+            <label className="jd-text-sm jd-font-medium">
+              Parent Folder
+            </label>
+            <FolderPicker
+              folders={userFolders as TemplateFolder[]}
+              onSelect={handleParentSelect}
+            />
+            <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">{parentPath}</p>
           </div>
           
           <div className="jd-flex jd-justify-end jd-space-x-2 jd-pt-4">

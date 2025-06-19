@@ -1,6 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx
 import React, { useCallback, memo, useMemo, useState } from 'react';
-import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, ArrowLeft, Pencil, Trash2, FolderPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -99,10 +99,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   console.log("userFolders", userFolders);
 
   // Mutations and actions
-  const { toggleFolderPin, deleteFolder } = useFolderMutations();
+  const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
   const { deleteTemplate } = useTemplateMutations();
   const { useTemplate, createTemplate, editTemplate, createFolderAndTemplate } = useTemplateActions();
-  const { openConfirmation, openFolderManager } = useDialogActions();
+  const { openConfirmation, openFolderManager, openCreateFolder } = useDialogActions();
 
   // Loading and error states
   const { isLoading, hasError, errorMessage } = useMemo(() => ({
@@ -268,6 +268,27 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     openFolderManager({ folder, userFolders });
   }, [openFolderManager, userFolders]);
 
+  const handleCreateFolder = useCallback(() => {
+    openCreateFolder({
+      onSaveFolder: async (folderData: { title: string; description?: string; parent_folder_id?: number | null }) => {
+        try {
+          const result = await createFolder.mutateAsync(folderData);
+          return { success: true, folder: result };
+        } catch (error) {
+          console.error('Error creating folder:', error);
+          return { success: false, error: 'Failed to create folder' };
+        }
+      },
+      onFolderCreated: async (folder: TemplateFolder) => {
+        await refetchUser();
+        trackEvent(EVENTS.TEMPLATE_FOLDER_CREATED, {
+          folder_id: folder.id,
+          folder_name: folder.name,
+        });
+      },
+    });
+  }, [openCreateFolder, createFolder, refetchUser]);
+
   const handleEditTemplate = useCallback((template: Template) => {
     editTemplate(template);
   }, [editTemplate]);
@@ -413,7 +434,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           title={getMessage('myTemplates', undefined, 'My Templates')}
           iconType="user"
           onCreateTemplate={createTemplate}
+          onCreateFolder={handleCreateFolder}
           showCreateButton={true}
+          showCreateFolderButton={true}
         >
           {/* Navigation breadcrumb */}
           {userFolderNav.path.length > 0 && (
