@@ -254,6 +254,10 @@
     "message": "Notifications",
     "description": "Notifications menu item"
   },
+  "blockBuilder": {
+    "message": "Block Builder",
+    "description": "Menu item for block builder"
+  },
   "aiNews": {
     "message": "AI News",
     "description": "Élément de menu AI News"

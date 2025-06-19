@@ -1,7 +1,7 @@
 // src/components/panels/MenuPanel/index.tsx
 
 import React from 'react';
-import { FileText, Bell, BarChart, Save } from "lucide-react";
+import { FileText, Bell, BarChart, Save, Blocks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
@@ -9,6 +9,7 @@ import BasePanel from '../BasePanel';
 import { getMessage } from '@/core/utils/i18n';
 import { toast } from 'sonner';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 
 // Define a type for our menu items
 type MenuItem = {
@@ -62,6 +63,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   notificationCount,
 }) => {
   const { pushPanel } = usePanelNavigation();
+  const { openInsertBlock } = useDialogActions();
 
   // Navigate to a specific panel
   const navigateToPanel = (panelType: 'templates' | 'notifications' | 'stats') => {
@@ -82,6 +84,12 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       icon: <FileText className="jd-h-4 jd-w-4" />,
       label: getMessage('templates', undefined, 'Templates'),
       action: () => navigateToPanel('templates')
+    },
+    {
+      id: 'blockBuilder',
+      icon: <Blocks className="jd-h-4 jd-w-4" />,
+      label: getMessage('blockBuilder', undefined, 'Block Builder'),
+      action: () => openInsertBlock()
     },
     {
       id: 'stats',

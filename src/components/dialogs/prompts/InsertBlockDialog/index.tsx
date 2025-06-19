@@ -390,6 +390,9 @@ export const InsertBlockDialog: React.FC = () => {
       description="Select and arrange blocks to create your perfect prompt"
       className="jd-max-w-7xl jd-max-h-[90vh]"
     >
+      <p className="jd-text-xs jd-text-muted-foreground jd-mb-2">
+        Tip: type <span className="jd-font-mono">//j</span> in the prompt area to quickly add blocks.
+      </p>
       <div className="jd-flex jd-h-full jd-gap-6">
         {/* Left Panel - Block Library */}
         <div className="jd-flex-1 jd-flex jd-flex-col jd-min-w-0">
