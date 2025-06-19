@@ -11,7 +11,7 @@ import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { getMessage } from '@/core/utils/i18n';
 import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrackets } from '@/utils/templates/insertPrompt';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
-import { prefillMetadataFromMapping } from '@/utils/templates/metadataPrefill';
+import { parseMetadataIds } from '@/utils/templates/metadataPrefill';
 
 
 /**
@@ -126,9 +126,13 @@ const useTemplate = useCallback(async (template: Template) => {
   setIsProcessing(true);
   
   try {
+    let parsedMetadata = template.metadata
+      ? parseMetadataIds(template.metadata as any)
+      : undefined;
+
     let dialogData: any = {
       content: template.content,
-      metadata: template.metadata,
+      metadata: parsedMetadata,
       title: template.title || 'Untitled Template',
       type: template.type,
       id: template.id,
