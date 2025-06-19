@@ -16,8 +16,19 @@ export function usePinnedFolders() {
       throw new Error(metadata.error || 'Failed to get user metadata');
     }
     
-    // Get official pinned folders with locale filtering
-    const officialIds = metadata.data?.pinned_official_folder_ids || [];
+    // Support both new and legacy metadata structures for pinned folders
+    // `pinned_folder_ids` is the newer consolidated field containing all pinned
+    // folder IDs, while the older API used separate arrays for official and
+    // organization folders. To maintain compatibility we merge them so that
+    // folders are returned correctly regardless of which structure the backend
+    // provides.
+
+    const legacyOfficialIds = metadata.data?.pinned_official_folder_ids || [];
+    const legacyOrgIds = metadata.data?.pinned_organization_folder_ids || [];
+    const genericPinnedIds = metadata.data?.pinned_folder_ids || [];
+
+    // Combine IDs so we can filter folders correctly.
+    const officialIds = Array.from(new Set([...legacyOfficialIds, ...genericPinnedIds]));
     let officialFolders: TemplateFolder[] = [];
 
     if (officialIds.length > 0) {
@@ -33,8 +44,9 @@ export function usePinnedFolders() {
       }
     }
     
-    // Get organization pinned folders with locale filtering
-    const orgIds = metadata.data?.pinned_organization_folder_ids || [];
+    // Get organization pinned folders with locale filtering. Use the merged set
+    // of generic pinned IDs plus any legacy organization specific IDs.
+    const orgIds = Array.from(new Set([...legacyOrgIds, ...genericPinnedIds]));
     let orgFolders: TemplateFolder[] = [];
 
     if (orgIds.length > 0) {
