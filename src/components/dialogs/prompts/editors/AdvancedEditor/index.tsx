@@ -1,14 +1,10 @@
-// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Enhanced Version
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Simplified Version
+import React from 'react';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-
 import { MetadataSection } from './MetadataSection';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import TemplatePreview from '@/components/prompts/TemplatePreview';
-import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface AdvancedEditorProps {
   mode?: 'create' | 'customize';
@@ -22,49 +18,11 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const {
     metadata,
     content,
-    setContent,
-    finalPromptContent,
     availableMetadataBlocks,
     blockContentCache
   } = useTemplateEditor();
+  
   const isDarkMode = useThemeDetector();
-  const [showPreview, setShowPreview] = useState(true); // Show by default in advanced mode
-
-  const [pendingContent, setPendingContent] = useState(content);
-  const [hasPendingContentChanges, setHasPendingContentChanges] = useState(false);
-
-  useEffect(() => {
-    setPendingContent(content);
-    setHasPendingContentChanges(false);
-  }, [content]);
-
-  const handleContentChangeEnhanced = useCallback((value: string) => {
-    setPendingContent(value);
-    setHasPendingContentChanges(value !== content);
-  }, [content]);
-
-  const commitContentChanges = useCallback(() => {
-    if (hasPendingContentChanges) {
-      setContent(pendingContent);
-      setHasPendingContentChanges(false);
-    }
-  }, [hasPendingContentChanges, setContent, pendingContent]);
-
-  useEffect(() => {
-    return () => {
-      commitContentChanges();
-    };
-  }, [commitContentChanges]);
-
-  // **NEW: Use final content if available**
-  const displayContent = finalPromptContent || content;
-
-
-  const hasPendingChanges = hasPendingContentChanges;
-
-  const togglePreview = () => {
-    setShowPreview(prev => !prev);
-  };
 
   if (isProcessing) {
     return (
@@ -86,7 +44,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     >
       <div className="jd-relative jd-z-10 jd-flex-1 jd-flex jd-flex-col jd-space-y-6 jd-p-6 jd-overflow-y-auto">
         
-         {/* 1. PRIMARY METADATA SECTION */}
+        {/* 1. PRIMARY METADATA SECTION */}
         <div className="jd-flex-shrink-0">
           <MetadataSection
             availableMetadataBlocks={availableMetadataBlocks}
@@ -95,47 +53,28 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           />
         </div>
 
-        {/* 2. MAIN CONTENT SECTION */}
+        {/* 2. PREVIEW SECTION - Read Only */}
         <div className="jd-flex-shrink-0">
           <div className="jd-space-y-3">
             <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
               <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-              Main Content
-              {hasPendingChanges && (
-                <span className="jd-inline-flex jd-items-center jd-gap-1 jd-text-xs jd-text-amber-600 jd-bg-amber-50 jd-px-2 jd-py-1 jd-rounded-full">
-                  <span className="jd-w-2 jd-h-2 jd-bg-amber-500 jd-rounded-full jd-animate-pulse"></span>
-                  Unsaved changes
-                </span>
-              )}
+              Complete Preview
             </h3>
-            <div 
-              className={cn(
-                'jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out',
-                showPreview ? 'jd-max-h-[600px] jd-opacity-100' : 'jd-max-h-0 jd-opacity-0'
-              )}
-            >
-              <div className={cn(
-                'jd-transform jd-transition-all jd-duration-500 jd-ease-in-out',
-                showPreview ? 'jd-translate-y-0' : 'jd--translate-y-4'
-              )}>
-                <div className="jd-space-y-3 jd-pt-4">
-                  <TemplatePreview
-                    metadata={metadata}
-                    content={content}
-                    blockContentCache={blockContentCache}
-                    isDarkMode={isDarkMode}
-                    finalPromptContent={displayContent}
-                    editable={false}
-                    className="jd-max-h-[500px] jd-overflow-auto"
-                  />
-                </div>
-              </div>
+            
+            <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700">
+              <TemplatePreview
+                metadata={metadata}
+                content={content}
+                blockContentCache={blockContentCache}
+                isDarkMode={isDarkMode}
+                className="jd-max-h-[500px] jd-overflow-auto"
+              />
             </div>
           </div>
         </div>
 
-       {/* 3. SECONDARY METADATA SECTION */}
-       <div className="jd-flex-shrink-0">
+        {/* 3. SECONDARY METADATA SECTION */}
+        <div className="jd-flex-shrink-0">
           <MetadataSection
             availableMetadataBlocks={availableMetadataBlocks}
             showPrimary={false}

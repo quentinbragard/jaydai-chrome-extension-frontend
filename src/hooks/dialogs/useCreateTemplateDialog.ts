@@ -1,4 +1,4 @@
-// src/hooks/dialogs/useCreateTemplateDialog.ts - Enhanced Version
+// src/hooks/dialogs/useCreateTemplateDialog.ts - Simplified Version
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { useTemplateDialogBase } from './useTemplateDialogBase';
@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { PromptMetadata } from '@/types/prompts/metadata';
 import { metadataToBlockMapping } from '@/utils/prompts/metadataUtils';
-import { blocksApi } from '@/services/api/BlocksApi';
 
 export function useCreateTemplateDialog() {
   const createDialog = useDialog(DIALOG_TYPES.CREATE_TEMPLATE);
@@ -20,72 +19,16 @@ export function useCreateTemplateDialog() {
   
   const handleComplete = async (
     content: string, 
-    metadata: PromptMetadata, 
-    finalContent?: string
+    metadata: PromptMetadata
   ): Promise<boolean> => {
     try {
-      // **NEW: Handle block modifications for create mode**
-      let finalMetadata = metadata;
-      
-      if (!isEditMode && baseHook.modifiedBlocks && Object.keys(baseHook.modifiedBlocks).length > 0) {
-        console.log('Creating new blocks for modifications:', baseHook.modifiedBlocks);
-        
-        // Create new blocks for modified content
-        const newBlocksMap: Record<number, number> = {}; // originalId -> newId
-        
-        for (const [originalBlockIdStr, newContent] of Object.entries(baseHook.modifiedBlocks)) {
-          const originalBlockId = parseInt(originalBlockIdStr, 10);
-          
-          try {
-            // Get original block info
-            const originalBlockResponse = await blocksApi.getBlock(originalBlockId);
-            if (!originalBlockResponse.success || !originalBlockResponse.data) {
-              console.warn(`Could not fetch original block ${originalBlockId}`);
-              continue;
-            }
-            
-            const originalBlock = originalBlockResponse.data;
-            
-            // Create new block with modified content
-            const newBlockData = {
-              title: `${originalBlock.title} (Modified)`,
-              content: newContent,
-              type: originalBlock.type,
-              is_published: false, // Mark as unpublished
-              parent_block_id: originalBlockId,
-              description: `Modified version of block ${originalBlockId}`
-            };
-            
-            console.log('Creating new block:', newBlockData);
-            const createResponse = await blocksApi.createBlock(newBlockData);
-            
-            if (createResponse.success && createResponse.data) {
-              newBlocksMap[originalBlockId] = createResponse.data.id;
-              console.log(`Created new block ${createResponse.data.id} for original ${originalBlockId}`);
-            } else {
-              console.error(`Failed to create new block for ${originalBlockId}:`, createResponse.message);
-            }
-          } catch (error) {
-            console.error(`Error creating new block for ${originalBlockId}:`, error);
-          }
-        }
-        
-        // **NEW: Update metadata to use new block IDs**
-        if (Object.keys(newBlocksMap).length > 0) {
-          finalMetadata = updateMetadataWithNewBlocks(metadata, newBlocksMap);
-          console.log('Updated metadata with new block IDs:', finalMetadata);
-        }
-      }
-      
-      // Use final content if available, otherwise use base content
-      const contentToSave = finalContent || content;
-      
+      // Simplified: just save content + metadata
       const formData = {
         name: baseHook.name.trim(),
-        content: contentToSave,
+        content: content, // Use the base content directly
         description: baseHook.description?.trim(),
         folder_id: baseHook.selectedFolderId ? parseInt(baseHook.selectedFolderId, 10) : undefined,
-        metadata: metadataToBlockMapping(finalMetadata)
+        metadata: metadataToBlockMapping(metadata)
       };
       
       console.log('Saving template with data:', formData);
@@ -119,7 +62,7 @@ export function useCreateTemplateDialog() {
   };
   
   const baseHook = useTemplateDialogBase({
-    dialogType: isEditMode ? 'create' : 'create', // Both use create logic
+    dialogType: isEditMode ? 'create' : 'create',
     initialData: data,
     onComplete: handleComplete,
     onClose: handleClose
@@ -133,40 +76,4 @@ export function useCreateTemplateDialog() {
       ? getMessage('editTemplate', undefined, 'Edit Template') 
       : getMessage('createTemplate', undefined, 'Create Template')
   };
-}
-
-/**
- * **NEW: Helper function to update metadata with new block IDs**
- */
-function updateMetadataWithNewBlocks(
-  metadata: PromptMetadata, 
-  blockIdMap: Record<number, number>
-): PromptMetadata {
-  const updated = { ...metadata };
-  
-  // Update single metadata types
-  const singleTypes = ['role', 'context', 'goal', 'audience', 'output_format', 'tone_style'];
-  singleTypes.forEach(type => {
-    const blockId = (metadata as any)[type];
-    if (blockId && blockIdMap[blockId]) {
-      (updated as any)[type] = blockIdMap[blockId];
-    }
-  });
-  
-  // Update multiple metadata types
-  if (metadata.constraints) {
-    updated.constraints = metadata.constraints.map(item => ({
-      ...item,
-      blockId: item.blockId && blockIdMap[item.blockId] ? blockIdMap[item.blockId] : item.blockId
-    }));
-  }
-  
-  if (metadata.examples) {
-    updated.examples = metadata.examples.map(item => ({
-      ...item,
-      blockId: item.blockId && blockIdMap[item.blockId] ? blockIdMap[item.blockId] : item.blockId
-    }));
-  }
-  
-  return updated;
 }

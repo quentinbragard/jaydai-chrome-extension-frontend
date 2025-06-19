@@ -1,3 +1,4 @@
+// src/components/dialogs/prompts/TemplateEditorDialog/TemplateEditorContext.tsx - Simplified Version
 import React, { createContext, useContext } from 'react';
 import { PromptMetadata, MetadataType } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
@@ -17,21 +18,24 @@ export interface TemplateEditorContextValue extends MetadataUIState {
   metadata: PromptMetadata;
   setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
 
-  // Editor state
+  // Editor state - simplified
   content: string;
   setContent: (content: string) => void;
-  finalPromptContent: string;
-  setFinalPromptContent: (content: string) => void;
 
-  // Blocks
+  // Blocks - simplified
   blockContentCache: Record<number, string>;
   availableMetadataBlocks: Record<MetadataType, Block[]>;
 }
 
 const TemplateEditorContext = createContext<TemplateEditorContextValue | undefined>(undefined);
 
-export const TemplateEditorProvider: React.FC<{ value: TemplateEditorContextValue; children: React.ReactNode }> = ({ value, children }) => (
-  <TemplateEditorContext.Provider value={value}>{children}</TemplateEditorContext.Provider>
+export const TemplateEditorProvider: React.FC<{ 
+  value: TemplateEditorContextValue; 
+  children: React.ReactNode 
+}> = ({ value, children }) => (
+  <TemplateEditorContext.Provider value={value}>
+    {children}
+  </TemplateEditorContext.Provider>
 );
 
 export const useTemplateEditor = (): TemplateEditorContextValue => {
