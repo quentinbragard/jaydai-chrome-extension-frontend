@@ -55,6 +55,7 @@ interface UseBlockManagerProps {
   onFinalContentChange?: (content: string) => void;
   onBlockModification?: (blockId: number, newContent: string) => void;
   dialogType?: 'create' | 'customize';
+  externalModifiedBlocks?: Record<number, string>;
 }
 
 export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerReturn {
@@ -63,7 +64,8 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
     content = '',
     onFinalContentChange,
     onBlockModification,
-    dialogType = 'customize'
+    dialogType = 'customize',
+    externalModifiedBlocks = {}
   } = props || {};
 
   const [isLoading, setIsLoading] = useState(true);
@@ -72,8 +74,9 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
   const [blockContentCache, setBlockContentCache] = useState<Record<number, string>>({});
   
   // Final content state management
-  const [modifiedBlocks, setModifiedBlocks] = useState<Record<number, string>>({});
   const [finalContent, setFinalContent] = useState('');
+  const modifiedBlocks = externalModifiedBlocks;
+
   
   // **FIX: Prevent multiple updates with refs**
   const isUpdatingFinalContentRef = useRef(false);
@@ -145,6 +148,11 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
 
   // **FIX: Update final content when metadata, content, or modifications change (with debouncing)**
   useEffect(() => {
+    console.log('useBlockManager: useEffect called', {
+      metadata,
+      content,
+      modifiedBlocks
+    });
     if (isUpdatingFinalContentRef.current) {
       console.log('useBlockManager: Already updating final content, skipping');
       return;
@@ -377,19 +385,6 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
     // Create dialog specific
     createBlocksFromModifications
   };
-}
-
-// Helper function to get metadata prefixes
-function getMetadataPrefix(type: SingleMetadataType): string {
-  const prefixes: Record<SingleMetadataType, string> = {
-    role: 'Ton rôle est de',
-    context: 'Le contexte est',
-    goal: 'Ton objectif est',
-    audience: "L'audience ciblée est",
-    output_format: 'Le format attendu est',
-    tone_style: 'Le ton et style sont'
-  };
-  return prefixes[type] || '';
 }
 
 // Import the existing utility
