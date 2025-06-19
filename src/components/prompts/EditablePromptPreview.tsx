@@ -4,10 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import EditablePreviewContent from './EditablePreviewContent';
+import EditableMetadataPreview from './EditableMetadataPreview';
 import { PromptMetadata } from '@/types/prompts/metadata';
 import {
   buildMetadataOnlyPreview,
-  buildMetadataOnlyPreviewHtml,
   extractContentFromCompleteTemplate,
   resolveMetadataValues
 } from '@/utils/templates/promptPreviewUtils';
@@ -44,13 +44,11 @@ const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
-  const { metadataHtml, contentHtml } = useMemo(() => {
+  const contentHtml = useMemo(() => {
     const resolved = resolveMetadataValues(metadata, blockContentCache || {});
     const metaText = buildMetadataOnlyPreview(resolved);
-    const metaHtml = buildMetadataOnlyPreviewHtml(resolved, isDarkMode);
     const extractedContent = extractContentFromCompleteTemplate(finalPromptContent || '', metaText);
-    const html = generateUnifiedPreviewHtml(extractedContent, isDarkMode);
-    return { metadataHtml: metaHtml, contentHtml: html };
+    return generateUnifiedPreviewHtml(extractedContent, isDarkMode);
   }, [metadata, blockContentCache, finalPromptContent, isDarkMode]);
 
   const toggleCollapsed = () => {
@@ -95,7 +93,11 @@ const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
         )}>
           <div className="jd-space-y-3">
             {/* Metadata preview */}
-            <div dangerouslySetInnerHTML={{ __html: metadataHtml }} />
+            <EditableMetadataPreview
+              metadata={metadata}
+              blockContentCache={blockContentCache}
+              isDarkMode={isDarkMode}
+            />
 
             {/* Prompt content area with dashed border */}
             <div className="jd-border-2 jd-border-dashed jd-border-muted jd-rounded-md jd-p-2">
@@ -109,7 +111,9 @@ const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
                   enableAdvancedEditing={true}
                 />
               ) : (
-                <div className="jd-min-h-[80px]" />
+                <div className="jd-min-h-[80px] jd-flex jd-items-center jd-justify-center jd-text-sm jd-text-muted-foreground jd-italic">
+                  Add prompt content...
+                </div>
               )}
             </div>
           </div>
