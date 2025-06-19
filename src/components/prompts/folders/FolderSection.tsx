@@ -1,6 +1,6 @@
 // src/components/folders/FolderSection.tsx
 import { ReactNode, useState } from 'react';
-import { BookTemplate, Users, Folder, PlusCircle, ChevronDown, Building2, Mail, Lock } from "lucide-react";
+import { BookTemplate, Users, Folder, PlusCircle, ChevronDown, Building2, Mail, Lock, FolderPlus } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Assuming this is your Shadcn UI Button
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames'; // Import cn if needed for combining classes
@@ -10,8 +10,10 @@ interface FolderSectionProps {
   iconType: 'official' | 'organization' | 'user';
   onBrowseMore?: () => void;
   onCreateTemplate?: () => void;
+  onCreateFolder?: () => void;
   showBrowseMore?: boolean;
   showCreateButton?: boolean;
+  showCreateFolderButton?: boolean;
   isEmpty?: boolean;
   children: ReactNode;
 }
@@ -21,8 +23,10 @@ export function FolderSection({
   iconType,
   onBrowseMore,
   onCreateTemplate,
+  onCreateFolder,
   showBrowseMore = false,
   showCreateButton = false,
+  showCreateFolderButton = false,
   isEmpty = false,
   children
 }: FolderSectionProps) {
@@ -127,6 +131,17 @@ export function FolderSection({
               title={getMessage('newTemplate', undefined, 'New Template')}
             >
               <PlusCircle className="jd-h-4 jd-w-4" /> {/* Ensure icon color contrasts */}
+            </Button>
+          )}
+
+          {showCreateFolderButton && onCreateFolder && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onCreateFolder}
+              title={getMessage('newFolder', undefined, 'New Folder')}
+            >
+              <FolderPlus className="jd-h-4 jd-w-4" />
             </Button>
           )}
         </div>

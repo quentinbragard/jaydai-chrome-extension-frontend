@@ -8,3 +8,4 @@ export { FolderSection } from './FolderSection';
 export { PinButton } from './PinButton';
 export { FolderSearch } from './FolderSearch';
 export { FolderNavigation } from './FolderNavigation';
+export { FolderPicker } from './FolderPicker';
