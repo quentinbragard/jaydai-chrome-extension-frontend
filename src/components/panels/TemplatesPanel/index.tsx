@@ -15,13 +15,11 @@ import {
   usePinnedFolders,
   useUserFolders,
   useCompanyFolders,
-  useOrganizationFolders,
   useFolderMutations,
   useTemplateMutations,
   useTemplateActions
 } from '@/hooks/prompts';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
-import { useOrganizations } from '@/hooks/organizations'; // New import
 
 import {
   FolderSection,
@@ -91,13 +89,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     refetch: refetchCompany
   } = useCompanyFolders();
 
-  const {
-    data: mixedFoldersData = [],
-    isLoading: loadingMixed,
-    error: mixedError,
-    refetch: refetchMixed
-  } = useOrganizationFolders();
-
   console.log("userFolders", userFolders);
 
   // Mutations and actions
@@ -111,25 +102,21 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     isLoading:
       loadingPinned ||
       loadingUser ||
-      loadingCompany ||
-      loadingMixed,
+      loadingCompany,
     hasError:
       !!pinnedError ||
       !!userError ||
-      !!companyError ||
-      !!mixedError,
+      !!companyError,
     errorMessage:
-      (pinnedError || userError || companyError || mixedError)?.message ||
+      (pinnedError || userError || companyError)?.message ||
       'Unknown error'
   }), [
     loadingPinned,
     loadingUser,
     loadingCompany,
-    loadingMixed,
     pinnedError,
     userError,
-    companyError,
-    mixedError
+    companyError
   ]);
 
   // Refresh handler
@@ -139,13 +126,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       await Promise.all([
         refetchPinned(),
         refetchUser(),
-        refetchCompany(),
-        refetchMixed()
+        refetchCompany()
       ]);
     } catch (error) {
       console.error('Failed to refresh templates:', error);
     }
-  }, [refetchPinned, refetchUser, refetchCompany, refetchMixed]);
+  }, [refetchPinned, refetchUser, refetchCompany]);
 
   // Navigation handlers
   const handleBrowseMore = useCallback(() => {
@@ -311,10 +297,13 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     [toggleFolderPin, refetchPinned]
   );
 
-  // Get mixed official + organization folders
-  const mixedFolders = useMemo(
-    () => mixedFoldersData,
-    [mixedFoldersData]
+  // Combine official and organization pinned folders
+  const pinnedFoldersList = useMemo(
+    () => [
+      ...(pinnedFolders.official || []),
+      ...(pinnedFolders.organization || [])
+    ],
+    [pinnedFolders]
   );
 
   // Flatten folders recursively to collect all items for search
@@ -340,7 +329,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     const allItems: (TemplateFolder | Template)[] = [
       ...flattenFolders(userFolders),
       ...flattenFolders(companyFolders),
-      ...flattenFolders(mixedFolders)
+      ...flattenFolders(pinnedFoldersList)
     ];
     return allItems.filter(item => {
       if ('title' in item) {
@@ -351,7 +340,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       }
       return item.name?.toLowerCase().includes(query);
     });
-  }, [searchQuery, userFolders, companyFolders, mixedFolders, flattenFolders]);
+  }, [searchQuery, userFolders, companyFolders, pinnedFoldersList, flattenFolders]);
 
   // Error handling
   if (hasError) {
@@ -397,7 +386,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   // Get visible data for each section
   const userItems = getCurrentUserItems;
   const companyItems = companyFolders;
-  const mixedItems = mixedFolders;
+  const pinnedItems = pinnedFoldersList;
 
   return (
     <BasePanel
@@ -572,14 +561,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
         <Separator />
 
-        {/* Mixed Official + Organization Section */}
+        {/* Pinned Official and Organization Section */}
         <FolderSection
           title={getMessage('pinnedTemplates', undefined, 'Pinned Templates')}
           iconType="official"
           showBrowseMore={true}
           onBrowseMore={handleBrowseMore}
         >
-          {mixedItems.length === 0 ? (
+          {pinnedItems.length === 0 ? (
             <div className="jd-p-4 jd-bg-accent/30 jd-border jd-border-[var(--border)] jd-rounded-lg jd-mb-4">
               <div className="jd-flex jd-flex-col jd-items-center jd-space-y-3 jd-text-center jd-py-3">
                 <FolderOpen className="jd-h-8 jd-w-8 jd-text-[var(--primary)]/40" />
@@ -604,7 +593,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </div>
           ) : (
             <FolderList
-              folders={mixedItems as TemplateFolder[]}
+              folders={pinnedItems as TemplateFolder[]}
               type="organization"
               onTogglePin={handleTogglePin}
               onUseTemplate={useTemplate}
