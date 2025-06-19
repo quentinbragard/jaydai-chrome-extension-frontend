@@ -2,6 +2,7 @@
 import { Folder, ChevronDown, ChevronRight } from "lucide-react";
 import { OrganizationImage } from '@/components/organizations';
 import { Organization } from '@/types/organizations';
+import { useOrganizationById } from '@/hooks/organizations';
 
 export function FolderHeader({
   folder,
@@ -18,6 +19,12 @@ export function FolderHeader({
   level?: number;
   organizations?: Organization[];
 }) {
+  const { data: organization } = useOrganizationById(folder?.organization_id);
+
+  const resolvedOrg =
+    organizations?.find(o => o.id === folder?.organization_id) ||
+    organization ||
+    folder.organization;
     return (
       <div 
         className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
@@ -31,16 +38,8 @@ export function FolderHeader({
         <span className="jd-text-sm jd-flex-1 jd-truncate">{folder.name}</span>
         {folder.type === 'organization' && level === 0 && (
           <OrganizationImage
-            imageUrl={
-              organizations?.find(o => o.id === folder.organization_id)?.image_url ||
-              folder.organization?.image_url ||
-              folder.image_url
-            }
-            organizationName={
-              organizations?.find(o => o.id === folder.organization_id)?.name ||
-              folder.organization?.name ||
-              folder.name
-            }
+            imageUrl={resolvedOrg?.image_url || folder.image_url}
+            organizationName={resolvedOrg?.name || folder.name}
             size="sm"
             className="jd-ml-2"
           />
