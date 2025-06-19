@@ -10,7 +10,7 @@ import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
-import { getMessage } from '@/core/utils/i18n';
+import { getMessage, getCurrentLanguage } from '@/core/utils/i18n';
 import { useUserFolders } from '@/hooks/prompts';
 import { FolderPicker } from '@/components/prompts/folders';
 import { TemplateFolder } from '@/types/prompts/templates';
@@ -61,9 +61,10 @@ export const CreateFolderDialog: React.FC = () => {
     setIsSubmitting(true);
     try {
       // Prepare folder data
+      const locale = getCurrentLanguage();
       const folderData = {
-        title: name.trim(),
-        description: description.trim(),
+        title: { [locale]: name.trim() },
+        ...(description.trim() ? { description: { [locale]: description.trim() } } : {}),
         parent_folder_id: parentId,
       };
       
