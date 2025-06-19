@@ -6,6 +6,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import EditablePromptPreview from './EditablePromptPreview';
 import { PromptMetadata } from '@/types/prompts/metadata';
+import { formatPromptHtml } from '@/utils/prompts/promptFormatter';
 
 interface EnhancedEditablePreviewProps {
   metadata: PromptMetadata;
@@ -39,22 +40,13 @@ export const EnhancedEditablePreview: React.FC<EnhancedEditablePreviewProps> = (
       return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
     }
 
-    // Simple HTML conversion with placeholder highlighting
-    let html = finalPromptContent
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
-      .replace(/\n/g, '<br>');
-
-    // Highlight placeholders
-    html = html.replace(/\[([^\]]+)\]/g, 
-      '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
+    return formatPromptHtml(
+      metadata,
+      finalPromptContent,
+      isDarkMode,
+      blockContentCache
     );
-
-    return html;
-  }, [finalPromptContent]);
+  }, [finalPromptContent, metadata, isDarkMode, blockContentCache]);
 
 
   const toggleCollapsed = () => {
