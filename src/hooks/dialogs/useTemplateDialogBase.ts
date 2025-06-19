@@ -25,8 +25,19 @@ import {
   getActiveSecondaryMetadata,
   getFilledMetadataTypes,
   extractCustomValues,
-  validateMetadata
+  validateMetadata,
+  applyBlockOverridesToMetadata
 } from '@/utils/prompts/metadataUtils';
+
+function isBlockReferencedInMetadata(metadata: PromptMetadata, blockId: number): boolean {
+  if (!metadata) return false;
+  const singleMatch = ['role','context','goal','audience','output_format','tone_style']
+    .some(type => (metadata as any)[type] === blockId);
+  if (singleMatch) return true;
+  if (metadata.constraints?.some(item => item.blockId === blockId)) return true;
+  if (metadata.examples?.some(item => item.blockId === blockId)) return true;
+  return false;
+}
 
 export interface TemplateDialogConfig {
   dialogType: 'create' | 'customize';
@@ -49,6 +60,7 @@ export interface TemplateDialogState {
   finalPromptContent: string;
   hasUnsavedFinalChanges: boolean;
   modifiedBlocks: Record<number, string>;
+  modifiedMetadata: Record<number, string>;
   
   // UI state
   activeTab: 'basic' | 'advanced';
@@ -126,6 +138,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     finalPromptContent: '',
     hasUnsavedFinalChanges: false,
     modifiedBlocks: {},
+    modifiedMetadata: {},
     
     // UI state
     activeTab: 'basic',
@@ -169,14 +182,18 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
 
   const updateBlockContent = useCallback((blockId: number, newContent: string) => {
     console.log('updateBlockContent called:', { blockId, newContent: newContent.substring(0, 50) + '...' });
-
-    setState(prev => ({
-      ...prev,
-      modifiedBlocks: {
-        ...prev.modifiedBlocks,
-        [blockId]: newContent
-      }
-    }));
+    setState(prev => {
+      const isMeta = isBlockReferencedInMetadata(prev.metadata, blockId);
+      return {
+        ...prev,
+        modifiedBlocks: {
+          ...prev.modifiedBlocks,
+          [blockId]: newContent
+        },
+        modifiedMetadata: isMeta ? { ...prev.modifiedMetadata, [blockId]: newContent } : prev.modifiedMetadata,
+        metadata: isMeta ? applyBlockOverridesToMetadata(prev.metadata, { [blockId]: newContent }) : prev.metadata
+      };
+    });
   }, []);
 
   const applyFinalContentChanges = useCallback(() => {
@@ -209,7 +226,8 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       ...prev,
       finalPromptContent: baselineContentRef.current,
       hasUnsavedFinalChanges: false,
-      modifiedBlocks: {}
+      modifiedBlocks: {},
+      modifiedMetadata: {}
     }));
   }, []);
   
@@ -407,6 +425,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       finalPromptContent: '',
       hasUnsavedFinalChanges: false,
       modifiedBlocks: {},
+      modifiedMetadata: {},
       activeTab: 'basic',
       expandedMetadata: new Set(PRIMARY_METADATA),
       metadataCollapsed: false,

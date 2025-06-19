@@ -22,6 +22,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
       finalPromptContent={hook.finalPromptContent}
       hasUnsavedFinalChanges={hook.hasUnsavedFinalChanges}
       modifiedBlocks={hook.modifiedBlocks}
+      modifiedMetadata={hook.modifiedMetadata}
       
       // Actions
       setContent={hook.setContent}

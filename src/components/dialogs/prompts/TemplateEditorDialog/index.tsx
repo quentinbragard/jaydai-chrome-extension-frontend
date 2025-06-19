@@ -31,6 +31,7 @@ interface TemplateEditorDialogProps {
   finalPromptContent: string;
   hasUnsavedFinalChanges: boolean;
   modifiedBlocks: Record<number, string>;
+  modifiedMetadata: Record<number, string>;
   
   // Actions from base hook
   setContent: (content: string) => void;
@@ -78,6 +79,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   finalPromptContent,
   hasUnsavedFinalChanges,
   modifiedBlocks,
+  modifiedMetadata,
   
   // Actions
   setContent,
@@ -145,7 +147,9 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       finalPromptContent,
       setFinalPromptContent,
       blockContentCache,
-      availableMetadataBlocks
+      availableMetadataBlocks,
+      modifiedBlocks,
+      modifiedMetadata
     }),
     [
       metadata,
@@ -163,7 +167,9 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       finalPromptContent,
       setFinalPromptContent,
       blockContentCache,
-      availableMetadataBlocks
+      availableMetadataBlocks,
+      modifiedBlocks,
+      modifiedMetadata
     ]
   );
 

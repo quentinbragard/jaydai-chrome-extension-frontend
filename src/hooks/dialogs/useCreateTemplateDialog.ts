@@ -27,13 +27,13 @@ export function useCreateTemplateDialog() {
       // **NEW: Handle block modifications for create mode**
       let finalMetadata = metadata;
       
-      if (!isEditMode && baseHook.modifiedBlocks && Object.keys(baseHook.modifiedBlocks).length > 0) {
-        console.log('Creating new blocks for modifications:', baseHook.modifiedBlocks);
+      if (!isEditMode && baseHook.modifiedMetadata && Object.keys(baseHook.modifiedMetadata).length > 0) {
+        console.log('Creating new blocks for modifications:', baseHook.modifiedMetadata);
         
         // Create new blocks for modified content
         const newBlocksMap: Record<number, number> = {}; // originalId -> newId
         
-        for (const [originalBlockIdStr, newContent] of Object.entries(baseHook.modifiedBlocks)) {
+        for (const [originalBlockIdStr, newContent] of Object.entries(baseHook.modifiedMetadata)) {
           const originalBlockId = parseInt(originalBlockIdStr, 10);
           
           try {
