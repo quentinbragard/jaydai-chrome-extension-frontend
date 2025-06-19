@@ -7,8 +7,9 @@ interface TemplatePreviewProps {
   blockContentCache?: Record<number, string>;
   isDarkMode: boolean;
   finalPromptContent: string;
-  onFinalContentChange: (content: string) => void;
+  onFinalContentChange?: (content: string) => void;
   className?: string;
+  editable?: boolean;
 }
 
 export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
@@ -17,7 +18,8 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   isDarkMode,
   finalPromptContent,
   onFinalContentChange,
-  className
+  className,
+  editable = true
 }) => (
   <EnhancedEditablePreview
     metadata={metadata}
@@ -25,6 +27,7 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     isDarkMode={isDarkMode}
     finalPromptContent={finalPromptContent}
     onFinalContentChange={onFinalContentChange}
+    editable={editable}
     title="Template Preview"
     collapsible={false}
     className={className}

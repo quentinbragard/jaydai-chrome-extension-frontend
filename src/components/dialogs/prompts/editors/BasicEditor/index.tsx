@@ -224,6 +224,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                 isDarkMode={isDark}
                 finalPromptContent={displayContent}
                 onFinalContentChange={handleFinalContentChangeInternal}
+                editable={false}
                 className="jd-h-full jd-overflow-auto"
               />
             </div>
