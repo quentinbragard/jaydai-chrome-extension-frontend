@@ -75,7 +75,12 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
   
   // Final content state management
   const [finalContent, setFinalContent] = useState('');
-  const modifiedBlocks = externalModifiedBlocks;
+  const [modifiedBlocks, setModifiedBlocks] = useState<Record<number, string>>(externalModifiedBlocks);
+
+  // Sync internal modifications with external prop changes
+  useEffect(() => {
+    setModifiedBlocks(externalModifiedBlocks);
+  }, [externalModifiedBlocks]);
 
   
   // **FIX: Prevent multiple updates with refs**
