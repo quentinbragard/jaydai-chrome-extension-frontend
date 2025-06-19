@@ -1,6 +1,7 @@
 // src/components/folders/FolderItem.tsx
 import React, { useState, memo, useCallback, useRef } from 'react';
 import { Template, TemplateFolder } from '@/types/prompts/templates';
+import { Organization } from '@/types/organizations';
 import { FolderHeader } from './FolderHeader';
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { PinButton } from './PinButton';
@@ -24,6 +25,7 @@ interface FolderItemProps {
   showDeleteControls?: boolean;
   level?: number;
   initialExpanded?: boolean;
+  organizations?: Organization[];
 }
 
 /**
@@ -41,7 +43,8 @@ const FolderItem: React.FC<FolderItemProps> = ({
   showPinControls = false,
   showDeleteControls = false,
   level = 0,
-  initialExpanded = false
+  initialExpanded = false,
+  organizations
 }) => {
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const [isPinned, setIsPinned] = useState(!!folder.is_pinned);
@@ -195,6 +198,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
         onToggle={toggleExpansion}
         actionButtons={actionButtons}
         level={level}
+        organizations={organizations}
       />
       
       {isExpanded && (
@@ -250,6 +254,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
                     showPinControls={showPinControls}
                     showDeleteControls={showDeleteControls}
                     level={level + 1}
+                    organizations={organizations}
                   />
                 );
               }

@@ -1,19 +1,22 @@
 // src/components/folders/FolderHeader.tsx
 import { Folder, ChevronDown, ChevronRight } from "lucide-react";
 import { OrganizationImage } from '@/components/organizations';
+import { Organization } from '@/types/organizations';
 
 export function FolderHeader({
   folder,
   isExpanded,
   onToggle,
   actionButtons,
-  level = 0
+  level = 0,
+  organizations
 }: {
   folder: any;
   isExpanded: boolean;
   onToggle: () => void;
   actionButtons: React.ReactNode;
   level?: number;
+  organizations?: Organization[];
 }) {
     return (
       <div 
@@ -28,8 +31,16 @@ export function FolderHeader({
         <span className="jd-text-sm jd-flex-1 jd-truncate">{folder.name}</span>
         {folder.type === 'organization' && level === 0 && (
           <OrganizationImage
-            imageUrl={folder.organization?.image_url || folder.image_url}
-            organizationName={folder.organization?.name || folder.name}
+            imageUrl={
+              organizations?.find(o => o.id === folder.organization_id)?.image_url ||
+              folder.organization?.image_url ||
+              folder.image_url
+            }
+            organizationName={
+              organizations?.find(o => o.id === folder.organization_id)?.name ||
+              folder.organization?.name ||
+              folder.name
+            }
             size="sm"
             className="jd-ml-2"
           />

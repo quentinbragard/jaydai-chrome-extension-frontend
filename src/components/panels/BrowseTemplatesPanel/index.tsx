@@ -10,6 +10,7 @@ import {
   useTemplateActions,
   usePinnedFolders
 } from '@/hooks/prompts';
+import { useOrganizations } from '@/hooks/organizations';
 import {
   FolderList,
   FolderSearch
@@ -51,6 +52,8 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
     error,
     refetch: refetchFolders
   } = useAllFoldersOfType(folderType);
+
+  const { data: organizations = [] } = useOrganizations();
 
   // Map folder ID to its actual type (official or organization)
   const folderTypeMap = React.useMemo(() => {
@@ -167,6 +170,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
             onTogglePin={handleTogglePin}
             onUseTemplate={useTemplate}
             showPinControls={true}
+            organizations={organizations}
           />
         )}
       </div>

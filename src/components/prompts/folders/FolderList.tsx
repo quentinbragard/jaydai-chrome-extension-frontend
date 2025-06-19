@@ -1,6 +1,7 @@
 // src/components/folders/FolderList.tsx
 import React, { memo, useMemo } from 'react';
 import { Template, TemplateFolder } from '@/types/prompts/templates';
+import { Organization } from '@/types/organizations';
 import FolderItem from './FolderItem';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 
@@ -19,6 +20,7 @@ interface FolderListProps {
   searchTerm?: string;
   expandedFolders?: Set<number>;
   onToggleExpand?: (folderId: number) => void;
+  organizations?: Organization[];
 }
 
 /**
@@ -38,7 +40,8 @@ const FolderList: React.FC<FolderListProps> = ({
   emptyMessage,
   searchTerm,
   expandedFolders,
-  onToggleExpand
+  onToggleExpand,
+  organizations
 }) => {
   // Use memo to avoid unnecessary array processing
   const validFolders = useMemo(() => {
@@ -79,6 +82,7 @@ const FolderList: React.FC<FolderListProps> = ({
             showDeleteControls={showDeleteControls}
             initialExpanded={initialExpanded}
             level={0}
+            organizations={organizations}
           />
         );
       })}
