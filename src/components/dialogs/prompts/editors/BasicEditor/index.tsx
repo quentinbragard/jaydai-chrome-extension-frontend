@@ -9,7 +9,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
 import { useBasicEditorLogic } from '@/hooks/prompts/editors/useBasicEditorLogic';
-import TemplatePreview from '@/components/prompts/TemplatePreview';
+import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 
 interface BasicEditorProps {
   mode?: 'create' | 'customize';
@@ -174,9 +174,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           )}
         >
           <div className="jd-space-y-3 jd-pt-4">
-            <TemplatePreview
+            <EditablePromptPreview
               metadata={metadata}
-              content={modifiedContent}
               blockContentCache={blockContentCache}
               isDarkMode={isDark}
               finalPromptContent={displayContent}
@@ -208,9 +207,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             
             {/* Enhanced Preview Section with Full Editing Capabilities */}
             <div className="jd-flex-1 jd-min-h-0">
-              <TemplatePreview
+              <EditablePromptPreview
                 metadata={metadata}
-                content={modifiedContent}
                 blockContentCache={blockContentCache}
                 isDarkMode={isDark}
                 finalPromptContent={displayContent}
