@@ -8,6 +8,7 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { MetadataSection } from './MetadataSection';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
+import { getModifiedBlocks } from '@/utils/prompts/metadataUtils';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface AdvancedEditorProps {
@@ -24,7 +25,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     finalPromptContent,
     setFinalPromptContent,
     availableMetadataBlocks,
-    blockContentCache
+    blockContentCache,
+    updateBlockContent
   } = useTemplateEditor();
   const isDarkMode = useThemeDetector();
   const [showPreview, setShowPreview] = useState(true); // Show by default in advanced mode
@@ -60,8 +62,12 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
   // **NEW: Handle final content changes**
   const handleFinalContentChangeInternal = useCallback((newContent: string) => {
+    const mods = getModifiedBlocks(metadata, newContent, blockContentCache);
+    Object.entries(mods).forEach(([id, text]) => {
+      updateBlockContent(parseInt(id, 10), text);
+    });
     setFinalPromptContent(newContent);
-  }, [setFinalPromptContent]);
+  }, [metadata, blockContentCache, updateBlockContent, setFinalPromptContent]);
 
   const hasPendingChanges = hasPendingContentChanges;
 

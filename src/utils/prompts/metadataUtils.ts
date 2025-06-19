@@ -12,6 +12,7 @@ import {
   isSingleMetadataType,
   generateMetadataItemId
 } from '@/types/prompts/metadata';
+import { resolveMetadataValues } from '@/utils/templates/promptPreviewUtils';
 
 // Map singular metadata types to their property keys on PromptMetadata
 const MULTI_TYPE_KEY_MAP: Record<MultipleMetadataType, 'constraints' | 'examples'> = {
@@ -518,4 +519,77 @@ export function applyBlockOverridesToMetadata(
   }
 
   return updated;
+}
+
+/**
+ * Determine which metadata blocks were modified based on the edited final
+ * content string. Returns a map of blockId to new text (without prefix).
+ */
+export function getModifiedBlocks(
+  metadata: PromptMetadata,
+  finalContent: string,
+  blockContentCache: Record<number, string>
+): Record<number, string> {
+  const resolved = resolveMetadataValues(metadata, blockContentCache);
+
+  type Section = { id: number; prefix: string; value: string };
+  const sections: Section[] = [];
+
+  const singleTypes: SingleMetadataType[] = [
+    'role',
+    'context',
+    'goal',
+    'audience',
+    'output_format',
+    'tone_style'
+  ];
+
+  const prefixes: Record<SingleMetadataType, string> = {
+    role: 'Ton rôle est de',
+    context: 'Le contexte est',
+    goal: 'Ton objectif est',
+    audience: "L'audience ciblée est",
+    output_format: 'Le format attendu est',
+    tone_style: 'Le ton et style sont'
+  };
+
+  singleTypes.forEach(type => {
+    const blockId = metadata[type];
+    const value = resolved.values?.[type];
+    if (blockId && blockId !== 0 && value) {
+      sections.push({ id: blockId, prefix: prefixes[type], value });
+    }
+  });
+
+  if (resolved.constraints) {
+    resolved.constraints.forEach(item => {
+      if (item.blockId && item.value.trim()) {
+        sections.push({ id: item.blockId, prefix: 'Contrainte:', value: item.value });
+      }
+    });
+  }
+
+  if (resolved.examples) {
+    resolved.examples.forEach(item => {
+      if (item.blockId && item.value.trim()) {
+        sections.push({ id: item.blockId, prefix: 'Exemple:', value: item.value });
+      }
+    });
+  }
+
+  const finalSections = finalContent.split(/\n\n/);
+  const mods: Record<number, string> = {};
+
+  sections.forEach((sec, idx) => {
+    const txt = finalSections[idx] || '';
+    if (txt.startsWith(sec.prefix)) {
+      const newVal = txt.slice(sec.prefix.length).trim();
+      const orig = sec.value.trim();
+      if (newVal.replace(/\s+/g, ' ') !== orig.replace(/\s+/g, ' ')) {
+        mods[sec.id] = newVal;
+      }
+    }
+  });
+
+  return mods;
 }

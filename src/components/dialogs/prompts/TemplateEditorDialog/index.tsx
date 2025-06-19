@@ -144,6 +144,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       setContent,
       finalPromptContent,
       setFinalPromptContent,
+      updateBlockContent,
       blockContentCache,
       availableMetadataBlocks
     }),
@@ -162,6 +163,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       setContent,
       finalPromptContent,
       setFinalPromptContent,
+      updateBlockContent,
       blockContentCache,
       availableMetadataBlocks
     ]

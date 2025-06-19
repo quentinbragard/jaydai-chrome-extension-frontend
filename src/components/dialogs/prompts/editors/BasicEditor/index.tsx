@@ -5,6 +5,7 @@ import { cn } from '@/core/utils/classNames';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
+import { getModifiedBlocks } from '@/utils/prompts/metadataUtils';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PlaceholderPanel } from './PlaceholderPanel';
 import { ContentEditor } from './ContentEditor';
@@ -29,7 +30,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     setContent,
     finalPromptContent,
     setFinalPromptContent,
-    blockContentCache
+    blockContentCache,
+    updateBlockContent
   } = useTemplateEditor();
   const {
     // State
@@ -89,8 +91,12 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   // **NEW: Handle final content changes**
   const handleFinalContentChangeInternal = React.useCallback((newContent: string) => {
     console.log('BasicEditor: Final content changed, length:', newContent?.length);
+    const mods = getModifiedBlocks(metadata, newContent, blockContentCache);
+    Object.entries(mods).forEach(([id, text]) => {
+      updateBlockContent(parseInt(id, 10), text);
+    });
     setFinalPromptContent(newContent);
-  }, [setFinalPromptContent]);
+  }, [metadata, blockContentCache, updateBlockContent, setFinalPromptContent]);
 
   // Cleanup effect to commit pending changes when component unmounts
   React.useEffect(() => {
