@@ -15,7 +15,7 @@ export interface TemplateFolder {
   name?: string;
   path?: string;
   description?: string | Record<string, string>;
-  type: 'official' | 'organization' | 'user';
+  type: 'company' | 'organization' | 'user';
   templates: Template[];
   Folders?: TemplateFolder[];
   is_pinned?: boolean;

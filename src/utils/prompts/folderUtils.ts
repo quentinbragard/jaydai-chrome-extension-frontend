@@ -71,23 +71,23 @@ export function compareFoldersByName(a: TemplateFolder, b: TemplateFolder): numb
 }
 
 /**
- * Group folders by type (official, organization, user)
+ * Group folders by type (company, organization, user)
  */
 export function groupFoldersByType(folders: TemplateFolder[]): {
-  official: TemplateFolder[];
   organization: TemplateFolder[];
   user: TemplateFolder[];
+  company: TemplateFolder[];
 } {
   return folders.reduce(
     (acc, folder) => {
-      const type = folder.type as 'official' | 'organization' | 'user';
+      const type = folder.type as 'company' | 'organization' | 'user';
       if (type && acc[type]) {
         acc[type].push(folder);
       }
       return acc;
     },
-    { official: [], organization: [], user: [] } as {
-      official: TemplateFolder[];
+    { company: [], organization: [], user: [] } as {
+      company: TemplateFolder[];
       organization: TemplateFolder[];
       user: TemplateFolder[];
     }

@@ -36,11 +36,11 @@ class PromptApiClient {
     return getFolders(type, withSubfolders, withTemplates, locale);
   }
   
-  async updatePinnedFolders(type: 'official' | 'organization', folderIds: number[]): Promise<any> {
+  async updatePinnedFolders(type: 'company' | 'organization', folderIds: number[]): Promise<any> {
     return updatePinnedFolders(type, folderIds);
   }
 
-  async toggleFolderPin(folderId: number, isPinned: boolean, type: 'official' | 'organization'): Promise<any> {
+  async toggleFolderPin(folderId: number, isPinned: boolean, type: 'company' | 'organization'): Promise<any> {
     return toggleFolderPin(folderId, isPinned, type);
   }
 

@@ -23,9 +23,9 @@ export interface Template {
     updated_at?: string;
     last_used_at?: string;
     usage_count?: number;
-    type?: 'official' | 'organization' | 'user';
+    type?: 'company' | 'organization' | 'user';
     language?: string;
-    based_on_official_id?: number | null;
+    based_on_company_id?: number | null;
     metadata?: TemplateMetadata;
   }
   
@@ -45,7 +45,7 @@ export interface TemplateFolder {
   parent_folder_id?: number | null;
   /** @deprecated use `parent_folder_id` */
   parent_id?: number | null;
-  type?: 'official' | 'organization' | 'user';
+  type?: 'company' | 'organization' | 'user';
   is_pinned?: boolean;
 }
   
@@ -66,7 +66,7 @@ export interface TemplateFolder {
     description: '',
     folder: '',
     folder_id: undefined,
-    based_on_official_id: null
+    based_on_company_id: null
   };
   
   /**

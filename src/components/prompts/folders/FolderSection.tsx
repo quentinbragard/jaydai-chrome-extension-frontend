@@ -10,7 +10,7 @@ import { Organization } from '@/types/organizations';
 
 interface FolderSectionProps {
   title: string;
-  iconType: 'official' | 'organization' | 'user';
+  iconType: 'company' | 'organization' | 'user';
   onBrowseMore?: () => void;
   onCreateTemplate?: () => void;
   showBrowseMore?: boolean;
@@ -36,7 +36,7 @@ export function FolderSection({
   const renderIcon = () => {
     // ... (renderIcon function remains the same)
      switch (iconType) {
-      case 'official':
+      case 'company':
         return <BookTemplate className="jd-mr-2 jd-h-4 jd-w-4" />;
       case 'organization':
         return <Users className="jd-mr-2 jd-h-4 jd-w-4" />;

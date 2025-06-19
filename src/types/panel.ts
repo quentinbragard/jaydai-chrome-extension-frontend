@@ -4,7 +4,7 @@
 
 // Panel type definitions
 export type MenuPanelType = 'menu';
-export type TemplatesPanelType = 'templates' | 'browse-official' | 'browse-organization';
+export type TemplatesPanelType = 'templates' | 'browse-organization' | 'browse-company';
 export type NotificationsPanelType = 'notifications';
 export type StatsPanelType = 'stats';
 
