@@ -9,6 +9,7 @@ import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
+import { getCurrentLanguage } from '@/core/utils/i18n';
 import { TemplateFolder } from '@/types/prompts/templates';
 
 interface FolderManagerData {
@@ -46,9 +47,10 @@ export const FolderManagerDialog: React.FC = () => {
     e.stopPropagation();
     setIsSubmitting(true);
     try {
+      const locale = getCurrentLanguage();
       const res = await promptApi.updateFolder(folder.id, {
-        title,
-        description,
+        title: { [locale]: title },
+        ...(description ? { description: { [locale]: description } } : {}),
         parent_folder_id: parentId,
       });
       if (res.success) {
