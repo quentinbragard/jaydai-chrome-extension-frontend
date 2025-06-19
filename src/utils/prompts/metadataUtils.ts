@@ -241,11 +241,12 @@ export function getActiveSecondaryMetadata(metadata: PromptMetadata): Set<Metada
       }
     } else {
       // For single metadata types (audience, output_format, tone_style)
-      const blockId = metadata[type];
-      
-      // Include if the field has been initialized (exists in metadata object)
-      // This means either a block was selected, custom value exists, or it was added to the form
-      if (blockId) {
+      const hasField = Object.prototype.hasOwnProperty.call(metadata, type);
+      const hasCustom =
+        metadata.values && Object.prototype.hasOwnProperty.call(metadata.values, type as SingleMetadataType);
+
+      // Include if the field exists (even with blockId 0) or a custom value is present
+      if (hasField || hasCustom) {
         activeSet.add(type);
       }
     }
