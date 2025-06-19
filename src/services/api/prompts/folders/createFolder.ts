@@ -3,11 +3,10 @@
 */
 
 import { apiClient } from "@/services/api/ApiClient";
-import { getCurrentLanguage } from "@/core/utils/i18n";
 
 export async function createFolder(folderData: {
-  title: string | Record<string, string>;
-  description?: string | Record<string, string>;
+  title: string;
+  description?: string;
   parent_folder_id?: number | null;
 }): Promise<any> {
   try {
@@ -18,21 +17,10 @@ export async function createFolder(folderData: {
       };
     }
 
-    const locale = getCurrentLanguage();
     const payload = {
-      ...folderData,
-      title:
-        typeof folderData.title === 'string'
-          ? { [locale]: folderData.title }
-          : folderData.title,
-      ...(folderData.description
-        ? {
-            description:
-              typeof folderData.description === 'string'
-                ? { [locale]: folderData.description }
-                : folderData.description,
-          }
-        : {}),
+      title: folderData.title,
+      ...(folderData.description ? { description: folderData.description } : {}),
+      parent_folder_id: folderData.parent_folder_id ?? null,
     };
 
     const response = await apiClient.request('/prompts/folders', {
