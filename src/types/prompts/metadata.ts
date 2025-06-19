@@ -24,8 +24,8 @@ export interface PromptMetadata {
   output_format?: number;
   
   // Multiple value metadata (arrays)
-  constraint?: MetadataItem[];
-  example?: MetadataItem[];
+  constraints?: MetadataItem[];
+  examples?: MetadataItem[];
   
   // Custom values for single metadata types
   values?: Record<SingleMetadataType, string>;
@@ -112,8 +112,8 @@ export const ALL_METADATA_TYPES: MetadataType[] = [...PRIMARY_METADATA, ...SECON
 
 // Default metadata state
 export const DEFAULT_METADATA: PromptMetadata = {
-  constraint: [],
-  example: [],
+  constraints: [],
+  examples: [],
   values: {} as Record<SingleMetadataType, string>
 };
 

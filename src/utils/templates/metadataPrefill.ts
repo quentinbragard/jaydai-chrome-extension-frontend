@@ -24,9 +24,16 @@ export function parseMetadataIds(
   };
 
   for (const [type, value] of Object.entries(metadataMapping)) {
+    const key =
+      type === 'constraint'
+        ? 'constraints'
+        : type === 'example'
+          ? 'examples'
+          : type;
+
     if (typeof value === 'number') {
       if (value && value > 0) {
-        (metadata as any)[type] = value;
+        (metadata as any)[key] = value;
       }
     } else if (Array.isArray(value)) {
       const items = value
@@ -37,7 +44,7 @@ export function parseMetadataIds(
           value: ''
         }));
       if (items.length > 0) {
-        (metadata as any)[type] = items;
+        (metadata as any)[key] = items;
       }
     }
   }
@@ -74,7 +81,13 @@ export async function prefillMetadataFromMapping(
               console.log(`Loaded block ${value} for ${type}:`, content);
               
               // Store the block ID and content
-              (metadata as any)[type] = value;
+              const key =
+                type === 'constraint'
+                  ? 'constraints'
+                  : type === 'example'
+                    ? 'examples'
+                    : type;
+              (metadata as any)[key] = value;
               metadata.values![type as SingleMetadataType] = content;
             } else {
               console.warn(`Failed to load block ${value} for ${type}:`, response.message);
@@ -117,7 +130,13 @@ export async function prefillMetadataFromMapping(
             console.log(`Loaded ${items.length} items for ${type}:`, items);
             
             if (items.length > 0) {
-              (metadata as any)[type] = items;
+              const key =
+                type === 'constraint'
+                  ? 'constraints'
+                  : type === 'example'
+                    ? 'examples'
+                    : type;
+              (metadata as any)[key] = items;
             }
           } catch (error) {
             console.warn(`Failed to load blocks for ${type}:`, error);
