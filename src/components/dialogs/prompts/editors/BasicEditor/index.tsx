@@ -112,68 +112,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   if (mode === 'create') {
     return (
       <div className="jd-h-full jd-flex jd-flex-col jd-p-4 jd-space-y-4">
-        <div className="jd-flex-shrink-0">
-          <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-mb-2">
-            <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-            Edit Template Content
-            {hasPendingChanges && (
-              <span className="jd-inline-flex jd-items-center jd-gap-1 jd-text-xs jd-text-amber-600 jd-bg-amber-50 jd-px-2 jd-py-1 jd-rounded-full">
-                <span className="jd-w-2 jd-h-2 jd-bg-amber-500 jd-rounded-full jd-animate-pulse"></span>
-                Unsaved changes
-              </span>
-            )}
-          </h3>
-          <ContentEditor
-            ref={editorRef}
-            mode={mode}
-            onFocus={handleEditorFocus}
-            onBlur={handleEditorBlur}
-            onInput={handleEditorInput}
-            onKeyDown={handleEditorKeyDown}
-            onKeyPress={handleEditorKeyPress}
-            onKeyUp={handleEditorKeyUp}
-            className="jd-min-h-[250px]"
-          />
-        </div>
-        
-        {/* Toggle preview button */}
-        <div className="jd-flex-shrink-0 jd-pt-4 jd-border-t">
-          <Button
-            onClick={togglePreview}
-            variant="outline"
-            className={cn(
-              'jd-w-full jd-transition-all jd-duration-300 jd-group',
-              showPreview
-                ? 'jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90'
-                : 'jd-bg-background hover:jd-bg-muted'
-            )}
-          >
-            <div className="jd-flex jd-items-center jd-gap-2">
-              {showPreview ? (
-                <>
-                  <EyeOff className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-scale-110" />
-                  <span>Hide Preview</span>
-                  <ChevronUp className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
-                </>
-              ) : (
-                <>
-                  <Eye className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-scale-110" />
-                  <span>Show Preview</span>
-                  <ChevronDown className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
-                </>
-              )}
-            </div>
-          </Button>
-        </div>
-
-        {/* Animated preview section */}
-        <div
-          className={cn(
-            'jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out',
-            showPreview ? 'jd-max-h-[500px] jd-opacity-100' : 'jd-max-h-0 jd-opacity-0'
-          )}
-        >
-          <div className="jd-space-y-3 jd-pt-4">
+        <div className="jd-space-y-3 jd-pt-4">
             <EditablePromptPreview
               metadata={metadata}
               blockContentCache={blockContentCache}
@@ -182,7 +121,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               onFinalContentChange={handleFinalContentChangeInternal}
             />
           </div>
-        </div>
       </div>
     );
   }

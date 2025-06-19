@@ -48,7 +48,7 @@ export const EditablePreviewContent: React.FC<EditablePreviewContentProps> = ({
     const avgLineHeight = 24; // pixels per line
     const padding = 32; // top and bottom padding
     const minHeight = 250; // minimum height in pixels
-    const maxHeight = isFullHeight ? window.innerHeight * 0.7 : 400; // max height
+    const maxHeight = isFullHeight ? window.innerHeight * 0.9 : 600; // max height
     
     const calculatedHeight = Math.max(
       minHeight,
