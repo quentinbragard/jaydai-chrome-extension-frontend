@@ -12,11 +12,12 @@ interface EnhancedEditablePreviewProps {
   blockContentCache?: Record<number, string>;
   isDarkMode: boolean;
   finalPromptContent: string;
-  onFinalContentChange: (content: string) => void;
+  onFinalContentChange?: (content: string) => void;
   className?: string;
   title?: string;
   collapsible?: boolean;
   defaultCollapsed?: boolean;
+  editable?: boolean;
 }
 
 export const EnhancedEditablePreview: React.FC<EnhancedEditablePreviewProps> = ({
@@ -28,7 +29,8 @@ export const EnhancedEditablePreview: React.FC<EnhancedEditablePreviewProps> = (
   className = '',
   title = 'Complete Preview',
   collapsible = false,
-  defaultCollapsed = false
+  defaultCollapsed = false,
+  editable = true
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
@@ -95,7 +97,7 @@ export const EnhancedEditablePreview: React.FC<EnhancedEditablePreviewProps> = (
       {/* Instructions */}
       {!isCollapsed && (
         <div className="jd-text-xs jd-text-muted-foreground jd-flex jd-items-center jd-gap-4">
-          <span>Click to edit your complete prompt preview</span>
+          <span>{editable ? 'Click to edit your complete prompt preview' : 'Preview of your complete prompt'}</span>
           <div className="jd-flex jd-items-center jd-gap-1">
             <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
             <span>Placeholders</span>
@@ -112,10 +114,10 @@ export const EnhancedEditablePreview: React.FC<EnhancedEditablePreviewProps> = (
           <EditablePromptPreview
             content={finalPromptContent}
             htmlContent={previewHtml}
-            onChange={onFinalContentChange}
+            onChange={editable ? onFinalContentChange : undefined}
             isDark={isDarkMode}
             showColors={true}
-            enableAdvancedEditing={true}
+            enableAdvancedEditing={editable}
           />
         </div>
       )}
