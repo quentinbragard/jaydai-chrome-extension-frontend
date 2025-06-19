@@ -295,6 +295,22 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     editTemplate(template);
   }, [editTemplate]);
 
+  const handleTogglePin = useCallback(
+    async (
+      folderId: number,
+      isPinned: boolean,
+      type: 'official' | 'organization' | 'company'
+    ) => {
+      try {
+        await toggleFolderPin.mutateAsync({ folderId, isPinned, type });
+        await refetchPinned();
+      } catch (error) {
+        console.error('Error toggling pin:', error);
+      }
+    },
+    [toggleFolderPin, refetchPinned]
+  );
+
   // Get mixed official + organization folders
   const mixedFolders = useMemo(
     () => mixedFoldersData,
@@ -587,37 +603,13 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               </div>
             </div>
           ) : (
-            <>
-              {/* Mixed folders display */}
-              <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-                {mixedItems.map((folder) => (
-                  <div
-                    key={`mixed-folder-${folder.id}`}
-                    className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
-                  >
-                    <FolderOpen className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
-                    <span className="jd-text-sm jd-flex-1 jd-truncate">{folder.name}</span>
-                    {folder.templates?.length > 0 && (
-                      <span className="jd-text-xs jd-text-muted-foreground jd-mr-2">
-                        {folder.templates.length} templates
-                      </span>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="jd-opacity-0 group-hover:jd-opacity-100"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const type = (folder as TemplateFolder).type === 'official' ? 'official' : 'organization';
-                        toggleFolderPin.mutate({ folderId: folder.id, isPinned: true, type });
-                      }}
-                    >
-                      📌
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </>
+            <FolderList
+              folders={mixedItems as TemplateFolder[]}
+              type="organization"
+              onTogglePin={handleTogglePin}
+              onUseTemplate={useTemplate}
+              showPinControls={true}
+            />
           )}
         </FolderSection>
       </div>
