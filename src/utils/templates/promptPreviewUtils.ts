@@ -26,14 +26,14 @@ export function buildMetadataOnlyPreview(metadata: PromptMetadata): string {
       parts.push(prefix ? `${prefix} ${value}` : value);
     }
   });
-  if (metadata.constraints) {
-    metadata.constraints.forEach(item => {
-      if (item.value.trim()) parts.push(`Contrainte: ${item.value}`);
-    });
-  }
   if (metadata.examples) {
     metadata.examples.forEach(item => {
       if (item.value.trim()) parts.push(`Exemple: ${item.value}`);
+    });
+  }
+  if (metadata.constraints) {
+    metadata.constraints.forEach(item => {
+      if (item.value.trim()) parts.push(`Contrainte: ${item.value}`);
     });
   }
   return parts.filter(Boolean).join('\n\n');
@@ -48,14 +48,6 @@ export function buildMetadataOnlyPreviewHtml(metadata: PromptMetadata, isDark: b
       parts.push(prefixHtml ? `${prefixHtml} ${escapeHtml(value)}` : escapeHtml(value));
     }
   });
-  if (metadata.constraints) {
-    metadata.constraints.forEach(item => {
-      if (item.value.trim()) {
-        const prefixHtml = getBlockTypeLabelHtml('constraint', isDark);
-        parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
-      }
-    });
-  }
   if (metadata.examples) {
     metadata.examples.forEach(item => {
       if (item.value.trim()) {
@@ -64,18 +56,96 @@ export function buildMetadataOnlyPreviewHtml(metadata: PromptMetadata, isDark: b
       }
     });
   }
+  if (metadata.constraints) {
+    metadata.constraints.forEach(item => {
+      if (item.value.trim()) {
+        const prefixHtml = getBlockTypeLabelHtml('constraint', isDark);
+        parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
+      }
+    });
+  }
   return parts.join('<br><br>');
 }
 
 export function buildCompletePreview(metadata: PromptMetadata, content: string): string {
-  const meta = buildMetadataOnlyPreview(metadata);
-  const parts = [meta, content.trim()].filter(Boolean);
+  const parts: string[] = [];
+
+  const add = (type: SingleMetadataType) => {
+    const value = metadata.values?.[type];
+    if (value?.trim()) {
+      const prefix = getBlockTypeLabel(type);
+      parts.push(prefix ? `${prefix} ${value}` : value);
+    }
+  };
+
+  add('role');
+  add('context');
+  add('goal');
+
+  if (content.trim()) {
+    parts.push(content.trim());
+  }
+
+  add('audience');
+  add('output_format');
+  add('tone_style');
+
+  if (metadata.examples) {
+    metadata.examples.forEach(item => {
+      if (item.value.trim()) parts.push(`Exemple: ${item.value}`);
+    });
+  }
+
+  if (metadata.constraints) {
+    metadata.constraints.forEach(item => {
+      if (item.value.trim()) parts.push(`Contrainte: ${item.value}`);
+    });
+  }
+
   return parts.join('\n\n');
 }
 
 export function buildCompletePreviewHtml(metadata: PromptMetadata, content: string, isDark: boolean): string {
-  const metaHtml = buildMetadataOnlyPreviewHtml(metadata, isDark);
-  const parts = [metaHtml, content.trim() ? escapeHtml(content) : ''].filter(Boolean);
+  const parts: string[] = [];
+
+  const add = (type: SingleMetadataType) => {
+    const value = metadata.values?.[type];
+    if (value?.trim()) {
+      const prefixHtml = getBlockTypeLabelHtml(type, isDark);
+      parts.push(prefixHtml ? `${prefixHtml} ${escapeHtml(value)}` : escapeHtml(value));
+    }
+  };
+
+  add('role');
+  add('context');
+  add('goal');
+
+  if (content.trim()) {
+    parts.push(escapeHtml(content.trim()));
+  }
+
+  add('audience');
+  add('output_format');
+  add('tone_style');
+
+  if (metadata.examples) {
+    metadata.examples.forEach(item => {
+      if (item.value.trim()) {
+        const prefixHtml = getBlockTypeLabelHtml('example', isDark);
+        parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
+      }
+    });
+  }
+
+  if (metadata.constraints) {
+    metadata.constraints.forEach(item => {
+      if (item.value.trim()) {
+        const prefixHtml = getBlockTypeLabelHtml('constraint', isDark);
+        parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
+      }
+    });
+  }
+
   const html = parts.join('<br><br>');
   return html.replace(/\[([^\]]+)\]/g,
     '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'
@@ -92,7 +162,7 @@ export function extractContentFromCompleteTemplate(complete: string, metadataPar
   const keywords = [
     'Ton rôle est de','Le contexte est','Ton objectif est',
     "L'audience ciblée est",'Le format attendu est','Le ton et style sont',
-    'Contrainte:','Exemple:'
+    'Exemple:','Contrainte:'
   ];
   let start = 0;
   for (let i = lines.length - 1; i >= 0; i--) {
