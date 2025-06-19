@@ -22,6 +22,8 @@ export interface TemplateEditorContextValue extends MetadataUIState {
   setContent: (content: string) => void;
   finalPromptContent: string;
   setFinalPromptContent: (content: string) => void;
+  modifiedBlocks: Record<number, string>;
+  modifiedMetadata: Record<number, string>;
 
   // Blocks
   blockContentCache: Record<number, string>;
