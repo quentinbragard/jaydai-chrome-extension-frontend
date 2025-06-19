@@ -10,6 +10,7 @@ import {
   isMultipleMetadataType,
   PRIMARY_METADATA
 } from '@/types/prompts/metadata';
+import type { BlockRangeMap } from '@/types/prompts/metadata';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { getMessage } from '@/core/utils/i18n';
 import {
@@ -61,6 +62,7 @@ export interface TemplateDialogState {
   hasUnsavedFinalChanges: boolean;
   modifiedBlocks: Record<number, string>;
   modifiedMetadata: Record<number, string>;
+  blockRanges: BlockRangeMap;
   
   // UI state
   activeTab: 'basic' | 'advanced';
@@ -83,7 +85,7 @@ export interface TemplateDialogActions {
   setSelectedFolderId: (folderId: string) => void;
   
   // Final content management
-  setFinalPromptContent: (content: string, markAsChanged?: boolean) => void;
+  setFinalPromptContent: (content: string, ranges?: BlockRangeMap) => void;
   applyFinalContentChanges: () => void;
   discardFinalContentChanges: () => void;
   updateBlockContent: (blockId: number, newContent: string) => void;
@@ -139,6 +141,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     hasUnsavedFinalChanges: false,
     modifiedBlocks: {},
     modifiedMetadata: {},
+    blockRanges: {},
     
     // UI state
     activeTab: 'basic',
@@ -164,7 +167,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   // FINAL CONTENT MANAGEMENT - FIXED
   // ============================================================================
   
-  const setFinalPromptContent = useCallback((content: string) => {
+  const setFinalPromptContent = useCallback((content: string, ranges?: BlockRangeMap) => {
     console.log('setFinalPromptContent called:', {
       content: content.substring(0, 50) + '...',
       isInitializing: isInitializingRef.current
@@ -176,6 +179,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     setState(prev => ({
       ...prev,
       finalPromptContent: content,
+      blockRanges: ranges || prev.blockRanges,
       hasUnsavedFinalChanges: false
     }));
   }, []);
@@ -227,7 +231,8 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       finalPromptContent: baselineContentRef.current,
       hasUnsavedFinalChanges: false,
       modifiedBlocks: {},
-      modifiedMetadata: {}
+      modifiedMetadata: {},
+      blockRanges: {}
     }));
   }, []);
   
@@ -426,6 +431,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       hasUnsavedFinalChanges: false,
       modifiedBlocks: {},
       modifiedMetadata: {},
+      blockRanges: {},
       activeTab: 'basic',
       expandedMetadata: new Set(PRIMARY_METADATA),
       metadataCollapsed: false,
@@ -470,6 +476,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             selectedFolderId: initialData.selectedFolder?.id?.toString() || '',
             metadata: meta,
             finalPromptContent: content,
+            blockRanges: {},
             hasUnsavedFinalChanges: false, // **FIX: Explicitly set to false**
             expandedMetadata: new Set([
               ...PRIMARY_METADATA,
@@ -489,6 +496,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             content,
             metadata: meta,
             finalPromptContent: content,
+            blockRanges: {},
             hasUnsavedFinalChanges: false, // **FIX: Explicitly set to false**
             expandedMetadata: new Set([
               ...PRIMARY_METADATA,

@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { PromptMetadata, MetadataType } from '@/types/prompts/metadata';
+import { PromptMetadata, MetadataType, BlockRangeMap } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 
 export interface MetadataUIState {
@@ -21,9 +21,10 @@ export interface TemplateEditorContextValue extends MetadataUIState {
   content: string;
   setContent: (content: string) => void;
   finalPromptContent: string;
-  setFinalPromptContent: (content: string) => void;
+  setFinalPromptContent: (content: string, ranges?: BlockRangeMap) => void;
   modifiedBlocks: Record<number, string>;
   modifiedMetadata: Record<number, string>;
+  blockRanges: BlockRangeMap;
 
   // Blocks
   blockContentCache: Record<number, string>;

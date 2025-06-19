@@ -24,7 +24,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     finalPromptContent,
     setFinalPromptContent,
     availableMetadataBlocks,
-    blockContentCache
+    blockContentCache,
+    blockRanges
   } = useTemplateEditor();
   const isDarkMode = useThemeDetector();
   const [showPreview, setShowPreview] = useState(true); // Show by default in advanced mode
@@ -128,6 +129,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                     isDarkMode={isDarkMode}
                     finalPromptContent={displayContent}
                     onFinalContentChange={handleFinalContentChangeInternal}
+                    blockRanges={blockRanges}
                     className="jd-max-h-[500px] jd-overflow-auto"
                   />
                 </div>

@@ -12,7 +12,12 @@ import {
 import { blocksApi } from '@/services/api/BlocksApi';
 import { BLOCK_TYPES } from '@/utils/prompts/blockUtils';
 import { getCurrentLanguage } from '@/core/utils/i18n';
-import { buildCompletePreviewWithBlocks, buildCompletePreview } from '@/utils/templates/promptPreviewUtils';
+import {
+  buildCompletePreviewWithBlocks,
+  buildCompletePreview,
+  buildCompletePreviewWithBlocksAndRanges
+} from '@/utils/templates/promptPreviewUtils';
+import type { BlockRangeMap } from '@/types/prompts/metadata';
 
 interface UseBlockManagerReturn {
   // Loading state
@@ -29,6 +34,7 @@ interface UseBlockManagerReturn {
   finalContent: string;
   hasModifications: boolean;
   modifiedBlocks: Record<number, string>;
+  blockRanges: BlockRangeMap;
   
   // Utility functions
   resolveMetadataToContent: (metadata: PromptMetadata) => PromptMetadata;
@@ -52,7 +58,7 @@ interface UseBlockManagerReturn {
 interface UseBlockManagerProps {
   metadata: PromptMetadata;
   content: string;
-  onFinalContentChange?: (content: string) => void;
+  onFinalContentChange?: (content: string, ranges: BlockRangeMap) => void;
   onBlockModification?: (blockId: number, newContent: string) => void;
   dialogType?: 'create' | 'customize';
 }
@@ -74,6 +80,7 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
   // Final content state management
   const [modifiedBlocks, setModifiedBlocks] = useState<Record<number, string>>({});
   const [finalContent, setFinalContent] = useState('');
+  const [blockRanges, setBlockRanges] = useState<BlockRangeMap>({});
   
   // **FIX: Prevent multiple updates with refs**
   const isUpdatingFinalContentRef = useRef(false);
@@ -150,7 +157,11 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
       return;
     }
     
-    const newFinalContent = buildFinalPromptContent(metadata, content, modifiedBlocks);
+    const { text: newFinalContent, ranges } = buildCompletePreviewWithBlocksAndRanges(
+      metadata,
+      content,
+      { ...blockContentCache, ...modifiedBlocks }
+    );
     
     // **FIX: Only update if content actually changed**
     if (newFinalContent !== lastComputedContentRef.current) {
@@ -161,13 +172,14 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
       
       lastComputedContentRef.current = newFinalContent;
       setFinalContent(newFinalContent);
+      setBlockRanges(ranges);
       
       // **FIX: Debounce the external notification**
       if (onFinalContentChange) {
         isUpdatingFinalContentRef.current = true;
-        
+
         const timeoutId = setTimeout(() => {
-          onFinalContentChange(newFinalContent);
+          onFinalContentChange?.(newFinalContent, ranges);
           isUpdatingFinalContentRef.current = false;
         }, 50); // Small delay to prevent rapid-fire updates
         
@@ -177,7 +189,7 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
         };
       }
     }
-  }, [metadata, content, modifiedBlocks, onFinalContentChange]);
+  }, [metadata, content, modifiedBlocks, blockContentCache, onFinalContentChange]);
 
   // Resolve metadata block IDs to actual content
   const resolveMetadataToContent = useCallback((metadata: PromptMetadata): PromptMetadata => {
@@ -356,6 +368,7 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
     
     // Final content state
     finalContent,
+    blockRanges,
     hasModifications,
     modifiedBlocks,
     

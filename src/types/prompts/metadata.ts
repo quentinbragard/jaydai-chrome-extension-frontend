@@ -130,3 +130,22 @@ export function isSingleMetadataType(type: MetadataType): type is SingleMetadata
 export function generateMetadataItemId(): string {
   return `metadata-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
+
+// ============================================================================
+// BLOCK RANGE TYPES
+// ============================================================================
+
+export type BlockRange = [number, number];
+
+/** Mapping of character ranges for each metadata block within the final prompt */
+export interface BlockRangeMap {
+  role?: Record<number, BlockRange>;
+  context?: Record<number, BlockRange>;
+  goal?: Record<number, BlockRange>;
+  audience?: Record<number, BlockRange>;
+  tone_style?: Record<number, BlockRange>;
+  output_format?: Record<number, BlockRange>;
+  constraint?: Record<number, BlockRange>[];
+  example?: Record<number, BlockRange>[];
+  content?: Record<number, BlockRange>;
+}

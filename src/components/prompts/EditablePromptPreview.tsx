@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import EditablePreviewContent from './EditablePreviewContent';
-import { PromptMetadata } from '@/types/prompts/metadata';
+import { PromptMetadata, BlockRangeMap } from '@/types/prompts/metadata';
 
 interface EditablePromptPreviewProps {
   metadata: PromptMetadata;
@@ -12,6 +12,7 @@ interface EditablePromptPreviewProps {
   isDarkMode: boolean;
   finalPromptContent: string;
   onFinalContentChange: (content: string) => void;
+  blockRanges?: BlockRangeMap;
   className?: string;
   title?: string;
   collapsible?: boolean;
@@ -24,6 +25,7 @@ const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
   isDarkMode,
   finalPromptContent,
   onFinalContentChange,
+  blockRanges,
   className = '',
   title = 'Complete Preview',
   collapsible = false,
@@ -106,6 +108,7 @@ const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
             htmlContent={previewHtml}
             onChange={onFinalContentChange}
             isDark={isDarkMode}
+            blockRanges={blockRanges}
             showColors={true}
             enableAdvancedEditing={true}
           />

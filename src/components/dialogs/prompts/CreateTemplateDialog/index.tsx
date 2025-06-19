@@ -50,6 +50,7 @@ export const CreateTemplateDialog: React.FC = () => {
       hasUnsavedFinalChanges={hook.hasUnsavedFinalChanges}
       modifiedBlocks={hook.modifiedBlocks}
       modifiedMetadata={hook.modifiedMetadata}
+      blockRanges={hook.blockRanges}
       
       // Actions
       setContent={hook.setContent}

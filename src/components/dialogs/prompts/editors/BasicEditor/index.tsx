@@ -29,7 +29,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     setContent,
     finalPromptContent,
     setFinalPromptContent,
-    blockContentCache
+    blockContentCache,
+    blockRanges
   } = useTemplateEditor();
   const {
     // State
@@ -119,6 +120,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               isDarkMode={isDark}
               finalPromptContent={displayContent}
               onFinalContentChange={handleFinalContentChangeInternal}
+              blockRanges={blockRanges}
             />
           </div>
       </div>
@@ -149,10 +151,11 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                 metadata={metadata}
                 blockContentCache={blockContentCache}
                 isDarkMode={isDark}
-                finalPromptContent={displayContent}
-                onFinalContentChange={handleFinalContentChangeInternal}
-                className="jd-h-full jd-overflow-auto"
-              />
+              finalPromptContent={displayContent}
+              onFinalContentChange={handleFinalContentChangeInternal}
+              blockRanges={blockRanges}
+              className="jd-h-full jd-overflow-auto"
+            />
             </div>
           </div>
         </ResizablePanel>

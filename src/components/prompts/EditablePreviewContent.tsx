@@ -5,12 +5,14 @@ import { buildEnhancedPreview } from '@/utils/templates/placeholderHelpers';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Edit3, Check, X, Maximize2, Minimize2 } from 'lucide-react';
+import type { BlockRangeMap } from '@/types/prompts/metadata';
 
 interface EditablePreviewContentProps {
   content: string;
   htmlContent?: string;
   onChange?: (content: string) => void;
   isDark: boolean;
+  blockRanges?: BlockRangeMap;
   showColors?: boolean;
   enableAdvancedEditing?: boolean;
 }
@@ -23,6 +25,7 @@ export const EditablePreviewContent: React.FC<EditablePreviewContentProps> = ({
   htmlContent,
   onChange,
   isDark,
+  blockRanges,
   showColors = true,
   enableAdvancedEditing = false
 }) => {

@@ -8,12 +8,13 @@ import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 import { BasicEditor, AdvancedEditor } from '../editors';
 import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
-import { 
-  PromptMetadata, 
-  MetadataType, 
-  SingleMetadataType, 
-  MultipleMetadataType, 
-  MetadataItem
+import {
+  PromptMetadata,
+  MetadataType,
+  SingleMetadataType,
+  MultipleMetadataType,
+  MetadataItem,
+  BlockRangeMap
 } from '@/types/prompts/metadata';
 import { TemplateEditorProvider } from './TemplateEditorContext';
 
@@ -32,15 +33,16 @@ interface TemplateEditorDialogProps {
   hasUnsavedFinalChanges: boolean;
   modifiedBlocks: Record<number, string>;
   modifiedMetadata: Record<number, string>;
+  blockRanges: BlockRangeMap;
   
   // Actions from base hook
   setContent: (content: string) => void;
   setActiveTab: (tab: 'basic' | 'advanced') => void;
   handleComplete: () => Promise<void>;
   handleClose: () => void;
-  
+
   // **NEW: Final content actions**
-  setFinalPromptContent: (content: string) => void;
+  setFinalPromptContent: (content: string, ranges?: BlockRangeMap) => void;
   applyFinalContentChanges: () => void;
   discardFinalContentChanges: () => void;
   updateBlockContent: (blockId: number, newContent: string) => void;
@@ -80,6 +82,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   hasUnsavedFinalChanges,
   modifiedBlocks,
   modifiedMetadata,
+  blockRanges,
   
   // Actions
   setContent,
@@ -120,7 +123,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     buildFinalPromptContent,
     addNewBlock,
     applyModifications,
-    getEffectiveBlockContent
+    getEffectiveBlockContent,
+    blockRanges
   } = useBlockManager({
     metadata,
     content,
@@ -149,7 +153,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       blockContentCache,
       availableMetadataBlocks,
       modifiedBlocks,
-      modifiedMetadata
+      modifiedMetadata,
+      blockRanges
     }),
     [
       metadata,
@@ -169,7 +174,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       blockContentCache,
       availableMetadataBlocks,
       modifiedBlocks,
-      modifiedMetadata
+      modifiedMetadata,
+      blockRanges
     ]
   );
 
