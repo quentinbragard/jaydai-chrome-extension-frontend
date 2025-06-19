@@ -15,7 +15,7 @@ const ITEMS_PER_PAGE = 5;
 interface FolderItemProps {
   folder: TemplateFolder;
   type: 'company' | 'organization' | 'user';
-  onTogglePin?: (folderId: number, isPinned: boolean, folderType?: 'official' | 'organization' | 'user') => Promise<void> | void;
+  onTogglePin?: (folderId: number, isPinned: boolean, folderType?: 'company' | 'organization' | 'user') => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
   onEditFolder?: (folder: TemplateFolder) => void;
   onUseTemplate?: (template: Template) => void;
@@ -141,7 +141,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
   // Create action buttons for folder header
   const actionButtons = (
     <div className="jd-flex jd-items-center jd-gap-2">
-      {showPinControls && onTogglePin && (type === 'official' || type === 'organization') && (
+      {showPinControls && onTogglePin && type !== 'user' && (
         <PinButton 
           isPinned={isPinned} 
           onClick={handleTogglePin} 

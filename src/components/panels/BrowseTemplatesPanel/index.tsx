@@ -55,12 +55,11 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
 
   const { data: organizations = [] } = useOrganizations();
 
-  // Map folder ID to its actual type (official or organization)
+  // Map folder ID to its actual type (organization or company)
   const folderTypeMap = React.useMemo(() => {
-    const map: Record<number, 'official' | 'organization' | 'company'> = {};
+    const map: Record<number, 'organization' | 'company'> = {};
     folders.forEach(f => {
-      const t = (f.type === 'official') ? 'official' : 'organization';
-      map[f.id] = t;
+      map[f.id] = (f.type === 'company') ? 'company' : 'organization';
     });
     return map;
   }, [folders]);
@@ -99,7 +98,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
       await toggleFolderPin.mutateAsync({
         folderId,
         isPinned,
-        type: typeToUse as 'official' | 'organization' | 'company'
+        type: typeToUse as 'organization' | 'company'
       });
       
       // Call the onPinChange prop if provided (after successful backend update)
@@ -132,7 +131,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
 
   return (
     <BasePanel
-      title={folderType === 'official' ? 'Official Templates' : 'Organization Templates'}
+      title={folderType === 'company' ? 'Company Templates' : 'Organization Templates'}
       icon={FolderOpen}
       showBackButton={true}
       onBack={onBackToTemplates}

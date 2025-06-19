@@ -6,9 +6,9 @@ import { QUERY_KEYS } from '@/constants/queryKeys';
 import { TemplateFolder } from '@/types/prompts/templates';
 
 /**
- * Hook to fetch all folders of a specific type (official, organization, company)
+ * Hook to fetch all folders of a specific type (organization, company)
  */
-export function useAllFoldersOfType(folderType: 'official' | 'organization' | 'company') {
+export function useAllFoldersOfType(folderType: 'organization' | 'company') {
   const userLocale = getCurrentLanguage();
   
   return useQuery(

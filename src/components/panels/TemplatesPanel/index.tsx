@@ -49,7 +49,7 @@ interface FolderNavigation {
  * Updated TemplatesPanel with new structure:
  * 1. User folders and templates (with nested navigation)
  * 2. Company folders (pinned)
- * 3. Mixed organization + official folders (pinned)
+ * 3. Organization folders (pinned)
  */
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   showBackButton,
@@ -69,8 +69,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   // Data fetching
-  const { 
-    data: pinnedFolders = { official: [], organization: [] }, 
+  const {
+    data: pinnedFolders = { organization: [] },
     isLoading: loadingPinned,
     error: pinnedError,
     refetch: refetchPinned
@@ -143,7 +143,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       type: 'templatesBrowse',
       props: {
         folderType: 'organization', 
-        pinnedFolderIds: [...pinnedFolders.official.map(f => f.id), ...pinnedFolders.organization.map(f => f.id)],
+        pinnedFolderIds: [...pinnedFolders.organization.map(f => f.id)],
         onPinChange: async (folderId, isPinned, type) => {
           try {
             await toggleFolderPin.mutateAsync({ folderId, isPinned, type });
@@ -288,7 +288,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     async (
       folderId: number,
       isPinned: boolean,
-      type: 'official' | 'organization' | 'company'
+      type: 'company' | 'organization'
     ) => {
       try {
         await toggleFolderPin.mutateAsync({ folderId, isPinned, type });
@@ -300,12 +300,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     [toggleFolderPin, refetchPinned]
   );
 
-  // Combine official and organization pinned folders
+  // Use organization pinned folders list
   const pinnedFoldersList = useMemo(
-    () => [
-      ...(pinnedFolders.official || []),
-      ...(pinnedFolders.organization || [])
-    ],
+    () => [...(pinnedFolders.organization || [])],
     [pinnedFolders]
   );
 
@@ -419,7 +416,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 <TemplateItem
                   key={`search-template-${item.id}`}
                   template={item}
-                  type={item.type as 'official' | 'organization' | 'user'}
+                  type={item.type as 'company' | 'organization' | 'user'}
                   onUseTemplate={useTemplate}
                   onEditTemplate={handleEditTemplate}
                   onDeleteTemplate={handleDeleteTemplate}
@@ -565,10 +562,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
         <Separator />
 
-        {/* Pinned Official and Organization Section */}
+        {/* Pinned Organization Section */}
         <FolderSection
           title={getMessage('pinnedTemplates', undefined, 'Pinned Templates')}
-          iconType="official"
+          iconType="organization"
           showBrowseMore={true}
           onBrowseMore={handleBrowseMore}
         >

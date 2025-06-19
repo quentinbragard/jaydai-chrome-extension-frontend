@@ -4,9 +4,9 @@ import { apiClient } from "@/services/api/ApiClient";
  * Toggle pin status for a single folder
  * @param folderId - ID of the folder to toggle
  * @param isPinned - Current pin status (true if pinned, false if not)
- * @param type - Type of folder (official or organization)
+ * @param type - Type of folder (company or organization)
  */
-export async function toggleFolderPin(folderId: number, isPinned: boolean, type: 'official' | 'organization'): Promise<any> {
+export async function toggleFolderPin(folderId: number, isPinned: boolean, type: 'company' | 'organization'): Promise<any> {
     try {
       // Determine which endpoint to use based on current pin status
       const endpoint = isPinned 

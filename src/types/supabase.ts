@@ -133,30 +133,6 @@ export type Database = {
         }
         Relationships: []
       }
-      official_folders: {
-        Row: {
-          created_at: string
-          id: number
-          path: string | null
-          tags: string[] | null
-          type: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          path?: string | null
-          tags?: string[] | null
-          type?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          path?: string | null
-          tags?: string[] | null
-          type?: string | null
-        }
-        Relationships: []
-      }
       organization_folders: {
         Row: {
           created_at: string

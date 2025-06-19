@@ -331,8 +331,8 @@
     "description": "Button text to create a new template"
   },
   "officialTemplates": {
-    "message": "Official Templates",
-    "description": "Official templates section title"
+    "message": "Organization Templates",
+    "description": "Organization templates section title"
   },
   "myTemplates": {
     "message": "My Templates",
@@ -521,7 +521,7 @@
     "description": "Browse more modal title"
   },
   "browseMoreDesc": {
-    "message": "Browse and pin official and organization templates",
+    "message": "Browse and pin organization templates",
     "description": "Browse more modal description"
   },
   "pinFolder": {
@@ -557,8 +557,8 @@
     "description": "Refresh button text"
   },
   "noPinnedOfficialTemplates": {
-    "message": "No pinned official templates. Click Browse More to add some.",
-    "description": "Empty state message for official templates section"
+    "message": "No pinned organization templates. Click Browse More to add some.",
+    "description": "Empty state message for organization templates section"
   },
   "noUserTemplates": {
     "message": "No user templates. Create a template to get started.",
@@ -1269,8 +1269,8 @@
     "description": "Button text to contact sales for enterprise features"
   },
   "searchOfficialFolders": {
-    "message": "Search official folders...",
-    "description": "Placeholder text for searching official folders"
+    "message": "Search organization folders...",
+    "description": "Placeholder text for searching organization folders"
   },
   "searchOrganizationFolders": {
     "message": "Search organization folders...",
@@ -1282,7 +1282,7 @@
     "placeholders": {
       "folder_type": {
         "content": "$1",
-        "example": "official"
+        "example": "organization"
       }
     }
   },
@@ -1310,7 +1310,7 @@
     "placeholders": {
       "folder_type": {
         "content": "$1",
-        "example": "official"
+        "example": "organization"
       }
     }
   },

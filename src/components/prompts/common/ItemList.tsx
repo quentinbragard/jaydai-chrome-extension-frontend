@@ -7,7 +7,7 @@ import { Template, TemplateFolder } from '@/types/prompts/templates';
 
 interface ItemListProps {
   items: (TemplateFolder | Template)[];
-  type: 'user' | 'official' | 'organization';
+  type: 'user' | 'company' | 'organization';
   onFolderClick?: (folder: TemplateFolder) => void;
   onTemplateUse?: (template: Template) => void;
   onTemplateEdit?: (template: Template) => void;

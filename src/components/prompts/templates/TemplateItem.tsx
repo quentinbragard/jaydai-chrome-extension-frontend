@@ -10,7 +10,7 @@ import { getMessage } from '@/core/utils/i18n';
 
 interface TemplateItemProps {
   template: Template;
-  type?: 'official' | 'organization' | 'user';
+  type?: 'company' | 'organization' | 'user';
   onEditTemplate?: (template: Template) => void;
   onDeleteTemplate?: (templateId: number) => Promise<boolean> | void;
   onUseTemplate?: (template: Template) => void;

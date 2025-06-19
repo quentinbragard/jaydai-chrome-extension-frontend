@@ -10,7 +10,7 @@ interface GetAllFoldersResponse {
 
 /**
    * Get all template folders of a specific type (for browsing)
-   * @param type - Type of folders to fetch (official, organization)
+ * @param type - Type of folders to fetch (company or organization)
    * @param empty - Whether to return folders without templates
    */
 export async function getAllFolders(type: string, empty: boolean = false, locale?: string): Promise<GetAllFoldersResponse> {
