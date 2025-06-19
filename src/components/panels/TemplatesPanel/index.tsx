@@ -20,6 +20,7 @@ import {
   useTemplateActions
 } from '@/hooks/prompts';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
+import { useOrganizations } from '@/hooks/organizations';
 
 import {
   FolderSection,
@@ -88,6 +89,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     error: companyError,
     refetch: refetchCompany
   } = useCompanyFolders();
+
+  const { data: organizations = [] } = useOrganizations();
 
   console.log("userFolders", userFolders);
 
@@ -554,6 +557,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 folders={companyItems as TemplateFolder[]}
                 type="organization"
                 onUseTemplate={useTemplate}
+                organizations={organizations}
               />
             </div>
           )}
@@ -598,6 +602,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               onTogglePin={handleTogglePin}
               onUseTemplate={useTemplate}
               showPinControls={true}
+              organizations={organizations}
             />
           )}
         </FolderSection>
