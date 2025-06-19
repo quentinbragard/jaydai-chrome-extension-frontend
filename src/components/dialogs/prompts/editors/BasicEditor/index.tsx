@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Improved Version
+// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Updated Version
 import React, { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
@@ -31,6 +31,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     setFinalPromptContent,
     blockContentCache
   } = useTemplateEditor();
+  
   const {
     // State
     placeholders,
@@ -54,6 +55,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     
     // Enhanced methods
     forceCommitChanges,
+    resetPlaceholders, // **NEW: Added reset function**
+    getPlaceholderValues, // **NEW: Added getter for placeholder values**
     hasPendingChanges
   } = useBasicEditorLogic({
     content,
@@ -74,28 +77,22 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }
   }, [modifiedContent, isEditing]);
 
-  // ✅ IMPROVED: Better final content synchronization
   // Use finalPromptContent if available, but fall back to modifiedContent
-  // This ensures tab switching preserves the preview content
   const displayContent = React.useMemo(() => {
     return finalPromptContent || modifiedContent;
   }, [finalPromptContent, modifiedContent]);
 
-  // ✅ IMPROVED: Sync finalPromptContent changes back to modified content
-  // This ensures that when final content is updated from the advanced tab,
-  // the basic editor stays in sync
+  // Sync finalPromptContent changes back to modified content
   useEffect(() => {
     if (finalPromptContent && finalPromptContent !== modifiedContent) {
       // Don't update if the user is actively editing
       if (!isEditing) {
         console.log('BasicEditor: Syncing final content to modified content');
-        // Note: This might need adjustment based on your useBasicEditorLogic implementation
-        // You may need to add a method to sync external content changes
       }
     }
   }, [finalPromptContent, modifiedContent, isEditing]);
 
-  // **NEW: Handle final content changes**
+  // Handle final content changes
   const handleFinalContentChangeInternal = React.useCallback((newContent: string) => {
     console.log('BasicEditor: Final content changed, length:', newContent?.length);
     setFinalPromptContent(newContent);
@@ -207,6 +204,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             inputRefs={inputRefs}
             activeInputIndex={activeInputIndex}
             onUpdatePlaceholder={updatePlaceholder}
+            onResetPlaceholders={resetPlaceholders} // **NEW: Pass reset function**
           />
         </ResizablePanel>
         

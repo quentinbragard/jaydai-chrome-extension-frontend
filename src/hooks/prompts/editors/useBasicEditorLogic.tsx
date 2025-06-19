@@ -1,4 +1,4 @@
-// src/hooks/prompts/editors/useBasicEditorLogic.ts
+// src/hooks/prompts/editors/useBasicEditorLogic.ts - Fixed Version
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { extractPlaceholders, replacePlaceholders } from '@/utils/templates/placeholderUtils';
 
@@ -32,20 +32,46 @@ export function useBasicEditorLogic({
   // Track pending changes that need to be committed
   const pendingChangesRef = useRef<string | null>(null);
   const lastCommittedContentRef = useRef(content);
+  
+  // **NEW: Keep track of original content with placeholders**
+  const originalContentRef = useRef(content);
+  const placeholdersInitializedRef = useRef(false);
 
-  // Initialize content and placeholders
+  // **FIXED: Initialize content and placeholders (only once)**
   useEffect(() => {
-    setModifiedContent(content);
-    lastCommittedContentRef.current = content;
-    
-    if (mode === 'customize') {
+    // Only initialize placeholders once when component mounts or content initially changes
+    if (mode === 'customize' && !placeholdersInitializedRef.current) {
       const extracted = extractPlaceholders(content);
       const uniqueKeys = Array.from(new Set(extracted.map(p => p.key)));
       setPlaceholders(uniqueKeys.map(key => ({ key, value: '' })));
+      originalContentRef.current = content;
+      placeholdersInitializedRef.current = true;
     }
     
+    setModifiedContent(content);
+    lastCommittedContentRef.current = content;
     setContentMounted(true);
-  }, [content, mode]);
+  }, []); // **CHANGED: Only run once on mount**
+
+  // **NEW: Handle external content changes (like tab switching)**
+  useEffect(() => {
+    if (placeholdersInitializedRef.current && content !== lastCommittedContentRef.current) {
+      // If content changed externally, update our state but keep placeholders
+      setModifiedContent(content);
+      lastCommittedContentRef.current = content;
+      
+      // Update original content reference if it's a completely new template
+      if (!placeholders.length || content.length < originalContentRef.current.length / 2) {
+        originalContentRef.current = content;
+        // Re-extract placeholders if this looks like a new template
+        if (mode === 'customize') {
+          const extracted = extractPlaceholders(content);
+          const uniqueKeys = Array.from(new Set(extracted.map(p => p.key)));
+          setPlaceholders(uniqueKeys.map(key => ({ key, value: '' })));
+        }
+      }
+    }
+  }, [content, mode, placeholders.length]);
 
   // Commit pending changes function
   const commitPendingChanges = useCallback(() => {
@@ -69,7 +95,7 @@ export function useBasicEditorLogic({
     return () => clearTimeout(timeoutId);
   }, [commitPendingChanges]);
 
-  //  editor event handlers
+  // Editor event handlers
   const handleEditorFocus = useCallback(() => {
     setIsEditing(true);
   }, []);
@@ -112,24 +138,40 @@ export function useBasicEditorLogic({
     e.stopPropagation();
   }, []);
 
-  //  placeholder update with immediate preview update
+  // **FIXED: Placeholder update that maintains placeholder list**
   const updatePlaceholder = useCallback((index: number, value: string) => {
     setPlaceholders(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], value };
-      
-      // Update content with new placeholder values
-      const placeholderMap = updated.reduce((acc, p) => {
-        acc[p.key] = p.value;
-        return acc;
-      }, {} as Record<string, string>);
-      
-      const newContent = replacePlaceholders(content, placeholderMap);
-      updateContentInternal(newContent);
-      
-      return updated;
+      return updated; // Return updated placeholders without modifying content here
     });
-  }, [content, updateContentInternal]);
+
+    // **NEW: Update content separately, using original content as base**
+    const placeholderMap = placeholders.reduce((acc, p, i) => {
+      // Use the new value for the current index, existing values for others
+      acc[p.key] = i === index ? value : p.value;
+      return acc;
+    }, {} as Record<string, string>);
+    
+    // **FIXED: Always use original content as base for replacement**
+    const newContent = replacePlaceholders(originalContentRef.current, placeholderMap);
+    updateContentInternal(newContent);
+  }, [placeholders, updateContentInternal]);
+
+  // **NEW: Function to reset placeholders to original state**
+  const resetPlaceholders = useCallback(() => {
+    setPlaceholders(prev => prev.map(p => ({ ...p, value: '' })));
+    setModifiedContent(originalContentRef.current);
+    updateContentInternal(originalContentRef.current);
+  }, [updateContentInternal]);
+
+  // **NEW: Function to get current placeholder values**
+  const getPlaceholderValues = useCallback(() => {
+    return placeholders.reduce((acc, p) => {
+      acc[p.key] = p.value;
+      return acc;
+    }, {} as Record<string, string>);
+  }, [placeholders]);
 
   // Cleanup effect to commit changes when component unmounts or content changes externally
   useEffect(() => {
@@ -137,13 +179,6 @@ export function useBasicEditorLogic({
       commitPendingChanges();
     };
   }, [commitPendingChanges]);
-
-  // Commit changes when content prop changes (e.g., tab switching)
-  useEffect(() => {
-    if (content !== lastCommittedContentRef.current) {
-      commitPendingChanges();
-    }
-  }, [content, commitPendingChanges]);
 
   // Public method to force commit (useful for tab switching)
   const forceCommitChanges = useCallback(() => {
@@ -171,8 +206,10 @@ export function useBasicEditorLogic({
     handleEditorKeyUp,
     updatePlaceholder,
     
-    //  methods
+    // Enhanced methods
     forceCommitChanges,
+    resetPlaceholders,
+    getPlaceholderValues,
     
     // State indicators
     hasPendingChanges: pendingChangesRef.current !== null,

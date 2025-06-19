@@ -239,7 +239,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             </TabsContent>
 
             <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
-              <AdvancedEditor isProcessing={false} />
+              <AdvancedEditor mode={mode as any} isProcessing={false} />
             </TabsContent>
           </Tabs>
         )}

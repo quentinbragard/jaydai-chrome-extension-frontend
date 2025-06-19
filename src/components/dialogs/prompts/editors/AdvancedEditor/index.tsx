@@ -11,10 +11,12 @@ import TemplatePreview from '@/components/prompts/TemplatePreview';
 import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface AdvancedEditorProps {
+  mode?: 'create' | 'customize';
   isProcessing?: boolean;
 }
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
+  mode = 'customize',
   isProcessing = false
 }) => {
   const {
@@ -129,6 +131,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                     isDarkMode={isDarkMode}
                     finalPromptContent={displayContent}
                     onFinalContentChange={handleFinalContentChangeInternal}
+                    editable={mode !== 'customize'}
                     className="jd-max-h-[500px] jd-overflow-auto"
                   />
                 </div>
