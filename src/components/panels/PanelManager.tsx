@@ -77,7 +77,7 @@ const PanelContainer: React.FC<{
     case 'templatesBrowse':
       return (
         <BrowseTemplatesPanel
-          folderType={currentPanel.props?.folderType || 'official'}
+          folderType={currentPanel.props?.folderType || 'organization'}
           pinnedFolderIds={currentPanel.props?.pinnedFolderIds || []}
           onPinChange={currentPanel.props?.onPinChange}
           onBackToTemplates={popPanel}

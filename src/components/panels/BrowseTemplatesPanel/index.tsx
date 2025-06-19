@@ -19,7 +19,7 @@ import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 
 interface BrowseTemplatesPanelProps {
-  folderType: 'official' | 'organization' | 'company';
+  folderType: 'organization' | 'company';
   pinnedFolderIds?: number[];
   onPinChange?: (folderId: number, isPinned: boolean) => Promise<void>;
   onBackToTemplates: () => void;
