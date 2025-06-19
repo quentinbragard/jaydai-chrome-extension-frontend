@@ -141,13 +141,13 @@ export function buildCompletePrompt(
     }
   });
 
-  if (resolved.constraints && resolved.constraints.length > 0) {
-    const constraintTexts = formatMultipleMetadataForPrompt('constraint', resolved.constraints);
+  if (resolved.constraint && resolved.constraint.length > 0) {
+    const constraintTexts = formatMultipleMetadataForPrompt('constraint', resolved.constraint);
     parts.push(...constraintTexts);
   }
 
-  if (resolved.examples && resolved.examples.length > 0) {
-    const exampleTexts = formatMultipleMetadataForPrompt('example', resolved.examples);
+  if (resolved.example && resolved.example.length > 0) {
+    const exampleTexts = formatMultipleMetadataForPrompt('example', resolved.example);
     parts.push(...exampleTexts);
   }
 
@@ -183,15 +183,15 @@ function resolveMetadataWithMap(
     }
   });
 
-  if (metadata.constraints) {
-    resolved.constraints = metadata.constraints.map(item => ({
+  if (metadata.constraint) {
+    resolved.constraint = metadata.constraint.map(item => ({
       ...item,
       value: item.blockId && map[item.blockId] ? map[item.blockId] : item.value
     }));
   }
 
-  if (metadata.examples) {
-    resolved.examples = metadata.examples.map(item => ({
+  if (metadata.example) {
+    resolved.example = metadata.example.map(item => ({
       ...item,
       value: item.blockId && map[item.blockId] ? map[item.blockId] : item.value
     }));
@@ -226,13 +226,13 @@ export function buildCompletePromptPreview(metadata: PromptMetadata, blocks: Blo
   });
 
   // Add multiple metadata values
-  if (metadata.constraints && metadata.constraints.length > 0) {
-    const constraintHtml = formatMultipleMetadataForPreview('constraint', metadata.constraints);
+  if (metadata.constraint && metadata.constraint.length > 0) {
+    const constraintHtml = formatMultipleMetadataForPreview('constraint', metadata.constraint);
     parts.push(...constraintHtml);
   }
 
-  if (metadata.examples && metadata.examples.length > 0) {
-    const exampleHtml = formatMultipleMetadataForPreview('example', metadata.examples);
+  if (metadata.example && metadata.example.length > 0) {
+    const exampleHtml = formatMultipleMetadataForPreview('example', metadata.example);
     parts.push(...exampleHtml);
   }
 
@@ -269,12 +269,12 @@ export function countMetadataItems(metadata: PromptMetadata): number {
   });
 
   // Count multiple metadata
-  if (metadata.constraints) {
-    count += metadata.constraints.filter(item => item.value.trim()).length;
+  if (metadata.constraint) {
+    count += metadata.constraint.filter(item => item.value.trim()).length;
   }
 
-  if (metadata.examples) {
-    count += metadata.examples.filter(item => item.value.trim()).length;
+  if (metadata.example) {
+    count += metadata.example.filter(item => item.value.trim()).length;
   }
 
   return count;
@@ -303,12 +303,12 @@ export function validateMetadata(metadata: PromptMetadata): {
   }
 
   // Warnings for incomplete multiple metadata
-  if (metadata.constraints && metadata.constraints.some(item => !item.value.trim())) {
-    warnings.push('Some constraints are empty');
+  if (metadata.constraint && metadata.constraint.some(item => !item.value.trim())) {
+    warnings.push('Some constraint are empty');
   }
 
-  if (metadata.examples && metadata.examples.some(item => !item.value.trim())) {
-    warnings.push('Some examples are empty');
+  if (metadata.example && metadata.example.some(item => !item.value.trim())) {
+    warnings.push('Some example are empty');
   }
 
   return {

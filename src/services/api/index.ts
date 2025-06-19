@@ -6,3 +6,4 @@ export * from './PromptApi';
 export * from './NotificationApi';
 export * from './UserApi';
 export * from './BlocksApi';
+export * from './OrganizationsApi';

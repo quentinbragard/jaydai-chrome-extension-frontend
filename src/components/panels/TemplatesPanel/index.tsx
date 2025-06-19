@@ -1,6 +1,7 @@
+
 // src/components/panels/TemplatesPanel/index.tsx
 import React, { useCallback, memo, useMemo, useState } from 'react';
-import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, ArrowLeft, Pencil, Trash2, FolderPlus } from "lucide-react";
+import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -20,6 +21,7 @@ import {
   useTemplateActions
 } from '@/hooks/prompts';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
+import { useOrganizations } from '@/hooks/organizations'; // New import
 
 import {
   FolderSection,

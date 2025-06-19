@@ -14,9 +14,9 @@ import {
 } from '@/types/prompts/metadata';
 
 // Map singular metadata types to their property keys on PromptMetadata
-const MULTI_TYPE_KEY_MAP: Record<MultipleMetadataType, 'constraints' | 'examples'> = {
-  constraint: 'constraints',
-  example: 'examples'
+const MULTI_TYPE_KEY_MAP: Record<MultipleMetadataType, 'constraint' | 'example'> = {
+  constraint: 'constraint',
+  example: 'example'
 };
 
 // ============================================================================
@@ -41,8 +41,8 @@ export function cloneMetadata(metadata: PromptMetadata): PromptMetadata {
   return {
     ...metadata,
     values: { ...metadata.values },
-    constraints: metadata.constraints?.map(item => ({ ...item })),
-    examples: metadata.examples?.map(item => ({ ...item }))
+    constraint: metadata.constraint?.map(item => ({ ...item })),
+    example: metadata.example?.map(item => ({ ...item }))
   };
 }
 
@@ -94,7 +94,7 @@ export function updateCustomValue(
 // ============================================================================
 
 /**
- * Add a new item to multiple metadata (constraints, examples)
+ * Add a new item to multiple metadata (constraint, example)
  */
 export function addMetadataItem(
   metadata: PromptMetadata,
@@ -232,7 +232,7 @@ export function getActiveSecondaryMetadata(metadata: PromptMetadata): Set<Metada
   
   SECONDARY_METADATA.forEach(type => {
     if (isMultipleMetadataType(type)) {
-      // For multiple metadata types (constraints, examples)
+      // For multiple metadata types (constraint, example)
       const key = MULTI_TYPE_KEY_MAP[type];
       const items = (metadata as any)[key];
 
@@ -350,12 +350,12 @@ export function validateMetadata(metadata: PromptMetadata): {
   }
   
   // Check for empty multiple metadata items
-  if (metadata.constraints?.some(item => !item.value.trim())) {
-    warnings.push('Some constraints are empty');
+  if (metadata.constraint?.some(item => !item.value.trim())) {
+    warnings.push('Some constraint are empty');
   }
   
-  if (metadata.examples?.some(item => !item.value.trim())) {
-    warnings.push('Some examples are empty');
+  if (metadata.example?.some(item => !item.value.trim())) {
+    warnings.push('Some example are empty');
   }
   
   return {
@@ -384,12 +384,12 @@ export function countMetadataItems(metadata: PromptMetadata): number {
   });
   
   // Count multiple metadata items
-  if (metadata.constraints) {
-    count += metadata.constraints.filter(item => item.value.trim()).length;
+  if (metadata.constraint) {
+    count += metadata.constraint.filter(item => item.value.trim()).length;
   }
   
-  if (metadata.examples) {
-    count += metadata.examples.filter(item => item.value.trim()).length;
+  if (metadata.example) {
+    count += metadata.example.filter(item => item.value.trim()).length;
   }
   
   return count;
@@ -417,8 +417,8 @@ export function metadataToBlockMapping(metadata: PromptMetadata): Record<string,
   });
   
   // Handle multiple metadata types
-  if (metadata.constraints && metadata.constraints.length > 0) {
-    const constraintBlockIds = metadata.constraints
+  if (metadata.constraint && metadata.constraint.length > 0) {
+    const constraintBlockIds = metadata.constraint
       .map(c => c.blockId)
       .filter((id): id is number => typeof id === 'number' && id !== 0);
     if (constraintBlockIds.length > 0) {
@@ -426,8 +426,8 @@ export function metadataToBlockMapping(metadata: PromptMetadata): Record<string,
     }
   }
 
-  if (metadata.examples && metadata.examples.length > 0) {
-    const exampleBlockIds = metadata.examples
+  if (metadata.example && metadata.example.length > 0) {
+    const exampleBlockIds = metadata.example
       .map(e => e.blockId)
       .filter((id): id is number => typeof id === 'number' && id !== 0);
     if (exampleBlockIds.length > 0) {
@@ -498,8 +498,8 @@ export function applyBlockOverridesToMetadata(
     }
   });
 
-  if (metadata.constraints) {
-    updated.constraints = metadata.constraints.map(item => {
+  if (metadata.constraint) {
+    updated.constraint = metadata.constraint.map(item => {
       if (item.blockId && overrides.hasOwnProperty(item.blockId)) {
         return { ...item, value: overrides[item.blockId] };
       }
@@ -507,8 +507,8 @@ export function applyBlockOverridesToMetadata(
     });
   }
 
-  if (metadata.examples) {
-    updated.examples = metadata.examples.map(item => {
+  if (metadata.example) {
+    updated.example = metadata.example.map(item => {
       if (item.blockId && overrides.hasOwnProperty(item.blockId)) {
         return { ...item, value: overrides[item.blockId] };
       }

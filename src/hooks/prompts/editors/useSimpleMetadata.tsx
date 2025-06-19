@@ -85,7 +85,7 @@ export function useSimpleMetadata({ metadata, onUpdateMetadata }: UseSimpleMetad
     });
   }, [metadata, updateMetadata]);
 
-  // Handle adding metadata items for multiple types (constraints, examples)
+  // Handle adding metadata items for multiple types (constraint, example)
   const handleAddMetadataItem = useCallback((type: MultipleMetadataType) => {
     const newItem: MetadataItem = {
       id: `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,

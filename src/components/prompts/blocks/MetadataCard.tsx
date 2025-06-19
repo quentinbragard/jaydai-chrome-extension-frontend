@@ -76,7 +76,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 
   const items = React.useMemo(() => {
     if (isMultipleMetadataType(type)) {
-      const key = type === 'constraint' ? 'constraints' : 'examples';
+      const key = type === 'constraint' ? 'constraint' : 'example';
       return (metadata as any)[key] || [];
     }
     return [];

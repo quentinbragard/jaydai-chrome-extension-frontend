@@ -39,17 +39,17 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
       }
     });
     
-    // Add constraints and examples
-    if (metadata.constraints) {
-      metadata.constraints.forEach(item => {
+    // Add constraint and example
+    if (metadata.constraint) {
+      metadata.constraint.forEach(item => {
         if (item.value.trim()) {
           parts.push(`Contrainte: ${item.value}`);
         }
       });
     }
     
-    if (metadata.examples) {
-      metadata.examples.forEach(item => {
+    if (metadata.example) {
+      metadata.example.forEach(item => {
         if (item.value.trim()) {
           parts.push(`Exemple: ${item.value}`);
         }

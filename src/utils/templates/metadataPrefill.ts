@@ -26,9 +26,9 @@ export function parseMetadataIds(
   for (const [type, value] of Object.entries(metadataMapping)) {
     const key =
       type === 'constraint'
-        ? 'constraints'
+        ? 'constraint'
         : type === 'example'
-          ? 'examples'
+          ? 'example'
           : type;
 
     if (typeof value === 'number') {
@@ -83,9 +83,9 @@ export async function prefillMetadataFromMapping(
               // Store the block ID and content
               const key =
                 type === 'constraint'
-                  ? 'constraints'
+                  ? 'constraint'
                   : type === 'example'
-                    ? 'examples'
+                    ? 'example'
                     : type;
               (metadata as any)[key] = value;
               metadata.values![type as SingleMetadataType] = content;
@@ -99,7 +99,7 @@ export async function prefillMetadataFromMapping(
           console.log(`Skipping invalid block ID for ${type}:`, value);
         }
       }
-      // Handle array values (constraints, examples)
+      // Handle array values (constraint, example)
       else if (Array.isArray(value)) {
         // ✅ Filter out null/undefined/0 values
         const validIds = value.filter(id => id && typeof id === 'number' && id > 0);
@@ -132,9 +132,9 @@ export async function prefillMetadataFromMapping(
             if (items.length > 0) {
               const key =
                 type === 'constraint'
-                  ? 'constraints'
+                  ? 'constraint'
                   : type === 'example'
-                    ? 'examples'
+                    ? 'example'
                     : type;
               (metadata as any)[key] = items;
             }

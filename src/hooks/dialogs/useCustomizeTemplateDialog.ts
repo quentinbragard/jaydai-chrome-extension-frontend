@@ -36,17 +36,17 @@ export function useCustomizeTemplateDialog() {
           }
         });
         
-        // Add constraints and examples
-        if (metadata.constraints) {
-          metadata.constraints.forEach(item => {
+        // Add constraint and example
+        if (metadata.constraint) {
+          metadata.constraint.forEach(item => {
             if (item.value.trim()) {
               metadataParts.push(`Contrainte: ${item.value}`);
             }
           });
         }
         
-        if (metadata.examples) {
-          metadata.examples.forEach(item => {
+        if (metadata.example) {
+          metadata.example.forEach(item => {
             if (item.value.trim()) {
               metadataParts.push(`Exemple: ${item.value}`);
             }
@@ -68,8 +68,8 @@ export function useCustomizeTemplateDialog() {
         template_name: data?.title,
         template_type: data?.type,
         metadata_items_count: Object.keys(metadata.values || {}).length + 
-                              (metadata.constraints?.length || 0) + 
-                              (metadata.examples?.length || 0),
+                              (metadata.constraint?.length || 0) + 
+                              (metadata.example?.length || 0),
         final_content_length: finalContent.length
       });
       

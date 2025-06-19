@@ -60,7 +60,7 @@ export const BLOCK_TYPE_DESCRIPTIONS: Record<BlockType, string> = {
   custom: 'Custom user content',
   output_format: 'Desired output format',
   example: 'Provide an example',
-  constraint: 'Specify constraints or limitations',
+  constraint: 'Specify constraint or limitations',
   tone_style: 'Define tone and style',
   audience: 'Describe the target audience'
 };

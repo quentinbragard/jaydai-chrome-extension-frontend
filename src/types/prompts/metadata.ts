@@ -24,8 +24,8 @@ export interface PromptMetadata {
   output_format?: number;
   
   // Multiple value metadata (arrays)
-  constraints?: MetadataItem[];
-  examples?: MetadataItem[];
+  constraint?: MetadataItem[];
+  example?: MetadataItem[];
   
   // Custom values for single metadata types
   values?: Record<SingleMetadataType, string>;
@@ -73,14 +73,14 @@ export const METADATA_CONFIGS: Record<MetadataType, MetadataConfig> = {
     label: 'Tone & Style',
     description: 'Set the communication style',
     blockType: 'tone_style',
-    placeholder: 'e.g., Professional but friendly, use clear examples...',
+    placeholder: 'e.g., Professional but friendly, use clear example...',
     allowMultiple: false
   },
   output_format: {
     label: 'Output Format',
     description: 'Specify how the response should be structured',
     blockType: 'output_format',
-    placeholder: 'e.g., Provide code examples with explanations...',
+    placeholder: 'e.g., Provide code example with explanations...',
     allowMultiple: false
   },
   constraint: {
@@ -92,7 +92,7 @@ export const METADATA_CONFIGS: Record<MetadataType, MetadataConfig> = {
   },
   example: {
     label: 'Example',
-    description: 'Provide examples to guide the response',
+    description: 'Provide example to guide the response',
     blockType: 'example',
     placeholder: 'e.g., Good: const data = await fetch()...',
     allowMultiple: true
@@ -112,8 +112,8 @@ export const ALL_METADATA_TYPES: MetadataType[] = [...PRIMARY_METADATA, ...SECON
 
 // Default metadata state
 export const DEFAULT_METADATA: PromptMetadata = {
-  constraints: [],
-  examples: [],
+  constraint: [],
+  example: [],
   values: {} as Record<SingleMetadataType, string>
 };
 

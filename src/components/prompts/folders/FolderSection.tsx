@@ -1,21 +1,23 @@
+
 // src/components/folders/FolderSection.tsx
 import { ReactNode, useState } from 'react';
-import { BookTemplate, Users, Folder, PlusCircle, ChevronDown, Building2, Mail, Lock, FolderPlus } from "lucide-react";
+import { BookTemplate, Users, Folder, PlusCircle, ChevronDown, Building2, Mail, Lock , FolderPlus} from "lucide-react";
 import { Button } from "@/components/ui/button"; // Assuming this is your Shadcn UI Button
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames'; // Import cn if needed for combining classes
+import { OrganizationImage } from '@/components/organizations';
+import { Organization } from '@/types/organizations';
 
 interface FolderSectionProps {
   title: string;
   iconType: 'official' | 'organization' | 'user';
   onBrowseMore?: () => void;
   onCreateTemplate?: () => void;
-  onCreateFolder?: () => void;
   showBrowseMore?: boolean;
   showCreateButton?: boolean;
-  showCreateFolderButton?: boolean;
   isEmpty?: boolean;
   children: ReactNode;
+  organizations?: Organization[]; // Use centralized type
 }
 
 export function FolderSection({

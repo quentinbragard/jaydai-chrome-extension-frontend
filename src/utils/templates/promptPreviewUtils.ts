@@ -26,13 +26,13 @@ export function buildMetadataOnlyPreview(metadata: PromptMetadata): string {
       parts.push(prefix ? `${prefix} ${value}` : value);
     }
   });
-  if (metadata.constraints) {
-    metadata.constraints.forEach(item => {
+  if (metadata.constraint) {
+    metadata.constraint.forEach(item => {
       if (item.value.trim()) parts.push(`Contrainte: ${item.value}`);
     });
   }
-  if (metadata.examples) {
-    metadata.examples.forEach(item => {
+  if (metadata.example) {
+    metadata.example.forEach(item => {
       if (item.value.trim()) parts.push(`Exemple: ${item.value}`);
     });
   }
@@ -48,16 +48,16 @@ export function buildMetadataOnlyPreviewHtml(metadata: PromptMetadata, isDark: b
       parts.push(prefixHtml ? `${prefixHtml} ${escapeHtml(value)}` : escapeHtml(value));
     }
   });
-  if (metadata.constraints) {
-    metadata.constraints.forEach(item => {
+  if (metadata.constraint) {
+    metadata.constraint.forEach(item => {
       if (item.value.trim()) {
         const prefixHtml = getBlockTypeLabelHtml('constraint', isDark);
         parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
       }
     });
   }
-  if (metadata.examples) {
-    metadata.examples.forEach(item => {
+  if (metadata.example) {
+    metadata.example.forEach(item => {
       if (item.value.trim()) {
         const prefixHtml = getBlockTypeLabelHtml('example', isDark);
         parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
@@ -139,8 +139,8 @@ export function resolveMetadataValues(
         : item.value
     }));
 
-  resolved.constraints = resolveItems(metadata.constraints) as any;
-  resolved.examples = resolveItems(metadata.examples) as any;
+  resolved.constraint = resolveItems(metadata.constraint) as any;
+  resolved.example = resolveItems(metadata.example) as any;
 
   return resolved;
 }

@@ -22,4 +22,7 @@ export const QUERY_KEYS = {
     // Stats related queries
     USER_STATS: 'userStats',
     WEEKLY_STATS: 'weeklyStats',
+
+    ORGANIZATIONS: 'organizations',
+    ORGANIZATION_BY_ID: 'organizationById',
   };
