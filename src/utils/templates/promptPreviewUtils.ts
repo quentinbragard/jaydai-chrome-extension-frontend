@@ -68,14 +68,90 @@ export function buildMetadataOnlyPreviewHtml(metadata: PromptMetadata, isDark: b
 }
 
 export function buildCompletePreview(metadata: PromptMetadata, content: string): string {
-  const meta = buildMetadataOnlyPreview(metadata);
-  const parts = [meta, content.trim()].filter(Boolean);
-  return parts.join('\n\n');
+  const parts: string[] = [];
+
+  // 1. Primary metadata (Role, Context, Goal)
+  ['role', 'context', 'goal'].forEach(t => {
+    const value = metadata.values?.[t as keyof typeof metadata.values];
+    if (value?.trim()) {
+      const prefix = getBlockTypeLabel(t);
+      parts.push(prefix ? `${prefix} ${value}` : value);
+    }
+  });
+
+  // 2. Main content
+  if (content.trim()) {
+    parts.push(content.trim());
+  }
+
+  // 3. Additional metadata (Audience, Output Format, Tone & Style)
+  ['audience', 'output_format', 'tone_style'].forEach(t => {
+    const value = metadata.values?.[t as keyof typeof metadata.values];
+    if (value?.trim()) {
+      const prefix = getBlockTypeLabel(t);
+      parts.push(prefix ? `${prefix} ${value}` : value);
+    }
+  });
+
+  if (metadata.constraint) {
+    metadata.constraint.forEach(item => {
+      if (item.value.trim()) parts.push(`Contrainte: ${item.value}`);
+    });
+  }
+
+  if (metadata.example) {
+    metadata.example.forEach(item => {
+      if (item.value.trim()) parts.push(`Exemple: ${item.value}`);
+    });
+  }
+
+  return parts.filter(Boolean).join('\n\n');
 }
 
 export function buildCompletePreviewHtml(metadata: PromptMetadata, content: string, isDark: boolean): string {
-  const metaHtml = buildMetadataOnlyPreviewHtml(metadata, isDark);
-  const parts = [metaHtml, content.trim() ? escapeHtml(content) : ''].filter(Boolean);
+  const parts: string[] = [];
+
+  // 1. Primary metadata
+  ['role', 'context', 'goal'].forEach(t => {
+    const value = metadata.values?.[t as keyof typeof metadata.values];
+    if (value?.trim()) {
+      const prefixHtml = getBlockTypeLabelHtml(t, isDark);
+      parts.push(prefixHtml ? `${prefixHtml} ${escapeHtml(value)}` : escapeHtml(value));
+    }
+  });
+
+  // 2. Main content
+  if (content.trim()) {
+    parts.push(escapeHtml(content.trim()));
+  }
+
+  // 3. Additional metadata
+  ['audience', 'output_format', 'tone_style'].forEach(t => {
+    const value = metadata.values?.[t as keyof typeof metadata.values];
+    if (value?.trim()) {
+      const prefixHtml = getBlockTypeLabelHtml(t, isDark);
+      parts.push(prefixHtml ? `${prefixHtml} ${escapeHtml(value)}` : escapeHtml(value));
+    }
+  });
+
+  if (metadata.constraint) {
+    metadata.constraint.forEach(item => {
+      if (item.value.trim()) {
+        const prefixHtml = getBlockTypeLabelHtml('constraint', isDark);
+        parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
+      }
+    });
+  }
+
+  if (metadata.example) {
+    metadata.example.forEach(item => {
+      if (item.value.trim()) {
+        const prefixHtml = getBlockTypeLabelHtml('example', isDark);
+        parts.push(`${prefixHtml} ${escapeHtml(item.value)}`);
+      }
+    });
+  }
+
   const html = parts.join('<br><br>');
   return html.replace(/\[([^\]]+)\]/g,
     '<span class="jd-bg-yellow-300 jd-text-yellow-900 jd-font-bold jd-px-1 jd-rounded jd-inline-block jd-my-0.5">[$1]</span>'

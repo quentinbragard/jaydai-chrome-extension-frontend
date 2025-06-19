@@ -125,16 +125,20 @@ export function buildCompletePrompt(
   const resolved = resolveMetadataWithMap(metadata, blockContentMap);
   const parts: string[] = [];
 
-  const singleTypes: SingleMetadataType[] = [
-    'role',
-    'context',
-    'goal',
-    'audience',
-    'output_format',
-    'tone_style'
-  ];
+  const primary: SingleMetadataType[] = ['role', 'context', 'goal'];
+  primary.forEach(type => {
+    const value = resolved.values?.[type];
+    if (value?.trim()) {
+      parts.push(formatMetadataForPrompt(type, value));
+    }
+  });
 
-  singleTypes.forEach(type => {
+  if (content.trim()) {
+    parts.push(content.trim());
+  }
+
+  const secondary: SingleMetadataType[] = ['audience', 'output_format', 'tone_style'];
+  secondary.forEach(type => {
     const value = resolved.values?.[type];
     if (value?.trim()) {
       parts.push(formatMetadataForPrompt(type, value));
@@ -149,10 +153,6 @@ export function buildCompletePrompt(
   if (resolved.example && resolved.example.length > 0) {
     const exampleTexts = formatMultipleMetadataForPrompt('example', resolved.example);
     parts.push(...exampleTexts);
-  }
-
-  if (content.trim()) {
-    parts.push(content.trim());
   }
 
   return parts.filter(Boolean).join('\n\n');
@@ -215,6 +215,15 @@ export function buildCompletePromptPreview(metadata: PromptMetadata, blocks: Blo
     }
   });
 
+  // Add blocks (content)
+  blocks.forEach(block => {
+    const blockHtml = formatBlockForPreview(block);
+    if (blockHtml) {
+      parts.push(blockHtml);
+    }
+  });
+
+  // Add secondary metadata
   SECONDARY_METADATA.forEach(type => {
     if (!isMultipleMetadataType(type)) {
       const singleType = type as SingleMetadataType;
@@ -235,14 +244,6 @@ export function buildCompletePromptPreview(metadata: PromptMetadata, blocks: Blo
     const exampleHtml = formatMultipleMetadataForPreview('example', metadata.example);
     parts.push(...exampleHtml);
   }
-
-  // Add blocks
-  blocks.forEach(block => {
-    const blockHtml = formatBlockForPreview(block);
-    if (blockHtml) {
-      parts.push(blockHtml);
-    }
-  });
 
   return parts.filter(Boolean).join('<br><br>');
 }
