@@ -289,7 +289,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     async (
       folderId: number,
       isPinned: boolean,
-      type: 'company' | 'organization'
+      type: 'company' | 'organization' | 'user'
     ) => {
       try {
         await toggleFolderPin.mutateAsync({ folderId, isPinned, type });
@@ -504,7 +504,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                         {((item.Folders?.length || 0) + (item.templates?.length || 0))} items
                       </span>
                       <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
-                        <PinButton isPinned={!!item.is_pinned} onClick={() => {}} className="" />
+                        <PinButton
+                          isPinned={!!item.is_pinned}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTogglePin(item.id, !!item.is_pinned, 'user');
+                          }}
+                          className=""
+                        />
                         <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleEditFolder(item); }}>
                           <Pencil className="jd-h-4 jd-w-4" />
                         </Button>

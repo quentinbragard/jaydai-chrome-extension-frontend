@@ -1,5 +1,5 @@
 // src/components/folders/FolderHeader.tsx
-import { Folder, ChevronDown, ChevronRight } from "lucide-react";
+import { Folder } from "lucide-react";
 import { OrganizationImage } from '@/components/organizations';
 import { Organization } from '@/types/organizations';
 import { useOrganizationById } from '@/hooks/organizations';
@@ -38,10 +38,7 @@ export function FolderHeader({
         className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm"
         onClick={onToggle}
       >
-        {isExpanded ? 
-          <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" /> : 
-          <ChevronRight className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" />
-        }
+        {/* Removed chevron icons for a cleaner look */}
         <Folder className={`jd-h-4 jd-w-4 jd-mr-2 ${folderIconColors[type || folder.type || 'user']}`} />
         <span className="jd-text-sm jd-flex-1 jd-truncate">{folder.name}</span>
         {folder.type === 'organization' && level === 0 && (

@@ -14,7 +14,7 @@ interface FolderData {
 interface TogglePinParams {
   folderId: number;
   isPinned: boolean;
-  type: 'company' | 'organization';
+  type: 'company' | 'organization' | 'user';
 }
 
 /**

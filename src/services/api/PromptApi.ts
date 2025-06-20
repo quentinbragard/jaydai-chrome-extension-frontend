@@ -40,7 +40,7 @@ class PromptApiClient {
     return updatePinnedFolders(type, folderIds);
   }
 
-  async toggleFolderPin(folderId: number, isPinned: boolean, type: 'company' | 'organization'): Promise<any> {
+  async toggleFolderPin(folderId: number, isPinned: boolean, type: 'company' | 'organization' | 'user'): Promise<any> {
     return toggleFolderPin(folderId, isPinned, type);
   }
 
