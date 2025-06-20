@@ -25,6 +25,7 @@ export interface TemplateEditorContextValue extends MetadataUIState {
   // Blocks - simplified
   blockContentCache: Record<number, string>;
   availableMetadataBlocks: Record<MetadataType, Block[]>;
+  addNewBlock: (block: Block) => void;
 }
 
 const TemplateEditorContext = createContext<TemplateEditorContextValue | undefined>(undefined);
