@@ -85,18 +85,18 @@ export const CreateBlockDialog: React.FC = () => {
     if (!validateForm()) {
       return;
     }
-
+  
     setIsSubmitting(true);
     try {
       const blockData = {
         type: blockType,
-        content: { en: content.trim() },
-        title: { en: name.trim() },
-        description: description.trim() ? { en: description.trim() } : undefined
+        content: content.trim(),
+        title: name.trim(),    
+        description: description.trim() || undefined
       };
       
       const response = await blocksApi.createBlock(blockData);
-
+  
       if (response.success && response.data) {
         toast.success(`Block "${name}" created successfully`);
         

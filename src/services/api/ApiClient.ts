@@ -5,6 +5,8 @@ import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { ENV } from '@/core/env';
 import { debug } from '@/core/config';
+import { getCurrentLanguage } from '@/core/utils/i18n';
+
 
 /**
  * Interface for API responses
@@ -170,6 +172,7 @@ export class ApiClient extends AbstractBaseService {
       const defaultOptions = {
         headers: {
           'Content-Type': 'application/json',
+          'Accept-Language': getCurrentLanguage(), // ADD THIS LINE
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         }
       };
