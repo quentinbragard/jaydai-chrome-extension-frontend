@@ -6,8 +6,8 @@ import { useOrganizationById } from '@/hooks/organizations';
 
 const folderIconColors = {
   user: 'jd-text-blue-500',
-  company: 'jd-text-emerald-500',
-  organization: 'jd-text-purple-500'
+  company: 'jd-text-red-500',
+  organization: 'jd-text-gray-600'
 } as const;
 
 export function FolderHeader({

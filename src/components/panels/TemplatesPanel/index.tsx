@@ -2,6 +2,7 @@
 // src/components/panels/TemplatesPanel/index.tsx
 import React, { useCallback, memo, useMemo, useState } from 'react';
 import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { PinButton } from '@/components/prompts/folders';
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -503,6 +504,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                         {((item.Folders?.length || 0) + (item.templates?.length || 0))} items
                       </span>
                       <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+                        <PinButton isPinned={!!item.is_pinned} onClick={() => {}} className="" />
                         <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleEditFolder(item); }}>
                           <Pencil className="jd-h-4 jd-w-4" />
                         </Button>
