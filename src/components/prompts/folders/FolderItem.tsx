@@ -141,12 +141,12 @@ const FolderItem: React.FC<FolderItemProps> = ({
   // Create action buttons for folder header
   const actionButtons = (
     <div className="jd-flex jd-items-center jd-gap-2">
-      {showPinControls && onTogglePin && type !== 'user' && (
-        <PinButton 
-          isPinned={isPinned} 
-          onClick={handleTogglePin} 
+      {showPinControls && onTogglePin && (
+        <PinButton
+          isPinned={isPinned}
+          onClick={handleTogglePin}
           disabled={isPinOperationInProgress.current}
-          className="" 
+          className=""
         />
       )}
       

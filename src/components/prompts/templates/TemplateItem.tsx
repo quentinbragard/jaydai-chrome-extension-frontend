@@ -1,6 +1,7 @@
 // src/components/templates/TemplateItem.tsx (Consistent styling)
 import React from 'react';
 import { FileText, Edit, Clock, Activity, Trash2 } from 'lucide-react';
+import { OrganizationImage } from '@/components/organizations';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -10,8 +11,8 @@ import { getMessage } from '@/core/utils/i18n';
 
 const iconColorMap = {
   user: 'jd-text-blue-500',
-  company: 'jd-text-emerald-500',
-  organization: 'jd-text-purple-500'
+  company: 'jd-text-red-500',
+  organization: 'jd-text-gray-600'
 } as const;
 
 interface TemplateItemProps {
@@ -165,6 +166,14 @@ export function TemplateItem({
       onClick={handleTemplateClick}
     >
       <FileText className={`jd-h-4 jd-w-4 jd-mr-2 ${iconColorMap[type]}`} />
+      {type === 'organization' && (
+        <OrganizationImage
+          imageUrl={(template as any).image_url || (template as any).organization?.image_url}
+          organizationName={(template as any).organization?.name || template.title}
+          size="sm"
+          className="jd-mr-2"
+        />
+      )}
       <div className="jd-flex-1 jd-min-w-0">
         <div className="jd-text-sm jd-truncate">
           {displayName}
