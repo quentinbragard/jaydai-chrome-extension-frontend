@@ -1,9 +1,6 @@
-import React from 'react';
-import { createRoot, Root } from 'react-dom/client';
 import { AbstractBaseService } from '../BaseService';
 import { getConfigByHostname } from '@/platforms/config';
-import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
-import { QuickBlockSelector } from '@/components/prompts/blocks/quick-selector';
+import { QuickSelectorManager } from './QuickSelectorManager';
 import {
   removeTriggerFromContentEditable,
   getCursorCoordinates,
@@ -15,9 +12,7 @@ export class SlashCommandService extends AbstractBaseService {
   private inputEl: HTMLElement | null = null;
   private documentListenerAttached = false;
   private observer: MutationObserver | null = null;
-  private quickSelectorRoot: Root | null = null;
-  private quickSelectorContainer: HTMLDivElement | null = null;
-  private isQuickSelectorOpen = false;
+  private quickSelector = new QuickSelectorManager();
   private isInserting = false; // Prevent double insertion
 
   private constructor() {
@@ -63,7 +58,10 @@ export class SlashCommandService extends AbstractBaseService {
       this.observer.disconnect();
       this.observer = null;
     }
-    this.closeQuickSelector();
+    this.quickSelector.close();
+    setTimeout(() => {
+      this.isInserting = false;
+    }, 100);
     
     // Clean up global reference
     if ((window as any).slashCommandService === this) {
@@ -105,56 +103,6 @@ export class SlashCommandService extends AbstractBaseService {
     this.inputEl = null;
   }
 
-  /**
-   * Enhanced cursor position calculation that works accurately for different element types
-   */
-
-  private showQuickSelector(position: { x: number; y: number }, targetElement: HTMLElement, cursorPosition?: number) {
-    this.closeQuickSelector();
-
-    // Create container
-    this.quickSelectorContainer = document.createElement('div');
-    this.quickSelectorContainer.id = 'jaydai-quick-selector';
-    document.body.appendChild(this.quickSelectorContainer);
-
-    // Create React root and render
-    this.quickSelectorRoot = createRoot(this.quickSelectorContainer);
-    
-    this.quickSelectorRoot.render(
-      React.createElement(QuickBlockSelector, {
-        position: position,
-        onClose: () => this.closeQuickSelector(),
-        targetElement: targetElement,
-        cursorPosition: cursorPosition,
-        onOpenFullDialog: () => {
-          // Open the full dialog using the global dialog manager
-          if (window.dialogManager && typeof window.dialogManager.openDialog === 'function') {
-            window.dialogManager.openDialog(DIALOG_TYPES.INSERT_BLOCK);
-          }
-        }
-      })
-    );
-    this.isQuickSelectorOpen = true;
-  }
-
-  private closeQuickSelector() {
-    if (this.quickSelectorRoot) {
-      this.quickSelectorRoot.unmount();
-      this.quickSelectorRoot = null;
-    }
-
-    if (this.quickSelectorContainer) {
-      this.quickSelectorContainer.remove();
-      this.quickSelectorContainer = null;
-    }
-    
-    this.isQuickSelectorOpen = false;
-    
-    // Reset insertion flag as safety measure
-    setTimeout(() => {
-      this.isInserting = false;
-    }, 100);
-  }
 
   /**
    * Get current cursor position in text content (not screen coordinates)
@@ -162,7 +110,7 @@ export class SlashCommandService extends AbstractBaseService {
 
   private handleInput = (e: Event) => {
     // Skip if selector is already open or we're currently inserting
-    if (this.isQuickSelectorOpen || this.isInserting) {
+    if (this.quickSelector.isOpen || this.isInserting) {
       return;
     }
 
@@ -237,7 +185,7 @@ export class SlashCommandService extends AbstractBaseService {
             : Math.min(newCursorPos, (target.textContent || '').length);
             
           console.log('Showing quick selector at position:', { position, safeCursorPos });
-          this.showQuickSelector(position, target, safeCursorPos);
+          this.quickSelector.open(position, target, safeCursorPos);
         } catch (error) {
           console.error('Error showing quick selector:', error);
         } finally {
