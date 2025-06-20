@@ -6,7 +6,11 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { PromptMetadata } from '@/types/prompts/metadata';
-import { buildCompletePreviewWithBlocks } from '@/utils/templates/promptPreviewUtils';
+import {
+  buildCompletePreviewWithBlocks,
+  buildCompletePreview
+} from '@/utils/templates/promptPreviewUtils';
+import { prefillMetadataFromMapping } from '@/utils/templates/metadataPrefill';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
@@ -19,43 +23,61 @@ export function useCustomizeTemplateDialog() {
       // Build the final content from template content + metadata
       const blockContentCache = data?.blockContentCache || {};
       let finalContent: string;
-      
+
       if (Object.keys(blockContentCache).length > 0) {
         // Use block content if available
-        finalContent = buildCompletePreviewWithBlocks(metadata, content, blockContentCache);
+        finalContent = buildCompletePreviewWithBlocks(
+          metadata,
+          content,
+          blockContentCache
+        );
       } else {
-        // Simple concatenation of metadata values + content
-        const metadataParts: string[] = [];
-        
-        // Add metadata values
-        const singleTypes = ['role', 'context', 'goal', 'audience', 'output_format', 'tone_style'];
+        // Fallback: prefill metadata values by fetching blocks if needed
+        const mapping: Record<string, number | number[]> = {};
+
+        const singleTypes = [
+          'role',
+          'context',
+          'goal',
+          'audience',
+          'output_format',
+          'tone_style'
+        ] as const;
+
         singleTypes.forEach(type => {
-          const value = metadata.values?.[type as keyof typeof metadata.values];
-          if (value?.trim()) {
-            metadataParts.push(value);
+          const id = (metadata as any)[type];
+          if (typeof id === 'number' && id > 0) {
+            mapping[type] = id;
           }
         });
-        
-        // Add constraint and example
+
         if (metadata.constraint) {
-          metadata.constraint.forEach(item => {
-            if (item.value.trim()) {
-              metadataParts.push(`Contrainte: ${item.value}`);
-            }
-          });
+          const ids = metadata.constraint
+            .map(item => item.blockId)
+            .filter(id => typeof id === 'number' && id > 0);
+          if (ids.length > 0) mapping['constraint'] = ids;
         }
-        
+
         if (metadata.example) {
-          metadata.example.forEach(item => {
-            if (item.value.trim()) {
-              metadataParts.push(`Exemple: ${item.value}`);
-            }
-          });
+          const ids = metadata.example
+            .map(item => item.blockId)
+            .filter(id => typeof id === 'number' && id > 0);
+          if (ids.length > 0) mapping['example'] = ids;
         }
-        
-        // Combine all parts
-        const allParts = [...metadataParts, content.trim()].filter(Boolean);
-        finalContent = allParts.join('\n\n');
+
+        let resolved = metadata;
+        if (Object.keys(mapping).length > 0) {
+          const prefilled = await prefillMetadataFromMapping(mapping);
+
+          resolved = {
+            ...prefilled,
+            values: { ...prefilled.values, ...metadata.values },
+            constraint: metadata.constraint || prefilled.constraint,
+            example: metadata.example || prefilled.example
+          } as PromptMetadata;
+        }
+
+        finalContent = buildCompletePreview(resolved, content);
       }
       
       if (data && data.onComplete) {
