@@ -115,7 +115,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
       >
         {/* Expansion/Navigation Icon */}
         {enableNavigation ? (
-          <ChevronRight className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0 jd-text-muted-foreground" />
+          <div className="jd-w-4 jd-h-4 jd-mr-1 jd-flex-shrink-0" />
         ) : totalItems > 0 ? (
           expanded ? 
             <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" /> : 
