@@ -57,6 +57,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const isDark = useThemeDetector();
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   // Focus search input on mount
   useEffect(() => {
@@ -103,12 +104,16 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
       if (filteredBlocks[activeIndex]) {
         handleSelectBlock(filteredBlocks[activeIndex]);
       }
-    } else if (e.key === 'Tab') {
+    } else if (e.key === 'Tab' || e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       e.preventDefault();
-      // Tab cycles through filters
       const filters = QUICK_FILTERS.map(f => f.type);
       const currentIndex = filters.indexOf(selectedFilter);
-      const nextIndex = (currentIndex + 1) % filters.length;
+      let nextIndex = currentIndex;
+      if (e.key === 'ArrowRight' || e.key === 'Tab') {
+        nextIndex = (currentIndex + 1) % filters.length;
+      } else if (e.key === 'ArrowLeft') {
+        nextIndex = (currentIndex - 1 + filters.length) % filters.length;
+      }
       setSelectedFilter(filters[nextIndex]);
     }
   }, [filteredBlocks, activeIndex, selectedFilter]);
@@ -122,6 +127,14 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   useEffect(() => {
     setActiveIndex(0);
   }, [search, selectedFilter]);
+
+  // Scroll the active item into view when navigating
+  useEffect(() => {
+    const el = itemRefs.current[activeIndex];
+    if (el) {
+      el.scrollIntoView({ block: 'nearest' });
+    }
+  }, [activeIndex]);
 
   const { insertBlock } = useBlockInsertion(targetElement, cursorPosition, onClose);
   const handleSelectBlock = (block: Block) => insertBlock(block);
@@ -251,6 +264,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
                   isDark={isDark}
                   onSelect={handleSelectBlock}
                   isActive={index === activeIndex}
+                  itemRef={el => (itemRefs.current[index] = el)}
                 />
               ))}
             </div>
@@ -260,7 +274,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
 
       {/* Footer hints */}
       <div className="jd-px-3 jd-py-2 jd-border-t jd-flex jd-items-center jd-justify-between jd-text-[10px] jd-text-muted-foreground jd-flex-shrink-0">
-        <span>↑↓ Navigate • Enter Select • Tab Filter</span>
+        <span>↑↓ Navigate • ←→ Filter • Enter Select</span>
         <span>{filteredBlocks.length} blocks</span>
       </div>
     </div>,

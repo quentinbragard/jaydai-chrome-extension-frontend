@@ -19,4 +19,5 @@ export interface BlockItemProps {
   isDark: boolean;
   onSelect: (block: Block) => void;
   isActive: boolean;
+  itemRef?: React.Ref<HTMLDivElement>;
 }
