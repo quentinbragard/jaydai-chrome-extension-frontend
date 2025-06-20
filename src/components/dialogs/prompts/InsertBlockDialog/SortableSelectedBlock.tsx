@@ -33,8 +33,8 @@ export function SortableSelectedBlock({ block, isDark, onRemove, isExpanded, onT
 
   const Icon = getBlockTypeIcon(block.type);
   const iconBg = getBlockIconColors(block.type, isDark);
-  const title = typeof block.title === 'string' ? block.title : block.title?.en || 'Untitled';
-  const content = typeof block.content === 'string' ? block.content : block.content.en || '';
+  const title = block.title || 'Untitled';
+  const content = block.content || '';
 
   return (
     <div

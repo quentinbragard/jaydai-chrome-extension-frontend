@@ -95,9 +95,8 @@ const InlineBlockCreator: React.FC<{
     try {
       const blockData = {
         type,
-        content: { en: content.trim() },
-        title: title.trim() ? { en: title.trim() } : { en: `${BLOCK_TYPE_LABELS[type]} Block` },
-        description: { en: `Custom ${type} block` }
+        content: content.trim(),
+        title: title.trim() || `${BLOCK_TYPE_LABELS[type]} Block`,
       };
       
       const response = await blocksApi.createBlock(blockData);
@@ -115,6 +114,7 @@ const InlineBlockCreator: React.FC<{
       setIsCreating(false);
     }
   };
+
 
   const Icon = getBlockTypeIcon(type);
   const iconBg = getBlockIconColors(type, isDark);

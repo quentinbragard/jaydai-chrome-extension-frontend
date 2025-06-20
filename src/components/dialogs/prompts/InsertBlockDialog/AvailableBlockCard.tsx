@@ -26,9 +26,8 @@ export function AvailableBlockCard({ block, isDark, onAdd, isSelected = false, o
   const Icon = getBlockTypeIcon(block.type);
   const cardColors = getBlockTypeColors(block.type || 'custom', isDark);
   const iconBg = getBlockIconColors(block.type, isDark);
-  const title = typeof block.title === 'string' ? block.title : block.title?.en || 'Untitled';
-  const content = typeof block.content === 'string' ? block.content : block.content.en || '';
-  
+  const title = block.title || 'Untitled';
+  const content = block.content || '';
   const shouldShowExpander = content.length > 120;
 
   return (

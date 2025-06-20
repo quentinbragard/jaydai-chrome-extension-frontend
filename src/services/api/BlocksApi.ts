@@ -14,7 +14,7 @@ interface CreateBlockData {
 
 interface UpdateBlockData {
   title?: string;
-  content?: string | Record<string, string>;
+  content?: string;
   description?: string;
   is_published?: boolean;
   tags?: string[];
@@ -136,15 +136,23 @@ class BlocksApiClient {
     try {
       console.log(`Updating block ${id}:`, data);
       
+      const requestBody = {
+        title: data.title,             
+        content: data.content,          
+        description: data.description, 
+        is_published: data.is_published,
+        tags: data.tags
+      };
+  
       const response = await apiClient.request(`/prompts/blocks/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(data)
+        body: JSON.stringify(requestBody)
       });
-
+  
       if (response.success) {
         console.log('Block updated successfully:', response.data);
       }
-
+  
       return response;
     } catch (error) {
       console.error(`Error updating block ${id}:`, error);
@@ -196,20 +204,20 @@ class BlocksApiClient {
           message: 'Could not fetch original block'
         };
       }
-
+  
       const original = originalResponse.data;
       
-      // Create new block data
+      // Create new block data - all strings now
       const newBlockData: CreateBlockData = {
         title: modifications.title || `${original.title} (Copy)`,
         content: modifications.content || original.content,
         type: modifications.type || original.type,
         description: modifications.description || original.description,
-        is_published: modifications.is_published ?? false, // Default to unpublished for copies
+        is_published: modifications.is_published ?? false,
         parent_block_id: modifications.parent_block_id ?? originalId,
         tags: modifications.tags || original.tags || []
       };
-
+  
       return this.createBlock(newBlockData);
     } catch (error) {
       console.error(`Error duplicating block ${originalId}:`, error);
