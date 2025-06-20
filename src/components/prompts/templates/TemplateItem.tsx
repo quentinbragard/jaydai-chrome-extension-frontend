@@ -118,7 +118,10 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
         {template.description ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="jd-text-sm jd-truncate jd-font-medium">
+              <div
+                className="jd-text-sm jd-truncate jd-font-medium"
+                title={displayName}
+              >
                 {displayName}
               </div>
             </TooltipTrigger>
@@ -127,7 +130,10 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
             </TooltipContent>
           </Tooltip>
         ) : (
-          <div className="jd-text-sm jd-truncate jd-font-medium">
+          <div
+            className="jd-text-sm jd-truncate jd-font-medium"
+            title={displayName}
+          >
             {displayName}
           </div>
         )}
@@ -149,7 +155,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
       </div>
       
       {/* Action Buttons */}
-      <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
+      <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
         {/* Pin Button */}
         {shouldShowPinControls && (
           <TooltipProvider>

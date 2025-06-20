@@ -251,14 +251,25 @@ export const FolderItem: React.FC<FolderItemProps> = ({
           {folder.description ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="jd-text-sm jd-truncate jd-block">{folder.title}</span>
+                <span
+                  className="jd-text-sm jd-truncate jd-block"
+                  title={folder.title}
+                >
+                  {folder.title}
+                </span>
+
               </TooltipTrigger>
               <TooltipContent side="bottom" className="jd-max-w-xs jd-z-50">
                 <p>{folder.description}</p>
               </TooltipContent>
             </Tooltip>
           ) : (
-            <span className="jd-text-sm jd-truncate jd-block">{folder.title}</span>
+            <span
+              className="jd-text-sm jd-truncate jd-block"
+              title={folder.title}
+            >
+              {folder.title}
+            </span>
           )}
         </div>
 
@@ -270,7 +281,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         )}
 
         {/* Action Buttons */}
-        <div className="jd-flex jd-items-center jd-gap-1">
+        <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
           {/* Pin Button */}
           {showPinControls && onTogglePin && (
             <PinButton
