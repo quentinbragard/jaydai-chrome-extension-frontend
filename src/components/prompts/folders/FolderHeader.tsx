@@ -4,13 +4,20 @@ import { OrganizationImage } from '@/components/organizations';
 import { Organization } from '@/types/organizations';
 import { useOrganizationById } from '@/hooks/organizations';
 
+const folderIconColors = {
+  user: 'jd-text-blue-500',
+  company: 'jd-text-emerald-500',
+  organization: 'jd-text-purple-500'
+} as const;
+
 export function FolderHeader({
   folder,
   isExpanded,
   onToggle,
   actionButtons,
   level = 0,
-  organizations
+  organizations,
+  type
 }: {
   folder: any;
   isExpanded: boolean;
@@ -18,6 +25,7 @@ export function FolderHeader({
   actionButtons: React.ReactNode;
   level?: number;
   organizations?: Organization[];
+  type?: 'company' | 'organization' | 'user';
 }) {
   const { data: organization } = useOrganizationById(folder?.organization_id);
 
@@ -34,7 +42,7 @@ export function FolderHeader({
           <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" /> : 
           <ChevronRight className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" />
         }
-        <Folder className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
+        <Folder className={`jd-h-4 jd-w-4 jd-mr-2 ${folderIconColors[type || folder.type || 'user']}`} />
         <span className="jd-text-sm jd-flex-1 jd-truncate">{folder.name}</span>
         {folder.type === 'organization' && level === 0 && (
           <OrganizationImage

@@ -8,6 +8,12 @@ import { Template } from '@/types/prompts/templates';
 import { useTemplateActions } from '@/hooks/prompts'; // Updated import from hooks directly
 import { getMessage } from '@/core/utils/i18n';
 
+const iconColorMap = {
+  user: 'jd-text-blue-500',
+  company: 'jd-text-emerald-500',
+  organization: 'jd-text-purple-500'
+} as const;
+
 interface TemplateItemProps {
   template: Template;
   type?: 'company' | 'organization' | 'user';
@@ -158,7 +164,7 @@ export function TemplateItem({
       className={`jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group ${isProcessing ? 'jd-opacity-50' : ''}`}
       onClick={handleTemplateClick}
     >
-      <FileText className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
+      <FileText className={`jd-h-4 jd-w-4 jd-mr-2 ${iconColorMap[type]}`} />
       <div className="jd-flex-1 jd-min-w-0">
         <div className="jd-text-sm jd-truncate">
           {displayName}
