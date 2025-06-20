@@ -10,38 +10,46 @@ export function usePinnedFolders() {
   const userLocale = getCurrentLanguage();
   
   return useQuery(QUERY_KEYS.PINNED_FOLDERS, async () => {
-    // First get user metadata to find pinned folder IDs
+    // Fetch user metadata to get pinned folder IDs
     const metadata = await userApi.getUserMetadata();
     if (!metadata.success) {
       throw new Error(metadata.error || 'Failed to get user metadata');
     }
-    
-    // Support both new and legacy metadata structures for pinned folders
-    // `pinned_folder_ids` is the newer consolidated field containing all pinned
-    // folder IDs. Older metadata stored organization folder IDs separately.
+
+    // Consolidated pinned folder IDs (new field) plus legacy organization IDs
+    const genericIds = metadata.data?.pinned_folder_ids || [];
     const legacyOrgIds = metadata.data?.pinned_organization_folder_ids || [];
-    const genericPinnedIds = metadata.data?.pinned_folder_ids || [];
 
-    // Get organization pinned folders with locale filtering. Use the merged set
-    // of generic pinned IDs plus any legacy organization specific IDs.
-    const orgIds = Array.from(new Set([...legacyOrgIds, ...genericPinnedIds]));
-    let orgFolders: TemplateFolder[] = [];
+    const pinnedIds = Array.from(new Set([...genericIds, ...legacyOrgIds]));
 
-    if (orgIds.length > 0) {
-      const orgResponse = await promptApi.getFolders('organization', true, true, userLocale);
+    let userPinned: TemplateFolder[] = [];
+    let orgPinned: TemplateFolder[] = [];
+
+    if (pinnedIds.length > 0) {
+      // Fetch both user and organization folders and filter by pinned IDs
+      const [userResponse, orgResponse] = await Promise.all([
+        promptApi.getFolders('user', true, true, userLocale),
+        promptApi.getFolders('organization', true, true, userLocale)
+      ]);
+
+      if (userResponse.success) {
+        const uFolders = (userResponse.data.folders.user || []) as TemplateFolder[];
+        userPinned = uFolders
+          .filter(folder => pinnedIds.includes(folder.id))
+          .map(folder => ({ ...folder, is_pinned: true }));
+      }
+
       if (orgResponse.success) {
-        const allFolders = (orgResponse.data.folders.organization || []) as TemplateFolder[];
-        orgFolders = allFolders
-          .filter((folder: TemplateFolder) => orgIds.includes(folder.id))
-          .map((folder: TemplateFolder) => ({
-            ...folder,
-            is_pinned: true
-          }));
+        const oFolders = (orgResponse.data.folders.organization || []) as TemplateFolder[];
+        orgPinned = oFolders
+          .filter(folder => pinnedIds.includes(folder.id))
+          .map(folder => ({ ...folder, is_pinned: true }));
       }
     }
-    
+
     return {
-      organization: orgFolders
+      user: userPinned,
+      organization: orgPinned
     };
   }, {
     refetchOnWindowFocus: false,

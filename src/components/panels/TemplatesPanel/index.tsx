@@ -57,7 +57,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   // Data fetching
   const {
-    data: pinnedFolders = { organization: [] },
+    data: pinnedFolders = { organization: [], user: [] },
     isLoading: loadingPinned,
     error: pinnedError,
     refetch: refetchPinned
@@ -252,6 +252,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     
     // Search pinned folders
     pinnedFolders.organization.forEach(folder => searchFolder(folder, 'organization'));
+    pinnedFolders.user.forEach(folder => searchFolder(folder, 'user'));
     
     return results;
   }, [searchQuery, userFolders, organizationFolders, pinnedFolders]);
