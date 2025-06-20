@@ -1,5 +1,5 @@
 // src/components/prompts/navigation/UnifiedNavigation.tsx
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { FolderOpen, PlusCircle, Plus, ArrowLeft, Home, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
@@ -47,6 +47,27 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
   showCreateFolder = false,
   className = ''
 }) => {
+  const [showAllBreadcrumbs, setShowAllBreadcrumbs] = useState(false);
+
+  const breadcrumbItems = useMemo(() => {
+    if (showAllBreadcrumbs || navigationPath.length <= 3) {
+      return navigationPath.map((folder, index) => ({ folder, index }));
+    }
+
+    const lastTwo = navigationPath.slice(-2);
+    return [
+      { folder: navigationPath[0], index: 0 },
+      { folder: { id: -1, name: '...' } as NavigationPath, index: -1 },
+      { folder: lastTwo[0], index: navigationPath.length - 2 },
+      { folder: lastTwo[1], index: navigationPath.length - 1 }
+    ];
+  }, [showAllBreadcrumbs, navigationPath]);
+
+  const fullPathTitle = useMemo(
+    () => navigationPath.map(p => p.name).join(' / '),
+    [navigationPath]
+  );
+
   return (
     <div className={`jd-space-y-2 ${className}`}>
       {/* Header with title and action buttons */}
@@ -94,21 +115,36 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
             </Button>
           )}
           
-          <div className="jd-flex jd-items-center jd-gap-1 jd-flex-1 jd-min-w-0">
-            {navigationPath.map((folder, index) => (
-              <React.Fragment key={folder.id}>
+          <div
+            className="jd-flex jd-items-center jd-gap-1 jd-flex-1 jd-min-w-0 jd-truncate"
+            title={fullPathTitle}
+          >
+            {breadcrumbItems.map(({ folder, index }) => (
+              <React.Fragment key={folder.id + '-' + index}>
                 <ChevronRight className="jd-h-3 jd-w-3 jd-text-muted-foreground jd-flex-shrink-0" />
-                <button
-                  onClick={() => onNavigateToPathIndex?.(index)}
-                  className={`jd-truncate jd-text-left jd-hover:jd-text-foreground jd-transition-colors ${
-                    index === navigationPath.length - 1 
-                      ? 'jd-text-foreground jd-font-medium' 
-                      : 'jd-text-muted-foreground jd-hover:jd-underline'
-                  }`}
-                  title={folder.name}
-                >
-                  {folder.name}
-                </button>
+                {folder.name === '...'
+                  ? (
+                      <button
+                        onClick={() => setShowAllBreadcrumbs(true)}
+                        className="jd-text-muted-foreground jd-hover:jd-underline"
+                        title="Show full path"
+                      >
+                        ...
+                      </button>
+                    )
+                  : (
+                      <button
+                        onClick={() => index >= 0 && onNavigateToPathIndex?.(index)}
+                        className={`jd-truncate jd-text-left jd-hover:jd-text-foreground jd-transition-colors ${
+                          index === navigationPath.length - 1
+                            ? 'jd-text-foreground jd-font-medium'
+                            : 'jd-text-muted-foreground jd-hover:jd-underline'
+                        }`}
+                        title={folder.name}
+                      >
+                        {folder.name}
+                      </button>
+                    )}
               </React.Fragment>
             ))}
           </div>
