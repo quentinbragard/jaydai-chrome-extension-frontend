@@ -199,6 +199,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
         actionButtons={actionButtons}
         level={level}
         organizations={organizations}
+        type={type}
       />
       
       {isExpanded && (

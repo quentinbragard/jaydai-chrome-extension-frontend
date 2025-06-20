@@ -555,6 +555,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 type="organization"
                 onUseTemplate={useTemplate}
                 organizations={organizations}
+                showPinControls={true}
+                onTogglePin={handleTogglePin}
               />
             </div>
           )}
