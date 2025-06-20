@@ -15,13 +15,15 @@ interface BlockItemProps {
   isDark: boolean;
   onSelect: (block: Block) => void;
   isActive: boolean;
+  itemRef?: React.Ref<HTMLDivElement>;
 }
 
-export const BlockItem: React.FC<BlockItemProps> = ({ 
-  block, 
-  isDark, 
-  onSelect, 
-  isActive 
+export const BlockItem: React.FC<BlockItemProps> = ({
+  block,
+  isDark,
+  onSelect,
+  isActive,
+  itemRef
 }) => {
   const Icon = getBlockTypeIcon(block.type);
   const iconBg = getBlockIconColors(block.type, isDark);
@@ -30,6 +32,7 @@ export const BlockItem: React.FC<BlockItemProps> = ({
   
   return (
     <div
+      ref={itemRef}
       onClick={() => onSelect(block)}
       className={cn(
         'jd-p-3 jd-cursor-pointer jd-transition-all jd-duration-150',
