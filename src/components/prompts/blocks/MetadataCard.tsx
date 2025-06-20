@@ -67,7 +67,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   const iconColors = getBlockIconColors(config.blockType, isDarkMode);
   const Icon = getBlockTypeIcon(config.blockType);
   const { openDialog } = useDialogManager();
-  const { metadata, setMetadata } = useTemplateEditor();
+  const { metadata, setMetadata, addNewBlock } = useTemplateEditor();
 
   const value =
     !isMultipleMetadataType(type)
@@ -99,6 +99,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
       openDialog(DIALOG_TYPES.CREATE_BLOCK, {
         initialType: config.blockType,
         onBlockCreated: b => {
+          addNewBlock(b);
           setMetadata(prev =>
             updateSingleMetadata(prev, type as SingleMetadataType, b.id)
           );
@@ -123,6 +124,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
       openDialog(DIALOG_TYPES.CREATE_BLOCK, {
         initialType: config.blockType,
         onBlockCreated: b => {
+          addNewBlock(b);
           setMetadata(prev =>
             updateMetadataItem(prev, type as MultipleMetadataType, id, {
               blockId: b.id,
@@ -153,6 +155,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
       openDialog(DIALOG_TYPES.CREATE_BLOCK, {
         initialType: config.blockType,
         onBlockCreated: b => {
+          addNewBlock(b);
           setMetadata(prev =>
             addMetadataItem(prev, type as MultipleMetadataType, {
               blockId: b.id,

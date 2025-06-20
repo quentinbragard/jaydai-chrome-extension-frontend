@@ -102,7 +102,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       content,
       setContent,
       blockContentCache,
-      availableMetadataBlocks
+      availableMetadataBlocks,
+      addNewBlock
     }),
     [
       metadata,
@@ -118,7 +119,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       content,
       setContent,
       blockContentCache,
-      availableMetadataBlocks
+      availableMetadataBlocks,
+      addNewBlock
     ]
   );
 
