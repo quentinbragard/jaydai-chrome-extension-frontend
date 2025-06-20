@@ -1,6 +1,7 @@
 // src/components/templates/TemplateItem.tsx (Consistent styling)
 import React from 'react';
 import { FileText, Edit, Clock, Activity, Trash2 } from 'lucide-react';
+import { OrganizationImage } from '@/components/organizations';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -36,9 +37,20 @@ export function TemplateItem({
   
   // Use the provided use function or fall back to the hook's function
   const handleUseTemplate = onUseTemplate || defaultUseTemplate;
-  
+
   // Ensure we have a display name, falling back through various options
   const displayName = template.title || 'Untitled Template';
+
+  // Attempt to extract organization info for organization templates
+  const organizationImageUrl =
+    (template as any).organization?.image_url ||
+    (template as any).organization_image_url ||
+    (template as any).image_url;
+
+  const organizationName =
+    (template as any).organization?.name ||
+    (template as any).organization_name ||
+    displayName;
   
   // Safely handle usage count
   const usageCount = typeof template.usage_count === 'number' ? template.usage_count : 0;
@@ -158,7 +170,16 @@ export function TemplateItem({
       className={`jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group ${isProcessing ? 'jd-opacity-50' : ''}`}
       onClick={handleTemplateClick}
     >
-      <FileText className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
+      {type === 'organization' && organizationImageUrl ? (
+        <OrganizationImage
+          imageUrl={organizationImageUrl}
+          organizationName={organizationName}
+          size="sm"
+          className="jd-mr-2"
+        />
+      ) : (
+        <FileText className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
+      )}
       <div className="jd-flex-1 jd-min-w-0">
         <div className="jd-text-sm jd-truncate">
           {displayName}
