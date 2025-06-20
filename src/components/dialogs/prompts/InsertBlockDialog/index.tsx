@@ -51,7 +51,9 @@ import {
   Filter,
   X,
   Check,
-  Save
+  Save,
+  Info,
+  HelpCircle
 } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { toast } from 'sonner';
@@ -223,6 +225,7 @@ export const InsertBlockDialog: React.FC = () => {
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>('all');
   const [previewMode, setPreviewMode] = useState<'visual' | 'text'>('text');
   const [showInlineCreator, setShowInlineCreator] = useState(false);
+  const [showShortcutHelp, setShowShortcutHelp] = useState(false);
   const [editableContent, setEditableContent] = useState('');
   const [blockContents, setBlockContents] = useState<Record<number, string>>({});
   const isDark = useThemeDetector();
@@ -383,16 +386,28 @@ export const InsertBlockDialog: React.FC = () => {
   if (!isOpen) return null;
 
   return (
-    <BaseDialog
-      open={isOpen}
-      onOpenChange={dialogProps.onOpenChange}
-      title="Build Your Prompt"
-      description="Select and arrange blocks to create your perfect prompt"
-      className="jd-max-w-7xl jd-max-h-[90vh]"
-    >
-      <p className="jd-text-xs jd-text-muted-foreground jd-mb-2">
-        Tip: type <span className="jd-font-mono">//j</span> in the prompt area to quickly add blocks.
-      </p>
+    <>
+      <BaseDialog
+        open={isOpen}
+        onOpenChange={dialogProps.onOpenChange}
+        title="Build Your Prompt"
+        description="Select and arrange blocks to create your perfect prompt"
+        className="jd-max-w-7xl jd-max-h-[90vh]"
+      >
+      <div className="jd-flex jd-items-center jd-text-xs jd-text-muted-foreground jd-mb-2 jd-gap-2">
+        <Info className="jd-w-4 jd-h-4 jd-text-primary" />
+        <span>
+          Tip: type <span className="jd-font-mono">//j</span> in the prompt area to quickly add blocks.
+        </span>
+        <button
+          type="button"
+          onClick={() => setShowShortcutHelp(true)}
+          className="jd-ml-auto jd-flex jd-items-center jd-justify-center jd-w-5 jd-h-5 jd-rounded-full jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90 jd-animate-bounce"
+        >
+          <HelpCircle className="jd-w-3 jd-h-3" />
+          <span className="jd-sr-only">How it works</span>
+        </button>
+      </div>
       <div className="jd-flex jd-h-full jd-gap-6">
         {/* Left Panel - Block Library */}
         <div className="jd-flex-1 jd-flex jd-flex-col jd-min-w-0">
@@ -610,6 +625,26 @@ export const InsertBlockDialog: React.FC = () => {
           </div>
         </div>
       </div>
-    </BaseDialog>
+      </BaseDialog>
+      {showShortcutHelp && (
+        <BaseDialog
+          open={showShortcutHelp}
+          onOpenChange={setShowShortcutHelp}
+          title="Using //j Shortcut"
+          className="jd-max-w-md"
+        >
+          <div className="jd-space-y-4">
+            <p className="jd-text-sm">
+              Type <span className="jd-font-mono">//j</span> in the prompt area to open this block selector instantly.
+            </p>
+            <img
+              src="https://media.giphy.com/media/JQqjZBZHF9giz6HnDy/giphy.gif"
+              alt="Shortcut demonstration"
+              className="jd-w-full jd-rounded-md"
+            />
+          </div>
+        </BaseDialog>
+      )}
+    </>
   );
 };
