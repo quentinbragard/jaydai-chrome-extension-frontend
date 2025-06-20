@@ -31,7 +31,7 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
 
   const navigateToFolder = useCallback((folder: TemplateFolder) => {
     setNav(prev => ({
-      path: [...prev.path, { id: folder.id, name: folder.name ?? '' }],
+      path: [...prev.path, { id: folder.id, name: folder.title ?? '' }],
       currentFolder: folder,
     }));
   }, []);
@@ -80,7 +80,7 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
             onClick={() => navigateToFolder(folder)}
           >
             <FolderOpen className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground" />
-            <span className="jd-text-sm jd-flex-1 jd-truncate">{folder.name}</span>
+            <span className="jd-text-sm jd-flex-1 jd-truncate">{folder.title}</span>
             <ChevronRight className="jd-h-3 jd-w-3 jd-text-muted-foreground" />
           </div>
         ))}
@@ -90,7 +90,7 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
       </div>
       <div className="jd-flex jd-justify-end">
         <Button type="button" size="sm" variant="secondary" onClick={handleSelect}>
-          {nav.currentFolder ? `Select "${nav.currentFolder.name}"` : 'Select Root'}
+          {nav.currentFolder ? `Select "${nav.currentfolder.title}"` : 'Select Root'}
         </Button>
       </div>
     </div>

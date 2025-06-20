@@ -105,9 +105,9 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
                       ? 'jd-text-foreground jd-font-medium' 
                       : 'jd-text-muted-foreground jd-hover:jd-underline'
                   }`}
-                  title={folder.name}
+                  title={folder.title}
                 >
-                  {folder.name}
+                  {folder.title}
                 </button>
               </React.Fragment>
             ))}

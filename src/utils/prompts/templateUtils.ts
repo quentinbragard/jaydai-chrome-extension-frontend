@@ -23,9 +23,9 @@ export function processUserFolders(userFolders: any[]): FolderData[] {
     result: FolderData[] = []
   ): FolderData[] => {
     folders.forEach(folder => {
-      if (!folder || typeof folder.id !== 'number' || !folder.name) return;
-      const folderPath = path ? `${path} / ${folder.name}` : folder.name;
-      result.push({ id: folder.id, name: folder.name, fullPath: folderPath });
+      if (!folder || typeof folder.id !== 'number' || !folder.title) return;
+      const folderPath = path ? `${path} / ${folder.title}` : folder.title;
+      result.push({ id: folder.id, name: folder.title, fullPath: folderPath });
       if (folder.Folders && Array.isArray(folder.Folders) && folder.Folders.length > 0) {
         flattenFolderHierarchy(folder.Folders, folderPath, result);
       }

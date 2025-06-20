@@ -56,7 +56,7 @@ export function ItemList({
               <FolderOpen className="jd-h-4 jd-w-4 jd-mr-2 jd-text-muted-foreground jd-flex-shrink-0" />
               
               <div className="jd-flex-1 jd-min-w-0">
-                <span className="jd-text-sm jd-truncate jd-block">{folder.name}</span>
+                <span className="jd-text-sm jd-truncate jd-block">{folder.title}</span>
                 {folder.description && (
                   <span className="jd-text-xs jd-text-muted-foreground jd-truncate jd-block">
                     {folder.description}

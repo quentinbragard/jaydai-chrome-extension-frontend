@@ -43,7 +43,7 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
     const lowerQuery = query.toLowerCase();
     
     // Check folder name
-    if (folder.name?.toLowerCase().includes(lowerQuery)) {
+    if (folder.title?.toLowerCase().includes(lowerQuery)) {
       return true;
     }
     

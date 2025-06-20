@@ -30,7 +30,7 @@ export const FolderManagerDialog: React.FC = () => {
 
   useEffect(() => {
     if (isOpen && folder) {
-      const folderTitle = folder.title ?? folder.name;
+      const folderTitle = folder.title ?? folder.title;
       const folderDesc = folder.description;
       setTitle(getLocalizedContent(folderTitle) || '');
       setDescription(getLocalizedContent(folderDesc) || '');
