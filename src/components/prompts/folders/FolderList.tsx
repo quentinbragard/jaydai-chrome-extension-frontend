@@ -2,7 +2,7 @@
 import React, { memo, useMemo } from 'react';
 import { Template, TemplateFolder } from '@/types/prompts/templates';
 import { Organization } from '@/types/organizations';
-import FolderItem from './FolderItem';
+import { FolderItem } from './FolderItem';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 
 interface FolderListProps {

@@ -1,305 +1,258 @@
-// src/components/folders/FolderItem.tsx
-import React, { useState, memo, useCallback, useRef } from 'react';
-import { Template, TemplateFolder } from '@/types/prompts/templates';
-import { Organization } from '@/types/organizations';
-import { FolderHeader } from './FolderHeader';
-import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
-import { PinButton } from './PinButton';
-import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
+// src/components/prompts/folders/FolderItem.tsx
+import React, { useState, useCallback } from 'react';
+import { FolderOpen, ChevronRight, ChevronDown, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { PinButton } from '@/components/prompts/folders/PinButton';
+import { OrganizationImage } from '@/components/organizations';
+import { TemplateFolder } from '@/types/prompts/templates';
+import { Organization } from '@/types/organizations';
+import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 
-// Number of items to display per page
-const ITEMS_PER_PAGE = 5;
+const folderIconColors = {
+  user: 'jd-text-blue-500',
+  company: 'jd-text-red-500',
+  organization: 'jd-text-gray-600'
+} as const;
 
 interface FolderItemProps {
   folder: TemplateFolder;
-  type: 'company' | 'organization' | 'user';
-  onTogglePin?: (folderId: number, isPinned: boolean, folderType?: 'company' | 'organization' | 'user') => Promise<void> | void;
-  onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
-  onEditFolder?: (folder: TemplateFolder) => void;
-  onUseTemplate?: (template: Template) => void;
-  onEditTemplate?: (template: Template) => void;
-  onDeleteTemplate?: (templateId: number) => Promise<boolean> | void;
-  showPinControls?: boolean;
-  showDeleteControls?: boolean;
+  type: 'user' | 'company' | 'organization';
   level?: number;
-  initialExpanded?: boolean;
+  isExpanded?: boolean;
+  onToggleExpand?: (folderId: number) => void;
+  onNavigateToFolder?: (folder: TemplateFolder) => void;
+  onTogglePin?: (folderId: number, isPinned: boolean, type: 'user' | 'company' | 'organization') => void;
+  onEditFolder?: (folder: TemplateFolder) => void;
+  onDeleteFolder?: (folderId: number) => void;
+  onUseTemplate?: (template: any) => void;
+  onEditTemplate?: (template: any) => void;
+  onDeleteTemplate?: (templateId: number) => void;
   organizations?: Organization[];
+  showPinControls?: boolean;
+  showEditControls?: boolean;
+  showDeleteControls?: boolean;
+  enableNavigation?: boolean; // New prop to control navigation vs expansion
 }
 
 /**
- * Component for rendering a single folder with its templates and subfolders
+ * Unified folder item component that works for all folder types and contexts
+ * Supports both navigation mode (drilling down) and expansion mode (tree view)
  */
-const FolderItem: React.FC<FolderItemProps> = ({
+export const FolderItem: React.FC<FolderItemProps> = ({
   folder,
   type,
+  level = 0,
+  isExpanded = false,
+  onToggleExpand,
+  onNavigateToFolder,
   onTogglePin,
-  onDeleteFolder,
   onEditFolder,
+  onDeleteFolder,
   onUseTemplate,
   onEditTemplate,
   onDeleteTemplate,
+  organizations,
   showPinControls = false,
+  showEditControls = false,
   showDeleteControls = false,
-  level = 0,
-  initialExpanded = false,
-  organizations
+  enableNavigation = false
 }) => {
-  const [isExpanded, setIsExpanded] = useState(initialExpanded);
-  const [isPinned, setIsPinned] = useState(!!folder.is_pinned);
-  const [currentPage, setCurrentPage] = useState(0);
-  const isPinOperationInProgress = useRef(false);
-  
-  // Skip rendering if folder is invalid
-  if (!folder || !folder.id || !folder.name) {
-    return null;
-  }
-  
-  // Prevent infinite recursion by limiting depth
-  if (level > 5) {
-    return null;
-  }
-  
-  // FIXED: Ensure arrays exist and filter out null/undefined items
-  const allTemplates = Array.isArray(folder.templates) 
-    ? folder.templates.filter(template => template && typeof template === 'object' && template.id) 
-    : [];
-  const templates = allTemplates.filter(template => template.folder_id !== null);
-  
-  const subfolders = Array.isArray(folder.Folders) 
-    ? folder.Folders.filter(subfolder => subfolder && typeof subfolder === 'object' && subfolder.id) 
-    : [];
-  
-  // FIXED: Add additional safety checks when combining items
-  const allItems = [
-    ...templates
-      .filter(template => template && template.id) // Extra safety check
-      .map(template => ({ type: 'template' as const, data: template })),
-    ...subfolders
-      .filter(subfolder => subfolder && subfolder.id) // Extra safety check
-      .map(subfolder => ({ type: 'folder' as const, data: subfolder }))
-  ];
-  
-  // Calculate total pages and current items
-  const totalPages = Math.ceil(allItems.length / ITEMS_PER_PAGE);
-  const startIdx = currentPage * ITEMS_PER_PAGE;
-  const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, allItems.length);
-  const currentItems = allItems.slice(startIdx, endIdx);
-  
-  const hasMoreItems = allItems.length > ITEMS_PER_PAGE;
-  
-  // Navigation handlers
-  const goToPrevPage = useCallback(() => {
-    setCurrentPage(prev => Math.max(0, prev - 1));
-  }, []);
-  
-  const goToNextPage = useCallback(() => {
-    setCurrentPage(prev => Math.min(totalPages - 1, prev + 1));
-  }, [totalPages]);
-  
-  const toggleExpansion = useCallback(() => {
-    if (isExpanded) {
-      setCurrentPage(0);
-    }
-    setIsExpanded(prev => !prev);
-  }, [isExpanded]);
-  
-  const handleTogglePin = useCallback((e: React.MouseEvent) => {
-    if (onTogglePin && !isPinOperationInProgress.current) {
-      e.stopPropagation();
-      isPinOperationInProgress.current = true;
-      setIsPinned(prevPinned => !prevPinned);
-      
-      Promise.resolve(onTogglePin(folder.id, isPinned, folder.type))
-        .catch(err => {
-          console.error('Pin operation failed:', err);
-          setIsPinned(isPinned);
-        })
-        .finally(() => {
-          setTimeout(() => {
-            isPinOperationInProgress.current = false;
-          }, 1000);
-        });
-    }
-  }, [folder.id, isPinned, onTogglePin]);
-  
-  const handleDeleteFolder = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onDeleteFolder) {
-      onDeleteFolder(folder.id);
-    }
-  }, [folder.id, onDeleteFolder]);
+  // Local expansion state for when no external control is provided
+  const [localExpanded, setLocalExpanded] = useState(false);
+  const expanded = onToggleExpand ? isExpanded : localExpanded;
 
+  // Get organization data for display
+  const organization = organizations?.find(org => org.id === folder.organization_id) || folder.organization;
+
+  // Calculate folder contents
+  const subfolders = folder.Folders || [];
+  const templates = folder.templates || [];
+  const totalItems = subfolders.length + templates.length;
+
+  // Handle folder click
+  const handleFolderClick = useCallback(() => {
+    if (enableNavigation && onNavigateToFolder) {
+      onNavigateToFolder(folder);
+    } else if (onToggleExpand) {
+      onToggleExpand(folder.id);
+    } else {
+      setLocalExpanded(!localExpanded);
+    }
+  }, [enableNavigation, onNavigateToFolder, onToggleExpand, folder.id, localExpanded]);
+
+  // Handle pin toggle
+  const handleTogglePin = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onTogglePin) {
+      onTogglePin(folder.id, !!folder.is_pinned, type);
+    }
+  }, [onTogglePin, folder.id, folder.is_pinned, type]);
+
+  // Handle edit folder
   const handleEditFolder = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (onEditFolder) {
       onEditFolder(folder);
     }
-  }, [folder, onEditFolder]);
-  
-  // Create action buttons for folder header
-  const actionButtons = (
-    <div className="jd-flex jd-items-center jd-gap-2">
-      {showPinControls && onTogglePin && (
-        <PinButton
-          isPinned={isPinned}
-          onClick={handleTogglePin}
-          disabled={isPinOperationInProgress.current}
-          className=""
-        />
-      )}
-      
-      {type === 'user' && (
-        <div className="jd-flex jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
-          {onEditFolder && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="sm" onClick={handleEditFolder}>
-                    <Pencil className="jd-h-4 jd-w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>Edit folder</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-          {showDeleteControls && onDeleteFolder && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
-                    onClick={handleDeleteFolder}
-                  >
-                    <Trash2 className="jd-h-4 jd-w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>Delete folder</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      )}
-    </div>
-  );
+  }, [onEditFolder, folder]);
+
+  // Handle delete folder
+  const handleDeleteFolder = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDeleteFolder) {
+      onDeleteFolder(folder.id);
+    }
+  }, [onDeleteFolder, folder.id]);
 
   return (
-    <div className="jd-folder-container jd-mb-1 jd-group">
-      <FolderHeader
-        folder={folder}
-        isExpanded={isExpanded}
-        onToggle={toggleExpansion}
-        actionButtons={actionButtons}
-        level={level}
-        organizations={organizations}
-        type={type}
-      />
-      
-      {isExpanded && (
-        <div className="jd-folder-content jd-pl-6 jd-mt-1">
-          {/* FIXED: Add null check and better error handling for map */}
-          {currentItems
-            .filter(item => item && item.data) // Additional safety filter
-            .map((item, index) => {
-              // Extra safety check
-              if (!item || !item.data || !item.type) {
-                console.warn('Invalid item found in currentItems:', item);
-                return null;
-              }
+    <div className="jd-folder-container jd-mb-1">
+      {/* Folder Header */}
+      <div 
+        className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm jd-transition-colors"
+        onClick={handleFolderClick}
+        style={{ paddingLeft: `${level * 16 + 8}px` }}
+      >
+        {/* Expansion/Navigation Icon */}
+        {enableNavigation ? (
+          <ChevronRight className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0 jd-text-muted-foreground" />
+        ) : totalItems > 0 ? (
+          expanded ? 
+            <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" /> : 
+            <ChevronRight className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" />
+        ) : (
+          <div className="jd-w-4 jd-h-4 jd-mr-1 jd-flex-shrink-0" />
+        )}
 
-              if (item.type === 'template') {
-                const template = item.data as Template;
-                // Ensure template has required properties
-                if (!template || !template.id) {
-                  console.warn('Invalid template found:', template);
-                  return null;
-                }
-                
-                return (
-                  <TemplateItem
-                    key={`template-${template.id}`}
-                    template={template}
-                    type={type}
-                    onUseTemplate={onUseTemplate ? () => onUseTemplate(template) : undefined}
-                    onEditTemplate={onEditTemplate ? () => onEditTemplate(template) : undefined}
-                    onDeleteTemplate={template.id && onDeleteTemplate ? 
-                      () => onDeleteTemplate(template.id as number) : undefined
-                    }
-                  />
-                );
-              } else if (item.type === 'folder') {
-                const subfolder = item.data as TemplateFolder;
-                // Ensure subfolder has required properties
-                if (!subfolder || !subfolder.id) {
-                  console.warn('Invalid subfolder found:', subfolder);
-                  return null;
-                }
-                
-                return (
-                  <FolderItem
-                    key={`subfolder-${subfolder.id}-${type}`}
-                    folder={subfolder}
-                    type={type}
-                    onTogglePin={onTogglePin}
-                    onDeleteFolder={onDeleteFolder}
-                    onUseTemplate={onUseTemplate}
-                    onEditTemplate={onEditTemplate}
-                    onDeleteTemplate={onDeleteTemplate}
-                    showPinControls={showPinControls}
-                    showDeleteControls={showDeleteControls}
-                    level={level + 1}
-                    organizations={organizations}
-                  />
-                );
-              }
+        {/* Folder Icon */}
+        <FolderOpen className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${folderIconColors[type]}`} />
+
+        {/* Organization Image (for organization folders) */}
+        {type === 'organization' && level === 0 && organization?.image_url && (
+          <OrganizationImage
+            imageUrl={organization.image_url}
+            organizationName={organization.name || folder.name}
+            size="sm"
+            className="jd-mr-2"
+          />
+        )}
+
+        {/* Folder Name (with optional description tooltip) */}
+        <div className="jd-flex-1 jd-min-w-0">
+          {folder.description ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="jd-text-sm jd-truncate jd-block">{folder.name}</span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="jd-max-w-xs jd-z-50">
+                <p>{folder.description}</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <span className="jd-text-sm jd-truncate jd-block">{folder.name}</span>
+          )}
+        </div>
+
+        {/* Item Count */}
+        {totalItems > 0 && (
+          <span className="jd-text-xs jd-text-muted-foreground jd-mr-2 jd-flex-shrink-0">
+            {totalItems} item{totalItems !== 1 ? 's' : ''}
+          </span>
+        )}
+
+        {/* Action Buttons */}
+        <div className="jd-flex jd-items-center jd-gap-1">
+          {/* Pin Button */}
+          {showPinControls && onTogglePin && (
+            <PinButton
+              isPinned={!!folder.is_pinned}
+              onClick={handleTogglePin}
+              className=""
+            />
+          )}
+
+          {/* Edit and Delete Buttons (only for user folders) */}
+          {type === 'user' && (showEditControls || showDeleteControls) && (
+            <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+              {showEditControls && onEditFolder && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="sm" onClick={handleEditFolder} className="jd-h-6 jd-w-6 jd-p-0">
+                        <Pencil className="jd-h-3.5 jd-w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>Edit folder</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               
-              // Should never reach here, but just in case
-              console.warn('Unknown item type:', item.type);
-              return null;
-            })
-            .filter(Boolean) // Remove any null items
-          }
-          
-          {/* Pagination controls */}
-          {hasMoreItems && (
-            <div className="jd-flex jd-justify-end jd-mt-2 jd-pr-1">
-              <div className="jd-flex jd-items-center jd-space-x-1 jd-bg-background/80 jd-border jd-border-border/30 jd-rounded jd-px-1">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={goToPrevPage}
-                  disabled={currentPage === 0}
-                  title="Previous items"
-                >
-                  <ChevronLeft className="jd-h-4 jd-w-4" />
-                </Button>
-                <span className="jd-text-xs jd-text-muted-foreground jd-px-1">
-                  {currentPage + 1}/{totalPages}
-                </span>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={goToNextPage}
-                  disabled={currentPage === totalPages - 1}
-                  title="Next items"
-                >
-                  <ChevronRight className="jd-h-4 jd-w-4" />
-                </Button>
-              </div>
+              {showDeleteControls && onDeleteFolder && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="jd-h-6 jd-w-6 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
+                        onClick={handleDeleteFolder}
+                      >
+                        <Trash2 className="jd-h-3.5 jd-w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>Delete folder</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Folder Contents (when expanded and not in navigation mode) */}
+      {!enableNavigation && expanded && totalItems > 0 && (
+        <div className="jd-folder-content">
+          {/* Subfolders */}
+          {subfolders.map((subfolder) => (
+            <FolderItem
+              key={`subfolder-${subfolder.id}`}
+              folder={subfolder}
+              type={type}
+              level={level + 1}
+              isExpanded={isExpanded}
+              onToggleExpand={onToggleExpand}
+              onTogglePin={onTogglePin}
+              onEditFolder={onEditFolder}
+              onDeleteFolder={onDeleteFolder}
+              onUseTemplate={onUseTemplate}
+              onEditTemplate={onEditTemplate}
+              onDeleteTemplate={onDeleteTemplate}
+              organizations={organizations}
+              showPinControls={showPinControls}
+              showEditControls={showEditControls}
+              showDeleteControls={showDeleteControls}
+              enableNavigation={enableNavigation}
+            />
+          ))}
+
+          {/* Templates */}
+          {templates.map((template) => (
+            <TemplateItem
+              key={`template-${template.id}`}
+              template={template}
+              type={type}
+              level={level + 1}
+              onUseTemplate={onUseTemplate}
+              onEditTemplate={onEditTemplate}
+              onDeleteTemplate={onDeleteTemplate}
+            />
+          ))}
         </div>
       )}
     </div>
   );
 };
-
-export default memo(FolderItem);
-export { FolderItem };

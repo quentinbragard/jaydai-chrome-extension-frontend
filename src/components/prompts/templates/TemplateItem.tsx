@@ -1,12 +1,10 @@
-// src/components/templates/TemplateItem.tsx (Consistent styling)
-import React from 'react';
-import { FileText, Edit, Clock, Activity, Trash2 } from 'lucide-react';
-import { OrganizationImage } from '@/components/organizations';
+// src/components/prompts/unified/TemplateItem.tsx
+import React, { useCallback } from 'react';
+import { FileText, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { OrganizationImage } from '@/components/organizations';
 import { Template } from '@/types/prompts/templates';
-import { useTemplateActions } from '@/hooks/prompts'; // Updated import from hooks directly
 import { getMessage } from '@/core/utils/i18n';
 
 const iconColorMap = {
@@ -17,155 +15,72 @@ const iconColorMap = {
 
 interface TemplateItemProps {
   template: Template;
-  type?: 'company' | 'organization' | 'user';
-  onEditTemplate?: (template: Template) => void;
-  onDeleteTemplate?: (templateId: number) => Promise<boolean> | void;
+  type: 'user' | 'company' | 'organization';
+  level?: number;
   onUseTemplate?: (template: Template) => void;
+  onEditTemplate?: (template: Template) => void;
+  onDeleteTemplate?: (templateId: number) => void;
+  showEditControls?: boolean;
+  showDeleteControls?: boolean;
+  isProcessing?: boolean;
 }
 
 /**
- * Enhanced component for rendering a single template item with usage stats and colored action buttons
+ * Unified template item component that works consistently across all contexts
+ * Displays templates with consistent styling and behavior
  */
-export function TemplateItem({
+export const TemplateItem: React.FC<TemplateItemProps> = ({
   template,
-  type = 'user',
+  type,
+  level = 0,
+  onUseTemplate,
   onEditTemplate,
   onDeleteTemplate,
-  onUseTemplate
-}: TemplateItemProps) {
-  // Use our template actions hook
-  const {
-    isProcessing,
-    useTemplate: defaultUseTemplate,
-    editTemplate: defaultEditTemplate,
-    deleteTemplateWithConfirm,
-  } = useTemplateActions();
-  
-  // Use the provided use function or fall back to the hook's function
-  const handleUseTemplate = onUseTemplate || defaultUseTemplate;
-  
-  // Ensure we have a display name, falling back through various options
+  showEditControls = true,
+  showDeleteControls = true,
+  isProcessing = false
+}) => {
+  // Ensure we have a display name
   const displayName = template.title || 'Untitled Template';
   
-  // Safely handle usage count
-  const usageCount = typeof template.usage_count === 'number' ? template.usage_count : 0;
-  
-  // Format last used date if available
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return null;
-    
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return null;
-      
-      // Check if it's today
-      const today = new Date();
-      if (date.toDateString() === today.toDateString()) {
-        return 'today';
-      }
-      
-      // Check if it's yesterday
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      if (date.toDateString() === yesterday.toDateString()) {
-        return 'yesterday';
-      }
-      
-      // Otherwise return formatted date
-      return date.toLocaleDateString(undefined, { 
-        month: 'short', 
-        day: 'numeric'
-      });
-    } catch (e) {
-      console.error('Error formatting date:', e);
-      return null;
-    }
-  };
-  
-  const lastUsedText = formatDate(template.last_used_at);
-  
-  // Render usage indicator based on frequency - only for user templates
-  const renderUsageIndicator = () => {
-    // Don't show usage indicators for non-user templates
-    if (type !== 'user') {
-      return null;
-    }
-    
-    if (usageCount === 0) {
-      return null;
-    }
-    
-    if (usageCount >= 5) {
-      // Popular template
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center text-xs text-primary">
-                <Activity className="h-3 w-3 mr-1 text-primary" />
-                <span>{getMessage('popular', undefined, 'Popular')}</span>
-                <Badge variant="outline" className="ml-1 h-4 px-1 py-0 text-xs">
-                  {usageCount}
-                </Badge>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{getMessage('used_times', {count: usageCount}, `Used ${usageCount} times`)}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    }
-    
-    if (lastUsedText) {
-      // Recently used template
-      return (
-        <div className="flex items-center text-xs text-muted-foreground">
-          <Clock className="h-3 w-3 mr-1" />
-          <span>{getMessage('last_used', {date: lastUsedText}, `Last used ${lastUsedText}`)}</span>
-        </div>
-      );
-    }
-    
-    // Default usage count
-    return (
-      <div className="text-xs text-muted-foreground">
-        <p>{getMessage('used_times', {count: usageCount}, `Used ${usageCount} times`)}</p>
-      </div>
-    );
-  };
-
   // Handle template click to use it
-  const handleTemplateClick = () => {
-    handleUseTemplate(template);
-  };
+  const handleTemplateClick = useCallback(() => {
+    if (onUseTemplate && !isProcessing) {
+      onUseTemplate(template);
+    }
+  }, [onUseTemplate, template, isProcessing]);
   
-  // Handle edit click (only for user templates)
-  const handleEditClick = (e: React.MouseEvent) => {
+  // Handle edit click
+  const handleEditClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (onEditTemplate) {
       onEditTemplate(template);
-    } else {
-      defaultEditTemplate(template);
     }
-  };
+  }, [onEditTemplate, template]);
   
   // Handle delete click
-  const handleDeleteClick = (e: React.MouseEvent) => {
+  const handleDeleteClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (onDeleteTemplate && template.id) {
       onDeleteTemplate(template.id);
-    } else if (template.id) {
-      deleteTemplateWithConfirm(template.id);
     }
-  };
-  
+  }, [onDeleteTemplate, template.id]);
+
+  // Show controls only for user templates or when explicitly enabled
+  const shouldShowControls = type === 'user' && (showEditControls || showDeleteControls);
+
   return (
     <div 
-      className={`jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group ${isProcessing ? 'jd-opacity-50' : ''}`}
+      className={`jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-transition-colors ${
+        isProcessing ? 'jd-opacity-50 jd-cursor-not-allowed' : ''
+      }`}
       onClick={handleTemplateClick}
+      style={{ paddingLeft: `${level * 16 + 8}px` }}
     >
-      <FileText className={`jd-h-4 jd-w-4 jd-mr-2 ${iconColorMap[type]}`} />
+      {/* Template Icon */}
+      <FileText className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${iconColorMap[type]}`} />
+      
+      {/* Organization Image (for organization templates) */}
       {type === 'organization' && (
         <OrganizationImage
           imageUrl={(template as any).image_url || (template as any).organization?.image_url}
@@ -174,32 +89,43 @@ export function TemplateItem({
           className="jd-mr-2"
         />
       )}
+      
+      {/* Template Content (with optional description tooltip) */}
       <div className="jd-flex-1 jd-min-w-0">
-        <div className="jd-text-sm jd-truncate">
-          {displayName}
-        </div>
-        {template.description && (
-          <div className="jd-text-xs jd-text-muted-foreground jd-truncate">{template.description}</div>
+        {template.description ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="jd-text-sm jd-truncate jd-font-medium">
+                {displayName}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="jd-max-w-xs jd-z-50">
+              <p>{template.description}</p>
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <div className="jd-text-sm jd-truncate jd-font-medium">
+            {displayName}
+          </div>
         )}
-        {/* Usage indicator  {renderUsageIndicator()}*/}
-        
       </div>
       
-      {/* Only show action buttons for user templates */}
-      {type === "user" && (
-        <div className="jd-ml-2 jd-flex jd-items-center jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
-          {/* Edit Button with blue accent */}
-          {onEditTemplate && (
+      {/* Action Buttons (only for user templates by default) */}
+      {shouldShowControls && (
+        <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+          {/* Edit Button */}
+          {showEditControls && onEditTemplate && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="jd-p-0 jd-text-blue-800 jd-bg-transparent  jd-rounded hover:jd-text-white hover:jd-bg-blue-600 jd-dark:jd-text-blue-200 jd-dark:jd-bg-transparent  jd-dark:hover:jd-text-black jd-dark:hover:jd-bg-blue-200"
+                    className="jd-h-6 jd-w-6 jd-p-0 jd-text-blue-600 hover:jd-text-blue-700 hover:jd-bg-blue-100 jd-dark:jd-text-blue-400 jd-dark:hover:jd-text-blue-300 jd-dark:hover:jd-bg-blue-900/30"
                     onClick={handleEditClick}
+                    disabled={isProcessing}
                   >
-                    <Edit className="jd-h-4 jd-w-4" />
+                    <Edit className="jd-h-3.5 jd-w-3.5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
@@ -209,18 +135,19 @@ export function TemplateItem({
             </TooltipProvider>
           )}
           
-          {/* Delete Button with red accent */}
-          {onDeleteTemplate && (
+          {/* Delete Button */}
+          {showDeleteControls && onDeleteTemplate && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
+                    className="jd-h-6 jd-w-6 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
                     onClick={handleDeleteClick}
+                    disabled={isProcessing}
                   >
-                    <Trash2 className="jd-h-4 jd-w-4" />
+                    <Trash2 className="jd-h-3.5 jd-w-3.5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
@@ -233,4 +160,4 @@ export function TemplateItem({
       )}
     </div>
   );
-}
+};

@@ -1,22 +1,21 @@
-// src/components/panels/BrowseTemplatesPanel/index.tsx
+// src/components/panels/BrowseTemplatesPanel/BrowseTemplatesPanel.tsx
 import React, { useCallback, memo, useState, useEffect } from 'react';
 import { FolderOpen } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import BasePanel from '../BasePanel';
 import { 
-  useFolderSearch,
   useAllFoldersOfType,
   useFolderMutations,
   useTemplateActions,
   usePinnedFolders
 } from '@/hooks/prompts';
 import { useOrganizations } from '@/hooks/organizations';
-import {
-  FolderList,
-  FolderSearch
-} from '@/components/prompts/folders';
+import { FolderSearch } from '@/components/prompts/folders';
 import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
+import { FolderItem } from '@/components/prompts/folders/FolderItem';
+import { useFolderSearch } from '@/hooks/prompts/utils/useFolderSearch';
 
 interface BrowseTemplatesPanelProps {
   folderType: 'organization' | 'company';
@@ -27,8 +26,8 @@ interface BrowseTemplatesPanelProps {
 }
 
 /**
- * Panel for browsing and pinning template folders
- * Updated to handle state updates correctly
+ * Unified Browse Templates Panel using the new unified components
+ * Provides consistent display for browsing and pinning template folders
  */
 const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
   folderType,
@@ -75,13 +74,13 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
     clearSearch
   } = useFolderSearch(folders);
   
-  // Get folder mutations (instead of direct useToggleFolderPin)
+  // Get folder mutations
   const { toggleFolderPin } = useFolderMutations();
   
   // Template actions
   const { useTemplate } = useTemplateActions();
   
-  // Handle toggling pin status - memoized to prevent recreation on each render
+  // Handle toggling pin status
   const handleTogglePin = useCallback(async (folderId: number, isPinned: boolean) => {
     // Update local state immediately for better UX
     if (isPinned) {
@@ -94,11 +93,11 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
     
     try {
       // Call the mutation to update the backend
-      const typeToUse = folderType === 'organization' ? folderTypeMap[folderId] : folderType;
+      // Use the original folderType (don't map it)
       await toggleFolderPin.mutateAsync({
         folderId,
         isPinned,
-        type: typeToUse as 'organization' | 'company'
+        type: folderType
       });
       
       // Call the onPinChange prop if provided (after successful backend update)
@@ -117,7 +116,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
         setLocalPinnedIds(prev => prev.filter(id => id !== folderId));
       }
     }
-  }, [toggleFolderPin, folderType, folderTypeMap, onPinChange, refetchPinnedFolders]);
+  }, [toggleFolderPin, folderType, onPinChange, refetchPinnedFolders]);
 
   // Add pinned status to folders using our local state
   const foldersWithPinStatus = React.useMemo(() => {
@@ -138,44 +137,53 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
       className="jd-w-80"
       maxHeight={maxHeight}
     >
-      {/* Search input */}
-      <FolderSearch
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        placeholderText={`Search ${folderType} folders...`}
-        onReset={clearSearch}
-      />
-      
-      <Separator />
-      
-      {/* Content area with conditional rendering based on state */}
-      <div className="jd-overflow-y-auto">
-        {isLoading ? (
-          <LoadingState message={`Loading ${folderType} folders...`} />
-        ) : error ? (
-          <EmptyMessage>
-            Error loading folders: {error instanceof Error ? error.message : 'Unknown error'}
-          </EmptyMessage>
-        ) : filteredFolders.length === 0 ? (
-          <EmptyMessage>
-            {searchQuery
-              ? `No folders matching "${searchQuery}"`
-              : `No ${folderType} folders available`}
-          </EmptyMessage>
-        ) : (
-          <FolderList
-            folders={foldersWithPinStatus}
-            type={folderType}
-            onTogglePin={handleTogglePin}
-            onUseTemplate={useTemplate}
-            showPinControls={true}
-            organizations={organizations}
-          />
-        )}
-      </div>
+      <TooltipProvider>
+        {/* Search input */}
+        <FolderSearch
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          placeholderText={`Search ${folderType} folders...`}
+          onReset={clearSearch}
+        />
+        
+        <Separator />
+        
+        {/* Content area with conditional rendering based on state */}
+        <div className="jd-overflow-y-auto">
+          {isLoading ? (
+            <LoadingState message={`Loading ${folderType} folders...`} />
+          ) : error ? (
+            <EmptyMessage>
+              Error loading folders: {error instanceof Error ? error.message : 'Unknown error'}
+            </EmptyMessage>
+          ) : filteredFolders.length === 0 ? (
+            <EmptyMessage>
+              {searchQuery
+                ? `No folders matching "${searchQuery}"`
+                : `No ${folderType} folders available`}
+            </EmptyMessage>
+          ) : (
+            <div className="jd-space-y-1 jd-px-2">
+              {foldersWithPinStatus.map(folder => (
+                <FolderItem
+                  key={`${folderType}-folder-${folder.id}`}
+                  folder={folder}
+                  type={folderType}
+                  enableNavigation={false} // Use tree expansion mode
+                  onUseTemplate={useTemplate}
+                  onTogglePin={handleTogglePin}
+                  organizations={organizations}
+                  showPinControls={true}
+                  showEditControls={false}
+                  showDeleteControls={false}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </TooltipProvider>
     </BasePanel>
   );
 };
 
-// Wrap with memo for performance optimization
 export default memo(BrowseTemplatesPanel);

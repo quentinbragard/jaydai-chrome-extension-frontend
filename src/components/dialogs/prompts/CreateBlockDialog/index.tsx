@@ -26,7 +26,7 @@ export const CreateBlockDialog: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
-  const [blockType, setBlockType] = useState<BlockType>('custom');
+  const [blockType, setBlockType] = useState<BlockType>('role');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   
@@ -43,7 +43,7 @@ export const CreateBlockDialog: React.FC = () => {
   useEffect(() => {
     if (isOpen) {
       setContent(initialContent);
-      setBlockType(initialType || 'custom');
+      setBlockType(initialType || 'role');
       setName('');
       setDescription('');
       setValidationErrors({});
