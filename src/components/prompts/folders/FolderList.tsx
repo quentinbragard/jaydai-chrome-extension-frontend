@@ -47,7 +47,7 @@ const FolderList: React.FC<FolderListProps> = ({
   const validFolders = useMemo(() => {
     // Safely ensure folders is an array and filter out invalid items
     const folderArray = Array.isArray(folders) ? folders : [];
-    return folderArray.filter(folder => folder && folder.id && folder.name);
+    return folderArray.filter(folder => folder && folder.id && folder.title);
   }, [folders]);
   
   // If there are no folders, show empty message

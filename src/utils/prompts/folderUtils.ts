@@ -44,7 +44,7 @@ export function findFolderById(folders: TemplateFolder[], id: number): TemplateF
  * Get the full path of a folder
  */
 export function getFolderPath(folder: TemplateFolder): string {
-  return folder.path || folder.name || '';
+  return folder.path || folder.title || '';
 }
 
 /**

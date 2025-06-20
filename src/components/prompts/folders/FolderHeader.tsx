@@ -40,11 +40,11 @@ export function FolderHeader({
       >
         {/* Removed chevron icons for a cleaner look */}
         <Folder className={`jd-h-4 jd-w-4 jd-mr-2 ${folderIconColors[type || folder.type || 'user']}`} />
-        <span className="jd-text-sm jd-flex-1 jd-truncate">{folder.name}</span>
+        <span className="jd-text-sm jd-flex-1 jd-truncate">{folder.title}</span>
         {folder.type === 'organization' && level === 0 && (
           <OrganizationImage
             imageUrl={resolvedOrg?.image_url || folder.image_url}
-            organizationName={resolvedOrg?.name || folder.name}
+            organizationName={resolvedOrg?.name || folder.title}
             size="sm"
             className="jd-ml-2"
           />

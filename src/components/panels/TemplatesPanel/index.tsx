@@ -93,7 +93,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     (folder: TemplateFolder, query: string): boolean => {
       const q = query.toLowerCase();
 
-      if (folder.name?.toLowerCase().includes(q)) return true;
+      if (folder.title?.toLowerCase().includes(q)) return true;
 
       if (folder.templates?.some(t => templateMatchesQuery(t, query))) return true;
 

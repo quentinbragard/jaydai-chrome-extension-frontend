@@ -140,7 +140,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
           <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
             <div className="jd-flex jd-items-center">
               <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
-              {isAtRoot ? 'My Templates' : folder.name}
+              {isAtRoot ? 'My Templates' : folder.title}
             </div>
             <div className="jd-flex jd-items-center jd-gap-1">
               {onCreateTemplate && (
@@ -192,9 +192,9 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                           ? 'jd-text-foreground jd-font-medium' 
                           : 'jd-text-muted-foreground jd-hover:jd-underline'
                       }`}
-                      title={pathFolder.name}
+                      title={pathfolder.title}
                     >
-                      {pathFolder.name}
+                      {pathfolder.title}
                     </button>
                   </React.Fragment>
                 ))}
@@ -240,7 +240,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         {type === 'organization' && level === 0 && organization?.image_url && (
           <OrganizationImage
             imageUrl={organization.image_url}
-            organizationName={organization.name || folder.name}
+            organizationName={organization.name || folder.title}
             size="sm"
             className="jd-mr-2"
           />
@@ -253,10 +253,11 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               <TooltipTrigger asChild>
                 <span
                   className="jd-text-sm jd-truncate jd-block"
-                  title={folder.name}
+                  title={folder.title}
                 >
-                  {folder.name}
+                  {folder.title}
                 </span>
+
               </TooltipTrigger>
               <TooltipContent side="bottom" className="jd-max-w-xs jd-z-50">
                 <p>{folder.description}</p>
@@ -265,9 +266,9 @@ export const FolderItem: React.FC<FolderItemProps> = ({
           ) : (
             <span
               className="jd-text-sm jd-truncate jd-block"
-              title={folder.name}
+              title={folder.title}
             >
-              {folder.name}
+              {folder.title}
             </span>
           )}
         </div>

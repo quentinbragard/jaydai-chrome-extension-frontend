@@ -110,7 +110,7 @@ export function useFolderNavigation(data: UnifiedFolderData) {
       }
 
       return {
-        path: [...prev.path, { id: folder.id, name: folder.name, type: rootType }],
+        path: [...prev.path, { id: folder.id, name: folder.title, type: rootType }],
         currentFolder: folder,
         rootType
       };

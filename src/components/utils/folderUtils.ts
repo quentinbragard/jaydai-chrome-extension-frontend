@@ -15,7 +15,7 @@ export function getFolderPathById(folderId: number | undefined, userFolders: any
         if (!folder || !folder.id) continue;
         
         // Create the current path
-        const folderPath = currentPath ? `${currentPath} / ${folder.name}` : folder.name;
+        const folderPath = currentPath ? `${currentPath} / ${folder.title}` : folder.title;
         
         // Check if this is the folder we're looking for
         if (folder.id === targetId) {
