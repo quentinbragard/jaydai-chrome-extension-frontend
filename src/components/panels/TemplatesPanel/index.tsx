@@ -77,6 +77,53 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     organizationFolders
   });
 
+  // Utility functions for search filtering
+  const templateMatchesQuery = useCallback(
+    (template: Template, query: string) => {
+      const q = query.toLowerCase();
+      return (
+        template.title?.toLowerCase().includes(q) ||
+        template.description?.toLowerCase().includes(q)
+      );
+    },
+    []
+  );
+
+  const folderMatchesQuery = useCallback(
+    (folder: TemplateFolder, query: string): boolean => {
+      const q = query.toLowerCase();
+
+      if (folder.name?.toLowerCase().includes(q)) return true;
+
+      if (folder.templates?.some(t => templateMatchesQuery(t, query))) return true;
+
+      if (folder.Folders?.some(f => folderMatchesQuery(f, query))) return true;
+
+      return false;
+    },
+    [templateMatchesQuery]
+  );
+
+  const filteredNavigationItems = useMemo(() => {
+    if (!searchQuery.trim()) return navigation.currentItems;
+    return navigation.currentItems.filter(item => {
+      if ('templates' in item) {
+        return folderMatchesQuery(item, searchQuery);
+      }
+      return templateMatchesQuery(item, searchQuery);
+    });
+  }, [navigation.currentItems, searchQuery, folderMatchesQuery, templateMatchesQuery]);
+
+  const filteredPinned = useMemo(() => {
+    if (!searchQuery.trim()) return pinnedFolders;
+    const filter = (folders: TemplateFolder[]) =>
+      folders.filter(f => folderMatchesQuery(f, searchQuery));
+    return {
+      user: filter(pinnedFolders.user || []),
+      organization: filter(pinnedFolders.organization || [])
+    };
+  }, [pinnedFolders, searchQuery, folderMatchesQuery]);
+
   // Mutations and actions
   const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
   const { deleteTemplate } = useTemplateMutations();
@@ -222,15 +269,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
             {/* Current Items using enhanced components */}
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {navigation.currentItems.length === 0 ? (
+              {filteredNavigationItems.length === 0 ? (
                 <EmptyMessage>
-                  {navigation.isAtRoot 
+                  {navigation.isAtRoot
                     ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
                     : 'This folder is empty'
                   }
                 </EmptyMessage>
               ) : (
-                navigation.currentItems.map((item) => (
+                filteredNavigationItems.map((item) => (
                   'templates' in item ? (
                     // Enhanced Folder Item with full navigation support
                     <FolderItem
@@ -282,14 +329,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </div>
 
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {[...(pinnedFolders.user || []), ...(pinnedFolders.organization || [])].length === 0 ? (
+              {[...(filteredPinned.user || []), ...(filteredPinned.organization || [])].length === 0 ? (
                 <EmptyMessage>
                   {getMessage('noPinnedTemplates', undefined, 'No pinned templates. Pin your favorites for quick access.')}
                 </EmptyMessage>
               ) : (
                 <>
                   {/* User pinned folders */}
-                  {(pinnedFolders.user || []).map(folder => (
+                  {(filteredPinned.user || []).map(folder => (
                     <FolderItem
                       key={`pinned-user-${folder.id}`}
                       folder={folder}
@@ -309,7 +356,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                   ))}
                   
                   {/* Organization pinned folders */}
-                  {(pinnedFolders.organization || []).map(folder => (
+                  {(filteredPinned.organization || []).map(folder => (
                     <FolderItem
                       key={`pinned-org-${folder.id}`}
                       folder={folder}
