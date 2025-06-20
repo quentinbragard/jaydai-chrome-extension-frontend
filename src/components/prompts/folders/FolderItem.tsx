@@ -1,19 +1,26 @@
 // src/components/prompts/folders/FolderItem.tsx
 import React, { useState, useCallback } from 'react';
-import { FolderOpen, ChevronRight, ChevronDown, Pencil, Trash2 } from 'lucide-react';
+import { FolderOpen, ChevronRight, ChevronDown, Pencil, Trash2, PlusCircle, Plus, ArrowLeft, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PinButton } from '@/components/prompts/folders/PinButton';
 import { OrganizationImage } from '@/components/organizations';
-import { TemplateFolder } from '@/types/prompts/templates';
+import { TemplateFolder, Template } from '@/types/prompts/templates';
 import { Organization } from '@/types/organizations';
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
+import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
+import { getMessage } from '@/core/utils/i18n';
 
 const folderIconColors = {
   user: 'jd-text-blue-500',
   company: 'jd-text-red-500',
   organization: 'jd-text-gray-600'
 } as const;
+
+interface NavigationPath {
+  id: number;
+  name: string;
+}
 
 interface FolderItemProps {
   folder: TemplateFolder;
@@ -32,12 +39,22 @@ interface FolderItemProps {
   showPinControls?: boolean;
   showEditControls?: boolean;
   showDeleteControls?: boolean;
-  enableNavigation?: boolean; // New prop to control navigation vs expansion
+  enableNavigation?: boolean;
+  
+  // Navigation props - when these are provided, the component shows navigation header
+  navigationPath?: NavigationPath[];
+  onNavigateBack?: () => void;
+  onNavigateToRoot?: () => void;
+  onNavigateToPathIndex?: (index: number) => void;
+  onCreateTemplate?: () => void;
+  onCreateFolder?: () => void;
+  showNavigationHeader?: boolean;
 }
 
 /**
- * Unified folder item component that works for all folder types and contexts
+ * Enhanced folder item component that works for all folder types and contexts
  * Supports both navigation mode (drilling down) and expansion mode (tree view)
+ * Can optionally show navigation header and breadcrumbs
  */
 export const FolderItem: React.FC<FolderItemProps> = ({
   folder,
@@ -56,7 +73,16 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   showPinControls = false,
   showEditControls = false,
   showDeleteControls = false,
-  enableNavigation = false
+  enableNavigation = false,
+  
+  // Navigation props
+  navigationPath = [],
+  onNavigateBack,
+  onNavigateToRoot,
+  onNavigateToPathIndex,
+  onCreateTemplate,
+  onCreateFolder,
+  showNavigationHeader = false
 }) => {
   // Local expansion state for when no external control is provided
   const [localExpanded, setLocalExpanded] = useState(false);
@@ -69,6 +95,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   const subfolders = folder.Folders || [];
   const templates = folder.templates || [];
   const totalItems = subfolders.length + templates.length;
+  const isAtRoot = navigationPath.length === 0;
 
   // Handle folder click
   const handleFolderClick = useCallback(() => {
@@ -106,7 +133,89 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   }, [onDeleteFolder, folder.id]);
 
   return (
-    <div className="jd-folder-container jd-mb-1">
+    <div className="jd-folder-container">
+      {/* Optional Navigation Header */}
+      {showNavigationHeader && (
+        <>
+          <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
+            <div className="jd-flex jd-items-center">
+              <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
+              {isAtRoot ? 'My Templates' : folder.name}
+            </div>
+            <div className="jd-flex jd-items-center jd-gap-1">
+              {onCreateTemplate && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={onCreateTemplate}
+                  title={getMessage('newTemplate', undefined, 'New Template')}
+                >
+                  <PlusCircle className="jd-h-4 jd-w-4" />
+                </Button>
+              )}
+              {onCreateFolder && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={onCreateFolder}
+                  title={getMessage('newFolder', undefined, 'New Folder')}
+                >
+                  <Plus className="jd-h-4 jd-w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Navigation Breadcrumb */}
+          {!isAtRoot && (
+            <div className="jd-flex jd-items-center jd-gap-1 jd-px-2 jd-py-2 jd-mb-2 jd-bg-accent/20 jd-rounded-md jd-text-xs">
+              {onNavigateToRoot && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={onNavigateToRoot} 
+                  className="jd-h-6 jd-px-2 jd-text-muted-foreground hover:jd-text-foreground"
+                  title="Go to root"
+                >
+                  <Home className="jd-h-3 jd-w-3" />
+                </Button>
+              )}
+              
+              <div className="jd-flex jd-items-center jd-gap-1 jd-flex-1 jd-min-w-0">
+                {navigationPath.map((pathFolder, index) => (
+                  <React.Fragment key={pathFolder.id}>
+                    <ChevronRight className="jd-h-3 jd-w-3 jd-text-muted-foreground jd-flex-shrink-0" />
+                    <button
+                      onClick={() => onNavigateToPathIndex?.(index)}
+                      className={`jd-truncate jd-text-left jd-hover:jd-text-foreground jd-transition-colors ${
+                        index === navigationPath.length - 1 
+                          ? 'jd-text-foreground jd-font-medium' 
+                          : 'jd-text-muted-foreground jd-hover:jd-underline'
+                      }`}
+                      title={pathFolder.name}
+                    >
+                      {pathFolder.name}
+                    </button>
+                  </React.Fragment>
+                ))}
+              </div>
+
+              {onNavigateBack && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={onNavigateBack} 
+                  className="jd-h-6 jd-px-2 jd-text-muted-foreground hover:jd-text-foreground jd-flex-shrink-0"
+                  title="Go back"
+                >
+                  <ArrowLeft className="jd-h-3 jd-w-3" />
+                </Button>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
       {/* Folder Header */}
       <div 
         className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm jd-transition-colors"
@@ -213,7 +322,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         </div>
       </div>
 
-      {/* Folder Contents (when expanded and not in navigation mode) */}
+      {/* Folder Contents (when expanded and not in navigation mode) OR Current Items (when in navigation mode) */}
       {!enableNavigation && expanded && totalItems > 0 && (
         <div className="jd-folder-content">
           {/* Subfolders */}
@@ -249,8 +358,58 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               onUseTemplate={onUseTemplate}
               onEditTemplate={onEditTemplate}
               onDeleteTemplate={onDeleteTemplate}
+              showEditControls={type === 'user'}
+              showDeleteControls={type === 'user'}
             />
           ))}
+        </div>
+      )}
+
+      {/* When showing navigation header and in current folder, show contents */}
+      {showNavigationHeader && (
+        <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
+          {totalItems === 0 ? (
+            <EmptyMessage>
+              {isAtRoot 
+                ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
+                : 'This folder is empty'
+              }
+            </EmptyMessage>
+          ) : (
+            <>
+              {/* Subfolders */}
+              {subfolders.map((subfolder) => (
+                <FolderItem
+                  key={`nav-folder-${subfolder.id}`}
+                  folder={subfolder}
+                  type={type}
+                  enableNavigation={true}
+                  onNavigateToFolder={onNavigateToFolder}
+                  onTogglePin={onTogglePin}
+                  onEditFolder={onEditFolder}
+                  onDeleteFolder={onDeleteFolder}
+                  organizations={organizations}
+                  showPinControls={showPinControls}
+                  showEditControls={showEditControls}
+                  showDeleteControls={showDeleteControls}
+                />
+              ))}
+
+              {/* Templates */}
+              {templates.map((template) => (
+                <TemplateItem
+                  key={`nav-template-${template.id}`}
+                  template={template}
+                  type={type}
+                  onUseTemplate={onUseTemplate}
+                  onEditTemplate={onEditTemplate}
+                  onDeleteTemplate={onDeleteTemplate}
+                  showEditControls={type === 'user'}
+                  showDeleteControls={type === 'user'}
+                />
+              ))}
+            </>
+          )}
         </div>
       )}
     </div>

@@ -252,7 +252,7 @@
     "description": "Menu item for notifications"
   },
   "blockBuilder": {
-    "message": "Constructeur de Blocs",
+    "message": "Blocs",
     "description": "Menu item for block builder"
   },
   "aiNews": {

@@ -1,6 +1,6 @@
-// src/components/prompts/unified/TemplateItem.tsx
+// src/components/prompts/templates/TemplateItem.tsx
 import React, { useCallback } from 'react';
-import { FileText, Edit, Trash2 } from 'lucide-react';
+import { FileText, Edit, Trash2, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { OrganizationImage } from '@/components/organizations';
@@ -20,14 +20,18 @@ interface TemplateItemProps {
   onUseTemplate?: (template: Template) => void;
   onEditTemplate?: (template: Template) => void;
   onDeleteTemplate?: (templateId: number) => void;
+  onTogglePin?: (templateId: number, isPinned: boolean, type: 'user' | 'company' | 'organization') => void;
   showEditControls?: boolean;
   showDeleteControls?: boolean;
+  showPinControls?: boolean;
   isProcessing?: boolean;
+  className?: string;
 }
 
 /**
- * Unified template item component that works consistently across all contexts
+ * Enhanced template item component that works consistently across all contexts
  * Displays templates with consistent styling and behavior
+ * Supports pinning, editing, deletion, and usage
  */
 export const TemplateItem: React.FC<TemplateItemProps> = ({
   template,
@@ -36,9 +40,12 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   onUseTemplate,
   onEditTemplate,
   onDeleteTemplate,
+  onTogglePin,
   showEditControls = true,
   showDeleteControls = true,
-  isProcessing = false
+  showPinControls = false,
+  isProcessing = false,
+  className = ''
 }) => {
   // Ensure we have a display name
   const displayName = template.title || 'Untitled Template';
@@ -66,14 +73,29 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
     }
   }, [onDeleteTemplate, template.id]);
 
-  // Show controls only for user templates or when explicitly enabled
-  const shouldShowControls = type === 'user' && (showEditControls || showDeleteControls);
+  // Handle pin toggle
+  const handleTogglePin = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onTogglePin && template.id) {
+      onTogglePin(template.id, !!(template as any).is_pinned, type);
+    }
+  }, [onTogglePin, template.id, (template as any).is_pinned, type]);
+
+  // Show controls based on type and props
+  const shouldShowEditControls = showEditControls && type === 'user';
+  const shouldShowDeleteControls = showDeleteControls && type === 'user';
+  const shouldShowPinControls = showPinControls && onTogglePin;
+
+  // Calculate usage information
+  const usageCount = typeof template.usage_count === 'number' ? template.usage_count : 0;
+  const isPopular = usageCount >= 5;
+  const hasUsageInfo = usageCount > 0;
 
   return (
     <div 
       className={`jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-transition-colors ${
         isProcessing ? 'jd-opacity-50 jd-cursor-not-allowed' : ''
-      }`}
+      } ${className}`}
       onClick={handleTemplateClick}
       style={{ paddingLeft: `${level * 16 + 8}px` }}
     >
@@ -90,8 +112,9 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
         />
       )}
       
-      {/* Template Content (with optional description tooltip) */}
+      {/* Template Content */}
       <div className="jd-flex-1 jd-min-w-0">
+        {/* Template Title with optional description tooltip */}
         {template.description ? (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -108,56 +131,105 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
             {displayName}
           </div>
         )}
+
+        {/* Usage Information */}
+        {hasUsageInfo && (
+          <div className="jd-flex jd-items-center jd-gap-2 jd-mt-1">
+            {isPopular && (
+              <div className="jd-flex jd-items-center jd-text-xs jd-text-yellow-600">
+                <Bookmark className="jd-h-3 jd-w-3 jd-mr-1 jd-fill-yellow-500" />
+                Popular
+              </div>
+            )}
+            <span className="jd-text-xs jd-text-muted-foreground">
+              Used {usageCount} time{usageCount !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
       </div>
       
-      {/* Action Buttons (only for user templates by default) */}
-      {shouldShowControls && (
-        <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
-          {/* Edit Button */}
-          {showEditControls && onEditTemplate && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="jd-h-6 jd-w-6 jd-p-0 jd-text-blue-600 hover:jd-text-blue-700 hover:jd-bg-blue-100 jd-dark:jd-text-blue-400 jd-dark:hover:jd-text-blue-300 jd-dark:hover:jd-bg-blue-900/30"
-                    onClick={handleEditClick}
-                    disabled={isProcessing}
-                  >
-                    <Edit className="jd-h-3.5 jd-w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>{getMessage('edit_template', undefined, 'Edit template')}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-          
-          {/* Delete Button */}
-          {showDeleteControls && onDeleteTemplate && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="jd-h-6 jd-w-6 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
-                    onClick={handleDeleteClick}
-                    disabled={isProcessing}
-                  >
-                    <Trash2 className="jd-h-3.5 jd-w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>{getMessage('delete_template', undefined, 'Delete template')}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      )}
+      {/* Action Buttons */}
+      <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
+        {/* Pin Button */}
+        {shouldShowPinControls && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`jd-h-6 jd-w-6 jd-p-0 ${
+                    (template as any).is_pinned 
+                      ? 'jd-text-yellow-500' 
+                      : 'jd-text-muted-foreground jd-opacity-0 group-hover:jd-opacity-100'
+                  } jd-transition-opacity`}
+                  onClick={handleTogglePin}
+                  disabled={isProcessing}
+                >
+                  <Bookmark className={`jd-h-4 jd-w-4 ${(template as any).is_pinned ? 'jd-fill-yellow-500' : ''}`} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p>
+                  {(template as any).is_pinned 
+                    ? getMessage('unpin_template', undefined, 'Unpin template')
+                    : getMessage('pin_template', undefined, 'Pin template')
+                  }
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {/* Edit and Delete Controls (for user templates) */}
+        {(shouldShowEditControls || shouldShowDeleteControls) && (
+          <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+            {/* Edit Button */}
+            {shouldShowEditControls && onEditTemplate && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="jd-h-6 jd-w-6 jd-p-0 jd-text-blue-600 hover:jd-text-blue-700 hover:jd-bg-blue-100 jd-dark:jd-text-blue-400 jd-dark:hover:jd-text-blue-300 jd-dark:hover:jd-bg-blue-900/30"
+                      onClick={handleEditClick}
+                      disabled={isProcessing}
+                    >
+                      <Edit className="jd-h-3.5 jd-w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>{getMessage('edit_template', undefined, 'Edit template')}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            
+            {/* Delete Button */}
+            {shouldShowDeleteControls && onDeleteTemplate && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="jd-h-6 jd-w-6 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
+                      onClick={handleDeleteClick}
+                      disabled={isProcessing}
+                    >
+                      <Trash2 className="jd-h-3.5 jd-w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>{getMessage('delete_template', undefined, 'Delete template')}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
