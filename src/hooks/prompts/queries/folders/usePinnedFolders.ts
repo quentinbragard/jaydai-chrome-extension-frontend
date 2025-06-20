@@ -35,14 +35,14 @@ export function usePinnedFolders() {
       if (userResponse.success) {
         const uFolders = (userResponse.data.folders.user || []) as TemplateFolder[];
         userPinned = uFolders
-          .filter(folder => pinnedIds.includes(folder.id))
+          .filter(folder => pinnedIds.includes(folder.id) && !folder.parent_folder_id)
           .map(folder => ({ ...folder, is_pinned: true }));
       }
 
       if (orgResponse.success) {
         const oFolders = (orgResponse.data.folders.organization || []) as TemplateFolder[];
         orgPinned = oFolders
-          .filter(folder => pinnedIds.includes(folder.id))
+          .filter(folder => pinnedIds.includes(folder.id) && !folder.parent_folder_id)
           .map(folder => ({ ...folder, is_pinned: true }));
       }
     }

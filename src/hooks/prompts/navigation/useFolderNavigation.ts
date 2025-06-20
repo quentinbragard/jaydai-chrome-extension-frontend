@@ -47,9 +47,12 @@ export function useFolderNavigation(data: UnifiedFolderData) {
 
   // Get the root folders (user + organization combined)
   const rootFolders = useMemo(() => {
+    const filterRoot = (folders: TemplateFolder[]) =>
+      folders.filter(f => !f.parent_folder_id);
+
     return [
-      ...data.userFolders.map(folder => ({ ...folder, rootType: 'user' as const })),
-      ...data.organizationFolders.map(folder => ({ ...folder, rootType: 'organization' as const }))
+      ...filterRoot(data.userFolders).map(folder => ({ ...folder, rootType: 'user' as const })),
+      ...filterRoot(data.organizationFolders).map(folder => ({ ...folder, rootType: 'organization' as const }))
     ];
   }, [data.userFolders, data.organizationFolders]);
 

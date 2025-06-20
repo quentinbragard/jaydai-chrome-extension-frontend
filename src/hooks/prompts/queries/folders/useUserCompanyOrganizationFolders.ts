@@ -18,7 +18,8 @@ export function useUserFolders() {
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load user folders');
     }
-    return foldersResponse.data.folders.user || [];
+    const folders = foldersResponse.data.folders.user || [];
+    return folders.filter(f => !f.parent_folder_id);
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
@@ -37,7 +38,8 @@ export function useCompanyFolders() {
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load company folders');
     }
-    return foldersResponse.data.folders.company || [];
+    const folders = foldersResponse.data.folders.company || [];
+    return folders.filter(f => !f.parent_folder_id);
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
@@ -56,7 +58,8 @@ export function useOrganizationFolders() {
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load organization folders');
     }
-    return foldersResponse.data.folders.organization || [];
+    const folders = foldersResponse.data.folders.organization || [];
+    return folders.filter(f => !f.parent_folder_id);
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
