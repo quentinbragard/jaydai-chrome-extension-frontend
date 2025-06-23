@@ -9,12 +9,15 @@ import { TemplateFolder } from '@/types/prompts/templates';
  * Useful for determining pin status of folders in search results
  */
 export function useAllPinnedFolders() {
-  const { data: pinnedFolders = { user: [], organization: [] } } = usePinnedFolders();
+  const { data: pinnedFolders = { user: [], organization: [], pinnedIds: [] } } = usePinnedFolders();
   const { data: userFolders = [] } = useUserFolders();
   const { data: organizationFolders = [] } = useOrganizationFolders();
 
   // Get all pinned folder IDs in a flat array
   const allPinnedFolderIds = useMemo(() => {
+    if (pinnedFolders.pinnedIds && pinnedFolders.pinnedIds.length > 0) {
+      return pinnedFolders.pinnedIds;
+    }
     const userPinnedIds = (pinnedFolders.user || []).map(folder => folder.id);
     const organizationPinnedIds = (pinnedFolders.organization || []).map(folder => folder.id);
     return [...userPinnedIds, ...organizationPinnedIds];
