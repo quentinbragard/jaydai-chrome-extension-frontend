@@ -47,6 +47,11 @@ export function useDialogActions() {
     [openDialog]
   );
 
+  const openBrowseMoreFolders = useCallback(
+    () => openDialog(DIALOG_TYPES.BROWSE_MORE_FOLDERS, {}),
+    [openDialog]
+  );
+
   const openCreateBlock = useCallback(
     (props?: any) => openDialog(DIALOG_TYPES.CREATE_BLOCK, props),
     [openDialog]
@@ -67,6 +72,7 @@ export function useDialogActions() {
     openPlaceholderEditor,
     openConfirmation,
     openEnhancedStats,
+    openBrowseMoreFolders,
     openCreateBlock,
     openInsertBlock,
   };
