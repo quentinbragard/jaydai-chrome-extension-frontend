@@ -202,7 +202,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
                       onClick={handleEditClick}
                       disabled={isProcessing}
                     >
-                      <Edit className="jd-h-3.5 jd-w-3.5" />
+                      <Edit className="jd-h-4 jd-w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
@@ -224,7 +224,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
                       onClick={handleDeleteClick}
                       disabled={isProcessing}
                     >
-                      <Trash2 className="jd-h-3.5 jd-w-3.5" />
+                      <Trash2 className="jd-h-4 jd-w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">

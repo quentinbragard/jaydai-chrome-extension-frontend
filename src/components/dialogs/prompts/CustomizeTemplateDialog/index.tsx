@@ -44,25 +44,6 @@ export const CustomizeTemplateDialog: React.FC = () => {
     return null;
   }, [hook.data, resolvedOrg]);
 
-  const infoForm = useMemo(() => {
-    if (hook.data?.type === 'organization') {
-      const orgName = hook.data.organization?.name as string | undefined;
-      const imageUrl = hook.data.organization?.image_url || hook.data.image_url;
-      const text = orgName
-        ? getMessage('organizationTemplateNoticeWithName', orgName, `Template provided by ${orgName}`)
-        : getMessage('organizationTemplateNotice', undefined, 'Template provided by your organization');
-
-      return (
-        <Alert className="jd-flex jd-items-center jd-gap-2 jd-mb-4 jd-bg-muted/60">
-          {imageUrl && (
-            <OrganizationImage imageUrl={imageUrl} organizationName={orgName || ''} size="sm" className="jd-mr-2" />
-          )}
-          <span className="jd-text-sm">{text}</span>
-        </Alert>
-      );
-    }
-    return null;
-  }, [hook.data]);
 
   return (
     <TemplateEditorDialog

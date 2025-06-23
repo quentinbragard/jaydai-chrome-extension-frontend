@@ -211,7 +211,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
       {/* Search */}
       <div className="jd-p-3 jd-pb-2 jd-flex-shrink-0">
         <div className="jd-relative">
-          <Search className="jd-absolute jd-left-2.5 jd-top-1/2 -jd-translate-y-1/2 jd-h-3.5 jd-w-3.5 jd-text-muted-foreground" />
+          <Search className="jd-absolute jd-left-2.5 jd-top-1/2 -jd-translate-y-1/2 jd-h-4 jd-w-4 jd-text-muted-foreground" />
           <Input
             ref={searchInputRef}
             value={search}

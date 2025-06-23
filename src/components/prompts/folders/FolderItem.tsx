@@ -1,6 +1,6 @@
-// src/components/prompts/folders/FolderItem.tsx
+// src/components/prompts/folders/FolderItem.tsx - Hover-based action buttons
 import React, { useState, useCallback } from 'react';
-import { FolderOpen, ChevronRight, ChevronDown, Pencil, Trash2, PlusCircle, Plus, ArrowLeft, Home } from 'lucide-react';
+import { FolderOpen, ChevronRight, ChevronDown, Edit, Trash2, PlusCircle, Plus, ArrowLeft, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PinButton } from '@/components/prompts/folders/PinButton';
@@ -192,9 +192,9 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                           ? 'jd-text-foreground jd-font-medium' 
                           : 'jd-text-muted-foreground jd-hover:jd-underline'
                       }`}
-                      title={pathfolder.title}
+                      title={pathFolder.title}
                     >
-                      {pathfolder.title}
+                      {pathFolder.title}
                     </button>
                   </React.Fragment>
                 ))}
@@ -216,7 +216,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         </>
       )}
 
-      {/* Folder Header */}
+      {/* Folder Header - IMPORTANT: Added 'group' class for hover detection */}
       <div 
         className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm jd-transition-colors"
         onClick={handleFolderClick}
@@ -232,8 +232,6 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         ) : (
           <div className="jd-w-4 jd-h-4 jd-mr-1 jd-flex-shrink-0" />
         )}
-
-       
 
         {/* Organization Image (for organization folders) */}
         {(type === 'organization' && level === 0 && organization?.image_url) ? (
@@ -258,7 +256,6 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                 >
                   {folder.title}
                 </span>
-
               </TooltipTrigger>
               <TooltipContent side="bottom" className="jd-max-w-xs jd-z-50">
                 <p>{folder.description}</p>
@@ -274,33 +271,26 @@ export const FolderItem: React.FC<FolderItemProps> = ({
           )}
         </div>
 
-        {/* Item Count */}
-        {totalItems > 0 && (
-          <span className="jd-text-xs jd-text-muted-foreground jd-mr-2 jd-flex-shrink-0">
-            {totalItems} item{totalItems !== 1 ? 's' : ''}
-          </span>
-        )}
 
         {/* Action Buttons */}
         <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
-          {/* Pin Button */}
-          {showPinControls && onTogglePin && (
-            <PinButton
-              isPinned={!!folder.is_pinned}
-              onClick={handleTogglePin}
-              className=""
-            />
-          )}
+         
 
-          {/* Edit and Delete Buttons (only for user folders) */}
+          {/* HOVER-BASED: Edit and Delete Buttons (only for user folders) */}
           {type === 'user' && (showEditControls || showDeleteControls) && (
-            <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+            <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
+              {/* Edit Button - Appears on hover */}
               {showEditControls && onEditFolder && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="ghost" size="sm" onClick={handleEditFolder} className="jd-h-6 jd-w-6 jd-p-0">
-                        <Pencil className="jd-h-3.5 jd-w-3.5" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={handleEditFolder} 
+                        className="jd-text-gray-600 hover:jd-text-blue-600 hover:jd-bg-blue-50 jd-dark:jd-text-gray-300 jd-dark:hover:jd-text-blue-400 jd-dark:hover:jd-bg-blue-900/30 jd-transition-all jd-duration-200"
+                      >
+                        <Edit className="jd-h-4 jd-w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">
@@ -310,6 +300,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                 </TooltipProvider>
               )}
               
+              {/* Delete Button - Appears on hover */}
               {showDeleteControls && onDeleteFolder && (
                 <TooltipProvider>
                   <Tooltip>
@@ -317,10 +308,10 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="jd-h-6 jd-w-6 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
                         onClick={handleDeleteFolder}
+                        className="jd-text-gray-600 hover:jd-text-red-600 hover:jd-bg-red-50 jd-dark:jd-text-gray-300 jd-dark:hover:jd-text-red-400 jd-dark:hover:jd-bg-red-900/30 jd-transition-all jd-duration-200"
                       >
-                        <Trash2 className="jd-h-3.5 jd-w-3.5" />
+                        <Trash2 className="jd-h-4 jd-w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">
@@ -332,6 +323,14 @@ export const FolderItem: React.FC<FolderItemProps> = ({
             </div>
           )}
         </div>
+         {/* Pin Button - Always visible if enabled */}
+         {showPinControls && onTogglePin && (
+            <PinButton
+              isPinned={!!folder.is_pinned}
+              onClick={handleTogglePin}
+              className=""
+            />
+          )}
       </div>
 
       {/* Folder Contents (when expanded and not in navigation mode) OR Current Items (when in navigation mode) */}

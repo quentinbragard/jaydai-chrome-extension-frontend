@@ -121,7 +121,7 @@ export const DeleteButton = memo(function DeleteButton({
           onClick={handleOpenDeleteDialog}
           disabled={disabled}
         >
-          <Trash className="jd-h-3.5 jd-w-3.5" />
+          <Trash className="jd-h-4 jd-w-4" />
         </Button>
       )}
 

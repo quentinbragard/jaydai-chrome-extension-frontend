@@ -114,7 +114,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
     checked={checked}
     {...props}
   >
-    <span className="jd-absolute jd-left-2 jd-flex jd-h-3.5 jd-w-3.5 jd-items-center jd-justify-center">
+    <span className="jd-absolute jd-left-2 jd-flex jd-h-4 jd-w-4 jd-items-center jd-justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
         <Check className="jd-h-4 jd-w-4" />
       </DropdownMenuPrimitive.ItemIndicator>
@@ -137,7 +137,7 @@ const DropdownMenuRadioItem = React.forwardRef<
     )}
     {...props}
   >
-    <span className="jd-absolute jd-left-2 jd-flex jd-h-3.5 jd-w-3.5 jd-items-center jd-justify-center">
+    <span className="jd-absolute jd-left-2 jd-flex jd-h-4 jd-w-4 jd-items-center jd-justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
         <Circle className="jd-h-2 jd-w-2 jd-fill-current" />
       </DropdownMenuPrimitive.ItemIndicator>

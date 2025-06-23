@@ -82,7 +82,7 @@ export function ItemList({
                     }}
                     title="Delete folder"
                   >
-                    <Trash2 className="jd-h-3.5 jd-w-3.5" />
+                    <Trash2 className="jd-h-4 jd-w-4" />
                   </Button>
                 )}
                 

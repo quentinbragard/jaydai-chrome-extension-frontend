@@ -51,7 +51,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
                 onClick={onRetry}
                 className="jd-flex jd-items-center jd-gap-1"
               >
-                <RefreshCw className="jd-h-3.5 jd-w-3.5" />
+                <RefreshCw className="jd-h-4 jd-w-4" />
                 <span>{getMessage('tryAgain')}</span>
               </Button>
             </div>

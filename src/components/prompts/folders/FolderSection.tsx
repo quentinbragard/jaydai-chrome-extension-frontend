@@ -117,7 +117,7 @@ export function FolderSection({
               className="jd-h-7 jd-px-2 jd-text-xs"
               onClick={onBrowseMore}
             >
-              <ChevronDown className="jd-h-3.5 jd-w-3.5 jd-mr-1" />
+              <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1" />
               {getMessage('browseMore', undefined, 'Browse More')}
             </Button>
           )}

@@ -38,7 +38,7 @@ export function Pagination({
           className="jd-h-6 jd-w-6"
           title="Previous page"
         >
-          <ChevronLeft className="jd-h-3.5 jd-w-3.5" />
+          <ChevronLeft className="jd-h-4 jd-w-4" />
         </Button>
         
         <div className="jd-flex jd-items-center jd-gap-1">
@@ -55,7 +55,7 @@ export function Pagination({
           className="jd-h-6 jd-w-6"
           title="Next page"
         >
-          <ChevronRight className="jd-h-3.5 jd-w-3.5" />
+          <ChevronRight className="jd-h-4 jd-w-4" />
         </Button>
       </div>
     </div>
