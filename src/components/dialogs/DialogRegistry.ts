@@ -12,6 +12,9 @@ export const DIALOG_TYPES = {
   CONFIRMATION: 'confirmation',
   ENHANCED_STATS: 'enhancedStats',
 
+  // Dialog for browsing all folders
+  BROWSE_MORE_FOLDERS: 'browseMoreFolders',
+
   // New dialog type for block creation
   CREATE_BLOCK: 'createBlock',
   INSERT_BLOCK: 'insertBlock'
@@ -73,6 +76,8 @@ export interface DialogProps {
   };
   
   [DIALOG_TYPES.ENHANCED_STATS]: Record<string, never>;
+
+  [DIALOG_TYPES.BROWSE_MORE_FOLDERS]: Record<string, never>;
   
   [DIALOG_TYPES.CREATE_BLOCK]: {
     initialType?: string;

@@ -128,7 +128,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
   const { deleteTemplate } = useTemplateMutations();
   const { useTemplate, createTemplate, editTemplate } = useTemplateActions();
-  const { openConfirmation, openFolderManager, openCreateFolder } = useDialogActions();
+  const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders } = useDialogActions();
 
   // Enhanced pin handler that works with the navigation system
   const handleTogglePin = useCallback(
@@ -321,12 +321,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
           {/* Pinned Templates Section using enhanced components */}
           <div>
-            <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
-              <div className="jd-flex jd-items-center">
-                <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
-                {getMessage('pinnedTemplates', undefined, 'Pinned Templates')}
-              </div>
+          <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
+            <div className="jd-flex jd-items-center">
+              <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
+              {getMessage('pinnedTemplates', undefined, 'Pinned Templates')}
             </div>
+            <Button variant="secondary" size="sm" className="jd-h-7 jd-px-2 jd-text-xs" onClick={openBrowseMoreFolders}>
+              {getMessage('browseMore', undefined, 'Browse More')}
+            </Button>
+          </div>
 
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
               {[...(filteredPinned.user || []), ...(filteredPinned.organization || [])].length === 0 ? (
