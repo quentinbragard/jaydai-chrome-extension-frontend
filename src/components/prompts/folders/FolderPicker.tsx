@@ -31,6 +31,8 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
   }, []);
 
   const navigateToFolder = useCallback((folder: TemplateFolder) => {
+    const path = nav.path.map(p => p.title).join(' / ');
+    onSelect(nav.currentFolder, path);
     setNav(prev => ({
       path: [...prev.path, { id: folder.id, title: folder.title ?? '' }],
       currentFolder: folder,
