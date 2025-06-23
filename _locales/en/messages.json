@@ -1489,5 +1489,19 @@
   "noContentBlocks": { "message": "No content blocks yet", "description": "Message when no blocks exist" },
   "errorProcessingTemplate": { "message": "Failed to process template content. Please try again.", "description": "Error message when template processing fails" },
   "errorProcessingTemplateToast": { "message": "Failed to process template content", "description": "Toast message for processing error" },
+  "organizationTemplateNotice": {
+    "message": "Template provided by your organization",
+    "description": "Notice shown when customizing an organization template"
+  },
+  "organizationTemplateNoticeWithName": {
+    "message": "Template provided by $ORGANIZATION$",
+    "description": "Notice shown when customizing an organization template with its name",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "ACME Corp"
+      }
+    }
+  },
   "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" }
 }

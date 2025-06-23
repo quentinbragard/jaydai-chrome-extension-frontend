@@ -136,6 +136,9 @@ const useTemplate = useCallback(async (template: Template) => {
       title: template.title || 'Untitled Template',
       type: template.type,
       id: template.id,
+      organization: (template as any).organization,
+      organization_id: (template as any).organization_id,
+      image_url: (template as any).image_url,
       onComplete: handleTemplateComplete
     };
 

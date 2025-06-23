@@ -64,6 +64,12 @@ export interface DialogProps {
     content: string;
     title?: string;
     onComplete: (content: string) => void;
+    metadata?: any;
+    type?: string;
+    id?: number;
+    organization?: any;
+    organization_id?: string;
+    image_url?: string;
   };
   
   [DIALOG_TYPES.CONFIRMATION]: {
