@@ -30,6 +30,7 @@ import { useOrganizations } from '@/hooks/organizations';
 import { FolderSearch } from '@/components/prompts/folders';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
+import EmptyState from './EmptyState';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 
 interface TemplatesPanelProps {
@@ -222,6 +223,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   // Loading state
   const isLoading = loadingPinned || loadingUser || loadingOrganization;
 
+  const showUserEmptyState =
+    !isLoading &&
+    navigation.isAtRoot &&
+    userFolders.length === 0 &&
+    !searchQuery.trim();
+
   if (isLoading) {
     return (
       <BasePanel
@@ -258,68 +265,77 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         {/* Main Navigation Section - Using enhanced components */}
         <div className="jd-space-y-4">
           <div>
-            {/* Unified Navigation Header */}
-            <UnifiedNavigation
-              isAtRoot={navigation.isAtRoot}
-              currentFolderTitle={navigation.currentFolder?.title}
-              navigationPath={navigation.breadcrumbs}
-              onNavigateToRoot={navigation.navigateToRoot}
-              onNavigateBack={navigation.navigateBack}
-              onNavigateToPathIndex={navigation.navigateToPathIndex}
-              onCreateTemplate={createTemplate}
-              onCreateFolder={handleCreateFolder}
-              showCreateTemplate={true}
-              showCreateFolder={true}
-            />
+            {showUserEmptyState ? (
+              <EmptyState
+                onCreateTemplate={createTemplate}
+                onRefresh={refetchUser}
+                refreshing={loadingUser}
+              />
+            ) : (
+              <>
+                {/* Unified Navigation Header */}
+                <UnifiedNavigation
+                  isAtRoot={navigation.isAtRoot}
+                  currentFolderTitle={navigation.currentFolder?.title}
+                  navigationPath={navigation.breadcrumbs}
+                  onNavigateToRoot={navigation.navigateToRoot}
+                  onNavigateBack={navigation.navigateBack}
+                  onNavigateToPathIndex={navigation.navigateToPathIndex}
+                  onCreateTemplate={createTemplate}
+                  onCreateFolder={handleCreateFolder}
+                  showCreateTemplate={true}
+                  showCreateFolder={true}
+                />
 
-            {/* Current Items using enhanced components */}
-            <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {filteredNavigationItems.length === 0 ? (
-                <EmptyMessage>
-                  {navigation.isAtRoot
-                    ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
-                    : 'This folder is empty'
-                  }
-                </EmptyMessage>
-              ) : (
-                filteredNavigationItems.map((item) => (
-                  'templates' in item ? (
-                    // Enhanced Folder Item with full navigation support
-                    <FolderItem
-                      key={`folder-${item.id}`}
-                      folder={item}
-                      type={navigation.getItemType(item)}
-                      enableNavigation={true}
-                      onNavigateToFolder={navigation.navigateToFolder}
-                      onTogglePin={handleTogglePin}
-                      onEditFolder={handleEditFolder}
-                      onDeleteFolder={handleDeleteFolder}
-                      onUseTemplate={useTemplate}
-                      onEditTemplate={editTemplate}
-                      onDeleteTemplate={handleDeleteTemplate}
-                      organizations={organizations}
-                      showPinControls={true}
-                      showEditControls={navigation.getItemType(item) === 'user'}
-                      showDeleteControls={navigation.getItemType(item) === 'user'}
-                    />
+                {/* Current Items using enhanced components */}
+                <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
+                  {filteredNavigationItems.length === 0 ? (
+                    <EmptyMessage>
+                      {navigation.isAtRoot
+                        ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
+                        : 'This folder is empty'}
+                    </EmptyMessage>
                   ) : (
-                    // Enhanced Template Item with pin support
-                    <TemplateItem
-                      key={`template-${item.id}`}
-                      template={item}
-                      type={navigation.getItemType(item)}
-                      onUseTemplate={useTemplate}
-                      onEditTemplate={editTemplate}
-                      onDeleteTemplate={handleDeleteTemplate}
-                      onTogglePin={handleToggleTemplatePin}
-                      showPinControls={true}
-                      showEditControls={navigation.getItemType(item) === 'user'}
-                      showDeleteControls={navigation.getItemType(item) === 'user'}
-                    />
-                  )
-                ))
-              )}
-            </div>
+                    filteredNavigationItems.map((item) => (
+                      'templates' in item ? (
+                        // Enhanced Folder Item with full navigation support
+                        <FolderItem
+                          key={`folder-${item.id}`}
+                          folder={item}
+                          type={navigation.getItemType(item)}
+                          enableNavigation={true}
+                          onNavigateToFolder={navigation.navigateToFolder}
+                          onTogglePin={handleTogglePin}
+                          onEditFolder={handleEditFolder}
+                          onDeleteFolder={handleDeleteFolder}
+                          onUseTemplate={useTemplate}
+                          onEditTemplate={editTemplate}
+                          onDeleteTemplate={handleDeleteTemplate}
+                          organizations={organizations}
+                          showPinControls={true}
+                          showEditControls={navigation.getItemType(item) === 'user'}
+                          showDeleteControls={navigation.getItemType(item) === 'user'}
+                        />
+                      ) : (
+                        // Enhanced Template Item with pin support
+                        <TemplateItem
+                          key={`template-${item.id}`}
+                          template={item}
+                          type={navigation.getItemType(item)}
+                          onUseTemplate={useTemplate}
+                          onEditTemplate={editTemplate}
+                          onDeleteTemplate={handleDeleteTemplate}
+                          onTogglePin={handleToggleTemplatePin}
+                          showPinControls={true}
+                          showEditControls={navigation.getItemType(item) === 'user'}
+                          showDeleteControls={navigation.getItemType(item) === 'user'}
+                        />
+                      )
+                    ))
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           <Separator />
