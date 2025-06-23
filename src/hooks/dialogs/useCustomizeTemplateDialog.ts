@@ -105,6 +105,7 @@ export function useCustomizeTemplateDialog() {
   return {
     ...baseHook,
     isOpen,
-    dialogProps
+    dialogProps,
+    data
   };
 }
