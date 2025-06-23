@@ -32,17 +32,17 @@ export function usePinnedFolders() {
         promptApi.getFolders('organization', true, true, userLocale)
       ]);
 
-      if (userResponse.success) {
+        if (userResponse.success) {
         const uFolders = (userResponse.data.folders.user || []) as TemplateFolder[];
         userPinned = uFolders
-          .filter(folder => pinnedIds.includes(folder.id) && !folder.parent_folder_id)
+          .filter(folder => pinnedIds.includes(folder.id))
           .map(folder => ({ ...folder, is_pinned: true }));
       }
 
-      if (orgResponse.success) {
+        if (orgResponse.success) {
         const oFolders = (orgResponse.data.folders.organization || []) as TemplateFolder[];
         orgPinned = oFolders
-          .filter(folder => pinnedIds.includes(folder.id) && !folder.parent_folder_id)
+          .filter(folder => pinnedIds.includes(folder.id))
           .map(folder => ({ ...folder, is_pinned: true }));
       }
     }
