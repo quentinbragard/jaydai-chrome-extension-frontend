@@ -83,6 +83,14 @@ class PromptApiClient {
   async trackTemplateUsage(templateId: number): Promise<any> {
     return trackTemplateUsage(templateId);
   }
+  async getPinnedTemplates(): Promise<any> {
+    return getPinnedTemplates();
+  }
+
+  async toggleTemplatePin(templateId: number, isPinned: boolean): Promise<any> {
+    return toggleTemplatePin(templateId, isPinned);
+  }
+
 
 }
 

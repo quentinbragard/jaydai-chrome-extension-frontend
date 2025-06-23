@@ -27,6 +27,7 @@ export interface Template {
     language?: string;
     based_on_company_id?: number | null;
     metadata?: TemplateMetadata;
+    is_pinned?: boolean;
   }
   
   /**
