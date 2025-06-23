@@ -16,12 +16,14 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
   className = '',
   variant = 'default'
 }) => {
+    console.log("organization--->", organization);
   const isCompact = variant === 'compact';
   const bannerStyle = organization.banner_url
     ? {
         backgroundImage: `url(${organization.banner_url})`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        aspectRatio: '1094 / 75'
       }
     : undefined;
 
@@ -36,7 +38,7 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
       style={bannerStyle}
     >
       {organization.banner_url && (
-        <div className="jd-absolute jd-inset-0 jd-bg-black/40 jd-backdrop-blur-sm" />
+        <div className="jd-absolute jd-inset-0 jd-bg-black/40" />
       )}
       <div className="jd-relative jd-flex jd-items-center jd-gap-3">
         {organization.image_url ? (
@@ -72,7 +74,7 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
               organization.banner_url ? 'jd-text-white/80' : 'jd-text-gray-600 jd-dark:jd-text-gray-300'
             )}
           >
-            Used by {organization.name}
+            Created by {organization.name}
           </p>
         </div>
       </div>

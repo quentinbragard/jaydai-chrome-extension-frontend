@@ -1,5 +1,5 @@
-// src/components/prompts/folders/FolderItem.tsx - Hover-based action buttons
-import React, { useState, useCallback } from 'react';
+// src/components/prompts/folders/FolderItem.tsx - Enhanced with proper pinned state handling
+import React, { useState, useCallback, useMemo } from 'react';
 import { FolderOpen, ChevronRight, ChevronDown, Edit, Trash2, PlusCircle, Plus, ArrowLeft, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -41,7 +41,7 @@ interface FolderItemProps {
   showDeleteControls?: boolean;
   enableNavigation?: boolean;
   
-  // Navigation props - when these are provided, the component shows navigation header
+  // Navigation props
   navigationPath?: NavigationPath[];
   onNavigateBack?: () => void;
   onNavigateToRoot?: () => void;
@@ -49,12 +49,13 @@ interface FolderItemProps {
   onCreateTemplate?: () => void;
   onCreateFolder?: () => void;
   showNavigationHeader?: boolean;
+  
+  // NEW: Pinned folder IDs for proper pin state calculation
+  pinnedFolderIds?: number[];
 }
 
 /**
- * Enhanced folder item component that works for all folder types and contexts
- * Supports both navigation mode (drilling down) and expansion mode (tree view)
- * Can optionally show navigation header and breadcrumbs
+ * Enhanced folder item component with proper pinned state handling
  */
 export const FolderItem: React.FC<FolderItemProps> = ({
   folder,
@@ -82,7 +83,10 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   onNavigateToPathIndex,
   onCreateTemplate,
   onCreateFolder,
-  showNavigationHeader = false
+  showNavigationHeader = false,
+  
+  // NEW: Pinned folder IDs
+  pinnedFolderIds = []
 }) => {
   // Local expansion state for when no external control is provided
   const [localExpanded, setLocalExpanded] = useState(false);
@@ -97,6 +101,11 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   const totalItems = subfolders.length + templates.length;
   const isAtRoot = navigationPath.length === 0;
 
+  // NEW: Calculate pinned state based on pinnedFolderIds
+  const isPinned = useMemo(() => {
+    return pinnedFolderIds.includes(folder.id);
+  }, [pinnedFolderIds, folder.id]);
+
   // Handle folder click
   const handleFolderClick = useCallback(() => {
     if (enableNavigation && onNavigateToFolder) {
@@ -108,13 +117,13 @@ export const FolderItem: React.FC<FolderItemProps> = ({
     }
   }, [enableNavigation, onNavigateToFolder, onToggleExpand, folder.id, localExpanded]);
 
-  // Handle pin toggle
+  // Handle pin toggle with proper state
   const handleTogglePin = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (onTogglePin) {
-      onTogglePin(folder.id, !!folder.is_pinned, type);
+      onTogglePin(folder.id, isPinned, type);
     }
-  }, [onTogglePin, folder.id, folder.is_pinned, type]);
+  }, [onTogglePin, folder.id, isPinned, type]);
 
   // Handle edit folder
   const handleEditFolder = useCallback((e: React.MouseEvent) => {
@@ -271,11 +280,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
           )}
         </div>
 
-
         {/* Action Buttons */}
-        <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
-         
-
           {/* HOVER-BASED: Edit and Delete Buttons (only for user folders) */}
           {type === 'user' && (showEditControls || showDeleteControls) && (
             <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
@@ -322,15 +327,16 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               )}
             </div>
           )}
-        </div>
-         {/* Pin Button - Always visible if enabled */}
-         {showPinControls && onTogglePin && (
+           <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
+          {/* Pin Button - Always visible if enabled, with proper state */}
+          {showPinControls && onTogglePin && (
             <PinButton
-              isPinned={!!folder.is_pinned}
+              isPinned={isPinned}
               onClick={handleTogglePin}
               className=""
             />
           )}
+        </div>
       </div>
 
       {/* Folder Contents (when expanded and not in navigation mode) OR Current Items (when in navigation mode) */}
@@ -356,6 +362,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               showEditControls={showEditControls}
               showDeleteControls={showDeleteControls}
               enableNavigation={enableNavigation}
+              pinnedFolderIds={pinnedFolderIds} // Pass down pinned IDs
             />
           ))}
 
@@ -403,6 +410,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   showPinControls={showPinControls}
                   showEditControls={showEditControls}
                   showDeleteControls={showDeleteControls}
+                  pinnedFolderIds={pinnedFolderIds} // Pass down pinned IDs
                 />
               ))}
 
