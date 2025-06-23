@@ -1,5 +1,6 @@
 // src/utils/prompts/folderTreeUtils.ts
 import { TemplateFolder } from '@/types/prompts/templates';
+import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 
 /**
  * Utility functions for working with folder tree structures
@@ -123,7 +124,8 @@ export function filterFoldersWithSearch(
   
   function folderMatches(folder: TemplateFolder): boolean {
     // Check folder name
-    if (folder.title?.toLowerCase().includes(query)) return true;
+    const title = getLocalizedContent(folder.title ?? folder.name) || '';
+    if (title.toLowerCase().includes(query)) return true;
     
     // Check templates in folder
     if (folder.templates && templateMatcher) {

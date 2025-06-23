@@ -31,6 +31,7 @@ import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
 import EmptyState from './EmptyState';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
+import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 
 // Import the new global search hook
 import { useGlobalTemplateSearch } from '@/hooks/prompts/utils/useGlobalTemplateSearch';
@@ -110,24 +111,29 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const templateMatchesQuery = useCallback(
     (template: Template, query: string) => {
       const q = query.toLowerCase();
+      const title = getLocalizedContent((template as any).title) || '';
+      const description = getLocalizedContent((template as any).description) || '';
+      const content = getLocalizedContent(template.content) || '';
+
       return (
-        template.title?.toLowerCase().includes(q) ||
-        template.description?.toLowerCase().includes(q) ||
-        template.content?.toLowerCase().includes(q)
+        title.toLowerCase().includes(q) ||
+        description.toLowerCase().includes(q) ||
+        content.toLowerCase().includes(q)
       );
     },
     []
   );
 
   const folderMatchesQuery = useCallback(
-    (folder: TemplateFolder, query: string): boolean => {
+    function folderMatches(folder: TemplateFolder, query: string): boolean {
       const q = query.toLowerCase();
 
-      if (folder.title?.toLowerCase().includes(q)) return true;
+      const title = getLocalizedContent(folder.title ?? folder.name) || '';
+      if (title.toLowerCase().includes(q)) return true;
 
       if (folder.templates?.some(t => templateMatchesQuery(t, query))) return true;
 
-      if (folder.Folders?.some(f => folderMatchesQuery(f, query))) return true;
+      if (folder.Folders?.some(f => folderMatches(f, query))) return true;
 
       return false;
     },

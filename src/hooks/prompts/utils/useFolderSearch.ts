@@ -1,6 +1,7 @@
 // src/hooks/templates/useFolderSearch.ts
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
+import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 
 /**
  * Performance-optimized hook for searching through template folders
@@ -19,31 +20,32 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
   // Memoized function to check if a template matches search query
   const templateMatchesQuery = useCallback((template: Template, query: string): boolean => {
     const lowerQuery = query.toLowerCase();
-    
-    // Check template title
-    if (template.title?.toLowerCase().includes(lowerQuery)) {
+
+    const title = getLocalizedContent((template as any).title) || '';
+    if (title.toLowerCase().includes(lowerQuery)) {
       return true;
     }
-    
-    // Check template description
-    if (template.description?.toLowerCase().includes(lowerQuery)) {
+
+    const description = getLocalizedContent((template as any).description) || '';
+    if (description.toLowerCase().includes(lowerQuery)) {
       return true;
     }
-    
-    // Check template content (optional, can be expensive for large templates)
-    // if (template.content?.toLowerCase().includes(lowerQuery)) {
-    //   return true;
-    // }
-    
+
+    const content = getLocalizedContent(template.content) || '';
+    if (content.toLowerCase().includes(lowerQuery)) {
+      return true;
+    }
+
     return false;
   }, []);
   
   // Memoized function to check if a folder or its contents match search query
   const folderMatchesQuery = useCallback((folder: TemplateFolder, query: string): boolean => {
     const lowerQuery = query.toLowerCase();
-    
+
     // Check folder name
-    if (folder.title?.toLowerCase().includes(lowerQuery)) {
+    const title = getLocalizedContent(folder.title ?? folder.name) || '';
+    if (title.toLowerCase().includes(lowerQuery)) {
       return true;
     }
     
