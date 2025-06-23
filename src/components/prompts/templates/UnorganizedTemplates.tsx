@@ -8,6 +8,8 @@ interface UnorganizedTemplatesProps {
   templates: Template[];
   onEditTemplate?: (template: Template) => void;
   onDeleteTemplate?: (templateId: number) => Promise<boolean> | void;
+  onTogglePin?: (templateId: number, isPinned: boolean) => void;
+  showPinControls?: boolean;
 }
 
 /**
@@ -16,7 +18,9 @@ interface UnorganizedTemplatesProps {
 export function UnorganizedTemplates({
   templates,
   onEditTemplate,
-  onDeleteTemplate
+  onDeleteTemplate,
+  onTogglePin,
+  showPinControls = false
 }: UnorganizedTemplatesProps) {
   // If there are no unorganized templates, don't render anything
   if (!templates || templates.length === 0) {
@@ -33,6 +37,8 @@ export function UnorganizedTemplates({
             type="user"
             onEditTemplate={onEditTemplate}
             onDeleteTemplate={onDeleteTemplate}
+            onTogglePin={onTogglePin}
+            showPinControls={showPinControls}
           />
         ))}
       </div>
