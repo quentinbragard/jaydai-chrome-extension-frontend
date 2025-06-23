@@ -105,14 +105,19 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   );
 
   const filteredNavigationItems = useMemo(() => {
-    if (!searchQuery.trim()) return navigation.currentItems;
+    if (!searchQuery.trim()) {
+      // When there's no active search, only display user templates
+      return navigation.currentItems.filter(
+        (item) => navigation.getItemType(item) === 'user'
+      );
+    }
     return navigation.currentItems.filter(item => {
       if ('templates' in item) {
         return folderMatchesQuery(item, searchQuery);
       }
       return templateMatchesQuery(item, searchQuery);
     });
-  }, [navigation.currentItems, searchQuery, folderMatchesQuery, templateMatchesQuery]);
+  }, [navigation.currentItems, searchQuery, folderMatchesQuery, templateMatchesQuery, navigation]);
 
   const filteredPinned = useMemo(() => {
     if (!searchQuery.trim()) return pinnedFolders;
