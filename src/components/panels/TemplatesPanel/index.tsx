@@ -30,6 +30,8 @@ import { useOrganizations } from '@/hooks/organizations';
 import { FolderSearch } from '@/components/prompts/folders';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
+import EmptyState from './EmptyState';
+import { countTemplatesInFolder } from '@/utils/prompts/folderUtils';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 
 interface TemplatesPanelProps {
@@ -76,6 +78,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     userFolders,
     organizationFolders
   });
+
+  const totalUserTemplates = useMemo(
+    () => userFolders.reduce((sum, f) => sum + countTemplatesInFolder(f), 0),
+    [userFolders]
+  );
+  const hasUserTemplates = totalUserTemplates > 0;
 
   // Utility functions for search filtering
   const templateMatchesQuery = useCallback(
@@ -233,6 +241,25 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         className="jd-w-80"
       >
         <LoadingState />
+      </BasePanel>
+    );
+  }
+
+  if (!hasUserTemplates && navigation.isAtRoot) {
+    return (
+      <BasePanel
+        title={getMessage('templates', undefined, "Templates")}
+        icon={FolderOpen}
+        showBackButton={showBackButton}
+        onBack={onBack}
+        onClose={onClose}
+        className="jd-w-80"
+      >
+        <EmptyState
+          onCreateTemplate={createTemplate}
+          onRefresh={refetchUser}
+          refreshing={loadingUser}
+        />
       </BasePanel>
     );
   }
