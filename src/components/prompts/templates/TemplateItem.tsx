@@ -1,5 +1,5 @@
-// src/components/prompts/templates/TemplateItem.tsx
-import React, { useCallback } from 'react';
+// src/components/prompts/templates/TemplateItem.tsx - Enhanced with smart organization image logic
+import React, { useCallback, useMemo } from 'react';
 import { FileText, Edit, Trash2, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -26,12 +26,14 @@ interface TemplateItemProps {
   showPinControls?: boolean;
   isProcessing?: boolean;
   className?: string;
+  // New props for smart organization image logic
+  organizations?: Array<{ id: string; name: string; image_url?: string }>;
+  parentFolderHasOrgImage?: boolean; // Indicates if the parent folder already shows org image
+  isInGlobalSearch?: boolean; // Indicates if this is shown in global search results
 }
 
 /**
- * Enhanced template item component that works consistently across all contexts
- * Displays templates with consistent styling and behavior
- * Supports pinning, editing, deletion, and usage
+ * Enhanced template item component with smart organization image display logic
  */
 export const TemplateItem: React.FC<TemplateItemProps> = ({
   template,
@@ -45,10 +47,35 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   showDeleteControls = true,
   showPinControls = false,
   isProcessing = false,
-  className = ''
+  className = '',
+  organizations = [],
+  parentFolderHasOrgImage = false,
+  isInGlobalSearch = false
 }) => {
   // Ensure we have a display name
   const displayName = template.title || 'Untitled Template';
+  
+  // Get organization data
+  const templateOrganization = (template as any).organization || 
+    organizations.find(org => org.id === (template as any).organization_id);
+  
+  // Smart logic for showing organization image
+  const shouldShowOrgImage = useMemo(() => {
+    // Only show for organization templates
+    if (type !== 'organization') return false;
+    
+    // Don't show if template doesn't have organization data
+    if (!templateOrganization?.image_url) return false;
+    
+    // Always show in global search results (since context is unclear)
+    if (isInGlobalSearch) return true;
+    
+    // Don't show if parent folder already displays the organization image
+    if (parentFolderHasOrgImage) return false;
+    
+    // Show if this is a top-level template (level 0) or if we're not in a nested context
+    return level === 0 || !parentFolderHasOrgImage;
+  }, [type, templateOrganization, isInGlobalSearch, parentFolderHasOrgImage, level]);
   
   // Handle template click to use it
   const handleTemplateClick = useCallback(() => {
@@ -100,12 +127,13 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
       style={{ paddingLeft: `${level * 16 + 8}px` }}
     >
       {/* Template Icon or Organization Image */}
-      {type === 'organization' && level === 0 && ((template as any).image_url || (template as any).organization?.image_url) ? (
+      {shouldShowOrgImage ? (
         <OrganizationImage
-          imageUrl={(template as any).image_url || (template as any).organization?.image_url}
-          organizationName={(template as any).organization?.name || template.title}
+          imageUrl={templateOrganization.image_url}
+          organizationName={templateOrganization.name || template.title}
           size="sm"
           className="jd-mr-2 jd-flex-shrink-0"
+          showFallback={false} // Don't show fallback icon, fall back to FileText instead
         />
       ) : (
         <FileText className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${iconColorMap[type]}`} />
@@ -149,6 +177,13 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
             <span className="jd-text-xs jd-text-muted-foreground">
               Used {usageCount} time{usageCount !== 1 ? 's' : ''}
             </span>
+          </div>
+        )}
+
+        {/* Organization label for clarity in search results */}
+        {isInGlobalSearch && type === 'organization' && templateOrganization && (
+          <div className="jd-text-xs jd-text-muted-foreground jd-mt-1">
+            🏢 {templateOrganization.name}
           </div>
         )}
       </div>

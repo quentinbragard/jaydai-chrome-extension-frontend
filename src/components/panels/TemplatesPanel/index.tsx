@@ -1,4 +1,4 @@
-// src/components/panels/TemplatesPanel/index.tsx - Enhanced with proper pinning support
+// src/components/panels/TemplatesPanel/index.tsx - Updated with global search
 import React, { useCallback, memo, useMemo, useState, useEffect } from 'react';
 import { FolderOpen, RefreshCw, PlusCircle, Plus, ArrowLeft, Home, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,12 +15,13 @@ import { useBreadcrumbNavigation } from '@/hooks/prompts/navigation/useBreadcrum
 
 // Import hooks and utilities
 import {
-  useAllPinnedFolders, // NEW: Use enhanced pinning hook
+  useAllPinnedFolders,
   useUserFolders,
   useOrganizationFolders,
   useFolderMutations,
   useTemplateMutations,
-  useTemplateActions
+  useTemplateActions,
+  useUnorganizedTemplates // Add this import
 } from '@/hooks/prompts';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { useOrganizations } from '@/hooks/organizations';
@@ -31,6 +32,9 @@ import { EmptyMessage } from './EmptyMessage';
 import EmptyState from './EmptyState';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 
+// Import the new global search hook
+import { useGlobalTemplateSearch } from '@/hooks/prompts/utils/useGlobalTemplateSearch';
+
 interface TemplatesPanelProps {
   showBackButton?: boolean;
   onBack?: () => void;
@@ -38,7 +42,7 @@ interface TemplatesPanelProps {
 }
 
 /**
- * Enhanced Templates Panel with proper nested folder pinning support
+ * Enhanced Templates Panel with global search functionality
  */
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   showBackButton,
@@ -48,7 +52,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Enhanced pinning - NEW: Use the enhanced hook
+  // Enhanced pinning
   const {
     allPinnedFolderIds,
     allPinnedFolders,
@@ -68,7 +72,26 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     refetch: refetchOrganization
   } = useOrganizationFolders();
 
+  const {
+    data: unorganizedTemplates = [],
+    isLoading: loadingUnorganized
+  } = useUnorganizedTemplates();
+
   const { data: organizations = [] } = useOrganizations();
+
+  // Global search hook
+  const {
+    searchQuery: globalSearchQuery,
+    setSearchQuery: setGlobalSearchQuery,
+    searchResults,
+    clearSearch: clearGlobalSearch,
+    hasResults: hasGlobalResults
+  } = useGlobalTemplateSearch(userFolders, organizationFolders, unorganizedTemplates);
+
+  // Sync search queries
+  useEffect(() => {
+    setGlobalSearchQuery(searchQuery);
+  }, [searchQuery, setGlobalSearchQuery]);
 
   // Navigation hook for combined user + organization folders
   const navigation = useBreadcrumbNavigation({
@@ -83,13 +106,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     }
   }, [searchQuery, navigation.isAtRoot, navigation.navigateToRoot]);
 
-  // Utility functions for search filtering
+  // Utility functions for search filtering (for local navigation)
   const templateMatchesQuery = useCallback(
     (template: Template, query: string) => {
       const q = query.toLowerCase();
       return (
         template.title?.toLowerCase().includes(q) ||
-        template.description?.toLowerCase().includes(q)
+        template.description?.toLowerCase().includes(q) ||
+        template.content?.toLowerCase().includes(q)
       );
     },
     []
@@ -110,22 +134,33 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     [templateMatchesQuery]
   );
 
-  const filteredNavigationItems = useMemo(() => {
-    if (!searchQuery.trim()) {
-      // When there's no active search, only display user templates
-      return navigation.currentItems.filter(
+  // When there's a search query, show global results; otherwise show navigation items
+  const displayItems = useMemo(() => {
+    if (searchQuery.trim()) {
+      // Return global search results
+      return {
+        folders: searchResults.folders,
+        templates: searchResults.templates,
+        isGlobalSearch: true
+      };
+    } else {
+      // Return navigation items (existing logic)
+      const filteredItems = navigation.currentItems.filter(
         (item) => navigation.getItemType(item) === 'user'
       );
+      
+      const folders = filteredItems.filter(item => 'templates' in item) as TemplateFolder[];
+      const templates = filteredItems.filter(item => !('templates' in item)) as Template[];
+      
+      return {
+        folders,
+        templates,
+        isGlobalSearch: false
+      };
     }
-    return navigation.currentItems.filter(item => {
-      if ('templates' in item) {
-        return folderMatchesQuery(item, searchQuery);
-      }
-      return templateMatchesQuery(item, searchQuery);
-    });
-  }, [navigation.currentItems, searchQuery, folderMatchesQuery, templateMatchesQuery, navigation]);
+  }, [searchQuery, searchResults, navigation.currentItems, navigation]);
 
-  // NEW: Enhanced pinned folders filtering that includes nested pinned folders
+  // Enhanced pinned folders filtering that includes nested pinned folders
   const filteredPinned = useMemo(() => {
     if (!searchQuery.trim()) {
       // Group all pinned folders by type
@@ -162,22 +197,11 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           isPinned, 
           type
         });
-        // Refetch to update pin status
-        // The useAllPinnedFolders hook will automatically update
       } catch (error) {
         console.error('Error toggling pin:', error);
       }
     },
     [toggleFolderPin]
-  );
-
-  // Template pin handler (if templates support pinning)
-  const handleToggleTemplatePin = useCallback(
-    async (templateId: number, isPinned: boolean, type: 'user' | 'organization' | 'company') => {
-      // Implementation for template pinning if supported
-      console.log('Toggle template pin:', templateId, isPinned, type);
-    },
-    []
   );
 
   // Enhanced folder handlers
@@ -239,7 +263,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }, [openConfirmation, deleteTemplate, refetchUser]);
 
   // Loading state
-  const isLoading = loadingUser || loadingOrganization;
+  const isLoading = loadingUser || loadingOrganization || loadingUnorganized;
 
   if (isLoading) {
     return (
@@ -270,50 +294,65 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         <FolderSearch
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          placeholderText="Search templates..."
+          placeholderText="Search templates and folders..."
           onReset={() => setSearchQuery('')}
         />
 
-        {/* Main Navigation Section - Using enhanced components */}
+        {/* Main Navigation Section */}
         <div className="jd-space-y-4">
           <div>
-            {/* Unified Navigation Header */}
-            <UnifiedNavigation
-              isAtRoot={navigation.isAtRoot}
-              currentFolderTitle={navigation.currentFolder?.title}
-              navigationPath={navigation.breadcrumbs}
-              onNavigateToRoot={navigation.navigateToRoot}
-              onNavigateBack={navigation.navigateBack}
-              onNavigateToPathIndex={navigation.navigateToPathIndex}
-              onCreateTemplate={createTemplate}
-              onCreateFolder={handleCreateFolder}
-              showCreateTemplate={true}
-              showCreateFolder={true}
-            />
+            {/* Show different header based on search state */}
+            {searchQuery.trim() ? (
+              <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
+                <div className="jd-flex jd-items-center">
+                  <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
+                  Search Results
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchQuery('')}
+                  className="jd-h-6 jd-px-2 jd-text-xs"
+                >
+                  Clear
+                </Button>
+              </div>
+            ) : (
+              <UnifiedNavigation
+                isAtRoot={navigation.isAtRoot}
+                currentFolderTitle={navigation.currentFolder?.title}
+                navigationPath={navigation.breadcrumbs}
+                onNavigateToRoot={navigation.navigateToRoot}
+                onNavigateBack={navigation.navigateBack}
+                onNavigateToPathIndex={navigation.navigateToPathIndex}
+                onCreateTemplate={createTemplate}
+                onCreateFolder={handleCreateFolder}
+                showCreateTemplate={true}
+                showCreateFolder={true}
+              />
+            )}
 
-            {/* Current Items using enhanced components with pin state */}
+            {/* Display Items */}
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {navigation.isAtRoot && userFolders.length === 0 && !searchQuery.trim() ? (
-                <EmptyState
-                  onCreateTemplate={createTemplate}
-                  onRefresh={refetchUser}
-                />
-              ) : filteredNavigationItems.length === 0 ? (
+              {displayItems.folders.length === 0 && displayItems.templates.length === 0 ? (
                 <EmptyMessage>
-                  {navigation.isAtRoot
-                    ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
-                    : 'This folder is empty'}
+                  {searchQuery.trim() 
+                    ? `No results found for "${searchQuery}"`
+                    : navigation.isAtRoot
+                      ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
+                      : 'This folder is empty'
+                  }
                 </EmptyMessage>
               ) : (
-                filteredNavigationItems.map((item) => (
-                  'templates' in item ? (
-                    // Enhanced Folder Item with pin state
+                <>
+                  {/* Render folders */}
+                  {displayItems.folders.map((folder) => (
                     <FolderItem
-                      key={`folder-${item.id}`}
-                      folder={item}
-                      type={navigation.getItemType(item)}
-                      enableNavigation={true}
-                      onNavigateToFolder={navigation.navigateToFolder}
+                      key={`${displayItems.isGlobalSearch ? 'search-' : ''}folder-${folder.id}`}
+                      folder={folder}
+                      type={navigation.getItemType(folder)}
+                      enableNavigation={!displayItems.isGlobalSearch}
+                      onNavigateToFolder={displayItems.isGlobalSearch ? undefined : navigation.navigateToFolder}
                       onTogglePin={handleTogglePin}
                       onEditFolder={handleEditFolder}
                       onDeleteFolder={handleDeleteFolder}
@@ -322,26 +361,40 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       onDeleteTemplate={handleDeleteTemplate}
                       organizations={organizations}
                       showPinControls={true}
-                      showEditControls={navigation.getItemType(item) === 'user'}
-                      showDeleteControls={navigation.getItemType(item) === 'user'}
-                      pinnedFolderIds={allPinnedFolderIds} // NEW: Pass pinned IDs
+                      showEditControls={navigation.getItemType(folder) === 'user'}
+                      showDeleteControls={navigation.getItemType(folder) === 'user'}
+                      pinnedFolderIds={allPinnedFolderIds}
                     />
-                  ) : (
-                    // Enhanced Template Item with pin support
-                    <TemplateItem
-                      key={`template-${item.id}`}
-                      template={item}
-                      type={navigation.getItemType(item)}
-                      onUseTemplate={useTemplate}
-                      onEditTemplate={editTemplate}
-                      onDeleteTemplate={handleDeleteTemplate}
-                      onTogglePin={handleToggleTemplatePin}
-                      showPinControls={true}
-                      showEditControls={navigation.getItemType(item) === 'user'}
-                      showDeleteControls={navigation.getItemType(item) === 'user'}
-                    />
-                  )
-                ))
+                  ))}
+
+                  {/* Render templates */}
+                  {displayItems.templates.map((template) => {
+                    const templateType = displayItems.isGlobalSearch 
+                      ? (template as any).folderType || 'user'
+                      : navigation.getItemType(template);
+                    
+                    return (
+                      <div key={`${displayItems.isGlobalSearch ? 'search-' : ''}template-${template.id}`}>
+                        {/* Show folder path for global search results */}
+                        {displayItems.isGlobalSearch && (template as any).folderPath && (
+                          <div className="jd-text-xs jd-text-muted-foreground jd-px-2 jd-py-1 jd-bg-muted/30 jd-rounded-sm jd-mb-1">
+                            📁 {(template as any).folderPath}
+                          </div>
+                        )}
+                        <TemplateItem
+                          template={template}
+                          type={templateType}
+                          onUseTemplate={useTemplate}
+                          onEditTemplate={editTemplate}
+                          onDeleteTemplate={handleDeleteTemplate}
+                          showEditControls={templateType === 'user'}
+                          showDeleteControls={templateType === 'user'}
+                          organizations={organizations}
+                        />
+                      </div>
+                    );
+                  })}
+                </>
               )}
             </div>
           </div>
@@ -354,7 +407,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <div className="jd-flex jd-items-center">
                 <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
                 {getMessage('pinnedTemplates', undefined, 'Pinned Templates')}
-                {/* NEW: Show count of pinned folders */}
                 {allPinnedFolders.length > 0 && (
                   <span className="jd-ml-1 jd-text-xs jd-bg-primary/10 jd-text-primary jd-px-1.5 jd-py-0.5 jd-rounded-full">
                     {allPinnedFolders.length}
@@ -379,7 +431,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       key={`pinned-user-${folder.id}`}
                       folder={folder}
                       type="user"
-                      enableNavigation={false} // Tree expansion mode for pinned
+                      enableNavigation={false}
                       onTogglePin={handleTogglePin}
                       onUseTemplate={useTemplate}
                       onEditTemplate={editTemplate}
@@ -390,7 +442,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       showPinControls={true}
                       showEditControls={true}
                       showDeleteControls={true}
-                      pinnedFolderIds={allPinnedFolderIds} // NEW: Pass pinned IDs
+                      pinnedFolderIds={allPinnedFolderIds}
                     />
                   ))}
                   
@@ -400,14 +452,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       key={`pinned-org-${folder.id}`}
                       folder={folder}
                       type="organization"
-                      enableNavigation={false} // Tree expansion mode for pinned
+                      enableNavigation={false}
                       onTogglePin={handleTogglePin}
                       onUseTemplate={useTemplate}
                       organizations={organizations}
                       showPinControls={true}
                       showEditControls={false}
                       showDeleteControls={false}
-                      pinnedFolderIds={allPinnedFolderIds} // NEW: Pass pinned IDs
+                      pinnedFolderIds={allPinnedFolderIds}
                     />
                   ))}
                 </>

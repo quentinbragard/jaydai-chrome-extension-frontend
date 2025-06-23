@@ -1,4 +1,4 @@
-// src/components/prompts/folders/FolderItem.tsx - Enhanced with proper pinned state handling
+// src/components/prompts/folders/FolderItem.tsx - Enhanced to pass organization context to templates
 import React, { useState, useCallback, useMemo } from 'react';
 import { FolderOpen, ChevronRight, ChevronDown, Edit, Trash2, PlusCircle, Plus, ArrowLeft, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -50,12 +50,12 @@ interface FolderItemProps {
   onCreateFolder?: () => void;
   showNavigationHeader?: boolean;
   
-  // NEW: Pinned folder IDs for proper pin state calculation
+  // Pinned folder IDs for proper pin state calculation
   pinnedFolderIds?: number[];
 }
 
 /**
- * Enhanced folder item component with proper pinned state handling
+ * Enhanced folder item component with organization context for templates
  */
 export const FolderItem: React.FC<FolderItemProps> = ({
   folder,
@@ -85,7 +85,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   onCreateFolder,
   showNavigationHeader = false,
   
-  // NEW: Pinned folder IDs
+  // Pinned folder IDs
   pinnedFolderIds = []
 }) => {
   // Local expansion state for when no external control is provided
@@ -101,10 +101,15 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   const totalItems = subfolders.length + templates.length;
   const isAtRoot = navigationPath.length === 0;
 
-  // NEW: Calculate pinned state based on pinnedFolderIds
+  // Calculate pinned state based on pinnedFolderIds
   const isPinned = useMemo(() => {
     return pinnedFolderIds.includes(folder.id);
   }, [pinnedFolderIds, folder.id]);
+
+  // Determine if this folder shows organization image
+  const folderShowsOrgImage = useMemo(() => {
+    return type === 'organization' && level === 0 && organization?.image_url;
+  }, [type, level, organization?.image_url]);
 
   // Handle folder click
   const handleFolderClick = useCallback(() => {
@@ -225,7 +230,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         </>
       )}
 
-      {/* Folder Header - IMPORTANT: Added 'group' class for hover detection */}
+      {/* Folder Header */}
       <div 
         className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm jd-transition-colors"
         onClick={handleFolderClick}
@@ -243,7 +248,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         )}
 
         {/* Organization Image (for organization folders) */}
-        {(type === 'organization' && level === 0 && organization?.image_url) ? (
+        {folderShowsOrgImage ? (
           <OrganizationImage
             imageUrl={organization.image_url}
             organizationName={organization.name || folder.title}
@@ -254,7 +259,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
           <FolderOpen className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${folderIconColors[type]}`} />
         )}
 
-        {/* Folder Name (with optional description tooltip) */}
+        {/* Folder Name */}
         <div className="jd-flex-1 jd-min-w-0">
           {folder.description ? (
             <Tooltip>
@@ -281,54 +286,54 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         </div>
 
         {/* Action Buttons */}
-          {/* HOVER-BASED: Edit and Delete Buttons (only for user folders) */}
-          {type === 'user' && (showEditControls || showDeleteControls) && (
-            <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
-              {/* Edit Button - Appears on hover */}
-              {showEditControls && onEditFolder && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={handleEditFolder} 
-                        className="jd-text-gray-600 hover:jd-text-blue-600 hover:jd-bg-blue-50 jd-dark:jd-text-gray-300 jd-dark:hover:jd-text-blue-400 jd-dark:hover:jd-bg-blue-900/30 jd-transition-all jd-duration-200"
-                      >
-                        <Edit className="jd-h-4 jd-w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                      <p>Edit folder</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-              
-              {/* Delete Button - Appears on hover */}
-              {showDeleteControls && onDeleteFolder && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={handleDeleteFolder}
-                        className="jd-text-gray-600 hover:jd-text-red-600 hover:jd-bg-red-50 jd-dark:jd-text-gray-300 jd-dark:hover:jd-text-red-400 jd-dark:hover:jd-bg-red-900/30 jd-transition-all jd-duration-200"
-                      >
-                        <Trash2 className="jd-h-4 jd-w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                      <p>Delete folder</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-            </div>
-          )}
-           <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
-          {/* Pin Button - Always visible if enabled, with proper state */}
+        {(type === 'user' && (showEditControls || showDeleteControls)) && (
+          <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
+            {/* Edit Button */}
+            {showEditControls && onEditFolder && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleEditFolder} 
+                      className="jd-text-gray-600 hover:jd-text-blue-600 hover:jd-bg-blue-50 jd-dark:jd-text-gray-300 jd-dark:hover:jd-text-blue-400 jd-dark:hover:jd-bg-blue-900/30 jd-transition-all jd-duration-200"
+                    >
+                      <Edit className="jd-h-4 jd-w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>Edit folder</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            
+            {/* Delete Button */}
+            {showDeleteControls && onDeleteFolder && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleDeleteFolder}
+                      className="jd-text-gray-600 hover:jd-text-red-600 hover:jd-bg-red-50 jd-dark:jd-text-gray-300 jd-dark:hover:jd-text-red-400 jd-dark:hover:jd-bg-red-900/30 jd-transition-all jd-duration-200"
+                    >
+                      <Trash2 className="jd-h-4 jd-w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>Delete folder</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        )}
+        
+        <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
+          {/* Pin Button */}
           {showPinControls && onTogglePin && (
             <PinButton
               isPinned={isPinned}
@@ -339,7 +344,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         </div>
       </div>
 
-      {/* Folder Contents (when expanded and not in navigation mode) OR Current Items (when in navigation mode) */}
+      {/* Folder Contents */}
       {!enableNavigation && expanded && totalItems > 0 && (
         <div className="jd-folder-content">
           {/* Subfolders */}
@@ -362,11 +367,11 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               showEditControls={showEditControls}
               showDeleteControls={showDeleteControls}
               enableNavigation={enableNavigation}
-              pinnedFolderIds={pinnedFolderIds} // Pass down pinned IDs
+              pinnedFolderIds={pinnedFolderIds}
             />
           ))}
 
-          {/* Templates */}
+          {/* Templates with organization context */}
           {templates.map((template) => (
             <TemplateItem
               key={`template-${template.id}`}
@@ -378,6 +383,9 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               onDeleteTemplate={onDeleteTemplate}
               showEditControls={type === 'user'}
               showDeleteControls={type === 'user'}
+              organizations={organizations}
+              parentFolderHasOrgImage={folderShowsOrgImage} // Pass context!
+              isInGlobalSearch={false}
             />
           ))}
         </div>
@@ -410,11 +418,11 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   showPinControls={showPinControls}
                   showEditControls={showEditControls}
                   showDeleteControls={showDeleteControls}
-                  pinnedFolderIds={pinnedFolderIds} // Pass down pinned IDs
+                  pinnedFolderIds={pinnedFolderIds}
                 />
               ))}
 
-              {/* Templates */}
+              {/* Templates with organization context */}
               {templates.map((template) => (
                 <TemplateItem
                   key={`nav-template-${template.id}`}
@@ -425,6 +433,9 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   onDeleteTemplate={onDeleteTemplate}
                   showEditControls={type === 'user'}
                   showDeleteControls={type === 'user'}
+                  organizations={organizations}
+                  parentFolderHasOrgImage={folderShowsOrgImage} // Pass context!
+                  isInGlobalSearch={false}
                 />
               ))}
             </>
