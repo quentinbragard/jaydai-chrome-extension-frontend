@@ -30,32 +30,40 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
     return null;
   }, []);
 
-  const navigateToFolder = useCallback((folder: TemplateFolder) => {
-    const path = nav.path.map(p => p.title).join(' / ');
-    onSelect(nav.currentFolder, path);
-    setNav(prev => ({
-      path: [...prev.path, { id: folder.id, title: folder.title ?? '' }],
-      currentFolder: folder,
-    }));
-  }, []);
+  const navigateToFolder = useCallback(
+    (folder: TemplateFolder) => {
+      const newPath = [...nav.path, { id: folder.id, title: folder.title ?? '' }];
+      const pathStr = newPath.map(p => p.title).join(' / ');
+      setNav({ path: newPath, currentFolder: folder });
+      onSelect(folder, pathStr);
+    },
+    [nav.path, onSelect]
+  );
 
   const navigateBack = useCallback(() => {
     setNav(prev => {
       const newPath = prev.path.slice(0, -1);
       const newCurrent = findFolderById(folders, newPath[newPath.length - 1]?.id);
+      const pathStr = newPath.map(p => p.title).join(' / ');
+      onSelect(newCurrent, pathStr);
       return { path: newPath, currentFolder: newCurrent };
     });
-  }, [folders, findFolderById]);
+  }, [folders, findFolderById, onSelect]);
 
-  const navigateToRoot = useCallback(() => setNav({ path: [], currentFolder: null }), []);
+  const navigateToRoot = useCallback(() => {
+    setNav({ path: [], currentFolder: null });
+    onSelect(null, '');
+  }, [onSelect]);
 
   const navigateToPath = useCallback(
     (index: number) => {
       const newPath = nav.path.slice(0, index + 1);
       const newCurrent = findFolderById(folders, newPath[newPath.length - 1]?.id);
+      const pathStr = newPath.map(p => p.title).join(' / ');
       setNav({ path: newPath, currentFolder: newCurrent });
+      onSelect(newCurrent, pathStr);
     },
-    [nav.path, folders, findFolderById]
+    [nav.path, folders, findFolderById, onSelect]
   );
 
   const currentFolders = useMemo(() => {
