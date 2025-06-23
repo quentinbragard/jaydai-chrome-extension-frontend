@@ -145,8 +145,6 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
                     template={template}
                     type="user"
                     onUseTemplate={handleUseTemplateFromDialog}
-                    onTogglePin={(id, pinned) => handleTogglePin(id, pinned, 'user')}
-                    showPinControls={true}
                     showEditControls={false}
                     showDeleteControls={false}
                   />

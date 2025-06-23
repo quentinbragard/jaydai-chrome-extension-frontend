@@ -381,8 +381,6 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               onUseTemplate={onUseTemplate}
               onEditTemplate={onEditTemplate}
               onDeleteTemplate={onDeleteTemplate}
-              onTogglePin={onTogglePin ? ((id, pinned) => onTogglePin(id, pinned, type)) : undefined}
-              showPinControls={showPinControls}
               showEditControls={type === 'user'}
               showDeleteControls={type === 'user'}
               organizations={organizations}
@@ -433,8 +431,6 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   onUseTemplate={onUseTemplate}
                   onEditTemplate={onEditTemplate}
                   onDeleteTemplate={onDeleteTemplate}
-                  onTogglePin={onTogglePin ? ((id, pinned) => onTogglePin(id, pinned, type)) : undefined}
-                  showPinControls={showPinControls}
                   showEditControls={type === 'user'}
                   showDeleteControls={type === 'user'}
                   organizations={organizations}

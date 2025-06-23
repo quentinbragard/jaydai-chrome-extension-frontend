@@ -15,11 +15,6 @@ interface TemplateData {
   locale?: string;
 }
 
-interface ToggleTemplatePinParams {
-  templateId: number;
-  isPinned: boolean;
-}
-
 /**
  * Hook that provides mutations for template CRUD operations with fallbacks
  */
@@ -181,51 +176,6 @@ export function useTemplateMutations() {
       };
     }
   })();
-
-  // Toggle template pin status
-  const toggleTemplatePin = (() => {
-    try {
-      return useMutation(
-        async ({ templateId, isPinned }: ToggleTemplatePinParams) => {
-          const response = await promptApi.toggleTemplatePin(templateId, isPinned);
-          if (!response.success) {
-            throw new Error(response.message || 'Failed to update pin status');
-          }
-          return response.data;
-        },
-        {
-          onSuccess: () => {
-            if (queryClient) {
-              queryClient.invalidateQueries(QUERY_KEYS.PINNED_TEMPLATES);
-            }
-          },
-          onError: (error: Error) => {
-            console.error('Error toggling template pin status:', error);
-            toast.error(`Failed to update pin status: ${error.message}`);
-          }
-        }
-      );
-    } catch (error) {
-      return {
-        mutateAsync: async ({ templateId, isPinned }: ToggleTemplatePinParams) => {
-          try {
-            const response = await promptApi.toggleTemplatePin(templateId, isPinned);
-            if (!response.success) {
-              throw new Error(response.message || 'Failed to update pin status');
-            }
-            return response.data;
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            console.error('Error toggling template pin status:', error);
-            toast.error(`Failed to update pin status: ${errorMessage}`);
-            throw error;
-          }
-        },
-        isLoading: false,
-        reset: () => {}
-      };
-    }
-  })();
   
   // Track template usage
   const trackTemplateUsage = (() => {
@@ -268,7 +218,6 @@ export function useTemplateMutations() {
     createTemplate,
     updateTemplate,
     deleteTemplate,
-    trackTemplateUsage,
-    toggleTemplatePin
+    trackTemplateUsage
   };
 }
