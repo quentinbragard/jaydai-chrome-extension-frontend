@@ -7,10 +7,12 @@ import {
   useOrganizationFolders,
   usePinnedFolders,
   useFolderMutations,
-  useTemplateActions
+  useTemplateActions,
+  useUnorganizedTemplates
 } from '@/hooks/prompts';
 import { FolderItem } from '@/components/prompts/folders/FolderItem';
 import { FolderSearch } from '@/components/prompts/folders/FolderSearch';
+import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useOrganizations } from '@/hooks/organizations';
@@ -27,6 +29,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
   const { data: pinnedData, refetch: refetchPinned } = usePinnedFolders();
   const { toggleFolderPin } = useFolderMutations();
   const { useTemplate } = useTemplateActions();
+  const { data: unorganizedTemplates = [], isLoading: loadingUnorganized } = useUnorganizedTemplates();
 
   const pinnedFolderIds = useMemo(() => pinnedData?.pinnedIds || [], [pinnedData]);
   const [localPinnedIds, setLocalPinnedIds] = useState<number[]>(pinnedFolderIds);
@@ -37,6 +40,16 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
 
   const allFolders = useMemo(() => [...userFolders, ...organizationFolders], [userFolders, organizationFolders]);
   const { searchQuery, setSearchQuery, filteredFolders, clearSearch } = useFolderSearch(allFolders);
+
+  // Filter unorganized templates based on search query
+  const filteredTemplates = useMemo(() => {
+    if (!searchQuery.trim()) return unorganizedTemplates;
+    const q = searchQuery.toLowerCase();
+    return unorganizedTemplates.filter(t =>
+      (t.title || '').toLowerCase().includes(q) ||
+      (t.description || '').toLowerCase().includes(q)
+    );
+  }, [unorganizedTemplates, searchQuery]);
 
   const handleTogglePin = useCallback(
     async (
@@ -73,7 +86,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
 
   if (!isOpen) return null;
 
-  const loading = loadingUser || loadingOrg;
+  const loading = loadingUser || loadingOrg || loadingUnorganized;
 
   return (
     <BaseDialog
@@ -90,33 +103,43 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
           onReset={clearSearch}
         />
         <Separator />
-        <div className="jd-overflow-y-auto jd-max-h-[70vh]">
-          {loading ? (
-            <LoadingState message="Loading folders..." />
-          ) : foldersWithPin.length === 0 ? (
-            <EmptyMessage>No folders found</EmptyMessage>
-          ) : (
-            <div className="jd-space-y-1 jd-px-2">
-              {foldersWithPin.map(folder => (
-                <FolderItem
-                  key={`browse-folder-${folder.id}`}
-                  folder={folder}
-                  type={folder.type as any}
-                  enableNavigation={false}
-                  onUseTemplate={useTemplate}
-                  onTogglePin={(id, pinned) =>
-                    handleTogglePin(id, pinned, folder.type as any)
-                  }
-                  organizations={organizations}
-                  showPinControls={true}
-                  showEditControls={false}
-                  showDeleteControls={false}
-                  pinnedFolderIds={localPinnedIds}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+          <div className="jd-overflow-y-auto jd-max-h-[70vh]">
+            {loading ? (
+              <LoadingState message="Loading folders..." />
+            ) : foldersWithPin.length === 0 && filteredTemplates.length === 0 ? (
+              <EmptyMessage>No folders or templates found</EmptyMessage>
+            ) : (
+              <div className="jd-space-y-1 jd-px-2">
+                {foldersWithPin.map(folder => (
+                  <FolderItem
+                    key={`browse-folder-${folder.id}`}
+                    folder={folder}
+                    type={folder.type as any}
+                    enableNavigation={false}
+                    onUseTemplate={useTemplate}
+                    onTogglePin={(id, pinned) =>
+                      handleTogglePin(id, pinned, folder.type as any)
+                    }
+                    organizations={organizations}
+                    showPinControls={true}
+                    showEditControls={false}
+                    showDeleteControls={false}
+                    pinnedFolderIds={localPinnedIds}
+                  />
+                ))}
+                {filteredTemplates.map(template => (
+                  <TemplateItem
+                    key={`browse-template-${template.id}`}
+                    template={template}
+                    type="user"
+                    onUseTemplate={useTemplate}
+                    showEditControls={false}
+                    showDeleteControls={false}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
       </TooltipProvider>
     </BaseDialog>
   );
