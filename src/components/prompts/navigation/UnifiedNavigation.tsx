@@ -12,7 +12,7 @@ interface NavigationPath {
 interface UnifiedNavigationProps {
   // Current state
   isAtRoot: boolean;
-  currentFolderName?: string;
+  currentFolderTitle?: string;
   navigationPath?: NavigationPath[];
   
   // Navigation handlers
@@ -36,7 +36,7 @@ interface UnifiedNavigationProps {
  */
 export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
   isAtRoot,
-  currentFolderName,
+  currentFolderTitle,
   navigationPath = [],
   onNavigateToRoot,
   onNavigateBack,
@@ -53,7 +53,7 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
       <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
         <div className="jd-flex jd-items-center">
           <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
-          {isAtRoot ? 'My Templates' : currentFolderName}
+          {isAtRoot ? 'My Templates' : currentFolderTitle}
         </div>
         <div className="jd-flex jd-items-center jd-gap-1">
           {showCreateTemplate && onCreateTemplate && (

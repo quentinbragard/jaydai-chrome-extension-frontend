@@ -19,7 +19,7 @@ const folderIconColors = {
 
 interface NavigationPath {
   id: number;
-  name: string;
+  title: string;
 }
 
 interface FolderItemProps {
@@ -233,17 +233,18 @@ export const FolderItem: React.FC<FolderItemProps> = ({
           <div className="jd-w-4 jd-h-4 jd-mr-1 jd-flex-shrink-0" />
         )}
 
-        {/* Folder Icon */}
-        <FolderOpen className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${folderIconColors[type]}`} />
+       
 
         {/* Organization Image (for organization folders) */}
-        {type === 'organization' && level === 0 && organization?.image_url && (
+        {(type === 'organization' && level === 0 && organization?.image_url) ? (
           <OrganizationImage
             imageUrl={organization.image_url}
             organizationName={organization.name || folder.title}
             size="sm"
             className="jd-mr-2"
           />
+        ) : (
+          <FolderOpen className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${folderIconColors[type]}`} />
         )}
 
         {/* Folder Name (with optional description tooltip) */}

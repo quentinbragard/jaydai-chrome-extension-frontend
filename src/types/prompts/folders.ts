@@ -6,16 +6,12 @@ import { Template } from './templates';
    */
 export interface TemplateFolder {
   id: number;
-  /**
-   * Localized title coming from the backend.
-   * Some legacy code still relies on `name`, so keep both.
-   */
-  title?: string | Record<string, string>;
-  /** @deprecated use `title` */
-  name?: string;
-  path?: string;
-  description?: string | Record<string, string>;
+  title?: string;
+  description?: string;
   type: 'company' | 'organization' | 'user';
+  company_id?: number;
+  organization_id?: number;
+  user_id?: string;
   templates: Template[];
   Folders?: TemplateFolder[];
   is_pinned?: boolean;

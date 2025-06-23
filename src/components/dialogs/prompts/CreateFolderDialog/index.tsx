@@ -21,18 +21,20 @@ import { TemplateFolder } from '@/types/prompts/templates';
  */
 export const CreateFolderDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.CREATE_FOLDER);
-  const [name, setName] = useState('');
+  console.log("data--->", data);
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [parentId, setParentId] = useState<number | null>(null);
   const [parentPath, setParentPath] = useState('Root');
 
   const { data: userFolders = [] } = useUserFolders();
+  console.log("userFolders--->", userFolders);
   
   // Reset form when dialog opens
   useEffect(() => {
     if (isOpen) {
-      setName('');
+      setTitle('');
       setDescription('');
       setIsSubmitting(false);
       setParentId(null);
@@ -45,6 +47,8 @@ export const CreateFolderDialog: React.FC = () => {
   const onFolderCreated = data?.onFolderCreated;
 
   const handleParentSelect = useCallback((folder: TemplateFolder | null, path: string) => {
+    console.log("folder--->", folder);
+    console.log("path--->", path);
     setParentId(folder?.id ?? null);
     setParentPath(path || 'Root');
   }, []);
@@ -53,8 +57,8 @@ export const CreateFolderDialog: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!name.trim()) {
-      toast.error('Folder name is required');
+    if (!title.trim()) {
+      toast.error('Folder title is required');
       return;
     }
 
@@ -62,7 +66,7 @@ export const CreateFolderDialog: React.FC = () => {
     try {
       // Prepare folder data. The backend will handle localization, so send plain strings.
       const folderData = {
-        title: name.trim(),
+        title: title.trim(),
         ...(description.trim() ? { description: description.trim() } : {}),
         parent_folder_id: parentId,
       };
@@ -75,7 +79,7 @@ export const CreateFolderDialog: React.FC = () => {
             onFolderCreated(customResult.folder);
           }
           
-          toast.success(`Folder "${name}" created successfully`);
+          toast.success(`Folder "${title}" created successfully`);
           resetForm();
           dialogProps.onOpenChange(false);
           return;
@@ -94,7 +98,7 @@ export const CreateFolderDialog: React.FC = () => {
           onFolderCreated(response.data);
         }
         
-        toast.success(`Folder "${name}" created successfully`);
+        toast.success(`Folder "${title}" created successfully`);
         resetForm();
         dialogProps.onOpenChange(false);
       } else {
@@ -109,7 +113,7 @@ export const CreateFolderDialog: React.FC = () => {
   };
 
   const resetForm = () => {
-    setName('');
+    setTitle('');
     setDescription('');
   };
 
@@ -133,12 +137,12 @@ export const CreateFolderDialog: React.FC = () => {
       <form onSubmit={handleSubmit} className="jd-space-y-4 jd-mt-4">
           <div>
             <label className="jd-text-sm jd-font-medium">
-              {getMessage('folderName', undefined, 'Folder Name')}
+              {getMessage('folderTitle', undefined, 'Folder Title')}
             </label>
             <Input 
-              value={name} 
-              onChange={(e) => setName(e.target.value)}
-              placeholder={getMessage('enterFolderName', undefined, 'Enter folder name')}
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={getMessage('enterFolderTitle', undefined, 'Enter folder title')}
               className="jd-mt-1"
               autoFocus
               onKeyDown={(e) => {
@@ -198,7 +202,7 @@ export const CreateFolderDialog: React.FC = () => {
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !name.trim()}
+              disabled={isSubmitting || !title.trim()}
               className={cn(
                 'jd-transition-all jd-duration-300',
                 'jd-bg-gradient-to-r jd-from-purple-500 jd-to-blue-500',

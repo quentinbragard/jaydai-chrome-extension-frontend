@@ -11,12 +11,13 @@ interface FolderPickerProps {
 }
 
 type NavState = {
-  path: { id: number; name: string }[];
+  path: { id: number; title: string }[];
   currentFolder: TemplateFolder | null;
 };
 
 export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, className = '' }) => {
   const [nav, setNav] = useState<NavState>({ path: [], currentFolder: null });
+  console.log("FOLDERS--->", folders);
 
   const findFolderById = useCallback((list: TemplateFolder[], id?: number): TemplateFolder | null => {
     for (const f of list) {
@@ -31,7 +32,7 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
 
   const navigateToFolder = useCallback((folder: TemplateFolder) => {
     setNav(prev => ({
-      path: [...prev.path, { id: folder.id, name: folder.title ?? '' }],
+      path: [...prev.path, { id: folder.id, title: folder.title ?? '' }],
       currentFolder: folder,
     }));
   }, []);
@@ -60,7 +61,7 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
   }, [nav.currentFolder, folders]);
 
   const handleSelect = useCallback(() => {
-    const path = nav.path.map(p => p.name).join(' / ');
+    const path = nav.path.map(p => p.title).join(' / ');
     onSelect(nav.currentFolder, path);
   }, [nav.path, nav.currentFolder, onSelect]);
 
@@ -90,7 +91,7 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
       </div>
       <div className="jd-flex jd-justify-end">
         <Button type="button" size="sm" variant="secondary" onClick={handleSelect}>
-          {nav.currentFolder ? `Select "${nav.currentfolder.title}"` : 'Select Root'}
+          {nav.currentFolder ? `Select "${nav.currentFolder.title}"` : 'Select Root'}
         </Button>
       </div>
     </div>

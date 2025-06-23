@@ -256,7 +256,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             {/* Unified Navigation Header */}
             <UnifiedNavigation
               isAtRoot={navigation.isAtRoot}
-              currentFolderName={navigation.navigationState.currentFolder?.name}
+              currentFolderTitle={navigation.navigationState.currentFolder?.name}
               navigationPath={navigation.navigationState.path}
               onNavigateToRoot={navigation.navigateToRoot}
               onNavigateBack={navigation.navigateBack}

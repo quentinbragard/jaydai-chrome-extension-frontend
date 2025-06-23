@@ -9,6 +9,7 @@ export async function createFolder(folderData: {
   description?: string;
   parent_folder_id?: number | null;
 }): Promise<any> {
+
   try {
     if (!folderData.title) {
       return {
@@ -22,7 +23,7 @@ export async function createFolder(folderData: {
       ...(folderData.description ? { description: folderData.description } : {}),
       parent_folder_id: folderData.parent_folder_id ?? null,
     };
-
+  console.log("payload--->", payload);
     const response = await apiClient.request('/prompts/folders', {
       method: 'POST',
       body: JSON.stringify(payload),
