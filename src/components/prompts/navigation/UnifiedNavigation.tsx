@@ -6,7 +6,7 @@ import { getMessage } from '@/core/utils/i18n';
 
 interface NavigationPath {
   id: number;
-  name: string;
+  title: string;
 }
 
 interface UnifiedNavigationProps {

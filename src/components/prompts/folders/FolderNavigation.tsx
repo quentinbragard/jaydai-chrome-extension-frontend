@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 interface FolderPath {
   id: number;
-  name: string;
+  title: string;
 }
 
 interface FolderNavigationProps {

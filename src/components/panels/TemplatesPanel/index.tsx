@@ -13,7 +13,7 @@ import BasePanel from '../BasePanel';
 import { FolderItem } from '@/components/prompts/folders/FolderItem';
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { UnifiedNavigation } from '@/components/prompts/navigation/UnifiedNavigation';
-import { useFolderNavigation } from '@/hooks/prompts/navigation/useFolderNavigation';
+import { useBreadcrumbNavigation } from '@/hooks/prompts/navigation/useBreadcrumbNavigation';
 
 // Import hooks and utilities
 import {
@@ -72,7 +72,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const { data: organizations = [] } = useOrganizations();
 
   // Navigation hook for combined user + organization folders
-  const navigation = useFolderNavigation({
+  const navigation = useBreadcrumbNavigation({
     userFolders,
     organizationFolders
   });
@@ -256,8 +256,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             {/* Unified Navigation Header */}
             <UnifiedNavigation
               isAtRoot={navigation.isAtRoot}
-              currentFolderTitle={navigation.navigationState.currentFolder?.name}
-              navigationPath={navigation.navigationState.path}
+              currentFolderTitle={navigation.currentFolder?.title}
+              navigationPath={navigation.breadcrumbs}
               onNavigateToRoot={navigation.navigateToRoot}
               onNavigateBack={navigation.navigateBack}
               onNavigateToPathIndex={navigation.navigateToPathIndex}

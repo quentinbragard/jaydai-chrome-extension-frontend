@@ -4,7 +4,7 @@ import { TemplateFolder, Template } from '@/types/prompts/templates';
 
 interface NavigationPath {
   id: number;
-  name: string;
+  title: string;
   type: 'user' | 'organization';
 }
 
@@ -110,7 +110,7 @@ export function useFolderNavigation(data: UnifiedFolderData) {
       }
 
       return {
-        path: [...prev.path, { id: folder.id, name: folder.title, type: rootType }],
+        path: [...prev.path, { id: folder.id, title: folder.title, type: rootType }],
         currentFolder: folder,
         rootType
       };
