@@ -99,17 +99,16 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
       onClick={handleTemplateClick}
       style={{ paddingLeft: `${level * 16 + 8}px` }}
     >
-      {/* Template Icon */}
-      <FileText className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${iconColorMap[type]}`} />
-      
-      {/* Organization Image (for organization templates) */}
-      {type === 'organization' && (
+      {/* Template Icon or Organization Image */}
+      {type === 'organization' && level === 0 && ((template as any).image_url || (template as any).organization?.image_url) ? (
         <OrganizationImage
           imageUrl={(template as any).image_url || (template as any).organization?.image_url}
           organizationName={(template as any).organization?.name || template.title}
           size="sm"
-          className="jd-mr-2"
+          className="jd-mr-2 jd-flex-shrink-0"
         />
+      ) : (
+        <FileText className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${iconColorMap[type]}`} />
       )}
       
       {/* Template Content */}
