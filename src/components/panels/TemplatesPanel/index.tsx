@@ -87,19 +87,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const templateMatchesQuery = useCallback(
     (template: Template, query: string) => {
       const q = query.toLowerCase();
-
-      // Handle string or object content
-      let content = '';
-      if (typeof template.content === 'string') {
-        content = template.content;
-      } else if (template.content && typeof template.content === 'object') {
-        content = Object.values(template.content).join(' ');
-      }
-
       return (
         template.title?.toLowerCase().includes(q) ||
-        template.description?.toLowerCase().includes(q) ||
-        content.toLowerCase().includes(q)
+        template.description?.toLowerCase().includes(q)
       );
     },
     []

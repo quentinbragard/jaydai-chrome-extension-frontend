@@ -17,35 +17,26 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
   }, [searchQuery]);
   
   // Memoized function to check if a template matches search query
-  const templateMatchesQuery = useCallback(
-    (template: Template, query: string): boolean => {
-      const lowerQuery = query.toLowerCase();
-
-      // Check template title
-      if (template.title?.toLowerCase().includes(lowerQuery)) {
-        return true;
-      }
-
-      // Check template description
-      if (template.description?.toLowerCase().includes(lowerQuery)) {
-        return true;
-      }
-
-      // Check template content
-      let content = '';
-      if (typeof template.content === 'string') {
-        content = template.content;
-      } else if (template.content && typeof template.content === 'object') {
-        content = Object.values(template.content).join(' ');
-      }
-      if (content.toLowerCase().includes(lowerQuery)) {
-        return true;
-      }
-
-      return false;
-    },
-    []
-  );
+  const templateMatchesQuery = useCallback((template: Template, query: string): boolean => {
+    const lowerQuery = query.toLowerCase();
+    
+    // Check template title
+    if (template.title?.toLowerCase().includes(lowerQuery)) {
+      return true;
+    }
+    
+    // Check template description
+    if (template.description?.toLowerCase().includes(lowerQuery)) {
+      return true;
+    }
+    
+    // Check template content (optional, can be expensive for large templates)
+    // if (template.content?.toLowerCase().includes(lowerQuery)) {
+    //   return true;
+    // }
+    
+    return false;
+  }, []);
   
   // Memoized function to check if a folder or its contents match search query
   const folderMatchesQuery = useCallback((folder: TemplateFolder, query: string): boolean => {
