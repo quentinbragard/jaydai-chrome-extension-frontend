@@ -51,6 +51,15 @@ export function useAllPinnedFolders() {
     };
   }, [userFolders, organizationFolders]);
 
+  // Helper function to check if a folder exists in a tree
+  const findInTree = (rootFolder: TemplateFolder, targetId: number): boolean => {
+    if (rootFolder.id === targetId) return true;
+    if (rootFolder.Folders) {
+      return rootFolder.Folders.some(subFolder => findInTree(subFolder, targetId));
+    }
+    return false;
+  };
+
   // Get all pinned folders (including nested ones) as flat array
   const allPinnedFolders = useMemo(() => {
     const folders: Array<TemplateFolder & { folderType: 'user' | 'organization' }> = [];
@@ -84,15 +93,6 @@ export function useAllPinnedFolders() {
 
     return folders;
   }, [pinnedFolders, allPinnedFolderIds, findFolderById, userFolders]);
-
-  // Helper function to check if a folder exists in a tree
-  const findInTree = (rootFolder: TemplateFolder, targetId: number): boolean => {
-    if (rootFolder.id === targetId) return true;
-    if (rootFolder.Folders) {
-      return rootFolder.Folders.some(subFolder => findInTree(subFolder, targetId));
-    }
-    return false;
-  };
 
   return {
     allPinnedFolderIds,
