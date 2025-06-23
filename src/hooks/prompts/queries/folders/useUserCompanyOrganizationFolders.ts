@@ -19,7 +19,11 @@ export function useUserFolders() {
       throw new Error(foldersResponse.message || 'Failed to load user folders');
     }
     const folders = foldersResponse.data.folders.user || [];
-    return folders.filter(f => !f.parent_folder_id);
+    // Return the full folder hierarchy including subfolders
+    // Filtering by parent_folder_id stripped nested folders and
+    // prevented selecting a parent folder when creating a new one
+    // causing parent_folder_id to always be null in CreateFolderDialog
+    return folders;
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
@@ -39,7 +43,8 @@ export function useCompanyFolders() {
       throw new Error(foldersResponse.message || 'Failed to load company folders');
     }
     const folders = foldersResponse.data.folders.company || [];
-    return folders.filter(f => !f.parent_folder_id);
+    // Return all folders to allow nested selection in folder pickers
+    return folders;
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
@@ -59,7 +64,8 @@ export function useOrganizationFolders() {
       throw new Error(foldersResponse.message || 'Failed to load organization folders');
     }
     const folders = foldersResponse.data.folders.organization || [];
-    return folders.filter(f => !f.parent_folder_id);
+    // Return the full hierarchy so nested folders are preserved
+    return folders;
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
