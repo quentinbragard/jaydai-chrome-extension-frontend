@@ -28,6 +28,7 @@ import { useOrganizations } from '@/hooks/organizations';
 import { FolderSearch } from '@/components/prompts/folders';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
+import EmptyState from './EmptyState';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 
 interface TemplatesPanelProps {
@@ -285,12 +286,16 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
             {/* Current Items using enhanced components with pin state */}
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {filteredNavigationItems.length === 0 ? (
+              {navigation.isAtRoot && userFolders.length === 0 && !searchQuery.trim() ? (
+                <EmptyState
+                  onCreateTemplate={createTemplate}
+                  onRefresh={refetchUser}
+                />
+              ) : filteredNavigationItems.length === 0 ? (
                 <EmptyMessage>
                   {navigation.isAtRoot
                     ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
-                    : 'This folder is empty'
-                  }
+                    : 'This folder is empty'}
                 </EmptyMessage>
               ) : (
                 filteredNavigationItems.map((item) => (
