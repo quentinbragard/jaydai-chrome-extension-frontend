@@ -42,12 +42,13 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <CreateTemplateDialog />
       <CreateFolderDialog  />
       <FolderManagerDialog />
-      <CustomizeTemplateDialog />
       <AuthDialog />
       <SettingsDialog />
       <ConfirmationDialog />
       <EnhancedStatsDialog />
       <BrowseMoreFoldersDialog />
+      {/* Place the customize dialog last so it appears above others */}
+      <CustomizeTemplateDialog />
     </DialogManagerProvider>
   );
 };
