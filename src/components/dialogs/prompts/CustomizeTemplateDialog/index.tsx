@@ -6,6 +6,7 @@ import { TemplateEditorDialog } from '../TemplateEditorDialog';
 import { OrganizationImage } from '@/components/organizations';
 import { Alert } from '@/components/ui/alert';
 import { useOrganizations, useOrganizationById } from '@/hooks/organizations';
+import { OrganizationBanner } from '@/components/organizations';
 
 
 export const CustomizeTemplateDialog: React.FC = () => {
@@ -33,12 +34,10 @@ export const CustomizeTemplateDialog: React.FC = () => {
         : getMessage('organizationTemplateNotice', undefined, 'Template provided by your organization');
 
       return (
-        <Alert className="jd-flex jd-items-center jd-gap-2 jd-mb-4 jd-bg-muted/60">
-          {imageUrl && (
-            <OrganizationImage imageUrl={imageUrl} organizationName={orgName || ''} size="sm" className="jd-mr-2" />
-          )}
-          <span className="jd-text-sm">{text}</span>
-        </Alert>
+        <OrganizationBanner 
+        organization={resolvedOrg}
+        className="jd-mb-4"
+        />
       );
     }
     return null;
