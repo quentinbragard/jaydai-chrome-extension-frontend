@@ -20,6 +20,7 @@ export function usePinnedFolders() {
     const genericIds = metadata.data?.pinned_folder_ids || [];
     const legacyOrgIds = metadata.data?.pinned_organization_folder_ids || [];
 
+    // Consolidate and deduplicate all pinned folder IDs
     const pinnedIds = Array.from(new Set([...genericIds, ...legacyOrgIds]));
 
     let userPinned: TemplateFolder[] = [];
@@ -47,9 +48,12 @@ export function usePinnedFolders() {
       }
     }
 
+    // Return pinned folders along with the raw ID list so other hooks
+    // can easily determine pin status for nested folders
     return {
       user: userPinned,
-      organization: orgPinned
+      organization: orgPinned,
+      pinnedIds
     };
   }, {
     refetchOnWindowFocus: false,
