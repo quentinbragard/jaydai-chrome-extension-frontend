@@ -1,6 +1,6 @@
 // src/components/dialogs/index.tsx
 import React from 'react';
-import { DialogProvider as DialogContextProvider } from './DialogContext';
+import { DialogManagerProvider } from './DialogContext';
 import { CreateTemplateDialog } from './prompts/CreateTemplateDialog';
 import { CreateFolderDialog } from './prompts/CreateFolderDialog';
 import { FolderManagerDialog } from './prompts/FolderManagerDialog';
@@ -35,7 +35,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
   }, []);
   
   return (
-    <DialogContextProvider>
+    <DialogManagerProvider>
       {children}
       
       {/* Register all dialogs here */}
@@ -48,12 +48,12 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <ConfirmationDialog />
       <EnhancedStatsDialog />
       <BrowseMoreFoldersDialog />
-    </DialogContextProvider>
+    </DialogManagerProvider>
   );
 };
 
 // Export individual components and hooks
-export { DialogContextProvider } from './DialogContext';
+export { DialogManagerProvider } from './DialogContext';
 export { useDialog, useDialogManager } from './DialogContext';
 export { CreateTemplateDialog as TemplateDialog } from './prompts/CreateTemplateDialog';
 export { FolderDialog } from './prompts/CreateFolderDialog';
