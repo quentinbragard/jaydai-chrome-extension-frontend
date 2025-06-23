@@ -1,5 +1,5 @@
 // src/components/panels/TemplatesPanel/index.tsx - Enhanced with proper pinning support
-import React, { useCallback, memo, useMemo, useState } from 'react';
+import React, { useCallback, memo, useMemo, useState, useEffect } from 'react';
 import { FolderOpen, RefreshCw, PlusCircle, Plus, ArrowLeft, Home, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -75,6 +75,13 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     userFolders,
     organizationFolders
   });
+
+  // Reset navigation to root when a search is initiated
+  useEffect(() => {
+    if (searchQuery && !navigation.isAtRoot) {
+      navigation.navigateToRoot();
+    }
+  }, [searchQuery, navigation.isAtRoot, navigation.navigateToRoot]);
 
   // Utility functions for search filtering
   const templateMatchesQuery = useCallback(
