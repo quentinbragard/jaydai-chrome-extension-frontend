@@ -35,16 +35,6 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           <PlusCircle className="jd-h-4 jd-w-4 jd-mr-1" />
           {getMessage('createFirstTemplate', undefined, 'Create Your First Template')}
         </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onRefresh}
-          className="jd-flex jd-items-center jd-mt-2"
-          disabled={refreshing}
-        >
-          <RefreshCw className={`jd-h-4 jd-w-4 jd-mr-1 ${refreshing ? 'jd-animate-spin' : ''}`} />
-          {refreshing ? getMessage('refreshing', undefined, 'Refreshing...') : getMessage('refresh', undefined, 'Refresh')}
-        </Button>
       </div>
     </div>
   );
