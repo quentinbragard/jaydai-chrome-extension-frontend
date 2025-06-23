@@ -7,6 +7,7 @@ export interface Organization {
     id: string;
     name: string;
     image_url?: string;
+    banner_url?: string;
     description?: string;
     created_at?: string;
     updated_at?: string;
