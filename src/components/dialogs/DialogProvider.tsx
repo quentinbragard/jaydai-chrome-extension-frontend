@@ -11,6 +11,7 @@ import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
 import { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
+import { BrowseMoreFoldersDialog } from './prompts/BrowseMoreFoldersDialog';
 
 /**
  * Main dialog provider that includes all dialog components
@@ -67,6 +68,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <SettingsDialog />
       <ConfirmationDialog />
       <EnhancedStatsDialog />
+      <BrowseMoreFoldersDialog />
     </DialogManagerProvider>
   );
 };
