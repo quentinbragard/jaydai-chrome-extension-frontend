@@ -115,7 +115,7 @@ const ComingSoonCard: React.FC<{ title: string }> = ({ title }) => {
 
 // Define the enhanced stats dialog component
 export const EnhancedStatsDialog: React.FC = () => {
-  const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.ENHANCED_STATS);
+  const { isOpen, dialogProps, close } = useDialog(DIALOG_TYPES.ENHANCED_STATS);
   const statsService = useService<StatsService>('stats');
   const [stats, setStats] = useState<Stats | null>(null);
   const [activeTab, setActiveTab] = useState<string>('overview');
@@ -156,7 +156,9 @@ export const EnhancedStatsDialog: React.FC = () => {
     return (
       <BaseDialog
         open={isOpen}
-        onOpenChange={dialogProps.onOpenChange}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
         title={getMessage('enhancedStats', undefined, 'Enhanced Statistics')}
         className="jd-max-w-3xl"
       >
@@ -259,7 +261,9 @@ export const EnhancedStatsDialog: React.FC = () => {
   return (
     <BaseDialog
       open={isOpen}
-      onOpenChange={dialogProps.onOpenChange}
+      onOpenChange={(open) => {
+        if (!open) close();
+      }}
       title={getMessage('enhancedAiAnalytics', undefined, 'Enhanced AI Analytics')}
       description={getMessage('analyticsDescription', undefined, 'Detailed insights about your AI interactions and usage patterns')}
       className="jd-max-w-4xl jd-max-h-[90vh] jd-overflow-y-auto"
@@ -444,7 +448,7 @@ export const EnhancedStatsDialog: React.FC = () => {
         </Tabs>
 
         <div className="jd-flex jd-justify-end jd-mt-6">
-          <Button onClick={() => dialogProps.onOpenChange(false)}>
+          <Button onClick={close}>
             {getMessage('close', undefined, 'Close')}
           </Button>
         </div>
