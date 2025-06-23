@@ -40,6 +40,7 @@ interface QuickBlockSelectorProps {
   targetElement: HTMLElement;
   onOpenFullDialog: () => void;
   cursorPosition?: number; // Store the original cursor position
+  triggerLength?: number;
 }
 
 export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
@@ -47,7 +48,8 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   onClose,
   targetElement,
   onOpenFullDialog,
-  cursorPosition
+  cursorPosition,
+  triggerLength
 }) => {
   const shadowRoot = useShadowRoot();
   const { blocks, loading } = useBlocks();
@@ -136,7 +138,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
     }
   }, [activeIndex]);
 
-  const { insertBlock } = useBlockInsertion(targetElement, cursorPosition, onClose);
+  const { insertBlock } = useBlockInsertion(targetElement, cursorPosition, onClose, triggerLength);
   const handleSelectBlock = (block: Block) => insertBlock(block);
 
   const openFullDialog = () => {

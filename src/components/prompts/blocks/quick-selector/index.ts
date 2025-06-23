@@ -12,6 +12,8 @@ export interface QuickBlockSelectorProps {
   onClose: () => void;
   targetElement: HTMLElement;
   onOpenFullDialog: () => void;
+  cursorPosition?: number;
+  triggerLength?: number;
 }
 
 export interface BlockItemProps {
