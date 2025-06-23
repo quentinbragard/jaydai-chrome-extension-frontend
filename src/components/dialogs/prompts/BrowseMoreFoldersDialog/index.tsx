@@ -13,6 +13,7 @@ import {
 import { FolderItem } from '@/components/prompts/folders/FolderItem';
 import { FolderSearch } from '@/components/prompts/folders/FolderSearch';
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
+import { Template } from '@/types/prompts/templates';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useOrganizations } from '@/hooks/organizations';
@@ -21,7 +22,9 @@ import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 import { useFolderSearch } from '@/hooks/prompts/utils/useFolderSearch';
 
 export const BrowseMoreFoldersDialog: React.FC = () => {
-  const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.BROWSE_MORE_FOLDERS);
+  const { isOpen, dialogProps, close } = useDialog(
+    DIALOG_TYPES.BROWSE_MORE_FOLDERS
+  );
 
   const { data: userFolders = [], isLoading: loadingUser } = useUserFolders();
   const { data: organizationFolders = [], isLoading: loadingOrg } = useOrganizationFolders();
@@ -84,6 +87,15 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
     }));
   }, [filteredFolders, localPinnedIds]);
 
+  // Close the browse dialog when a template is used
+  const handleUseTemplateFromDialog = useCallback(
+    (template: Template) => {
+      close();
+      useTemplate(template);
+    },
+    [close, useTemplate]
+  );
+
   if (!isOpen) return null;
 
   const loading = loadingUser || loadingOrg || loadingUnorganized;
@@ -116,7 +128,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
                     folder={folder}
                     type={folder.type as any}
                     enableNavigation={false}
-                    onUseTemplate={useTemplate}
+                    onUseTemplate={handleUseTemplateFromDialog}
                     onTogglePin={(id, pinned) =>
                       handleTogglePin(id, pinned, folder.type as any)
                     }
@@ -132,7 +144,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
                     key={`browse-template-${template.id}`}
                     template={template}
                     type="user"
-                    onUseTemplate={useTemplate}
+                    onUseTemplate={handleUseTemplateFromDialog}
                     showEditControls={false}
                     showDeleteControls={false}
                   />
