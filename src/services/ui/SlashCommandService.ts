@@ -139,14 +139,14 @@ export class SlashCommandService extends AbstractBaseService {
     const triggerRegex = /\/\/j\s?$/i;
     if (triggerRegex.test(value)) {
       console.log('Slash command detected:', { value: value.substring(Math.max(0, value.length - 20)), originalCursorPos });
-      
+
       // Set flag to prevent double execution
       this.isInserting = true;
-      
+
       // Calculate the cursor position after removing the trigger
       const triggerMatch = value.match(triggerRegex);
       const triggerLength = triggerMatch ? triggerMatch[0].length : 0;
-      
+
       // Ensure cursor position never goes negative
       const newCursorPos = Math.max(0, originalCursorPos - triggerLength);
       
@@ -157,35 +157,22 @@ export class SlashCommandService extends AbstractBaseService {
         valueLength: value.length 
       });
 
-      // Remove the //j trigger from the input
-      const newValue = value.replace(triggerRegex, '');
-
-      if (target instanceof HTMLTextAreaElement) {        
-        target.value = newValue;
-        // Ensure cursor position is within bounds
-        const safeCursorPos = Math.min(newCursorPos, newValue.length);
-        target.setSelectionRange(safeCursorPos, safeCursorPos);
-        target.dispatchEvent(new Event('input', { bubbles: true }));
-        target.dispatchEvent(new Event('change', { bubbles: true })); // Important for some platforms
-      } else if (target instanceof HTMLElement && target.isContentEditable) {
-        // For contenteditable, be more careful about text replacement
-        removeTriggerFromContentEditable(target, triggerLength);
-      }
-
-      // Get cursor position AFTER updating the text and show selector
+      // Show selector without altering the input. The trigger will be removed
+      // only if the user selects a block.
+      // Get cursor position and show selector
       setTimeout(() => {
         try {
           // Ensure we're still focused on the right element
           target.focus();
-          
+
           const position = getCursorCoordinates(target);
           // Use the safe cursor position we calculated
-          const safeCursorPos = target instanceof HTMLTextAreaElement 
+          const safeCursorPos = target instanceof HTMLTextAreaElement
             ? Math.min(newCursorPos, target.value.length)
             : Math.min(newCursorPos, (target.textContent || '').length);
-            
+
           console.log('Showing quick selector at position:', { position, safeCursorPos });
-          this.quickSelector.open(position, target, safeCursorPos);
+          this.quickSelector.open(position, target, safeCursorPos, triggerLength);
         } catch (error) {
           console.error('Error showing quick selector:', error);
         } finally {

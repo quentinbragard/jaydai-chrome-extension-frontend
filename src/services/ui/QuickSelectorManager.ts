@@ -8,7 +8,7 @@ export class QuickSelectorManager {
   private container: HTMLDivElement | null = null;
   public isOpen = false;
 
-  open(position: { x: number; y: number }, targetElement: HTMLElement, cursorPosition?: number) {
+  open(position: { x: number; y: number }, targetElement: HTMLElement, cursorPosition?: number, triggerLength?: number) {
     this.close();
     this.container = document.createElement('div');
     this.container.id = 'jaydai-quick-selector';
@@ -20,6 +20,7 @@ export class QuickSelectorManager {
         onClose: () => this.close(),
         targetElement,
         cursorPosition,
+        triggerLength,
         onOpenFullDialog: () => {
           if (window.dialogManager && typeof window.dialogManager.openDialog === 'function') {
             window.dialogManager.openDialog(DIALOG_TYPES.INSERT_BLOCK);
