@@ -64,6 +64,12 @@ export interface PlaceholderEditorData {
   content: string;
   title?: string;
   onComplete: (modifiedContent: string) => void;
+  metadata?: any;
+  type?: string;
+  id?: number;
+  organization?: any;
+  organization_id?: string;
+  image_url?: string;
 }
 
 /**

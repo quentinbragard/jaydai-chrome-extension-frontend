@@ -5,9 +5,44 @@ import { useCustomizeTemplateDialog } from '@/hooks/dialogs/useCustomizeTemplate
 import { TemplateEditorDialog } from '../TemplateEditorDialog';
 import { OrganizationImage } from '@/components/organizations';
 import { Alert } from '@/components/ui/alert';
+import { useOrganizations, useOrganizationById } from '@/hooks/organizations';
+
 
 export const CustomizeTemplateDialog: React.FC = () => {
   const hook = useCustomizeTemplateDialog();
+  const { data: organizations = [] } = useOrganizations();
+  const { data: orgById } = useOrganizationById(
+    (hook.data as any)?.organization?.id || (hook.data as any)?.organization_id
+  );
+
+  const resolvedOrg = useMemo(() => {
+    if (!hook.data) return undefined;
+    return (
+      (hook.data as any).organization ||
+      orgById ||
+      organizations.find(o => o.id === (hook.data as any).organization_id)
+    );
+  }, [hook.data, orgById, organizations]);
+
+  const infoForm = useMemo(() => {
+    if (hook.data?.type === 'organization') {
+      const orgName = resolvedOrg?.name as string | undefined;
+      const imageUrl = resolvedOrg?.image_url || (hook.data as any).image_url;
+      const text = orgName
+        ? getMessage('organizationTemplateNoticeWithName', orgName, `Template provided by ${orgName}`)
+        : getMessage('organizationTemplateNotice', undefined, 'Template provided by your organization');
+
+      return (
+        <Alert className="jd-flex jd-items-center jd-gap-2 jd-mb-4 jd-bg-muted/60">
+          {imageUrl && (
+            <OrganizationImage imageUrl={imageUrl} organizationName={orgName || ''} size="sm" className="jd-mr-2" />
+          )}
+          <span className="jd-text-sm">{text}</span>
+        </Alert>
+      );
+    }
+    return null;
+  }, [hook.data, resolvedOrg]);
 
   const infoForm = useMemo(() => {
     if (hook.data?.type === 'organization') {
