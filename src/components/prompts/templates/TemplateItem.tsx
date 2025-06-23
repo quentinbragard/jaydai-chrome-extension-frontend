@@ -164,28 +164,6 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
             {displayName}
           </div>
         )}
-
-        {/* Usage Information */}
-        {hasUsageInfo && (
-          <div className="jd-flex jd-items-center jd-gap-2 jd-mt-1">
-            {isPopular && (
-              <div className="jd-flex jd-items-center jd-text-xs jd-text-yellow-600">
-                <Bookmark className="jd-h-3 jd-w-3 jd-mr-1 jd-fill-yellow-500" />
-                Popular
-              </div>
-            )}
-            <span className="jd-text-xs jd-text-muted-foreground">
-              Used {usageCount} time{usageCount !== 1 ? 's' : ''}
-            </span>
-          </div>
-        )}
-
-        {/* Organization label for clarity in search results */}
-        {isInGlobalSearch && type === 'organization' && templateOrganization && (
-          <div className="jd-text-xs jd-text-muted-foreground jd-mt-1">
-            🏢 {templateOrganization.name}
-          </div>
-        )}
       </div>
       
       {/* Action Buttons */}
