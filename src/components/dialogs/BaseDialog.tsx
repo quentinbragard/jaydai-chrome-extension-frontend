@@ -68,16 +68,18 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
 
     // Only prevent events that originate outside of ANY dialog
     const handleEvent = (e: Event) => {
-      const target = e.target as HTMLElement;
+      const path = e.composedPath() as EventTarget[];
 
-      // Allow events from this dialog
-      if (dialogElement.contains(target)) {
+      // Allow events originating from this dialog
+      if (path.includes(dialogElement)) {
         return;
       }
 
-      // Allow events from other dialogs stacked on top
-      if (target.closest('[data-dialog-root]')) {
-        return;
+      // Allow events from any other open dialog
+      for (const el of path) {
+        if (el instanceof HTMLElement && el.closest('[data-dialog-root]')) {
+          return;
+        }
       }
 
       // Prevent events coming from the underlying page
