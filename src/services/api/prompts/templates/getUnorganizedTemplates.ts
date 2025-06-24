@@ -6,9 +6,10 @@ import { apiClient } from "@/services/api/ApiClient";
 export async function getUnorganizedTemplates(): Promise<any> {
     try {
       // Endpoint specifically for templates without a folder
-      const response = await apiClient.request('/prompts/templates/', {
+      const response = await apiClient.request('/prompts/templates', {
         method: 'GET'
       });
+      console.log('raaaaaaaaeesponse', response);
       return response;
     } catch (error) {
       console.error('Error fetching unorganized templates:', error);
