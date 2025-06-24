@@ -9,6 +9,10 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import TemplatePreview from '@/components/prompts/TemplatePreview';
+import {
+  convertMetadataToVirtualBlocks,
+  extractPlaceholdersFromBlocks
+} from '@/utils/templates/enhancedPreviewUtils';
 
 interface Placeholder {
   key: string;
@@ -37,30 +41,35 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   const isDark = useThemeDetector();
   const [showPreview, setShowPreview] = useState(mode === 'customize');
   
+  // Utility to gather placeholder keys from content and metadata blocks
+  const getPlaceholderKeys = useCallback((): string[] => {
+    const fromContent = content.match(/\[([^\]]+)\]/g) || [];
+    const virtualBlocks = convertMetadataToVirtualBlocks(metadata, blockContentCache);
+    const fromBlocks = extractPlaceholdersFromBlocks(virtualBlocks).map(p => `[${p.key}]`);
+    return Array.from(new Set([...fromContent, ...fromBlocks]));
+  }, [content, metadata, blockContentCache]);
+
   // Simple placeholder extraction and management
   const [placeholders, setPlaceholders] = useState<Placeholder[]>(() => {
     if (mode === 'customize') {
-      const matches = content.match(/\[([^\]]+)\]/g) || [];
-      const uniqueKeys = Array.from(new Set(matches));
-      return uniqueKeys.map(key => ({ key, value: '' }));
+      const keys = getPlaceholderKeys();
+      return keys.map(key => ({ key, value: '' }));
     }
     return [];
   });
 
-  // Update placeholders when content changes (for customize mode)
+  // Update placeholders when relevant data changes (for customize mode)
   React.useEffect(() => {
     if (mode === 'customize') {
-      const matches = content.match(/\[([^\]]+)\]/g) || [];
-      const uniqueKeys = Array.from(new Set(matches));
-      setPlaceholders(prev => {
-        const newPlaceholders = uniqueKeys.map(key => {
+      const keys = getPlaceholderKeys();
+      setPlaceholders(prev =>
+        keys.map(key => {
           const existing = prev.find(p => p.key === key);
           return { key, value: existing?.value || '' };
-        });
-        return newPlaceholders;
-      });
+        })
+      );
     }
-  }, [content, mode]);
+  }, [getPlaceholderKeys, mode]);
 
   // Simple content with placeholders replaced for preview
   const previewContent = React.useMemo(() => {
