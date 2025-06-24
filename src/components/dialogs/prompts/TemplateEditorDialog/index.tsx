@@ -164,43 +164,45 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       {infoForm}
       
       <TemplateEditorProvider value={contextValue}>
-        <div className="jd-flex jd-flex-col jd-h-full jd-gap-4">
-          {error && (
-            <Alert variant="destructive" className="jd-mb-2">
-              <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          
-          {isLoading ? (
-            <div className="jd-flex jd-items-center jd-justify-center jd-h-64">
-              <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
-              <span className="jd-ml-3 jd-text-gray-600">
-                {getMessage('loadingTemplate')} {blocksLoading && '& blocks...'}
-              </span>
-            </div>
-          ) : (
-            <Tabs
-              value={activeTab}
-              onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
-              className="jd-flex-1 jd-flex jd-flex-col"
-            >
-              <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4">
-                <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
-                <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
-              </TabsList>
+        <div className="jd-flex jd-flex-col jd-h-full">
+          <div className="jd-flex-1 jd-flex jd-flex-col jd-gap-4 jd-overflow-y-auto">
+            {error && (
+              <Alert variant="destructive" className="jd-mb-2">
+                <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-              <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto">
-                <BasicEditor mode={mode as any} isProcessing={false} />
-              </TabsContent>
+            {isLoading ? (
+              <div className="jd-flex jd-items-center jd-justify-center jd-h-64">
+                <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
+                <span className="jd-ml-3 jd-text-gray-600">
+                  {getMessage('loadingTemplate')} {blocksLoading && '& blocks...'}
+                </span>
+              </div>
+            ) : (
+              <Tabs
+                value={activeTab}
+                onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
+                className="jd-flex-1 jd-flex jd-flex-col"
+              >
+                <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4">
+                  <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
+                  <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
-                <AdvancedEditor mode={mode as any} isProcessing={false} />
-              </TabsContent>
-            </Tabs>
-          )}
-          
-          <div className="jd-flex jd-justify-end jd-gap-2 jd-pt-4 jd-border-t">
+                <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto">
+                  <BasicEditor mode={mode as any} isProcessing={false} />
+                </TabsContent>
+
+                <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
+                  <AdvancedEditor mode={mode as any} isProcessing={false} />
+                </TabsContent>
+              </Tabs>
+            )}
+          </div>
+
+          <div className="jd-sticky jd-bottom-0 jd-flex jd-justify-end jd-gap-2 jd-p-4 jd-border-t jd-bg-background">
             <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
               {getMessage('cancel', undefined, 'Cancel')}
             </Button>

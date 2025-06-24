@@ -216,7 +216,7 @@ const PlaceholderPanel: React.FC<{
   const totalCount = placeholders.length;
 
   return (
-    <div className="jd-h-[60vh] jd-space-y-4 jd-overflow-auto jd-p-4">
+    <div className="jd-h-full jd-space-y-4 jd-overflow-y-auto jd-p-4">
       <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
         <h3 className="jd-text-sm jd-font-medium">
           Replace Placeholders
