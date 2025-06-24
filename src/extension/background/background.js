@@ -107,10 +107,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     };
 
     if (actions[request.action]) {
-        if (typeof actions[request.action] === 'function') {
-            return actions[request.action]();
-        }
-        return true; // Ensures async sendResponse will be used
+        const result = actions[request.action]();
+        // For async handlers that don't explicitly return false,
+        // keep the message channel open by returning true
+        return result === false ? false : true;
     } else {
         sendResponse({ success: false, error: "Invalid action" });
         return false; // Ensures message channel is closed
