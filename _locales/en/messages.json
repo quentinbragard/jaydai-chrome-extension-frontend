@@ -93,8 +93,53 @@
     "message": "AI Tool Launcher",
     "description": "Title for the popup"
   },
-  "aiTools": {
-    "description":{"ChatGPT":"OpenAI's conversational AI","Copilot":"Microsoft Copilot AI-powered search and chat","Mistral":"Mistral AI's conversational model","Claude":"Anthropic's AI assistant","Gemini":"Google's generative AI","Perplexity":"AI-powered search and chat"}
+  "aiToolsChatGPTName": {
+    "message": "ChatGPT",
+    "description": "AI tool name"
+  },
+  "aiToolsChatGPTDesc": {
+    "message": "OpenAI's conversational AI",
+    "description": "AI tool description"
+  },
+  "aiToolsCopilotName": {
+    "message": "Copilot",
+    "description": "AI tool name"
+  },
+  "aiToolsCopilotDesc": {
+    "message": "Microsoft Copilot AI-powered search and chat",
+    "description": "AI tool description"
+  },
+  "aiToolsMistralName": {
+    "message": "Mistral",
+    "description": "AI tool name"
+  },
+  "aiToolsMistralDesc": {
+    "message": "Mistral AI's conversational model",
+    "description": "AI tool description"
+  },
+  "aiToolsClaudeName": {
+    "message": "Claude",
+    "description": "AI tool name"
+  },
+  "aiToolsClaudeDesc": {
+    "message": "Anthropic's AI assistant",
+    "description": "AI tool description"
+  },
+  "aiToolsGeminiName": {
+    "message": "Gemini",
+    "description": "AI tool name"
+  },
+  "aiToolsGeminiDesc": {
+    "message": "Google's generative AI",
+    "description": "AI tool description"
+  },
+  "aiToolsPerplexityName": {
+    "message": "Perplexity",
+    "description": "AI tool name"
+  },
+  "aiToolsPerplexityDesc": {
+    "message": "AI-powered search and chat",
+    "description": "AI tool description"
   },
   "welcomeSubtitle": {
     "message": "Your Intelligent AI Usage Companion",
@@ -1457,36 +1502,97 @@
     "message": "All Set!",
     "description": "Title for last onboarding step"
   },
-  "onboardingStep1": {
-    "jobType": {
-      "content_comm_specialists": "Content & Communication Specialists",
-      "analysts_researchers": "Analysts & Researchers",
-      "customer_client_facing": "Customer & Client Facing Roles",
-      "product_dev_teams": "Product & Development Teams",
-      "hr_training_professionals": "HR & Training Professionals",
-      "entrepreneurs_business_owners": "Entrepreneurs & Business Owners",
-      "other": "Other"
-    },
-    "jobIndustry": {
-      "tech_software_dev": "Technology & Software Development",
-      "marketing_advertising": "Marketing & Advertising",
-      "consulting_professional_services": "Consulting & Professional Services",
-      "ecommerce_retail": "E-commerce & Retail",
-      "education_training": "Education & Training",
-      "media_publishing": "Media & Publishing",
-      "hr_recruitment": "Human Resources & Recruitment",
-      "customer_service_support": "Customer Service & Support",
-      "other": "Other"
-    },
-    "jobSeniority": {
-      "student": "Student",
-      "junior_0_5": "Junior (0-5 years of experience)",
-      "mid_5_10": "Mid-level (5-10 years of experience)",
-      "senior_10_15": "Senior (10-15 years of experience)",
-      "lead_15_plus": "Lead/Manager (15+ years of experience)",
-      "executive": "Executive (C-level/VP/Director)",
-      "other": "Other"
-    }
+  "onboardingStep1JobTypeContentCommSpecialists": {
+    "message": "Content & Communication Specialists",
+    "description": "Job type for content and communication specialists"
+  },
+  "onboardingStep1JobTypeAnalystsResearchers": {
+    "message": "Analysts & Researchers",
+    "description": "Job type for analysts and researchers"
+  },
+  "onboardingStep1JobTypeCustomerClientFacing": {
+    "message": "Customer & Client Facing Roles",
+    "description": "Job type for customer and client facing roles"
+  },
+  "onboardingStep1JobTypeProductDevTeams": {
+    "message": "Product & Development Teams",
+    "description": "Job type for product and development teams"
+  },
+  "onboardingStep1JobTypeHrTrainingProfessionals": {
+    "message": "HR & Training Professionals",
+    "description": "Job type for HR and training professionals"
+  },
+  "onboardingStep1JobTypeEntrepreneursBusinessOwners": {  
+    "message": "Entrepreneurs & Business Owners",
+    "description": "Job type for entrepreneurs and business owners"
+  },
+  "onboardingStep1JobTypeOther": {
+    "message": "Other",
+    "description": "Job type for other roles"
+  },
+  "onboardingStep1JobIndustryTechSoftwareDev": {
+    "message": "Technology & Software Development",
+    "description": "Job industry for technology and software development"
+  },
+  "onboardingStep1JobIndustryMarketingAdvertising": {
+    "message": "Marketing & Advertising",
+    "description": "Job industry for marketing and advertising"
+  },
+  "onboardingStep1JobIndustryConsultingProfessionalServices": {
+    "message": "Consulting & Professional Services",
+    "description": "Job industry for consulting and professional services"
+  },
+  "onboardingStep1JobIndustryEcommerceRetail": {
+    "message": "E-commerce & Retail",
+    "description": "Job industry for e-commerce and retail"
+  },
+  "onboardingStep1JobIndustryEducationTraining": {
+    "message": "Education & Training",
+    "description": "Job industry for education and training"
+  },
+  "onboardingStep1JobIndustryMediaPublishing": {
+    "message": "Media & Publishing",
+    "description": "Job industry for media and publishing"
+  },
+  "onboardingStep1JobIndustryHrRecruitment": {
+    "message": "Human Resources & Recruitment",
+    "description": "Job industry for human resources and recruitment"
+  },
+  "onboardingStep1JobIndustryCustomerServiceSupport": {
+    "message": "Customer Service & Support",
+    "description": "Job industry for customer service and support"
+  },
+  "onboardingStep1JobIndustryOther": {
+    "message": "Other",
+    "description": "Job industry for other roles"
+  },
+  "onboardingStep1JobSeniorityStudent": {
+    "message": "Student",
+    "description": "Job seniority for student"
+  },
+  "onboardingStep1JobSeniorityJunior05": {
+    "message": "Junior (0-5 years of experience)",
+    "description": "Job seniority for junior"
+  },
+  "onboardingStep1JobSeniorityMid510": {
+    "message": "Mid-level (5-10 years of experience)",
+    "description": "Job seniority for mid-level"
+  },
+  "onboardingStep1JobSenioritySenior1015": {  
+    "message": "Senior (10-15 years of experience)",
+    "description": "Job seniority for senior"
+  },
+  "onboardingStep1JobSeniorityLead15Plus": {
+    "message": "Lead/Manager (15+ years of experience)",
+    "description": "Job seniority for lead/manager"
+  },
+  "onboardingStep1JobSeniorityExecutive": {
+    "message": "Executive (C-level/VP/Director)",
+    "description": "Job seniority for executive"
+  },
+  "onboardingStep1JobSeniorityOther": { 
+    "message": "Other",
+    "description": "Job seniority for other roles"
   },
   "onboardingComplete": { "message": "Setup Complete!", "description": "Title for onboarding completion step" },
   "onboardingCompleteDescription": { "message": "Thank you for completing your profile. Your personalized AI templates are now ready to use.", "description": "Description for onboarding completion step" },
