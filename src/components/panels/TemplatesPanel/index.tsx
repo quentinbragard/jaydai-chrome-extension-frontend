@@ -305,7 +305,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         />
 
         {/* Main Navigation Section */}
-        <div className="jd-space-y-4">
+        <div className="jd-space-y-1">
           <div>
             {/* Show different header based on search state */}
             {searchQuery.trim() ? (

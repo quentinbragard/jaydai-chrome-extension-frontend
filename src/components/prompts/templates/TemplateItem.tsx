@@ -120,7 +120,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
 
   return (
     <div 
-      className={`jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-transition-colors ${
+      className={`jd-flex jd-items-center hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-transition-colors ${
         isProcessing ? 'jd-opacity-50 jd-cursor-not-allowed' : ''
       } ${className}`}
       onClick={handleTemplateClick}

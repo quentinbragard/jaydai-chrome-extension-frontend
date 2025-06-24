@@ -232,7 +232,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
 
       {/* Folder Header */}
       <div 
-        className="jd-group jd-flex jd-items-center jd-p-2 hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm jd-transition-colors"
+        className="jd-group jd-flex jd-items-center hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm jd-transition-colors"
         onClick={handleFolderClick}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
       >
@@ -346,7 +346,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
 
       {/* Folder Contents */}
       {!enableNavigation && expanded && totalItems > 0 && (
-        <div className="jd-folder-content">
+        <div className="jd-folder-content jd-space-y-1">
           {/* Subfolders */}
           {subfolders.map((subfolder) => (
             <FolderItem
