@@ -69,10 +69,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           text: state.error,
           type: 'error'
         });
-      } else if (state.user && state.isAuthenticated) {
-        // Success state - user is authenticated
-        if (onSuccess) {
-          onSuccess();
+      } else {
+        setMessage(null);
+        if (state.user && state.isAuthenticated) {
+          // Success state - user is authenticated
+          if (onSuccess) {
+            onSuccess();
+          }
         }
       }
     });
