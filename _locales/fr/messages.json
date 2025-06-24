@@ -101,6 +101,16 @@
     "message": "Lanceur d'Outils IA",
     "description": "Titre pour le popup"
   },
+  "aiTools": {
+    "description": {
+      "ChatGPT": "IA conversationnelle d'OpenAI",
+      "Copilot": "Copilot Microsoft IA-powered search and chat",
+      "Mistral": "IA conversationnelle de Mistral",
+      "Claude": "IA d'Anthropic",
+      "Gemini": "IA générative de Google",
+      "Perplexity": "IA de recherche et de chat"
+    }
+  },
   "welcomeSubtitle": {
     "message": "Votre Compagnon Intelligent d'Utilisation de l'IA",
     "description": "Sous-titre de la page d'accueil"
@@ -1436,6 +1446,37 @@
   "onboardingAllSet": {
     "message": "C'est terminé !",
     "description": "Titre pour la dernière étape d'onboarding"
+  },
+  "onboardingStep1": {
+    "jobType": {
+      "content_comm_specialists": "Spécialistes Contenu & Communication",
+      "analysts_researchers": "Analystes & Chercheurs",
+      "customer_client_facing": "Rôles en Contact Client",
+      "product_dev_teams": "Équipes Produit & Développement",
+      "hr_training_professionals": "Professionnels RH & Formation",
+      "entrepreneurs_business_owners": "Entrepreneurs & Chefs d'Entreprise",
+      "other": "Autre"
+    },
+    "jobIndustry": {
+      "tech_software_dev": "Technologie & Développement Logiciel",
+      "marketing_advertising": "Marketing & Publicité",
+      "consulting_professional_services": "Conseil & Services Professionnels",
+      "ecommerce_retail": "E-commerce & Commerce de Détail",
+      "education_training": "Éducation & Formation",
+      "media_publishing": "Médias & Édition",
+      "hr_recruitment": "Ressources Humaines & Recrutement",
+      "customer_service_support": "Service Client & Support",
+      "other": "Autre"
+    },
+    "jobSeniority": {
+      "student": "Étudiant(e)",
+      "junior_0_5": "Junior (0-5 ans d'expérience)",
+      "mid_5_10": "Niveau intermédiaire (5-10 ans d'expérience)",
+      "senior_10_15": "Senior (10-15 ans d'expérience)",
+      "lead_15_plus": "Lead/Manager (plus de 15 ans d'expérience)",
+      "executive": "Cadre exécutif (C-level/VP/Directeur)",
+      "other": "Autre"
+    }
   },
   "onboardingComplete": { "message": "Configuration terminée !", "description": "Titre pour l'étape de fin d'onboarding" },
   "onboardingCompleteDescription": { "message": "Merci d'avoir complété votre profil. Vos templates IA personnalisés sont maintenant prêts à l'emploi.", "description": "Description pour l'étape de fin d'onboarding" },

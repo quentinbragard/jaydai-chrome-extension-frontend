@@ -13,52 +13,38 @@ import { OtherOptionInput } from '@/components/welcome/onboarding/OtherOptionInp
 
 // Job type options
 const JOB_TYPES = [
-  { value: 'engineering', label: 'Engineering' },
-  { value: 'design', label: 'Design' },
-  { value: 'product', label: 'Product Management' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'sales', label: 'Sales' },
-  { value: 'customer_support', label: 'Customer Support' },
-  { value: 'operations', label: 'Operations' },
-  { value: 'finance', label: 'Finance' },
-  { value: 'hr', label: 'Human Resources' },
-  { value: 'research', label: 'Research' },
-  { value: 'education', label: 'Education' },
-  { value: 'healthcare', label: 'Healthcare' },
-  { value: 'legal', label: 'Legal' },
-  { value: 'other', label: 'Other' }
+  { value: 'content_comm_specialists', label: getMessage('onboardingStep1.jobType.content_comm_specialists', undefined, 'caca') },
+  { value: 'analysts_researchers', label: getMessage('onboardingStep1.jobType.analysts_researchers', undefined, 'Analysts & Researchers') },
+  { value: 'customer_client_facing', label: getMessage('onboardingStep1.jobType.customer_client_facing', undefined, 'Customer & Client Facing Roles') },
+  { value: 'product_dev_teams', label: getMessage('onboardingStep1.jobType.product_dev_teams', undefined, 'Product & Development Teams') },
+  { value: 'hr_training_professionals', label: getMessage('onboardingStep1.jobType.hr_training_professionals', undefined, 'HR & Training Professionals') },
+  { value: 'entrepreneurs_business_owners', label: getMessage('onboardingStep1.jobType.entrepreneurs_business_owners', undefined, 'Entrepreneurs & Business Owners') },
+  { value: 'other', label: getMessage('onboardingStep1.jobType.other', undefined, 'Other') }
 ];
 
-// Industry options
+// Industry options 
 const JOB_INDUSTRIES = [
-  { value: 'tech', label: 'Technology' },
-  { value: 'finance', label: 'Finance' },
-  { value: 'healthcare', label: 'Healthcare' },
-  { value: 'education', label: 'Education' },
-  { value: 'retail', label: 'Retail' },
-  { value: 'manufacturing', label: 'Manufacturing' },
-  { value: 'media', label: 'Media & Entertainment' },
-  { value: 'government', label: 'Government' },
-  { value: 'nonprofit', label: 'Non-profit' },
-  { value: 'consulting', label: 'Consulting' },
-  { value: 'real_estate', label: 'Real Estate' },
-  { value: 'transportation', label: 'Transportation' },
-  { value: 'energy', label: 'Energy' },
-  { value: 'agriculture', label: 'Agriculture' },
-  { value: 'other', label: 'Other' }
+  { value: 'tech_software_dev', label: getMessage('onboardingStep1.jobIndustry.tech_software_dev', undefined, 'Technology & Software Development') },
+  { value: 'marketing_advertising', label: getMessage('onboardingStep1.jobIndustry.marketing_advertising', undefined, 'Marketing & Advertising') },
+  { value: 'consulting_professional_services', label: getMessage('onboardingStep1.jobIndustry.consulting_professional_services', undefined, 'Consulting & Professional Services') },
+  { value: 'ecommerce_retail', label: getMessage('onboardingStep1.jobIndustry.ecommerce_retail', undefined, 'E-commerce & Retail') },
+  { value: 'education_training', label: getMessage('onboardingStep1.jobIndustry.education_training', undefined, 'Education & Training') },
+  { value: 'media_publishing', label: getMessage('onboardingStep1.jobIndustry.media_publishing', undefined, 'Media & Publishing') },
+  { value: 'hr_recruitment', label: getMessage('onboardingStep1.jobIndustry.hr_recruitment', undefined, 'Human Resources & Recruitment') },
+  { value: 'customer_service_support', label: getMessage('onboardingStep1.jobIndustry.customer_service_support', undefined, 'Customer Service & Support') },
+  { value: 'other', label: getMessage('onboardingStep1.jobIndustry.other', undefined, 'Other') }
 ];
+
 
 // Seniority levels
 const JOB_SENIORITY = [
-  { value: 'entry', label: 'Entry Level' },
-  { value: 'mid', label: 'Mid Level' },
-  { value: 'senior', label: 'Senior Level' },
-  { value: 'manager', label: 'Manager' },
-  { value: 'director', label: 'Director' },
-  { value: 'vp', label: 'VP' },
-  { value: 'executive', label: 'Executive (C-level)' },
-  { value: 'student', label: 'Student' },
-  { value: 'other', label: 'Other' }
+  { value: 'student', label: getMessage('onboardingStep1.jobSeniority.student', undefined, 'Student') },
+  { value: 'junior_0_5', label: getMessage('onboardingStep1.jobSeniority.junior_0_5', undefined, 'Junior (0-5 years of experience)') },
+  { value: 'mid_5_10', label: getMessage('onboardingStep1.jobSeniority.mid_5_10', undefined, 'Mid-level (5-10 years of experience)') },
+  { value: 'senior_10_15', label: getMessage('onboardingStep1.jobSeniority.senior_10_15', undefined, 'Senior (10-15 years of experience)') },
+  { value: 'lead_15_plus', label: getMessage('onboardingStep1.jobSeniority.lead_15_plus', undefined, 'Lead/Manager (15+ years of experience)') },
+  { value: 'executive', label: getMessage('onboardingStep1.jobSeniority.executive', undefined, 'Executive (C-level/VP/Director)') },
+  { value: 'other', label: getMessage('onboardingStep1.jobSeniority.other', undefined, 'Other') }
 ];
 
 interface JobInfoStepProps {

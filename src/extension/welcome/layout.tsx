@@ -2,7 +2,6 @@
 import React from 'react';
 import { Toaster } from "@/components/ui/sonner";
 import { Logo } from '@/components/welcome/Logo';
-import { Footer } from '@/components/welcome/Footer';
 
 interface WelcomeLayoutProps {
   children: React.ReactNode;
@@ -18,9 +17,6 @@ export const WelcomeLayout: React.FC<WelcomeLayoutProps> = ({ children }) => {
           
           {/* Main Content */}
           {children}
-          
-          {/* Footer */}
-          <Footer />
         </div>
       </div>
       

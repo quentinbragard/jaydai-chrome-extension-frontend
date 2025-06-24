@@ -2,7 +2,6 @@
 import { getMessage } from '@/core/utils/i18n';
 import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
-import { FeatureGrid } from '@/components/welcome/FeatureGrid';
 import { AIToolGrid } from '@/components/welcome/AIToolGrid';
 
 interface LoggedInContentProps {
@@ -56,7 +55,6 @@ export const LoggedInContent: React.FC<LoggedInContentProps> = ({
           </div>
         </div>
       </div>
-      <FeatureGrid />
     </>
   );
 };

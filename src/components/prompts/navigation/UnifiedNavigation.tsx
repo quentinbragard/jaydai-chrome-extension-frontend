@@ -1,6 +1,6 @@
 // src/components/prompts/navigation/UnifiedNavigation.tsx
 import React from 'react';
-import { FolderOpen, PlusCircle, Plus, ArrowLeft, Home, ChevronRight } from 'lucide-react';
+import { FolderOpen, FilePlus, FolderPlus, ArrowLeft, Home, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 
@@ -63,7 +63,7 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
               onClick={onCreateTemplate}
               title={getMessage('newTemplate', undefined, 'New Template')}
             >
-              <PlusCircle className="jd-h-4 jd-w-4" />
+              <FilePlus className="jd-h-4 jd-w-4" />
             </Button>
           )}
           {showCreateFolder && onCreateFolder && (
@@ -73,7 +73,7 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
               onClick={onCreateFolder}
               title={getMessage('newFolder', undefined, 'New Folder')}
             >
-              <Plus className="jd-h-4 jd-w-4" />
+              <FolderPlus className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
             </Button>
           )}
         </div>

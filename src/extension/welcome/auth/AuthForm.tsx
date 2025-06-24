@@ -5,9 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { 
-  Mail, 
-  Lock, 
-  User, 
   LogIn,
   UserPlus,
   AlertCircle,
@@ -305,7 +302,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           </TabsTrigger>
         </TabsList>
         
-        {message && (
+        {message && message.text !== "Not authenticated" && (
           <div 
             className={`jd-p-3 jd-rounded-md jd-mb-4 jd-flex jd-items-start jd-gap-2 ${
               message.type === 'error' 

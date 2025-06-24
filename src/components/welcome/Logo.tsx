@@ -7,7 +7,7 @@ export const Logo: React.FC = () => {
     <div className="jd-logo-container jd-bg-gray-900 jd-border jd-border-gray-800 jd-mb-8">
       <img 
         src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//jaydai-extension-logo.png" 
-        alt={getMessage('appName', undefined, 'Archimind Logo')} 
+        alt={getMessage('appName', undefined, 'Jaydai Logo')} 
         className="jd-w-16 jd-h-16 jd-object-contain"
       />
     </div>

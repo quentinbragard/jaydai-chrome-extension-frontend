@@ -93,6 +93,9 @@
     "message": "AI Tool Launcher",
     "description": "Title for the popup"
   },
+  "aiTools": {
+    "description":{"ChatGPT":"OpenAI's conversational AI","Copilot":"Microsoft Copilot AI-powered search and chat","Mistral":"Mistral AI's conversational model","Claude":"Anthropic's AI assistant","Gemini":"Google's generative AI","Perplexity":"AI-powered search and chat"}
+  },
   "welcomeSubtitle": {
     "message": "Your Intelligent AI Usage Companion",
     "description": "Welcome page subtitle"
@@ -1453,6 +1456,37 @@
   "onboardingAllSet": {
     "message": "All Set!",
     "description": "Title for last onboarding step"
+  },
+  "onboardingStep1": {
+    "jobType": {
+      "content_comm_specialists": "Content & Communication Specialists",
+      "analysts_researchers": "Analysts & Researchers",
+      "customer_client_facing": "Customer & Client Facing Roles",
+      "product_dev_teams": "Product & Development Teams",
+      "hr_training_professionals": "HR & Training Professionals",
+      "entrepreneurs_business_owners": "Entrepreneurs & Business Owners",
+      "other": "Other"
+    },
+    "jobIndustry": {
+      "tech_software_dev": "Technology & Software Development",
+      "marketing_advertising": "Marketing & Advertising",
+      "consulting_professional_services": "Consulting & Professional Services",
+      "ecommerce_retail": "E-commerce & Retail",
+      "education_training": "Education & Training",
+      "media_publishing": "Media & Publishing",
+      "hr_recruitment": "Human Resources & Recruitment",
+      "customer_service_support": "Customer Service & Support",
+      "other": "Other"
+    },
+    "jobSeniority": {
+      "student": "Student",
+      "junior_0_5": "Junior (0-5 years of experience)",
+      "mid_5_10": "Mid-level (5-10 years of experience)",
+      "senior_10_15": "Senior (10-15 years of experience)",
+      "lead_15_plus": "Lead/Manager (15+ years of experience)",
+      "executive": "Executive (C-level/VP/Director)",
+      "other": "Other"
+    }
   },
   "onboardingComplete": { "message": "Setup Complete!", "description": "Title for onboarding completion step" },
   "onboardingCompleteDescription": { "message": "Thank you for completing your profile. Your personalized AI templates are now ready to use.", "description": "Description for onboarding completion step" },

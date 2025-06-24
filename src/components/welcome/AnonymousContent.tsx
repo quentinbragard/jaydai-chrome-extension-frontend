@@ -2,10 +2,12 @@
  import { AnimatedTaskText } from '@/components/welcome/AnimatedTaskText';
  import { getMessage } from '@/core/utils/i18n';
 import { FeatureGrid } from '@/components/welcome/FeatureGrid';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import AuthModal from '@/extension/welcome/auth/AuthModal';
 import { useAuthModal } from '@/hooks/auth/useAuthModal';
+import { Footer } from '@/components/welcome/Footer';
+
 export const AnonymousContent: React.FC = () => {
     // Auth modal state
     const {
@@ -47,10 +49,15 @@ export const AnonymousContent: React.FC = () => {
               </Button>
             </div>
             <DialogContent className="sm:jd-max-w-md jd-bg-gray-950 jd-border-gray-800">
+              <DialogTitle className="jd-sr-only">
+                {getMessage('signIn', undefined, 'Sign In')}
+              </DialogTitle>
               <AuthModal 
                 onClose={() => setIsAuthOpen(false)} 
                 initialMode={authMode}
               />
+              {/* Footer */}
+            <Footer />
             </DialogContent>
           </Dialog>
         </div>
