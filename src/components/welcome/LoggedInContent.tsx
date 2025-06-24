@@ -1,10 +1,9 @@
 // Logged in content for authenticated users
 import { getMessage } from '@/core/utils/i18n';
 import { Button } from '@/components/ui/button';
-import { ExternalLink } from 'lucide-react';
-import { openAiTool } from '@/components/utils/openAiTool';
 import { Sparkles } from 'lucide-react';
 import { FeatureGrid } from '@/components/welcome/FeatureGrid';
+import { AIToolGrid } from '@/components/welcome/AIToolGrid';
 
 interface LoggedInContentProps {
     user: any;
@@ -19,10 +18,6 @@ export const LoggedInContent: React.FC<LoggedInContentProps> = ({
     onShowOnboarding,
     onSignOut
   }) => {
-    // Handler for ChatGPT
-    const handleOpenChatGPT = () => openAiTool('https://chat.openai.com/');
-    // Handler for Claude
-    const handleOpenClaude = () => openAiTool('https://claude.ai/');
     return (
         <>
       <div className="jd-text-center jd-mb-12">
@@ -36,46 +31,11 @@ export const LoggedInContent: React.FC<LoggedInContentProps> = ({
               'You\'re logged in as {0}. You can now launch AI tools with enhanced capabilities.')}
           </p>
           
-          <div className="jd-flex jd-flex-col sm:jd-flex-row jd-gap-4 jd-justify-center">
-            {/* Show ChatGPT and Claude buttons if onboarding is not required */}
+          <div className="jd-flex jd-flex-col jd-items-center jd-gap-4">
             {!onboardingRequired ? (
-              <>
-                <Button 
-                  size="lg"
-                  onClick={handleOpenChatGPT}
-                  className="jd-gap-2 jd-bg-gradient-to-r jd-from-green-600 jd-to-emerald-600 hover:jd-from-green-500 hover:jd-to-emerald-500 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-relative jd-overflow-hidden jd-group jd-min-w-52 jd-font-heading"
-                >
-                  <div className="jd-absolute jd-inset-0 jd-w-full jd-h-full jd-bg-gradient-to-r jd-from-green-600/0 jd-via-green-400/10 jd-to-green-600/0 jd-transform jd-skew-x-12 jd-translate-x-full group-hover:jd-translate-x-full jd-transition-transform jd-duration-1000 jd-ease-out"></div>
-                  <span className="jd-flex jd-items-center jd-justify-center jd-text-lg">
-                    <img 
-                      src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//chatgpt_logo.png" 
-                      alt="ChatGPT" 
-                      className="jd-h-6 jd-w-6 jd-mr-2" 
-                    />
-                    <span>{getMessage('openChatGPT', undefined, 'Open ChatGPT')}</span>
-                    <ExternalLink className="jd-w-4 jd-h-4 jd-ml-2" />
-                  </span>
-                </Button>
-                <Button 
-                  size="lg"
-                  onClick={handleOpenClaude}
-                  className="jd-gap-2 jd-bg-gradient-to-r jd-from-purple-600 jd-to-indigo-600 hover:jd-from-purple-500 hover:jd-to-indigo-500 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-relative jd-overflow-hidden jd-group jd-min-w-52 jd-font-heading"
-                >
-                  <div className="jd-absolute jd-inset-0 jd-w-full jd-h-full jd-bg-gradient-to-r jd-from-purple-600/0 jd-via-indigo-400/10 jd-to-indigo-600/0 jd-transform jd-skew-x-12 jd-translate-x-full group-hover:jd-translate-x-full jd-transition-transform jd-duration-1000 jd-ease-out"></div>
-                  <span className="jd-flex jd-items-center jd-justify-center jd-text-lg">
-                    <img 
-                      src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//claude_logo.png" 
-                      alt="Claude" 
-                      className="jd-h-6 jd-w-6 jd-mr-2" 
-                    />
-                    <span>{getMessage('openClaude', undefined, 'Open Claude')}</span>
-                    <ExternalLink className="jd-w-4 jd-h-4 jd-ml-2" />
-                  </span>
-                </Button>
-              </>
+              <AIToolGrid />
             ) : (
-              // Always show Complete Setup button if onboarding is required
-              <Button 
+              <Button
                 size="lg"
                 onClick={onShowOnboarding}
                 className="jd-gap-2 jd-bg-blue-600 hover:jd-bg-blue-700 jd-transition-all jd-duration-300 jd-py-6 jd-rounded-lg jd-min-w-52 jd-font-heading"
@@ -85,8 +45,8 @@ export const LoggedInContent: React.FC<LoggedInContentProps> = ({
                 </span>
               </Button>
             )}
-            
-            <Button 
+
+            <Button
               variant="outline"
               onClick={onSignOut}
               className="jd-border-gray-700 jd-text-white hover:jd-bg-gray-800 jd-min-w-32 jd-font-heading"

@@ -2,9 +2,10 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, ArrowRight, ExternalLink, Sparkles, Star } from 'lucide-react';
+import { CheckCircle2, Sparkles, Star } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { AIToolGrid } from '@/components/welcome/AIToolGrid';
 
 interface CompletionStepProps {
   onComplete: () => void;
@@ -16,24 +17,13 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({ onComplete }) =>
     trackEvent(EVENTS.ONBOARDING_COMPLETED);
   }, []);
 
-  // Handle button click
-  const handleGoToChatGPT = () => {
-    trackEvent(EVENTS.ONBOARDING_GOTO_CHATGPT);
-    
-    // Open ChatGPT in a new tab
-    window.open('https://chat.openai.com', '_blank');
-    
-    // Call the completion callback
-    onComplete();
-  };
-
-  const handleGoToClaude = () => {
-    trackEvent(EVENTS.ONBOARDING_COMPLETED);
-    
-    // Open Claude in a new tab
-    window.open('https://claude.ai', '_blank');
-    
-    // Call the completion callback
+  const handleOpenTool = (url: string, trackChatGPT = false) => {
+    if (trackChatGPT) {
+      trackEvent(EVENTS.ONBOARDING_GOTO_CHATGPT);
+    } else {
+      trackEvent(EVENTS.ONBOARDING_COMPLETED);
+    }
+    window.open(url, '_blank');
     onComplete();
   };
   
@@ -119,44 +109,23 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({ onComplete }) =>
         </p>
       </motion.div>
       
-      <motion.div 
-        className="jd-pt-6 jd-flex jd-flex-col sm:jd-flex-row jd-gap-4"
+      <motion.div
+        className="jd-pt-6 jd-w-full"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
       >
-        <Button 
-          onClick={handleGoToChatGPT} 
-          className="jd-bg-gradient-to-r jd-from-green-600 jd-to-emerald-600 hover:jd-from-green-500 hover:jd-to-emerald-500 jd-text-white jd-font-heading jd-py-6 jd-px-8 jd-gap-2 jd-shadow-lg hover:jd-shadow-green-500/25 jd-transition-all jd-duration-200"
-          size="lg"
-        >
-          <svg className="jd-h-5 jd-w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 5C13.66 5 15 6.34 15 8C15 9.66 13.66 11 12 11C10.34 11 9 9.66 9 8C9 6.34 10.34 5 12 5ZM12 19.2C9.5 19.2 7.29 17.92 6 15.98C6.03 13.99 10 12.9 12 12.9C13.99 12.9 17.97 13.99 18 15.98C16.71 17.92 14.5 19.2 12 19.2Z" fill="white"/>
-          </svg>
-          {getMessage('goToChatGPT', undefined, 'Go to ChatGPT')}
-          <ExternalLink className="jd-h-5 jd-w-5" />
-        </Button>
-
-        <Button 
-          onClick={handleGoToClaude} 
-          className="jd-bg-gradient-to-r jd-from-green-600 jd-to-emerald-600 hover:jd-from-green-500 hover:jd-to-emerald-500 jd-text-white jd-font-heading jd-py-6 jd-px-8 jd-gap-2 jd-shadow-lg hover:jd-shadow-green-500/25 jd-transition-all jd-duration-200"
-          size="lg"
-        >
-          <svg className="jd-h-5 jd-w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 5C13.66 5 15 6.34 15 8C15 9.66 13.66 11 12 11C10.34 11 9 9.66 9 8C9 6.34 10.34 5 12 5ZM12 19.2C9.5 19.2 7.29 17.92 6 15.98C6.03 13.99 10 12.9 12 12.9C13.99 12.9 17.97 13.99 18 15.98C16.71 17.92 14.5 19.2 12 19.2Z" fill="white"/>
-          </svg>
-          {getMessage('goToClaude', undefined, 'Go to Claude')}
-          <ExternalLink className="jd-h-5 jd-w-5" />
-        </Button>
-        
-        <Button 
-          onClick={onComplete} 
-          variant="outline"
-          className="jd-border-gray-700 jd-text-white hover:jd-bg-gray-800 jd-font-heading jd-transition-all jd-duration-200"
-          size="lg"
-        >
-          {getMessage('returnToHome', undefined, 'Return to Home')}
-        </Button>
+        <AIToolGrid onToolClick={onComplete} />
+        <div className="jd-flex jd-justify-center jd-mt-4">
+          <Button
+            onClick={onComplete}
+            variant="outline"
+            className="jd-border-gray-700 jd-text-white hover:jd-bg-gray-800 jd-font-heading jd-transition-all jd-duration-200"
+            size="lg"
+          >
+            {getMessage('returnToHome', undefined, 'Return to Home')}
+          </Button>
+        </div>
       </motion.div>
     </motion.div>
   );
