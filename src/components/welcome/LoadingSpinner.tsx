@@ -7,8 +7,8 @@ interface LoadingSpinnerProps {
   devInfo?: string;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
-  message = 'Loading...', 
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+  message = getMessage('loading'),
   devInfo
 }) => {
   return (
