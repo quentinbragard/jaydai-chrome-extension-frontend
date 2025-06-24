@@ -10,8 +10,8 @@ interface ErrorDisplayProps {
   onRetry?: () => void;
 }
 
-export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ 
-  title = 'Initialization Error',
+export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
+  title = getMessage('initializationError', undefined, 'Initialization Error'),
   message,
   onRetry
 }) => {

@@ -12,7 +12,7 @@ interface OtherOptionInputProps {
 export const OtherOptionInput: React.FC<OtherOptionInputProps> = ({
   value,
   onChange,
-  placeholder = 'Please specify...'
+  placeholder = getMessage('pleaseSpecify', undefined, 'Please specify...')
 }) => {
   return (
     <motion.div 

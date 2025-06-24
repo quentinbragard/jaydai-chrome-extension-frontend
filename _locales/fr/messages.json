@@ -1361,6 +1361,22 @@
     "message": "Réessayer",
     "description": "Button text for retrying an action"
   },
+  "initializationError": {
+    "message": "Erreur d'initialisation",
+    "description": "Titre pour les erreurs d'initialisation"
+  },
+  "failedToSaveOnboardingData": {
+    "message": "Échec de l'enregistrement des données d'onboarding",
+    "description": "Erreur lorsque les données d'onboarding ne peuvent pas être enregistrées"
+  },
+  "onboardingError": {
+    "message": "Une erreur s'est produite lors de l'onboarding",
+    "description": "Message d'erreur générique pour l'onboarding"
+  },
+  "pleaseSpecify": {
+    "message": "Veuillez préciser...",
+    "description": "Placeholder générique pour préciser d'autres informations"
+  },
   "edit_template": {
     "message": "Modifier le template",
     "description": "Edit template button text"

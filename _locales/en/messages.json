@@ -1386,6 +1386,22 @@
     "message": "Try Again",
     "description": "Button text for retrying an action"
   },
+  "initializationError": {
+    "message": "Initialization Error",
+    "description": "Title for initialization errors"
+  },
+  "failedToSaveOnboardingData": {
+    "message": "Failed to save onboarding data",
+    "description": "Error when onboarding data cannot be saved"
+  },
+  "onboardingError": {
+    "message": "An error occurred during onboarding",
+    "description": "Generic onboarding error message"
+  },
+  "pleaseSpecify": {
+    "message": "Please specify...",
+    "description": "Generic placeholder to specify other details"
+  },
   "edit_template": {
     "message": "Edit template",
     "description": "Edit template button text"

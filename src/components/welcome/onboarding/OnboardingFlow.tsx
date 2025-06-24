@@ -141,16 +141,25 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
         // Move to completion step
         setCurrentStep(totalSteps - 1);
       } else {
-        throw new Error(result.message || 'Failed to save onboarding data');
+        throw new Error(
+          result.message ||
+            getMessage('failedToSaveOnboardingData', undefined, 'Failed to save onboarding data')
+        );
       }
     } catch (err) {
       console.error('Onboarding submission error:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred during onboarding');
+      setError(
+        err instanceof Error
+          ? err.message
+          : getMessage('onboardingError', undefined, 'An error occurred during onboarding')
+      );
       
       // Track error event
       trackEvent(EVENTS.ONBOARDING_ERROR, {
         user_id: user?.id,
-        error: err instanceof Error ? err.message : 'Unknown error'
+        error: err instanceof Error
+          ? err.message
+          : getMessage('unknownError')
       });
     } finally {
       setIsSubmitting(false);
