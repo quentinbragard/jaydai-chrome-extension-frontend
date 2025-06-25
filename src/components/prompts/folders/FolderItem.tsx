@@ -375,8 +375,10 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               onUseTemplate={onUseTemplate}
               onEditTemplate={onEditTemplate}
               onDeleteTemplate={onDeleteTemplate}
+              onTogglePin={onTogglePin}
               showEditControls={type === 'user'}
               showDeleteControls={type === 'user'}
+              showPinControls={showPinControls}
               organizations={organizations}
               parentFolderHasOrgImage={folderShowsOrgImage} // Pass context!
               isInGlobalSearch={false}
@@ -425,8 +427,10 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   onUseTemplate={onUseTemplate}
                   onEditTemplate={onEditTemplate}
                   onDeleteTemplate={onDeleteTemplate}
+                  onTogglePin={onTogglePin}
                   showEditControls={type === 'user'}
                   showDeleteControls={type === 'user'}
+                  showPinControls={showPinControls}
                   organizations={organizations}
                   parentFolderHasOrgImage={folderShowsOrgImage} // Pass context!
                   isInGlobalSearch={false}

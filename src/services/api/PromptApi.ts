@@ -15,7 +15,8 @@ import {
         deleteTemplate,
         getUnorganizedTemplates,
         getUserTemplates,
-        trackTemplateUsage
+        trackTemplateUsage,
+        toggleTemplatePin
       } from './prompts/templates';
 
 /**
@@ -58,6 +59,10 @@ class PromptApiClient {
 
   async deleteTemplate(templateId: number): Promise<any> {
     return deleteTemplate(templateId);
+  }
+
+  async toggleTemplatePin(templateId: number, isPinned: boolean, type: 'company' | 'organization' | 'user'): Promise<any> {
+    return toggleTemplatePin(templateId, isPinned, type);
   }
 
   async getUnorganizedTemplates(): Promise<any> {

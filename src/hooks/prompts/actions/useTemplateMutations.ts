@@ -176,6 +176,52 @@ export function useTemplateMutations() {
       };
     }
   })();
+
+  // Toggle template pin status
+  const toggleTemplatePin = (() => {
+    try {
+      return useMutation(
+        async ({ templateId, isPinned, type }: { templateId: number; isPinned: boolean; type: 'company' | 'organization' | 'user' }) => {
+          const response = await promptApi.toggleTemplatePin(templateId, isPinned, type);
+          if (!response.success) {
+            throw new Error(response.message || 'Failed to update pin status');
+          }
+          return response.data;
+        },
+        {
+          onSuccess: () => {
+            if (queryClient) {
+              queryClient.invalidateQueries(QUERY_KEYS.PINNED_TEMPLATES);
+              queryClient.invalidateQueries(QUERY_KEYS.USER_METADATA);
+            }
+          },
+          onError: (error: Error) => {
+            console.error('Error toggling template pin status:', error);
+            toast.error(`Failed to update pin status: ${error.message}`);
+          }
+        }
+      );
+    } catch (error) {
+      return {
+        mutateAsync: async ({ templateId, isPinned, type }: { templateId: number; isPinned: boolean; type: 'company' | 'organization' | 'user' }) => {
+          try {
+            const response = await promptApi.toggleTemplatePin(templateId, isPinned, type);
+            if (!response.success) {
+              throw new Error(response.message || 'Failed to update pin status');
+            }
+            return response.data;
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            console.error('Error toggling template pin status:', error);
+            toast.error(`Failed to update pin status: ${errorMessage}`);
+            throw error;
+          }
+        },
+        isLoading: false,
+        reset: () => {}
+      };
+    }
+  })();
   
   // Track template usage
   const trackTemplateUsage = (() => {
@@ -218,6 +264,7 @@ export function useTemplateMutations() {
     createTemplate,
     updateTemplate,
     deleteTemplate,
-    trackTemplateUsage
+    trackTemplateUsage,
+    toggleTemplatePin
   };
 }

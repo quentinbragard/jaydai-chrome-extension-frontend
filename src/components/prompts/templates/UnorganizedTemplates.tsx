@@ -33,6 +33,8 @@ export function UnorganizedTemplates({
             type="user"
             onEditTemplate={onEditTemplate}
             onDeleteTemplate={onDeleteTemplate}
+            showPinControls={true}
+            onTogglePin={() => {}}
           />
         ))}
       </div>

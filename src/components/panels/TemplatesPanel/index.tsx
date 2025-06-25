@@ -21,7 +21,8 @@ import {
   useFolderMutations,
   useTemplateMutations,
   useTemplateActions,
-  useUnorganizedTemplates // Add this import
+  useUnorganizedTemplates,
+  usePinnedTemplates
 } from '@/hooks/prompts';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { useOrganizations } from '@/hooks/organizations';
@@ -77,6 +78,11 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     data: unorganizedTemplates = [],
     isLoading: loadingUnorganized
   } = useUnorganizedTemplates();
+
+  const {
+    data: pinnedTemplatesData = { templates: [], pinnedIds: [] },
+    refetch: refetchPinnedTemplates
+  } = usePinnedTemplates();
 
   const { data: organizations = [] } = useOrganizations();
 
@@ -189,9 +195,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     };
   }, [allPinnedFolders, searchQuery, folderMatchesQuery]);
 
+  const filteredPinnedTemplates = useMemo(() => {
+    if (!searchQuery.trim()) return pinnedTemplatesData.templates;
+    return pinnedTemplatesData.templates.filter(t => templateMatchesQuery(t, searchQuery));
+  }, [pinnedTemplatesData.templates, searchQuery, templateMatchesQuery]);
+
   // Mutations and actions
   const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
-  const { deleteTemplate } = useTemplateMutations();
+  const { deleteTemplate, toggleTemplatePin } = useTemplateMutations();
   const { useTemplate, createTemplate, editTemplate } = useTemplateActions();
   const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders } = useDialogActions();
 
@@ -209,6 +220,17 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       }
     },
     [toggleFolderPin]
+  );
+
+  const handleToggleTemplatePin = useCallback(
+    async (templateId: number, isPinned: boolean, type: 'user' | 'organization' | 'company') => {
+      try {
+        await toggleTemplatePin.mutateAsync({ templateId, isPinned, type });
+      } catch (error) {
+        console.error('Error toggling template pin:', error);
+      }
+    },
+    [toggleTemplatePin]
   );
 
   // Enhanced folder handlers
@@ -394,8 +416,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                           onUseTemplate={useTemplate}
                           onEditTemplate={editTemplate}
                           onDeleteTemplate={handleDeleteTemplate}
+                          onTogglePin={handleToggleTemplatePin}
                           showEditControls={templateType === 'user'}
                           showDeleteControls={templateType === 'user'}
+                          showPinControls={true}
                           organizations={organizations}
                         />
                       </div>
@@ -414,9 +438,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <div className="jd-flex jd-items-center">
                 <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
                 {getMessage('pinnedTemplates', undefined, 'Pinned Templates')}
-                {allPinnedFolders.length > 0 && (
+                {(filteredPinnedTemplates.length + allPinnedFolders.length) > 0 && (
                   <span className="jd-ml-1 jd-text-xs jd-bg-primary/10 jd-text-primary jd-px-1.5 jd-py-0.5 jd-rounded-full">
-                    {allPinnedFolders.length}
+                    {filteredPinnedTemplates.length + allPinnedFolders.length}
                   </span>
                 )}
               </div>
@@ -426,12 +450,29 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </div>
 
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {allPinnedFolders.length === 0 ? (
+              {(filteredPinnedTemplates.length + allPinnedFolders.length) === 0 ? (
                 <EmptyMessage>
                   {getMessage('noPinnedTemplates', undefined, 'No pinned templates. Pin your favorites for quick access.')}
                 </EmptyMessage>
               ) : (
                 <>
+                  {/* Pinned templates */}
+                  {filteredPinnedTemplates.map(t => (
+                    <TemplateItem
+                      key={`pinned-template-${t.id}`}
+                      template={t}
+                      type={(t as any).type || 'user'}
+                      onUseTemplate={useTemplate}
+                      onEditTemplate={editTemplate}
+                      onDeleteTemplate={handleDeleteTemplate}
+                      onTogglePin={handleToggleTemplatePin}
+                      showEditControls={(t as any).type === 'user'}
+                      showDeleteControls={(t as any).type === 'user'}
+                      showPinControls={true}
+                      organizations={organizations}
+                    />
+                  ))}
+
                   {/* User pinned folders (including nested ones) */}
                   {filteredPinned.user.map(folder => (
                     <FolderItem
