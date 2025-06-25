@@ -1,6 +1,7 @@
 // src/components/panels/TemplatesPanel/utils/folderUtils.ts
 
 import { TemplateFolder } from '@/types/prompts/templates';
+import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 
 /**
  * Count all templates in a folder including its subfolders
@@ -67,7 +68,13 @@ export function getFolderDepth(folderPath: string): number {
  * Compare folders by name for sorting
  */
 export function compareFoldersByName(a: TemplateFolder, b: TemplateFolder): number {
-  return (a.name || '').localeCompare(b.name || '');
+  const aName = getLocalizedContent(a.title ?? a.name) || '';
+  const bName = getLocalizedContent(b.title ?? b.name) || '';
+  return aName.localeCompare(bName, undefined, { sensitivity: 'base' });
+}
+
+export function getFolderTitle(folder: TemplateFolder): string {
+  return getLocalizedContent(folder.title ?? folder.name) || '';
 }
 
 /**

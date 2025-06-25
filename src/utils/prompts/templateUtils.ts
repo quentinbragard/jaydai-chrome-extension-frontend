@@ -1,4 +1,4 @@
-import { getBlockContent } from '@/utils/prompts/blockUtils';
+import { getBlockContent, getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { formatBlockForPrompt, formatMetadataForPrompt } from '@/utils/prompts/promptUtils';
 import { ALL_METADATA_TYPES, PromptMetadata } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
@@ -159,6 +159,12 @@ export function isTemplatePopular(template: Template): boolean {
  */
 export function getTemplateTitle(template: Template): string {
   return template.title || 'Untitled Template';
+}
+
+export function compareTemplatesByTitle(a: Template, b: Template): number {
+  const aTitle = getLocalizedContent(a.title) || '';
+  const bTitle = getLocalizedContent(b.title) || '';
+  return aTitle.localeCompare(bTitle, undefined, { sensitivity: 'base' });
 }
 
 /**

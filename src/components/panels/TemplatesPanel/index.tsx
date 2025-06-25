@@ -33,6 +33,7 @@ import { EmptyMessage } from './EmptyMessage';
 import EmptyState from './EmptyState';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
+import { getFolderTitle } from '@/utils/prompts/folderUtils';
 
 // Import the new global search hook
 import { useGlobalTemplateSearch } from '@/hooks/prompts/utils/useGlobalTemplateSearch';
@@ -149,27 +150,23 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   // When there's a search query, show global results; otherwise show navigation items
   const displayItems = useMemo(() => {
+    const getTitle = (item: TemplateFolder | Template) =>
+      'templates' in item || 'Folders' in item
+        ? getFolderTitle(item as TemplateFolder)
+        : getLocalizedContent((item as Template).title) || '';
+
+    const sortAll = (items: Array<TemplateFolder | Template>) =>
+      [...items].sort((a, b) => getTitle(a).localeCompare(getTitle(b), undefined, { sensitivity: 'base' }));
+
     if (searchQuery.trim()) {
-      // Return global search results
-      return {
-        folders: searchResults.folders,
-        templates: searchResults.templates,
-        isGlobalSearch: true
-      };
+      const items = sortAll([...searchResults.folders, ...searchResults.templates]);
+      return { items, isGlobalSearch: true };
     } else {
-      // Return navigation items (existing logic)
       const filteredItems = navigation.currentItems.filter(
         (item) => navigation.getItemType(item) === 'user'
       );
-      
-      const folders = filteredItems.filter(item => 'templates' in item) as TemplateFolder[];
-      const templates = filteredItems.filter(item => !('templates' in item)) as Template[];
-      
-      return {
-        folders,
-        templates,
-        isGlobalSearch: false
-      };
+      const items = sortAll(filteredItems);
+      return { items, isGlobalSearch: false };
     }
   }, [searchQuery, searchResults, navigation.currentItems, navigation]);
 
@@ -232,6 +229,21 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     if (!searchQuery.trim()) return pinnedTemplates;
     return pinnedTemplates.filter(t => templateMatchesQuery(t, searchQuery));
   }, [pinnedTemplates, searchQuery, templateMatchesQuery]);
+
+  const sortedPinnedItems = useMemo(() => {
+    const getTitle = (item: TemplateFolder | Template) =>
+      'templates' in item || 'Folders' in item
+        ? getFolderTitle(item as TemplateFolder)
+        : getLocalizedContent((item as Template).title) || '';
+
+    const all = [
+      ...filteredPinnedTemplates,
+      ...filteredPinned.user,
+      ...filteredPinned.organization,
+    ];
+
+    return [...all].sort((a, b) => getTitle(a).localeCompare(getTitle(b), undefined, { sensitivity: 'base' }));
+  }, [filteredPinnedTemplates, filteredPinned]);
 
   // Mutations and actions
   const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
@@ -396,9 +408,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
             {/* Display Items */}
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {displayItems.folders.length === 0 && displayItems.templates.length === 0 ? (
+              {displayItems.items.length === 0 ? (
                 <EmptyMessage>
-                  {searchQuery.trim() 
+                  {searchQuery.trim()
                     ? `No results found for "${searchQuery}"`
                     : navigation.isAtRoot
                       ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
@@ -407,37 +419,38 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 </EmptyMessage>
               ) : (
                 <>
-                  {/* Render folders */}
-                  {displayItems.folders.map((folder) => (
-                    <FolderItem
-                      key={`${displayItems.isGlobalSearch ? 'search-' : ''}folder-${folder.id}`}
-                      folder={folder}
-                      type={navigation.getItemType(folder)}
-                      enableNavigation={!displayItems.isGlobalSearch}
-                      onNavigateToFolder={displayItems.isGlobalSearch ? undefined : navigation.navigateToFolder}
-                      onTogglePin={handleTogglePin}
-                      onEditFolder={handleEditFolder}
-                      onDeleteFolder={handleDeleteFolder}
-                      onUseTemplate={useTemplate}
-                      onEditTemplate={editTemplate}
-                      onDeleteTemplate={handleDeleteTemplate}
-                      organizations={organizations}
-                      showPinControls={true}
-                      showEditControls={navigation.getItemType(folder) === 'user'}
-                      showDeleteControls={navigation.getItemType(folder) === 'user'}
-                      pinnedFolderIds={allPinnedFolderIds}
-                    />
-                  ))}
-
-                  {/* Render templates */}
-                  {displayItems.templates.map((template) => {
-                    const templateType = displayItems.isGlobalSearch 
+                  {displayItems.items.map(item => {
+                    const isFolder = 'templates' in item || 'Folders' in item;
+                    if (isFolder) {
+                      const folder = item as TemplateFolder;
+                      return (
+                        <FolderItem
+                          key={`${displayItems.isGlobalSearch ? 'search-' : ''}folder-${folder.id}`}
+                          folder={folder}
+                          type={navigation.getItemType(folder)}
+                          enableNavigation={!displayItems.isGlobalSearch}
+                          onNavigateToFolder={displayItems.isGlobalSearch ? undefined : navigation.navigateToFolder}
+                          onTogglePin={handleTogglePin}
+                          onEditFolder={handleEditFolder}
+                          onDeleteFolder={handleDeleteFolder}
+                          onUseTemplate={useTemplate}
+                          onEditTemplate={editTemplate}
+                          onDeleteTemplate={handleDeleteTemplate}
+                          organizations={organizations}
+                          showPinControls={true}
+                          showEditControls={navigation.getItemType(folder) === 'user'}
+                          showDeleteControls={navigation.getItemType(folder) === 'user'}
+                          pinnedFolderIds={allPinnedFolderIds}
+                        />
+                      );
+                    }
+                    const template = item as Template;
+                    const templateType = displayItems.isGlobalSearch
                       ? (template as any).folderType || 'user'
                       : navigation.getItemType(template);
-                    
+
                     return (
                       <div key={`${displayItems.isGlobalSearch ? 'search-' : ''}template-${template.id}`}>
-                        {/* Show folder path for global search results */}
                         {displayItems.isGlobalSearch && (template as any).folderPath && (
                           <div className="jd-text-xs jd-text-muted-foreground jd-px-2 jd-py-1 jd-bg-muted/30 jd-rounded-sm jd-mb-1">
                             📁 {(template as any).folderPath}
@@ -471,9 +484,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <div className="jd-flex jd-items-center">
                 <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
                 {getMessage('pinnedTemplates', undefined, 'Pinned Templates')}
-                {(filteredPinnedTemplates.length + allPinnedFolders.length) > 0 && (
+                {sortedPinnedItems.length > 0 && (
                   <span className="jd-ml-1 jd-text-xs jd-bg-primary/10 jd-text-primary jd-px-1.5 jd-py-0.5 jd-rounded-full">
-                    {filteredPinnedTemplates.length + allPinnedFolders.length}
+                    {sortedPinnedItems.length}
                   </span>
                 )}
               </div>
@@ -483,66 +496,55 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </div>
 
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {(filteredPinnedTemplates.length + allPinnedFolders.length) === 0 ? (
+              {sortedPinnedItems.length === 0 ? (
                 <EmptyMessage>
                   {getMessage('noPinnedTemplates', undefined, 'No pinned templates. Pin your favorites for quick access.')}
                 </EmptyMessage>
               ) : (
                 <>
-                  {/* Pinned templates */}
-                  {filteredPinnedTemplates.map(t => (
-                    <TemplateItem
-                      key={`pinned-template-${t.id}`}
-                      template={t}
-                      type={(t as any).type || 'user'}
-                      onUseTemplate={useTemplate}
-                      onEditTemplate={editTemplate}
-                      onDeleteTemplate={handleDeleteTemplate}
-                      onTogglePin={handleToggleTemplatePin}
-                      showEditControls={(t as any).type === 'user'}
-                      showDeleteControls={(t as any).type === 'user'}
-                      showPinControls={true}
-                      organizations={organizations}
-                    />
-                  ))}
-
-                  {/* User pinned folders (including nested ones) */}
-                  {filteredPinned.user.map(folder => (
-                    <FolderItem
-                      key={`pinned-user-${folder.id}`}
-                      folder={folder}
-                      type="user"
-                      enableNavigation={false}
-                      onTogglePin={handleTogglePin}
-                      onUseTemplate={useTemplate}
-                      onEditTemplate={editTemplate}
-                      onDeleteTemplate={handleDeleteTemplate}
-                      onEditFolder={handleEditFolder}
-                      onDeleteFolder={handleDeleteFolder}
-                      organizations={organizations}
-                      showPinControls={true}
-                      showEditControls={true}
-                      showDeleteControls={true}
-                      pinnedFolderIds={allPinnedFolderIds}
-                    />
-                  ))}
-                  
-                  {/* Organization pinned folders (including nested ones) */}
-                  {filteredPinned.organization.map(folder => (
-                    <FolderItem
-                      key={`pinned-org-${folder.id}`}
-                      folder={folder}
-                      type="organization"
-                      enableNavigation={false}
-                      onTogglePin={handleTogglePin}
-                      onUseTemplate={useTemplate}
-                      organizations={organizations}
-                      showPinControls={true}
-                      showEditControls={false}
-                      showDeleteControls={false}
-                      pinnedFolderIds={allPinnedFolderIds}
-                    />
-                  ))}
+                  {sortedPinnedItems.map(item => {
+                    const isFolder = 'templates' in item || 'Folders' in item;
+                    if (isFolder) {
+                      const folder = item as TemplateFolder;
+                      const folderType = (item as any).folderType || 'user';
+                      return (
+                        <FolderItem
+                          key={`pinned-folder-${folder.id}`}
+                          folder={folder}
+                          type={folderType}
+                          enableNavigation={false}
+                          onTogglePin={handleTogglePin}
+                          onUseTemplate={useTemplate}
+                          onEditTemplate={editTemplate}
+                          onDeleteTemplate={handleDeleteTemplate}
+                          onEditFolder={handleEditFolder}
+                          onDeleteFolder={handleDeleteFolder}
+                          organizations={organizations}
+                          showPinControls={true}
+                          showEditControls={folderType === 'user'}
+                          showDeleteControls={folderType === 'user'}
+                          pinnedFolderIds={allPinnedFolderIds}
+                        />
+                      );
+                    }
+                    const template = item as Template;
+                    const templateType = (template as any).type || 'user';
+                    return (
+                      <TemplateItem
+                        key={`pinned-template-${template.id}`}
+                        template={template}
+                        type={templateType}
+                        onUseTemplate={useTemplate}
+                        onEditTemplate={editTemplate}
+                        onDeleteTemplate={handleDeleteTemplate}
+                        onTogglePin={handleToggleTemplatePin}
+                        showEditControls={templateType === 'user'}
+                        showDeleteControls={templateType === 'user'}
+                        showPinControls={true}
+                        organizations={organizations}
+                      />
+                    );
+                  })}
                 </>
               )}
             </div>
