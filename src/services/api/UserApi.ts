@@ -10,6 +10,7 @@ export interface UserMetadata {
   additional_emails?: string[];
   additional_organizations?: string[];
   pinned_folder_ids?: number[];
+  pinned_template_ids?: number[];
   preferences_metadata?: Record<string, any>;
 }
 

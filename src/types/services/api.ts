@@ -170,6 +170,7 @@ export interface ApiResponse<T = unknown> {
       phone_number: string | null;
       additional_organization: string | null;
       pinned_folder_ids: number[] | null;
+      pinned_template_ids?: number[] | null;
       [key: string]: any;
     };
     message?: string;
