@@ -10,6 +10,11 @@ export interface Breadcrumb {
 export interface UseBreadcrumbNavigationProps {
   userFolders: TemplateFolder[];
   organizationFolders: TemplateFolder[];
+  /**
+   * Templates that are not assigned to any folder (folder_id is null)
+   * These will be displayed after the user folders at the root level
+   */
+  unorganizedTemplates?: Template[];
 }
 
 function findFolderById(folders: TemplateFolder[], id: number): TemplateFolder | null {
@@ -23,7 +28,7 @@ function findFolderById(folders: TemplateFolder[], id: number): TemplateFolder |
   return null;
 }
 
-export function useBreadcrumbNavigation({ userFolders, organizationFolders }: UseBreadcrumbNavigationProps) {
+export function useBreadcrumbNavigation({ userFolders, organizationFolders, unorganizedTemplates = [] }: UseBreadcrumbNavigationProps) {
   const [breadcrumbs, setBreadcrumbs] = useState<Breadcrumb[]>([]);
 
   const currentFolder = useMemo(() => {
@@ -35,15 +40,12 @@ export function useBreadcrumbNavigation({ userFolders, organizationFolders }: Us
 
   const currentItems = useMemo(() => {
     if (!currentFolder) {
-      const roots = [
-        ...userFolders.map(f => ({ ...f, type: 'user' as const })),
-        ...organizationFolders.map(f => ({ ...f, type: 'organization' as const }))
-      ];
-      const rootTemplates: Template[] = [];
-      userFolders.forEach(f => {
-        f.templates?.filter(t => !t.folder_id).forEach(t => rootTemplates.push({ ...t, type: 'user' as const }));
-      });
-      return [...roots, ...rootTemplates];
+      const userRootFolders = userFolders.map(f => ({ ...f, type: 'user' as const }));
+      const orgRootFolders = organizationFolders.map(f => ({ ...f, type: 'organization' as const }));
+
+      const rootTemplates = (unorganizedTemplates || []).map(t => ({ ...t, type: 'user' as const }));
+
+      return [...userRootFolders, ...rootTemplates, ...orgRootFolders];
     }
 
     const type = breadcrumbs[0].type;
@@ -51,7 +53,7 @@ export function useBreadcrumbNavigation({ userFolders, organizationFolders }: Us
     currentFolder.Folders?.forEach(f => items.push({ ...f, type }));
     currentFolder.templates?.forEach(t => items.push({ ...t, type }));
     return items;
-  }, [currentFolder, userFolders, organizationFolders, breadcrumbs]);
+  }, [currentFolder, userFolders, organizationFolders, unorganizedTemplates, breadcrumbs]);
 
   const navigateToFolder = (folder: TemplateFolder & { type: 'user' | 'organization' }) => {
     setBreadcrumbs(prev => [...prev, { id: folder.id, title: folder.title || '', type: folder.type! }]);
