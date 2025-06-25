@@ -1,5 +1,5 @@
 // src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Simplified Version
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,7 +13,6 @@ import {
   convertMetadataToVirtualBlocks,
   extractPlaceholdersFromBlocks
 } from '@/utils/templates/enhancedPreviewUtils';
-import { replacePlaceholders } from '@/utils/templates/placeholderHelpers';
 
 interface Placeholder {
   key: string;
@@ -41,23 +40,14 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   
   const isDark = useThemeDetector();
   const [showPreview, setShowPreview] = useState(mode === 'customize');
-  const originalContentRef = useRef(content);
-
-  useEffect(() => {
-    if (mode === 'customize') {
-      originalContentRef.current = content;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   
   // Utility to gather placeholder keys from content and metadata blocks
   const getPlaceholderKeys = useCallback((): string[] => {
-    const baseContent = mode === 'customize' ? originalContentRef.current : content;
-    const fromContent = baseContent.match(/\[([^\]]+)\]/g) || [];
+    const fromContent = content.match(/\[([^\]]+)\]/g) || [];
     const virtualBlocks = convertMetadataToVirtualBlocks(metadata, blockContentCache);
     const fromBlocks = extractPlaceholdersFromBlocks(virtualBlocks).map(p => `[${p.key}]`);
     return Array.from(new Set([...fromContent, ...fromBlocks]));
-  }, [content, metadata, blockContentCache, mode]);
+  }, [content, metadata, blockContentCache]);
 
   // Simple placeholder extraction and management
   const [placeholders, setPlaceholders] = useState<Placeholder[]>(() => {
@@ -93,27 +83,17 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     return result;
   }, [content, placeholders]);
 
-  const updatePlaceholder = useCallback(
-    (index: number, value: string) => {
-      setPlaceholders(prev => {
-        const updated = [...prev];
-        updated[index] = { ...updated[index], value };
-        const map = updated.reduce<Record<string, string>>((acc, p) => {
-          if (p.value.trim()) acc[p.key] = p.value;
-          return acc;
-        }, {});
-        const newContent = replacePlaceholders(originalContentRef.current, map);
-        setContent(newContent);
-        return updated;
-      });
-    },
-    [setContent]
-  );
+  const updatePlaceholder = useCallback((index: number, value: string) => {
+    setPlaceholders(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], value };
+      return updated;
+    });
+  }, []);
 
   const resetPlaceholders = useCallback(() => {
     setPlaceholders(prev => prev.map(p => ({ ...p, value: '' })));
-    setContent(originalContentRef.current);
-  }, [setContent]);
+  }, []);
 
   const togglePreview = () => setShowPreview(prev => !prev);
 
