@@ -146,6 +146,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
     }
   }, [onDeleteFolder, folder.id]);
 
+
   return (
     <div className="jd-folder-container">
       {/* Optional Navigation Header */}
@@ -201,7 +202,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                     <ChevronRight className="jd-h-3 jd-w-3 jd-text-muted-foreground jd-flex-shrink-0" />
                     <button
                       onClick={() => onNavigateToPathIndex?.(index)}
-                      className={`jd-truncate jd-text-left jd-hover:jd-text-foreground jd-transition-colors ${
+                      className={`jd-truncate jd-font-medium jd-text-left jd-hover:jd-text-foreground jd-transition-colors ${
                         index === navigationPath.length - 1 
                           ? 'jd-text-foreground jd-font-medium' 
                           : 'jd-text-muted-foreground jd-hover:jd-underline'
@@ -238,7 +239,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
       >
         {/* Expansion/Navigation Icon */}
         {enableNavigation ? (
-          <div className="jd-w-4 jd-h-4 jd-mr-1 jd-flex-shrink-0" />
+          <div className="jd-h-4 jd-flex-shrink-0" />
         ) : totalItems > 0 ? (
           expanded ? 
             <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" /> : 
@@ -275,7 +276,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               </Tooltip>
             </TooltipProvider>
           ) : (
-            <span className="jd-text-sm jd-truncate jd-block">{folder.title}</span>
+            <span className="jd-text-sm jd-truncate jd-block jd-font-medium">{folder.title}</span>
           )}
         </div>
 
@@ -327,11 +328,13 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
           {/* Pin Button */}
           {showPinControls && onTogglePin && (
-            <PinButton
-              isPinned={isPinned}
-              onClick={handleTogglePin}
-              className=""
-            />
+            <div className={`jd-ml-auto  jd-items-center jd-gap-1 ${isPinned ? 'jd-flex' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'}`}>
+              <PinButton
+                isPinned={isPinned}
+                onClick={handleTogglePin}
+                className=""
+              />
+            </div>
           )}
         </div>
       </div>
