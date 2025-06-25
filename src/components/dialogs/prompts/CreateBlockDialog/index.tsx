@@ -51,13 +51,6 @@ export const CreateBlockDialog: React.FC = () => {
     }
   }, [isOpen, initialType, initialContent]);
 
-  // Generate default name based on type
-  useEffect(() => {
-    if (blockType && !name) {
-      const typeName = BLOCK_TYPE_LABELS[blockType] || blockType;
-      setName(`${typeName} Block`);
-    }
-  }, [blockType, name]);
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
@@ -171,8 +164,8 @@ export const CreateBlockDialog: React.FC = () => {
         {/* Block Name */}
         <div>
           <label className="jd-text-sm jd-font-medium jd-mb-2 jd-block">Block Name</label>
-          <Input 
-            value={name} 
+          <Input
+            value={name}
             onChange={(e) => {
               setName(e.target.value);
               if (validationErrors.name) {
@@ -183,8 +176,12 @@ export const CreateBlockDialog: React.FC = () => {
             className={cn("jd-w-full", validationErrors.name && "jd-border-red-500")}
             autoFocus
           />
-          {validationErrors.name && (
+          {validationErrors.name ? (
             <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.name}</p>
+          ) : (
+            !name.trim() && (
+              <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">Please enter a block name</p>
+            )
           )}
         </div>
         
