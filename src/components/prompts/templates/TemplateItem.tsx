@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { OrganizationImage } from '@/components/organizations';
 import { Template } from '@/types/prompts/templates';
 import { getMessage } from '@/core/utils/i18n';
+import { usePinnedTemplates } from '@/hooks/prompts';
 
 const iconColorMap = {
   user: 'jd-text-gray-600',
@@ -55,6 +56,15 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
 }) => {
   // Ensure we have a display name
   const displayName = template.title || 'Untitled Template';
+
+  const { data: pinnedTemplateIds = [] } = usePinnedTemplates();
+
+  const isPinned = useMemo(() => {
+    if (typeof (template as any).is_pinned === 'boolean') {
+      return (template as any).is_pinned;
+    }
+    return pinnedTemplateIds.includes(template.id);
+  }, [pinnedTemplateIds, template.id, (template as any).is_pinned]);
   
   // Get organization data
   const templateOrganization = (template as any).organization || 
@@ -105,10 +115,9 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   const handleTogglePin = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (onTogglePin && template.id) {
-      console.log("PIIIIIN template👉👉👉👉👉👉👉", template);
-      onTogglePin(template.id, !!(template as any).is_pinned, type);
+      onTogglePin(template.id, isPinned, type);
     }
-  }, [onTogglePin, template.id, (template as any).is_pinned, type]);
+  }, [onTogglePin, template.id, isPinned, type]);
 
   // Show controls based on type and props
   const shouldShowEditControls = showEditControls && type === 'user';
@@ -217,7 +226,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
         {shouldShowPinControls && (
           <PinButton
             type="template"
-            isPinned={(template as any).is_pinned}
+            isPinned={isPinned}
             onClick={handleTogglePin}
           />
         )}
