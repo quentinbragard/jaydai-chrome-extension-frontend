@@ -216,7 +216,6 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
             size="sm"
             variant="ghost"
             onClick={onClose}
-            className="jd-h-7 jd-w-7 jd-p-0"
           >
             <X className="jd-h-3 jd-w-3" />
           </Button>

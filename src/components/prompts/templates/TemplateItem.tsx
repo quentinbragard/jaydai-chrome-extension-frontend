@@ -9,9 +9,9 @@ import { Template } from '@/types/prompts/templates';
 import { getMessage } from '@/core/utils/i18n';
 
 const iconColorMap = {
-  user: 'jd-text-blue-500',
+  user: 'jd-text-gray-600',
   company: 'jd-text-red-500',
-  organization: 'jd-text-gray-600'
+  organization: 'jd-text-orange-500'
 } as const;
 
 interface TemplateItemProps {
@@ -105,6 +105,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   const handleTogglePin = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (onTogglePin && template.id) {
+      console.log("PIIIIIN template👉👉👉👉👉👉👉", template);
       onTogglePin(template.id, !!(template as any).is_pinned, type);
     }
   }, [onTogglePin, template.id, (template as any).is_pinned, type]);
@@ -114,10 +115,6 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   const shouldShowDeleteControls = showDeleteControls && type === 'user';
   const shouldShowPinControls = showPinControls && onTogglePin;
 
-  // Calculate usage information
-  const usageCount = typeof template.usage_count === 'number' ? template.usage_count : 0;
-  const isPopular = usageCount >= 5;
-  const hasUsageInfo = usageCount > 0;
 
   return (
     <div 
@@ -126,6 +123,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
       } ${className}`}
       onClick={handleTemplateClick}
       style={{ paddingLeft: `${level * 16 + 8}px` }}
+
     >
       {/* Template Icon or Organization Image */}
       {shouldShowOrgImage ? (
@@ -171,7 +169,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
       <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
         {/* Edit and Delete Controls (for user templates) */}
         {(shouldShowEditControls || shouldShowDeleteControls) && (
-          <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+          <div className="jd-flex jd-items-center jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
             {/* Edit Button */}
             {shouldShowEditControls && onEditTemplate && (
               <TooltipProvider>
@@ -221,7 +219,6 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
             type="template"
             isPinned={(template as any).is_pinned}
             onClick={handleTogglePin}
-            className=""
           />
         )}
           </div>

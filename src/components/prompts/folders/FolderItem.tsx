@@ -12,9 +12,9 @@ import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 import { getMessage } from '@/core/utils/i18n';
 
 const folderIconColors = {
-  user: 'jd-text-blue-500',
+  user: 'jd-text-gray-600',
   company: 'jd-text-red-500',
-  organization: 'jd-text-gray-600'
+  organization: 'jd-text-orange-500'
 } as const;
 
 interface NavigationPath {
@@ -151,7 +151,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
       {/* Optional Navigation Header */}
       {showNavigationHeader && (
         <>
-          <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
+          <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2">
             <div className="jd-flex jd-items-center">
               <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
               {isAtRoot ? 'My Templates' : folder.title}
@@ -244,7 +244,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
             <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" /> : 
             <ChevronRight className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" />
         ) : (
-          <div className="jd-w-4 jd-h-4 jd-mr-1 jd-flex-shrink-0" />
+          <div/>
         )}
 
         {/* Organization Image (for organization folders) */}
@@ -291,10 +291,9 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                       variant="ghost" 
                       size="sm" 
                       onClick={handleEditFolder} 
-                      className="jd-text-gray-600 hover:jd-text-blue-600 hover:jd-bg-blue-50 jd-dark:jd-text-gray-300 jd-dark:hover:jd-text-blue-400 jd-dark:hover:jd-bg-blue-900/30 jd-transition-all jd-duration-200"
                     >
-                      <Edit className="jd-h-4 jd-w-4" />
-                    </Button>
+                      <Edit className="jd-h-4 jd-w-4 jd-text-blue-600 hover:jd-text-blue-700 hover:jd-bg-blue-100 jd-dark:jd-text-blue-400 jd-dark:hover:jd-text-blue-300 jd-dark:hover:jd-bg-blue-900/30" />
+                      </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
                     <p>Edit folder</p>
@@ -312,9 +311,8 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                       variant="ghost" 
                       size="sm" 
                       onClick={handleDeleteFolder}
-                      className="jd-text-gray-600 hover:jd-text-red-600 hover:jd-bg-red-50 jd-dark:jd-text-gray-300 jd-dark:hover:jd-text-red-400 jd-dark:hover:jd-bg-red-900/30 jd-transition-all jd-duration-200"
                     >
-                      <Trash2 className="jd-h-4 jd-w-4" />
+                      <Trash2 className="jd-h-4 jd-w-4 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
