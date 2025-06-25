@@ -262,26 +262,20 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         {/* Folder Name */}
         <div className="jd-flex-1 jd-min-w-0">
           {folder.description ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span
-                  className="jd-text-sm jd-truncate jd-block"
-                  title={folder.title}
-                >
-                  {folder.title}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="jd-max-w-xs jd-z-50">
-                <p>{folder.description}</p>
-              </TooltipContent>
-            </Tooltip>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="jd-text-sm jd-truncate jd-block">
+                    {folder.title}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="jd-max-w-xs jd-z-50">
+                  <p>{folder.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           ) : (
-            <span
-              className="jd-text-sm jd-truncate jd-block"
-              title={folder.title}
-            >
-              {folder.title}
-            </span>
+            <span className="jd-text-sm jd-truncate jd-block">{folder.title}</span>
           )}
         </div>
 
