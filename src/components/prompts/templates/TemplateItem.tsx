@@ -176,7 +176,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`jd-h-6 jd-w-6 jd-p-0 ${
+                  className={`jd-h-4 jd-w-4 ${
                     (template as any).is_pinned 
                       ? 'jd-text-yellow-500' 
                       : 'jd-text-muted-foreground jd-opacity-0 group-hover:jd-opacity-100'
@@ -210,11 +210,10 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="jd-h-6 jd-w-6 jd-p-0 jd-text-blue-600 hover:jd-text-blue-700 hover:jd-bg-blue-100 jd-dark:jd-text-blue-400 jd-dark:hover:jd-text-blue-300 jd-dark:hover:jd-bg-blue-900/30"
                       onClick={handleEditClick}
                       disabled={isProcessing}
                     >
-                      <Edit className="jd-h-4 jd-w-4" />
+                      <Edit className="jd-h-4 jd-w-4 jd-text-blue-600 hover:jd-text-blue-700 hover:jd-bg-blue-100 jd-dark:jd-text-blue-400 jd-dark:hover:jd-text-blue-300 jd-dark:hover:jd-bg-blue-900/30" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
@@ -231,12 +230,11 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
                   <TooltipTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      size="sm" 
-                      className="jd-h-6 jd-w-6 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30"
+                      size="sm"
                       onClick={handleDeleteClick}
                       disabled={isProcessing}
                     >
-                      <Trash2 className="jd-h-4 jd-w-4" />
+                      <Trash2 className="jd-h-4 jd-w-4 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
