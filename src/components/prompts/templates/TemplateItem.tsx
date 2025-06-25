@@ -4,7 +4,6 @@ import { FileText, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PinButton } from '@/components/prompts/common/PinButton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/core/utils/classNames';
 import { OrganizationImage } from '@/components/organizations';
 import { Template } from '@/types/prompts/templates';
 import { getMessage } from '@/core/utils/i18n';
@@ -178,7 +177,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
 
         {/* Edit and Delete Controls (for user templates) */}
         {(shouldShowEditControls || shouldShowDeleteControls || shouldShowPinControls) && (
-          <div className="jd-ml-auto jd-flex jd-gap-2 jd-items-center">
+          <div className="jd-flex jd-gap-2  jd-items-center jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
             {/* Edit Button */}
             {shouldShowEditControls && onEditTemplate && (
               <TooltipProvider>
@@ -205,8 +204,8 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
+                    <Button 
+                      variant="ghost" 
                       size="xs"
                       onClick={handleDeleteClick}
                       disabled={isProcessing}
@@ -221,17 +220,28 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
               </TooltipProvider>
             )}
 
-            {showPinControls && onTogglePin && (
-              <div
-                className={cn(
-                  !isPinned && 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'
-                )}
-              >
-                <PinButton type="template" isPinned={isPinned} onClick={handleTogglePin} />
-              </div>
-            )}
+
+             {shouldShowPinControls && !isPinned && (
+                <PinButton
+                  type="template"
+                  isPinned={isPinned}
+                  onClick={handleTogglePin}
+                />
+              )}
           </div>
         )}
+
+      <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
+          {/* Pin Button */}
+          {showPinControls && onTogglePin && isPinned && (
+            <div className={`jd-ml-auto  jd-items-center jd-gap-1 jd-flex`}>
+              <PinButton
+                isPinned={isPinned}
+                onClick={handleTogglePin}
+              />
+            </div>
+          )}
+        </div>
     </div>
   );
 };
