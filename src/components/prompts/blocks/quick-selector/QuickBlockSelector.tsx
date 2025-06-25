@@ -53,7 +53,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   triggerLength
 }) => {
   const shadowRoot = useShadowRoot();
-  const { blocks, loading } = useBlocks();
+  const { blocks, loading, addBlock } = useBlocks();
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [activeIndex, setActiveIndex] = useState(0);
@@ -62,6 +62,17 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  const handleCreateBlock = () => {
+    openCreateBlock({
+      onBlockCreated: (b: Block) => {
+        addBlock(b);
+        setSearch('');
+        setSelectedFilter('all');
+        setActiveIndex(0);
+      }
+    });
+  };
 
   // Focus search input on mount
   useEffect(() => {
@@ -246,7 +257,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
             </button>
           ))}
           <button
-            onClick={() => openCreateBlock()}
+            onClick={handleCreateBlock}
             className="jd-px-2 jd-py-1 jd-text-xs jd-rounded-md jd-transition-colors jd-flex jd-items-center jd-gap-1 jd-border jd-border-dashed jd-bg-muted hover:jd-bg-muted/80"
           >
             <Plus className="jd-h-3 jd-w-3" />
