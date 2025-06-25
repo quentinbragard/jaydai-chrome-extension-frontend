@@ -176,6 +176,15 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
       
       {/* Action Buttons */}
       <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
+        {/* Pin Button - always visible */}
+        {shouldShowPinControls && (
+          <PinButton
+            type="template"
+            isPinned={isPinned}
+            onClick={handleTogglePin}
+          />
+        )}
+
         {/* Edit and Delete Controls (for user templates) */}
         {(shouldShowEditControls || shouldShowDeleteControls) && (
           <div className="jd-flex jd-items-center jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
@@ -222,14 +231,6 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
             )}
 
 
-            {/* Pin Button */}
-        {shouldShowPinControls && (
-          <PinButton
-            type="template"
-            isPinned={isPinned}
-            onClick={handleTogglePin}
-          />
-        )}
           </div>
         )}
       </div>
