@@ -181,7 +181,7 @@ export class SlashCommandService extends AbstractBaseService {
             this.isInserting = false;
           }, 100);
         }
-      }, 50); // Reduced timeout for better responsiveness
+      }, 0); // Trigger immediately after the input event
     }
   };
 }
