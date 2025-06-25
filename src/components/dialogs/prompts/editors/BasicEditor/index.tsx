@@ -47,11 +47,12 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   
   // Utility to gather placeholder keys from content and metadata blocks
   const getPlaceholderKeys = useCallback((): string[] => {
-    const fromContent = content.match(/\[([^\]]+)\]/g) || [];
+    const base = mode === 'customize' ? originalContentRef.current : content;
+    const fromContent = base.match(/\[([^\]]+)\]/g) || [];
     const virtualBlocks = convertMetadataToVirtualBlocks(metadata, blockContentCache);
     const fromBlocks = extractPlaceholdersFromBlocks(virtualBlocks).map(p => `[${p.key}]`);
     return Array.from(new Set([...fromContent, ...fromBlocks]));
-  }, [content, metadata, blockContentCache]);
+  }, [metadata, blockContentCache, mode]);
 
   // Simple placeholder extraction and management
   const [placeholders, setPlaceholders] = useState<Placeholder[]>(() => {
