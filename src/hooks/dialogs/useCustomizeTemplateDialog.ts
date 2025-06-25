@@ -6,7 +6,10 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { PromptMetadata } from '@/types/prompts/metadata';
-import { buildCompletePreviewWithBlocks } from '@/utils/templates/promptPreviewUtils';
+import {
+  buildCompletePreviewWithBlocks,
+  extractContentFromCompleteTemplate
+} from '@/utils/templates/promptPreviewUtils';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
@@ -16,46 +19,26 @@ export function useCustomizeTemplateDialog() {
     metadata: PromptMetadata
   ): Promise<boolean> => {
     try {
-      // Build the final content from template content + metadata
+      // Build the final content from template content only. We avoid inserting
+      // metadata blocks directly and instead resolve any block IDs found in the
+      // content using the provided cache.
       const blockContentCache = data?.blockContentCache || {};
       let finalContent: string;
-      
+
       if (Object.keys(blockContentCache).length > 0) {
-        // Use block content if available
-        finalContent = buildCompletePreviewWithBlocks(metadata, content, blockContentCache);
+        const complete = buildCompletePreviewWithBlocks(
+          metadata,
+          content,
+          blockContentCache
+        );
+        const metadataPart = buildCompletePreviewWithBlocks(
+          metadata,
+          '',
+          blockContentCache
+        );
+        finalContent = extractContentFromCompleteTemplate(complete, metadataPart);
       } else {
-        // Simple concatenation of metadata values + content
-        const metadataParts: string[] = [];
-        
-        // Add metadata values
-        const singleTypes = ['role', 'context', 'goal', 'audience', 'output_format', 'tone_style'];
-        singleTypes.forEach(type => {
-          const value = metadata.values?.[type as keyof typeof metadata.values];
-          if (value?.trim()) {
-            metadataParts.push(value);
-          }
-        });
-        
-        // Add constraint and example
-        if (metadata.constraint) {
-          metadata.constraint.forEach(item => {
-            if (item.value.trim()) {
-              metadataParts.push(`Contrainte: ${item.value}`);
-            }
-          });
-        }
-        
-        if (metadata.example) {
-          metadata.example.forEach(item => {
-            if (item.value.trim()) {
-              metadataParts.push(`Exemple: ${item.value}`);
-            }
-          });
-        }
-        
-        // Combine all parts
-        const allParts = [...metadataParts, content.trim()].filter(Boolean);
-        finalContent = allParts.join('\n\n');
+        finalContent = content.trim();
       }
       
       if (data && data.onComplete) {
