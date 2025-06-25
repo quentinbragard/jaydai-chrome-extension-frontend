@@ -1,6 +1,6 @@
 // src/components/prompts/navigation/UnifiedNavigation.tsx
 import React from 'react';
-import { FolderOpen, FilePlus, FolderPlus, ArrowLeft, Home, ChevronRight, Settings } from 'lucide-react';
+import { FolderOpen, FilePlus, FolderPlus, ArrowLeft, Home, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 
@@ -23,14 +23,10 @@ interface UnifiedNavigationProps {
   // Action handlers
   onCreateTemplate?: () => void;
   onCreateFolder?: () => void;
-
-  // Organize handler
-  onOrganizeTemplates?: () => void;
   
   // Display options
   showCreateTemplate?: boolean;
   showCreateFolder?: boolean;
-  showOrganizeTemplates?: boolean;
   className?: string;
 }
 
@@ -47,10 +43,8 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
   onNavigateToPathIndex,
   onCreateTemplate,
   onCreateFolder,
-  onOrganizeTemplates,
   showCreateTemplate = false,
   showCreateFolder = false,
-  showOrganizeTemplates = false,
   className = ''
 }) => {
   return (
@@ -79,19 +73,9 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
               onClick={onCreateFolder}
               title={getMessage('newFolder', undefined, 'New Folder')}
             >
-          <FolderPlus className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
-        </Button>
-      )}
-      {showOrganizeTemplates && onOrganizeTemplates && (
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={onOrganizeTemplates}
-          title={getMessage('organizeTemplates', undefined, 'Organize')}
-        >
-          <Settings className="jd-h-4 jd-w-4" />
-        </Button>
-      )}
+              <FolderPlus className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
+            </Button>
+          )}
         </div>
       </div>
 
