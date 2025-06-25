@@ -13,22 +13,20 @@ import { OtherOptionInput } from '@/components/welcome/onboarding/OtherOptionInp
 
 // Interests options
 const INTERESTS = [
-  { value: 'productivity', label: 'Productivity' },
-  { value: 'writing', label: 'Writing & Content Creation' },
-  { value: 'coding', label: 'Coding & Development' },
-  { value: 'data_analysis', label: 'Data Analysis' },
-  { value: 'research', label: 'Research' },
-  { value: 'creativity', label: 'Creative Work' },
-  { value: 'learning', label: 'Learning & Education' },
-  { value: 'marketing', label: 'Marketing & SEO' },
-  { value: 'email', label: 'Email Drafting' },
-  { value: 'summarizing', label: 'Document Summarization' },
-  { value: 'brainstorming', label: 'Brainstorming' },
-  { value: 'critical_thinking', label: 'Critical Thinking & Analysis' },
-  { value: 'customer_support', label: 'Customer Support' },
-  { value: 'decision_making', label: 'Decision Making' },
-  { value: 'language_learning', label: 'Language Learning' },
-  { value: 'other', label: 'Other' }
+  { value: 'writing', label: getMessage('onboardingStep2InterestsWriting', undefined, 'Writing & Content Creation') },
+  { value: 'coding', label: getMessage('onboardingStep2InterestsCoding', undefined, 'Coding & Development') },
+  { value: 'data_analysis', label: getMessage('onboardingStep2InterestsDataAnalysis', undefined, 'Data Analysis') },
+  { value: 'research', label: getMessage('onboardingStep2InterestsResearch', undefined, 'Research') },
+  { value: 'creativity', label: getMessage('onboardingStep2InterestsCreativity', undefined, 'Creative Work') },
+  { value: 'learning', label: getMessage('onboardingStep2InterestsLearning', undefined, 'Learning & Education') },
+  { value: 'marketing', label: getMessage('onboardingStep2InterestsMarketing', undefined, 'Marketing & SEO') },
+  { value: 'email', label: getMessage('onboardingStep2InterestsEmail', undefined, 'Email Drafting') },
+  { value: 'summarizing', label: getMessage('onboardingStep2InterestsSummarizing', undefined, 'Document Summarization') },
+  { value: 'critical_thinking', label: getMessage('onboardingStep2InterestsCriticalThinking', undefined, 'Critical Thinking & Analysis') },
+  { value: 'customer_support', label: getMessage('onboardingStep2InterestsCustomerSupport', undefined, 'Customer Support') },
+  { value: 'decision_making', label: getMessage('onboardingStep2InterestsDecisionMaking', undefined, 'Decision Making') },
+  { value: 'language_learning', label: getMessage('onboardingStep2InterestsLanguageLearning', undefined, 'Language Learning') },
+  { value: 'other', label: getMessage('onboardingStep2InterestsOther', undefined, 'Other') }
 ];
 
 interface InterestsStepProps {
