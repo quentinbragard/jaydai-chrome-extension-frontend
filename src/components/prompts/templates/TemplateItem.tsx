@@ -169,21 +169,6 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
       
       {/* Action Buttons */}
       <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
-        {/* Pin Button */}
-        {shouldShowPinControls && (
-          <PinButton
-            type="template"
-            isPinned={(template as any).is_pinned}
-            onClick={handleTogglePin}
-            disabled={isProcessing}
-            className={`jd-h-4 jd-w-4 jd-p-0 jd-transition-opacity ${
-              (template as any).is_pinned
-                ? ''
-                : 'jd-opacity-0 group-hover:jd-opacity-100'
-            }`}
-          />
-        )}
-
         {/* Edit and Delete Controls (for user templates) */}
         {(shouldShowEditControls || shouldShowDeleteControls) && (
           <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
@@ -228,6 +213,17 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
                 </Tooltip>
               </TooltipProvider>
             )}
+
+
+            {/* Pin Button */}
+        {shouldShowPinControls && (
+          <PinButton
+            type="template"
+            isPinned={(template as any).is_pinned}
+            onClick={handleTogglePin}
+            className=""
+          />
+        )}
           </div>
         )}
       </div>

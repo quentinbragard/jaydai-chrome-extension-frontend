@@ -41,7 +41,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
     setLocalPinnedIds(pinnedFolderIds);
   }, [pinnedFolderIds]);
 
-  const allFolders = useMemo(() => [...userFolders, ...organizationFolders], [userFolders, organizationFolders]);
+  const allFolders = organizationFolders;
   const { searchQuery, setSearchQuery, filteredFolders, clearSearch } = useFolderSearch(allFolders);
 
   // Filter unorganized templates based on search query
@@ -49,6 +49,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
     if (!searchQuery.trim()) return unorganizedTemplates;
     const q = searchQuery.toLowerCase();
     return unorganizedTemplates.filter(t =>
+      (t.type !== 'user') &&
       (t.title || '').toLowerCase().includes(q) ||
       (t.description || '').toLowerCase().includes(q)
     );
@@ -140,6 +141,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
                   />
                 ))}
                 {filteredTemplates.map(template => (
+                  (template.type !== 'user') &&
                   <TemplateItem
                     key={`browse-template-${template.id}`}
                     template={template}

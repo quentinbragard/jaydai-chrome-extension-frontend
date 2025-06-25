@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bookmark, Star } from 'lucide-react';
+import { Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/core/utils/classNames';
 import { getMessage } from '@/core/utils/i18n';
@@ -38,7 +38,7 @@ export function PinButton({
         type === 'folder' ? 'Pin folder' : 'Pin template'
       );
 
-  const Icon = type === 'folder' ? Bookmark : Star;
+  const Icon = Bookmark;
 
   return (
     <Button
