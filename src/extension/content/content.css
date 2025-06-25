@@ -219,9 +219,9 @@
   animation-name: jd-fadeIn, jd-slideInFromBottom;
 }
 
-/* Ensure the quick selector is above all other elements */
+/* Ensure the quick selector appears above page content but below dialogs */
 #jaydai-quick-selector {
-  z-index: 2147483647; /* Maximum z-index */
+  z-index: 10000;
   pointer-events: none;
 }
 

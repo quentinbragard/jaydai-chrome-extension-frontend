@@ -158,7 +158,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
     <div
       ref={containerRef}
       className={cn(
-        'jd-fixed jd-z-[2147483647] jd-w-[400px] jd-h-[480px]',
+        'jd-fixed jd-z-[10000] jd-w-[400px] jd-h-[480px]',
         'jd-bg-background jd-border jd-rounded-lg jd-shadow-xl',
         'jd-flex jd-flex-col jd-animate-in jd-fade-in jd-slide-in-from-bottom-2',
         isDark ? 'jd-border-gray-700' : 'jd-border-gray-200'
@@ -176,8 +176,8 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
         margin: 0,
         padding: 0,
         boxSizing: 'border-box',
-        // Ensure it's above everything
-        zIndex: 2147483647,
+        // Ensure it's above page content but below dialogs
+        zIndex: 10000,
         position: 'fixed'
       }}
     >
