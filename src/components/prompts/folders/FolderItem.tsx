@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PinButton } from '@/components/prompts/common/PinButton';
 import { OrganizationImage } from '@/components/organizations';
+import { cn } from '@/core/utils/classNames';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 import { Organization } from '@/types/organizations';
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
@@ -282,7 +283,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
 
         {/* Action Buttons */}
         {(type === 'user' && (showEditControls || showDeleteControls || showPinControls)) && (
-          <div className="jd-flex jd-gap-1 jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
+          <div className="jd-ml-auto jd-flex jd-items-center jd-gap-2">
             {/* Edit Button */}
             {showEditControls && onEditFolder && (
               <TooltipProvider>
@@ -308,9 +309,9 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="xs" 
+                    <Button
+                      variant="ghost"
+                      size="xs"
                       onClick={handleDeleteFolder}
                     >
                       <Trash2 className="jd-h-4 jd-w-4 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30" />
@@ -323,29 +324,17 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               </TooltipProvider>
             )}
 
-
-        {showPinControls && onTogglePin && !isPinned && (
-            <div className={`jd-ml-auto  jd-items-center jd-gap-2 ${isPinned ? 'jd-flex' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'}`}>
-              <PinButton
-                isPinned={isPinned}
-                onClick={handleTogglePin}
-                className=""
-              />
-            </div>
-          )}
+            {showPinControls && onTogglePin && (
+              <div
+                className={cn(
+                  !isPinned && 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'
+                )}
+              >
+                <PinButton isPinned={isPinned} onClick={handleTogglePin} className="" />
+              </div>
+            )}
           </div>
         )}
-        <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
-          {/* Pin Button */}
-          {showPinControls && onTogglePin && isPinned && (
-            <div className={`jd-ml-auto  jd-items-center jd-gap-1 jd-flex`}>
-              <PinButton
-                isPinned={isPinned}
-                onClick={handleTogglePin}
-              />
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Folder Contents */}
