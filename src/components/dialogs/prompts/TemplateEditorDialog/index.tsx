@@ -202,7 +202,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             )}
           </div>
 
-          <div className="jd-sticky jd-bottom-0 jd-flex jd-justify-end jd-gap-2 jd-p-4 jd-border-t jd-bg-background">
+          <div className="jd-sticky jd-bottom-0 jd-z-20 jd-flex jd-justify-end jd-gap-2 jd-p-4 jd-border-t jd-bg-background">
             <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
               {getMessage('cancel', undefined, 'Cancel')}
             </Button>
