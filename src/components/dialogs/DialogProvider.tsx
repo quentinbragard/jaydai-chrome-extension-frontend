@@ -61,8 +61,8 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <CreateTemplateDialog />
       <CreateFolderDialog />
       <FolderManagerDialog />
-      <CreateBlockDialog />
       <InsertBlockDialog />
+      <CreateBlockDialog />
       <AuthDialog />
       <SettingsDialog />
       <ConfirmationDialog />

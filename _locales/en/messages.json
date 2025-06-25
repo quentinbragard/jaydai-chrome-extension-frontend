@@ -1526,6 +1526,18 @@
     "message": "Entrepreneurs & Business Owners",
     "description": "Job type for entrepreneurs and business owners"
   },
+  "onboardingStep1JobTypeSalesMarketing": {
+    "message": "Sales & Marketing",
+    "description": "Job type for sales and marketing"
+  },
+  "onboardingStep1JobTypeFinance": {
+    "message": "Finance",
+    "description": "Job type for finance"
+  },
+  "onboardingStep1JobTypeFreelance": {
+    "message": "Freelance",
+    "description": "Job type for freelance"
+  },
   "onboardingStep1JobTypeOther": {
     "message": "Other",
     "description": "Job type for other roles"
@@ -1557,6 +1569,30 @@
   "onboardingStep1JobIndustryHrRecruitment": {
     "message": "Human Resources & Recruitment",
     "description": "Job industry for human resources and recruitment"
+  },
+  "onboardingStep1JobIndustryFinanceBanking": {
+    "message": "Finance & Banking",
+    "description": "Job industry for finance and banking"
+  },
+  "onboardingStep1JobIndustryHealthcareMedical": {
+    "message": "Healthcare & Medical",
+    "description": "Job industry for healthcare and medical"
+  },
+  "onboardingStep1JobIndustryLegalLaw": {
+    "message": "Legal & Law",
+    "description": "Job industry for legal and law"
+  },
+  "onboardingStep1JobIndustryManufacturingProduction": {
+    "message": "Manufacturing & Production",
+    "description": "Job industry for manufacturing and production"
+  },
+  "onboardingStep1JobIndustryMediaEntertainment": {
+    "message": "Media & Entertainment",
+    "description": "Job industry for media and entertainment"
+  },
+  "onboardingStep1JobIndustryRealEstate": { 
+    "message": "Real Estate",
+    "description": "Job industry for real estate"
   },
   "onboardingStep1JobIndustryCustomerServiceSupport": {
     "message": "Customer Service & Support",
@@ -1593,6 +1629,62 @@
   "onboardingStep1JobSeniorityOther": { 
     "message": "Other",
     "description": "Job seniority for other roles"
+  },
+  "onboardingStep2InterestsWriting": {
+    "message": "Writing & Content Creation",
+    "description": "Interests for writing and content creation"
+  },
+  "onboardingStep2InterestsCoding": {
+    "message": "Coding & Development",
+    "description": "Interests for coding and development"
+  },
+  "onboardingStep2InterestsDataAnalysis": {
+    "message": "Data Analysis",
+    "description": "Interests for data analysis"
+  },
+  "onboardingStep2InterestsResearch": { 
+    "message": "Research",
+    "description": "Interests for research"
+  },
+  "onboardingStep2InterestsCreativity": {
+    "message": "Creative Work",
+    "description": "Interests for creativity"
+  },
+  "onboardingStep2InterestsLearning": {
+    "message": "Learning & Education",
+    "description": "Interests for learning and education"
+  },
+  "onboardingStep2InterestsMarketing": {  
+    "message": "Marketing & SEO",
+    "description": "Interests for marketing and SEO"
+  },
+  "onboardingStep2InterestsEmail": {
+    "message": "Email Drafting",
+    "description": "Interests for email drafting"
+  },
+  "onboardingStep2InterestsSummarizing": {  
+    "message": "Document Summarization",
+    "description": "Interests for document summarization"
+  },
+  "onboardingStep2InterestsCriticalThinking": {
+    "message": "Critical Thinking & Analysis",
+    "description": "Interests for critical thinking and analysis"
+  },
+  "onboardingStep2InterestsCustomerSupport": {
+    "message": "Customer Support",
+    "description": "Interests for customer support"
+  },
+  "onboardingStep2InterestsDecisionMaking": { 
+    "message": "Decision Making",
+    "description": "Interests for decision making"
+  },
+  "onboardingStep2InterestsLanguageLearning": {
+    "message": "Language Learning",
+    "description": "Interests for language learning"
+  },
+  "onboardingStep2InterestsOther": {
+    "message": "Other",
+    "description": "Interests for other"
   },
   "onboardingComplete": { "message": "Setup Complete!", "description": "Title for onboarding completion step" },
   "onboardingCompleteDescription": { "message": "Thank you for completing your profile. Your personalized AI templates are now ready to use.", "description": "Description for onboarding completion step" },
