@@ -200,6 +200,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     return pinnedTemplatesData.templates.filter(t => templateMatchesQuery(t, searchQuery));
   }, [pinnedTemplatesData.templates, searchQuery, templateMatchesQuery]);
 
+  console.log("filteredPinnedTemplates👉👉👉👉👉👉👉", filteredPinnedTemplates);
+  console.log("pinnedTemplatesData👉👉👉👉👉👉👉", pinnedTemplatesData);
+
   // Mutations and actions
   const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
   const { deleteTemplate, toggleTemplatePin } = useTemplateMutations();
