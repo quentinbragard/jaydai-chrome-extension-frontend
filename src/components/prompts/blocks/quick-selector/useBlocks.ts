@@ -15,5 +15,9 @@ export function useBlocks() {
     });
   }, []);
 
-  return { blocks, loading };
+  const addBlock = (block: Block) => {
+    setBlocks(prev => [block, ...prev]);
+  };
+
+  return { blocks, loading, addBlock };
 }
