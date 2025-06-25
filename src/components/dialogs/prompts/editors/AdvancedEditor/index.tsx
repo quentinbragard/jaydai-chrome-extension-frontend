@@ -54,20 +54,20 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         </div>
 
         {/* 2. PREVIEW SECTION - Read Only */}
-        <div className="jd-flex-1 jd-min-h-0">
-          <div className="jd-space-y-3 jd-h-full">
+        <div className="jd-flex-shrink-0">
+          <div className="jd-space-y-3">
             <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
               <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
               Complete Preview
             </h3>
-
-            <div className="jd-h-full jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700">
+            
+            <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700">
               <TemplatePreview
                 metadata={metadata}
                 content={content}
                 blockContentCache={blockContentCache}
                 isDarkMode={isDarkMode}
-                className="jd-h-full jd-overflow-auto"
+                className="jd-max-h-[500px] jd-overflow-auto"
               />
             </div>
           </div>
