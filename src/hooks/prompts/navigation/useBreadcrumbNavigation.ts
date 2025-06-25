@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
+import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 
 export interface Breadcrumb {
   id: number;
@@ -31,6 +32,17 @@ function findFolderById(folders: TemplateFolder[], id: number): TemplateFolder |
 export function useBreadcrumbNavigation({ userFolders, organizationFolders, unorganizedTemplates = [] }: UseBreadcrumbNavigationProps) {
   const [breadcrumbs, setBreadcrumbs] = useState<Breadcrumb[]>([]);
 
+  const getItemTitle = (item: TemplateFolder | Template): string => {
+    if ((item as TemplateFolder).Folders !== undefined || (item as TemplateFolder).templates !== undefined) {
+      return getLocalizedContent((item as TemplateFolder).title ?? (item as TemplateFolder).name) || '';
+    }
+    return getLocalizedContent((item as Template).title) || '';
+  };
+
+  const sortItems = (items: Array<TemplateFolder | Template>) => {
+    return [...items].sort((a, b) => getItemTitle(a).localeCompare(getItemTitle(b), undefined, { sensitivity: 'base' }));
+  };
+
   const currentFolder = useMemo(() => {
     if (breadcrumbs.length === 0) return null;
     const last = breadcrumbs[breadcrumbs.length - 1];
@@ -45,14 +57,14 @@ export function useBreadcrumbNavigation({ userFolders, organizationFolders, unor
 
       const rootTemplates = (unorganizedTemplates || []).map(t => ({ ...t, type: 'user' as const }));
 
-      return [...userRootFolders, ...rootTemplates, ...orgRootFolders];
+      return sortItems([...userRootFolders, ...rootTemplates, ...orgRootFolders]);
     }
 
     const type = breadcrumbs[0].type;
     const items: Array<TemplateFolder | Template> = [];
     currentFolder.Folders?.forEach(f => items.push({ ...f, type }));
     currentFolder.templates?.forEach(t => items.push({ ...t, type }));
-    return items;
+    return sortItems(items);
   }, [currentFolder, userFolders, organizationFolders, unorganizedTemplates, breadcrumbs]);
 
   const navigateToFolder = (folder: TemplateFolder & { type: 'user' | 'organization' }) => {
