@@ -3,3 +3,4 @@
 
 export { Pagination } from './Pagination';
 export { ItemList } from './ItemList';
+export { PinButton } from './PinButton';

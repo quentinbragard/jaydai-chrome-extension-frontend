@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { FolderOpen, ChevronRight, ChevronDown, Edit, Trash2, PlusCircle, Plus, ArrowLeft, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { PinButton } from '@/components/prompts/folders/PinButton';
+import { PinButton } from '@/components/prompts/common/PinButton';
 import { OrganizationImage } from '@/components/organizations';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 import { Organization } from '@/types/organizations';
