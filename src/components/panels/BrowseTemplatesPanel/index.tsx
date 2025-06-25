@@ -19,6 +19,7 @@ import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 import { FolderItem } from '@/components/prompts/folders/FolderItem';
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { useFolderSearch } from '@/hooks/prompts/utils/useFolderSearch';
+import { Template, TemplateFolder } from '@/types/prompts/templates';
 
 interface BrowseTemplatesPanelProps {
   folderType: 'organization' | 'company';
@@ -71,14 +72,30 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
   // Get folder mutations
   const { toggleFolderPin } = useFolderMutations();
 
-  // Pinned templates and pin mutation for templates
-  const { data: pinnedTemplatesData = { templates: [], pinnedIds: [] } } = usePinnedTemplates();
+  // Pinned template ids and pin mutation for templates
+  const { data: pinnedTemplateIds = [] } = usePinnedTemplates();
   const { toggleTemplatePin } = useTemplateMutations();
 
-  const pinnedTemplates = React.useMemo(
-    () => pinnedTemplatesData.templates.filter(t => (t as any).type === folderType),
-    [pinnedTemplatesData.templates, folderType]
-  );
+  const pinnedTemplates = React.useMemo(() => {
+    if (!pinnedTemplateIds.length) return [] as Template[];
+    const templates: Template[] = [];
+    const traverse = (list: TemplateFolder[]) => {
+      list.forEach(folder => {
+        if (folder.templates) {
+          folder.templates.forEach(t => {
+            if (pinnedTemplateIds.includes(t.id)) {
+              templates.push(t);
+            }
+          });
+        }
+        if (folder.Folders) {
+          traverse(folder.Folders);
+        }
+      });
+    };
+    traverse(folders);
+    return templates;
+  }, [pinnedTemplateIds, folders]);
   
   // Template actions
   const { useTemplate } = useTemplateActions();
