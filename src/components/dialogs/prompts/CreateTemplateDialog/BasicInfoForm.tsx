@@ -4,6 +4,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FolderPlus } from 'lucide-react';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
+import { useFolderMutations } from '@/hooks/prompts/actions/useFolderMutations';
+import { useQueryClient } from 'react-query';
+import { QUERY_KEYS } from '@/constants/queryKeys';
+import { TemplateFolder } from '@/types/prompts/templates';
 import { getMessage } from '@/core/utils/i18n';
 import { FolderData, truncateFolderPath } from '@/utils/prompts/templateUtils';
 
@@ -31,6 +35,8 @@ export const BasicInfoForm: React.FC<Props> = ({
   // Defensive programming: ensure userFoldersList is always an array
   const safeFoldersList = Array.isArray(userFoldersList) ? userFoldersList : [];
   const { openCreateFolder } = useDialogActions();
+  const { createFolder } = useFolderMutations();
+  const queryClient = useQueryClient();
 
   // Pre-render folder items so they can be inserted before the "create new" action
   const folderListItems = safeFoldersList.map(folder => (
@@ -46,7 +52,21 @@ export const BasicInfoForm: React.FC<Props> = ({
 
   const onFolderChange = (value: string) => {
     if (value === 'new') {
-      openCreateFolder({});
+      openCreateFolder({
+        onSaveFolder: async (folderData: { title: string; description?: string; parent_folder_id?: number | null }) => {
+          try {
+            const result = await createFolder.mutateAsync(folderData);
+            return { success: true, folder: result };
+          } catch (error) {
+            console.error('Error creating folder:', error);
+            return { success: false, error: 'Failed to create folder' };
+          }
+        },
+        onFolderCreated: async (folder: TemplateFolder) => {
+          await queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
+          handleFolderSelect(folder.id.toString());
+        }
+      });
       return;
     }
     handleFolderSelect(value);
