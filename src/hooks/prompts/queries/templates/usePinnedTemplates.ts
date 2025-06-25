@@ -15,14 +15,58 @@ export function usePinnedTemplates() {
       throw new Error(metadata.error || 'Failed to get user metadata');
     }
 
-    console.log("metadata👉👉👉👉👉👉👉", metadata);
+    const pinnedIds: number[] = metadata.data?.pinned_template_ids || [];
 
+    let templates: Array<Template & { type: 'company' | 'organization' | 'user' }> = [];
 
-    const pinnedIds = metadata.data?.pinned_template_ids || [];
+    if (pinnedIds.length > 0) {
+      const [userRes, orgRes, companyRes] = await Promise.all([
+        promptApi.getFolders('user', true, true, userLocale),
+        promptApi.getFolders('organization', true, true, userLocale),
+        promptApi.getFolders('company', true, true, userLocale)
+      ]);
 
-    
+      const extractTemplates = (folders: TemplateFolder[] = [], type: 'company' | 'organization' | 'user') => {
+        const result: Array<Template & { type: 'company' | 'organization' | 'user' }> = [];
 
-    return pinnedIds;
+        const traverse = (folder: TemplateFolder) => {
+          if (Array.isArray(folder.templates)) {
+            folder.templates.forEach(t => {
+              if (pinnedIds.includes(t.id)) {
+                result.push({ ...t, type });
+              }
+            });
+          }
+
+          if (Array.isArray(folder.Folders)) {
+            folder.Folders.forEach(traverse);
+          }
+        };
+
+        folders.forEach(traverse);
+        return result;
+      };
+
+      if (userRes.success) {
+        templates = templates.concat(
+          extractTemplates((userRes.data.folders.user || []) as TemplateFolder[], 'user')
+        );
+      }
+
+      if (orgRes.success) {
+        templates = templates.concat(
+          extractTemplates((orgRes.data.folders.organization || []) as TemplateFolder[], 'organization')
+        );
+      }
+
+      if (companyRes.success) {
+        templates = templates.concat(
+          extractTemplates((companyRes.data.folders.company || []) as TemplateFolder[], 'company')
+        );
+      }
+    }
+
+    return { templates, pinnedIds };
   }, {
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
