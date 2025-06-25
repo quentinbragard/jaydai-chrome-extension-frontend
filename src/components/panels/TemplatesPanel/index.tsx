@@ -80,7 +80,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   } = useUnorganizedTemplates();
 
   const {
-    data: pinnedTemplatesData = { templates: [], pinnedIds: [] },
+    data: pinnedTemplateIds = [],
     refetch: refetchPinnedTemplates
   } = usePinnedTemplates();
 
@@ -195,13 +195,43 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     };
   }, [allPinnedFolders, searchQuery, folderMatchesQuery]);
 
-  const filteredPinnedTemplates = useMemo(() => {
-    if (!searchQuery.trim()) return pinnedTemplatesData.templates;
-    return pinnedTemplatesData.templates.filter(t => templateMatchesQuery(t, searchQuery));
-  }, [pinnedTemplatesData.templates, searchQuery, templateMatchesQuery]);
+  const pinnedTemplates = useMemo(() => {
+    if (!pinnedTemplateIds.length) return [] as Array<Template & { type: 'user' | 'organization' }>;
 
-  console.log("filteredPinnedTemplates👉👉👉👉👉👉👉", filteredPinnedTemplates);
-  console.log("pinnedTemplatesData👉👉👉👉👉👉👉", pinnedTemplatesData);
+    const gather = (folders: TemplateFolder[] = [], type: 'user' | 'organization') => {
+      const result: Array<Template & { type: 'user' | 'organization' }> = [];
+      const traverse = (folder: TemplateFolder) => {
+        if (Array.isArray(folder.templates)) {
+          folder.templates.forEach(t => {
+            if (pinnedTemplateIds.includes(t.id)) {
+              result.push({ ...t, type });
+            }
+          });
+        }
+        if (Array.isArray(folder.Folders)) {
+          folder.Folders.forEach(traverse);
+        }
+      };
+      folders.forEach(traverse);
+      return result;
+    };
+
+    const templates: Array<Template & { type: 'user' | 'organization' }> = [];
+    templates.push(...gather(userFolders, 'user'));
+    templates.push(...gather(organizationFolders, 'organization'));
+    unorganizedTemplates.forEach(t => {
+      if (pinnedTemplateIds.includes(t.id)) {
+        templates.push({ ...t, type: 'user' });
+      }
+    });
+
+    return templates;
+  }, [pinnedTemplateIds, userFolders, organizationFolders, unorganizedTemplates]);
+
+  const filteredPinnedTemplates = useMemo(() => {
+    if (!searchQuery.trim()) return pinnedTemplates;
+    return pinnedTemplates.filter(t => templateMatchesQuery(t, searchQuery));
+  }, [pinnedTemplates, searchQuery, templateMatchesQuery]);
 
   // Mutations and actions
   const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
