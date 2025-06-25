@@ -10,7 +10,6 @@ import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
 import { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
 import { BrowseMoreFoldersDialog } from './prompts/BrowseMoreFoldersDialog';
-import { OrganizeTemplatesDialog } from './prompts/OrganizeTemplatesDialog';
 
 /**
  * Main dialog provider that includes all dialog components
@@ -48,7 +47,6 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <ConfirmationDialog />
       <EnhancedStatsDialog />
       <BrowseMoreFoldersDialog />
-      <OrganizeTemplatesDialog />
       {/* Place the customize dialog last so it appears above others */}
       <CustomizeTemplateDialog />
     </DialogManagerProvider>
@@ -67,5 +65,4 @@ export { ConfirmationDialog } from './common/ConfirmationDialog';
 export { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
 export { FolderManagerDialog } from './prompts/FolderManagerDialog';
 export { BrowseMoreFoldersDialog } from './prompts/BrowseMoreFoldersDialog';
-export { OrganizeTemplatesDialog } from './prompts/OrganizeTemplatesDialog';
 export { BaseDialog } from './BaseDialog';

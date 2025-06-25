@@ -237,7 +237,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
   const { deleteTemplate, toggleTemplatePin } = useTemplateMutations();
   const { useTemplate, createTemplate, editTemplate } = useTemplateActions();
-  const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders, openOrganizeTemplates } = useDialogActions();
+  const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders } = useDialogActions();
 
   // Enhanced pin handler that works with the navigation system
   const handleTogglePin = useCallback(
@@ -389,10 +389,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 onNavigateToPathIndex={navigation.navigateToPathIndex}
                 onCreateTemplate={createTemplate}
                 onCreateFolder={handleCreateFolder}
-                onOrganizeTemplates={openOrganizeTemplates}
                 showCreateTemplate={true}
                 showCreateFolder={true}
-                showOrganizeTemplates={true}
               />
             )}
 
