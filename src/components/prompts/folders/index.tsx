@@ -5,7 +5,7 @@ export { FolderHeader } from './FolderHeader';
 export { FolderItem } from './FolderItem';
 export { FolderList } from './FolderList';
 export { FolderSection } from './FolderSection';
-export { PinButton } from './PinButton';
+export { PinButton } from '../common/PinButton';
 export { FolderSearch } from './FolderSearch';
 export { FolderNavigation } from './FolderNavigation';
 export { FolderPicker } from './FolderPicker';

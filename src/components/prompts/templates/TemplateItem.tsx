@@ -1,7 +1,8 @@
 // src/components/prompts/templates/TemplateItem.tsx - Enhanced with smart organization image logic
 import React, { useCallback, useMemo } from 'react';
-import { FileText, Edit, Trash2, Bookmark } from 'lucide-react';
+import { FileText, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PinButton } from '@/components/prompts/common/PinButton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { OrganizationImage } from '@/components/organizations';
 import { Template } from '@/types/prompts/templates';
@@ -170,33 +171,17 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
       <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
         {/* Pin Button */}
         {shouldShowPinControls && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={`jd-h-4 jd-w-4 ${
-                    (template as any).is_pinned 
-                      ? 'jd-text-yellow-500' 
-                      : 'jd-text-muted-foreground jd-opacity-0 group-hover:jd-opacity-100'
-                  } jd-transition-opacity`}
-                  onClick={handleTogglePin}
-                  disabled={isProcessing}
-                >
-                  <Bookmark className={`jd-h-4 jd-w-4 ${(template as any).is_pinned ? 'jd-fill-yellow-500' : ''}`} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p>
-                  {(template as any).is_pinned 
-                    ? getMessage('unpin_template', undefined, 'Unpin template')
-                    : getMessage('pin_template', undefined, 'Pin template')
-                  }
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <PinButton
+            type="template"
+            isPinned={(template as any).is_pinned}
+            onClick={handleTogglePin}
+            disabled={isProcessing}
+            className={`jd-h-4 jd-w-4 jd-p-0 jd-transition-opacity ${
+              (template as any).is_pinned
+                ? ''
+                : 'jd-opacity-0 group-hover:jd-opacity-100'
+            }`}
+          />
         )}
 
         {/* Edit and Delete Controls (for user templates) */}
