@@ -97,7 +97,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   // Navigation hook for combined user + organization folders
   const navigation = useBreadcrumbNavigation({
     userFolders,
-    organizationFolders
+    organizationFolders,
+    unorganizedTemplates
   });
 
   // Reset navigation to root when a search is initiated
