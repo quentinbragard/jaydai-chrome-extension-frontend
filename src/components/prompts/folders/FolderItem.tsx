@@ -192,14 +192,14 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   className="jd-h-6 jd-px-2 jd-text-muted-foreground hover:jd-text-foreground"
                   title="Go to root"
                 >
-                  <Home className="jd-h-3 jd-w-3" />
+                  <Home className="jd-h-4 jd-w-4" />
                 </Button>
               )}
               
               <div className="jd-flex jd-items-center jd-gap-1 jd-flex-1 jd-min-w-0">
                 {navigationPath.map((pathFolder, index) => (
                   <React.Fragment key={pathFolder.id}>
-                    <ChevronRight className="jd-h-3 jd-w-3 jd-text-muted-foreground jd-flex-shrink-0" />
+                    <ChevronRight className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-flex-shrink-0" />
                     <button
                       onClick={() => onNavigateToPathIndex?.(index)}
                       className={`jd-truncate jd-font-medium jd-text-left jd-hover:jd-text-foreground jd-transition-colors ${
@@ -223,7 +223,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   className="jd-h-6 jd-px-2 jd-text-muted-foreground hover:jd-text-foreground jd-flex-shrink-0"
                   title="Go back"
                 >
-                  <ArrowLeft className="jd-h-3 jd-w-3" />
+                  <ArrowLeft className="jd-h-4 jd-w-4" />
                 </Button>
               )}
             </div>
@@ -281,8 +281,8 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         </div>
 
         {/* Action Buttons */}
-        {(type === 'user' && (showEditControls || showDeleteControls)) && (
-          <div className="jd-flex jd-items-center jd-gap-1 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
+        {(type === 'user' && (showEditControls || showDeleteControls || showPinControls)) && (
+          <div className="jd-flex jd-gap-1 jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
             {/* Edit Button */}
             {showEditControls && onEditFolder && (
               <TooltipProvider>
@@ -290,7 +290,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   <TooltipTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      size="sm" 
+                      size="xs" 
                       onClick={handleEditFolder} 
                     >
                       <Edit className="jd-h-4 jd-w-4 jd-text-blue-600 hover:jd-text-blue-700 hover:jd-bg-blue-100 jd-dark:jd-text-blue-400 jd-dark:hover:jd-text-blue-300 jd-dark:hover:jd-bg-blue-900/30" />
@@ -310,7 +310,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   <TooltipTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      size="sm" 
+                      size="xs" 
                       onClick={handleDeleteFolder}
                     >
                       <Trash2 className="jd-h-4 jd-w-4 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30" />
@@ -322,17 +322,26 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                 </Tooltip>
               </TooltipProvider>
             )}
-          </div>
-        )}
-        
-        <div className="jd-ml-auto jd-flex jd-items-center jd-gap-1">
-          {/* Pin Button */}
-          {showPinControls && onTogglePin && (
-            <div className={`jd-ml-auto  jd-items-center jd-gap-1 ${isPinned ? 'jd-flex' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'}`}>
+
+
+        {showPinControls && onTogglePin && !isPinned && (
+            <div className={`jd-ml-auto  jd-items-center jd-gap-2 ${isPinned ? 'jd-flex' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'}`}>
               <PinButton
                 isPinned={isPinned}
                 onClick={handleTogglePin}
                 className=""
+              />
+            </div>
+          )}
+          </div>
+        )}
+        <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
+          {/* Pin Button */}
+          {showPinControls && onTogglePin && isPinned && (
+            <div className={`jd-ml-auto  jd-items-center jd-gap-1 jd-flex`}>
+              <PinButton
+                isPinned={isPinned}
+                onClick={handleTogglePin}
               />
             </div>
           )}

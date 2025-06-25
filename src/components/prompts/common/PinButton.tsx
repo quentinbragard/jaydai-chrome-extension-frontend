@@ -10,7 +10,7 @@ interface PinButtonProps {
   onClick: (e: React.MouseEvent) => void;
   className?: string;
   disabled?: boolean;
-  size?: 'sm' | 'default' | 'lg';
+  size?: 'sm' | 'default' | 'lg' | 'xs';
 }
 
 export function PinButton({
@@ -19,7 +19,7 @@ export function PinButton({
   onClick,
   className = '',
   disabled = false,
-  size = 'sm'
+  size = 'xs'
 }: PinButtonProps) {
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();

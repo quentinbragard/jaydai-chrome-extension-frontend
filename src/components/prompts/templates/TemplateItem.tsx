@@ -128,7 +128,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   return (
     <div 
       className={`jd-flex jd-items-center hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-transition-colors ${
-        isProcessing ? 'jd-opacity-50 jd-cursor-not-allowed' : ''
+      isProcessing ? 'jd-opacity-50 jd-cursor-not-allowed' : ''
       } ${className}`}
       onClick={handleTemplateClick}
       style={{ paddingLeft: `${level * 16 + 8}px` }}
@@ -176,8 +176,8 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   
 
         {/* Edit and Delete Controls (for user templates) */}
-        {(shouldShowEditControls || shouldShowDeleteControls) && (
-          <div className="jd-flex jd-items-center jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+        {(shouldShowEditControls || shouldShowDeleteControls || shouldShowPinControls) && (
+          <div className="jd-flex jd-gap-2  jd-items-center jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
             {/* Edit Button */}
             {shouldShowEditControls && onEditTemplate && (
               <TooltipProvider>
@@ -185,7 +185,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
                   <TooltipTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      size="sm" 
+                      size="xs" 
                       onClick={handleEditClick}
                       disabled={isProcessing}
                     >
@@ -206,7 +206,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
                   <TooltipTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      size="sm"
+                      size="xs"
                       onClick={handleDeleteClick}
                       disabled={isProcessing}
                     >
@@ -221,20 +221,27 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
             )}
 
 
+             {shouldShowPinControls && !isPinned && (
+                <PinButton
+                  type="template"
+                  isPinned={isPinned}
+                  onClick={handleTogglePin}
+                />
+              )}
           </div>
         )}
 
-         {/* Action Buttons */}
-      <div className={`jd-ml-auto  jd-items-center jd-gap-1 ${isPinned ? 'jd-flex' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'}`}>
-        {/* Pin Button - always visible */}
-        {shouldShowPinControls && (
-          <PinButton
-            type="template"
-            isPinned={isPinned}
-            onClick={handleTogglePin}
-          />
-        )}
-      </div>
+      <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
+          {/* Pin Button */}
+          {showPinControls && onTogglePin && isPinned && (
+            <div className={`jd-ml-auto  jd-items-center jd-gap-1 jd-flex`}>
+              <PinButton
+                isPinned={isPinned}
+                onClick={handleTogglePin}
+              />
+            </div>
+          )}
+        </div>
     </div>
   );
 };
