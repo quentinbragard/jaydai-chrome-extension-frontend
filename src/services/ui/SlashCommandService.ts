@@ -135,17 +135,16 @@ export class SlashCommandService extends AbstractBaseService {
       originalCursorPos = getCursorTextPosition(target);
     }
 
-    // Check for //j pattern (with optional space) right before the cursor
-    const textBeforeCursor = value.slice(0, originalCursorPos);
+    // Check for //j pattern (with optional space)
     const triggerRegex = /\/\/j\s?$/i;
-    if (triggerRegex.test(textBeforeCursor)) {
-      console.log('Slash command detected:', { value: textBeforeCursor.substring(Math.max(0, textBeforeCursor.length - 20)), originalCursorPos });
+    if (triggerRegex.test(value)) {
+      console.log('Slash command detected:', { value: value.substring(Math.max(0, value.length - 20)), originalCursorPos });
 
       // Set flag to prevent double execution
       this.isInserting = true;
 
       // Calculate the cursor position after removing the trigger
-      const triggerMatch = textBeforeCursor.match(triggerRegex);
+      const triggerMatch = value.match(triggerRegex);
       const triggerLength = triggerMatch ? triggerMatch[0].length : 0;
 
       // Ensure cursor position never goes negative
