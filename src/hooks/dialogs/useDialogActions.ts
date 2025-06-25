@@ -52,6 +52,11 @@ export function useDialogActions() {
     [openDialog]
   );
 
+  const openOrganizeTemplates = useCallback(
+    () => openDialog(DIALOG_TYPES.ORGANIZE_TEMPLATES, {}),
+    [openDialog]
+  );
+
   const openCreateBlock = useCallback(
     (props?: any) => openDialog(DIALOG_TYPES.CREATE_BLOCK, props),
     [openDialog]
@@ -73,6 +78,7 @@ export function useDialogActions() {
     openConfirmation,
     openEnhancedStats,
     openBrowseMoreFolders,
+    openOrganizeTemplates,
     openCreateBlock,
     openInsertBlock,
   };
