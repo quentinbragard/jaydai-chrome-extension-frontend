@@ -15,6 +15,9 @@ export const DIALOG_TYPES = {
   // Dialog for browsing all folders
   BROWSE_MORE_FOLDERS: 'browseMoreFolders',
 
+  // Dialog for organizing templates and folders
+  ORGANIZE_TEMPLATES: 'organizeTemplates',
+
   // New dialog type for block creation
   CREATE_BLOCK: 'createBlock',
   INSERT_BLOCK: 'insertBlock'
@@ -84,6 +87,8 @@ export interface DialogProps {
   [DIALOG_TYPES.ENHANCED_STATS]: Record<string, never>;
 
   [DIALOG_TYPES.BROWSE_MORE_FOLDERS]: Record<string, never>;
+
+  [DIALOG_TYPES.ORGANIZE_TEMPLATES]: Record<string, never>;
   
   [DIALOG_TYPES.CREATE_BLOCK]: {
     initialType?: string;
