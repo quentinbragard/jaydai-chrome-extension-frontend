@@ -11,8 +11,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
-import { Search, Maximize2, X } from 'lucide-react';
+import { Search, Maximize2, X, Plus } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import {
   getBlockTypeIcon,
   getBlockIconColors,
@@ -57,6 +58,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [activeIndex, setActiveIndex] = useState(0);
   const isDark = useThemeDetector();
+  const { openCreateBlock } = useDialogActions();
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -243,6 +245,13 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
               <span>{filter.label}</span>
             </button>
           ))}
+          <button
+            onClick={() => openCreateBlock()}
+            className="jd-px-2 jd-py-1 jd-text-xs jd-rounded-md jd-transition-colors jd-flex jd-items-center jd-gap-1 jd-border jd-border-dashed jd-bg-muted hover:jd-bg-muted/80"
+          >
+            <Plus className="jd-h-3 jd-w-3" />
+            <span>New</span>
+          </button>
         </div>
       </div>
 

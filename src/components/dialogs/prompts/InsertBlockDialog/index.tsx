@@ -22,6 +22,7 @@ import {
 } from '@/utils/prompts/blockUtils';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
 import { 
   DndContext, 
@@ -229,6 +230,7 @@ export const InsertBlockDialog: React.FC = () => {
   const [editableContent, setEditableContent] = useState('');
   const [blockContents, setBlockContents] = useState<Record<number, string>>({});
   const isDark = useThemeDetector();
+  const { openCreateBlock } = useDialogActions();
 
   // Drag & Drop sensors
   const sensors = useSensors(
@@ -453,6 +455,15 @@ export const InsertBlockDialog: React.FC = () => {
                     {filter.label}
                   </Button>
                 ))}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => openCreateBlock()}
+                  className="jd-h-6 jd-text-xs jd-px-2 jd-border-dashed"
+                >
+                  <Plus className="jd-h-3 jd-w-3 jd-mr-1" />
+                  New Block
+                </Button>
               </div>
             </div>
 
