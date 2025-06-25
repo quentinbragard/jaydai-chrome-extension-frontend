@@ -4,17 +4,20 @@ import { FolderOpen } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import BasePanel from '../BasePanel';
-import { 
+import {
   useAllFoldersOfType,
   useFolderMutations,
   useTemplateActions,
-  usePinnedFolders
+  usePinnedFolders,
+  usePinnedTemplates,
+  useTemplateMutations
 } from '@/hooks/prompts';
 import { useOrganizations } from '@/hooks/organizations';
 import { FolderSearch } from '@/components/prompts/folders';
 import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 import { FolderItem } from '@/components/prompts/folders/FolderItem';
+import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { useFolderSearch } from '@/hooks/prompts/utils/useFolderSearch';
 
 interface BrowseTemplatesPanelProps {
@@ -54,15 +57,6 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
 
   const { data: organizations = [] } = useOrganizations();
 
-  // Map folder ID to its actual type (organization or company)
-  const folderTypeMap = React.useMemo(() => {
-    const map: Record<number, 'organization' | 'company'> = {};
-    folders.forEach(f => {
-      map[f.id] = (f.type === 'company') ? 'company' : 'organization';
-    });
-    return map;
-  }, [folders]);
-  
   // Get pinned folders query client for invalidation
   const { refetch: refetchPinnedFolders } = usePinnedFolders();
   
@@ -76,6 +70,15 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
   
   // Get folder mutations
   const { toggleFolderPin } = useFolderMutations();
+
+  // Pinned templates and pin mutation for templates
+  const { data: pinnedTemplatesData = { templates: [], pinnedIds: [] } } = usePinnedTemplates();
+  const { toggleTemplatePin } = useTemplateMutations();
+
+  const pinnedTemplates = React.useMemo(
+    () => pinnedTemplatesData.templates.filter(t => (t as any).type === folderType),
+    [pinnedTemplatesData.templates, folderType]
+  );
   
   // Template actions
   const { useTemplate } = useTemplateActions();
@@ -118,6 +121,18 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
     }
   }, [toggleFolderPin, folderType, onPinChange, refetchPinnedFolders]);
 
+  // Toggle pin for templates
+  const handleToggleTemplatePin = useCallback(
+    async (templateId: number, isPinned: boolean) => {
+      try {
+        await toggleTemplatePin.mutateAsync({ templateId, isPinned, type: folderType });
+      } catch (error) {
+        console.error('Error toggling template pin:', error);
+      }
+    },
+    [toggleTemplatePin, folderType]
+  );
+
   // Add pinned status to folders using our local state
   const foldersWithPinStatus = React.useMemo(() => {
     if (!folders?.length) return [];
@@ -156,29 +171,51 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
             <EmptyMessage>
               Error loading folders: {error instanceof Error ? error.message : 'Unknown error'}
             </EmptyMessage>
-          ) : filteredFolders.length === 0 ? (
-            <EmptyMessage>
-              {searchQuery
-                ? `No folders matching "${searchQuery}"`
-                : `No ${folderType} folders available`}
-            </EmptyMessage>
           ) : (
-            <div className="jd-space-y-1 jd-px-2">
-              {foldersWithPinStatus.map(folder => (
-                <FolderItem
-                  key={`${folderType}-folder-${folder.id}`}
-                  folder={folder}
-                  type={folderType}
-                  enableNavigation={false} // Use tree expansion mode
-                  onUseTemplate={useTemplate}
-                  onTogglePin={handleTogglePin}
-                  organizations={organizations}
-                  showPinControls={true}
-                  showEditControls={false}
-                  showDeleteControls={false}
-                />
-              ))}
-            </div>
+            <>
+              {pinnedTemplates.length > 0 && (
+                <div className="jd-space-y-1 jd-px-2 jd-mb-2">
+                  {pinnedTemplates.map(t => (
+                    <TemplateItem
+                      key={`pinned-template-${t.id}`}
+                      template={t}
+                      type={folderType}
+                      onUseTemplate={useTemplate}
+                      onTogglePin={handleToggleTemplatePin}
+                      showPinControls={true}
+                      showEditControls={false}
+                      showDeleteControls={false}
+                      organizations={organizations}
+                    />
+                  ))}
+                  <Separator />
+                </div>
+              )}
+              {filteredFolders.length === 0 ? (
+                <EmptyMessage>
+                  {searchQuery
+                    ? `No folders matching "${searchQuery}"`
+                    : `No ${folderType} folders available`}
+                </EmptyMessage>
+              ) : (
+                <div className="jd-space-y-1 jd-px-2">
+                  {foldersWithPinStatus.map(folder => (
+                    <FolderItem
+                      key={`${folderType}-folder-${folder.id}`}
+                      folder={folder}
+                      type={folderType}
+                      enableNavigation={false}
+                      onUseTemplate={useTemplate}
+                      onTogglePin={handleTogglePin}
+                      organizations={organizations}
+                      showPinControls={true}
+                      showEditControls={false}
+                      showDeleteControls={false}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </TooltipProvider>
