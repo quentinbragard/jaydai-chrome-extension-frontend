@@ -242,3 +242,19 @@ export function buildCompletePreviewHtmlWithBlocks(
   return buildCompletePreviewHtml(resolved, content, isDark);
 }
 
+/**
+ * Replace numeric block ID placeholders like `[123]` in the provided content
+ * with their corresponding block text from the cache.
+ */
+export function replaceBlockIdsInContent(
+  content: string,
+  blockMap: Record<number, string>
+): string {
+  if (!content) return '';
+
+  return content.replace(/\[(\d+)\]/g, (match, id) => {
+    const text = blockMap[parseInt(id, 10)];
+    return text !== undefined ? text : match;
+  });
+}
+
