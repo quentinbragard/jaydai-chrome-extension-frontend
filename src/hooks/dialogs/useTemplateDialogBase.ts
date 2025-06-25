@@ -257,7 +257,10 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       errors.content = getMessage('templateContentRequired', undefined, 'Template content is required');
     }
     
-    if (state.activeTab === 'advanced') {
+    // Only require metadata validation when creating or editing templates.
+    // In customize mode we allow incomplete metadata so users can quickly
+    // insert a prompt even if some fields are missing.
+    if (state.activeTab === 'advanced' && dialogType !== 'customize') {
       const metadataValidation = validateMetadata(state.metadata);
       if (!metadataValidation.isValid) {
         errors.content = metadataValidation.errors.join(', ');
