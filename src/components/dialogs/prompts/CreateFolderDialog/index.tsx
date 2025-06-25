@@ -47,9 +47,6 @@ export const CreateFolderDialog: React.FC = () => {
   const onFolderCreated = data?.onFolderCreated;
 
   const handleParentSelect = useCallback((folder: TemplateFolder | null, path: string) => {
-    console.log("handleParentSelect--------------------------->");
-    console.log("folder--->", folder);
-    console.log("path--->", path);
     setParentId(folder?.id ?? null);
     setParentPath(path || 'Root');
   }, []);
@@ -189,7 +186,7 @@ export const CreateFolderDialog: React.FC = () => {
               folders={userFolders as TemplateFolder[]}
               onSelect={handleParentSelect}
             />
-            <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">{parentPath}</p>
+            <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">Selected: {parentPath}</p>
           </div>
           
           <div className="jd-flex jd-justify-end jd-space-x-2 jd-pt-4">

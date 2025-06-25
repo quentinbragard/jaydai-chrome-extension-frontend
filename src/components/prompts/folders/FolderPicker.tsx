@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { FolderOpen, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { FolderNavigation } from './FolderNavigation';
 import { TemplateFolder } from '@/types/prompts/templates';
 
@@ -17,7 +16,6 @@ type NavState = {
 
 export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, className = '' }) => {
   const [nav, setNav] = useState<NavState>({ path: [], currentFolder: null });
-  console.log("FOLDERS--->", folders);
 
   const findFolderById = useCallback((list: TemplateFolder[], id?: number): TemplateFolder | null => {
     for (const f of list) {
@@ -70,10 +68,6 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
     return nav.currentFolder ? nav.currentFolder.Folders || [] : folders;
   }, [nav.currentFolder, folders]);
 
-  const handleSelect = useCallback(() => {
-    const path = nav.path.map(p => p.title).join(' / ');
-    onSelect(nav.currentFolder, path);
-  }, [nav.path, nav.currentFolder, onSelect]);
 
   return (
     <div className={`jd-space-y-2 ${className}`}>
@@ -98,11 +92,6 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
         {currentFolders.length === 0 && (
           <div className="jd-text-xs jd-text-muted-foreground jd-p-2">No subfolders</div>
         )}
-      </div>
-      <div className="jd-flex jd-justify-end">
-        <Button type="button" size="sm" variant="secondary" onClick={handleSelect}>
-          {nav.currentFolder ? `Select "${nav.currentFolder.title}"` : 'Select Root'}
-        </Button>
       </div>
     </div>
   );
