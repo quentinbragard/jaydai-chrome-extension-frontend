@@ -6,7 +6,7 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { PromptMetadata } from '@/types/prompts/metadata';
-import { buildCompletePreviewWithBlocks } from '@/utils/templates/promptPreviewUtils';
+import { replaceBlockIdsInContent } from '@/utils/templates/promptPreviewUtils';
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
@@ -16,47 +16,16 @@ export function useCustomizeTemplateDialog() {
     metadata: PromptMetadata
   ): Promise<boolean> => {
     try {
-      // Build the final content from template content + metadata
       const blockContentCache = data?.blockContentCache || {};
-      let finalContent: string;
-      
+
+      // Replace block IDs in the content if a cache is provided
+      let finalContent = content.trim();
       if (Object.keys(blockContentCache).length > 0) {
-        // Use block content if available
-        finalContent = buildCompletePreviewWithBlocks(metadata, content, blockContentCache);
-      } else {
-        // Simple concatenation of metadata values + content
-        const metadataParts: string[] = [];
-        
-        // Add metadata values
-        const singleTypes = ['role', 'context', 'goal', 'audience', 'output_format', 'tone_style'];
-        singleTypes.forEach(type => {
-          const value = metadata.values?.[type as keyof typeof metadata.values];
-          if (value?.trim()) {
-            metadataParts.push(value);
-          }
-        });
-        
-        // Add constraint and example
-        if (metadata.constraint) {
-          metadata.constraint.forEach(item => {
-            if (item.value.trim()) {
-              metadataParts.push(`Contrainte: ${item.value}`);
-            }
-          });
-        }
-        
-        if (metadata.example) {
-          metadata.example.forEach(item => {
-            if (item.value.trim()) {
-              metadataParts.push(`Exemple: ${item.value}`);
-            }
-          });
-        }
-        
-        // Combine all parts
-        const allParts = [...metadataParts, content.trim()].filter(Boolean);
-        finalContent = allParts.join('\n\n');
+        finalContent = replaceBlockIdsInContent(finalContent, blockContentCache);
       }
+
+      // NOTE: We intentionally avoid injecting metadata lines here. The caller
+      // will handle any metadata formatting if needed.
       
       if (data && data.onComplete) {
         data.onComplete(finalContent);
