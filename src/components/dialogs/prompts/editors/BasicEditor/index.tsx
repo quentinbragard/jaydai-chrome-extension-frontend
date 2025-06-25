@@ -1,5 +1,5 @@
 // src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Simplified Version
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -37,17 +37,22 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     setContent,
     blockContentCache
   } = useTemplateEditor();
-  
+
   const isDark = useThemeDetector();
   const [showPreview, setShowPreview] = useState(mode === 'customize');
+
+  // Keep a reference to the original content so placeholder replacements do not
+  // accumulate when editing values in the placeholder panel
+  const originalContentRef = useRef(content);
   
   // Utility to gather placeholder keys from content and metadata blocks
   const getPlaceholderKeys = useCallback((): string[] => {
-    const fromContent = content.match(/\[([^\]]+)\]/g) || [];
+    const base = mode === 'customize' ? originalContentRef.current : content;
+    const fromContent = base.match(/\[([^\]]+)\]/g) || [];
     const virtualBlocks = convertMetadataToVirtualBlocks(metadata, blockContentCache);
     const fromBlocks = extractPlaceholdersFromBlocks(virtualBlocks).map(p => `[${p.key}]`);
     return Array.from(new Set([...fromContent, ...fromBlocks]));
-  }, [content, metadata, blockContentCache]);
+  }, [metadata, blockContentCache, mode]);
 
   // Simple placeholder extraction and management
   const [placeholders, setPlaceholders] = useState<Placeholder[]>(() => {
@@ -57,6 +62,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }
     return [];
   });
+
 
   // Update placeholders when relevant data changes (for customize mode)
   React.useEffect(() => {
@@ -71,17 +77,30 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }
   }, [getPlaceholderKeys, mode]);
 
-  // Simple content with placeholders replaced for preview
-  const previewContent = React.useMemo(() => {
-    let result = content;
-    placeholders.forEach(({ key, value }) => {
-      if (value.trim()) {
-        // Remove the brackets and replace with value
-        result = result.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value);
-      }
-    });
-    return result;
-  }, [content, placeholders]);
+  // Build content with placeholders replaced based on the original content
+  const computeContent = useCallback(
+    (list: Placeholder[]) => {
+      let result = originalContentRef.current;
+      list.forEach(({ key, value }) => {
+        if (value.trim()) {
+          const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+          result = result.replace(regex, value);
+        }
+      });
+      return result;
+    },
+    []
+  );
+
+  const previewContent = React.useMemo(() => computeContent(placeholders), [computeContent, placeholders]);
+
+  // Sync the computed content back to the editor state so it is used when
+  // the user completes the dialog
+  useEffect(() => {
+    if (mode === 'customize') {
+      setContent(previewContent);
+    }
+  }, [previewContent, setContent, mode]);
 
   const updatePlaceholder = useCallback((index: number, value: string) => {
     setPlaceholders(prev => {
