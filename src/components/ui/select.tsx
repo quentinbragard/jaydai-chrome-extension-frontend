@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 "use client"
 
 import * as React from "react"
@@ -15,7 +16,7 @@ const SelectValue = SelectPrimitive.Value
 // Custom DialogPortal that uses shadow DOM
 const SelectPortal = ({ children, ...props }: SelectPrimitive.SelectPortalProps) => {
   const shadowRoot = useShadowRoot();
-  console.log('shadowRoot', shadowRoot);
+  debug('shadowRoot', shadowRoot);
   
   // If we have access to the shadow root, use it as the portal container
   return (

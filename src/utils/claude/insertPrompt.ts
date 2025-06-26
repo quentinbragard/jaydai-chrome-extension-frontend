@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/utils/claude/insertPrompt.ts
 
 /**
@@ -13,7 +14,7 @@ export function insertPrompt(content: string): boolean {
       return false;
     }
     
-    console.log(`Attempting to insert content into Claude (${content.length} chars)`);
+    debug(`Attempting to insert content into Claude (${content.length} chars)`);
     
     try {
       // Find Claude's input area
@@ -99,7 +100,7 @@ export function insertPrompt(content: string): boolean {
         return navigator.clipboard.writeText(normalizedContent)
           .then(() => {
             document.execCommand('paste');
-            console.log('Content pasted via Clipboard API');
+            debug('Content pasted via Clipboard API');
             return true;
           })
           .catch(err => {

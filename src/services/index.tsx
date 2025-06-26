@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/services/index.ts
 import { serviceManager } from '@/core/managers/ServiceManager';
 
@@ -38,7 +39,7 @@ export function registerServices(): void {
   serviceManager.registerService('auth', AuthService.getInstance());
   serviceManager.registerService('user', UserProfileService.getInstance());
   
-  console.log('All services registered with ServiceManager');
+  debug('All services registered with ServiceManager');
 }
 
 // Auth services exports

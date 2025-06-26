@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/hooks/dialogs/useTemplateDialogBase.ts - Simplified Version
 import { useState, useEffect, useCallback } from 'react';
 import { 
@@ -321,7 +322,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   
   useEffect(() => {
     if (initialData) {
-      console.log('Initializing dialog with data:', initialData);
+      debug('Initializing dialog with data:', initialData);
       
       setState(prev => ({
         ...prev,

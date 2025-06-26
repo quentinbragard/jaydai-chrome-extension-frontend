@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/extension/content/networkInterceptor/streamProcessor.js
 // Functions for processing streaming responses
 
@@ -80,8 +81,8 @@ export function processStreamData(data, assistantData, thinkingSteps) {
       assistantData.content = '';
     }
 
-    console.log('ASSISTANT DATA', assistantData);
-    console.log('THINKING STEPS', thinkingSteps);
+    debug('ASSISTANT DATA', assistantData);
+    debug('THINKING STEPS', thinkingSteps);
     
     return { assistantData, thinkingSteps };
   }
@@ -140,8 +141,8 @@ export function processStreamData(data, assistantData, thinkingSteps) {
         }
       }
     }
-    console.log('ASSISTANT DATAAAAAAAA', assistantData);
-    console.log('THINKING STEPS', thinkingSteps);
+    debug('ASSISTANT DATAAAAAAAA', assistantData);
+    debug('THINKING STEPS', thinkingSteps);
     if (assistantData.content === "" && thinkingSteps.length > 0) {
       assistantData.content = thinkingSteps[thinkingSteps.length - 1].content;
     }
@@ -159,7 +160,7 @@ export function processStreamData(data, assistantData, thinkingSteps) {
  * @returns {Promise<void>}
  */
 export async function processStreamingResponse(response, requestBody) {
-  console.log("PROCESSING STREAMING RESPONSE");
+  debug("PROCESSING STREAMING RESPONSE");
   const platform = detectPlatform();
   const clonedResponse = response.clone();
   const reader = clonedResponse.body.getReader();
@@ -204,8 +205,8 @@ export async function processStreamingResponse(response, requestBody) {
 
         // Handle special "[DONE]" message 
         if (dataMatch[1] === '[DONE]') {
-          console.log("Received [DONE] message, finalizing response");
-          console.log('ASSISTANT DATA', assistantData);
+          debug("Received [DONE] message, finalizing response");
+          debug('ASSISTANT DATA', assistantData);
           if (assistantData.messageId && assistantData.content.length > 0) {
             assistantData.isComplete = true;
             dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, assistantData);
@@ -216,14 +217,14 @@ export async function processStreamingResponse(response, requestBody) {
         // Parse JSON data (only for non-[DONE] messages)
         try {
           const data = JSON.parse(dataMatch[1]);
-          console.log('event type', eventType);
-          console.log('data', data);
+          debug('event type', eventType);
+          debug('data', data);
           
           // Process message stream complete event
           if (data.type === "message_stream_complete") {
             if (assistantData.messageId) {
               assistantData.isComplete = true;
-              console.log("Stream processing complete");
+              debug("Stream processing complete");
               dispatchEvent(EVENTS.ASSISTANT_RESPONSE,platform, assistantData);
             }
             continue;
@@ -254,7 +255,7 @@ export async function processStreamingResponse(response, requestBody) {
     // Final check: If we have message content but never got a completion signal,
     // send what we have with isComplete=true
     if (assistantData.messageId && assistantData.content.length > 0 && !assistantData.isComplete) {
-      console.log("Stream ended without completion signal, sending final data");
+      debug("Stream ended without completion signal, sending final data");
       assistantData.isComplete = true;
       dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, assistantData);
     }
@@ -263,7 +264,7 @@ export async function processStreamingResponse(response, requestBody) {
     
     // Try to salvage partial response in case of errors
     if (assistantData.messageId && assistantData.content.length > 0) {
-      console.log("Salvaging partial response after error");
+      debug("Salvaging partial response after error");
       assistantData.isComplete = true;
       dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, assistantData);
     }

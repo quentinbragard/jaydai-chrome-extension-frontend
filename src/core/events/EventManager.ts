@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/core/events/EventManager.ts
 
 import { eventBus } from './EventBus';
@@ -20,7 +21,7 @@ class EventManager {
     // Set up DOM event listeners
     document.addEventListener('jaydai:network-intercept', this.handleDomEvent as EventListener);
     
-    console.log('EventManager initialized');
+    debug('EventManager initialized');
   }
   
   /**
@@ -33,7 +34,7 @@ class EventManager {
     // Remove DOM event listeners
     document.removeEventListener('jaydai:network-intercept', this.handleDomEvent as EventListener);
     
-    console.log('EventManager cleaned up');
+    debug('EventManager cleaned up');
   }
   
   /**

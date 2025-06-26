@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/components/Main.tsx
 import React, { useEffect, useRef } from 'react';
 import { Toaster } from 'sonner';
@@ -77,9 +78,9 @@ const Main: React.FC = () => {
 
   useEffect(() => {
     authService.subscribe((state) => {
-      console.log('authService-->', state);
+      debug('authService-->', state);
       if (state.user) {
-        console.log('MAIN initAmplitude-->', state.user.id);
+        debug('MAIN initAmplitude-->', state.user.id);
         initAmplitude(state.user.id, false);
         setUserProperties({
           darkMode: document.documentElement.classList.contains('dark'),

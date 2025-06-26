@@ -1,7 +1,8 @@
+import { debug } from '@/core/config';
 // 🔹 Open welcome page when the extension is installed
 function createContextMenus() {
   chrome.contextMenus.removeAll(() => {
-    console.log('Creating Jaydai context menus');
+    debug('Creating Jaydai context menus');
 
     chrome.contextMenus.create({
       id: 'create_block',
@@ -82,13 +83,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         
         // Network monitoring actions - simplified
         'start-network-monitoring': () => {
-            console.log('🔍 Starting network monitoring (simplified version)...');
+            debug('🔍 Starting network monitoring (simplified version)...');
             // Just return success since the injected interceptor will handle actual monitoring
             sendResponse({ success: true });
             return false;
         },
         'stop-network-monitoring': () => {
-            console.log('🔍 Stopping network monitoring (simplified version)...');
+            debug('🔍 Stopping network monitoring (simplified version)...');
             // Just return success
             sendResponse({ success: true }); 
             return false;
@@ -122,7 +123,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 ========================================== */
 async function emailSignIn(email, password, sendResponse) {
     try {
-      console.log("🔑 Attempting email sign-in for:", email);
+      debug("🔑 Attempting email sign-in for:", email);
       
       const response = await fetch(`${process.env.VITE_API_URL}/auth/sign_in`, {
         method: "POST",
@@ -151,7 +152,7 @@ async function emailSignIn(email, password, sendResponse) {
         return;
       }
       
-      console.log("✅ Email Sign-In successful");
+      debug("✅ Email Sign-In successful");
       
       
       // Store session data first (tokens)
@@ -182,7 +183,7 @@ async function emailSignIn(email, password, sendResponse) {
   }
   
   function signUp(email, password, name, sendResponse) {
-    console.log("📝 Attempting sign-up for:", email);
+    debug("📝 Attempting sign-up for:", email);
     
     // Send request to our backend API
     fetch(`${process.env.VITE_API_URL}/auth/sign_up`, {
@@ -203,7 +204,7 @@ async function emailSignIn(email, password, sendResponse) {
         throw new Error(data.detail || data.error || "Sign-up failed");
       }
       
-      console.log("✅ Signup successful");
+      debug("✅ Signup successful");
       
       // Store user data
       if (data.user) {
@@ -235,7 +236,7 @@ async function emailSignIn(email, password, sendResponse) {
   
   // In src/extension/background/background.js
   function googleSignIn(sendResponse) {
-    console.log("🔍 Starting Google sign-in flow");
+    debug("🔍 Starting Google sign-in flow");
     
     const manifest = chrome.runtime.getManifest();
     const redirectUri = `https://${chrome.runtime.id}.chromiumapp.org`;
@@ -258,7 +259,7 @@ async function emailSignIn(email, password, sendResponse) {
     authUrl.searchParams.set('scope', (manifest.oauth2.scopes || ['email', 'profile']).join(' '));
     authUrl.searchParams.set('prompt', 'consent');
   
-    console.log("Redirect URI:", redirectUri);
+    debug("Redirect URI:", redirectUri);
   
     chrome.identity.launchWebAuthFlow({ 
       url: authUrl.href, 
@@ -296,7 +297,7 @@ async function emailSignIn(email, password, sendResponse) {
           return;
         }
   
-        console.log("🔹 Google ID Token received");
+        debug("🔹 Google ID Token received");
   
         // Use environment variable for the API endpoint
         const apiUrl = process.env.VITE_API_URL;
@@ -333,7 +334,7 @@ async function emailSignIn(email, password, sendResponse) {
           return;
         }
         
-        console.log("✅ Google authentication successful");
+        debug("✅ Google authentication successful");
         
         // Store authentication data
         storeAuthSession(data.session);
@@ -373,7 +374,7 @@ async function emailSignIn(email, password, sendResponse) {
       if (chrome.runtime.lastError) {
         console.error("❌ Error storing user data:", chrome.runtime.lastError);
       } else {
-        console.log("✅ User data stored successfully:", user.id);
+        debug("✅ User data stored successfully:", user.id);
       }
     });
   }
@@ -389,7 +390,7 @@ async function emailSignIn(email, password, sendResponse) {
       if (chrome.runtime.lastError) {
         console.error("❌ Error storing user ID:", chrome.runtime.lastError);
       } else {
-        console.log("✅ User ID stored successfully:", userId);
+        debug("✅ User ID stored successfully:", userId);
       }
     });
   }
@@ -410,7 +411,7 @@ function storeAuthSession(session) {
     return;
   }
 
-  console.log("🔄 Storing auth session. Expires at:", session.expires_at);
+  debug("🔄 Storing auth session. Expires at:", session.expires_at);
   
   chrome.storage.local.set({
     access_token: session.access_token,
@@ -420,7 +421,7 @@ function storeAuthSession(session) {
     if (chrome.runtime.lastError) {
       console.error("❌ Error storing auth session:", chrome.runtime.lastError);
     } else {
-      console.log("✅ Auth session stored successfully");
+      debug("✅ Auth session stored successfully");
     }
   });
 }
@@ -432,26 +433,26 @@ function storeAuthSession(session) {
 function sendAuthToken(sendResponse) {
     chrome.storage.local.get(["access_token", "refresh_token", "token_expires_at", "user"], (result) => {
       const now = Math.floor(Date.now() / 1000);
-      console.log("🔄 Current time:", now);
-      console.log("🔄 Token expires at:", result.token_expires_at);
+      debug("🔄 Current time:", now);
+      debug("🔄 Token expires at:", result.token_expires_at);
   
       // Check if we have a valid token
       if (result.access_token && result.token_expires_at && result.token_expires_at > now) {
-        console.log("✅ Using valid auth token");
+        debug("✅ Using valid auth token");
         sendResponse({ success: true, token: result.access_token });
         return;
       }
       
       // Check if we have a refresh token to attempt refresh
       if (result.refresh_token) {
-        console.log("⚠️ Token expired. Attempting refresh...");
+        debug("⚠️ Token expired. Attempting refresh...");
         refreshAndSendToken(sendResponse);
         return;
       }
       
       // No valid tokens available - check if we have a user saved
       if (result.user && result.user.id) {
-        console.log("⚠️ No valid tokens, but user data exists. Redirecting to silent sign-in...");
+        debug("⚠️ No valid tokens, but user data exists. Redirecting to silent sign-in...");
         // Here we'd ideally implement a silent sign-in mechanism
         // For now, just notify the user they need to re-authenticate
         sendResponse({ 
@@ -500,7 +501,7 @@ function sendAuthToken(sendResponse) {
       }
       
       try {
-        console.log("🔄 Attempting to refresh token...");
+        debug("🔄 Attempting to refresh token...");
         const response = await fetch(`${process.env.VITE_API_URL}/auth/refresh_token`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -531,7 +532,7 @@ function sendAuthToken(sendResponse) {
         }
   
         const data = await response.json();
-        console.log("🔄 Token refreshed successfully");
+        debug("🔄 Token refreshed successfully");
         
         if (!data.session || !data.session.access_token) {
           console.error("❌ Invalid response from refresh endpoint:", data);
@@ -567,7 +568,7 @@ function sendAuthToken(sendResponse) {
     chrome.storage.local.remove(
       ["access_token", "refresh_token", "token_expires_at"], 
       () => {
-        console.log("🧹 Auth tokens cleared");
+        debug("🧹 Auth tokens cleared");
         if (callback) callback();
       }
     );

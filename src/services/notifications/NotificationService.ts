@@ -374,7 +374,7 @@ export class NotificationService extends AbstractBaseService {
     this.unreadCount = unreadCount;
     
     // Dispatch an event that UI components can listen for
-    console.log("unreadCoun============t", unreadCount);
+    debug("unreadCoun============t", unreadCount);
     document.dispatchEvent(new CustomEvent('jaydai:notification-count-changed', {
       detail: { unreadCount }
     }));
@@ -388,7 +388,7 @@ private showNewNotificationsToast(count: number): void {
       label: getMessage('view_action', undefined, 'View'),
       onClick: () => {
         // Log that the view action was clicked
-        console.log('Notification view action clicked');
+        debug('Notification view action clicked');
         
         // First dispatch the open-notifications event (specific handler)
         // This ensures the notifications panel will be shown
@@ -556,7 +556,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
    * Get action button details for a notification
    */
   public getActionButton(notification: NotificationBase): { title: string; visible: boolean } | null {
-    console.log("notification METADATA===========", notification.metadata);
+    debug("notification METADATA===========", notification.metadata);
     if (!notification.metadata) {
       return null;
     }

@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/hooks/dialogs/useCreateTemplateDialog.ts - Simplified Version
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
@@ -31,7 +32,7 @@ export function useCreateTemplateDialog() {
         metadata: metadataToBlockMapping(metadata)
       };
       
-      console.log('Saving template with data:', formData);
+      debug('Saving template with data:', formData);
       
       const currentTemplate = data?.template;
       const success = await saveTemplate(formData, currentTemplate?.id);

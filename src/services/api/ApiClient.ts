@@ -38,7 +38,7 @@ export class ApiClient extends AbstractBaseService {
     this.baseUrl = baseUrl || ENV.API_URL;
     
     // Log the API URL when instantiated (helps with debugging)
-    console.log(`🔌 API Client initialized with base URL: ${this.baseUrl}`);
+    debug(`🔌 API Client initialized with base URL: ${this.baseUrl}`);
   }
   
   /**
@@ -49,7 +49,7 @@ export class ApiClient extends AbstractBaseService {
       ApiClient.instance = new ApiClient(baseUrl);
     } else if (baseUrl && baseUrl !== ApiClient.instance.baseUrl) {
       // If a new baseUrl is provided and it's different from the current one, update it
-      console.log(`🔄 Updating API base URL from ${ApiClient.instance.baseUrl} to ${baseUrl}`);
+      debug(`🔄 Updating API base URL from ${ApiClient.instance.baseUrl} to ${baseUrl}`);
       ApiClient.instance.setBaseUrl(baseUrl);
     }
     return ApiClient.instance;
