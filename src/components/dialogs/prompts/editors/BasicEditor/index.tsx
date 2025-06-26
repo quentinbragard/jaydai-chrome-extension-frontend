@@ -15,7 +15,7 @@ import {
 } from '@/utils/templates/enhancedPreviewUtils';
 
 interface Placeholder {
-  key: string;
+  key: string; // without brackets
   value: string;
 }
 
@@ -44,15 +44,27 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   // Keep a reference to the original content so placeholder replacements do not
   // accumulate when editing values in the placeholder panel
   const originalContentRef = useRef(content);
+  const originalBlockCacheRef = useRef(blockContentCache);
+
+  // Map placeholder -> block IDs for replacements
+  useEffect(() => {
+    originalBlockCacheRef.current = blockContentCache;
+  }, [blockContentCache]);
   
   // Utility to gather placeholder keys from content and metadata blocks
   const getPlaceholderKeys = useCallback((): string[] => {
     const base = mode === 'customize' ? originalContentRef.current : content;
-    const fromContent = base.match(/\[([^\]]+)\]/g) || [];
+    const fromContent = (base.match(/\[([^\]]+)\]/g) || []).map(m => m.slice(1, -1));
+
     const virtualBlocks = convertMetadataToVirtualBlocks(metadata, blockContentCache);
-    const fromBlocks = extractPlaceholdersFromBlocks(virtualBlocks).map(p => `[${p.key}]`);
-    return Array.from(new Set([...fromContent, ...fromBlocks]));
-  }, [metadata, blockContentCache, mode]);
+    const fromBlocks = extractPlaceholdersFromBlocks(virtualBlocks);
+
+    const keys = new Set<string>();
+    fromContent.forEach(key => keys.add(key));
+    fromBlocks.forEach(({ key }) => keys.add(key));
+
+    return Array.from(keys);
+  }, [metadata, blockContentCache, mode, content]);
 
   // Simple placeholder extraction and management
   const [placeholders, setPlaceholders] = useState<Placeholder[]>(() => {
@@ -77,22 +89,43 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }
   }, [getPlaceholderKeys, mode]);
 
+  // Broadcast placeholder values for other hooks
+  useEffect(() => {
+    if (mode === 'customize') {
+      const map: Record<string, string> = {};
+      placeholders.forEach(p => {
+        if (p.value.trim()) map[p.key] = p.value;
+      });
+      document.dispatchEvent(
+        new CustomEvent('jaydai:placeholder-values', { detail: map })
+      );
+    }
+  }, [placeholders, mode]);
+
   // Build content with placeholders replaced based on the original content
   const computeContent = useCallback(
     (list: Placeholder[]) => {
       let result = originalContentRef.current;
+      const updatedCache: Record<number, string> = { ...originalBlockCacheRef.current };
+
       list.forEach(({ key, value }) => {
-        if (value.trim()) {
-          const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-          result = result.replace(regex, value);
-        }
+        if (!value.trim()) return;
+        const regex = new RegExp(`\\[${key.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\]`, 'g');
+        result = result.replace(regex, value);
+
+        Object.keys(updatedCache).forEach(id => {
+          updatedCache[parseInt(id, 10)] = updatedCache[parseInt(id, 10)].replace(regex, value);
+        });
       });
-      return result;
+
+      return { content: result, cache: updatedCache };
     },
     []
   );
 
-  const previewContent = React.useMemo(() => computeContent(placeholders), [computeContent, placeholders]);
+  const computed = React.useMemo(() => computeContent(placeholders), [computeContent, placeholders]);
+  const previewContent = computed.content;
+  const previewCache = computed.cache;
 
   // Sync the computed content back to the editor state so it is used when
   // the user completes the dialog
@@ -213,8 +246,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           <div className="jd-h-full jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
             <TemplatePreview
               metadata={metadata}
-              content={previewContent} // Use content with placeholders replaced
-              blockContentCache={blockContentCache}
+              content={previewContent}
+              blockContentCache={previewCache}
               isDarkMode={isDark}
               className="jd-h-full jd-overflow-auto"
             />

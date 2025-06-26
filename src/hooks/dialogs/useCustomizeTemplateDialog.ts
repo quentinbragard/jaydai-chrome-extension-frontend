@@ -1,5 +1,6 @@
 // src/hooks/dialogs/useCustomizeTemplateDialog.ts - Simplified Version
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { useTemplateDialogBase } from './useTemplateDialogBase';
@@ -11,6 +12,7 @@ import {
   replaceBlockIdsInContent,
   buildCompletePreviewWithBlocks
 } from '@/utils/templates/promptPreviewUtils';
+import { replacePlaceholders } from '@/utils/templates/placeholderHelpers';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { Block } from '@/types/prompts/blocks';
@@ -28,6 +30,17 @@ export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
 
   const [blockContentCache, setBlockContentCache] = useState<Record<number, string>>({});
+  const placeholderValuesRef = useRef<Record<string, string>>({});
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<Record<string, string>>).detail || {};
+      placeholderValuesRef.current = detail;
+    };
+    document.addEventListener('jaydai:placeholder-values', handler as EventListener);
+    return () => document.removeEventListener('jaydai:placeholder-values', handler as EventListener);
+  }, []);
+
 
   // Fetch blocks when dialog opens
   useEffect(() => {
@@ -53,17 +66,26 @@ export function useCustomizeTemplateDialog() {
       const initialCache = data?.blockContentCache || {};
       const allBlocks = { ...initialCache, ...blockContentCache };
 
+      // Resolve placeholders in content and blocks
+      const placeholders = placeholderValuesRef.current;
+
+      let replacedContent = replacePlaceholders(content.trim(), placeholders);
+
+      const resolvedBlocks: Record<number, string> = {};
+      Object.entries(allBlocks).forEach(([id, text]) => {
+        resolvedBlocks[parseInt(id, 10)] = replacePlaceholders(text, placeholders);
+      });
+
       // Replace block IDs in the content
-      let replacedContent = content.trim();
-      if (Object.keys(allBlocks).length > 0) {
-        replacedContent = replaceBlockIdsInContent(replacedContent, allBlocks);
+      if (Object.keys(resolvedBlocks).length > 0) {
+        replacedContent = replaceBlockIdsInContent(replacedContent, resolvedBlocks);
       }
 
       // Build final prompt using metadata + content
       const finalPrompt = buildCompletePreviewWithBlocks(
         metadata,
         replacedContent,
-        allBlocks
+        resolvedBlocks
       );
 
       if (data && data.onComplete) {
