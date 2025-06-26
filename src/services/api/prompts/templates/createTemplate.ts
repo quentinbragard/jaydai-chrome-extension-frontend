@@ -7,10 +7,10 @@ import { apiClient } from "@/services/api/ApiClient";
 export async function createTemplate(templateData: any): Promise<any> {
     try {
       // Ensure required fields are present
-      if (!templateData.title || !templateData.content) {
+      if (!templateData.title) {
         return {
           success: false,
-          message: 'Title and content are required'
+          message: 'Title is required'
         };
       }
     
