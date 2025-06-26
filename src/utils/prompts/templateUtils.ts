@@ -63,12 +63,7 @@ export const validateTemplateForm = (
 ) => {
   const errors: Record<string, string> = {};
   if (!name?.trim()) errors.name = 'templateNameRequired';
-  if (activeTab === 'basic' && !content?.trim()) errors.content = 'templateContentRequired';
-  if (activeTab === 'advanced') {
-    const hasContent = blocks.some(b => getBlockContent(b).trim()) ||
-      Object.values(metadata.values || {}).some(v => v?.trim());
-    if (!hasContent) errors.content = 'templateContentRequired';
-  }
+  // No content validation required
   setValidationErrors(errors);
   return Object.keys(errors).length === 0;
 };

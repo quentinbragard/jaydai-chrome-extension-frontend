@@ -70,7 +70,7 @@ export interface ApiResponse<T = unknown> {
   // Template API types
   export interface TemplateCreate {
     title: string;
-    content: string;
+    content: string | Record<string, string>;
     description?: string;
     folder_id?: number | null;
     locale?: string;
@@ -80,7 +80,7 @@ export interface ApiResponse<T = unknown> {
   
   export interface TemplateUpdate {
     title?: string;
-    content?: string;
+    content?: string | Record<string, string>;
     description?: string;
     folder_id?: number | null;
     metadata?: Record<string, number | number[]>;

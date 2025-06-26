@@ -116,9 +116,6 @@ export function useTemplateCreation() {
       errors.name = 'Template name is required';
     }
     
-    if (!data.content?.trim()) {
-      errors.content = 'Template content is required';
-    }
     
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;

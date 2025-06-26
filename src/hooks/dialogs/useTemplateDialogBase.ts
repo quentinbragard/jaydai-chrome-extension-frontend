@@ -252,10 +252,6 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       errors.name = getMessage('templateNameRequired', undefined, 'Template name is required');
     }
     
-    // Content is required
-    if (!state.content.trim()) {
-      errors.content = getMessage('templateContentRequired', undefined, 'Template content is required');
-    }
     
     // Only require metadata validation when creating or editing templates.
     // In customize mode we allow incomplete metadata so users can quickly
