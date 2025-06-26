@@ -1,5 +1,6 @@
 // src/hooks/dialogs/useCustomizeTemplateDialog.ts - Simplified Version
 import { useState, useEffect, useRef } from 'react';
+
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { useTemplateDialogBase } from './useTemplateDialogBase';
@@ -39,6 +40,7 @@ export function useCustomizeTemplateDialog() {
     document.addEventListener('jaydai:placeholder-values', handler as EventListener);
     return () => document.removeEventListener('jaydai:placeholder-values', handler as EventListener);
   }, []);
+
 
   // Fetch blocks when dialog opens
   useEffect(() => {
