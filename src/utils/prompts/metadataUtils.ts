@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/utils/prompts/metadataUtils.ts
 import {
   PromptMetadata,
@@ -101,7 +102,7 @@ export function addMetadataItem(
   type: MultipleMetadataType,
   item?: Partial<MetadataItem>
 ): PromptMetadata {
-  console.log('Adding metadata item:', type, item);
+  debug('Adding metadata item:', type, item);
   const updated = cloneMetadata(metadata);
   
   const newItem: MetadataItem = {

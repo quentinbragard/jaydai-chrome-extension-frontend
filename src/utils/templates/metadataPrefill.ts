@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/utils/templates/metadataPrefill.ts
 import { blocksApi } from '@/services/api/BlocksApi';
 import {
@@ -55,7 +56,7 @@ export function parseMetadataIds(
 export async function prefillMetadataFromMapping(
   metadataMapping: Record<string, number | number[]>
 ): Promise<PromptMetadata> {
-  console.log('Prefilling metadata from mapping:', metadataMapping);
+  debug('Prefilling metadata from mapping:', metadataMapping);
   
   const metadata: PromptMetadata = { 
     ...DEFAULT_METADATA,
@@ -64,7 +65,7 @@ export async function prefillMetadataFromMapping(
   
   try {
     for (const [type, value] of Object.entries(metadataMapping)) {
-      console.log(`Processing metadata type: ${type}, value:`, value);
+      debug(`Processing metadata type: ${type}, value:`, value);
       
       // Handle single metadata types (role, context, goal, etc.)
       if (typeof value === 'number') {
@@ -78,7 +79,7 @@ export async function prefillMetadataFromMapping(
                 ? block.content 
                 : block.content[getCurrentLanguage()] || block.content.en || '';
               
-              console.log(`Loaded block ${value} for ${type}:`, content);
+              debug(`Loaded block ${value} for ${type}:`, content);
               
               // Store the block ID and content
               const key =
@@ -96,14 +97,14 @@ export async function prefillMetadataFromMapping(
             console.warn(`Error loading block ${value} for ${type}:`, error);
           }
         } else {
-          console.log(`Skipping invalid block ID for ${type}:`, value);
+          debug(`Skipping invalid block ID for ${type}:`, value);
         }
       }
       // Handle array values (constraint, example)
       else if (Array.isArray(value)) {
         // ✅ Filter out null/undefined/0 values
         const validIds = value.filter(id => id && typeof id === 'number' && id > 0);
-        console.log(`Processing array for ${type}, valid IDs:`, validIds);
+        debug(`Processing array for ${type}, valid IDs:`, validIds);
         
         if (validIds.length > 0) {
           try {
@@ -127,7 +128,7 @@ export async function prefillMetadataFromMapping(
               })
               .filter(item => item !== null);
             
-            console.log(`Loaded ${items.length} items for ${type}:`, items);
+            debug(`Loaded ${items.length} items for ${type}:`, items);
             
             if (items.length > 0) {
               const key =
@@ -148,6 +149,6 @@ export async function prefillMetadataFromMapping(
     console.error('Error prefilling metadata from mapping:', error);
   }
   
-  console.log('Final prefilled metadata:', metadata);
+  debug('Final prefilled metadata:', metadata);
   return metadata;
 }

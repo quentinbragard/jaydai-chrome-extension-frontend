@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/extension/content/applicationInitializer.ts
 
 import { serviceManager } from '@/core/managers/ServiceManager';
@@ -43,7 +44,7 @@ export class AppInitializer {
     }
     
     try {
-      console.log('🚀 Initializing Archimind application...');
+      debug('🚀 Initializing Archimind application...');
       // Inject UI components - Main component will set up the dialog system
       await new Promise(resolve => setTimeout(resolve, 1000));
       this.injectUIComponents();
@@ -63,7 +64,7 @@ export class AppInitializer {
       
       
       this.isInitialized = true;
-      console.log('✅ Archimind application initialized successfully');
+      debug('✅ Archimind application initialized successfully');
       return true;
     } catch (error) {
       errorReporter.captureError(
@@ -99,7 +100,7 @@ export class AppInitializer {
    * Inject UI components
    */
   private injectUIComponents(): void {
-    console.log(chrome.i18n.getMessage('injectingUI'));
+    debug(chrome.i18n.getMessage('injectingUI'));
     
     // Inject the Main component which includes DialogProvider
     componentInjector.inject(Main, {}, {
@@ -110,7 +111,7 @@ export class AppInitializer {
       }
     });
     
-    console.log(chrome.i18n.getMessage('uiInjected'));
+    debug(chrome.i18n.getMessage('uiInjected'));
   }
   
   /**
@@ -119,7 +120,7 @@ export class AppInitializer {
   public cleanup(): void {
     if (!this.isInitialized) return;
     
-    console.log('🧹 Cleaning up Archimind application...');
+    debug('🧹 Cleaning up Archimind application...');
     
     // Remove UI components
     componentInjector.removeAll();
@@ -131,7 +132,7 @@ export class AppInitializer {
     eventManager.cleanup();
     
     this.isInitialized = false;
-    console.log('✅ Archimind application cleaned up');
+    debug('✅ Archimind application cleaned up');
   }
 }
 

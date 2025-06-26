@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/components/dialogs/templates/CreateFolderDialog.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,7 @@ import { TemplateFolder } from '@/types/prompts/templates';
  */
 export const CreateFolderDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.CREATE_FOLDER);
-  console.log("data--->", data);
+  debug("data--->", data);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,7 +30,7 @@ export const CreateFolderDialog: React.FC = () => {
   const [parentPath, setParentPath] = useState('Root');
 
   const { data: userFolders = [] } = useUserFolders();
-  console.log("userFolders--->", userFolders);
+  debug("userFolders--->", userFolders);
   
   // Reset form when dialog opens
   useEffect(() => {

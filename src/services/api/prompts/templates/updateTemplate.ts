@@ -1,10 +1,11 @@
+import { debug } from '@/core/config';
 /**
  * Update an existing template with automatic cache invalidation
  */
 import { apiClient } from "@/services/api/ApiClient";
 
 export async function updateTemplate(templateId: number, templateData: any): Promise<any> {
-  console.log('Updating template with data:', templateData);
+  debug('Updating template with data:', templateData);
   try {
     // Ensure required fields are present
     if (!templateData.title && !templateData.content) {

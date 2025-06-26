@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/extension/content/networkInterceptor/endpointDetector.js
 // Utilities for detecting and classifying endpoints
 
@@ -34,30 +35,30 @@ export function getEndpointEvent(url) {
     ? new URL(url).pathname + (new URL(url).search || '')  // Include query string
     : url;
   
-  console.log(`Checking endpoint for ${platform}: ${pathname}`);
+  debug(`Checking endpoint for ${platform}: ${pathname}`);
   
   // Use matchEndpoint for all endpoint checks
   if (matchEndpoint(pathname, ENDPOINTS[platform].SPECIFIC_CONVERSATION)) {
-    console.log(`Matched ${platform} SPECIFIC_CONVERSATION`);
+    debug(`Matched ${platform} SPECIFIC_CONVERSATION`);
     return EVENTS.SPECIFIC_CONVERSATION;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].USER_INFO)) {
-    console.log(`Matched ${platform} USER_INFO`);
+    debug(`Matched ${platform} USER_INFO`);
     return EVENTS.USER_INFO;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].CONVERSATIONS_LIST)) {
-    console.log(`Matched ${platform} CONVERSATIONS_LIST`);
+    debug(`Matched ${platform} CONVERSATIONS_LIST`);
     return EVENTS.CONVERSATIONS_LIST;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].CHAT_COMPLETION)) {
-    console.log(`Matched ${platform} CHAT_COMPLETION`);
+    debug(`Matched ${platform} CHAT_COMPLETION`);
     return EVENTS.CHAT_COMPLETION;
   }
   
-  console.log(`No match found for ${platform}: ${pathname}`);
+  debug(`No match found for ${platform}: ${pathname}`);
   return null;
 }
 

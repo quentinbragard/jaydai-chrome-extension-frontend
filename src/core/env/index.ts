@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/core/env/index.ts
 
 /**
@@ -18,10 +19,10 @@ export const ENV = {
 };
 
 // Log environment details during initialization (helps with debugging)
-console.log(`🔧 Environment: ${ENV.NODE_ENV}`);
-console.log(`🔌 API URL: ${ENV.API_URL}`);
-console.log(`🐞 Debug: ${ENV.DEBUG}`);
-console.log(`📦 Version: ${ENV.APP_VERSION}`);
+debug(`🔧 Environment: ${ENV.NODE_ENV}`);
+debug(`🔌 API URL: ${ENV.API_URL}`);
+debug(`🐞 Debug: ${ENV.DEBUG}`);
+debug(`📦 Version: ${ENV.APP_VERSION}`);
 
 // Export default for convenient importing
 export default ENV;

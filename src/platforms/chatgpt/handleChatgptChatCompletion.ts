@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { Message } from '@/types';
@@ -54,7 +55,7 @@ function extractUserMessage(requestBody: ChatRequestBody): Message | null {
  * Handle chat completion requests
  */
 export function handleChatgptChatCompletion(event: CustomEvent): void {
-    console.log('**********************handleChatgptChatCompletion', event);
+    debug('**********************handleChatgptChatCompletion', event);
   try {
     const { requestBody } = event.detail;
     if (!requestBody?.messages?.length) return;

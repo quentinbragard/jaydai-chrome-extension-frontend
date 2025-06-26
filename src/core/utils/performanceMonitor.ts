@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/core/utils/performanceMonitor.ts
 /**
  * Utility for monitoring and measuring performance in the application
@@ -27,7 +28,7 @@ export const startMeasure = (label: string): void => {
   
   // Log to console in development
   if (process.env.NODE_ENV === 'development') {
-    console.log(`⏱️ Starting measurement: ${label}`);
+    debug(`⏱️ Starting measurement: ${label}`);
   }
 };
 
@@ -83,7 +84,7 @@ export const endMeasure = (label: string, logToConsole = true): number => {
   
   // Log results if enabled
   if (logToConsole && process.env.NODE_ENV === 'development') {
-    console.log(`⏱️ ${label}: ${duration.toFixed(2)}ms`);
+    debug(`⏱️ ${label}: ${duration.toFixed(2)}ms`);
   }
   
   return duration;

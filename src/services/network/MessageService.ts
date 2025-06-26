@@ -79,7 +79,7 @@ export class MessageService extends AbstractBaseService {
    * Queue a message for saving
    */
   public queueMessage(message: Message): void {
-    console.log('Queueing message:', message);
+    debug('Queueing message:', message);
     
     // Skip if already processed
     if (this.processed.has(message.messageId)) {
@@ -126,9 +126,9 @@ export class MessageService extends AbstractBaseService {
     this.queue.forEach(message => {
       // Try to get the conversation ID one more time if it's missing
       if (!message.conversationId || message.conversationId === '') {
-        console.log('No conversation IDDDDDDDD found for message:', message);
+        debug('No conversation IDDDDDDDD found for message:', message);
         const currentConversationId = chatService.getCurrentConversationId();
-        console.log('Current conversation ID:', currentConversationId);
+        debug('Current conversation ID:', currentConversationId);
         if (currentConversationId) {
           message.conversationId = currentConversationId;
         }

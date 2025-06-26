@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/extension/content/networkInterceptor/fetchInterceptor.js
 // Core fetch override functionality
 
@@ -23,7 +24,7 @@ export function initFetchInterceptor() {
   // Override fetch to intercept network requests
   window.fetch = async function(input, init) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
-    console.log('🔍 Intercepting request:', url);
+    debug('🔍 Intercepting request:', url);
     const eventName = getEndpointEvent(url);
     const platform = detectPlatform();
     // Skip irrelevant endpoints

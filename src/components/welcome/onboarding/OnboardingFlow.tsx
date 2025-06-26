@@ -1,3 +1,4 @@
+import { debug } from '@/core/config';
 // src/extension/welcome/onboarding/OnboardingFlow.tsx
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -114,7 +115,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
       };
       
       // Submit onboarding data to the backend
-      console.log('Submitting onboarding data:', submissionData);
+      debug('Submitting onboarding data:', submissionData);
       const result = await userApi.saveUserMetadata(submissionData);
       
       if (result.success) {
