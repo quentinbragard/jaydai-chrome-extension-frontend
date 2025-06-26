@@ -52,8 +52,14 @@ const defaultConfig: AppConfig = {
   /**
    * Debug logging
    */
-  export function debug(...args: any[]): void {
-    if (config.debug) {
-      console.debug('[Archimind]', ...args);
-    }
+export function debug(...args: any[]): void {
+  if (config.debug) {
+    console.debug('[Archimind]', ...args);
   }
+}
+
+// Log environment details during initialization (helps with debugging)
+debug(`🔧 Environment: ${ENV.NODE_ENV}`);
+debug(`🔌 API URL: ${ENV.API_URL}`);
+debug(`🐞 Debug: ${ENV.DEBUG}`);
+debug(`📦 Version: ${ENV.APP_VERSION}`);

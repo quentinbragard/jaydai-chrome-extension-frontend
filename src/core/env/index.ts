@@ -1,4 +1,3 @@
-import { debug } from '@/core/config';
 // src/core/env/index.ts
 
 /**
@@ -17,12 +16,6 @@ export const ENV = {
   isProduction: () => process.env.NODE_ENV === 'production',
   isDevelopment: () => process.env.NODE_ENV !== 'production'
 };
-
-// Log environment details during initialization (helps with debugging)
-debug(`🔧 Environment: ${ENV.NODE_ENV}`);
-debug(`🔌 API URL: ${ENV.API_URL}`);
-debug(`🐞 Debug: ${ENV.DEBUG}`);
-debug(`📦 Version: ${ENV.APP_VERSION}`);
 
 // Export default for convenient importing
 export default ENV;
