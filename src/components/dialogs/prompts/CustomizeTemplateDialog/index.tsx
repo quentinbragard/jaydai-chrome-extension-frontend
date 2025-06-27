@@ -86,7 +86,7 @@ export const CustomizeTemplateDialog: React.FC = () => {
       customValues={hook.customValues}
       
       // Config
-      dialogTitle={getMessage('customizeTemplate', hook.data?.title || 'Template')}
+      dialogTitle={ hook.data?.title || 'Template'}
       dialogDescription={getMessage('customizeTemplateDesc', undefined, 'Customize the template by filling in the placeholders.')}
       mode="customize"
       infoForm={infoForm}
