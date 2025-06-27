@@ -14,7 +14,7 @@ function getBlockTypeLabelHtml(type: string, isDarkMode: boolean): string {
   const prefix = getBlockTypeLabel(type);
   if (!prefix) return '';
   const colorClass = getBlockTextColors(type as any, isDarkMode);
-  return `<span class="${colorClass} jd-font-semibold">${escapeHtml(prefix)}</span>`;
+  return `<span class="${colorClass} jd-font-black">${escapeHtml(prefix)}</span>`;
 }
 
 export function buildMetadataOnlyPreview(metadata: PromptMetadata): string {

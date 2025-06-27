@@ -206,7 +206,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
             <div className={cn('jd-p-1.5 jd-rounded-md', iconColors)}>
               <Icon className="jd-h-4 jd-w-4" />
             </div>
-            <span className={cn('jd-font-medium', getBlockTextColors(config.blockType, isDarkMode))}>
+            <span className={cn('jd-font-black', getBlockTextColors(config.blockType, isDarkMode))}>
               {config.label}
               {isMultipleMetadataType(type) && items.length > 0 ? ` (${items.length})` : ''}
             </span>
@@ -322,9 +322,18 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
           <div className="jd-text-sm jd-text-muted-foreground jd-mt-2">
             {!isMultipleMetadataType(type) ? (
               value && selectedBlock ? (
-                <div className="jd-text-xs jd-line-clamp-2">
-                  {getLocalizedContent(selectedBlock.content).substring(0, 60)}
-                  {getLocalizedContent(selectedBlock.content).length > 60 ? '...' : ''}
+                <div className="jd-text-xs jd-line-clamp-2 jd-text-bold">
+                  {(selectedBlock.title) ? (
+                    <div>
+                      {getLocalizedContent(selectedBlock.title).substring(0, 60)}
+                      {getLocalizedContent(selectedBlock.title).length > 60 ? '...' : ''}
+                    </div>
+                  ) : (
+                    <div>
+                      {getLocalizedContent(selectedBlock.content).substring(0, 60)}
+                      {getLocalizedContent(selectedBlock.content).length > 60 ? '...' : ''}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="jd-text-xs">Click to set {config.label.toLowerCase()}</div>
