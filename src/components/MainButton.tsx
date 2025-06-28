@@ -113,7 +113,7 @@ const MainButton = () => {
     <ErrorBoundary>
       <div
         className={cn(
-          'jd-fixed jd-z-[9999] jd-select-none hover:jd-border hover:jd-border-primary hover:jd-border-2 jd-rounded-md jd-1',
+          'jd-fixed jd-z-[9999] jd-select-none hover:jd-border hover:jd-border-primary hover:jd-border-2 jd-rounded-md jd-1 jd-group',
           // Always ensure bottom-right positioning when no custom position is set
           !position && 'jd-bottom-6 jd-right-6',
           isDragging && 'jd-cursor-grabbing'
@@ -153,8 +153,9 @@ const MainButton = () => {
                   'jd-bg-white/90 jd-backdrop-blur-sm jd-rounded-full jd-cursor-grab',
                   'jd-shadow-md jd-border jd-border-gray-200/50',
                   'jd-transition-all jd-duration-200 jd-ease-in-out',
+                  'jd-opacity-0 jd-pointer-events-none group-hover:jd-opacity-100 group-hover:jd-pointer-events-auto',
                   'hover:jd-bg-white hover:jd-shadow-lg hover:jd-scale-110',
-                  isDragging && 'jd-cursor-grabbing jd-scale-110 jd-shadow-xl jd-bg-white'
+                  isDragging && 'jd-cursor-grabbing jd-scale-110 jd-shadow-xl jd-bg-white jd-opacity-100 jd-pointer-events-auto'
                 )}
                 title="Drag to move"
               >
