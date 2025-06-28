@@ -1,6 +1,6 @@
 // src/components/prompts/navigation/UnifiedNavigation.tsx
 import React from 'react';
-import { FolderOpen, FilePlus, FolderPlus, ArrowLeft, Home, ChevronRight } from 'lucide-react';
+import { FolderOpen, FilePlus, FolderPlus, PlusSquare, ArrowLeft, Home, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 
@@ -23,10 +23,12 @@ interface UnifiedNavigationProps {
   // Action handlers
   onCreateTemplate?: () => void;
   onCreateFolder?: () => void;
+  onCreateBlock?: () => void;
   
   // Display options
   showCreateTemplate?: boolean;
   showCreateFolder?: boolean;
+  showCreateBlock?: boolean;
   className?: string;
 }
 
@@ -43,8 +45,10 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
   onNavigateToPathIndex,
   onCreateTemplate,
   onCreateFolder,
+  onCreateBlock,
   showCreateTemplate = false,
   showCreateFolder = false,
+  showCreateBlock = false,
   className = ''
 }) => {
   return (
@@ -74,6 +78,16 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
               title={getMessage('newFolder', undefined, 'New Folder')}
             >
               <FolderPlus className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
+            </Button>
+          )}
+          {showCreateBlock && onCreateBlock && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onCreateBlock}
+              title="Create Block"
+            >
+              <PlusSquare className="jd-h-4 jd-w-4" />
             </Button>
           )}
         </div>
