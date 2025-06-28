@@ -5,6 +5,7 @@ import { serviceManager } from '@/core/managers/ServiceManager';
 // Chat services
 import { ChatService } from './network/ChatService';
 import { MessageService } from './network/MessageService';
+import { copilotDomService } from './network/CopilotDomService';
 
 
 // Auth services
@@ -24,6 +25,7 @@ export function registerServices(): void {
   // Chat services (network interception)
   serviceManager.registerService('chat.network', ChatService.getInstance());
   serviceManager.registerService('message.network', MessageService.getInstance());
+  serviceManager.registerService('copilot.dom', copilotDomService);
   // Auth services
   serviceManager.registerService('auth.token', TokenService.getInstance());
   serviceManager.registerService('auth.state', AuthService.getInstance(), [
@@ -52,6 +54,7 @@ export {
 export {
   ChatService,
   MessageService,
+  copilotDomService,
 };
 
 // User services exports
