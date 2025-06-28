@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Toaster } from "sonner";
 import { Button } from '@/components/ui/button';
-import { X } from "lucide-react";
+import { X, MoreVertical } from "lucide-react";
 import PanelManager from '@/components/panels/PanelManager';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
@@ -103,6 +103,14 @@ const MainButton = () => {
             notificationCount={notificationCount}
             activePanelType={panelType}
           />
+
+          {/* Drag hint */}
+          <div
+            className="jd-absolute jd-bottom-full jd-mb-2 jd-left-1/2 jd--translate-x-1/2 jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground jd-bg-background jd-border jd-border-muted jd-rounded jd-px-2 jd-py-1 jd-pointer-events-none"
+          >
+            <MoreVertical className="jd-w-3 jd-h-3" />
+            <span>{getMessage('dragButtonHint', undefined, 'Drag me to change my position')}</span>
+          </div>
 
           {/* Main Button with logo */}
           <div className="jd-relative jd-w-20 jd-h-20">

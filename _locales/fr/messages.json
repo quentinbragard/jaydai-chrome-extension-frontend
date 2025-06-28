@@ -1734,5 +1734,6 @@
       }
     }
   },
-  "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" }
+  "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" },
+  "dragButtonHint": { "message": "Faites glisser pour changer ma position", "description": "Texte d'aide affiché près du bouton principal pour indiquer qu'il peut être déplacé" }
 }
