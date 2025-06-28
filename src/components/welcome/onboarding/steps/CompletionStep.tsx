@@ -1,18 +1,45 @@
-// src/extension/welcome/onboarding/steps/CompletionStep.tsx
+// src/components/welcome/onboarding/steps/CompletionStep.tsx - Updated
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Sparkles, Star } from 'lucide-react';
+import { CheckCircle2, Sparkles, Star, Folder, TrendingUp } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { AIToolGrid } from '@/components/welcome/AIToolGrid';
 
-interface CompletionStepProps {
-  onComplete: () => void;
+interface FolderDetail {
+  id: number;
+  title: string;
+  description?: string | null;
+  type: string;
 }
 
-export const CompletionStep: React.FC<CompletionStepProps> = ({ onComplete }) => {
-  // Track when component mounts - keep your existing tracking
+interface FolderRecommendationResult {
+  success: boolean;
+  new_folders: number[];
+  total_recommended: number[];
+  total_pinned: number[];
+  folder_details?: FolderDetail[];
+  explanation: {
+    starter_pack: number[];
+    professional_role: number[];
+    industry: number[];
+    seniority: number[];
+    interests: number[];
+  };
+  message: string;
+}
+
+interface CompletionStepProps {
+  onComplete: () => void;
+  folderRecommendations?: FolderRecommendationResult | null;
+}
+
+export const CompletionStep: React.FC<CompletionStepProps> = ({ 
+  onComplete, 
+  folderRecommendations 
+}) => {
+  // Track when component mounts
   useEffect(() => {
     trackEvent(EVENTS.ONBOARDING_COMPLETED);
   }, []);
@@ -26,6 +53,10 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({ onComplete }) =>
     window.open(url, '_blank');
     onComplete();
   };
+
+  // Get folder count for display
+  const newFoldersCount = folderRecommendations?.new_folders?.length || 0;
+  const totalFoldersCount = folderRecommendations?.total_pinned?.length || 0;
   
   return (
     <motion.div 
@@ -89,42 +120,143 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({ onComplete }) =>
           'Thank you for completing your profile. Your personalized AI templates are now ready to use.'
         )}
       </motion.p>
-      
+
+      {/* Main Call-to-Action: AI Tools Grid */}
+      <motion.div
+        className="jd-w-full jd-max-w-4xl jd-mx-auto jd-mt-8"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <div className="jd-bg-gradient-to-br jd-from-blue-900/30 jd-to-indigo-900/30 jd-border jd-border-blue-700/50 jd-rounded-xl jd-p-8 jd-backdrop-blur-sm jd-shadow-2xl">
+          <div className="jd-text-center jd-mb-6">
+            <h3 className="jd-text-2xl jd-font-bold jd-text-white jd-mb-2 jd-font-heading">
+              🚀 {getMessage('startUsingAI', undefined, 'Start Using AI Tools Now')}
+            </h3>
+            <p className="jd-text-blue-200 jd-text-lg">
+              {getMessage('chooseYourTool', undefined, 'Choose your preferred AI tool to get started')}
+            </p>
+          </div>
+          
+          <AIToolGrid onToolClick={onComplete} />
+          
+          <div className="jd-flex jd-justify-center jd-mt-6">
+            <Button
+              onClick={onComplete}
+              variant="outline"
+              className="jd-border-blue-600 jd-text-blue-300 hover:jd-bg-blue-900/50 jd-font-heading jd-transition-all jd-duration-200"
+              size="lg"
+            >
+              {getMessage('returnToHome', undefined, 'Return to Home')}
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Compact Info Cards */}
       <motion.div 
-        className="jd-bg-blue-900/20 jd-border jd-border-blue-800/40 jd-rounded-lg jd-p-4 jd-mt-6 jd-max-w-md"
+        className="jd-flex jd-flex-col md:jd-flex-row jd-gap-4 jd-mt-6 jd-max-w-4xl jd-w-full"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.8 }}
       >
-        <h4 className="jd-text-blue-400 jd-font-medium jd-mb-2 jd-flex jd-items-center jd-justify-center jd-gap-2">
-          <Sparkles className="jd-h-4 jd-w-4" />
-          {getMessage('whatNext', undefined, 'What\'s next?')}
-        </h4>
-        <p className="jd-text-gray-300 jd-text-sm">
-          {getMessage(
-            'whatNextDescription', 
-            undefined, 
-            'Open ChatGPT or Claude to start using our extension. Look for our button in the bottom right corner of your screen to access your templates and track your AI usage.'
-          )}
-        </p>
-      </motion.div>
-      
-      <motion.div
-        className="jd-pt-6 jd-w-full"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-      >
-        <AIToolGrid onToolClick={onComplete} />
-        <div className="jd-flex jd-justify-center jd-mt-4">
-          <Button
-            onClick={onComplete}
-            variant="outline"
-            className="jd-border-gray-700 jd-text-white hover:jd-bg-gray-800 jd-font-heading jd-transition-all jd-duration-200"
-            size="lg"
-          >
-            {getMessage('returnToHome', undefined, 'Return to Home')}
-          </Button>
+        {/* Folder Recommendations Summary - Compact with Scrollable List */}
+        {folderRecommendations && folderRecommendations.success && (
+          <div className="jd-bg-gray-800/40 jd-border jd-border-gray-700/50 jd-rounded-lg jd-p-4 jd-flex-1 jd-backdrop-blur-sm">
+            <div className="jd-flex jd-items-center jd-gap-2 jd-mb-3">
+              <Folder className="jd-h-4 jd-w-4 jd-text-green-400" />
+              <h4 className="jd-text-green-400 jd-font-medium jd-text-sm">
+                {getMessage('yourPersonalizedFolders', undefined, 'Your Personalized Folders')}
+              </h4>
+              <span className="jd-bg-green-600/20 jd-text-green-300 jd-px-2 jd-py-0.5 jd-rounded-full jd-text-xs jd-font-medium">
+                {totalFoldersCount}
+              </span>
+            </div>
+            
+            {/* Scrollable Folder List */}
+            {folderRecommendations.folder_details && folderRecommendations.folder_details.length > 0 ? (
+              <div className="jd-max-h-32 jd-overflow-y-auto jd-space-y-2 jd-pr-2">
+                {folderRecommendations.folder_details.map((folder) => (
+                  <div key={folder.id} className="jd-bg-gray-700/30 jd-rounded jd-p-2 jd-border jd-border-gray-600/30 jd-hover:bg-gray-700/50 jd-transition-colors">
+                    <div className="jd-flex jd-items-start jd-justify-between jd-gap-2">
+                      <div className="jd-flex-1 jd-min-w-0">
+                        <h5 className="jd-text-xs jd-font-medium jd-text-white jd-truncate">
+                          {folder.title}
+                        </h5>
+                        {folder.description && (
+                          <p className="jd-text-xs jd-text-gray-400 jd-mt-0.5 jd-leading-relaxed jd-overflow-hidden jd-text-ellipsis" 
+                             style={{
+                               display: '-webkit-box',
+                               WebkitLineClamp: 2,
+                               WebkitBoxOrient: 'vertical' as const
+                             }}>
+                            {folder.description}
+                          </p>
+                        )}
+                      </div>
+                      {folderRecommendations.new_folders.includes(folder.id) && (
+                        <span className="jd-bg-green-500/20 jd-text-green-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs jd-font-medium jd-flex-shrink-0 jd-animate-pulse">
+                          New
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="jd-text-xs jd-text-gray-400 jd-italic jd-py-4 jd-text-center">
+                {getMessage('folderDetailsLoading', undefined, 'Folder details will be available soon...')}
+              </div>
+            )}
+            
+            {/* Compact explanation tags */}
+            {folderRecommendations.explanation && (
+              <div className="jd-pt-3 jd-border-t jd-border-gray-700/30 jd-mt-3">
+                <p className="jd-text-xs jd-text-gray-500 jd-mb-1">
+                  {getMessage('basedOn', undefined, 'Based on:')}
+                </p>
+                <div className="jd-flex jd-flex-wrap jd-gap-1">
+                  {folderRecommendations.explanation.professional_role.length > 0 && (
+                    <span className="jd-bg-blue-600/20 jd-text-blue-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
+                      Role
+                    </span>
+                  )}
+                  {folderRecommendations.explanation.industry.length > 0 && (
+                    <span className="jd-bg-purple-600/20 jd-text-purple-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
+                      Industry
+                    </span>
+                  )}
+                  {folderRecommendations.explanation.seniority.length > 0 && (
+                    <span className="jd-bg-green-600/20 jd-text-green-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
+                      Level
+                    </span>
+                  )}
+                  {folderRecommendations.explanation.interests.length > 0 && (
+                    <span className="jd-bg-orange-600/20 jd-text-orange-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
+                      Interests
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* What's Next - Compact */}
+        <div className="jd-bg-gray-800/40 jd-border jd-border-gray-700/50 jd-rounded-lg jd-p-4 jd-flex-1 jd-backdrop-blur-sm">
+          <div className="jd-flex jd-items-center jd-gap-2 jd-mb-3">
+            <Sparkles className="jd-h-4 jd-w-4 jd-text-blue-400" />
+            <h4 className="jd-text-blue-400 jd-font-medium jd-text-sm">
+              {getMessage('whatNext', undefined, 'What\'s Next?')}
+            </h4>
+          </div>
+          <p className="jd-text-gray-400 jd-text-xs jd-leading-relaxed">
+            {getMessage(
+              'whatNextDescription', 
+              undefined, 
+              'Open your preferred AI tool above to start using personalized templates. Look for our extension button in the bottom corner.'
+            )}
+          </p>
         </div>
       </motion.div>
     </motion.div>

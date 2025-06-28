@@ -1,10 +1,10 @@
+// src/components/welcome/onboarding/OnboardingFlow.tsx - Updated
 import { debug } from '@/core/config';
-// src/extension/welcome/onboarding/OnboardingFlow.tsx
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS, setUserProperties } from '@/utils/amplitude';
-import { userApi } from '@/services/api/UserApi';
+import { apiClient } from '@/services/api/ApiClient';
 import { User } from '@/types';
 
 // Onboarding steps
@@ -32,7 +32,22 @@ export interface OnboardingFlowProps {
   user: User | null;
 }
 
-// Multi-step onboarding flow component
+interface FolderRecommendationResult {
+  success: boolean;
+  new_folders: number[];
+  total_recommended: number[];
+  total_pinned: number[];
+  explanation: {
+    starter_pack: number[];
+    professional_role: number[];
+    industry: number[];
+    seniority: number[];
+    interests: number[];
+  };
+  message: string;
+}
+
+// Multi-step onboarding flow component with smart folder assignment
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ 
   onComplete, 
   user 
@@ -57,6 +72,9 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   
   // Error state
   const [error, setError] = useState<string | null>(null);
+  
+  // Success state for folder recommendations
+  const [folderRecommendations, setFolderRecommendations] = useState<FolderRecommendationResult | null>(null);
   
   // Total number of steps
   const totalSteps = 4; // 3 input steps + completion step
@@ -89,7 +107,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     setCurrentStep(prev => Math.max(0, prev - 1));
   };
   
-  // Submit final data to the backend
+  // Submit final data to the backend with new onboarding completion endpoint
   const handleSubmit = async (data: OnboardingData) => {
     setIsSubmitting(true);
     setError(null);
@@ -97,30 +115,30 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     try {
       // Prepare data for submission
       const submissionData = {
-        ...data,
-        // If job_type is 'other', include the other_details
-        job_type: data.job_type === 'other' && data.job_other_details 
-          ? `other:${data.job_other_details}` 
-          : data.job_type,
-        
-        // If signup_source is 'other', include the other_source
-        signup_source: data.signup_source === 'other' && data.other_source 
-          ? `other:${data.other_source}` 
-          : data.signup_source,
-        
-        // Add any other interests from the text input
-        interests: data.other_interests 
-          ? [...data.interests, `other:${data.other_interests}`] 
-          : data.interests
+        job_type: data.job_type,
+        job_industry: data.job_industry,
+        job_seniority: data.job_seniority,
+        job_other_details: data.job_other_details,
+        interests: data.interests,
+        other_interests: data.other_interests,
+        signup_source: data.signup_source,
+        other_source: data.other_source
       };
       
-      // Submit onboarding data to the backend
-      debug('Submitting onboarding data:', submissionData);
-      const result = await userApi.saveUserMetadata(submissionData);
+      // Submit onboarding data to the new completion endpoint
+      debug('Submitting onboarding data to completion endpoint:', submissionData);
+      const result = await apiClient.request('/onboarding/complete', {
+        method: 'POST',
+        body: JSON.stringify(submissionData)
+      });
       
       if (result.success) {
+        // Store folder recommendations for display
+        setFolderRecommendations(result.folder_recommendations);
+        
+        // Set Amplitude user properties
         setUserProperties({
-          onbboarding_date: new Date().toISOString(),
+          onboarding_date: new Date().toISOString(),
           job_type: data.job_type,
           job_industry: data.job_industry,
           job_seniority: data.job_seniority,
@@ -128,16 +146,21 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
           interests: data.interests,
           other_interests: data.other_interests,
           signup_source: data.signup_source,
-          template_usage_count: 0,
-          template_created_count: 0
+          total_pinned_folders: result.folder_recommendations?.total_pinned?.length || 0,
+          new_folders_from_onboarding: result.total_new_folders || 0
         });
+        
         // Track completion event with Amplitude
         trackEvent(EVENTS.ONBOARDING_COMPLETED, {
           user_id: user?.id,
           job_type: data.job_type,
           job_industry: data.job_industry,
-          interests_count: data.interests.length
+          interests_count: data.interests.length,
+          new_folders_assigned: result.total_new_folders || 0,
+          total_folders_pinned: result.folder_recommendations?.total_pinned?.length || 0
         });
+        
+        debug('Onboarding completed successfully:', result);
         
         // Move to completion step
         setCurrentStep(totalSteps - 1);
@@ -245,6 +268,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
         return (
           <CompletionStep
             onComplete={onComplete}
+            folderRecommendations={folderRecommendations}
           />
         );
       default:
