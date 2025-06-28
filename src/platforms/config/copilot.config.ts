@@ -14,6 +14,8 @@ export const copilotConfig: PlatformConfig = {
     SUBMIT_BUTTON: 'form button[type="submit"]'
   },
   conversationIdPatterns: [
-    { urlPath: /\/c\/api\/conversations\/([a-zA-Z0-9-]+)/ }
+    { urlPath: /\/c\/api\/conversations\/([a-zA-Z0-9-]+)/ },
+    // When viewing a chat directly, the ID appears in the /chats/:id URL
+    { urlPath: /\/chats\/([a-zA-Z0-9-]+)/ }
   ]
 };
