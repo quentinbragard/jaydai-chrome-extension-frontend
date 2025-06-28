@@ -352,15 +352,15 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
         } else if (dialogType === 'customize') {
           const meta = initialData.metadata || createMetadata();
           const content = getLocalizedContent(initialData.content || '');
-          
+
           setState(prev => ({
             ...prev,
             content,
             metadata: meta,
-            expandedMetadata: new Set([
-              ...PRIMARY_METADATA,
-              ...Array.from(getFilledMetadataTypes(meta))
-            ]),
+            // In customize mode we want all metadata cards collapsed by default
+            // so the user immediately sees the selected block titles.
+            // Therefore we only expand the primary metadata types.
+            expandedMetadata: new Set(PRIMARY_METADATA),
             isProcessing: false
           }));
         }
