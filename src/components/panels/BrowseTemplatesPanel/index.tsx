@@ -224,6 +224,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
                       enableNavigation={false}
                       onUseTemplate={useTemplate}
                       onTogglePin={handleTogglePin}
+                      onToggleTemplatePin={handleToggleTemplatePin}
                       organizations={organizations}
                       showPinControls={true}
                       showEditControls={false}

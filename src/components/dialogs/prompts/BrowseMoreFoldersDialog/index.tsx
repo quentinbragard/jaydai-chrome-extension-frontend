@@ -7,6 +7,7 @@ import {
   useOrganizationFolders,
   usePinnedFolders,
   useFolderMutations,
+  useTemplateMutations,
   useTemplateActions,
   useUnorganizedTemplates
 } from '@/hooks/prompts';
@@ -31,6 +32,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
   const { data: organizations = [] } = useOrganizations();
   const { data: pinnedData, refetch: refetchPinned } = usePinnedFolders();
   const { toggleFolderPin } = useFolderMutations();
+  const { toggleTemplatePin } = useTemplateMutations();
   const { useTemplate } = useTemplateActions();
   const { data: unorganizedTemplates = [], isLoading: loadingUnorganized } = useUnorganizedTemplates();
 
@@ -78,6 +80,17 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
       }
     },
     [toggleFolderPin, refetchPinned]
+  );
+
+  const handleToggleTemplatePin = useCallback(
+    async (templateId: number, isPinned: boolean, type: 'user' | 'organization' | 'company') => {
+      try {
+        await toggleTemplatePin.mutateAsync({ templateId, isPinned, type });
+      } catch (error) {
+        console.error('Error toggling template pin:', error);
+      }
+    },
+    [toggleTemplatePin]
   );
 
   // Add pinned status based on localPinnedIds
@@ -133,6 +146,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
                     onTogglePin={(id, pinned) =>
                       handleTogglePin(id, pinned, folder.type as any)
                     }
+                    onToggleTemplatePin={handleToggleTemplatePin}
                     organizations={organizations}
                     showPinControls={true}
                     showEditControls={false}
@@ -147,7 +161,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
                     template={template}
                     type="user"
                     onUseTemplate={handleUseTemplateFromDialog}
-                    onTogglePin={(id, pinned) => handleTogglePin(id, pinned, 'user')}
+                    onTogglePin={(id, pinned) => handleToggleTemplatePin(id, pinned, 'user')}
                     showEditControls={false}
                     showDeleteControls={false}
                     showPinControls={true}

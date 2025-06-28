@@ -30,6 +30,7 @@ interface FolderItemProps {
   onToggleExpand?: (folderId: number) => void;
   onNavigateToFolder?: (folder: TemplateFolder) => void;
   onTogglePin?: (folderId: number, isPinned: boolean, type: 'user' | 'company' | 'organization') => void;
+  onToggleTemplatePin?: (templateId: number, isPinned: boolean, type: 'user' | 'company' | 'organization') => void;
   onEditFolder?: (folder: TemplateFolder) => void;
   onDeleteFolder?: (folderId: number) => void;
   onUseTemplate?: (template: any) => void;
@@ -65,6 +66,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   onToggleExpand,
   onNavigateToFolder,
   onTogglePin,
+  onToggleTemplatePin,
   onEditFolder,
   onDeleteFolder,
   onUseTemplate,
@@ -385,7 +387,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
               onUseTemplate={onUseTemplate}
               onEditTemplate={onEditTemplate}
               onDeleteTemplate={onDeleteTemplate}
-              onTogglePin={onTogglePin}
+              onTogglePin={onToggleTemplatePin}
               showEditControls={type === 'user'}
               showDeleteControls={type === 'user'}
               showPinControls={showPinControls}
@@ -437,7 +439,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   onUseTemplate={onUseTemplate}
                   onEditTemplate={onEditTemplate}
                   onDeleteTemplate={onDeleteTemplate}
-                  onTogglePin={onTogglePin}
+                  onTogglePin={onToggleTemplatePin}
                   showEditControls={type === 'user'}
                   showDeleteControls={type === 'user'}
                   showPinControls={showPinControls}
