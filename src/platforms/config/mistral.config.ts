@@ -2,11 +2,13 @@ import { PlatformConfig } from './base';
 
 export const mistralConfig: PlatformConfig = {
   name: 'mistral',
-  hostnames: ['chat.mistral.ai'],
+  // Include both main chat and admin hostnames used for requests
+  hostnames: ['chat.mistral.ai', 'admin.mistral.ai'],
   endpoints: {
     USER_INFO: '/api/trpc/user.session',
     CONVERSATIONS_LIST: '/api/trpc/chat.list',
-    CHAT_COMPLETION: '/api/chat',
+    // Match both the initial message.newChat call and subsequent /chat requests
+    CHAT_COMPLETION: /\/api\/trpc\/message\.newChat|\/chat(?:\?|$)/,
     SPECIFIC_CONVERSATION: /\/api\/chat/,
   },
   domSelectors: {
