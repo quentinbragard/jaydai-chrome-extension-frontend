@@ -80,6 +80,28 @@ const MainButton = () => {
     };
   }, [isDragging, setPosition]);
 
+  // Ensure saved position remains within the viewport
+  useEffect(() => {
+    if (!position) return;
+
+    const clampPosition = () => {
+      if (!position) return;
+      const size = buttonRef.current?.offsetWidth || 80;
+      const maxX = window.innerWidth - size;
+      const maxY = window.innerHeight - size;
+      let { x, y } = position;
+      x = Math.min(Math.max(0, x), maxX);
+      y = Math.min(Math.max(0, y), maxY);
+      if (x !== position.x || y !== position.y) {
+        setPosition({ x, y });
+      }
+    };
+
+    clampPosition();
+    window.addEventListener('resize', clampPosition);
+    return () => window.removeEventListener('resize', clampPosition);
+  }, [position, setPosition, buttonRef]);
+
   // Removed showDragHandle state and related effects since three dots are always visible
 
   // Choose the appropriate logo based on the detected theme
