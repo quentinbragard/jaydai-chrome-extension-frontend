@@ -283,7 +283,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         </div>
 
         {/* Action Buttons */}
-        {((showEditControls && type === 'user') || (showDeleteControls && type === 'user') || showPinControls) && (
+        {((showEditControls && type === 'user') || (showDeleteControls && type === 'user')) && (
           <div className="jd-flex jd-gap-1 jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
             {/* Edit Button */}
             {showEditControls && onEditFolder && (
@@ -324,19 +324,20 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                 </Tooltip>
               </TooltipProvider>
             )}
+          </div>
+        )}
 
-
-        {showPinControls && onTogglePin && (
+        <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
+          {showPinControls && onTogglePin && (
             <div
-              className={`jd-ml-auto  jd-items-center jd-gap-1 jd-flex ${
+              className={`jd-ml-auto jd-items-center jd-gap-1 jd-flex ${
                 isPinned ? '' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'
               }`}
             >
               <PinButton isPinned={isPinned} onClick={handleTogglePin} className="" />
             </div>
           )}
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Folder Contents */}
