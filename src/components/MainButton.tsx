@@ -1,6 +1,6 @@
 // src/components/MainButton.tsx
 
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Toaster } from "sonner";
 import { Button } from '@/components/ui/button';
 import { X } from "lucide-react";
@@ -10,6 +10,8 @@ import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
 import { getMessage } from '@/core/utils/i18n';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { useLocalStorage } from '@/core/hooks/useLocalStorage';
+import { cn } from '@/core/utils/classNames';
 
 
 /**
@@ -26,12 +28,47 @@ const MainButton = () => {
     handleClosePanel,
   } = useMainButtonState();
 
+  const [position, setPosition] = useLocalStorage<{ x: number; y: number } | null>('mainButtonPosition', null);
+  const [isDragging, setIsDragging] = useState(false);
+  const movedRef = useRef(false);
+  const offsetRef = useRef({ x: 0, y: 0 });
+
   // Use our theme detector hook to get the current theme
   const isDarkMode = useThemeDetector();
   const handleMainButtonClick = () => {
-    trackEvent(EVENTS.MAIN_BUTTON_CLICKED, {darkMode: isDarkMode});
+    if (movedRef.current) {
+      movedRef.current = false;
+      return;
+    }
+    trackEvent(EVENTS.MAIN_BUTTON_CLICKED, { darkMode: isDarkMode });
     toggleMenu();
   };
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    offsetRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    setIsDragging(true);
+    movedRef.current = false;
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+    const handleMove = (event: PointerEvent) => {
+      movedRef.current = true;
+      setPosition({ x: event.clientX - offsetRef.current.x, y: event.clientY - offsetRef.current.y });
+    };
+    const handleUp = () => {
+      setIsDragging(false);
+    };
+
+    window.addEventListener('pointermove', handleMove);
+    window.addEventListener('pointerup', handleUp);
+    return () => {
+      window.removeEventListener('pointermove', handleMove);
+      window.removeEventListener('pointerup', handleUp);
+    };
+  }, [isDragging, setPosition]);
 
   // We don't need this event listener anymore because it's handled in useMainButtonState
   // But keeping the component structure for reference
@@ -50,7 +87,14 @@ const MainButton = () => {
 
   return (
     <ErrorBoundary>
-      <div className="jd-fixed jd-bottom-6 jd-right-8 jd-z-[9999]">
+      <div
+        className={cn(
+          'jd-fixed jd-z-[9999]',
+          !position && 'jd-bottom-6 jd-right-8'
+        )}
+        style={position ? { top: position.y, left: position.x } : undefined}
+        onPointerDown={handlePointerDown}
+      >
         <div className="jd-relative">
           {/* Panel Manager */}
           <PanelManager
