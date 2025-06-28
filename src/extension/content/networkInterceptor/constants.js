@@ -21,7 +21,9 @@ export const ENDPOINTS = {
   'mistral': {
     USER_INFO: '/api/trpc/user.session',
     CONVERSATIONS_LIST: '/api/trpc/chat.list',
-    CHAT_COMPLETION: '/api/chat',
+    // First messages are sent via message.newChat while subsequent ones hit /chat
+    // Match both endpoints so we can capture all user prompts
+    CHAT_COMPLETION: /\/api\/trpc\/message\.newChat|\/chat(?:\?|$)/,
     SPECIFIC_CONVERSATION: /\/api\/chat/
   },
   'copilot': {
