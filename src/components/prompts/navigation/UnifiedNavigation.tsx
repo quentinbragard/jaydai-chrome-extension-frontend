@@ -1,6 +1,6 @@
 // src/components/prompts/navigation/UnifiedNavigation.tsx
 import React from 'react';
-import { FolderOpen, FilePlus, FolderPlus, PlusSquare, ArrowLeft, Home, ChevronRight } from 'lucide-react';
+import { FolderOpen, FilePlus, FolderPlus, Blocks, ArrowLeft, Home, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 
@@ -59,35 +59,35 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
           <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
           {isAtRoot ? 'My Templates' : currentFolderTitle}
         </div>
-        <div className="jd-flex jd-items-center jd-gap-1">
+        <div className="jd-flex jd-items-center jd-gap-2">
           {showCreateTemplate && onCreateTemplate && (
             <Button
               variant="secondary"
-              size="sm"
+              size="xs"
               onClick={onCreateTemplate}
               title={getMessage('newTemplate', undefined, 'New Template')}
             >
-              <FilePlus className="jd-h-4 jd-w-4" />
+              <FilePlus className="jd-h-6 jd-w-6 jd-p-1" />
             </Button>
           )}
           {showCreateFolder && onCreateFolder && (
             <Button
               variant="secondary"
-              size="sm"
+              size="xs"
               onClick={onCreateFolder}
               title={getMessage('newFolder', undefined, 'New Folder')}
             >
-              <FolderPlus className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
+              <FolderPlus className="jd-h-6 jd-w-6 jd-p-1 jd-text-muted-foreground" />
             </Button>
           )}
           {showCreateBlock && onCreateBlock && (
             <Button
               variant="secondary"
-              size="sm"
+              size="xs"
               onClick={onCreateBlock}
               title="Create Block"
             >
-              <PlusSquare className="jd-h-4 jd-w-4" />
+              <Blocks className="jd-h-6 jd-w-6 jd-p-1" />
             </Button>
           )}
         </div>

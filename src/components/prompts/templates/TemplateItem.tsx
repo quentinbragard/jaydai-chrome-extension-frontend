@@ -236,6 +236,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
           {showPinControls && onTogglePin && isPinned && (
             <div className={`jd-ml-auto  jd-items-center jd-gap-1 jd-flex`}>
               <PinButton
+                type="template"
                 isPinned={isPinned}
                 onClick={handleTogglePin}
               />
