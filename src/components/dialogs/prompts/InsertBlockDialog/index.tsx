@@ -68,11 +68,11 @@ const METADATA_FILTERS = [
   { type: 'role', label: 'Role', icon: '👤' },
   { type: 'context', label: 'Context', icon: '📝' },
   { type: 'goal', label: 'Goal', icon: '🎯' },
-  { type: 'constraint', label: 'Constraint', icon: '🚫' },
-  { type: 'example', label: 'Example', icon: '💡' },
-  { type: 'output_format', label: 'Format', icon: '📋' },
   { type: 'tone_style', label: 'Tone', icon: '🎨' },
   { type: 'audience', label: 'Audience', icon: '👥' },
+  { type: 'output_format', label: 'Format', icon: '📋' },
+  { type: 'constraint', label: 'Constraint', icon: '🚫' },
+  { type: 'example', label: 'Example', icon: '💡' },
 ] as const;
 
 // Inline block creation component

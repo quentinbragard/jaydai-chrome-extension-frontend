@@ -283,7 +283,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         </div>
 
         {/* Action Buttons */}
-        {(type === 'user' && (showEditControls || showDeleteControls || showPinControls)) && (
+        {((showEditControls && type === 'user') || (showDeleteControls && type === 'user') || showPinControls) && (
           <div className="jd-flex jd-gap-1 jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
             {/* Edit Button */}
             {showEditControls && onEditFolder && (

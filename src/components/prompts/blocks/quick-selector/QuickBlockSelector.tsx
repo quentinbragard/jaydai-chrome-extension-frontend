@@ -27,12 +27,14 @@ import { calculateDropdownPosition } from './positionUtils';
 
 // Quick filter types
 const QUICK_FILTERS = [
-  { type: 'all', label: 'All', icon: '📋' },
   { type: 'role', label: 'Role', icon: '👤' },
   { type: 'context', label: 'Context', icon: '📝' },
   { type: 'goal', label: 'Goal', icon: '🎯' },
-  { type: 'example', label: 'Example', icon: '💡' },
+  { type: 'tone_style', label: 'Tone', icon: '🎨' },
+  { type: 'audience', label: 'Audience', icon: '👥' },
+  { type: 'output_format', label: 'Format', icon: '📋' },
   { type: 'constraint', label: 'Constraint', icon: '🚫' },
+  { type: 'example', label: 'Example', icon: '💡' },
 ] as const;
 
 interface QuickBlockSelectorProps {
