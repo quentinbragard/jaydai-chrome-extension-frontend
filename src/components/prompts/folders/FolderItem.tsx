@@ -326,28 +326,17 @@ export const FolderItem: React.FC<FolderItemProps> = ({
             )}
 
 
-        {showPinControls && onTogglePin && !isPinned && (
-            <div className={`jd-ml-auto  jd-items-center jd-gap-2 ${isPinned ? 'jd-flex' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'}`}>
-              <PinButton
-                isPinned={isPinned}
-                onClick={handleTogglePin}
-                className=""
-              />
+        {showPinControls && onTogglePin && (
+            <div
+              className={`jd-ml-auto  jd-items-center jd-gap-1 jd-flex ${
+                isPinned ? '' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'
+              }`}
+            >
+              <PinButton isPinned={isPinned} onClick={handleTogglePin} className="" />
             </div>
           )}
           </div>
         )}
-        <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
-          {/* Pin Button */}
-          {showPinControls && onTogglePin && isPinned && (
-            <div className={`jd-ml-auto  jd-items-center jd-gap-1 jd-flex`}>
-              <PinButton
-                isPinned={isPinned}
-                onClick={handleTogglePin}
-              />
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Folder Contents */}

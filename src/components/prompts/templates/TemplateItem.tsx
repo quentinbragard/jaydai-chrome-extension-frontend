@@ -176,7 +176,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   
 
         {/* Edit and Delete Controls (for user templates) */}
-        {(shouldShowEditControls || shouldShowDeleteControls || shouldShowPinControls) && (
+        {(shouldShowEditControls || shouldShowDeleteControls) && (
           <div className="jd-flex jd-gap-2  jd-items-center jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
             {/* Edit Button */}
             {shouldShowEditControls && onEditTemplate && (
@@ -221,20 +221,17 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
             )}
 
 
-             {shouldShowPinControls && !isPinned && (
-                <PinButton
-                  type="template"
-                  isPinned={isPinned}
-                  onClick={handleTogglePin}
-                />
-              )}
           </div>
         )}
 
       <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
           {/* Pin Button */}
-          {showPinControls && onTogglePin && isPinned && (
-            <div className={`jd-ml-auto  jd-items-center jd-gap-1 jd-flex`}>
+          {showPinControls && onTogglePin && (
+            <div
+              className={`jd-ml-auto jd-items-center jd-gap-1 jd-flex ${
+                isPinned ? '' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'
+              }`}
+            >
               <PinButton
                 type="template"
                 isPinned={isPinned}
