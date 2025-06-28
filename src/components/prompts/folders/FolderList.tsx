@@ -9,6 +9,7 @@ interface FolderListProps {
   folders: TemplateFolder[];
   type: 'company' | 'organization' | 'user';
   onTogglePin?: (folderId: number, isPinned: boolean, folderType?: 'company' | 'organization' | 'user') => Promise<void> | void;
+  onToggleTemplatePin?: (templateId: number, isPinned: boolean, folderType?: 'company' | 'organization' | 'user') => Promise<void> | void;
   onDeleteFolder?: (folderId: number) => Promise<boolean> | void;
   onEditFolder?: (folder: TemplateFolder) => void;
   onUseTemplate?: (template: Template) => void;
@@ -30,6 +31,7 @@ const FolderList: React.FC<FolderListProps> = ({
   folders,
   type,
   onTogglePin,
+  onToggleTemplatePin,
   onDeleteFolder,
   onEditFolder,
   onUseTemplate,
@@ -73,6 +75,7 @@ const FolderList: React.FC<FolderListProps> = ({
             folder={folder}
             type={type}
             onTogglePin={onTogglePin ? ((id, pinned) => onTogglePin(id, pinned, folder.type)) : undefined}
+            onToggleTemplatePin={onToggleTemplatePin ? ((id, pinned) => onToggleTemplatePin(id, pinned, folder.type)) : undefined}
             onDeleteFolder={onDeleteFolder}
             onEditFolder={onEditFolder}
             onUseTemplate={onUseTemplate}
