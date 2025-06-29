@@ -45,8 +45,13 @@ export const DeleteButton = memo(function DeleteButton({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
-  // Format item type for display
-  const displayType = itemType.charAt(0).toUpperCase() + itemType.slice(1);
+  // Format item type for display using i18n when available
+  const displayType = getMessage(
+    itemType,
+    undefined,
+    itemType.charAt(0).toUpperCase() + itemType.slice(1)
+  );
+  const displayTypeLower = getMessage(itemType, undefined, itemType).toLowerCase();
 
   // Handle opening delete dialog
   const handleOpenDeleteDialog = (e: React.MouseEvent) => {
@@ -72,16 +77,35 @@ export const DeleteButton = memo(function DeleteButton({
   // Generate confirmation message
   const getConfirmationMessage = () => {
     if (confirmationMessage) return confirmationMessage;
-    
-    const baseMessage = itemName 
-      ? `This will permanently delete ${displayType.toLowerCase()} "${itemName}".` 
-      : `This will permanently delete this ${displayType.toLowerCase()}.`;
-      
-    const additionalInfo = itemType === 'folder' 
-      ? ' All templates inside this folder will also be deleted.' 
-      : '';
-      
-    return `${baseMessage}${additionalInfo} This action cannot be undone.`;
+
+    const baseMessage = itemName
+      ? getMessage(
+          'deleteConfirmMessage',
+          [displayTypeLower, itemName],
+          `This will permanently delete ${displayTypeLower} "${itemName}".`
+        )
+      : getMessage(
+          'deleteConfirmMessageNoName',
+          [displayTypeLower],
+          `This will permanently delete this ${displayTypeLower}.`
+        );
+
+    const additionalInfo =
+      itemType === 'folder'
+        ? ` ${getMessage(
+            'deleteFolderWarning',
+            undefined,
+            'All templates inside this folder will also be deleted.'
+          )}`
+        : '';
+
+    const actionWarning = ` ${getMessage(
+      'deleteActionWarning',
+      undefined,
+      'This action cannot be undone.'
+    )}`;
+
+    return `${baseMessage}${additionalInfo}${actionWarning}`;
   };
 
   return (
@@ -103,12 +127,12 @@ export const DeleteButton = memo(function DeleteButton({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem 
-              onClick={handleOpenDeleteDialog} 
+            <DropdownMenuItem
+              onClick={handleOpenDeleteDialog}
               className="jd-text-destructive jd-cursor-pointer"
             >
               <Trash className="jd-h-4 jd-w-4 jd-mr-2" />
-              Delete {displayType}
+              {getMessage('deleteItem', [displayType], `Delete ${displayType}`)}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -131,7 +155,7 @@ export const DeleteButton = memo(function DeleteButton({
           <DialogHeader>
             <DialogTitle className="jd-flex jd-items-center">
               <AlertTriangle className="jd-h-5 jd-w-5 jd-mr-2 jd-text-destructive" />
-              Delete {displayType}
+              {getMessage('deleteConfirmTitle', [displayType], `Delete ${displayType}`)}
             </DialogTitle>
             <DialogDescription>
               {getConfirmationMessage()}
@@ -145,12 +169,14 @@ export const DeleteButton = memo(function DeleteButton({
             >
               {getMessage('cancel')}
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting
+                ? getMessage('deleting', undefined, 'Deleting...')
+                : getMessage('delete', undefined, 'Delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
