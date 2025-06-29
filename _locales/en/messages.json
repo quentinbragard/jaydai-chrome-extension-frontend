@@ -484,6 +484,18 @@
     "message": "Create a new template to use with AI conversations.",
     "description": "Description for create template dialog"
   },
+  "editFolder": {
+    "message": "Edit Folder",
+    "description": "Title for edit folder dialog"
+  },
+  "editFolderDescription": {
+    "message": "Update folder information",
+    "description": "Description for edit folder dialog"
+  },
+  "parentFolder": {
+    "message": "Parent Folder",
+    "description": "Label for parent folder field"
+  },
   "enterTemplateName": {
     "message": "Enter template name",
     "description": "Placeholder for template name input"
@@ -603,6 +615,22 @@
   "refresh": {
     "message": "Refresh",
     "description": "Refresh button text"
+  },
+  "browseFoldersTitle": {
+    "message": "Browse Folders",
+    "description": "Title for browse folders dialog"
+  },
+  "searchFoldersPlaceholder": {
+    "message": "Search folders...",
+    "description": "Placeholder text for folder search"
+  },
+  "loadingFoldersGeneric": {
+    "message": "Loading folders...",
+    "description": "Loading state text for folders"
+  },
+  "noFoldersOrTemplatesFound": {
+    "message": "No folders or templates found",
+    "description": "Empty state when no folders or templates match"
   },
   "noPinnedOfficialTemplates": {
     "message": "No pinned organization templates. Click Browse More to add some.",
@@ -777,6 +805,26 @@
   "used_times": {
     "message": "Used {{count}} times",
     "description": "Message showing how many times a template has been used",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "used_time": {
+    "message": "Used {{count}} time",
+    "description": "Message showing how many times a template has been used (singular)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popular_used_times": {
+    "message": "Popular \u2022 Used {{count}} times",
+    "description": "Label showing a template is popular with usage count",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1735,6 +1783,21 @@
   "addBlock": { "message": "Add Block", "description": "Button label to add a block" },
   "addFirstBlock": { "message": "Add Your First Block", "description": "Button label to add first block" },
   "noContentBlocks": { "message": "No content blocks yet", "description": "Message when no blocks exist" },
+  "createBlockTitle": { "message": "Create Block", "description": "Create block dialog title" },
+  "createBlockDescription": { "message": "Create a new reusable block for your prompts", "description": "Create block dialog description" },
+  "blockType": { "message": "Block Type", "description": "Label for block type field" },
+  "blockTypeRequired": { "message": "Block type is required", "description": "Validation error for block type" },
+  "blockName": { "message": "Block Name", "description": "Label for block name field" },
+  "enterBlockName": { "message": "Enter block name", "description": "Placeholder for block name input" },
+  "blockNameHint": { "message": "Please enter a block name", "description": "Hint text when block name is empty" },
+  "blockNameRequired": { "message": "Block name is required", "description": "Validation error for block name" },
+  "blockContent": { "message": "Block Content", "description": "Label for block content field" },
+  "enterBlockContent": { "message": "Enter block content...", "description": "Placeholder for block content input" },
+  "blockContentRequired": { "message": "Block content is required", "description": "Validation error for block content" },
+  "blockDescriptionPlaceholder": { "message": "Enter block description...", "description": "Placeholder for block description input" },
+  "createBlock": { "message": "Create Block", "description": "Create block button" },
+  "blockCreated": { "message": "Block created successfully", "description": "Success message when block is created" },
+  "errorCreatingBlock": { "message": "Failed to create block", "description": "Error message when block creation fails" },
   "errorProcessingTemplate": { "message": "Failed to process template content. Please try again.", "description": "Error message when template processing fails" },
   "errorProcessingTemplateToast": { "message": "Failed to process template content", "description": "Toast message for processing error" },
   "organizationTemplateNotice": {
@@ -1781,5 +1844,50 @@
     }
   },
   "createBlock": { "message": "Create Block", "description": "Button text to create a block" },
-  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" }
+  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" },
+"saveAsNewBlock": {
+    "message": "Save as new block",
+    "description": "Tooltip for saving a block as new"
+  },
+  "deleteBlock": {
+    "message": "Delete block",
+    "description": "Tooltip for deleting a block"
+  },
+  "selectBlockType": {
+    "message": "Select type",
+    "description": "Placeholder for block type selection"
+  },
+  "createTypeBlock": {
+    "message": "Create $TYPE$ block",
+    "description": "Menu entry to create a block of specified type",
+    "placeholders": {
+      "type": { "content": "$1", "example": "goal" }
+    }
+  },
+  "createCustom": {
+    "message": "Create custom",
+    "description": "Menu entry to create a custom block"
+  },
+  "templatePreview.title": {
+    "message": "Template Preview",
+    "description": "Default title for template preview section"
+  },
+  "constraintLabel": {
+    "message": "Contrainte:",
+    "description": "Label for constraint items in template preview"
+  },
+  "exampleLabel": {
+    "message": "Exemple:",
+    "description": "Label for example items in template preview"
+  },
+  "previousPage": {
+    "message": "Previous page",
+    "description": "Tooltip for pagination previous button"
+  },
+  "nextPage": {
+    "message": "Next page",
+    "description": "Tooltip for pagination next button"
+  },
+  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" },
+  "dragToMove": { "message": "Drag to move", "description": "Tooltip for dragging the main button" },
 }

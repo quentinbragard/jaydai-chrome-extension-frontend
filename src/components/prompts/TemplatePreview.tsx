@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '@/core/utils/classNames';
 import { PromptMetadata } from '@/types/prompts/metadata';
 import { buildCompletePreviewWithBlocks, buildCompletePreviewHtmlWithBlocks } from '@/utils/templates/promptPreviewUtils';
+import { getMessage } from '@/core/utils/i18n';
 
 interface TemplatePreviewProps {
   metadata: PromptMetadata;
@@ -19,7 +20,7 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   blockContentCache = {},
   isDarkMode,
   className,
-  title = "Template Preview"
+  title = getMessage('templatePreview.title', undefined, 'Template Preview')
 }) => {
   // Build the complete preview HTML
   const previewHtml = React.useMemo(() => {
@@ -43,15 +44,15 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     if (metadata.constraint) {
       metadata.constraint.forEach(item => {
         if (item.value.trim()) {
-          parts.push(`Contrainte: ${item.value}`);
+          parts.push(`${getMessage('constraintLabel', undefined, 'Contrainte:')} ${item.value}`);
         }
       });
     }
-    
+
     if (metadata.example) {
       metadata.example.forEach(item => {
         if (item.value.trim()) {
-          parts.push(`Exemple: ${item.value}`);
+          parts.push(`${getMessage('exampleLabel', undefined, 'Exemple:')} ${item.value}`);
         }
       });
     }

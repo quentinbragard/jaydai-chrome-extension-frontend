@@ -157,7 +157,9 @@ export const FolderItem: React.FC<FolderItemProps> = ({
           <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2">
             <div className="jd-flex jd-items-center">
               <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
-              {isAtRoot ? 'My Templates' : folder.title}
+              {isAtRoot
+                ? getMessage('myTemplates', undefined, 'My Templates')
+                : folder.title}
             </div>
             <div className="jd-flex jd-items-center jd-gap-1">
               {onCreateTemplate && (
@@ -192,7 +194,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   size="sm" 
                   onClick={onNavigateToRoot} 
                   className="jd-h-6 jd-px-2 jd-text-muted-foreground hover:jd-text-foreground"
-                  title="Go to root"
+                  title={getMessage('goToRoot', undefined, 'Go to root')}
                 >
                   <Home className="jd-h-4 jd-w-4" />
                 </Button>
@@ -223,7 +225,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                   size="sm" 
                   onClick={onNavigateBack} 
                   className="jd-h-6 jd-px-2 jd-text-muted-foreground hover:jd-text-foreground jd-flex-shrink-0"
-                  title="Go back"
+                  title={getMessage('goBack', undefined, 'Go back')}
                 >
                   <ArrowLeft className="jd-h-4 jd-w-4" />
                 </Button>
@@ -299,7 +301,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                       </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    <p>Edit folder</p>
+                    <p>{getMessage('editFolder', undefined, 'Edit folder')}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -319,7 +321,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    <p>Delete folder</p>
+                    <p>{getMessage('deleteFolder', undefined, 'Delete folder')}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -396,7 +398,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
             <EmptyMessage>
               {isAtRoot 
                 ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
-                : 'This folder is empty'
+                : getMessage('folderEmpty', undefined, 'This folder is empty')
               }
             </EmptyMessage>
           ) : (
