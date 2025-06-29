@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { FolderOpen, ChevronRight } from 'lucide-react';
 import { FolderNavigation } from './FolderNavigation';
 import { TemplateFolder } from '@/types/prompts/templates';
+import { getMessage } from '@/core/utils/i18n';
 
 interface FolderPickerProps {
   folders: TemplateFolder[];
@@ -90,7 +91,9 @@ export const FolderPicker: React.FC<FolderPickerProps> = ({ folders, onSelect, c
           </div>
         ))}
         {currentFolders.length === 0 && (
-          <div className="jd-text-xs jd-text-muted-foreground jd-p-2">No subfolders</div>
+          <div className="jd-text-xs jd-text-muted-foreground jd-p-2">
+            {getMessage('noSubfolders', undefined, 'No subfolders')}
+          </div>
         )}
       </div>
     </div>
