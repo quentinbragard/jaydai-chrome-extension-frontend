@@ -1,7 +1,7 @@
 
 // src/components/organizations/OrganizationBanner.tsx - simplified banner
 import React from 'react';
-import { Building2 } from 'lucide-react';
+import { Building2, ExternalLink } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { OrganizationImage } from '@/components/organizations';
 import { Organization } from '@/types/organizations';
@@ -18,7 +18,6 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
   className = '',
   variant = 'default'
 }) => {
-    console.log("organization--->", organization);
   const isCompact = variant === 'compact';
   const bannerStyle = organization.banner_url
     ? {
@@ -78,6 +77,20 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
           >
             {getMessage('createdBy', undefined, 'Created by')} {organization.name}
           </p>
+          {organization.website_url && (
+            <a
+              href={organization.website_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                'jd-flex jd-items-center jd-text-xs jd-font-medium hover:jd-underline',
+                organization.banner_url ? 'jd-text-white' : 'jd-text-blue-600 jd-dark:jd-text-blue-400'
+              )}
+            >
+              Visit website
+              <ExternalLink className="jd-h-3 jd-w-3 jd-ml-1" />
+            </a>
+          )}
         </div>
       </div>
     </div>
