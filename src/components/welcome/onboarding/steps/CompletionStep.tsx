@@ -196,7 +196,7 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
                       </div>
                       {folderRecommendations.new_folders.includes(folder.id) && (
                         <span className="jd-bg-green-500/20 jd-text-green-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs jd-font-medium jd-flex-shrink-0 jd-animate-pulse">
-                          New
+                          {getMessage('newLabel', undefined, 'New')}
                         </span>
                       )}
                     </div>
@@ -218,22 +218,22 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
                 <div className="jd-flex jd-flex-wrap jd-gap-1">
                   {folderRecommendations.explanation.professional_role.length > 0 && (
                     <span className="jd-bg-blue-600/20 jd-text-blue-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
-                      Role
+                      {getMessage('explanationRole', undefined, 'Role')}
                     </span>
                   )}
                   {folderRecommendations.explanation.industry.length > 0 && (
                     <span className="jd-bg-purple-600/20 jd-text-purple-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
-                      Industry
+                      {getMessage('explanationIndustry', undefined, 'Industry')}
                     </span>
                   )}
                   {folderRecommendations.explanation.seniority.length > 0 && (
                     <span className="jd-bg-green-600/20 jd-text-green-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
-                      Level
+                      {getMessage('explanationLevel', undefined, 'Level')}
                     </span>
                   )}
                   {folderRecommendations.explanation.interests.length > 0 && (
                     <span className="jd-bg-orange-600/20 jd-text-orange-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
-                      Interests
+                      {getMessage('explanationInterests', undefined, 'Interests')}
                     </span>
                   )}
                 </div>
