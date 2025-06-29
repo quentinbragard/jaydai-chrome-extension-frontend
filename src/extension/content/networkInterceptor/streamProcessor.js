@@ -154,6 +154,79 @@ export function processStreamData(data, assistantData, thinkingSteps) {
 }
 
 /**
+ * Process streaming responses from Mistral
+ * @param {Response} response - The fetch response
+ * @param {Object} requestBody - The original request body
+ * @returns {Promise<void>}
+ */
+export async function processMistralStreamingResponse(response, requestBody) {
+  if (!response.body) return;
+
+  const reader = response.clone().body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let messageId = '';
+  let content = '';
+  const conversationId = requestBody?.chatId || '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      let index;
+      while ((index = buffer.indexOf('\n')) !== -1) {
+        const line = buffer.slice(0, index).trim();
+        buffer = buffer.slice(index + 1);
+        if (!line) continue;
+
+        if (line.startsWith('data:')) {
+          const dataStr = line.slice(5).trim();
+
+          if (dataStr === '[DONE]') {
+            if (messageId && content) {
+              dispatchEvent(EVENTS.ASSISTANT_RESPONSE, 'mistral', {
+                messageId,
+                conversationId,
+                content,
+                role: 'assistant',
+                model: 'mistral',
+                isComplete: true
+              });
+            }
+            continue;
+          }
+
+          try {
+            const data = JSON.parse(dataStr);
+            if (data.messageId) messageId = data.messageId;
+            if (data.token) content += data.token;
+            if (data.content) content += data.content;
+          } catch (_) {
+            content += dataStr;
+          }
+        }
+      }
+    }
+
+    if (messageId && content) {
+      dispatchEvent(EVENTS.ASSISTANT_RESPONSE, 'mistral', {
+        messageId,
+        conversationId,
+        content,
+        role: 'assistant',
+        model: 'mistral',
+        isComplete: true
+      });
+    }
+  } catch (error) {
+    console.error('Error processing Mistral stream:', error);
+  }
+}
+
+/**
  * Process streaming responses from ChatGPT
  * @param {Response} response - The fetch response
  * @param {Object} requestBody - The original request body
@@ -162,6 +235,10 @@ export function processStreamData(data, assistantData, thinkingSteps) {
 export async function processStreamingResponse(response, requestBody) {
   console.log("PROCESSING STREAMING RESPONSE");
   const platform = detectPlatform();
+
+  if (platform === 'mistral') {
+    return processMistralStreamingResponse(response, requestBody);
+  }
   const clonedResponse = response.clone();
   const reader = clonedResponse.body.getReader();
   const decoder = new TextDecoder();
