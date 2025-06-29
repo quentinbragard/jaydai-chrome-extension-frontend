@@ -51,11 +51,17 @@ export function initFetchInterceptor() {
         
         
         // Process streaming responses
-        if (isStreaming && requestBody?.messages?.[0]?.author?.role === "user") {
+        if (isStreaming) {
+          // For streaming responses (used by ChatGPT and Mistral)
           processStreamingResponse(response, requestBody);
+        } else {
+          // Non streaming response, parse JSON and dispatch as assistant response
+          const responseData = await response.clone().json().catch(() => null);
+          if (responseData) {
+            dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, responseData);
+          }
         }
-      } 
-      else if (!isStreaming) {
+      } else if (!isStreaming) {
         // For non-streaming endpoints, clone and process response
         const responseData = await response.clone().json().catch(() => null);
         if (responseData) {
