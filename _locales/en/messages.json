@@ -1751,5 +1751,11 @@
       }
     }
   },
-  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" }
+  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" },
+  "openBlockBuilder": { "message": "Open block builder", "description": "Tooltip for opening block builder" },
+  "searchBlocksPlaceholder": { "message": "Search blocks...", "description": "Placeholder text for block search" },
+  "newBlock": { "message": "New", "description": "Button label to create a new block" },
+  "loadingBlocks": { "message": "Loading blocks...", "description": "Text shown while blocks load" },
+  "noBlocksAvailable": { "message": "No blocks available", "description": "Message when no blocks can be displayed" },
+  "quickSelectorHints": { "message": "↑↓ Navigate • ←→ Filter • Enter Select", "description": "Footer instructions for quick block selector" }
 }
