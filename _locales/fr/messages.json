@@ -513,6 +513,22 @@
     "message": "Actualiser",
     "description": "Button text to refresh templates"
   },
+  "browseFoldersTitle": {
+    "message": "Parcourir les Dossiers",
+    "description": "Titre de la fenêtre Parcourir les dossiers"
+  },
+  "searchFoldersPlaceholder": {
+    "message": "Rechercher des dossiers...",
+    "description": "Texte du champ de recherche des dossiers"
+  },
+  "loadingFoldersGeneric": {
+    "message": "Chargement des dossiers...",
+    "description": "Texte de chargement pour les dossiers"
+  },
+  "noFoldersOrTemplatesFound": {
+    "message": "Aucun dossier ou template trouvé",
+    "description": "Message lorsqu'aucun dossier ou template n'est trouvé"
+  },
   "noPinnedOfficialTemplates": {
     "message": "Aucun template d'organisation épinglé. Cliquez sur 'Voir Plus' pour en ajouter.",
     "description": "Empty state message for organization templates section"
