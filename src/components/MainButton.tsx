@@ -157,7 +157,7 @@ const MainButton = () => {
                   'hover:jd-bg-white hover:jd-shadow-lg hover:jd-scale-110',
                   isDragging && 'jd-cursor-grabbing jd-scale-110 jd-shadow-xl jd-bg-white jd-opacity-100 jd-pointer-events-auto'
                 )}
-                title="Drag to move"
+                title={getMessage('dragToMove', undefined, 'Drag to move')}
               >
                 <Move className={cn(
                   'jd-w-3 jd-h-3 jd-text-gray-500',

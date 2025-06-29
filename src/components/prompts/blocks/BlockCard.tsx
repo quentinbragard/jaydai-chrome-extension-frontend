@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { Trash2, GripVertical, Plus, Save } from 'lucide-react';
+import { getMessage } from '@/core/utils/i18n';
 import { Input } from '@/components/ui/input';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
@@ -184,7 +185,9 @@ export const BlockCard: React.FC<BlockCardProps> = ({
                     onValueChange={(value) => handleTypeChange(value as BlockType)}
                   >
                     <SelectTrigger className="jd-w-32 jd-text-xs jd-h-7">
-                      <SelectValue placeholder="Select type" />
+                      <SelectValue
+                        placeholder={getMessage('selectBlockType', undefined, 'Select type')}
+                      />
                     </SelectTrigger>
                     <SelectContent className="jd-z-[10010]">
                       {AVAILABLE_BLOCK_TYPES.map((t) => (
@@ -207,7 +210,8 @@ export const BlockCard: React.FC<BlockCardProps> = ({
                         ))}
                         <SelectItem value="custom">
                           <div className="jd-flex jd-items-center jd-gap-1">
-                            <Plus className="jd-h-3 jd-w-3" /> Create custom
+                            <Plus className="jd-h-3 jd-w-3" />
+                            {getMessage('createCustom', undefined, 'Create custom')}
                           </div>
                         </SelectItem>
                       </SelectContent>
@@ -228,7 +232,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
                 variant="ghost"
                 onClick={handleSaveClick}
                 className="jd-h-8 jd-px-3 jd-text-blue-600 jd-hover:jd-text-blue-700 jd-hover:jd-bg-blue-50 jd-transition-colors"
-                title="Save as new block"
+                title={getMessage('saveAsNewBlock', undefined, 'Save as new block')}
               >
                 <Save className="jd-h-3 jd-w-3 jd-mr-1" />
                 Save
@@ -240,7 +244,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
               variant="ghost"
               onClick={() => onRemove(block.id)}
               className="jd-h-8 jd-w-8 jd-p-0 jd-text-muted-foreground jd-hover:jd-text-destructive jd-transition-colors"
-              title="Delete block"
+              title={getMessage('deleteBlock', undefined, 'Delete block')}
             >
               <Trash2 className="jd-h-4 jd-w-4" />
             </Button>

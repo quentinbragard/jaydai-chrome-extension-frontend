@@ -58,6 +58,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { toast } from 'sonner';
+import { getMessage } from '@/core/utils/i18n';
 
 import { SortableSelectedBlock } from './SortableSelectedBlock';
 import { AvailableBlockCard } from './AvailableBlockCard';
@@ -88,7 +89,7 @@ const InlineBlockCreator: React.FC<{
 
   const handleCreate = async () => {
     if (!content.trim()) {
-      toast.error('Block content is required');
+      toast.error(getMessage('blockContentRequired', undefined, 'Block content is required'));
       return;
     }
 
@@ -103,14 +104,14 @@ const InlineBlockCreator: React.FC<{
       const response = await blocksApi.createBlock(blockData);
 
       if (response.success && response.data) {
-        toast.success('Block created successfully');
+        toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
         onBlockCreated(response.data);
       } else {
-        toast.error(response.message || 'Failed to create block');
+        toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
       }
     } catch (error) {
       console.error('Error creating block:', error);
-      toast.error('An error occurred while creating the block');
+      toast.error(getMessage('blockCreateError', undefined, 'An error occurred while creating the block'));
     } finally {
       setIsCreating(false);
     }
@@ -126,12 +127,16 @@ const InlineBlockCreator: React.FC<{
         <div className={cn('jd-p-1.5 jd-rounded-md', iconBg)}>
           <Icon className="jd-h-4 jd-w-4" />
         </div>
-        <h3 className="jd-font-medium jd-text-sm">Create New Block</h3>
+        <h3 className="jd-font-medium jd-text-sm">
+          {getMessage('createNewBlock', undefined, 'Create New Block')}
+        </h3>
       </div>
 
       <div className="jd-space-y-3">
         <div>
-          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">Type</label>
+          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">
+            {getMessage('type', undefined, 'Type')}
+          </label>
           <Select value={type} onValueChange={(value) => setType(value as BlockType)}>
             <SelectTrigger className="jd-h-8 jd-text-xs">
               <SelectValue />
@@ -153,7 +158,9 @@ const InlineBlockCreator: React.FC<{
         </div>
 
         <div>
-          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">Title (optional)</label>
+          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">
+            {getMessage('titleOptional', undefined, 'Title (optional)')}
+          </label>
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -166,11 +173,13 @@ const InlineBlockCreator: React.FC<{
         </div>
 
         <div>
-          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">Content</label>
+          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">
+            {getMessage('content', undefined, 'Content')}
+          </label>
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder={`Enter ${type} content...`}
+            placeholder={getMessage('enterBlockContent', [type], `Enter ${type} content...`)}
             className="jd-min-h-[80px] jd-text-xs jd-resize-none"
             rows={4}
             onKeyDown={(e) => e.stopPropagation()}
@@ -188,7 +197,7 @@ const InlineBlockCreator: React.FC<{
             className="jd-flex-1 jd-h-8 jd-text-xs"
           >
             <X className="jd-h-3 jd-w-3 jd-mr-1" />
-            Cancel
+            {getMessage('cancel', undefined, 'Cancel')}
           </Button>
           <Button
             size="sm"
@@ -199,12 +208,12 @@ const InlineBlockCreator: React.FC<{
             {isCreating ? (
               <>
                 <div className="jd-h-3 jd-w-3 jd-border jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-mr-1"></div>
-                Creating...
+                {getMessage('creating', undefined, 'Creating...')}
               </>
             ) : (
               <>
                 <Save className="jd-h-3 jd-w-3 jd-mr-1" />
-                Create
+                {getMessage('create', undefined, 'Create')}
               </>
             )}
           </Button>
@@ -321,7 +330,7 @@ export const InsertBlockDialog: React.FC = () => {
     // Use the editable content which might have been modified by the user
     insertIntoPromptArea(editableContent);
     dialogProps.onOpenChange(false);
-    toast.success('Prompt inserted successfully');
+    toast.success(getMessage('promptInserted', undefined, 'Prompt inserted successfully'));
   };
 
   const handleCreate = () => {
@@ -379,7 +388,7 @@ export const InsertBlockDialog: React.FC = () => {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(editableContent);
-      toast.success('Copied to clipboard');
+      toast.success(getMessage('copiedToClipboard', undefined, 'Copied to clipboard'));
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
     }
@@ -392,14 +401,16 @@ export const InsertBlockDialog: React.FC = () => {
       <BaseDialog
         open={isOpen}
         onOpenChange={dialogProps.onOpenChange}
-        title="Build Your Prompt"
-        description="Select and arrange blocks to create your perfect prompt"
+        title={getMessage('buildYourPrompt', undefined, 'Build Your Prompt')}
+        description={getMessage('buildYourPromptDesc', undefined, 'Select and arrange blocks to create your perfect prompt')}
         className="jd-max-w-7xl jd-max-h-[90vh]"
       >
       <div className="jd-flex jd-items-center jd-text-xs jd-text-muted-foreground jd-mb-2 jd-gap-2">
         <Info className="jd-w-4 jd-h-4 jd-text-primary" />
         <span>
-          Tip: type <span className="jd-font-mono">//j</span> in the prompt area to quickly add blocks.
+          {getMessage('insertBlockTip', undefined, 'Tip: type ')}
+          <span className="jd-font-mono">//j</span>{' '}
+          {getMessage('insertBlockTipContinuation', undefined, 'in the prompt area to quickly add blocks.')}
         </span>
         <button
           type="button"
@@ -407,7 +418,7 @@ export const InsertBlockDialog: React.FC = () => {
           className="jd-ml-auto jd-flex jd-items-center jd-justify-center jd-w-5 jd-h-5 jd-rounded-full jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90 jd-animate-bounce"
         >
           <HelpCircle className="jd-w-3 jd-h-3" />
-          <span className="jd-sr-only">How it works</span>
+          <span className="jd-sr-only">{getMessage('howItWorks', undefined, 'How it works')}</span>
         </button>
       </div>
       <div className="jd-flex jd-h-full jd-gap-6">
@@ -420,7 +431,7 @@ export const InsertBlockDialog: React.FC = () => {
               <Input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Search blocks..."
+                placeholder={getMessage('searchBlocksPlaceholder', undefined, 'Search blocks...')}
                 className="jd-pl-9"
                 onKeyDown={(e) => e.stopPropagation()}
                 onKeyPress={(e) => e.stopPropagation()}
@@ -432,7 +443,7 @@ export const InsertBlockDialog: React.FC = () => {
             <div className="jd-space-y-2">
               <div className="jd-flex jd-items-center jd-gap-2 jd-text-xs jd-font-medium jd-text-muted-foreground">
                 <Filter className="jd-h-3 jd-w-3" />
-                Quick Filters
+                {getMessage('quickFilters', undefined, 'Quick Filters')}
               </div>
               <div className="jd-flex jd-flex-wrap jd-gap-1">
                 <Button
@@ -441,7 +452,7 @@ export const InsertBlockDialog: React.FC = () => {
                   onClick={() => setSelectedTypeFilter('all')}
                   className="jd-h-6 jd-text-xs jd-px-2"
                 >
-                  All
+                  {getMessage('all', undefined, 'All')}
                 </Button>
                 {METADATA_FILTERS.map(filter => (
                   <Button
@@ -462,18 +473,24 @@ export const InsertBlockDialog: React.FC = () => {
                   className="jd-h-6 jd-text-xs jd-px-2 jd-border-dashed"
                 >
                   <Plus className="jd-h-3 jd-w-3 jd-mr-1" />
-                  New Block
+                  {getMessage('newBlock', undefined, 'New Block')}
                 </Button>
               </div>
             </div>
 
             {/* Stats */}
             <div className="jd-flex jd-items-center jd-gap-4 jd-text-sm jd-text-muted-foreground">
-              <span>{filteredBlocks.length} blocks available</span>
+              <span>
+                {filteredBlocks.length}{' '}
+                {getMessage('blocksAvailable', undefined, 'blocks available')}
+              </span>
               {selectedBlocks.length > 0 && (
                 <>
                   <ArrowRight className="jd-h-3 jd-w-3" />
-                  <span className="jd-text-primary">{selectedBlocks.length} selected</span>
+                  <span className="jd-text-primary">
+                    {selectedBlocks.length}{' '}
+                    {getMessage('selected', undefined, 'selected')}
+                  </span>
                 </>
               )}
             </div>
@@ -493,10 +510,12 @@ export const InsertBlockDialog: React.FC = () => {
           <ScrollArea className="jd-h-[65vh]">
             <div className="jd-space-y-3 jd-pr-4">
               {loading ? (
-                <LoadingSpinner size="sm" message="Loading blocks..." />
+                <LoadingSpinner size="sm" message={getMessage('loadingBlocks', undefined, 'Loading blocks...')} />
               ) : filteredBlocks.length === 0 ? (
                 <EmptyMessage>
-                  {search ? `No blocks found for "${search}"` : 'No blocks available'}
+                  {search
+                    ? getMessage('noBlocksFound', [search], `No blocks found for "${search}"`)
+                    : getMessage('noBlocksAvailable', undefined, 'No blocks available')}
                 </EmptyMessage>
               ) : (
                 filteredBlocks.map(block => (
@@ -517,7 +536,9 @@ export const InsertBlockDialog: React.FC = () => {
         {/* Right Panel - Selected Blocks & Preview */}
         <div className="jd-w-1/2 jd-flex jd-flex-col jd-max-h-full">
           <div className="jd-flex jd-items-center jd-justify-start jd-mb-4 jd-flex-shrink-0">
-            <h3 className="jd-text-sm jd-font-medium">Selected Blocks</h3>
+            <h3 className="jd-text-sm jd-font-medium">
+              {getMessage('selectedBlocks', undefined, 'Selected Blocks')}
+            </h3>
             <div className="jd-flex jd-items-center jd-gap-2 jd-ml-auto">
               <Button
                 variant="outline"
@@ -526,7 +547,7 @@ export const InsertBlockDialog: React.FC = () => {
                 disabled={selectedBlocks.length === 0}
               >
                 <Copy className="jd-h-4 jd-w-4 jd-mr-1" />
-                Copy
+                {getMessage('copy', undefined, 'Copy')}
               </Button>
               <div className="jd-flex jd-bg-muted jd-rounded-md jd-p-1">
                 <button
@@ -555,8 +576,12 @@ export const InsertBlockDialog: React.FC = () => {
             <div className="jd-flex jd-items-center jd-justify-center jd-border-2 jd-border-dashed jd-border-muted jd-rounded-lg jd-py-16 jd-flex-1">
               <div className="jd-text-center jd-text-muted-foreground">
                 <Eye className="jd-h-8 jd-w-8 jd-mx-auto jd-mb-2 jd-opacity-50" />
-                <p className="jd-text-sm jd-mb-1">Select blocks to build your prompt</p>
-                <p className="jd-text-xs">Preview will appear here with colors and placeholder highlighting</p>
+                <p className="jd-text-sm jd-mb-1">
+                  {getMessage('selectBlocksToBuild', undefined, 'Select blocks to build your prompt')}
+                </p>
+                <p className="jd-text-xs">
+                  {getMessage('previewWillAppear', undefined, 'Preview will appear here with colors and placeholder highlighting')}
+                </p>
               </div>
             </div>
           ) : (
@@ -592,11 +617,11 @@ export const InsertBlockDialog: React.FC = () => {
                 <div className="jd-h-full jd-flex jd-flex-col">
                   <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
                     <span className="jd-text-xs jd-text-muted-foreground">
-                      Click to edit your prompt preview
+                      {getMessage('editPromptPreview', undefined, 'Click to edit your prompt preview')}
                     </span>
                     <div className="jd-flex jd-items-center jd-gap-1 jd-text-xs jd-text-muted-foreground">
                       <span className="jd-inline-block jd-w-3 jd-h-3 jd-bg-yellow-300 jd-rounded"></span>
-                      <span>Placeholders</span>
+                      <span>{getMessage('placeholders', undefined, 'Placeholders')}</span>
                     </div>
                   </div>
                   <ScrollArea className="jd-h-full">
@@ -617,20 +642,20 @@ export const InsertBlockDialog: React.FC = () => {
           {/* Action Buttons */}
           <div className="jd-flex jd-justify-between jd-pt-4 jd-border-t jd-mt-4 jd-flex-shrink-0">
             <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)}>
-              Cancel
+              {getMessage('cancel', undefined, 'Cancel')}
             </Button>
             <div className="jd-flex jd-gap-2">
               <Button variant="secondary" onClick={handleCreate}>
                 <Plus className="jd-h-4 jd-w-4 jd-mr-1" />
-                Create Block
+                {getMessage('createBlock', undefined, 'Create Block')}
               </Button>
-              <Button 
-                disabled={selectedBlocks.length === 0} 
+              <Button
+                disabled={selectedBlocks.length === 0}
                 onClick={insertBlocks}
                 className="jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600 hover:jd-from-blue-700 hover:jd-to-purple-700"
               >
                 <Sparkles className="jd-h-4 jd-w-4 jd-mr-1" />
-                Insert Prompt ({selectedBlocks.length})
+                {getMessage('insertPrompt', undefined, 'Insert Prompt')} ({selectedBlocks.length})
               </Button>
             </div>
           </div>
@@ -641,16 +666,18 @@ export const InsertBlockDialog: React.FC = () => {
         <BaseDialog
           open={showShortcutHelp}
           onOpenChange={setShowShortcutHelp}
-          title="Using //j Shortcut"
+          title={getMessage('usingShortcut', undefined, 'Using //j Shortcut')}
           className="jd-max-w-md"
         >
           <div className="jd-space-y-4">
             <p className="jd-text-sm">
-              Type <span className="jd-font-mono">//j</span> in the prompt area to open this block selector instantly.
+              {getMessage('shortcutTipPrefix', undefined, 'Type ')}
+              <span className="jd-font-mono">//j</span>{' '}
+              {getMessage('shortcutTipSuffix', undefined, 'in the prompt area to open this block selector instantly.')}
             </p>
             <img
               src="https://media.giphy.com/media/JQqjZBZHF9giz6HnDy/giphy.gif"
-              alt="Shortcut demonstration"
+              alt={getMessage('shortcutDemoAlt', undefined, 'Shortcut demonstration')}
               className="jd-w-full jd-rounded-md"
             />
           </div>
