@@ -206,8 +206,14 @@ export const CreateBlockDialog: React.FC = () => {
           )}
           {content && (
             <div className="jd-flex jd-justify-between jd-text-xs jd-text-muted-foreground jd-mt-1">
-              <span>{content.length} characters</span>
-              <span>{content.split('\n').length} lines</span>
+              <span>
+                {content.length}{' '}
+                {getMessage('charactersLabel', undefined, 'characters')}
+              </span>
+              <span>
+                {content.split('\n').length}{' '}
+                {getMessage('linesLabel', undefined, 'lines')}
+              </span>
             </div>
           )}
         </div>
