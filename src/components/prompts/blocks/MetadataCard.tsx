@@ -18,6 +18,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
+import { getMessage } from '@/core/utils/i18n';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -253,7 +254,11 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                   <SelectItem value="create">
                     <div className="jd-flex jd-items-center jd-gap-2">
                       <Plus className="jd-h-3 jd-w-3" />
-                      Create {config.label.toLowerCase()} block
+                      {getMessage(
+                        'createTypeBlock',
+                        [config.label.toLowerCase()],
+                        `Create ${config.label.toLowerCase()} block`
+                      )}
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -280,7 +285,11 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                         <SelectItem value="create">
                           <div className="jd-flex jd-items-center jd-gap-2">
                             <Plus className="jd-h-3 jd-w-3" />
-                            Create {config.label.toLowerCase()} block
+                            {getMessage(
+                              'createTypeBlock',
+                              [config.label.toLowerCase()],
+                              `Create ${config.label.toLowerCase()} block`
+                            )}
                           </div>
                         </SelectItem>
                       </SelectContent>
@@ -310,7 +319,11 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                     <DropdownMenuItem onClick={() => handleAddSelect('create')}>
                       <div className="jd-flex jd-items-center jd-gap-2">
                         <Plus className="jd-h-3 jd-w-3" />
-                        Create {config.label.toLowerCase()} block
+                        {getMessage(
+                          'createTypeBlock',
+                          [config.label.toLowerCase()],
+                          `Create ${config.label.toLowerCase()} block`
+                        )}
                       </div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>

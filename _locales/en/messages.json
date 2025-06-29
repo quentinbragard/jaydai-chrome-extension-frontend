@@ -1752,4 +1752,28 @@
     }
   },
   "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" }
+  ,
+  "saveAsNewBlock": {
+    "message": "Save as new block",
+    "description": "Tooltip for saving a block as new"
+  },
+  "deleteBlock": {
+    "message": "Delete block",
+    "description": "Tooltip for deleting a block"
+  },
+  "selectBlockType": {
+    "message": "Select type",
+    "description": "Placeholder for block type selection"
+  },
+  "createTypeBlock": {
+    "message": "Create $TYPE$ block",
+    "description": "Menu entry to create a block of specified type",
+    "placeholders": {
+      "type": { "content": "$1", "example": "goal" }
+    }
+  },
+  "createCustom": {
+    "message": "Create custom",
+    "description": "Menu entry to create a custom block"
+  }
 }
