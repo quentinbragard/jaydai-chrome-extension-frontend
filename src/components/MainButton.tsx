@@ -1,9 +1,8 @@
 // src/components/MainButton.tsx
 
 import { useEffect, useState, useRef } from 'react';
-import { Toaster } from "sonner";
 import { Button } from '@/components/ui/button';
-import { X, GripVertical, Move, EllipsisVertical } from "lucide-react";
+import { X, Move } from "lucide-react";
 import PanelManager from '@/components/panels/PanelManager';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
@@ -20,7 +19,6 @@ const MainButton = () => {
   const {
     isOpen,
     panelType,
-    setPanelType,
     notificationCount,
     buttonRef,
     toggleMenu,
@@ -32,6 +30,16 @@ const MainButton = () => {
   const movedRef = useRef(false);
   const offsetRef = useRef({ x: 0, y: 0 });
   const dragHandleRef = useRef<HTMLDivElement>(null);
+
+  // Set default position to bottom-right if none is stored
+  useEffect(() => {
+    if (position === null && buttonRef.current) {
+      const size = buttonRef.current.offsetWidth || 80;
+      const defaultX = window.innerWidth - size - 24; // 24px = bottom-6/right-6
+      const defaultY = window.innerHeight - size - 24;
+      setPosition({ x: defaultX, y: defaultY });
+    }
+  }, [position, buttonRef, setPosition]);
 
   // Use our theme detector hook to get the current theme
   const isDarkMode = useThemeDetector();
