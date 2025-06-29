@@ -235,7 +235,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
 
       {/* Folder Header */}
       <div 
-        className="jd-group jd-flex jd-items-center hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm jd-transition-colors"
+        className="jd-group/folder jd-flex jd-items-center hover:jd-bg-accent/60 jd-cursor-pointer jd-rounded-sm jd-transition-colors"
         onClick={handleFolderClick}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
       >
@@ -284,7 +284,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
 
         {/* Action Buttons */}
         {((showEditControls && type === 'user') || (showDeleteControls && type === 'user')) && (
-          <div className="jd-flex jd-gap-1 jd-items-center jd-gap-2 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-200">
+          <div className="jd-flex jd-gap-1 jd-items-center jd-gap-2 jd-opacity-0 group-hover/folder:jd-opacity-100 jd-transition-opacity jd-duration-200">
             {/* Edit Button */}
             {showEditControls && onEditFolder && (
               <TooltipProvider>
@@ -331,7 +331,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
           {showPinControls && onTogglePin && (
             <div
               className={`jd-ml-auto jd-items-center jd-gap-1 jd-flex ${
-                isPinned ? '' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'
+                isPinned ? '' : 'jd-opacity-0 group-hover/folder:jd-opacity-100 jd-transition-opacity'
               }`}
             >
               <PinButton isPinned={isPinned} onClick={handleTogglePin} className="" />
