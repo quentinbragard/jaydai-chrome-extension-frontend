@@ -21,8 +21,12 @@ export const ENDPOINTS = {
   'mistral': {
     USER_INFO: '/api/trpc/user.session',
     CONVERSATIONS_LIST: '/api/trpc/chat.list',
-    CHAT_COMPLETION: '/api/chat',
-    SPECIFIC_CONVERSATION: /\/api\/chat/
+    // Mistral uses different endpoints depending on whether the conversation
+    // already exists or not. The first user message is sent to
+    // `/api/trpc/message.newChat` while subsequent messages are sent to `/chat`.
+    // Use a regex so both endpoints are detected as chat completions.
+    CHAT_COMPLETION: /\/(api\/trpc\/message\.newChat|chat)/,
+    SPECIFIC_CONVERSATION: /\/chat/
   },
   'copilot': {
     USER_INFO: '/c/api/user',

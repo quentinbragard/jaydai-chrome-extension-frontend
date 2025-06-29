@@ -13,15 +13,37 @@ export class MistralAdapter extends BasePlatformAdapter {
 
   extractUserMessage(requestBody: any): Message | null {
     try {
-      const content = requestBody.messageInput || '';
+      let content = '';
+      let messageId = requestBody.messageId || `user-${Date.now()}`;
+      let conversationId = requestBody.chatId || '';
+      let parentMessageId = requestBody.parentMessageId;
+
+      // First message of a conversation is wrapped under the "0.json" key
+      if (requestBody["0"]?.json) {
+        const json = requestBody["0"].json;
+        if (Array.isArray(json.content)) {
+          content = json.content.map((c: any) => c.text || '').join('\n');
+        }
+        messageId = json.messageId || messageId;
+        conversationId = json.chatId || conversationId;
+        parentMessageId = json.parentMessageId || parentMessageId;
+      } else if (requestBody.messageInput) {
+        // Subsequent messages use the messageInput array
+        if (Array.isArray(requestBody.messageInput)) {
+          content = requestBody.messageInput.map((m: any) => m.text || '').join('\n');
+        } else {
+          content = requestBody.messageInput;
+        }
+      }
+
       return {
-        messageId: requestBody.messageId || `user-${Date.now()}`,
-        conversationId: requestBody.chatId || '',
+        messageId,
+        conversationId,
         content,
         role: 'user',
         model: requestBody.model || 'mistral',
         timestamp: Date.now(),
-        parent_message_provider_id: requestBody.parentMessageId,
+        parent_message_provider_id: parentMessageId,
       };
     } catch (error) {
       errorReporter.captureError(
