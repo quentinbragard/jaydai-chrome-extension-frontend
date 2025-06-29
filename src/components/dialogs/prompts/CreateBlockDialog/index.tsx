@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Save, X } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { toast } from 'sonner';
+import { getMessage } from '@/core/utils/i18n';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { useDialog } from '@/components/dialogs/DialogContext';
@@ -56,15 +57,15 @@ export const CreateBlockDialog: React.FC = () => {
     const errors: Record<string, string> = {};
     
     if (!name.trim()) {
-      errors.name = 'Block name is required';
+      errors.name = getMessage('blockNameRequired', undefined, 'Block name is required');
     }
     
     if (!content.trim()) {
-      errors.content = 'Block content is required';
+      errors.content = getMessage('blockContentRequired', undefined, 'Block content is required');
     }
     
     if (!blockType) {
-      errors.type = 'Block type is required';
+      errors.type = getMessage('blockTypeRequired', undefined, 'Block type is required');
     }
     
     setValidationErrors(errors);
@@ -91,7 +92,7 @@ export const CreateBlockDialog: React.FC = () => {
       const response = await blocksApi.createBlock(blockData);
   
       if (response.success && response.data) {
-        toast.success(`Block "${name}" created successfully`);
+        toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
         
         if (onBlockCreated) {
           onBlockCreated(response.data);
@@ -99,11 +100,11 @@ export const CreateBlockDialog: React.FC = () => {
         
         handleClose();
       } else {
-        toast.error(response.message || 'Failed to create block');
+        toast.error(response.message || getMessage('errorCreatingBlock', undefined, 'Failed to create block'));
       }
     } catch (error) {
       console.error('Error creating block:', error);
-      toast.error('An error occurred while creating the block');
+      toast.error(getMessage('errorCreatingBlock', undefined, 'Failed to create block'));
     } finally {
       setIsSubmitting(false);
     }
@@ -125,14 +126,14 @@ export const CreateBlockDialog: React.FC = () => {
     <BaseDialog
       open={isOpen}
       onOpenChange={handleClose}
-      title="Create Block"
-      description="Create a new reusable block for your prompts"
+      title={getMessage('createBlockTitle', undefined, 'Create Block')}
+      description={getMessage('createBlockDescription', undefined, 'Create a new reusable block for your prompts')}
       className="jd-max-w-2xl"
     >
       <form onSubmit={handleSubmit} className="jd-space-y-6">
         {/* Block Type Selection */}
         <div>
-          <label className="jd-text-sm jd-font-medium jd-mb-2 jd-block">Block Type</label>
+          <label className="jd-text-sm jd-font-medium jd-mb-2 jd-block">{getMessage('blockType', undefined, 'Block Type')}</label>
           <Select value={blockType} onValueChange={(value) => setBlockType(value as BlockType)}>
             <SelectTrigger className={cn("jd-w-full", validationErrors.type && "jd-border-red-500")}>
               <SelectValue>
@@ -163,7 +164,7 @@ export const CreateBlockDialog: React.FC = () => {
 
         {/* Block Name */}
         <div>
-          <label className="jd-text-sm jd-font-medium jd-mb-2 jd-block">Block Name</label>
+          <label className="jd-text-sm jd-font-medium jd-mb-2 jd-block">{getMessage('blockName', undefined, 'Block Name')}</label>
           <Input
             value={name}
             onChange={(e) => {
@@ -172,7 +173,7 @@ export const CreateBlockDialog: React.FC = () => {
                 setValidationErrors(prev => ({ ...prev, name: '' }));
               }
             }}
-            placeholder="Enter block name"
+            placeholder={getMessage('enterBlockName', undefined, 'Enter block name')}
             className={cn("jd-w-full", validationErrors.name && "jd-border-red-500")}
             autoFocus
           />
@@ -180,14 +181,14 @@ export const CreateBlockDialog: React.FC = () => {
             <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.name}</p>
           ) : (
             !name.trim() && (
-              <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">Please enter a block name</p>
+              <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">{getMessage('blockNameHint', undefined, 'Please enter a block name')}</p>
             )
           )}
         </div>
         
         {/* Block Content */}
         <div>
-          <label className="jd-text-sm jd-font-medium jd-mb-2 jd-block">Block Content</label>
+          <label className="jd-text-sm jd-font-medium jd-mb-2 jd-block">{getMessage('blockContent', undefined, 'Block Content')}</label>
           <Textarea 
             value={content} 
             onChange={(e) => {
@@ -196,7 +197,7 @@ export const CreateBlockDialog: React.FC = () => {
                 setValidationErrors(prev => ({ ...prev, content: '' }));
               }
             }}
-            placeholder="Enter block content..."
+            placeholder={getMessage('enterBlockContent', undefined, 'Enter block content...')}
             className={cn("jd-w-full jd-min-h-[120px] jd-resize-none", validationErrors.content && "jd-border-red-500")}
             rows={6}
           />
@@ -214,12 +215,12 @@ export const CreateBlockDialog: React.FC = () => {
         {/* Block Description (Optional) */}
         <div>
           <label className="jd-text-sm jd-font-medium jd-mb-2 jd-block">
-            Description <span className="jd-text-muted-foreground">(optional)</span>
+            {getMessage('templateDescription', undefined, 'Description (optional)')}
           </label>
           <Textarea 
             value={description} 
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter block description..."
+            placeholder={getMessage('blockDescriptionPlaceholder', undefined, 'Enter block description...')}
             className="jd-w-full jd-resize-none"
             rows={3}
           />
@@ -234,7 +235,7 @@ export const CreateBlockDialog: React.FC = () => {
             disabled={isSubmitting}
           >
             <X className="jd-h-4 jd-w-4 jd-mr-2" />
-            Cancel
+            {getMessage('cancel', undefined, 'Cancel')}
           </Button>
           <Button
             type="submit"
@@ -247,12 +248,12 @@ export const CreateBlockDialog: React.FC = () => {
             {isSubmitting ? (
               <>
                 <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-inline-block jd-mr-2"></div>
-                Creating...
+                {getMessage('creating', undefined, 'Creating...')}
               </>
             ) : (
               <>
                 <Save className="jd-h-4 jd-w-4 jd-mr-2" />
-                Create Block
+                {getMessage('createBlock', undefined, 'Create Block')}
               </>
             )}
           </Button>

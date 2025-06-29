@@ -513,6 +513,22 @@
     "message": "Actualiser",
     "description": "Button text to refresh templates"
   },
+  "browseFoldersTitle": {
+    "message": "Parcourir les Dossiers",
+    "description": "Titre de la fenêtre Parcourir les dossiers"
+  },
+  "searchFoldersPlaceholder": {
+    "message": "Rechercher des dossiers...",
+    "description": "Texte du champ de recherche des dossiers"
+  },
+  "loadingFoldersGeneric": {
+    "message": "Chargement des dossiers...",
+    "description": "Texte de chargement pour les dossiers"
+  },
+  "noFoldersOrTemplatesFound": {
+    "message": "Aucun dossier ou template trouvé",
+    "description": "Message lorsqu'aucun dossier ou template n'est trouvé"
+  },
   "noPinnedOfficialTemplates": {
     "message": "Aucun template d'organisation épinglé. Cliquez sur 'Voir Plus' pour en ajouter.",
     "description": "Empty state message for organization templates section"
@@ -686,6 +702,26 @@
   "used_times": {
     "message": "Utilisé {{count}} fois",
     "description": "Message indiquant combien de fois un template a été utilisé",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "used_time": {
+    "message": "Utilisé {{count}} fois",
+    "description": "Message indiquant combien de fois un template a été utilisé (singulier)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popular_used_times": {
+    "message": "Populaire \u2022 Utilisé {{count}} fois",
+    "description": "Indique qu'un template est populaire avec le nombre d'utilisations",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1283,6 +1319,18 @@
     "message": "Créez un nouveau template à utiliser avec les conversations IA.",
     "description": "Description pour la boîte de dialogue de création de template"
   },
+  "editFolder": {
+    "message": "Modifier le dossier",
+    "description": "Titre de la boîte de dialogue de modification de dossier"
+  },
+  "editFolderDescription": {
+    "message": "Mettre à jour les informations du dossier",
+    "description": "Description de la boîte de dialogue de modification de dossier"
+  },
+  "parentFolder": {
+    "message": "Dossier parent",
+    "description": "Étiquette pour le champ dossier parent"
+  },
   "TemplateName": {
     "message": "Nom du template",
     "description": "Étiquette pour le champ de nom du template"
@@ -1718,6 +1766,21 @@
   "addBlock": { "message": "Ajouter un bloc", "description": "Bouton pour ajouter un bloc" },
   "addFirstBlock": { "message": "Ajouter votre premier bloc", "description": "Bouton pour ajouter le premier bloc" },
   "noContentBlocks": { "message": "Aucun bloc de contenu", "description": "Message lorsqu'aucun bloc n'est présent" },
+  "createBlockTitle": { "message": "Créer un bloc", "description": "Titre de la boîte de dialogue de création de bloc" },
+  "createBlockDescription": { "message": "Créez un bloc réutilisable pour vos prompts", "description": "Description de la boîte de dialogue de création de bloc" },
+  "blockType": { "message": "Type de bloc", "description": "Étiquette pour le champ type de bloc" },
+  "blockTypeRequired": { "message": "Le type de bloc est requis", "description": "Message d'erreur pour le type de bloc" },
+  "blockName": { "message": "Nom du bloc", "description": "Étiquette pour le champ nom du bloc" },
+  "enterBlockName": { "message": "Entrez le nom du bloc", "description": "Espace réservé pour le nom du bloc" },
+  "blockNameHint": { "message": "Veuillez entrer un nom de bloc", "description": "Aide lorsque le nom du bloc est vide" },
+  "blockNameRequired": { "message": "Le nom du bloc est requis", "description": "Message d'erreur pour le nom du bloc" },
+  "blockContent": { "message": "Contenu du bloc", "description": "Étiquette pour le champ contenu du bloc" },
+  "enterBlockContent": { "message": "Entrez le contenu du bloc...", "description": "Espace réservé pour le contenu du bloc" },
+  "blockContentRequired": { "message": "Le contenu du bloc est requis", "description": "Message d'erreur pour le contenu du bloc" },
+  "blockDescriptionPlaceholder": { "message": "Entrez la description du bloc...", "description": "Espace réservé pour la description du bloc" },
+  "createBlock": { "message": "Créer un bloc", "description": "Bouton Créer un bloc" },
+  "blockCreated": { "message": "Bloc créé avec succès", "description": "Message de succès lorsque le bloc est créé" },
+  "errorCreatingBlock": { "message": "Échec de la création du bloc", "description": "Message d'erreur lorsque la création du bloc échoue" },
   "errorProcessingTemplate": { "message": "Impossible de traiter le contenu du modèle. Veuillez réessayer.", "description": "Message d'erreur lors du traitement du modèle" },
   "errorProcessingTemplateToast": { "message": "Échec du traitement du modèle", "description": "Toast d'erreur de traitement" },
   "organizationTemplateNotice": {
@@ -1734,8 +1797,6 @@
       }
     }
   },
-  "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" }
-  ,
   "saveAsNewBlock": {
     "message": "Enregistrer comme nouveau bloc",
     "description": "Infobulle pour enregistrer un nouveau bloc"
@@ -1756,5 +1817,28 @@
   "createCustom": {
     "message": "Créer personnalisé",
     "description": "Entrée de menu pour créer un bloc personnalisé"
-  }
+  },
+"templatePreview.title": {
+    "message": "Aperçu du template",
+    "description": "Titre par défaut pour l'aperçu du template"
+  },
+  "constraintLabel": {
+    "message": "Contrainte:",
+    "description": "Étiquette pour les contraintes dans l'aperçu"
+  },
+  "exampleLabel": {
+    "message": "Exemple:",
+    "description": "Étiquette pour les exemples dans l'aperçu"
+  },
+  "previousPage": {
+    "message": "Page précédente",
+    "description": "Info-bulle pour le bouton de page précédente"
+  },
+  "nextPage": {
+    "message": "Page suivante",
+    "description": "Info-bulle pour le bouton de page suivante"
+  },
+  "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" },
+  "dragToMove": { "message": "Glissez pour déplacer", "description": "Infobulle pour déplacer le bouton principal" },
 }
+

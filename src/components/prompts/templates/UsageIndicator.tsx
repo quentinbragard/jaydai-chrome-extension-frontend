@@ -41,7 +41,7 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ template }) => {
               <Badge variant="secondary" className="jd-px-1 jd-py-0 jd-h-4 jd-mr-1">
                 <Sparkles className="jd-h-3 jd-w-3 jd-text-yellow-500" />
               </Badge>
-              Popular • Used {usageCount} times
+              {getMessage('popular_used_times', {count: usageCount.toString()}, `Popular • Used ${usageCount} times`)}
             </div>
           </TooltipTrigger>
           <TooltipContent>
@@ -57,7 +57,7 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ template }) => {
     return (
       <div className="flex items-center text-xs text-muted-foreground">
         <Clock className="h-3 w-3 mr-1 flex-shrink-0" />
-        <span>Last used {lastUsed}</span>
+        <span>{getMessage('last_used', {date: lastUsed || ''}, `Last used ${lastUsed}`)}</span>
       </div>
     );
   }
@@ -65,7 +65,11 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ template }) => {
   // Default case: just show the usage count
   return (
     <div className="text-xs text-muted-foreground">
-      Used {usageCount} {usageCount === 1 ? 'time' : 'times'}
+      {getMessage(
+        usageCount === 1 ? 'used_time' : 'used_times',
+        {count: usageCount.toString()},
+        `Used ${usageCount} ${usageCount === 1 ? 'time' : 'times'}`
+      )}
     </div>
   );
 };
