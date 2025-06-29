@@ -1751,5 +1751,17 @@
       }
     }
   },
+  "templatePreview.title": {
+    "message": "Template Preview",
+    "description": "Default title for template preview section"
+  },
+  "constraintLabel": {
+    "message": "Contrainte:",
+    "description": "Label for constraint items in template preview"
+  },
+  "exampleLabel": {
+    "message": "Exemple:",
+    "description": "Label for example items in template preview"
+  },
   "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" }
 }
