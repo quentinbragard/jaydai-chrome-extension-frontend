@@ -10,6 +10,7 @@ import { Organization } from '@/types/organizations';
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 import { getMessage } from '@/core/utils/i18n';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 const folderIconColors = {
   user: 'jd-text-gray-600',
@@ -115,6 +116,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
 
   // Handle folder click
   const handleFolderClick = useCallback(() => {
+    trackEvent(EVENTS.TEMPLATE_FOLDER_OPENED, { folder_id: folder.id, type });
     if (enableNavigation && onNavigateToFolder) {
       onNavigateToFolder(folder);
     } else if (onToggleExpand) {
@@ -122,7 +124,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
     } else {
       setLocalExpanded(!localExpanded);
     }
-  }, [enableNavigation, onNavigateToFolder, onToggleExpand, folder.id, localExpanded]);
+  }, [enableNavigation, onNavigateToFolder, onToggleExpand, folder.id, localExpanded, type]);
 
   // Handle pin toggle with proper state
   const handleTogglePin = useCallback((e: React.MouseEvent) => {
