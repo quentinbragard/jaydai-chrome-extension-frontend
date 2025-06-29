@@ -4,6 +4,7 @@
 import { AppError, ErrorCode } from './AppError';
 import { config } from '../config';
 import { onEvent, AppEvent } from '../events/events';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 /**
  * Error reporter to track and report errors
@@ -78,6 +79,10 @@ export class ErrorReporter {
     
     // Log the error
     console.error('[ErrorReporter]', appError);
+    trackEvent(EVENTS.ERROR_OCCURRED, {
+      code: appError.code,
+      message: appError.message
+    });
     
     // Store in recent errors
     this.recentErrors.push({

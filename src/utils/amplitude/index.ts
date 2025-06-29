@@ -113,6 +113,7 @@ export const EVENTS = {
   USAGE_STATISTICS_VIEWED: 'Usage Statistics Viewed',
   CONVERSATION_CAPTURED: 'Conversation Captured',
   CONVERSATION_ANALYZED: 'Conversation Analyzed',
+  ERROR_OCCURRED: 'Error Occurred',
 };
 
 /**
