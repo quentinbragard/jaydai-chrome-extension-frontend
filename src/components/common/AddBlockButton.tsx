@@ -20,6 +20,7 @@ import {
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { cn } from '@/core/utils/classNames';
+import { getMessage } from '@/core/utils/i18n';
 
 interface AddBlockButtonProps {
   availableBlocks: Record<BlockType, Block[]>;
@@ -72,7 +73,7 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
           )}
         >
           <Plus className="jd-h-4 jd-w-4" />
-          Add Block
+          {getMessage('addBlock', undefined, 'Add Block')}
         </Button>
       </DropdownMenuTrigger>
       
@@ -83,13 +84,13 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
       >
         <DropdownMenuLabel className="jd-flex jd-items-center jd-gap-2">
           <Sparkles className="jd-h-4 jd-w-4" />
-          Add Block
+          {getMessage('addBlock', undefined, 'Add Block')}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         
         {/* Create New Blocks Section */}
         <DropdownMenuLabel className="jd-text-xs jd-text-muted-foreground">
-          Create New Block
+          {getMessage('createNewBlock', undefined, 'Create New Block')}
         </DropdownMenuLabel>
         {addableBlockTypes.map(blockType => {
           const Icon = getBlockTypeIcon(blockType);
@@ -109,7 +110,11 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
                   {BLOCK_TYPE_LABELS[blockType]}
                 </span>
                 <span className="jd-text-xs jd-text-muted-foreground">
-                  Create new {blockType} block
+                  {getMessage(
+                    'createNewSpecificBlock',
+                    [blockType],
+                    `Create new ${blockType} block`
+                  )}
                 </span>
               </div>
             </DropdownMenuItem>
@@ -121,7 +126,7 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
           <>
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="jd-text-xs jd-text-muted-foreground">
-              Add Existing Block
+              {getMessage('addExistingBlock', undefined, 'Add Existing Block')}
             </DropdownMenuLabel>
             
             {Object.entries(availableBlocks).map(([blockType, blocks]) => {
@@ -170,7 +175,9 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
                 className="jd-flex jd-items-center jd-gap-2 jd-py-2 jd-cursor-pointer jd-text-primary"
               >
                 <Plus className="jd-h-4 jd-w-4" />
-                <span className="jd-text-sm">Browse all blocks...</span>
+                <span className="jd-text-sm">
+                  {getMessage('browseAllBlocks', undefined, 'Browse all blocks...')}
+                </span>
               </DropdownMenuItem>
             )}
           </>
@@ -196,7 +203,13 @@ export const InlineBlockForm: React.FC<{
     if (content.trim()) {
       onSave({
         type,
-        title: title.trim() || `${BLOCK_TYPE_LABELS[type]} Block`,
+        title:
+          title.trim() ||
+          getMessage(
+            'blockTitlePlaceholder',
+            [BLOCK_TYPE_LABELS[type]],
+            `${BLOCK_TYPE_LABELS[type]} Block`
+          ),
         content: content.trim()
       });
     }
@@ -211,12 +224,16 @@ export const InlineBlockForm: React.FC<{
         <div className={cn('jd-p-1.5 jd-rounded-md', iconBg)}>
           <Icon className="jd-h-4 jd-w-4" />
         </div>
-        <h3 className="jd-font-medium jd-text-sm">Create New Block</h3>
+        <h3 className="jd-font-medium jd-text-sm">
+          {getMessage('createNewBlock', undefined, 'Create New Block')}
+        </h3>
       </div>
 
       <div className="jd-grid jd-grid-cols-2 jd-gap-3">
         <div>
-          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">Type</label>
+          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">
+            {getMessage('blockTypeLabel', undefined, 'Type')}
+          </label>
           <select
             value={type}
             onChange={(e) => setType(e.target.value as BlockType)}
@@ -231,23 +248,35 @@ export const InlineBlockForm: React.FC<{
         </div>
 
         <div>
-          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">Title</label>
+          <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">
+            {getMessage('blockTitleLabel', undefined, 'Title')}
+          </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={`${BLOCK_TYPE_LABELS[type]} Block`}
+            placeholder={getMessage(
+              'blockTitlePlaceholder',
+              [BLOCK_TYPE_LABELS[type]],
+              `${BLOCK_TYPE_LABELS[type]} Block`
+            )}
             className="jd-w-full jd-h-8 jd-px-2 jd-text-xs jd-border jd-rounded"
           />
         </div>
       </div>
 
       <div>
-        <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">Content</label>
+        <label className="jd-text-xs jd-font-medium jd-mb-1 jd-block">
+          {getMessage('content', undefined, 'Content')}
+        </label>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder={`Enter ${type} content...`}
+          placeholder={getMessage(
+            'blockContentPlaceholder',
+            [type],
+            `Enter ${type} content...`
+          )}
           className="jd-w-full jd-h-20 jd-p-2 jd-text-xs jd-border jd-rounded jd-resize-none"
           required
         />
@@ -261,7 +290,7 @@ export const InlineBlockForm: React.FC<{
           onClick={onCancel}
           className="jd-flex-1 jd-h-8 jd-text-xs"
         >
-          Cancel
+          {getMessage('cancel', undefined, 'Cancel')}
         </Button>
         <Button
           type="submit"
@@ -269,7 +298,7 @@ export const InlineBlockForm: React.FC<{
           disabled={!content.trim()}
           className="jd-flex-1 jd-h-8 jd-text-xs"
         >
-          Create Block
+          {getMessage('createBlock', undefined, 'Create Block')}
         </Button>
       </div>
     </form>
