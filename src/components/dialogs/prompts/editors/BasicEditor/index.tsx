@@ -217,15 +217,12 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           )}
         >
           <div className="jd-space-y-3 jd-pt-4">
-            <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700">
-              <TemplatePreview
-                metadata={metadata}
-                content={content}
-                blockContentCache={blockContentCache}
-                isDarkMode={isDark}
-                className="jd-max-h-[500px] jd-overflow-auto"
-              />
-            </div>
+            <TemplatePreview
+              metadata={metadata}
+              content={content}
+              blockContentCache={blockContentCache}
+              isDarkMode={isDark}
+            />
           </div>
         </div>
       </div>
@@ -248,15 +245,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         
         <ResizablePanel defaultSize={70} minSize={40}>
           <div className="jd-h-full jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
-            <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1">
-              <TemplatePreview
-                metadata={metadata}
-                content={previewContent}
-                blockContentCache={previewCache}
-                isDarkMode={isDark}
-                className="jd-h-full jd-overflow-auto"
-              />
-            </div>
+            <TemplatePreview
+              metadata={metadata}
+              content={previewContent}
+              blockContentCache={previewCache}
+              isDarkMode={isDark}
+              className="jd-h-full jd-overflow-auto"
+            />
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
