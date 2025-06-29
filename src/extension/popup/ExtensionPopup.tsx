@@ -12,11 +12,15 @@ import './popup.css';
 import { getMessage } from '@/core/utils/i18n';
 import { authService } from '@/services/auth/AuthService';
 import { AuthState } from '@/types';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Current extension version
 const EXTENSION_VERSION = "1.0.0";
 
 const ExtensionPopup: React.FC = () => {
+  useEffect(() => {
+    trackEvent(EVENTS.EXTENSION_OPENED);
+  }, []);
   // Auth state
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
