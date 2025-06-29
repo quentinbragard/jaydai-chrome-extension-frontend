@@ -211,6 +211,20 @@ export async function processMistralStreamingResponse(response, requestBody) {
           } catch (_) {
             content += dataStr;
           }
+        } else {
+          // Handle lines prefixed with a numeric id (e.g., "0: \"token\"")
+          const colonIndex = line.indexOf(':');
+          if (colonIndex !== -1) {
+            let token = line.slice(colonIndex + 1).trim();
+            if (token.startsWith('"') && token.endsWith('"')) {
+              try {
+                token = JSON.parse(token);
+              } catch (_) {
+                token = token.slice(1, -1);
+              }
+            }
+            content += token;
+          }
         }
       }
     }
