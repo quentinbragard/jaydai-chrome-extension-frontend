@@ -102,11 +102,15 @@ export function useFolderMutations() {
           return response.data;
         },
         {
-          onSuccess: () => {
+          onSuccess: (_data, variables) => {
             if (queryClient) {
               queryClient.invalidateQueries(QUERY_KEYS.PINNED_FOLDERS);
               queryClient.invalidateQueries(QUERY_KEYS.USER_METADATA);
             }
+            trackEvent(
+              variables.isPinned ? EVENTS.FOLDER_PINNED : EVENTS.FOLDER_UNPINNED,
+              { folder_id: variables.folderId }
+            );
           },
           onError: (error: Error) => {
             console.error('Error toggling pin status:', error);
@@ -123,6 +127,10 @@ export function useFolderMutations() {
             if (!response.success) {
               throw new Error(response.message || 'Failed to update pin status');
             }
+            trackEvent(
+              isPinned ? EVENTS.FOLDER_PINNED : EVENTS.FOLDER_UNPINNED,
+              { folder_id: folderId }
+            );
             return response.data;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';

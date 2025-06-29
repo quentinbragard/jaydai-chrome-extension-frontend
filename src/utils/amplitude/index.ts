@@ -94,8 +94,13 @@ export const EVENTS = {
   TEMPLATE_DELETE: 'Template Deleted',
   TEMPLATE_DELETE_FOLDER: 'Template Folder Deleted',
   TEMPLATE_EDIT: 'Template Edited',
+  TEMPLATE_PINNED: 'Template Pinned',
+  TEMPLATE_UNPINNED: 'Template Unpinned',
+  FOLDER_PINNED: 'Folder Pinned',
+  FOLDER_UNPINNED: 'Folder Unpinned',
   TEMPLATE_BROWSE_OFFICIAL: 'Template Browse Official',
   TEMPLATE_BROWSE_ORGANIZATION: 'Template Browse Organization',
+  ENTERPRISE_LIBRARY_ACCESSED: 'Enterprise Library Accessed',
   TEMPLATE_REFRESH: 'Template Refresh',
   TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
   TEMPLATE_EDIT_DIALOG_OPENED: 'Template Edit Dialog Opened',
@@ -114,6 +119,11 @@ export const EVENTS = {
   CONVERSATION_CAPTURED: 'Conversation Captured',
   CONVERSATION_ANALYZED: 'Conversation Analyzed',
   ERROR_OCCURRED: 'Error Occurred',
+
+  // Chat session events
+  CHAT_SESSION_STARTED: 'Chat Session Started',
+  CHAT_SESSION_ENDED: 'Chat Session Ended',
+
 };
 
 /**

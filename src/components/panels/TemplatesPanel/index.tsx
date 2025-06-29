@@ -34,6 +34,7 @@ import EmptyState from './EmptyState';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { getFolderTitle } from '@/utils/prompts/folderUtils';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Import the new global search hook
 import { useGlobalTemplateSearch } from '@/hooks/prompts/utils/useGlobalTemplateSearch';
@@ -100,6 +101,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   useEffect(() => {
     setGlobalSearchQuery(searchQuery);
   }, [searchQuery, setGlobalSearchQuery]);
+
+  useEffect(() => {
+    trackEvent(EVENTS.TEMPLATE_SEARCH, { query: searchQuery });
+  }, [searchQuery]);
 
   // Navigation hook for combined user + organization folders
   const navigation = useBreadcrumbNavigation({
