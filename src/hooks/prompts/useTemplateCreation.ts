@@ -95,10 +95,11 @@ export function useTemplateCreation() {
       return response.data;
     },
     {
-      onSuccess: () => {
+      onSuccess: (_data, variables) => {
         queryClient.invalidateQueries('userFolders');
         queryClient.invalidateQueries('unorganizedTemplates');
         toast.success('Template updated successfully');
+        trackEvent(EVENTS.TEMPLATE_EDIT, { template_id: variables.id });
       },
       onError: (error: any) => {
         console.error('Error updating template:', error);
