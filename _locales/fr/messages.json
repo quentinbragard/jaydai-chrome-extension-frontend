@@ -1797,6 +1797,18 @@
       }
     }
   },
+  "templatePreview.title": {
+    "message": "Aperçu du template",
+    "description": "Titre par défaut pour l'aperçu du template"
+  },
+  "constraintLabel": {
+    "message": "Contrainte:",
+    "description": "Étiquette pour les contraintes dans l'aperçu"
+  },
+  "exampleLabel": {
+    "message": "Exemple:",
+    "description": "Étiquette pour les exemples dans l'aperçu"
+  },
   "previousPage": {
     "message": "Page précédente",
     "description": "Info-bulle pour le bouton de page précédente"
@@ -1808,3 +1820,5 @@
   "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" },
   "dragToMove": { "message": "Glissez pour déplacer", "description": "Infobulle pour déplacer le bouton principal" },
 }
+
+
