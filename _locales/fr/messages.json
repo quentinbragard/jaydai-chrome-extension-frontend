@@ -1283,6 +1283,18 @@
     "message": "Créez un nouveau template à utiliser avec les conversations IA.",
     "description": "Description pour la boîte de dialogue de création de template"
   },
+  "editFolder": {
+    "message": "Modifier le dossier",
+    "description": "Titre de la boîte de dialogue de modification de dossier"
+  },
+  "editFolderDescription": {
+    "message": "Mettre à jour les informations du dossier",
+    "description": "Description de la boîte de dialogue de modification de dossier"
+  },
+  "parentFolder": {
+    "message": "Dossier parent",
+    "description": "Étiquette pour le champ dossier parent"
+  },
   "TemplateName": {
     "message": "Nom du template",
     "description": "Étiquette pour le champ de nom du template"
