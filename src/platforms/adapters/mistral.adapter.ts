@@ -202,6 +202,19 @@ export class MistralAdapter extends BasePlatformAdapter {
             } catch (_) {
               content += dataStr;
             }
+          } else {
+            const colonIndex = line.indexOf(':');
+            if (colonIndex !== -1) {
+              let token = line.slice(colonIndex + 1).trim();
+              if (token.startsWith('"') && token.endsWith('"')) {
+                try {
+                  token = JSON.parse(token);
+                } catch (_) {
+                  token = token.slice(1, -1);
+                }
+              }
+              content += token;
+            }
           }
         }
       }
