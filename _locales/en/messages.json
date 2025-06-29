@@ -1751,5 +1751,19 @@
       }
     }
   },
-  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" }
+  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" },
+  "referralSourceSearch": { "message": "Search Engine (Google, Bing, etc.)", "description": "Referral source option" },
+  "referralSourceSocialMedia": { "message": "Social Media", "description": "Referral source option" },
+  "referralSourceFriend": { "message": "Friend or Colleague", "description": "Referral source option" },
+  "referralSourceBlog": { "message": "Blog or Article", "description": "Referral source option" },
+  "referralSourceYouTube": { "message": "YouTube", "description": "Referral source option" },
+  "referralSourcePodcast": { "message": "Podcast", "description": "Referral source option" },
+  "referralSourceAd": { "message": "Advertisement", "description": "Referral source option" },
+  "referralSourceStore": { "message": "Chrome Web Store", "description": "Referral source option" },
+  "referralSourceOther": { "message": "Other", "description": "Referral source option" },
+  "newLabel": { "message": "New", "description": "Label indicating a new item" },
+  "explanationRole": { "message": "Role", "description": "Tag label in onboarding completion" },
+  "explanationIndustry": { "message": "Industry", "description": "Tag label in onboarding completion" },
+  "explanationLevel": { "message": "Level", "description": "Tag label in onboarding completion" },
+  "explanationInterests": { "message": "Interests", "description": "Tag label in onboarding completion" }
 }

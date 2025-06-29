@@ -1734,5 +1734,19 @@
       }
     }
   },
-  "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" }
+  "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" },
+  "referralSourceSearch": { "message": "Moteur de recherche (Google, Bing, etc.)", "description": "Option de source de recommandation" },
+  "referralSourceSocialMedia": { "message": "Réseaux sociaux", "description": "Option de source de recommandation" },
+  "referralSourceFriend": { "message": "Ami ou collègue", "description": "Option de source de recommandation" },
+  "referralSourceBlog": { "message": "Blog ou article", "description": "Option de source de recommandation" },
+  "referralSourceYouTube": { "message": "YouTube", "description": "Option de source de recommandation" },
+  "referralSourcePodcast": { "message": "Podcast", "description": "Option de source de recommandation" },
+  "referralSourceAd": { "message": "Publicité", "description": "Option de source de recommandation" },
+  "referralSourceStore": { "message": "Chrome Web Store", "description": "Option de source de recommandation" },
+  "referralSourceOther": { "message": "Autre", "description": "Option de source de recommandation" },
+  "newLabel": { "message": "Nouveau", "description": "Indique un nouvel élément" },
+  "explanationRole": { "message": "Rôle", "description": "Étiquette dans la vue de fin d'onboarding" },
+  "explanationIndustry": { "message": "Secteur", "description": "Étiquette dans la vue de fin d'onboarding" },
+  "explanationLevel": { "message": "Niveau", "description": "Étiquette dans la vue de fin d'onboarding" },
+  "explanationInterests": { "message": "Intérêts", "description": "Étiquette dans la vue de fin d'onboarding" }
 }
