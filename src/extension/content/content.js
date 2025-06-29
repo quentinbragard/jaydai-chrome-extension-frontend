@@ -15,6 +15,7 @@
     // Create the script element
     const script = document.createElement('script');
     script.id = 'jaydai:network-interceptor';
+    script.type = 'module';
     script.src = chrome.runtime.getURL('networkInterceptor.js');
     
     // Function to actually inject the script
