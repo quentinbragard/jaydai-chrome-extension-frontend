@@ -86,31 +86,14 @@ export class ChatOrchestrator extends AbstractBaseService {
     console.log('Initializing ChatOrchestrator');
     
     // Listen for network intercept events
-    document.addEventListener('jaydai:message-extracted', this.handleMessageExtracted);
     document.addEventListener('jaydai:conversation-changed', this.handleConversationChanged);
   }
   
   protected onCleanup(): void {
-    document.removeEventListener('jaydai:message-extracted', this.handleMessageExtracted);
     document.removeEventListener('jaydai:conversation-changed', this.handleConversationChanged);
     console.log('ChatOrchestrator cleaned up');
   }
   
-  /**
-   * Handle extracted message events
-   */
-  private handleMessageExtracted = (event: CustomEvent): void => {
-    try {
-      const { message } = event.detail;
-      if (!message) return;
-      
-      this.processMessage(message);
-    } catch (error) {
-      errorReporter.captureError(
-        new AppError('Error handling message extraction', ErrorCode.ORCHESTRATION_ERROR, error)
-      );
-    }
-  };
   
   /**
    * Handle conversation change events

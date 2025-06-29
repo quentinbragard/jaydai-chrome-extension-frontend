@@ -173,8 +173,13 @@ export class MessageService extends AbstractBaseService {
     if (messages.length === 0) return;
     
     try {
+      // Filter out messages with null or empty content
+      const validMessages = messages.filter(msg => msg.content !== null && msg.content !== '');
+      
+      if (validMessages.length === 0) return;
+
       // Format messages for API
-      const formattedMessages = messages.map(msg => ({
+      const formattedMessages = validMessages.map(msg => ({
         message_provider_id: msg.messageId,
         chat_provider_id: msg.conversationId,
         content: msg.content,
@@ -186,7 +191,7 @@ export class MessageService extends AbstractBaseService {
       
       // Save batch
       await messageApi.saveMessageBatch(formattedMessages);
-      console.log(`Saved batch of ${messages.length} messages`);
+      console.log(`Saved batch of ${validMessages.length} messages`);
     } catch (error) {
       errorReporter.captureError(
         new AppError('Error saving message batch', ErrorCode.API_ERROR, error)

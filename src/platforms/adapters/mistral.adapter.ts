@@ -14,9 +14,20 @@ export class MistralAdapter extends BasePlatformAdapter {
   extractUserMessage(requestBody: any): Message | null {
     try {
       console.log("MISTRAL EXTRACT USER MESSAGE 🎉🎉🎉🎉🎉", requestBody);
-      let content = '';
       let messageId = requestBody.messageId || `user-${Date.now()}`;
       let conversationId = requestBody.chatId || '';
+      if (requestBody.mode === "start") {
+        return {
+          messageId,
+          conversationId,
+          content: 'start',
+          role: 'user',
+          model: requestBody.model || 'mistral',
+          timestamp: Date.now(),
+          parent_message_provider_id: 'start',
+        };
+      } else {
+      let content = '';
       let parentMessageId = requestBody.parentMessageId;
 
       // First message of a conversation is wrapped under the "0.json" key
@@ -36,7 +47,6 @@ export class MistralAdapter extends BasePlatformAdapter {
           content = requestBody.messageInput;
         }
       }
-
       return {
         messageId,
         conversationId,
@@ -45,7 +55,8 @@ export class MistralAdapter extends BasePlatformAdapter {
         model: requestBody.model || 'mistral',
         timestamp: Date.now(),
         parent_message_provider_id: parentMessageId,
-      };
+        };
+      }
     } catch (error) {
       errorReporter.captureError(
         new AppError('Error extracting user message from Mistral', ErrorCode.PARSING_ERROR, error),
