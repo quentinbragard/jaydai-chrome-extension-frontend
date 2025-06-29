@@ -1,12 +1,13 @@
 
 // src/components/folders/FolderSection.tsx
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { BookTemplate, Users, Folder, PlusCircle, ChevronDown, Building2, Mail, Lock , FolderPlus} from "lucide-react";
 import { Button } from "@/components/ui/button"; // Assuming this is your Shadcn UI Button
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames'; // Import cn if needed for combining classes
 import { OrganizationImage } from '@/components/organizations';
 import { Organization } from '@/types/organizations';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface FolderSectionProps {
   title: string;
@@ -33,6 +34,12 @@ export function FolderSection({
   children
 }: FolderSectionProps) {
 
+  useEffect(() => {
+    if (iconType === 'organization') {
+      trackEvent(EVENTS.ENTERPRISE_LIBRARY_ACCESSED, { action: 'viewed' });
+    }
+  }, [iconType]);
+
   const renderIcon = () => {
     // ... (renderIcon function remains the same)
      switch (iconType) {
@@ -47,8 +54,8 @@ export function FolderSection({
   };
 
   const handleContactSales = () => {
-    // ... (handleContactSales function remains the same)
-     window.open('https://www.jayd.ai/#Contact', '_blank');
+    trackEvent(EVENTS.ENTERPRISE_LIBRARY_ACCESSED, { action: 'contact_sales' });
+    window.open('https://www.jayd.ai/#Contact', '_blank');
   };
 
   const renderOrganizationCTA = () => {
