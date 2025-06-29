@@ -6,7 +6,7 @@ export const mistralConfig: PlatformConfig = {
   endpoints: {
     USER_INFO: '/api/trpc/user.session',
     CONVERSATIONS_LIST: '/api/trpc/chat.list',
-    CHAT_COMPLETION: '/api/chat',
+    CHAT_COMPLETION: /\/api\/chat/,
     SPECIFIC_CONVERSATION: /\/api\/chat/,
   },
   domSelectors: {
