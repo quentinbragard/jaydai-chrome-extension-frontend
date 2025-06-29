@@ -17,6 +17,7 @@ import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { Template } from '@/types/prompts/templates';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { getMessage } from '@/core/utils/i18n';
 import { useOrganizations } from '@/hooks/organizations';
 import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
@@ -118,22 +119,26 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
     <BaseDialog
       open={isOpen}
       onOpenChange={dialogProps.onOpenChange}
-      title="Browse Folders"
+      title={getMessage('browseFoldersTitle', undefined, 'Browse Folders')}
       className="jd-max-w-lg"
     >
       <TooltipProvider>
         <FolderSearch
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          placeholderText="Search folders..."
+          placeholderText={getMessage('searchFoldersPlaceholder', undefined, 'Search folders...')}
           onReset={clearSearch}
         />
         <Separator />
           <div className="jd-overflow-y-auto jd-max-h-[70vh]">
             {loading ? (
-              <LoadingState message="Loading folders..." />
+              <LoadingState
+                message={getMessage('loadingFoldersGeneric', undefined, 'Loading folders...')}
+              />
             ) : foldersWithPin.length === 0 && filteredTemplates.length === 0 ? (
-              <EmptyMessage>No folders or templates found</EmptyMessage>
+              <EmptyMessage>
+                {getMessage('noFoldersOrTemplatesFound', undefined, 'No folders or templates found')}
+              </EmptyMessage>
             ) : (
               <div className="jd-space-y-1 jd-px-2">
                 {foldersWithPin.map(folder => (

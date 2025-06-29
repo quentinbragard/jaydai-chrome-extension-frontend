@@ -604,6 +604,22 @@
     "message": "Refresh",
     "description": "Refresh button text"
   },
+  "browseFoldersTitle": {
+    "message": "Browse Folders",
+    "description": "Title for browse folders dialog"
+  },
+  "searchFoldersPlaceholder": {
+    "message": "Search folders...",
+    "description": "Placeholder text for folder search"
+  },
+  "loadingFoldersGeneric": {
+    "message": "Loading folders...",
+    "description": "Loading state text for folders"
+  },
+  "noFoldersOrTemplatesFound": {
+    "message": "No folders or templates found",
+    "description": "Empty state when no folders or templates match"
+  },
   "noPinnedOfficialTemplates": {
     "message": "No pinned organization templates. Click Browse More to add some.",
     "description": "Empty state message for organization templates section"
@@ -1735,6 +1751,21 @@
   "addBlock": { "message": "Add Block", "description": "Button label to add a block" },
   "addFirstBlock": { "message": "Add Your First Block", "description": "Button label to add first block" },
   "noContentBlocks": { "message": "No content blocks yet", "description": "Message when no blocks exist" },
+  "createBlockTitle": { "message": "Create Block", "description": "Create block dialog title" },
+  "createBlockDescription": { "message": "Create a new reusable block for your prompts", "description": "Create block dialog description" },
+  "blockType": { "message": "Block Type", "description": "Label for block type field" },
+  "blockTypeRequired": { "message": "Block type is required", "description": "Validation error for block type" },
+  "blockName": { "message": "Block Name", "description": "Label for block name field" },
+  "enterBlockName": { "message": "Enter block name", "description": "Placeholder for block name input" },
+  "blockNameHint": { "message": "Please enter a block name", "description": "Hint text when block name is empty" },
+  "blockNameRequired": { "message": "Block name is required", "description": "Validation error for block name" },
+  "blockContent": { "message": "Block Content", "description": "Label for block content field" },
+  "enterBlockContent": { "message": "Enter block content...", "description": "Placeholder for block content input" },
+  "blockContentRequired": { "message": "Block content is required", "description": "Validation error for block content" },
+  "blockDescriptionPlaceholder": { "message": "Enter block description...", "description": "Placeholder for block description input" },
+  "createBlock": { "message": "Create Block", "description": "Create block button" },
+  "blockCreated": { "message": "Block created successfully", "description": "Success message when block is created" },
+  "errorCreatingBlock": { "message": "Failed to create block", "description": "Error message when block creation fails" },
   "errorProcessingTemplate": { "message": "Failed to process template content. Please try again.", "description": "Error message when template processing fails" },
   "errorProcessingTemplateToast": { "message": "Failed to process template content", "description": "Toast message for processing error" },
   "organizationTemplateNotice": {
@@ -1759,5 +1790,6 @@
     "message": "Next page",
     "description": "Tooltip for pagination next button"
   },
-  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" }
+  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" },
+  "dragToMove": { "message": "Drag to move", "description": "Tooltip for dragging the main button" },
 }
