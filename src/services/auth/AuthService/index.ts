@@ -5,6 +5,7 @@ import { AuthStateManager } from './AuthStateManager';
 import { AuthOperations } from './AuthOperations';
 import { AuthNotifications } from './AuthNotifications';
 import { TokenService } from '../TokenService';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 /**
  * Service for managing authentication state and operations
@@ -134,18 +135,23 @@ export class AuthService extends AbstractBaseService {
         user: response.user,
         error: null
       });
-      
+
+      if (response.user) {
+        trackEvent(EVENTS.SIGNIN_COMPLETED, { user_id: response.user.id });
+      }
+
       // Store session token if provided
       if (response.session) {
         await this.tokenService.storeAuthSession(response.session);
       }
-      
+
       return true;
     } else {
       this.stateManager.updateState({
         isAuthenticated: false,
         error: response.error || 'Sign-in failed'
       });
+      trackEvent(EVENTS.SIGNIN_FAILED, { error: response.error });
       return false;
     }
   }
@@ -155,7 +161,7 @@ export class AuthService extends AbstractBaseService {
    */
   public async signUp(email: string, password: string, name?: string): Promise<boolean> {
     const response = await AuthOperations.signUp(email, password, name);
-    
+
     if (response.success) {
       if (response.user) {
         this.stateManager.updateState({
@@ -164,8 +170,9 @@ export class AuthService extends AbstractBaseService {
           isLoading: false,
           error: null
         });
+        trackEvent(EVENTS.SIGNUP_COMPLETED, { user_id: response.user.id });
       }
-      
+
       // Store session token if provided
       if (response.session) {
         await this.tokenService.storeAuthSession(response.session);
@@ -177,6 +184,7 @@ export class AuthService extends AbstractBaseService {
         isAuthenticated: false,
         error: response.error || 'Sign-up failed'
       });
+      trackEvent(EVENTS.SIGNUP_FAILED, { error: response.error });
       return false;
     }
   }
@@ -197,7 +205,8 @@ export class AuthService extends AbstractBaseService {
           isLoading: false,
           error: null
         });
-        
+        trackEvent(EVENTS.SIGNIN_COMPLETED, { user_id: response.user.id });
+
         // Store session token if provided
         if (response.session) {
           await this.tokenService.storeAuthSession(response.session);
@@ -210,6 +219,7 @@ export class AuthService extends AbstractBaseService {
           isLoading: false,
           error: response.error || 'Google sign-in failed'
         });
+        trackEvent(EVENTS.SIGNIN_FAILED, { error: response.error });
         return false;
       }
     } catch (error) {
@@ -220,7 +230,9 @@ export class AuthService extends AbstractBaseService {
         isLoading: false,
         error: error instanceof Error ? error.message : 'Google sign-in failed'
       });
-      
+
+      trackEvent(EVENTS.SIGNIN_FAILED, { error: error instanceof Error ? error.message : error });
+
       return false;
     }
   }
