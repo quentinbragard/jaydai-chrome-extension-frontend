@@ -42,11 +42,7 @@ export function initFetchInterceptor() {
     if (!response.ok) return response;
     
     try {
-      let isStreaming = response.headers.get('content-type')?.includes('text/event-stream') || false;
-      // Mistral chat completions stream data but don't set the SSE header
-      if (!isStreaming && platform === 'mistral' && eventName === EVENTS.CHAT_COMPLETION) {
-        isStreaming = true;
-      }
+      const isStreaming = response.headers.get('content-type')?.includes('text/event-stream') || false;
       
       if (eventName === EVENTS.CHAT_COMPLETION) {
         // Dispatch chat completion event
