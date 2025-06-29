@@ -24,7 +24,7 @@ export function initFetchInterceptor() {
   // Override fetch to intercept network requests
   window.fetch = async function(input, init) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
-    debug('🔍 Intercepting request:', url);
+    console.log('🔍 Intercepting request:', url);
     const eventName = getEndpointEvent(url);
     const platform = detectPlatform();
     // Skip irrelevant endpoints

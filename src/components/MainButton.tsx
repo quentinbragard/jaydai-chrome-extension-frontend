@@ -113,7 +113,7 @@ const MainButton = () => {
     <ErrorBoundary>
       <div
         className={cn(
-          'jd-fixed jd-z-[9999] jd-select-none hover:jd-border hover:jd-border-primary hover:jd-border-2 jd-rounded-md jd-1 jd-group',
+          'jd-fixed jd-z-[9999] jd-select-none  jd-rounded-md jd-group',
           // Always ensure bottom-right positioning when no custom position is set
           !position && 'jd-bottom-6 jd-right-6',
           isDragging && 'jd-cursor-grabbing'
@@ -148,7 +148,7 @@ const MainButton = () => {
               <div
                 ref={dragHandleRef}
                 className={cn(
-                  'jd-absolute -jd-top-1 -jd-right-1 jd-z-30',
+                  'jd-absolute jd-top-1 jd-right-1 jd-z-30',
                   'jd-w-5 jd-h-5 jd-flex jd-items-center jd-justify-center',
                   'jd-bg-white/90 jd-backdrop-blur-sm jd-rounded-full jd-cursor-grab',
                   'jd-shadow-md jd-border jd-border-gray-200/50',
@@ -159,7 +159,7 @@ const MainButton = () => {
                 )}
                 title="Drag to move"
               >
-                <EllipsisVertical className={cn(
+                <Move className={cn(
                   'jd-w-3 jd-h-3 jd-text-gray-500',
                   'jd-transition-all jd-duration-200',
                   isDragging && 'jd-text-gray-700'
