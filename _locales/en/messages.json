@@ -1814,7 +1814,38 @@
       }
     }
   },
-  "saveAsNewBlock": {
+  "createNewBlock": { "message": "Create New Block", "description": "Label for creating a new block" },
+  "createNewSpecificBlock": {
+    "message": "Create new $TYPE$ block",
+    "description": "Option to create a new block of a given type",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "context"
+      }
+    }
+  },
+  "addExistingBlock": { "message": "Add Existing Block", "description": "Label for adding an existing block" },
+  "browseAllBlocks": { "message": "Browse all blocks...", "description": "Button text to browse all blocks" },
+  "blockTypeLabel": { "message": "Type", "description": "Label for block type field" },
+  "blockTitleLabel": { "message": "Title", "description": "Label for block title field" },
+  "blockTitlePlaceholder": {
+    "message": "$TYPE$ Block",
+    "description": "Placeholder for block title",
+    "placeholders": {
+      "type": { "content": "$1", "example": "custom" }
+    }
+  },
+  "blockContentPlaceholder": {
+    "message": "Enter $TYPE$ content...",
+    "description": "Placeholder for block content input",
+    "placeholders": {
+      "type": { "content": "$1", "example": "custom" }
+    }
+  },
+  "createBlock": { "message": "Create Block", "description": "Button text to create a block" },
+  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" },
+"saveAsNewBlock": {
     "message": "Save as new block",
     "description": "Tooltip for saving a block as new"
   },

@@ -1797,6 +1797,37 @@
       }
     }
   },
+  "createNewBlock": { "message": "Créer un bloc", "description": "Libellé pour la création d'un nouveau bloc" },
+  "createNewSpecificBlock": {
+    "message": "Créer un bloc $TYPE$",
+    "description": "Option pour créer un bloc d'un type spécifique",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "contexte"
+      }
+    }
+  },
+  "addExistingBlock": { "message": "Ajouter un bloc existant", "description": "Libellé pour ajouter un bloc existant" },
+  "browseAllBlocks": { "message": "Parcourir tous les blocs...", "description": "Bouton pour parcourir tous les blocs" },
+  "blockTypeLabel": { "message": "Type", "description": "Libellé du type de bloc" },
+  "blockTitleLabel": { "message": "Titre", "description": "Libellé du titre du bloc" },
+  "blockTitlePlaceholder": {
+    "message": "Bloc $TYPE$",
+    "description": "Placeholder pour le titre du bloc",
+    "placeholders": {
+      "type": { "content": "$1", "example": "personnalisé" }
+    }
+  },
+  "blockContentPlaceholder": {
+    "message": "Saisir le contenu $TYPE$...",
+    "description": "Placeholder pour le contenu du bloc",
+    "placeholders": {
+      "type": { "content": "$1", "example": "personnalisé" }
+    }
+  },
+  "createBlock": { "message": "Créer un bloc", "description": "Bouton pour créer un bloc" },
+  "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" },
   "saveAsNewBlock": {
     "message": "Enregistrer comme nouveau bloc",
     "description": "Infobulle pour enregistrer un nouveau bloc"
@@ -1841,4 +1872,5 @@
   "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" },
   "dragToMove": { "message": "Glissez pour déplacer", "description": "Infobulle pour déplacer le bouton principal" },
 }
+
 
