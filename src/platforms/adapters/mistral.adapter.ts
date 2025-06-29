@@ -16,18 +16,24 @@ export class MistralAdapter extends BasePlatformAdapter {
       console.log("MISTRAL EXTRACT USER MESSAGE 🎉🎉🎉🎉🎉", requestBody);
       let messageId = requestBody.messageId || `user-${Date.now()}`;
       let conversationId = requestBody.chatId || '';
+      let content = '';
       if (requestBody.mode === "start") {
+          const firstSelected = document.querySelector('div.select-text span');
+          console.log("FIRST SELECTED", firstSelected);
+          const domText = firstSelected?.textContent?.trim();
+          if (domText) {
+            content = domText;
+          }
         return {
           messageId,
           conversationId,
-          content: 'start',
+          content: content,
           role: 'user',
           model: requestBody.model || 'mistral',
           timestamp: Date.now(),
           parent_message_provider_id: 'start',
         };
       } else {
-      let content = '';
       let parentMessageId = requestBody.parentMessageId;
 
       // First message of a conversation is wrapped under the "0.json" key
@@ -47,6 +53,10 @@ export class MistralAdapter extends BasePlatformAdapter {
           content = requestBody.messageInput;
         }
       }
+         // In "start" mode the request body contains the placeholder "start"
+      // instead of the actual user message. Retrieve the real text from the DOM
+      
+
       return {
         messageId,
         conversationId,
@@ -132,13 +142,14 @@ export class MistralAdapter extends BasePlatformAdapter {
 
   handleAssistantResponse(event: CustomEvent): void {
     try {
+      console.log("DATAAAAAA", event.detail);
       const data = event.detail;
       if (!data) return;
       if (data.isComplete) {
         const message = this.extractAssistantMessage(data);
         if (message) {
           document.dispatchEvent(
-            new CustomEvent('jaydai:message-extracted', { detail: { message, platform: this.name } }),
+            new CustomEvent('jaydai:message-extracted', { detail: { message, platform: this.name, parentMessageId: data.parentMessageId } }),
           );
         }
       }
@@ -176,6 +187,7 @@ export class MistralAdapter extends BasePlatformAdapter {
     let buffer = '';
     let messageId = '';
     let content = '';
+    const parentMessageId = requestBody.parentMessageId;
     const conversationId = requestBody.chatId || '';
     try {
       while (true) {
@@ -195,6 +207,7 @@ export class MistralAdapter extends BasePlatformAdapter {
                   new CustomEvent('jaydai:assistant-response', {
                     detail: {
                       messageId,
+                      parentMessageId,
                       conversationId,
                       content,
                       role: 'assistant',
@@ -230,21 +243,6 @@ export class MistralAdapter extends BasePlatformAdapter {
             }
           }
         }
-      }
-      if (messageId && content) {
-        document.dispatchEvent(
-          new CustomEvent('jaydai:assistant-response', {
-            detail: {
-              messageId,
-              conversationId,
-              content,
-              role: 'assistant',
-              model: 'mistral',
-              isComplete: true,
-              platform: this.name,
-            },
-          }),
-        );
       }
     } catch (error) {
       console.error('Error processing Mistral stream:', error);

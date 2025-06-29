@@ -170,6 +170,7 @@ export async function processMistralStreamingResponse(response, requestBody) {
   const decoder = new TextDecoder();
   let buffer = '';
   let messageId = '';
+  let parentMessageId = requestBody.parentMessageId;
   let content = '';
   const conversationId = requestBody?.chatId || '';
 
@@ -210,6 +211,7 @@ export async function processMistralStreamingResponse(response, requestBody) {
           if (content) {
             dispatchEvent(EVENTS.ASSISTANT_RESPONSE, 'mistral', {
               messageId,
+              parentMessageId,
               conversationId,
               content,
               role: 'assistant',
@@ -220,17 +222,6 @@ export async function processMistralStreamingResponse(response, requestBody) {
           continue;
         }
       }
-    }
-
-    if (messageId && content) {
-      dispatchEvent(EVENTS.ASSISTANT_RESPONSE, 'mistral', {
-        messageId,
-        conversationId,
-        content,
-        role: 'assistant',
-        model: 'mistral',
-        isComplete: true
-      });
     }
   } catch (error) {
     console.error('Error processing Mistral stream:', error);

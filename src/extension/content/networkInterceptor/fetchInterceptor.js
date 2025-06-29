@@ -106,6 +106,7 @@ export function initFetchInterceptor() {
         console.log("IS STREAMING--------------->", isStreaming);
         console.log("RESPONSE", response);
         console.log("REQUEST BODY", requestBody);
+        requestBody['parentMessageId'] = requestBody.messageId;
         
         console.log(`🔍 [${platform}] Stream detection result: ${isStreaming}`);
         
@@ -113,6 +114,7 @@ export function initFetchInterceptor() {
           console.log(`🔍 [${platform}] Processing as streaming response`);
           // Process streaming responses
           processStreamingResponse(response, requestBody);
+
         } else {
           console.log(`🔍 [${platform}] Processing as non-streaming response`);
           // Non streaming response, parse JSON and dispatch as assistant response

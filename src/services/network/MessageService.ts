@@ -47,6 +47,9 @@ export class MessageService extends AbstractBaseService {
    */
   private handleExtractedMessage = (event: CustomEvent): void => {
     const { message } = event.detail;
+    if (!message.parent_message_provider_id) {
+      message.parent_message_provider_id = message.parentMessageId;
+    }
 
     if (message) {
       // Try to ensure the message has a conversation ID
