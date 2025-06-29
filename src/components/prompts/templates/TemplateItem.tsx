@@ -126,8 +126,8 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
 
 
   return (
-    <div 
-      className={`jd-flex jd-items-center hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group jd-transition-colors ${
+    <div
+      className={`jd-flex jd-items-center hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group/template jd-transition-colors ${
       isProcessing ? 'jd-opacity-50 jd-cursor-not-allowed' : ''
       } ${className}`}
       onClick={handleTemplateClick}
@@ -177,7 +177,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
 
         {/* Edit and Delete Controls (for user templates) */}
         {(shouldShowEditControls || shouldShowDeleteControls) && (
-          <div className="jd-flex jd-gap-2  jd-items-center jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
+          <div className="jd-flex jd-gap-2  jd-items-center jd-opacity-0 group-hover/template:jd-opacity-100 jd-transition-opacity">
             {/* Edit Button */}
             {shouldShowEditControls && onEditTemplate && (
               <TooltipProvider>
@@ -229,7 +229,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
           {showPinControls && onTogglePin && (
             <div
               className={`jd-ml-auto jd-items-center jd-gap-1 jd-flex ${
-                isPinned ? '' : 'jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity'
+                isPinned ? '' : 'jd-opacity-0 group-hover/template:jd-opacity-100 jd-transition-opacity'
               }`}
             >
               <PinButton
