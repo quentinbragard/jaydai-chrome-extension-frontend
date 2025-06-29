@@ -604,6 +604,22 @@
     "message": "Refresh",
     "description": "Refresh button text"
   },
+  "browseFoldersTitle": {
+    "message": "Browse Folders",
+    "description": "Title for browse folders dialog"
+  },
+  "searchFoldersPlaceholder": {
+    "message": "Search folders...",
+    "description": "Placeholder text for folder search"
+  },
+  "loadingFoldersGeneric": {
+    "message": "Loading folders...",
+    "description": "Loading state text for folders"
+  },
+  "noFoldersOrTemplatesFound": {
+    "message": "No folders or templates found",
+    "description": "Empty state when no folders or templates match"
+  },
   "noPinnedOfficialTemplates": {
     "message": "No pinned organization templates. Click Browse More to add some.",
     "description": "Empty state message for organization templates section"
