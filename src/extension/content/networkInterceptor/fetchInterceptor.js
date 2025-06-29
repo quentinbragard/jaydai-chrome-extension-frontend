@@ -48,13 +48,10 @@ export function initFetchInterceptor() {
       if (eventName === EVENTS.CHAT_COMPLETION) {
         // Dispatch chat completion event
         dispatchEvent(EVENTS.CHAT_COMPLETION, platform, { requestBody });
-
-        // Process streaming responses for user prompts
-        const isUserPrompt =
-          requestBody?.messages?.[0]?.author?.role === 'user' ||
-          requestBody?.messageInput;
-
-        if (isStreaming && isUserPrompt) {
+        
+        
+        // Process streaming responses
+        if (isStreaming && requestBody?.messages?.[0]?.author?.role === "user") {
           processStreamingResponse(response, requestBody);
         }
       } 
