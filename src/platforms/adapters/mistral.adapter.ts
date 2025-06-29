@@ -13,6 +13,7 @@ export class MistralAdapter extends BasePlatformAdapter {
 
   extractUserMessage(requestBody: any): Message | null {
     try {
+      console.log("MISTRAL EXTRACT USER MESSAGE 🎉🎉🎉🎉🎉", requestBody);
       let content = '';
       let messageId = requestBody.messageId || `user-${Date.now()}`;
       let conversationId = requestBody.chatId || '';
@@ -54,6 +55,7 @@ export class MistralAdapter extends BasePlatformAdapter {
   }
 
   extractAssistantMessage(data: any): Message | null {
+    console.log("MISTRAL EXTRACT ASSISTANT MESSAGE 🙌🙌🙌", data);
     try {
       return {
         messageId: data.messageId || `mistral-${Date.now()}`,

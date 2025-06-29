@@ -176,55 +176,48 @@ export async function processMistralStreamingResponse(response, requestBody) {
   try {
     while (true) {
       const { done, value } = await reader.read();
+      console.log("VALUE", value);
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
+      console.log("BUFFER", buffer);
 
       let index;
       while ((index = buffer.indexOf('\n')) !== -1) {
         const line = buffer.slice(0, index).trim();
+        console.log("LINE", line);
         buffer = buffer.slice(index + 1);
         if (!line) continue;
 
-        if (line.startsWith('data:')) {
-          const dataStr = line.slice(5).trim();
-
-          if (dataStr === '[DONE]') {
-            if (messageId && content) {
-              dispatchEvent(EVENTS.ASSISTANT_RESPONSE, 'mistral', {
-                messageId,
-                conversationId,
-                content,
-                role: 'assistant',
-                model: 'mistral',
-                isComplete: true
-              });
+        const colonIndex = line.indexOf(':');
+        if (colonIndex !== -1) {
+          let token = line.slice(colonIndex + 1).trim();
+          if (token.startsWith('"') && token.endsWith('"')) {
+            try {
+              token = JSON.parse(token);
+            } catch (_) {
+              token = token.slice(1, -1);
             }
-            continue;
           }
+          content += token;
+          console.log("CONTENT", content);
+        }
 
-          try {
-            const data = JSON.parse(dataStr);
-            if (data.messageId) messageId = data.messageId;
-            if (data.token) content += data.token;
-            if (data.content) content += data.content;
-          } catch (_) {
-            content += dataStr;
+        if (line.endsWith(':null')) {
+          console.log("LINE ENDS WITH :NULL");
+          console.log("MESSAGE ID", messageId);
+          console.log("CONTENT", content);
+          if (content) {
+            dispatchEvent(EVENTS.ASSISTANT_RESPONSE, 'mistral', {
+              messageId,
+              conversationId,
+              content,
+              role: 'assistant',
+              model: 'mistral',
+              isComplete: true
+            });
           }
-        } else {
-          // Handle lines prefixed with a numeric id (e.g., "0: \"token\"")
-          const colonIndex = line.indexOf(':');
-          if (colonIndex !== -1) {
-            let token = line.slice(colonIndex + 1).trim();
-            if (token.startsWith('"') && token.endsWith('"')) {
-              try {
-                token = JSON.parse(token);
-              } catch (_) {
-                token = token.slice(1, -1);
-              }
-            }
-            content += token;
-          }
+          continue;
         }
       }
     }

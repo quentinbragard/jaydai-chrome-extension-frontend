@@ -25,8 +25,7 @@ export const ENDPOINTS = {
     // already exists or not. The first user message is sent to
     // `/api/trpc/message.newChat` while subsequent messages are sent to `/chat`.
     // Use a regex so both endpoints are detected as chat completions.
-    CHAT_COMPLETION: /\/(api\/trpc\/message\.newChat|chat)/,
-    SPECIFIC_CONVERSATION: /\/chat/
+    CHAT_COMPLETION: /\/chat/,
   },
   'copilot': {
     USER_INFO: '/c/api/user',

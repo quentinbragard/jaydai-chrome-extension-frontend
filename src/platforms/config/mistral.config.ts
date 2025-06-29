@@ -7,7 +7,6 @@ export const mistralConfig: PlatformConfig = {
     USER_INFO: '/api/trpc/user.session',
     CONVERSATIONS_LIST: '/api/trpc/chat.list',
     CHAT_COMPLETION: /\/api\/chat/,
-    SPECIFIC_CONVERSATION:'/api/trpc/chat.list',
   },
   domSelectors: {
     PROMPT_TEXTAREA: 'textarea[name="message.text"]',

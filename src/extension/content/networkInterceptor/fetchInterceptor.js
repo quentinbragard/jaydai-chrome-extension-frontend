@@ -104,6 +104,8 @@ export function initFetchInterceptor() {
         // Detect streaming more reliably
         const isStreaming = isStreamingResponse(response, init, platform);
         console.log("IS STREAMING--------------->", isStreaming);
+        console.log("RESPONSE", response);
+        console.log("REQUEST BODY", requestBody);
         
         console.log(`🔍 [${platform}] Stream detection result: ${isStreaming}`);
         
