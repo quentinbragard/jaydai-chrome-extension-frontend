@@ -20,6 +20,7 @@ import { FolderItem } from '@/components/prompts/folders/FolderItem';
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { useFolderSearch } from '@/hooks/prompts/utils/useFolderSearch';
 import { Template, TemplateFolder } from '@/types/prompts/templates';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface BrowseTemplatesPanelProps {
   folderType: 'organization' | 'company';
@@ -68,6 +69,10 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
     filteredFolders,
     clearSearch
   } = useFolderSearch(folders);
+
+  useEffect(() => {
+    trackEvent(EVENTS.TEMPLATE_SEARCH, { query: searchQuery });
+  }, [searchQuery]);
   
   // Get folder mutations
   const { toggleFolderPin } = useFolderMutations();
