@@ -56,8 +56,9 @@ export function useTemplateMutations() {
           return response.data;
         },
         {
-          onSuccess: () => {
+          onSuccess: (_data, variables) => {
             invalidateTemplateQueries();
+            trackEvent(EVENTS.TEMPLATE_EDIT, { template_id: variables.id });
           },
           onError: (error: Error) => {
             console.error('Error creating template:', error);
@@ -101,8 +102,9 @@ export function useTemplateMutations() {
           return response.data;
         },
         {
-          onSuccess: () => {
+          onSuccess: (_data, variables) => {
             invalidateTemplateQueries();
+            trackEvent(EVENTS.TEMPLATE_EDIT, { template_id: variables.id });
           },
           onError: (error: Error) => {
             console.error('Error updating template:', error);
@@ -119,6 +121,7 @@ export function useTemplateMutations() {
             if (!response.success) {
               throw new Error(response.message || 'Failed to update template');
             }
+            trackEvent(EVENTS.TEMPLATE_EDIT, { template_id: id });
             return response.data;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -189,11 +192,15 @@ export function useTemplateMutations() {
           return response.data;
         },
         {
-          onSuccess: () => {
+          onSuccess: (_data, variables) => {
             if (queryClient) {
               queryClient.invalidateQueries(QUERY_KEYS.PINNED_TEMPLATES);
               queryClient.invalidateQueries(QUERY_KEYS.USER_METADATA);
             }
+            trackEvent(
+              variables.isPinned ? EVENTS.TEMPLATE_PINNED : EVENTS.TEMPLATE_UNPINNED,
+              { template_id: variables.templateId }
+            );
           },
           onError: (error: Error) => {
             console.error('Error toggling template pin status:', error);
@@ -209,6 +216,10 @@ export function useTemplateMutations() {
             if (!response.success) {
               throw new Error(response.message || 'Failed to update pin status');
             }
+            trackEvent(
+              isPinned ? EVENTS.TEMPLATE_PINNED : EVENTS.TEMPLATE_UNPINNED,
+              { template_id: templateId }
+            );
             return response.data;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
