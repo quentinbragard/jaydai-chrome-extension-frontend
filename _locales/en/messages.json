@@ -1782,6 +1782,14 @@
       }
     }
   },
+  "previousPage": {
+    "message": "Previous page",
+    "description": "Tooltip for pagination previous button"
+  },
+  "nextPage": {
+    "message": "Next page",
+    "description": "Tooltip for pagination next button"
+  },
+  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" },
   "dragToMove": { "message": "Drag to move", "description": "Tooltip for dragging the main button" },
-  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" }
 }
