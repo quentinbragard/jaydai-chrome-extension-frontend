@@ -8,6 +8,7 @@ import { eventManager } from '@/core/events/EventManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import Main from '@/components/Main';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 /**
  * Main application initializer
@@ -61,9 +62,10 @@ export class AppInitializer {
       if (!servicesInitialized) {
         throw new Error('Failed to initialize services');
       }
-      
+
       
       this.isInitialized = true;
+      trackEvent(EVENTS.CHAT_SESSION_STARTED);
       console.log('✅ Archimind application initialized successfully');
       return true;
     } catch (error) {
@@ -119,9 +121,11 @@ export class AppInitializer {
    */
   public cleanup(): void {
     if (!this.isInitialized) return;
-    
+
     console.log('🧹 Cleaning up Archimind application...');
-    
+
+    trackEvent(EVENTS.CHAT_SESSION_ENDED);
+
     // Remove UI components
     componentInjector.removeAll();
     

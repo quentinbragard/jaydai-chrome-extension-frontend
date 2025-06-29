@@ -113,6 +113,10 @@ export const EVENTS = {
   USAGE_STATISTICS_VIEWED: 'Usage Statistics Viewed',
   CONVERSATION_CAPTURED: 'Conversation Captured',
   CONVERSATION_ANALYZED: 'Conversation Analyzed',
+
+  // Chat session events
+  CHAT_SESSION_STARTED: 'Chat Session Started',
+  CHAT_SESSION_ENDED: 'Chat Session Ended',
 };
 
 /**
