@@ -160,6 +160,10 @@ export function processStreamData(data, assistantData, thinkingSteps) {
  * @returns {Promise<void>}
  */
 export async function processMistralStreamingResponse(response, requestBody) {
+  console.log("PROCESSING MISTRAL STREAMING RESPONSE");
+  console.log("RESPONSE", response);
+  console.log("REQUEST BODY", requestBody);
+  console.log("================================================");
   if (!response.body) return;
 
   const reader = response.clone().body.getReader();
