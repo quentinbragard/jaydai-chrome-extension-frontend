@@ -37,6 +37,16 @@ export class MistralAdapter extends BasePlatformAdapter {
         }
       }
 
+      // In "start" mode the request body contains the placeholder "start"
+      // instead of the actual user message. Retrieve the real text from the DOM
+      if (content === 'start') {
+        const firstSelected = document.querySelector('div.select-text span');
+        const domText = firstSelected?.textContent?.trim();
+        if (domText) {
+          content = domText;
+        }
+      }
+
       return {
         messageId,
         conversationId,
