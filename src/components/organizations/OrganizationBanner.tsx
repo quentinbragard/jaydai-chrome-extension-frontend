@@ -83,11 +83,11 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
-                'jd-flex jd-items-center jd-text-xs jd-font-medium hover:jd-underline',
+                'jd-flex jd-mb-2 jd-items-center jd-text-xs jd-font-medium hover:jd-underline',
                 organization.banner_url ? 'jd-text-white' : 'jd-text-blue-600 jd-dark:jd-text-blue-400'
               )}
             >
-              Visit website
+              {getMessage('visitWebsite', undefined, 'Visit website')}
               <ExternalLink className="jd-h-3 jd-w-3 jd-ml-1" />
             </a>
           )}

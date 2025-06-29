@@ -1899,5 +1899,6 @@
   "resetAllPlaceholders": { "message": "Réinitialiser tous les placeholders", "description": "Titre pour la réinitialisation de tous les placeholders" },
   "reset": { "message": "Réinitialiser", "description": "Bouton pour réinitialiser les placeholders" },
   "noPlaceholdersFound": { "message": "Aucun placeholder trouvé", "description": "Message lorsqu'aucun placeholder n'est trouvé" },
-  "editTemplateContent": { "message": "Modifier le contenu du template", "description": "Titre pour la section de modification du contenu du template" }
+  "editTemplateContent": { "message": "Modifier le contenu du template", "description": "Titre pour la section de modification du contenu du template" },
+  "visitWebsite": { "message": "Visiter le site web", "description": "Label pour le bouton de visite du site web" }
 }
