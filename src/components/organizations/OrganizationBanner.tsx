@@ -5,6 +5,7 @@ import { Building2 } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { OrganizationImage } from '@/components/organizations';
 import { Organization } from '@/types/organizations';
+import { getMessage } from '@/core/utils/i18n';
 
 interface OrganizationBannerProps {
   organization: Organization;
@@ -75,7 +76,7 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
               organization.banner_url ? 'jd-text-white/80' : 'jd-text-gray-600 jd-dark:jd-text-gray-300'
             )}
           >
-            Created by {organization.name}
+            {getMessage('createdBy', undefined, 'Created by')} {organization.name}
           </p>
         </div>
       </div>

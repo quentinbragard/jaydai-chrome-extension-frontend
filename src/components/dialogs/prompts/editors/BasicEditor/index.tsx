@@ -9,6 +9,7 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import TemplatePreview from '@/components/prompts/TemplatePreview';
+import { getMessage } from '@/core/utils/i18n';
 import {
   convertMetadataToVirtualBlocks,
   extractPlaceholdersFromBlocks
@@ -153,7 +154,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     return (
       <div className="jd-flex jd-items-center jd-justify-center jd-h-full">
         <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full" />
-        <span className="jd-ml-3 jd-text-gray-600">Loading template...</span>
+        <span className="jd-ml-3 jd-text-gray-600">{getMessage('loadingTemplate', undefined, 'Loading template...')}</span>
       </div>
     );
   }
@@ -165,12 +166,12 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         <div className="jd-flex-shrink-0">
           <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-mb-2">
             <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-            Edit Template Content
+            {getMessage('editTemplateContent', undefined, 'Edit Template Content')}
           </h3>
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Enter your template content here..."
+            placeholder={getMessage('enterTemplateContent', undefined, 'Enter your template content here...')}
             className="!jd-min-h-[40vh] jd-resize-none"
             onKeyDown={(e) => e.stopPropagation()}
             onKeyPress={(e) => e.stopPropagation()}
@@ -194,13 +195,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               {showPreview ? (
                 <>
                   <EyeOff className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-scale-110" />
-                  <span>Hide Preview</span>
+                  <span>{getMessage('hidePreview', undefined, 'Hide Preview')}</span>
                   <ChevronUp className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
                 </>
               ) : (
                 <>
                   <Eye className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-scale-110" />
-                  <span>Show Preview</span>
+                  <span>{getMessage('showPreview', undefined, 'Show Preview')}</span>
                   <ChevronDown className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
                 </>
               )}
@@ -271,10 +272,10 @@ const PlaceholderPanel: React.FC<{
     <div className="jd-h-full jd-space-y-4 jd-overflow-y-auto jd-p-4">
       <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
         <h3 className="jd-text-sm jd-font-medium">
-          Replace Placeholders
+          {getMessage('replacePlaceholders', undefined, 'Replace Placeholders')}
           {totalCount > 0 && (
             <span className="jd-ml-2 jd-text-xs jd-text-muted-foreground">
-              ({filledCount}/{totalCount} filled)
+              ({filledCount}/{totalCount} {getMessage('filled', undefined, 'filled')})
             </span>
           )}
         </h3>
@@ -285,9 +286,9 @@ const PlaceholderPanel: React.FC<{
             size="sm"
             onClick={onResetPlaceholders}
             className="jd-h-7 jd-px-2 jd-text-xs jd-text-muted-foreground hover:jd-text-foreground"
-            title="Reset all placeholders"
+            title={getMessage('resetAllPlaceholders', undefined, 'Reset all placeholders')}
           >
-            Reset
+            {getMessage('reset', undefined, 'Reset')}
           </Button>
         )}
       </div>
@@ -309,7 +310,7 @@ const PlaceholderPanel: React.FC<{
               <Input
                 value={placeholder.value}
                 onChange={(e) => onUpdatePlaceholder(idx, e.target.value)}
-                placeholder={`Enter value for ${placeholder.key}`}
+                placeholder={`${getMessage('enterValueFor', undefined, 'Enter value for')} ${placeholder.key}`}
                 className="jd-w-full"
                 onKeyDown={(e) => e.stopPropagation()}
                 onKeyPress={(e) => e.stopPropagation()}
@@ -320,7 +321,7 @@ const PlaceholderPanel: React.FC<{
         </div>
       ) : (
         <div className="jd-text-muted-foreground jd-text-center jd-py-8">
-          No placeholders found
+          {getMessage('noPlaceholdersFound', undefined, 'No placeholders found')}
         </div>
       )}
     </div>

@@ -1811,14 +1811,14 @@
   "explanationRole": { "message": "Rôle", "description": "Étiquette dans la vue de fin d'onboarding" },
   "explanationIndustry": { "message": "Secteur", "description": "Étiquette dans la vue de fin d'onboarding" },
   "explanationLevel": { "message": "Niveau", "description": "Étiquette dans la vue de fin d'onboarding" },
-  "explanationInterests": { "message": "Intérêts", "description": "Étiquette dans la vue de fin d'onboarding" }
-},
+  "explanationInterests": { "message": "Intérêts", "description": "Étiquette dans la vue de fin d'onboarding" },
+
 "openBlockBuilder": { "message": "Ouvrir l'outil de blocs", "description": "Info-bulle pour ouvrir l'éditeur de blocs" },
   "searchBlocksPlaceholder": { "message": "Rechercher des blocs...", "description": "Texte du champ de recherche de blocs" },
   "newBlock": { "message": "Nouveau", "description": "Bouton pour créer un nouveau bloc" },
   "loadingBlocks": { "message": "Chargement des blocs...", "description": "Texte affiché pendant le chargement des blocs" },
   "noBlocksAvailable": { "message": "Aucun bloc disponible", "description": "Message lorsqu'aucun bloc n'est disponible" },
-  "quickSelectorHints": { "message": "↑↓ Naviguer • ←→ Filtrer • Entrée Sélection", "description": "Instructions en bas du sélecteur rapide de blocs" }
+  "quickSelectorHints": { "message": "↑↓ Naviguer • ←→ Filtrer • Entrée Sélection", "description": "Instructions en bas du sélecteur rapide de blocs" },
   "createNewBlock": { "message": "Créer un bloc", "description": "Libellé pour la création d'un nouveau bloc" },
   "createNewSpecificBlock": {
     "message": "Créer un bloc $TYPE$",
@@ -1871,7 +1871,7 @@
     "message": "Créer personnalisé",
     "description": "Entrée de menu pour créer un bloc personnalisé"
   },
-"templatePreview.title": {
+  "templatePreviewTitle": {
     "message": "Aperçu du template",
     "description": "Titre par défaut pour l'aperçu du template"
   },
@@ -1891,6 +1891,13 @@
     "message": "Page suivante",
     "description": "Info-bulle pour le bouton de page suivante"
   },
-  "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" },
   "dragToMove": { "message": "Glissez pour déplacer", "description": "Infobulle pour déplacer le bouton principal" },
+  "startUsingAI": { "message": "Commencer à utiliser les outils IA", "description": "Titre pour la section des outils IA" },
+  "chooseYourTool": { "message": "Choisissez votre outil préféré", "description": "Description pour la section des outils IA" },
+  "createdBy": { "message": "Créé par", "description": "Étiquette pour le créateur d'un template" },
+  "filled": { "message": "remplis", "description": "Nombre de placeholders remplis" },
+  "resetAllPlaceholders": { "message": "Réinitialiser tous les placeholders", "description": "Titre pour la réinitialisation de tous les placeholders" },
+  "reset": { "message": "Réinitialiser", "description": "Bouton pour réinitialiser les placeholders" },
+  "noPlaceholdersFound": { "message": "Aucun placeholder trouvé", "description": "Message lorsqu'aucun placeholder n'est trouvé" },
+  "editTemplateContent": { "message": "Modifier le contenu du template", "description": "Titre pour la section de modification du contenu du template" }
 }

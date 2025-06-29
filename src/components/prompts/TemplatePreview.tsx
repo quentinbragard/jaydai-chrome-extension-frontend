@@ -20,7 +20,7 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   blockContentCache = {},
   isDarkMode,
   className,
-  title = getMessage('templatePreview.title', undefined, 'Template Preview')
+  title = getMessage('templatePreviewTitle', undefined, 'Template Preview')
 }) => {
   // Build the complete preview HTML
   const previewHtml = React.useMemo(() => {

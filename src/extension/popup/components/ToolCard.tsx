@@ -51,9 +51,6 @@ export const ToolCard: React.FC<ToolCardProps> = ({
             <div className="jd-font-semibold jd-text-foreground group-hover:jd-text-white jd-transition-colors jd-duration-300">
               {tool.name}
             </div>
-            <div className="jd-text-xs jd-text-muted-foreground jd-truncate jd-max-w-[160px] group-hover:jd-text-gray-300 jd-transition-colors jd-duration-300">
-              {tool.description}
-            </div>
           </div>
           
           {/* Right icon/status */}

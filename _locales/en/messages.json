@@ -1890,7 +1890,7 @@
     "message": "Create custom",
     "description": "Menu entry to create a custom block"
   },
-  "templatePreview.title": {
+  "templatePreviewTitle": {
     "message": "Template Preview",
     "description": "Default title for template preview section"
   },
@@ -1912,4 +1912,12 @@
   },
   "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" },
   "dragToMove": { "message": "Drag to move", "description": "Tooltip for dragging the main button" },
+  "startUsingAI": { "message": "Start Using AI Tools Now", "description": "Title for the AI tools section" },
+  "chooseYourTool": { "message": "Choose your preferred AI tool to get started", "description": "Description for the AI tools section" },
+  "createdBy": { "message": "Created by", "description": "Label for the creator of a template" },
+  "filled": { "message": "filled", "description": "Number of filled placeholders" },
+  "resetAllPlaceholders": { "message": "Reset all placeholders", "description": "Title for the reset all placeholders button" },
+  "reset": { "message": "Reset", "description": "Button for resetting placeholders" },
+  "noPlaceholdersFound": { "message": "No placeholders found", "description": "Message when no placeholders are found" },
+  "editTemplateContent": { "message": "Edit Template Content", "description": "Title for the edit template content section" },
 }
