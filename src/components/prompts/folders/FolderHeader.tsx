@@ -3,6 +3,7 @@ import { Folder } from "lucide-react";
 import { OrganizationImage } from '@/components/organizations';
 import { Organization } from '@/types/organizations';
 import { useOrganizationById } from '@/hooks/organizations';
+import { getMessage } from '@/core/utils/i18n';
 
 const folderIconColors = {
   user: 'jd-text-blue-500',
@@ -52,7 +53,10 @@ export function FolderHeader({
         
         {folder.templates?.length > 0 && (
           <span className="jd-text-xs jd-text-muted-foreground jd-mr-2">
-            {folder.templates.length} {folder.templates.length === 1 ? 'template' : 'templates'}
+            {folder.templates.length}{' '}
+            {folder.templates.length === 1
+              ? getMessage('template', undefined, 'template')
+              : getMessage('templates', undefined, 'templates')}
           </span>
         )}
         
