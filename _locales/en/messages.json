@@ -1922,6 +1922,6 @@
   "editTemplateContent": { "message": "Edit Template Content", "description": "Title for the edit template content section" },
   "visitWebsite": { "message": "Visit website", "description": "Label for the visit website button" },
   "charactersLabel": { "message": "characters", "description": "Label for character count" },
-  "linesLabel": { "message": "lines", "description": "Label for line count" }
-
+  "linesLabel": { "message": "lines", "description": "Label for line count" },
+  "completePreview": { "message": "Complete Preview", "description": "Title for the complete preview section" }
 }

@@ -1902,6 +1902,7 @@
   "editTemplateContent": { "message": "Modifier le contenu du template", "description": "Titre pour la section de modification du contenu du template" },
   "visitWebsite": { "message": "Visiter le site web", "description": "Label pour le bouton de visite du site web" },
   "charactersLabel": { "message": "caractères", "description": "Libellé pour le nombre de caractères" },
-  "linesLabel": { "message": "lignes", "description": "Libellé pour le nombre de lignes" }
+  "linesLabel": { "message": "lignes", "description": "Libellé pour le nombre de lignes" },
+  "completePreview": { "message": "Aperçu complet", "description": "Titre pour la section d'aperçu complet" }
 
 }
