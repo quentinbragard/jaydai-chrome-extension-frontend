@@ -8,6 +8,7 @@ export interface Organization {
     name: string;
     image_url?: string;
     banner_url?: string;
+    website_url?: string;
     description?: string;
     created_at?: string;
     updated_at?: string;
