@@ -484,6 +484,18 @@
     "message": "Create a new template to use with AI conversations.",
     "description": "Description for create template dialog"
   },
+  "editFolder": {
+    "message": "Edit Folder",
+    "description": "Title for edit folder dialog"
+  },
+  "editFolderDescription": {
+    "message": "Update folder information",
+    "description": "Description for edit folder dialog"
+  },
+  "parentFolder": {
+    "message": "Parent Folder",
+    "description": "Label for parent folder field"
+  },
   "enterTemplateName": {
     "message": "Enter template name",
     "description": "Placeholder for template name input"
