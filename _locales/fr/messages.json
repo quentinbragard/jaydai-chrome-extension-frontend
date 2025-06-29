@@ -709,6 +709,26 @@
       }
     }
   },
+  "used_time": {
+    "message": "Utilisé {{count}} fois",
+    "description": "Message indiquant combien de fois un template a été utilisé (singulier)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popular_used_times": {
+    "message": "Populaire \u2022 Utilisé {{count}} fois",
+    "description": "Indique qu'un template est populaire avec le nombre d'utilisations",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "last_used": {
     "message": "Dernière utilisation {{date}}",
     "description": "Message indiquant quand un template a été utilisé pour la dernière fois",
