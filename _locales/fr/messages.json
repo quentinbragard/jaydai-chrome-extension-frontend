@@ -1797,6 +1797,13 @@
       }
     }
   },
+  "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" },
+  "openBlockBuilder": { "message": "Ouvrir l'outil de blocs", "description": "Info-bulle pour ouvrir l'éditeur de blocs" },
+  "searchBlocksPlaceholder": { "message": "Rechercher des blocs...", "description": "Texte du champ de recherche de blocs" },
+  "newBlock": { "message": "Nouveau", "description": "Bouton pour créer un nouveau bloc" },
+  "loadingBlocks": { "message": "Chargement des blocs...", "description": "Texte affiché pendant le chargement des blocs" },
+  "noBlocksAvailable": { "message": "Aucun bloc disponible", "description": "Message lorsqu'aucun bloc n'est disponible" },
+  "quickSelectorHints": { "message": "↑↓ Naviguer • ←→ Filtrer • Entrée Sélection", "description": "Instructions en bas du sélecteur rapide de blocs" }
   "createNewBlock": { "message": "Créer un bloc", "description": "Libellé pour la création d'un nouveau bloc" },
   "createNewSpecificBlock": {
     "message": "Créer un bloc $TYPE$",
@@ -1872,5 +1879,3 @@
   "cannotRemoveLastBlock": { "message": "Impossible de supprimer le dernier bloc. Le modèle doit comporter au moins un bloc.", "description": "Avertissement lors de la suppression du dernier bloc" },
   "dragToMove": { "message": "Glissez pour déplacer", "description": "Infobulle pour déplacer le bouton principal" },
 }
-
-
