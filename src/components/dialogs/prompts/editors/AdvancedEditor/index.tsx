@@ -5,6 +5,7 @@ import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { MetadataSection } from './MetadataSection';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import TemplatePreview from '@/components/prompts/TemplatePreview';
+import { getMessage } from '@/core/utils/i18n';
 
 interface AdvancedEditorProps {
   mode?: 'create' | 'customize';
@@ -58,7 +59,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           <div className="jd-space-y-3">
             <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
               <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-              Complete Preview
+              {getMessage('completePreview', undefined, 'Complete Preview')}
             </h3>
             
             <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700">
