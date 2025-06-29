@@ -14,6 +14,7 @@ import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { Search, Maximize2, X, Plus } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
+import { getMessage } from '@/core/utils/i18n';
 import {
   getBlockTypeIcon,
   getBlockIconColors,
@@ -209,7 +210,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
             variant="ghost"
             onClick={openFullDialog}
             className="jd-h-7 jd-px-2 jd-text-xs"
-            title="Open block builder"
+            title={getMessage('openBlockBuilder', undefined, 'Open block builder')}
           >
             <Maximize2 className="jd-h-3 jd-w-3 jd-mr-1" />
             Builder
@@ -232,7 +233,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
             ref={searchInputRef}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search blocks..."
+            placeholder={getMessage('searchBlocksPlaceholder', undefined, 'Search blocks...')}
             className="jd-pl-8 jd-h-8 jd-text-sm"
           />
         </div>
@@ -262,7 +263,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
             className="jd-px-2 jd-py-1 jd-text-xs jd-rounded-md jd-transition-colors jd-flex jd-items-center jd-gap-1 jd-border jd-border-dashed jd-bg-muted hover:jd-bg-muted/80"
           >
             <Plus className="jd-h-3 jd-w-3" />
-            <span>New</span>
+            <span>{getMessage('newBlock', undefined, 'New')}</span>
           </button>
         </div>
       </div>
@@ -272,11 +273,11 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
         <ScrollArea className="jd-h-full">
           {loading ? (
             <div className="jd-py-8">
-              <LoadingSpinner size="sm" message="Loading blocks..." />
+              <LoadingSpinner size="sm" message={getMessage('loadingBlocks', undefined, 'Loading blocks...')} />
             </div>
           ) : filteredBlocks.length === 0 ? (
             <div className="jd-py-8 jd-text-center jd-text-sm jd-text-muted-foreground">
-              {search ? `No blocks found for "${search}"` : 'No blocks available'}
+              {search ? `No blocks found for "${search}"` : getMessage('noBlocksAvailable', undefined, 'No blocks available')}
             </div>
           ) : (
             <div className="jd-space-y-1 jd-pr-2">
@@ -297,7 +298,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
 
       {/* Footer hints */}
       <div className="jd-px-3 jd-py-2 jd-border-t jd-flex jd-items-center jd-justify-between jd-text-[10px] jd-text-muted-foreground jd-flex-shrink-0">
-        <span>↑↓ Navigate • ←→ Filter • Enter Select</span>
+        <span>{getMessage('quickSelectorHints', undefined, '↑↓ Navigate • ←→ Filter • Enter Select')}</span>
         <span>{filteredBlocks.length} blocks</span>
       </div>
     </div>,

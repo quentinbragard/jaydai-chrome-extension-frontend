@@ -4,6 +4,7 @@ import { Template, TemplateFolder } from '@/types/prompts/templates';
 import { Organization } from '@/types/organizations';
 import { FolderItem } from './FolderItem';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
+import { getMessage } from '@/core/utils/i18n';
 
 interface FolderListProps {
   folders: TemplateFolder[];
@@ -56,7 +57,8 @@ const FolderList: React.FC<FolderListProps> = ({
   if (validFolders.length === 0) {
     return (
       <EmptyMessage>
-        {emptyMessage || `No ${type} folders available.`}
+        {emptyMessage ||
+          getMessage('noFolders', [type], `No ${type} folders available.`)}
       </EmptyMessage>
     );
   }
