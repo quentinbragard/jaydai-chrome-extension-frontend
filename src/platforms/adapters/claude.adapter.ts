@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/platforms/adapters/claude.adapter.ts
 import { BasePlatformAdapter } from './base.adapter';
 import { claudeConfig } from '../config/claude.config';
@@ -411,7 +411,7 @@ export class ClaudeAdapter extends BasePlatformAdapter {
         return navigator.clipboard.writeText(normalizedContent)
           .then(() => {
             document.execCommand('paste');
-            debug('Content pasted via Clipboard API');
+            console.log('Content pasted via Clipboard API');
             return true;
           })
           .catch(err => {
@@ -445,7 +445,7 @@ export class ClaudeAdapter extends BasePlatformAdapter {
   async processStreamingResponse(response: Response, requestBody: any): Promise<void> {
     // As you mentioned, Claude doesn't need streaming processing
     // We'll get the conversation data after the response is complete
-    debug('Claude streaming not processed - conversation will be loaded separately');
+    console.log('Claude streaming not processed - conversation will be loaded separately');
     return Promise.resolve();
   }
 }

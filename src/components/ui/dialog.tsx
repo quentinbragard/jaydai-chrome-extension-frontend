@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 "use client"
 
 import * as React from "react"
@@ -15,7 +15,7 @@ const DialogTrigger = DialogPrimitive.Trigger
 // Custom DialogPortal that uses shadow DOM
 const DialogPortal = ({ children, ...props }: DialogPrimitive.DialogPortalProps) => {
   const shadowRoot = useShadowRoot();
-  debug('shadowRoot', shadowRoot);
+  console.log('shadowRoot', shadowRoot);
   
   // If we have access to the shadow root, use it as the portal container
   return (

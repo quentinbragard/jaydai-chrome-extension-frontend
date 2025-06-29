@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/components/dialogs/DialogProvider.tsx
 import React, { useEffect } from 'react';
 import { DialogManagerProvider } from './DialogContext';
@@ -21,7 +21,7 @@ import { BrowseMoreFoldersDialog } from './prompts/BrowseMoreFoldersDialog';
 export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   // Debug check to verify dialog manager initialization
   useEffect(() => {
-    debug('DialogProvider mounted, checking dialogManager availability');
+    console.log('DialogProvider mounted, checking dialogManager availability');
     
     // Attempt to initialize dialog manager if it doesn't exist
     if (!window.dialogManager) {
@@ -34,7 +34,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
           // Queue this operation for after initialization
           setTimeout(() => {
             if (window.dialogManager?.isInitialized) {
-              debug(`Executing queued dialog open for ${type}`);
+              console.log(`Executing queued dialog open for ${type}`);
               window.dialogManager.openDialog(type, data);
             } else {
               console.error(`Failed to open dialog ${type}: dialog manager still not initialized.`);
@@ -47,7 +47,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
         isInitialized: false
       };
     } else {
-      debug('window.dialogManager already available:', window.dialogManager);
+      console.log('window.dialogManager already available:', window.dialogManager);
     }
     
 

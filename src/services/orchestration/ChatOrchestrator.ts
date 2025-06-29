@@ -1,6 +1,6 @@
 // src/services/orchestration/ChatOrchestrator.ts
 import { AbstractBaseService } from '../BaseService';
-import { debug } from '@/core/config';
+
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { Message } from '@/types';
@@ -83,7 +83,7 @@ export class ChatOrchestrator extends AbstractBaseService {
   }
   
   protected async onInitialize(): Promise<void> {
-    debug('Initializing ChatOrchestrator');
+    console.log('Initializing ChatOrchestrator');
     
     // Listen for network intercept events
     document.addEventListener('jaydai:message-extracted', this.handleMessageExtracted);
@@ -93,7 +93,7 @@ export class ChatOrchestrator extends AbstractBaseService {
   protected onCleanup(): void {
     document.removeEventListener('jaydai:message-extracted', this.handleMessageExtracted);
     document.removeEventListener('jaydai:conversation-changed', this.handleConversationChanged);
-    debug('ChatOrchestrator cleaned up');
+    console.log('ChatOrchestrator cleaned up');
   }
   
   /**

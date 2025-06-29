@@ -1,6 +1,6 @@
 // src/services/network/ChatService.ts
 import { AbstractBaseService } from '../BaseService';
-import { debug } from '@/core/config';
+
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { emitEvent, AppEvent } from '@/core/events/events';
@@ -31,11 +31,11 @@ export class ChatService extends AbstractBaseService {
   }
 
   protected async onInitialize(): Promise<void> {
-    debug('Initializing ChatService');
+    console.log('Initializing ChatService');
     
     // Detect current platform
     this.currentPlatform = detectPlatform();
-    debug(`Detected platform: ${this.currentPlatform}`);
+    console.log(`Detected platform: ${this.currentPlatform}`);
     
     // Listen for URL changes to detect conversation ID
     window.addEventListener('popstate', this.checkUrlForConversationId);
@@ -68,7 +68,7 @@ export class ChatService extends AbstractBaseService {
     document.removeEventListener('jaydai:chat-completion', handleChatCompletion);
     document.removeEventListener('jaydai:assistant-response', handleAssistantResponse);
     
-    debug('ChatService cleaned up');
+    console.log('ChatService cleaned up');
   }
   
   private observeUrlChanges(): void {
@@ -88,7 +88,7 @@ export class ChatService extends AbstractBaseService {
         subtree: true
       });
     } catch (error) {
-      debug('Error setting up URL observer:', error);
+      console.log('Error setting up URL observer:', error);
     }
   }
 
@@ -102,7 +102,7 @@ export class ChatService extends AbstractBaseService {
       const config = getConfigByName(platformName);
       
       if (!config) {
-        debug(`No configuration found for platform: ${platformName}`);
+        console.log(`No configuration found for platform: ${platformName}`);
         return;
       }
       
@@ -132,7 +132,7 @@ export class ChatService extends AbstractBaseService {
       
       // Update conversation ID if we found one and it's different
       if (foundConversationId && foundConversationId !== this.currentConversationId) {
-        debug(`Detected conversation ID from URL: ${foundConversationId} (platform: ${platformName})`);
+        console.log(`Detected conversation ID from URL: ${foundConversationId} (platform: ${platformName})`);
         this.setCurrentConversationId(foundConversationId);
       }
     } catch (error) {
@@ -173,7 +173,7 @@ export class ChatService extends AbstractBaseService {
   public setConversationIdFromResponse(conversationId: string): void {
     if (!conversationId || conversationId === '') return;
     
-    debug(`Setting conversation ID from API response: ${conversationId}`);
+    console.log(`Setting conversation ID from API response: ${conversationId}`);
     this.setCurrentConversationId(conversationId);
   }
 }

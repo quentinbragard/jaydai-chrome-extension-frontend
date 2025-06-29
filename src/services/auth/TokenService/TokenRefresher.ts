@@ -1,5 +1,5 @@
 // src/services/auth/TokenRefresher.ts
-import { debug } from '@/core/config';
+
 import { TokenStorage } from './TokenStorage';
 
 /**
@@ -15,7 +15,7 @@ export class TokenRefresher {
   static async refreshToken(): Promise<boolean> {
     return new Promise((resolve) => {
       chrome.runtime.sendMessage({ action: "refreshAuthToken" }, (response) => {
-        debug('Token refresh response:', response.success ? 'success' : 'failed');
+        console.log('Token refresh response:', response.success ? 'success' : 'failed');
         
         if (response.success) {
           resolve(true);
@@ -39,7 +39,7 @@ export class TokenRefresher {
     // Get token expiration time
     TokenStorage.getTokenInfo().then((result) => {
       if (!result.token_expires_at) {
-        debug('No token expiration time found');
+        console.log('No token expiration time found');
         return;
       }
       
@@ -49,19 +49,19 @@ export class TokenRefresher {
       // Calculate refresh time (5 minutes before expiration)
       const refreshTime = expiresAt - now - (5 * 60 * 1000);
       
-      debug(`Token expires in ${Math.floor((expiresAt - now) / 1000 / 60)} minutes`);
+      console.log(`Token expires in ${Math.floor((expiresAt - now) / 1000 / 60)} minutes`);
       
       if (refreshTime <= 0) {
         // Token already expired or about to expire, refresh now
-        debug('Token expired or expiring soon, refreshing now');
+        console.log('Token expired or expiring soon, refreshing now');
         onRefresh();
         return;
       }
       
       // Set timer to refresh token
-      debug(`Scheduling token refresh in ${Math.floor(refreshTime / 1000 / 60)} minutes`);
+      console.log(`Scheduling token refresh in ${Math.floor(refreshTime / 1000 / 60)} minutes`);
       TokenRefresher.refreshTimer = window.setTimeout(() => {
-        debug('Auto-refreshing token');
+        console.log('Auto-refreshing token');
         onRefresh();
       }, refreshTime);
     });

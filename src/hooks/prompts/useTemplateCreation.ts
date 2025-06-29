@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/hooks/templates/useTemplateCreation.ts
 import { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
@@ -45,7 +45,7 @@ export function useTemplateCreation() {
         ...(data.metadata ? { metadata: data.metadata } : {})
       };
 
-      debug("TEMPLATE DATA", templateData);
+      console.log("TEMPLATE DATA", templateData);
       
       const response = await promptApi.createTemplate(templateData);
       if (!response.success) {
@@ -130,7 +130,7 @@ export function useTemplateCreation() {
     templateId?: number
   ): Promise<boolean> => {
 
-    debug("DATAAAAAAA", data);
+    console.log("DATAAAAAAA", data);
     // Validate the form data first
     if (!validateTemplateForm(data)) {
       return false;

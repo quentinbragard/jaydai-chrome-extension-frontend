@@ -1,4 +1,3 @@
-import { debug } from '@/core/config';
 // src/extension/content/networkInterceptor/fetchInterceptor.js
 // Core fetch override functionality
 

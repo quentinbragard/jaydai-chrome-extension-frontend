@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 import { messageApi, SaveChatParams } from '@/services/api/MessageApi'
 
 /**
@@ -17,7 +17,7 @@ function mapConversationsToChatParams(conversations: any[]): SaveChatParams[] {
 }
 
 export function handleClaudeConversationList(conversationItems: any[]): Promise<void> {
-    debug('=========================handleClaudeConversationList', conversationItems);
+    console.log('=========================handleClaudeConversationList', conversationItems);
     if (conversationItems && Array.isArray(conversationItems)) {
         const processedChats = mapConversationsToChatParams(conversationItems);
         return messageApi.saveChatBatch(processedChats);

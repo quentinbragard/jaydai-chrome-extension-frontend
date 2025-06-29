@@ -1,6 +1,6 @@
 // src/core/managers/ServiceManager.ts
 import { BaseService } from '@/services/BaseService';
-import { debug } from '@/core/config';
+
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 
@@ -23,7 +23,7 @@ export class ServiceManager {
    */
   public registerService(name: string, service: BaseService, dependencies: string[] = []): void {
     if (this.services.has(name)) {
-      debug(`Service '${name}' is already registered. Overwriting.`);
+      console.log(`Service '${name}' is already registered. Overwriting.`);
     }
     this.services.set(name, service);
     this.dependencies.set(name, dependencies);
@@ -62,7 +62,7 @@ export class ServiceManager {
    */
   public async initializeAll(): Promise<boolean> {
     if (this.isInitializing) {
-      debug('Services are already being initialized');
+      console.log('Services are already being initialized');
       return false;
     }
     
@@ -72,14 +72,14 @@ export class ServiceManager {
       // Sort services by dependency order
       const initOrder = this.getInitializationOrder();
       
-      debug('Initializing services in order:', initOrder);
+      console.log('Initializing services in order:', initOrder);
       
       // Initialize services in order
       for (const serviceName of initOrder) {
         await this.initializeService(serviceName);
       }
       
-      debug('All services initialized successfully');
+      console.log('All services initialized successfully');
       this.isInitializing = false;
       return true;
     } catch (error) {
@@ -103,7 +103,7 @@ export class ServiceManager {
     const service = this.services.get(serviceName);
     
     if (!service) {
-      debug(`Service '${serviceName}' not found, skipping initialization`);
+      console.log(`Service '${serviceName}' not found, skipping initialization`);
       return;
     }
     
@@ -113,13 +113,13 @@ export class ServiceManager {
       await this.initializeService(dependency);
     }
     
-    debug(`Initializing service: ${serviceName}`);
+    console.log(`Initializing service: ${serviceName}`);
     try {
       await service.initialize();
       this.initialized.add(serviceName);
-      debug(`Service initialized: ${serviceName}`);
+      console.log(`Service initialized: ${serviceName}`);
     } catch (error) {
-      debug(`Error initializing service '${serviceName}':`, error);
+      console.log(`Error initializing service '${serviceName}':`, error);
       throw new AppError(
         `Failed to initialize service '${serviceName}'`,
         ErrorCode.EXTENSION_ERROR,
@@ -132,7 +132,7 @@ export class ServiceManager {
    * Clean up all services in reverse initialization order
    */
   public cleanupAll(): void {
-    debug('Cleaning up all services');
+    console.log('Cleaning up all services');
     
     // Get initialization order and reverse it for cleanup
     const cleanupOrder = [...this.getInitializationOrder()].reverse();
@@ -142,7 +142,7 @@ export class ServiceManager {
     }
     
     this.initialized.clear();
-    debug('All services cleaned up');
+    console.log('All services cleaned up');
   }
   
   /**
@@ -160,7 +160,7 @@ export class ServiceManager {
       return;
     }
     
-    debug(`Cleaning up service: ${serviceName}`);
+    console.log(`Cleaning up service: ${serviceName}`);
     try {
       service.cleanup();
       this.initialized.delete(serviceName);
@@ -190,7 +190,7 @@ export class ServiceManager {
       
       // Skip if service doesn't exist
       if (!this.services.has(name)) {
-        debug(`Dependency '${name}' not found in registered services, skipping`);
+        console.log(`Dependency '${name}' not found in registered services, skipping`);
         return;
       }
       

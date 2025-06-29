@@ -1,5 +1,5 @@
 import { AbstractBaseService } from '../BaseService';
-import { debug } from '@/core/config';
+
 import { Message } from '@/types';
 import { chatService } from './ChatService';
 import { detectPlatform } from '@/platforms/platformManager';
@@ -11,11 +11,11 @@ export class CopilotDomService extends AbstractBaseService {
 
   protected async onInitialize(): Promise<void> {
     if (detectPlatform() !== 'copilot') {
-      debug('CopilotDomService: not on Copilot site');
+      console.log('CopilotDomService: not on Copilot site');
       return;
     }
 
-    debug('Initializing CopilotDomService');
+    console.log('Initializing CopilotDomService');
     this.scanExistingMessages();
     this.observer = new MutationObserver(this.handleMutations);
     this.observer.observe(document.body, { childList: true, subtree: true });
@@ -29,7 +29,7 @@ export class CopilotDomService extends AbstractBaseService {
     this.messageObservers.forEach(obs => obs.disconnect());
     this.messageObservers.clear();
     this.processed.clear();
-    debug('CopilotDomService cleaned up');
+    console.log('CopilotDomService cleaned up');
   }
 
   private handleMutations = (mutations: MutationRecord[]): void => {

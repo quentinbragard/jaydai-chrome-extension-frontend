@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 import React, { useState, useEffect } from 'react';
 import { BarChart2, Zap, MessageCircle, Award, Activity, ExternalLink, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -75,7 +75,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
       
       // Subscribe to updates
       const unsubscribe = statsService.onUpdate((newStats) => {
-        debug('Stats updated:', newStats);
+        console.log('Stats updated:', newStats);
         setStats(newStats);
       });
       

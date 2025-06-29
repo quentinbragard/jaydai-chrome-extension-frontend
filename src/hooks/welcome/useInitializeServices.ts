@@ -1,7 +1,7 @@
 // src/extension/welcome/hooks/useInitializeServices.ts
 import { useState, useEffect } from 'react';
 import { serviceManager } from '@/core/managers/ServiceManager';
-import { debug } from '@/core/config';
+
 import { registerServices } from '@/services';
 
 // Flag to ensure we only initialize services once
@@ -15,40 +15,40 @@ export function useInitializeServices() {
   useEffect(() => {
     const initServices = async () => {
       if (servicesInitialized) {
-        debug('Services already initialized, skipping');
+        console.log('Services already initialized, skipping');
         setIsInitialized(true);
         setIsLoading(false);
         return true;
       }
       
-      debug('Starting service initialization...');
+      console.log('Starting service initialization...');
       try {
         // Register services if needed
         if (!serviceManager.hasService('api.client')) {
-          debug('Registering services...');
+          console.log('Registering services...');
           registerServices();
         }
         
         // Initialize services in the correct order
-        debug('Initializing API client first...');
+        console.log('Initializing API client first...');
         const apiClient = serviceManager.getService('api.client');
         if (apiClient && !apiClient.isInitialized()) {
           await apiClient.initialize();
         }
         
-        debug('Initializing Token service...');
+        console.log('Initializing Token service...');
         const tokenService = serviceManager.getService('auth.token');
         if (tokenService && !tokenService.isInitialized()) {
           await tokenService.initialize();
         }
         
-        debug('Initializing Auth service...');
+        console.log('Initializing Auth service...');
         const authService = serviceManager.getService('auth.state');
         if (authService && !authService.isInitialized()) {
           await authService.initialize();
         }
         
-        debug('All critical services initialized');
+        console.log('All critical services initialized');
         servicesInitialized = true;
         setIsInitialized(true);
         setIsLoading(false);

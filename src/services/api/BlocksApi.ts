@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/services/api/BlocksApi.ts - Enhanced Version
 import { apiClient } from './ApiClient';
 import { Block, BlockType } from '@/types/prompts/blocks';
@@ -91,7 +91,7 @@ class BlocksApiClient {
    */
   async createBlock(data: CreateBlockData): Promise<ApiResponse<Block>> {
     try {
-      debug('Creating new block:', data);
+      console.log('Creating new block:', data);
       
       // Validate required fields
       if (!data.title || !data.content || !data.type) {
@@ -117,7 +117,7 @@ class BlocksApiClient {
       });
 
       if (response.success) {
-        debug('Block created successfully:', response.data);
+        console.log('Block created successfully:', response.data);
       }
 
       return response;
@@ -135,7 +135,7 @@ class BlocksApiClient {
    */
   async updateBlock(id: number, data: UpdateBlockData): Promise<ApiResponse<Block>> {
     try {
-      debug(`Updating block ${id}:`, data);
+      console.log(`Updating block ${id}:`, data);
       
       const requestBody = {
         title: data.title,             
@@ -151,7 +151,7 @@ class BlocksApiClient {
       });
   
       if (response.success) {
-        debug('Block updated successfully:', response.data);
+        console.log('Block updated successfully:', response.data);
       }
   
       return response;
@@ -169,14 +169,14 @@ class BlocksApiClient {
    */
   async deleteBlock(id: number): Promise<ApiResponse<void>> {
     try {
-      debug(`Deleting block ${id}`);
+      console.log(`Deleting block ${id}`);
       
       const response = await apiClient.request(`/prompts/blocks/${id}`, {
         method: 'DELETE'
       });
 
       if (response.success) {
-        debug('Block deleted successfully');
+        console.log('Block deleted successfully');
       }
 
       return response;
@@ -234,7 +234,7 @@ class BlocksApiClient {
    */
   async createBlocks(blocksData: CreateBlockData[]): Promise<ApiResponse<Block[]>> {
     try {
-      debug('Creating multiple blocks:', blocksData.length);
+      console.log('Creating multiple blocks:', blocksData.length);
       
       const results = await Promise.all(
         blocksData.map(data => this.createBlock(data))

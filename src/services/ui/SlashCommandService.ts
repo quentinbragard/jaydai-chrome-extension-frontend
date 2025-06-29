@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 import { AbstractBaseService } from '../BaseService';
 import { getConfigByHostname } from '@/platforms/config';
 import { QuickSelectorManager } from './QuickSelectorManager';
@@ -33,7 +33,7 @@ export class SlashCommandService extends AbstractBaseService {
    * Useful after DOM changes or insertions
    */
   public refreshListener(): void {
-    debug('Manually refreshing slash command listener...');
+    console.log('Manually refreshing slash command listener...');
     this.attachListener();
   }
 
@@ -139,7 +139,7 @@ export class SlashCommandService extends AbstractBaseService {
     // Check for //j pattern (with optional space)
     const triggerRegex = /\/\/j\s?$/i;
     if (triggerRegex.test(value)) {
-      debug('Slash command detected:', { value: value.substring(Math.max(0, value.length - 20)), originalCursorPos });
+      console.log('Slash command detected:', { value: value.substring(Math.max(0, value.length - 20)), originalCursorPos });
 
       // Set flag to prevent double execution
       this.isInserting = true;
@@ -151,7 +151,7 @@ export class SlashCommandService extends AbstractBaseService {
       // Ensure cursor position never goes negative
       const newCursorPos = Math.max(0, originalCursorPos - triggerLength);
       
-      debug('Cursor calculation:', { 
+      console.log('Cursor calculation:', { 
         originalCursorPos, 
         triggerLength, 
         newCursorPos,
@@ -172,7 +172,7 @@ export class SlashCommandService extends AbstractBaseService {
             ? Math.min(newCursorPos, target.value.length)
             : Math.min(newCursorPos, (target.textContent || '').length);
 
-          debug('Showing quick selector at position:', { position, safeCursorPos });
+          console.log('Showing quick selector at position:', { position, safeCursorPos });
           this.quickSelector.open(position, target, safeCursorPos, triggerLength);
         } catch (error) {
           console.error('Error showing quick selector:', error);

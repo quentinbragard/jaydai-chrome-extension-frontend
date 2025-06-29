@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 import { apiClient } from "../../ApiClient";
 
 /**
@@ -10,7 +10,7 @@ export async function getUserFolders(): Promise<any> {
         method: 'GET'
       });
       
-      debug('User folders response:', response);
+      console.log('User folders response:', response);
       return response;
     } catch (error) {
       console.error('Error fetching user folders:', error);

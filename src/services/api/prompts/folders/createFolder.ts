@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 /**
 * Create a new folder
 */
@@ -24,7 +24,7 @@ export async function createFolder(folderData: {
       ...(folderData.description ? { description: folderData.description } : {}),
       parent_folder_id: folderData.parent_folder_id ?? null,
     };
-  debug("payload--->", payload);
+  console.log("payload--->", payload);
     const response = await apiClient.request('/prompts/folders', {
       method: 'POST',
       body: JSON.stringify(payload),

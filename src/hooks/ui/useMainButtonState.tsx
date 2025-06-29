@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/hooks/ui/useMainButtonState.ts
 
 import { useState, useRef, useEffect } from 'react';
@@ -13,17 +13,17 @@ export const useMainButtonState = () => {
 
   // Combined event handling for improved coordination
   useEffect(() => {
-    debug('🔁 useMainButtonState mounted');
+    console.log('🔁 useMainButtonState mounted');
     // Handle notification count changes
     const handleNotificationCountChanged = (event: CustomEvent) => {
       const { unreadCount } = event.detail;
-      debug("unreadCount 👀👀👀👀", unreadCount);
+      console.log("unreadCount 👀👀👀👀", unreadCount);
       setNotificationCount(unreadCount);
     };
 
     // Handle specific request to open notifications panel
     const handleOpenNotifications = () => {
-      debug('Opening notifications panel');
+      console.log('Opening notifications panel');
       // Important: Set panel type first, then open
       setIsOpen(true);
     };
@@ -32,7 +32,7 @@ export const useMainButtonState = () => {
     const handleTogglePanel = (event: CustomEvent) => {
       const { panel } = event.detail;
       if (panel) {
-        debug(`Toggle panel requested: ${panel}`);
+        console.log(`Toggle panel requested: ${panel}`);
         // Set the requested panel type
         setPanelType(panel as PanelType);
         // Only open if not already open
@@ -44,7 +44,7 @@ export const useMainButtonState = () => {
 
     // Handle close all panels event - NEW!
     const handleCloseAllPanels = () => {
-      debug('Closing all panels');
+      console.log('Closing all panels');
       setIsOpen(false);
     };
 

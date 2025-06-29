@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/utils/prompts/promptUtils.ts - Enhanced version
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { 
@@ -51,7 +51,7 @@ function getHighlightClass(type: BlockType | MetadataType | null): string {
 
 // Enhanced metadata formatting for single types
 export function formatMetadataForPrompt(type: SingleMetadataType, value: string): string {
-  debug('FORMAT METADATA FOR PROMPT', type, value);
+  console.log('FORMAT METADATA FOR PROMPT', type, value);
   const prefix = PREFIXES[type];
   const content = value.trim();
   return prefix ? `${prefix} ${content}` : content;

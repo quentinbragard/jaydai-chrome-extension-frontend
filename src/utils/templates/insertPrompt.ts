@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/utils/templates/insertPrompt.ts
 import { getAdapterByHostname } from '@/platforms/adapters';
 
@@ -12,7 +12,7 @@ export function insertContentIntoChat(content: string): boolean {
   const adapter = getAdapterByHostname(hostname);
   
   if (adapter) {
-    debug(`Inserting content using ${adapter.name} adapter`);
+    console.log(`Inserting content using ${adapter.name} adapter`);
     return adapter.insertPrompt(formatContentForInsertion(content));
   }
   

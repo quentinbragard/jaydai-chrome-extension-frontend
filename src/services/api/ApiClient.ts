@@ -4,7 +4,7 @@ import { serviceManager } from '@/core/managers/ServiceManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { ENV } from '@/core/env';
-import { debug } from '@/core/config';
+
 import { getCurrentLanguage } from '@/core/utils/i18n';
 
 
@@ -38,7 +38,7 @@ export class ApiClient extends AbstractBaseService {
     this.baseUrl = baseUrl || ENV.API_URL;
     
     // Log the API URL when instantiated (helps with debugging)
-    debug(`🔌 API Client initialized with base URL: ${this.baseUrl}`);
+    console.log(`🔌 API Client initialized with base URL: ${this.baseUrl}`);
   }
   
   /**
@@ -49,7 +49,7 @@ export class ApiClient extends AbstractBaseService {
       ApiClient.instance = new ApiClient(baseUrl);
     } else if (baseUrl && baseUrl !== ApiClient.instance.baseUrl) {
       // If a new baseUrl is provided and it's different from the current one, update it
-      debug(`🔄 Updating API base URL from ${ApiClient.instance.baseUrl} to ${baseUrl}`);
+      console.log(`🔄 Updating API base URL from ${ApiClient.instance.baseUrl} to ${baseUrl}`);
       ApiClient.instance.setBaseUrl(baseUrl);
     }
     return ApiClient.instance;
@@ -59,12 +59,12 @@ export class ApiClient extends AbstractBaseService {
    * Initialize the API client
    */
   protected async onInitialize(): Promise<void> {
-    debug('Initializing API client...');
+    console.log('Initializing API client...');
     // Check if we're in production or development
     if (ENV.NODE_ENV === 'production') {
-      debug(`Production mode: Using API URL ${this.baseUrl}`);
+      console.log(`Production mode: Using API URL ${this.baseUrl}`);
     } else {
-      debug(`Development mode: Using API URL ${this.baseUrl}`);
+      console.log(`Development mode: Using API URL ${this.baseUrl}`);
     }
   }
   
@@ -73,7 +73,7 @@ export class ApiClient extends AbstractBaseService {
    */
   protected onCleanup(): void {
     this.pendingRequests.clear();
-    debug('API client cleaned up');
+    console.log('API client cleaned up');
   }
   
   /**
@@ -115,7 +115,7 @@ export class ApiClient extends AbstractBaseService {
       let token: string | null = null;
       
       if (!authService) {
-        debug('Auth service not available');
+        console.log('Auth service not available');
         if (endpoint.startsWith('/public/') || options.allowAnonymous) {
           token = null;
         } else {
@@ -129,7 +129,7 @@ export class ApiClient extends AbstractBaseService {
             if (authTokenResponse.success) {
               token = authTokenResponse.token;
             } else {
-              debug('Failed to get auth token:', authTokenResponse.error);
+              console.log('Failed to get auth token:', authTokenResponse.error);
               if (endpoint.startsWith('/public/') || options.allowAnonymous) {
                 token = null;
               } else {
@@ -144,7 +144,7 @@ export class ApiClient extends AbstractBaseService {
               if (authTokenResponse.success) {
                 token = authTokenResponse.token;
               } else {
-                debug('Failed to get auth token with legacy service');
+                console.log('Failed to get auth token with legacy service');
                 if (endpoint.startsWith('/public/') || options.allowAnonymous) {
                   token = null;
                 } else {
@@ -187,7 +187,7 @@ export class ApiClient extends AbstractBaseService {
         }
       };
       
-      debug(`Requesting ${options.method || 'GET'} ${endpoint}`);
+      console.log(`Requesting ${options.method || 'GET'} ${endpoint}`);
       
       // Make sure endpoint starts with a slash
       const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
@@ -251,7 +251,7 @@ export class ApiClient extends AbstractBaseService {
             }
           } catch (refreshError) {
             const error = refreshError instanceof Error ? refreshError.message : 'Authentication failed after token refresh attempt';
-            debug('Token refresh failed:', error);
+            console.log('Token refresh failed:', error);
             throw new Error(error);
           }
         } else {
@@ -270,7 +270,7 @@ export class ApiClient extends AbstractBaseService {
         }
         
         const errorMessage = errorData?.detail || `API error: ${response.status}`;
-        debug(`API error: ${errorMessage}`);
+        console.log(`API error: ${errorMessage}`);
         
         throw new Error(errorMessage);
       }
@@ -280,7 +280,7 @@ export class ApiClient extends AbstractBaseService {
         const data = await response.json();
         return data as T;
       } catch (jsonError) {
-        debug('Response was not JSON, returning success object');
+        console.log('Response was not JSON, returning success object');
         return { success: true, message: 'Request successful but response was not JSON' } as unknown as T;
       }
     } catch (error) {
@@ -292,7 +292,7 @@ export class ApiClient extends AbstractBaseService {
         (!options.method || options.method === 'GET')
       ) {
         const delay = 1000 * (retryCount + 1);
-        debug(`Network error, retrying in ${delay}ms (attempt ${retryCount + 1})`);
+        console.log(`Network error, retrying in ${delay}ms (attempt ${retryCount + 1})`);
         await new Promise(resolve => setTimeout(resolve, delay));
         return this._executeRequest<T>(endpoint, options, retryCount + 1);
       }
@@ -311,7 +311,7 @@ export class ApiClient extends AbstractBaseService {
    */
   public setBaseUrl(url: string): void {
     this.baseUrl = url;
-    debug(`API base URL set to: ${url}`);
+    console.log(`API base URL set to: ${url}`);
   }
   
   /**

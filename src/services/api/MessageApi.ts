@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/api/MessageApi.ts - Updated interface
 import { apiClient } from './ApiClient';
 
@@ -23,7 +23,7 @@ export class MessageApi {
    * Save a batch of messages in one operation
    */
   async saveMessageBatch(messages: SaveMessageParams[]): Promise<any> {
-    debug('saveMessageBatch', messages);
+    console.log('saveMessageBatch', messages);
     return apiClient.request('/save/batch/message', {
       method: 'POST',
       body: JSON.stringify({

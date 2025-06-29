@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/utils/templates/platformSpecificInsertion.ts
 // Platform-specific text insertion helpers
 
@@ -23,7 +23,7 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
   function insertTextClaude(targetElement: HTMLElement, text: string, cursorPos?: number): boolean {
     if (!targetElement.isContentEditable) return false;
   
-    debug('Attempting Claude-specific insertion');
+    console.log('Attempting Claude-specific insertion');
     
     // Claude uses a complex contenteditable structure
     // Try to insert using document.execCommand first
@@ -67,12 +67,12 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
       if (document.execCommand) {
         const success = document.execCommand('insertText', false, text);
         if (success) {
-          debug('Claude insertion successful via execCommand');
+          console.log('Claude insertion successful via execCommand');
           return true;
         }
       }
     } catch (e) {
-      debug('execCommand failed, trying manual insertion');
+      console.log('execCommand failed, trying manual insertion');
     }
   
     // Fallback to manual insertion
@@ -90,7 +90,7 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
       selection.addRange(range);
       
       targetElement.dispatchEvent(new Event('input', { bubbles: true }));
-      debug('Claude insertion successful via manual method');
+      console.log('Claude insertion successful via manual method');
       return true;
     }
   
@@ -103,7 +103,7 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
   function insertTextChatGPT(targetElement: HTMLElement, text: string, cursorPos?: number): boolean {
     if (!(targetElement instanceof HTMLTextAreaElement)) return false;
   
-    debug('Attempting ChatGPT-specific insertion');
+    console.log('Attempting ChatGPT-specific insertion');
     
     const start = cursorPos !== undefined ? cursorPos : (targetElement.selectionStart || 0);
     const end = cursorPos !== undefined ? cursorPos : (targetElement.selectionEnd || 0);
@@ -121,7 +121,7 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
     targetElement.dispatchEvent(new Event('change', { bubbles: true }));
     targetElement.focus();
     
-    debug('ChatGPT insertion successful');
+    console.log('ChatGPT insertion successful');
     return true;
   }
   
@@ -133,7 +133,7 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
     text: string, 
     savedCursorPos?: number
   ): boolean {
-    debug('Platform-aware insertion:', { 
+    console.log('Platform-aware insertion:', { 
       platform: getPlatformInsertionStrategy(),
       element: targetElement.tagName,
       text: text.substring(0, 50) + '...'
@@ -164,7 +164,7 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
    * Generic text insertion for any platform
    */
   function insertTextGeneric(targetElement: HTMLElement, text: string, savedCursorPos?: number): boolean {
-    debug('Attempting generic insertion');
+    console.log('Attempting generic insertion');
     
     // Handle textarea elements
     if (targetElement instanceof HTMLTextAreaElement) {
@@ -181,7 +181,7 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
       targetElement.dispatchEvent(new Event('input', { bubbles: true }));
       targetElement.focus();
       
-      debug('Generic textarea insertion successful');
+      console.log('Generic textarea insertion successful');
       return true;
     }
   
@@ -233,7 +233,7 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
         
         targetElement.dispatchEvent(new Event('input', { bubbles: true }));
         
-        debug('Generic contenteditable insertion successful');
+        console.log('Generic contenteditable insertion successful');
         return true;
       }
     }
@@ -253,7 +253,7 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
       targetElement.dispatchEvent(new Event('input', { bubbles: true }));
       targetElement.focus();
       
-      debug('Generic input insertion successful');
+      console.log('Generic input insertion successful');
       return true;
     }
   

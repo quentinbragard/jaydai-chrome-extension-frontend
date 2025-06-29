@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/components/organizations/OrganizationBanner.tsx - simplified banner
 import React from 'react';
 import { Building2 } from 'lucide-react';
@@ -17,7 +17,7 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
   className = '',
   variant = 'default'
 }) => {
-    debug("organization--->", organization);
+    console.log("organization--->", organization);
   const isCompact = variant === 'compact';
   const bannerStyle = organization.banner_url
     ? {

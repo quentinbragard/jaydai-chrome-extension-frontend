@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/hooks/prompts/actions/useReorderMutations.ts - Enhanced version
 import { useMutation, useQueryClient } from 'react-query';
 import { toast } from 'sonner';
@@ -72,7 +72,7 @@ export function useReorderMutations() {
             }
           }
 
-          debug('Reordering folders:', params);
+          console.log('Reordering folders:', params);
           
           const response = await promptApi.reorderFolders(params);
           
@@ -84,7 +84,7 @@ export function useReorderMutations() {
         },
         {
           onSuccess: async (data, variables) => {
-            debug('Folders reordered successfully:', data);
+            console.log('Folders reordered successfully:', data);
             
             // Invalidate queries to refresh data
             await invalidateQueries();
@@ -109,7 +109,7 @@ export function useReorderMutations() {
               throw new Error('No items to reorder');
             }
 
-            debug('Reordering folders (fallback):', params);
+            console.log('Reordering folders (fallback):', params);
             
             const response = await promptApi.reorderFolders(params);
             
@@ -149,7 +149,7 @@ export function useReorderMutations() {
             }
           }
 
-          debug('Reordering templates:', params);
+          console.log('Reordering templates:', params);
           
           const response = await promptApi.reorderTemplates(params);
           
@@ -161,7 +161,7 @@ export function useReorderMutations() {
         },
         {
           onSuccess: async (data, variables) => {
-            debug('Templates reordered successfully:', data);
+            console.log('Templates reordered successfully:', data);
             
             // Invalidate queries to refresh data
             await invalidateQueries();
@@ -186,7 +186,7 @@ export function useReorderMutations() {
               throw new Error('No items to reorder');
             }
 
-            debug('Reordering templates (fallback):', params);
+            console.log('Reordering templates (fallback):', params);
             
             const response = await promptApi.reorderTemplates(params);
             

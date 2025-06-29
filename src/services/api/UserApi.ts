@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/services/api/UserApi.ts
 import { apiClient } from './ApiClient';
 
@@ -20,7 +20,7 @@ export class UserApi {
    * Save user metadata
    */
   async saveUserMetadata(userData: UserMetadata): Promise<any> {
-    debug('saveUserMetadata', userData);
+    console.log('saveUserMetadata', userData);
     return apiClient.request('/save/user_metadata', {
       method: 'POST',
       body: JSON.stringify(userData)

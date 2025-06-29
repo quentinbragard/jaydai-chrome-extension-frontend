@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/utils/DialogManagerHelper.ts
 import { toast } from 'sonner';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
@@ -53,7 +53,7 @@ export class DialogManagerHelper {
             clearInterval(this.checkInterval);
             this.checkInterval = null;
           }
-          debug('✅ Dialog manager is now available');
+          console.log('✅ Dialog manager is now available');
         } else {
           retries++;
           if (retries >= this.maxRetries) {
@@ -96,7 +96,7 @@ export class DialogManagerHelper {
       const dialogManager = this.getDialogManager();
       if (dialogManager) {
         try {
-          debug(`🔔 Opening dialog: ${type}`, data);
+          console.log(`🔔 Opening dialog: ${type}`, data);
           dialogManager.openDialog(type, data);
           return true;
         } catch (error) {

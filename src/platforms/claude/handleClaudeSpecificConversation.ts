@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { Conversation, Message } from '@/services/chat/ConversationParser';
@@ -45,7 +45,7 @@ function extractMessagesFromConversation(responseBody: any): Message[] {
             // Fallback to text field if available
             content = message.text;
           }
-          debug('MESSAaaaaaaaGE', message);
+          console.log('MESSAaaaaaaaGE', message);
           
           messages.push({
             message_provider_id: message.uuid, // Use message UUID
@@ -76,7 +76,7 @@ function extractMessagesFromConversation(responseBody: any): Message[] {
 }
 
 export function handleClaudeSpecificConversation(responseBody: any): Promise<void> {
-  debug('handleClaudeSpecificConversation', responseBody);
+  console.log('handleClaudeSpecificConversation', responseBody);
   try {
     if (!responseBody?.uuid) {
       console.warn('Missing conversation UUID in Claude response');
@@ -86,8 +86,8 @@ export function handleClaudeSpecificConversation(responseBody: any): Promise<voi
     const conversation = extractConversation(responseBody);
     const messages = extractMessagesFromConversation(responseBody);
     
-    debug('Extracted conversation:', conversation);
-    debug('Extracted messages:', messages);
+    console.log('Extracted conversation:', conversation);
+    console.log('Extracted messages:', messages);
     
     // Only save if we have valid data
     if (conversation.chat_provider_id && messages.length > 0) {
@@ -99,7 +99,7 @@ export function handleClaudeSpecificConversation(responseBody: any): Promise<voi
         })
         .then(() => {
           // Emit event with conversation and messages
-          debug('Emitting conversation-loaded event');
+          console.log('Emitting conversation-loaded event');
           document.dispatchEvent(new CustomEvent('jaydai:conversation-loaded', {
             detail: { conversation, messages }
           }));

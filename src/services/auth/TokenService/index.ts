@@ -1,6 +1,6 @@
 // src/services/auth/TokenService.ts
 import { AbstractBaseService } from '@/services/BaseService';
-import { debug } from '@/core/config';
+
 import { TokenResponse, AuthToken } from '@/types';
 import { TokenStorage } from './TokenStorage';
 import { TokenRefresher } from './TokenRefresher';
@@ -27,7 +27,7 @@ export class TokenService extends AbstractBaseService {
    * Initialize token management
    */
   protected async onInitialize(): Promise<void> {
-    debug('Initializing TokenService');
+    console.log('Initializing TokenService');
     
     // Set up auto token refresh
     TokenRefresher.setupAutoRefresh(() => this.refreshToken());
@@ -38,7 +38,7 @@ export class TokenService extends AbstractBaseService {
    */
   protected onCleanup(): void {
     TokenRefresher.cleanup();
-    debug('TokenService cleaned up');
+    console.log('TokenService cleaned up');
   }
   
   /**

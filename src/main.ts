@@ -8,7 +8,7 @@ import { contentScript } from './extension/content/ContentScript';
  */
 async function initializeExtension(): Promise<void> {
   try {
-    debug(`Initializing Archimind Extension v${config.version}...`);
+    console.log(`Initializing Archimind Extension v${config.version}...`);
     
     // Check if we're in a content script context
     if (typeof document !== 'undefined') {
@@ -16,9 +16,9 @@ async function initializeExtension(): Promise<void> {
       const success = await contentScript.initialize();
       
       if (success) {
-        debug('Extension initialized successfully');
+        console.log('Extension initialized successfully');
       } else {
-        debug('Extension initialization skipped or failed');
+        console.log('Extension initialization skipped or failed');
       }
     }
   } catch (error) {

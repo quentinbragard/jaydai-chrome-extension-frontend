@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 import React from 'react';
 import {  
   BarChart,
@@ -68,7 +68,7 @@ const StatsChart: React.FC<StatsChartProps> = ({
     
     switch (type) {
       case 'bar':
-        debug("chartData", chartData);
+        console.log("chartData", chartData);
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart

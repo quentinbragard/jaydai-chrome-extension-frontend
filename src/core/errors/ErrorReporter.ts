@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/core/errors/ErrorReporter.ts
 
 import { AppError, ErrorCode } from './AppError';
@@ -103,7 +103,7 @@ export class ErrorReporter {
     // This would be implemented to send to your error tracking service
     // For now, we'll just simulate it
     setTimeout(() => {
-      debug('[ErrorReporter] Error sent to server:', error.toJSON());
+      console.log('[ErrorReporter] Error sent to server:', error.toJSON());
     }, 0);
   }
   

@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/core/utils/componentInjector.tsx - Enhanced with focus management
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -269,7 +269,7 @@ class ComponentInjector {
         this.roots.set(id, root);
       }
       
-      debug(`Component "${id}" injected successfully with enhanced focus management`);
+      console.log(`Component "${id}" injected successfully with enhanced focus management`);
     } catch (error) {
       console.error(`Error injecting component "${id}":`, error);
     }
@@ -312,7 +312,7 @@ class ComponentInjector {
       // Clean up shadow root reference
       this.shadowContainers.delete(id);
       
-      debug(`Component "${id}" removed successfully`);
+      console.log(`Component "${id}" removed successfully`);
     } catch (error) {
       console.error(`Error removing component "${id}":`, error);
     }
@@ -328,7 +328,7 @@ class ComponentInjector {
     // Remove each component
     ids.forEach(id => this.remove(id));
     
-    debug('All components removed successfully');
+    console.log('All components removed successfully');
   }
 
   /**

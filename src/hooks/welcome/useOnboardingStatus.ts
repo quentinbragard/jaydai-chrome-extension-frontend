@@ -1,4 +1,4 @@
-import { debug } from '@/core/config';
+
 // src/hooks/welcome/useOnboardingStatus.ts
 import { useState, useEffect } from 'react';
 import { userApi } from '@/services/api/UserApi';
@@ -21,12 +21,12 @@ export function useOnboardingStatus(user: User | null, isAuthenticated: boolean)
       
       setIsChecking(true);      
       try {
-        debug('Checking onboarding status...');
+        console.log('Checking onboarding status...');
         const status = await userApi.getUserOnboardingStatus();
-        debug('Onboarding status:', status);
+        console.log('Onboarding status:', status);
         
         const needsOnboarding = !status.data.has_completed_onboarding;
-        debug('Needs onboarding:', needsOnboarding);
+        console.log('Needs onboarding:', needsOnboarding);
         setOnboardingRequired(needsOnboarding);
         
         // Immediately show onboarding if needed

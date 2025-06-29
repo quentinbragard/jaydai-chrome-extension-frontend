@@ -1,6 +1,6 @@
 // src/services/network/MessageService.ts
 import { AbstractBaseService } from '../BaseService';
-import { debug } from '@/core/config';
+
 import { emitEvent, AppEvent } from '@/core/events/events';
 import { Message } from '@/types';
 import { messageApi } from '@/services/api/MessageApi';
@@ -29,7 +29,7 @@ export class MessageService extends AbstractBaseService {
   }
 
   protected async onInitialize(): Promise<void> {
-    debug('Initializing MessageService');
+    console.log('Initializing MessageService');
     document.addEventListener('jaydai:message-extracted', this.handleExtractedMessage);
   }
     
@@ -39,7 +39,7 @@ export class MessageService extends AbstractBaseService {
       this.timer = null;
     }
     document.removeEventListener('jaydai:message-extracted', this.handleExtractedMessage);
-    debug('MessageService cleaned up');
+    console.log('MessageService cleaned up');
   }
 
   /**
@@ -79,7 +79,7 @@ export class MessageService extends AbstractBaseService {
    * Queue a message for saving
    */
   public queueMessage(message: Message): void {
-    debug('Queueing message:', message);
+    console.log('Queueing message:', message);
     
     // Skip if already processed
     if (this.processed.has(message.messageId)) {
@@ -126,9 +126,9 @@ export class MessageService extends AbstractBaseService {
     this.queue.forEach(message => {
       // Try to get the conversation ID one more time if it's missing
       if (!message.conversationId || message.conversationId === '') {
-        debug('No conversation IDDDDDDDD found for message:', message);
+        console.log('No conversation IDDDDDDDD found for message:', message);
         const currentConversationId = chatService.getCurrentConversationId();
-        debug('Current conversation ID:', currentConversationId);
+        console.log('Current conversation ID:', currentConversationId);
         if (currentConversationId) {
           message.conversationId = currentConversationId;
         }
@@ -186,7 +186,7 @@ export class MessageService extends AbstractBaseService {
       
       // Save batch
       await messageApi.saveMessageBatch(formattedMessages);
-      debug(`Saved batch of ${messages.length} messages`);
+      console.log(`Saved batch of ${messages.length} messages`);
     } catch (error) {
       errorReporter.captureError(
         new AppError('Error saving message batch', ErrorCode.API_ERROR, error)

@@ -4,7 +4,7 @@ import { AbstractBaseService } from '../BaseService';
 import { notificationApi } from "@/services/api/NotificationApi";
 import { toast } from "sonner";
 import { emitEvent, AppEvent } from '@/core/events/events';
-import { debug } from '@/core/config';
+
 import { getMessage } from '@/core/utils/i18n';
 
 // Interface for notifications
@@ -55,7 +55,7 @@ export class NotificationService extends AbstractBaseService {
    * Initialize the notification service
    */
   protected async onInitialize(): Promise<void> {
-    debug('🔔 Initializing notification service...');
+    console.log('🔔 Initializing notification service...');
     
     // Load notifications immediately
     await this.loadNotifications();
@@ -63,7 +63,7 @@ export class NotificationService extends AbstractBaseService {
     // Start polling for new notifications
     this.startPolling();
     
-    debug('✅ Notification service initialized');
+    console.log('✅ Notification service initialized');
   }
   
   /**
@@ -76,7 +76,7 @@ export class NotificationService extends AbstractBaseService {
     }
     
     this.updateCallbacks = [];
-    debug('✅ Notification service cleaned up');
+    console.log('✅ Notification service cleaned up');
   }
   
   /**
@@ -97,7 +97,7 @@ export class NotificationService extends AbstractBaseService {
     this.isLoading = true;
 
     try {
-      debug('🔔 Loading notifications...');
+      console.log('🔔 Loading notifications...');
       
       // Get previous unread count for comparison
       const previousUnreadCount = this.getUnreadCount();
@@ -113,7 +113,7 @@ export class NotificationService extends AbstractBaseService {
         // Calculate new unread count
         const newUnreadCount = this.getUnreadCount();
         
-        debug(`✅ Loaded ${this.notifications.length} notifications (${newUnreadCount} unread)`);
+        console.log(`✅ Loaded ${this.notifications.length} notifications (${newUnreadCount} unread)`);
         
         // If there are new unread notifications, show a toast
         if (newUnreadCount > previousUnreadCount) {
@@ -129,7 +129,7 @@ export class NotificationService extends AbstractBaseService {
         emitEvent(AppEvent.NOTIFICATION_COUNT_UPDATED, { count: newUnreadCount });
       }
     } catch (error) {
-      debug('❌ Error loading notifications:', error);
+      console.log('❌ Error loading notifications:', error);
     } finally {
       this.isLoading = false;
     }
@@ -203,7 +203,7 @@ export class NotificationService extends AbstractBaseService {
       
       return true;
     } catch (error) {
-      debug('❌ Error marking notification as read:', error);
+      console.log('❌ Error marking notification as read:', error);
       return false;
     }
   }
@@ -239,7 +239,7 @@ export class NotificationService extends AbstractBaseService {
       
       return true;
     } catch (error) {
-      debug('❌ Error marking all notifications as read:', error);
+      console.log('❌ Error marking all notifications as read:', error);
       return false;
     }
   }
@@ -272,7 +272,7 @@ export class NotificationService extends AbstractBaseService {
       
       return true;
     } catch (error) {
-      debug('❌ Error deleting notification:', error);
+      console.log('❌ Error deleting notification:', error);
       return false;
     }
   }
@@ -340,7 +340,7 @@ export class NotificationService extends AbstractBaseService {
       this.loadNotifications();
     }, 600000);
     
-    debug('Started polling for notifications');
+    console.log('Started polling for notifications');
   }
   
   /**
@@ -374,7 +374,7 @@ export class NotificationService extends AbstractBaseService {
     this.unreadCount = unreadCount;
     
     // Dispatch an event that UI components can listen for
-    debug("unreadCoun============t", unreadCount);
+    console.log("unreadCoun============t", unreadCount);
     document.dispatchEvent(new CustomEvent('jaydai:notification-count-changed', {
       detail: { unreadCount }
     }));
@@ -388,7 +388,7 @@ private showNewNotificationsToast(count: number): void {
       label: getMessage('view_action', undefined, 'View'),
       onClick: () => {
         // Log that the view action was clicked
-        debug('Notification view action clicked');
+        console.log('Notification view action clicked');
         
         // First dispatch the open-notifications event (specific handler)
         // This ensures the notifications panel will be shown
@@ -463,7 +463,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
           
         default:
           // For unknown action types, log a warning
-          debug(`⚠️ Unknown action type: ${metadata.action_type}`);
+          console.log(`⚠️ Unknown action type: ${metadata.action_type}`);
           toast.info(notification.title, {
             description: notification.body
           });
@@ -495,7 +495,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
         break;
     }
   } catch (error) {
-    debug('❌ Error handling notification action:', error);
+    console.log('❌ Error handling notification action:', error);
     toast.error(getMessage('action_error', undefined, 'Failed to process notification action'));
   }
 }
@@ -515,7 +515,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
       const parsedMetadata = JSON.parse(metadata);
       return this.validateMetadata(parsedMetadata);
     } catch (error) {
-      debug('❌ Error parsing notification metadata:', error);
+      console.log('❌ Error parsing notification metadata:', error);
       return null;
     }
   }
@@ -540,7 +540,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
          data.action_type === 'openLinkedIn' || 
          data.action_type === 'openChatGpt') && 
         (!data.action_url || typeof data.action_url !== 'string')) {
-      debug(`⚠️ ${data.action_type} action missing valid URL`);
+      console.log(`⚠️ ${data.action_type} action missing valid URL`);
       return null;
     }
     
@@ -556,7 +556,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
    * Get action button details for a notification
    */
   public getActionButton(notification: NotificationBase): { title: string; visible: boolean } | null {
-    debug("notification METADATA===========", notification.metadata);
+    console.log("notification METADATA===========", notification.metadata);
     if (!notification.metadata) {
       return null;
     }
@@ -582,7 +582,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
       try {
         callback(notificationsCopy);
       } catch (error) {
-        debug('❌ Error in notification update callback:', error);
+        console.log('❌ Error in notification update callback:', error);
       }
     });
   }

@@ -1,5 +1,5 @@
 // src/components/welcome/onboarding/OnboardingFlow.tsx - Updated
-import { debug } from '@/core/config';
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
@@ -126,7 +126,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
       };
       
       // Submit onboarding data to the new completion endpoint
-      debug('Submitting onboarding data to completion endpoint:', submissionData);
+      console.log('Submitting onboarding data to completion endpoint:', submissionData);
       const result = await apiClient.request('/onboarding/complete', {
         method: 'POST',
         body: JSON.stringify(submissionData)
@@ -160,7 +160,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
           total_folders_pinned: result.folder_recommendations?.total_pinned?.length || 0
         });
         
-        debug('Onboarding completed successfully:', result);
+        console.log('Onboarding completed successfully:', result);
         
         // Move to completion step
         setCurrentStep(totalSteps - 1);
