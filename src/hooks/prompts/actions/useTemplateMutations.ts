@@ -5,6 +5,8 @@ import { promptApi } from '@/services/api';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { Template } from '@/types/prompts/templates';
 import { useSafeQuery } from '@/providers/QueryProvider';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
+
 
 interface TemplateData {
   title: string;
