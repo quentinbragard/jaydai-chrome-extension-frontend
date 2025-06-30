@@ -1957,5 +1957,32 @@
   "shortcutTipSuffix": { "message": "dans la zone de saisie pour ouvrir ce sélecteur de blocs instantanément.", "description": "Suffixe de l'aide sur le raccourci" },
   "titleOptional": { "message": "Titre (optionnel)", "description": "Libellé pour le champ de titre optionnel" },
   "usingShortcut": { "message": "Utiliser le raccourci //j", "description": "Titre de la boîte de dialogue d'aide sur le raccourci" },
-  "type": { "message": "Type", "description": "Libellé du type de bloc" }
+  "type": { "message": "Type", "description": "Libellé du type de bloc" },
+
+  "searchTemplatesAndFolders": {
+    "message": "Rechercher des templates et des dossiers...",
+    "description": "Placeholder pour la recherche de templates et dossiers"
+  },
+  "searchResults": {
+    "message": "Résultats de recherche",
+    "description": "En-tête pour la section des résultats de recherche"
+  },
+  "clear": { "message": "Effacer", "description": "Texte du bouton pour effacer la recherche" },
+  "pinnedTemplates": {
+    "message": "Templates épinglés",
+    "description": "Titre de section Templates épinglés"
+  },
+  "noPinnedTemplates": {
+    "message": "Aucun template épinglé. Épinglez vos favoris pour y accéder rapidement.",
+    "description": "Message affiché lorsqu'aucun template n'est épinglé"
+  },
+  "folderEmpty": {
+    "message": "Ce dossier est vide",
+    "description": "Message affiché lorsqu'un dossier est vide"
+  },
+  "noResultsForQuery": {
+    "message": "Aucun résultat trouvé pour \"$QUERY$\"",
+    "description": "Message affiché lorsqu'aucun résultat n'est trouvé",
+    "placeholders": { "query": { "content": "$1", "example": "vente" } }
+  }
 }

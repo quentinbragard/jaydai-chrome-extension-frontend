@@ -1975,5 +1975,32 @@
   "shortcutTipSuffix": { "message": "in the prompt area to open this block selector instantly.", "description": "Shortcut help suffix" },
   "titleOptional": { "message": "Title (optional)", "description": "Label for optional title field" },
   "usingShortcut": { "message": "Using //j Shortcut", "description": "Title for shortcut instructions dialog" },
-  "type": { "message": "Type", "description": "Label for block type field" }
+  "type": { "message": "Type", "description": "Label for block type field" },
+
+  "searchTemplatesAndFolders": {
+    "message": "Search templates and folders...",
+    "description": "Placeholder for template and folder search"
+  },
+  "searchResults": {
+    "message": "Search Results",
+    "description": "Header for search results section"
+  },
+  "clear": { "message": "Clear", "description": "Button text to clear search" },
+  "pinnedTemplates": {
+    "message": "Pinned Templates",
+    "description": "Pinned templates section title"
+  },
+  "noPinnedTemplates": {
+    "message": "No pinned templates. Pin your favorites for quick access.",
+    "description": "Empty state message when no pinned templates"
+  },
+  "folderEmpty": {
+    "message": "This folder is empty",
+    "description": "Message shown when folder has no items"
+  },
+  "noResultsForQuery": {
+    "message": "No results found for \"$QUERY$\"",
+    "description": "Message when search yields no results",
+    "placeholders": { "query": { "content": "$1", "example": "sales" } }
+  }
 }
