@@ -1364,6 +1364,14 @@
     "message": "Contact Sales",
     "description": "Button text to contact sales for enterprise features"
   },
+  "company_templates_cta_title": {
+    "message": "Company Templates",
+    "description": "Title for the enterprise CTA when no company is attached"
+  },
+  "company_templates_cta_description": {
+    "message": "Company templates are part of our Enterprise plan. Contact us to enable this for your team.",
+    "description": "Description for the enterprise CTA when no company is attached"
+  },
   "searchOfficialFolders": {
     "message": "Search organization folders...",
     "description": "Placeholder text for searching organization folders"

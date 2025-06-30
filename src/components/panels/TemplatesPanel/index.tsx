@@ -1,6 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx - Updated with global search
 import React, { useCallback, memo, useMemo, useState, useEffect } from 'react';
-import { FolderOpen, RefreshCw, PlusCircle, Plus, ArrowLeft, Home, ChevronRight } from "lucide-react";
+import { FolderOpen, RefreshCw, PlusCircle, Plus, ArrowLeft, Home, ChevronRight, Building2, Mail, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -534,10 +534,32 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
               {companyTemplates.length === 0 ? (
-                <div className="jd-flex jd-flex-col jd-items-center jd-gap-2 jd-py-4">
-                  <p className="jd-text-sm jd-text-muted-foreground">CTP</p>
-                  <Button variant="secondary" size="sm" onClick={handleContactSales}>
-                    Contact Sales
+                <div className="jd-my-2 jd-rounded-lg jd-bg-gradient-to-br jd-from-slate-50 jd-to-slate-100 jd-dark:jd-from-gray-800/60 jd-dark:jd-to-gray-900/60 jd-border jd-border-slate-200/80 jd-dark:jd-border-blue-500/20 jd-shadow-sm jd-p-4 jd-space-y-2">
+                  <div className="jd-flex jd-items-center jd-gap-2">
+                    <Building2 className="jd-w-4 jd-h-4 jd-text-blue-600 jd-dark:jd-text-blue-400" />
+                    <div className="jd-flex jd-flex-col">
+                      <h3 className="jd-text-sm jd-font-medium jd-text-blue-600 jd-dark:jd-text-blue-400">
+                        {getMessage('company_templates_cta_title', undefined, 'Company Templates')}
+                      </h3>
+                      <div className="jd-flex jd-items-center jd-gap-1">
+                        <Lock className="jd-h-2.5 jd-w-2.5 jd-text-blue-600 jd-dark:jd-text-blue-400" />
+                        <span className="jd-text-xs jd-font-medium jd-text-blue-600 jd-dark:jd-text-blue-400">
+                          {getMessage('enterprise_feature', undefined, 'Enterprise Feature')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="jd-text-xs jd-text-gray-600 jd-dark:jd-text-gray-300">
+                    {getMessage('company_templates_cta_description', undefined, 'Company templates are part of our Enterprise plan. Contact us to enable this for your team.')}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="jd-w-full jd-bg-white/70 jd-dark:jd-bg-gray-800/40 jd-border-blue-200 jd-dark:jd-border-blue-800/30 jd-text-blue-700 jd-dark:jd-text-blue-400 hover:jd-bg-blue-50 jd-dark:hover:jd-bg-blue-900/20 hover:jd-text-blue-800 jd-dark:hover:jd-text-blue-300 jd-transition-colors"
+                    onClick={handleContactSales}
+                  >
+                    <Mail className="jd-h-3 jd-w-3 jd-mr-2" />
+                    {getMessage('contact_enterprise_sales', undefined, 'Contact Sales')}
                   </Button>
                 </div>
               ) : (

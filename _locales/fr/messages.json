@@ -1261,6 +1261,14 @@
     "message": "Contacter les Ventes",
     "description": "Button text to contact sales for enterprise features"
   },
+  "company_templates_cta_title": {
+    "message": "Templates Entreprise",
+    "description": "Titre de l'appel à l'action lorsque aucune entreprise n'est attachée"
+  },
+  "company_templates_cta_description": {
+    "message": "Les templates d'entreprise font partie de notre offre Enterprise. Contactez-nous pour l'activer pour votre équipe.",
+    "description": "Description de l'appel à l'action lorsque aucune entreprise n'est attachée"
+  },
   "searchOfficialFolders": {
     "message": "Rechercher des dossiers d'organisation...",
     "description": "Texte d'espace réservé pour la recherche de dossiers d'organisation"
