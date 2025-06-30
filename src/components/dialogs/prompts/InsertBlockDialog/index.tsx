@@ -264,7 +264,7 @@ export const InsertBlockDialog: React.FC = () => {
       blocksApi.getBlocks().then(res => {
         if (res.success) {
           const published = res.data.filter(
-            b => (b as any).published || (b as any).is_published
+            b => (b as any).published === true || (b as any).is_published === true
           );
           setBlocks(published);
         } else {
@@ -353,7 +353,7 @@ const filteredBlocks = blocks.filter(b => {
   const term = search.toLowerCase();
   const matchesSearch = title.toLowerCase().includes(term) || content.toLowerCase().includes(term);
   const matchesType = selectedTypeFilter === 'all' || b.type === selectedTypeFilter;
-  const isPublished = (b as any).published || (b as any).is_published;
+  const isPublished = (b as any).published === true || (b as any).is_published === true;
   return matchesSearch && matchesType && isPublished;
 });
 
