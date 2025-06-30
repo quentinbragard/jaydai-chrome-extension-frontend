@@ -23,7 +23,8 @@ import {
   getActiveSecondaryMetadata,
   getFilledMetadataTypes,
   extractCustomValues,
-  validateMetadata
+  validateMetadata,
+  parseTemplateMetadata,  
 } from '@/utils/prompts/metadataUtils';
 
 export interface TemplateDialogConfig {
@@ -331,9 +332,10 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       }));
       
       try {
-        // Initialize form data
         if (dialogType === 'create') {
-          const meta = initialData.template?.metadata || createMetadata();
+          const meta = initialData.template?.metadata 
+            ? parseTemplateMetadata(initialData.template.metadata)
+            : createMetadata();
           const content = getLocalizedContent(initialData.template?.content || '');
           
           setState(prev => ({
@@ -350,17 +352,30 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             isProcessing: false
           }));
         } else if (dialogType === 'customize') {
-          const meta = initialData.metadata || createMetadata();
+          // Enhanced customize mode initialization
+          const meta = initialData.metadata 
+            ? (typeof initialData.metadata === 'object' && initialData.metadata.role !== undefined
+                ? initialData.metadata // Already parsed
+                : parseTemplateMetadata(initialData.metadata))
+            : createMetadata();
+            
           const content = getLocalizedContent(initialData.content || '');
-
+  
+          console.log('Customize mode - parsed metadata:', meta);
+          console.log('Customize mode - filled types:', Array.from(getFilledMetadataTypes(meta)));
+  
           setState(prev => ({
             ...prev,
             content,
             metadata: meta,
-            // In customize mode we want all metadata cards collapsed by default
-            // so the user immediately sees the selected block titles.
-            // Therefore we only expand the primary metadata types.
-            expandedMetadata: new Set(PRIMARY_METADATA),
+            // Expand all filled metadata types so user can see what's selected
+            expandedMetadata: new Set([
+              ...PRIMARY_METADATA,
+              ...Array.from(getFilledMetadataTypes(meta))
+            ]),
+            // Keep primary metadata visible, but collapse secondary if there are many
+            metadataCollapsed: false,
+            secondaryMetadataCollapsed: Array.from(getActiveSecondaryMetadata(meta)).length > 2,
             isProcessing: false
           }));
         }
