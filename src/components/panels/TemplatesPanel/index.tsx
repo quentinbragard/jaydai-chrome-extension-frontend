@@ -467,11 +467,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
                     return (
                       <div key={`${displayItems.isGlobalSearch ? 'search-' : ''}template-${template.id}`}>
-                        {displayItems.isGlobalSearch && (template as any).folderPath && (
-                          <div className="jd-text-xs jd-text-muted-foreground jd-px-2 jd-py-1 jd-bg-muted/30 jd-rounded-sm jd-mb-1">
-                            📁 {(template as any).folderPath}
-                          </div>
-                        )}
+                        
                         <TemplateItem
                           template={template}
                           type={templateType}
