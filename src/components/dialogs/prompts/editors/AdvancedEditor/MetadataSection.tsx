@@ -1,5 +1,5 @@
 // src/components/dialogs/prompts/editors/AdvancedEditor/MetadataSection.tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Plus,
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { getMessage } from '@/core/utils/i18n';
 
 import { MetadataCard } from '@/components/prompts/blocks/MetadataCard';
 import {
@@ -80,6 +81,12 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
   
   const isDarkMode = useThemeDetector();
 
+  const publishedBlocks = useMemo(() => {
+    return Object.values(availableMetadataBlocks)
+      .flat()
+      .filter(block => block.published === true);
+  }, [availableMetadataBlocks]);
+
   const renderCards = (
     types: MetadataType[],
     isPrimary: boolean,
@@ -97,7 +104,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
         >
           <MetadataCard
             type={type}
-            availableBlocks={availableMetadataBlocks[type] || []}
+            availableBlocks={publishedBlocks[type] || []}
             expanded={expandedMetadata.has(type)}
             isPrimary={isPrimary}
             onToggle={() => toggleExpandedMetadata(type)}
@@ -140,7 +147,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
       {showPrimary && (
         <div className="jd-flex-shrink-0">
           <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
-            <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">Prompt Essentials</h3>
+            <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">{getMessage('promptEssentials', undefined, 'Prompt Essentials')}</h3>
             <Button
               variant="ghost"
               size="sm"
@@ -159,7 +166,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
         <div className="jd-flex-shrink-0">
           <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
             <h4 className="jd-text-sm jd-font-medium jd-text-muted-foreground jd-flex jd-items-center jd-gap-2">
-              Additional Elements
+              {getMessage('additionalElements', undefined, 'Additional Elements')}
             </h4>
             <Button
               variant="ghost"

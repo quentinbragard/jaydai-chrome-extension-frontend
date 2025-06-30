@@ -1915,5 +1915,5 @@
   "errorCreatingFolder": { "message": "Une erreur est survenue lors de la création du dossier", "description": "Message d'erreur lors de la création d'un dossier" },
   "failedToCreateFolder": { "message": "Échec de la création du dossier", "description": "Message d'erreur lors de la création d'un dossier" },
   "folderCreatedSuccessfully": { "message": "Dossier créé avec succès", "description": "Message de succès lors de la création d'un dossier" },
-  "folderTitleRequired": { "message": "Le titre du dossier est requis", "description": "Message d'erreur lorsque le titre du dossier est vide" }
+  "folderTitleRequired": { "message": "Le titre du dossier est requis", "description": "Message d'erreur lorsque le titre du dossier est vide" },
 }
