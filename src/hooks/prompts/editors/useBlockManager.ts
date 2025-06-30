@@ -28,9 +28,16 @@ interface UseBlockManagerReturn {
 interface UseBlockManagerProps {
   metadata?: PromptMetadata;
   content?: string;
+  /**
+   * When false, block loading is skipped. This allows dialogs to
+   * postpone fetching data until they are actually opened.
+   */
+  enabled?: boolean;
 }
 
 export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerReturn {
+  const { enabled = true } = props || {};
+
   const [isLoading, setIsLoading] = useState(true);
   const [availableMetadataBlocks, setAvailableMetadataBlocks] = useState<Record<MetadataType, Block[]>>({} as Record<MetadataType, Block[]>);
   const [availableBlocksByType, setAvailableBlocksByType] = useState<Record<BlockType, Block[]>>({} as Record<BlockType, Block[]>);
@@ -82,10 +89,11 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
     }
   }, []);
 
-  // Initial fetch
+  // Initial fetch and re-fetch when enabled becomes true
   useEffect(() => {
+    if (!enabled) return;
     fetchBlocks();
-  }, [fetchBlocks]);
+  }, [fetchBlocks, enabled]);
 
   // Add a new block to the cache
   const addNewBlock = useCallback((block: Block) => {

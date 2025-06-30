@@ -108,7 +108,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     availableMetadataBlocks,
     blockContentCache,
     addNewBlock
-  } = useBlockManager({ metadata, content });
+  } = useBlockManager({ metadata, content, enabled: isOpen });
 
   const contextValue = React.useMemo(
     () => ({
