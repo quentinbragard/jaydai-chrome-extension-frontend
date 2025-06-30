@@ -214,6 +214,15 @@ export const CreateBlockDialog: React.FC = () => {
             placeholder={getMessage('enterBlockName', undefined, 'Enter block name')}
             className={cn("jd-w-full", validationErrors.name && "jd-border-red-500")}
             autoFocus
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                return;
+              }
+            }}
+            onKeyPress={(e) => e.stopPropagation()}
+            onKeyUp={(e) => e.stopPropagation()}
           />
           {validationErrors.name ? (
             <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.name}</p>
@@ -227,8 +236,8 @@ export const CreateBlockDialog: React.FC = () => {
         {/* Block Content */}
         <div>
           <label className="jd-text-sm jd-font-medium jd-mb-2 jd-block">{getMessage('blockContent', undefined, 'Block Content')}</label>
-          <Textarea 
-            value={content} 
+          <Textarea
+            value={content}
             onChange={(e) => {
               setContent(e.target.value);
               if (validationErrors.content) {
@@ -238,6 +247,15 @@ export const CreateBlockDialog: React.FC = () => {
             placeholder={getMessage('enterBlockContent', undefined, 'Enter block content...')}
             className={cn("jd-w-full jd-min-h-[120px] jd-resize-none", validationErrors.content && "jd-border-red-500")}
             rows={6}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                return;
+              }
+            }}
+            onKeyPress={(e) => e.stopPropagation()}
+            onKeyUp={(e) => e.stopPropagation()}
           />
           {validationErrors.content && (
             <p className="jd-text-xs jd-text-red-500 jd-mt-1">{validationErrors.content}</p>
@@ -261,12 +279,21 @@ export const CreateBlockDialog: React.FC = () => {
           <label className="jd-text-sm jd-font-medium jd-mb-2 jd-block">
             {getMessage('templateDescription', undefined, 'Description (optional)')}
           </label>
-          <Textarea 
-            value={description} 
+          <Textarea
+            value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder={getMessage('blockDescriptionPlaceholder', undefined, 'Enter block description...')}
             className="jd-w-full jd-resize-none"
             rows={3}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                return;
+              }
+            }}
+            onKeyPress={(e) => e.stopPropagation()}
+            onKeyUp={(e) => e.stopPropagation()}
           />
         </div>
       </form>
