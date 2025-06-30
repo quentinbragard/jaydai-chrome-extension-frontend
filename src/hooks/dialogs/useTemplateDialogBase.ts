@@ -364,18 +364,23 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
           console.log('Customize mode - parsed metadata:', meta);
           console.log('Customize mode - filled types:', Array.from(getFilledMetadataTypes(meta)));
   
+          const filledTypes = getFilledMetadataTypes(meta);
+          const activeSecondary = getActiveSecondaryMetadata(meta);
+          const unfilledPrimary = PRIMARY_METADATA.filter(t => !filledTypes.has(t));
+          const unfilledSecondary = Array.from(activeSecondary).filter(t => !filledTypes.has(t));
+
           setState(prev => ({
             ...prev,
             content,
             metadata: meta,
-            // Expand all filled metadata types so user can see what's selected
+            // Expand only metadata types without a value
             expandedMetadata: new Set([
-              ...PRIMARY_METADATA,
-              ...Array.from(getFilledMetadataTypes(meta))
+              ...unfilledPrimary,
+              ...unfilledSecondary
             ]),
             // Keep primary metadata visible, but collapse secondary if there are many
             metadataCollapsed: false,
-            secondaryMetadataCollapsed: Array.from(getActiveSecondaryMetadata(meta)).length > 2,
+            secondaryMetadataCollapsed: Array.from(activeSecondary).length > 2,
             isProcessing: false
           }));
         }
