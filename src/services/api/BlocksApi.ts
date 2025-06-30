@@ -8,7 +8,7 @@ interface CreateBlockData {
   content: string;                  
   type: BlockType;
   description?: string;             
-  is_published?: boolean;
+  published?: boolean;
   parent_block_id?: number;
   tags?: string[];
 }
@@ -17,7 +17,7 @@ interface UpdateBlockData {
   title?: string;
   content?: string;
   description?: string;
-  is_published?: boolean;
+  published?: boolean;
   tags?: string[];
 }
 
@@ -106,7 +106,7 @@ class BlocksApiClient {
         content: data.content,
         type: data.type,
         description: data.description || '',
-        is_published: data.is_published ?? true, // Default to published
+        published: data.published ?? true, // Default to published
         parent_block_id: data.parent_block_id || null,
         tags: data.tags || []
       };
@@ -141,7 +141,7 @@ class BlocksApiClient {
         title: data.title,             
         content: data.content,          
         description: data.description, 
-        is_published: data.is_published,
+        published: data.published,
         tags: data.tags
       };
   
@@ -214,7 +214,7 @@ class BlocksApiClient {
         content: modifications.content || original.content,
         type: modifications.type || original.type,
         description: modifications.description || original.description,
-        is_published: modifications.is_published ?? false,
+        published: modifications.published ?? false,
         parent_block_id: modifications.parent_block_id ?? originalId,
         tags: modifications.tags || original.tags || []
       };

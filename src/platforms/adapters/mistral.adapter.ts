@@ -161,17 +161,104 @@ export class MistralAdapter extends BasePlatformAdapter {
   }
 
   insertPrompt(content: string): boolean {
-    if (!content) return false;
+    if (!content) {
+      console.error('No content to insert into Mistral');
+      return false;
+    }
+    
     try {
-      const textarea = document.querySelector(this.config.domSelectors.PROMPT_TEXTAREA) as HTMLTextAreaElement | null;
-      if (!textarea) return false;
-      textarea.value = content;
-      textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      textarea.focus();
-      textarea.selectionStart = textarea.selectionEnd = content.length;
-      return true;
+      // Find Mistral's ProseMirror editor
+      const editor = document.querySelector(this.config.domSelectors.PROMPT_TEXTAREA);
+      
+      if (!editor) {
+        console.error('Could not find Mistral editor element');
+        return false;
+      }
+      
+      // Normalize content (preserve all characters including quotes)
+      const normalizedContent = content.replace(/\r\n/g, '\n');
+      
+      // Method 1: Try ProseMirror approach with paragraph structure
+      try {
+        // Focus the editor
+        editor.focus();
+        
+        // Escape HTML entities
+        const escapeHTML = (str: string) => {
+          return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+        };
+        
+        // Convert content to ProseMirror paragraph structure
+        const paragraphs = normalizedContent.split('\n');
+        const paragraphsHTML = paragraphs.map(p => 
+          p ? `<p>${escapeHTML(p)}</p>` : '<p><br class="ProseMirror-trailingBreak"></p>'
+        ).join('');
+        
+        // Set content directly
+        editor.innerHTML = paragraphsHTML;
+        
+        // Trigger input event to notify ProseMirror
+        editor.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+        
+        // Position cursor at the end
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(editor);
+        range.collapse(false); // Collapse to the end
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        
+        return true;
+      } catch (e) {
+        console.warn('Primary method failed for Mistral:', e);
+      }
+      
+      // Method 2: Try document.execCommand approach
+      try {
+        editor.focus();
+        
+        // Clear existing content
+        editor.innerHTML = '<p><br class="ProseMirror-trailingBreak"></p>';
+        
+        // Position cursor at the beginning
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.setStart(editor.firstChild || editor, 0);
+        range.collapse(true);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        
+        // Insert text using execCommand
+        document.execCommand('insertText', false, normalizedContent);
+        
+        return true;
+      } catch (e) {
+        console.warn('Fallback method failed for Mistral:', e);
+      }
+      
+      // Method 3: Direct textContent approach (last resort)
+      try {
+        editor.focus();
+        
+        // Set as plain text and wrap in paragraph
+        editor.innerHTML = `<p>${normalizedContent.replace(/\n/g, '</p><p>')}</p>`;
+        
+        // Trigger input event
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        return true;
+      } catch (e) {
+        console.error('All insertion methods failed for Mistral:', e);
+        return false;
+      }
+      
     } catch (error) {
-      console.error('Error inserting prompt in Mistral:', error);
+      console.error('Error inserting content into Mistral:', error);
       return false;
     }
   }
