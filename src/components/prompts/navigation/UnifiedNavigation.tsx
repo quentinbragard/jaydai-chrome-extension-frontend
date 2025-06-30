@@ -57,7 +57,7 @@ export const UnifiedNavigation: React.FC<UnifiedNavigationProps> = ({
       <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
         <div className="jd-flex jd-items-center">
           <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
-          {isAtRoot ? 'My Templates' : currentFolderTitle}
+          {isAtRoot ? getMessage('myTemplates', undefined, 'My Templates') : currentFolderTitle}
         </div>
         <div className="jd-flex jd-items-center jd-gap-2">
           {showCreateTemplate && onCreateTemplate && (
