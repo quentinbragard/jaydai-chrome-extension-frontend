@@ -1984,5 +1984,8 @@
     "message": "Aucun résultat trouvé pour \"$QUERY$\"",
     "description": "Message affiché lorsqu'aucun résultat n'est trouvé",
     "placeholders": { "query": { "content": "$1", "example": "vente" } }
-  }
+  },
+  "more": { "message": "plus", "description": "Libellé pour le bouton de plus" },
+  "clickToAdd": { "message": "Cliquez pour ajouter", "description": "Libellé pour le bouton de clic pour ajouter" },
+  "add": { "message": "Ajouter", "description": "Libellé pour le bouton d'ajout" }
 }

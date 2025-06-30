@@ -2002,5 +2002,8 @@
     "message": "No results found for \"$QUERY$\"",
     "description": "Message when search yields no results",
     "placeholders": { "query": { "content": "$1", "example": "sales" } }
-  }
+  },
+  "more": { "message": "more", "description": "Label for the more button" },
+  "clickToAdd": { "message": "Click to add", "description": "Label for the click to add button" },
+  "add": { "message": "Add", "description": "Label for the add button" }
 }

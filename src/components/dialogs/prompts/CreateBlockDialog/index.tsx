@@ -138,6 +138,7 @@ export const CreateBlockDialog: React.FC = () => {
       <Button
         type="submit"
         disabled={isSubmitting || !name.trim() || !content.trim()}
+        onClick={handleSubmit}
         className={cn(
           'jd-transition-all jd-duration-300',
           typeColors

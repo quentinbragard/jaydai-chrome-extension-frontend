@@ -307,7 +307,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                 <DropdownMenu open={addMenuOpen} onOpenChange={setAddMenuOpen}>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="jd-w-full jd-border-dashed">
-                      <Plus className="jd-h-4 jd-w-4 jd-mr-2" /> Add {config.label}
+                      <Plus className="jd-h-4 jd-w-4 jd-mr-2" /> {getMessage('add', undefined, 'Add')} {config.label}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="jd-w-full jd-z-[10010]">
@@ -365,11 +365,11 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                   );
                 })}
                 {items.length > 2 && (
-                  <div className="jd-text-xs jd-opacity-75">+{items.length - 2} more...</div>
+                  <div className="jd-text-xs jd-opacity-75">+{items.length - 2} {getMessage('more', undefined, 'more')}...</div>
                 )}
               </>
             ) : (
-              <div className="jd-text-xs">Click to add {config.label.toLowerCase()}</div>
+              <div className="jd-text-xs">{getMessage('clickToAdd', undefined, 'Click to Add')}{config.label.toLowerCase()}</div>
             )}
           </div>
         )}
