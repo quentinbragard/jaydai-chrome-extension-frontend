@@ -160,7 +160,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             {getMessage('saving', undefined, 'Saving...')}
           </>
         ) : (
-          mode === 'create' ? getMessage('createTemplate', undefined, 'Create Template') : getMessage('saveTemplate', undefined, 'Save Template')
+          mode === 'create' ? getMessage('createTemplate', undefined, 'Create Template') : getMessage('useTemplate', undefined, 'Use Template')
         )}
       </Button>
     </div>

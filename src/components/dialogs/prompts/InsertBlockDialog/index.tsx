@@ -343,15 +343,17 @@ export const InsertBlockDialog: React.FC = () => {
     setShowInlineCreator(false);
   };
 
-  // Filter blocks based on search and type
-  const filteredBlocks = blocks.filter(b => {
-    const title = typeof b.title === 'string' ? b.title : b.title?.en || '';
-    const content = typeof b.content === 'string' ? b.content : b.content.en || '';
-    const term = search.toLowerCase();
-    const matchesSearch = title.toLowerCase().includes(term) || content.toLowerCase().includes(term);
-    const matchesType = selectedTypeFilter === 'all' || b.type === selectedTypeFilter;
-    return matchesSearch && matchesType;
-  });
+// Filter blocks based on search, type, and published status
+const filteredBlocks = blocks.filter(b => {
+  console.log("b--->", b.published);
+  const title = typeof b.title === 'string' ? b.title : b.title?.en || '';
+  const content = typeof b.content === 'string' ? b.content : b.content.en || '';
+  const term = search.toLowerCase();
+  const matchesSearch = title.toLowerCase().includes(term) || content.toLowerCase().includes(term);
+  const matchesType = selectedTypeFilter === 'all' || b.type === selectedTypeFilter;
+  const isPublished = b.published === true;
+  return matchesSearch && matchesType && isPublished;
+});
 
   // Get unique block types for filter
   const blockTypes = Array.from(new Set(blocks.map(b => b.type || 'custom')));
