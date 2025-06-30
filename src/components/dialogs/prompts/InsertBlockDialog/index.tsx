@@ -263,7 +263,10 @@ export const InsertBlockDialog: React.FC = () => {
       setShowInlineCreator(false);
       blocksApi.getBlocks().then(res => {
         if (res.success) {
-          setBlocks(res.data);
+          const published = res.data.filter(
+            b => (b as any).published === true || (b as any).is_published === true
+          );
+          setBlocks(published);
         } else {
           setBlocks([]);
         }
@@ -345,13 +348,12 @@ export const InsertBlockDialog: React.FC = () => {
 
 // Filter blocks based on search, type, and published status
 const filteredBlocks = blocks.filter(b => {
-  console.log("b--->", b.published);
   const title = typeof b.title === 'string' ? b.title : b.title?.en || '';
   const content = typeof b.content === 'string' ? b.content : b.content.en || '';
   const term = search.toLowerCase();
   const matchesSearch = title.toLowerCase().includes(term) || content.toLowerCase().includes(term);
   const matchesType = selectedTypeFilter === 'all' || b.type === selectedTypeFilter;
-  const isPublished = b.published === true;
+  const isPublished = (b as any).published === true || (b as any).is_published === true;
   return matchesSearch && matchesType && isPublished;
 });
 
