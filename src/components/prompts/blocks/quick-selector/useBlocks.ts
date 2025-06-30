@@ -10,7 +10,7 @@ export function useBlocks() {
     blocksApi.getBlocks().then(res => {
       if (res.success) {
         const published = res.data.filter(
-          b => (b as any).published === true || (b as any).is_published === true
+          b => (b as any).published || (b as any).is_published
         );
         setBlocks(published);
       }
