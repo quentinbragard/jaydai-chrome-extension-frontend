@@ -1915,5 +1915,10 @@
   "errorCreatingFolder": { "message": "Une erreur est survenue lors de la création du dossier", "description": "Message d'erreur lors de la création d'un dossier" },
   "failedToCreateFolder": { "message": "Échec de la création du dossier", "description": "Message d'erreur lors de la création d'un dossier" },
   "folderCreatedSuccessfully": { "message": "Dossier créé avec succès", "description": "Message de succès lors de la création d'un dossier" },
-  "folderTitleRequired": { "message": "Le titre du dossier est requis", "description": "Message d'erreur lorsque le titre du dossier est vide" }
+  "folderTitleRequired": { "message": "Le titre du dossier est requis", "description": "Message d'erreur lorsque le titre du dossier est vide" },
+  "none": { "message": "Aucun", "description": "Texte affiché lorsqu'aucune valeur n'est sélectionnée" },
+  "ctrlEnterToSave": { "message": "Ctrl+Entrée pour enregistrer • Esc pour annuler", "description": "Message pour le Ctrl+Entrée pour enregistrer" },
+  "editingPreview": { "message": "Aperçu en cours de modification", "description": "Titre pour la section d'aperçu en cours de modification" },
+  "escToCancel": { "message": "Esc pour annuler", "description": "Message pour l'annulation avec la touche Esc" },
+  "existing": { "message": "Existant", "description": "Texte affiché lorsqu'un bloc est existant" }
 }

@@ -5,6 +5,7 @@ import { buildEnhancedPreview } from '@/utils/templates/placeholderHelpers';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Edit3, Check, X, Maximize2, Minimize2 } from 'lucide-react';
+import { getMessage } from '@/core/utils/i18n';
 
 interface EditablePromptPreviewProps {
   content: string;
@@ -176,7 +177,7 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
         <div className="jd-flex jd-items-center jd-justify-between jd-mb-2 jd-p-2 jd-bg-primary/10 jd-rounded-t-lg jd-border-b">
           <div className="jd-flex jd-items-center jd-gap-2">
             <Edit3 className="jd-h-4 jd-w-4 jd-text-primary" />
-            <span className="jd-text-sm jd-font-medium">Editing Preview</span>
+            <span className="jd-text-sm jd-font-medium">{getMessage('editingPreview', undefined, 'Editing Preview')}</span>
           </div>
           <div className="jd-flex jd-items-center jd-gap-1">
             <Button
@@ -236,10 +237,10 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
 
         {/* Edit mode footer with tips */}
         <div className="jd-flex jd-justify-between jd-items-center jd-mt-2 jd-text-xs jd-text-muted-foreground jd-px-1">
-          <span>{editingContent.length} characters</span>
+          <span>{editingContent.length} {getMessage('charactersLabel', undefined, 'characters')}</span>
           <div className="jd-flex jd-items-center jd-gap-3">
-            <span>{editingContent.split('\n').length} lines</span>
-            <span className="jd-text-primary">Ctrl+Enter to save • Esc to cancel</span>
+            <span>{editingContent.split('\n').length} {getMessage('linesLabel', undefined, 'lines')}</span>
+            <span className="jd-text-primary">{getMessage('ctrlEnterToSave', undefined, 'Ctrl+Enter to save')}</span>
           </div>
         </div>
       </div>
@@ -290,8 +291,8 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
         
         {/* Footer for standard mode */}
         <div className="jd-flex jd-justify-between jd-items-center jd-mt-1 jd-text-xs jd-text-muted-foreground">
-          <span>{editingContent.length} characters • {editingContent.split('\n').length} lines</span>
-          <span className="jd-text-primary">Esc to cancel</span>
+          <span>{editingContent.length} {getMessage('charactersLabel', undefined, 'characters')} • {editingContent.split('\n').length} {getMessage('linesLabel', undefined, 'lines')}</span>
+          <span className="jd-text-primary">{getMessage('escToCancel', undefined, 'Esc to cancel')}</span>
         </div>
       </div>
     );
@@ -340,17 +341,9 @@ export const EditablePromptPreview: React.FC<EditablePromptPreviewProps> = ({
       {/* Enhanced bottom info bar */}
       {content && (
         <div className="jd-flex jd-justify-between jd-items-center jd-mt-2 jd-text-xs jd-text-muted-foreground jd-px-1">
-          <span>{content.length} characters</span>
+          <span>{content.length} {getMessage('charactersLabel', undefined, 'characters')}</span>
           <div className="jd-flex jd-items-center jd-gap-3">
-            <span>{content.split('\n').length} lines</span>
-            {showColors && (
-              <div className="jd-flex jd-items-center jd-gap-1">
-                <div className="jd-w-2 jd-h-2 jd-bg-purple-500 jd-rounded-full"></div>
-                <div className="jd-w-2 jd-h-2 jd-bg-green-500 jd-rounded-full"></div>
-                <div className="jd-w-2 jd-h-2 jd-bg-blue-500 jd-rounded-full"></div>
-                <span className="jd-text-[10px]">colored</span>
-              </div>
-            )}
+            <span>{content.split('\n').length} {getMessage('linesLabel', undefined, 'lines')}</span>
             {onChange && (
               <span className="jd-text-primary jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity">
                 Click to edit

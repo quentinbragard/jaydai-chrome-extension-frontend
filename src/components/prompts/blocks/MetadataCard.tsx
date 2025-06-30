@@ -246,7 +246,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                   <SelectValue placeholder={`Select ${config.label.toLowerCase()}`} />
                 </SelectTrigger>
                 <SelectContent className="jd-z-[10010]">
-                  <SelectItem value="0">None</SelectItem>
+                  <SelectItem value="0">{getMessage('none', undefined, 'None')}</SelectItem>
                   {availableBlocks.map((block) => (
                     <SelectItem key={block.id} value={String(block.id)}>
                       {getLocalizedContent(block.title) || `${config.label} block`}
@@ -277,7 +277,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                         <SelectValue placeholder={`Select ${config.label.toLowerCase()}`} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="0">None</SelectItem>
+                        <SelectItem value="0">{getMessage('none', undefined, 'None')}</SelectItem>
                         {availableBlocks.map((block) => (
                           <SelectItem key={block.id} value={String(block.id)}>
                             {getLocalizedContent(block.title) || `${config.label} block`}

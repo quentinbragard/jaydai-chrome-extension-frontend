@@ -1933,5 +1933,10 @@
   "selectedFolderDescription": { "message": "Selected Folder", "description": "Text displayed when a folder is selected" },
   "errorCreatingFolder": { "message": "An error occurred while creating the folder", "description": "Error message when creating a folder fails" },
   "folderCreatedSuccessfully": { "message": "Folder created successfully", "description": "Success message when creating a folder" },
-  "folderTitleRequired": { "message": "Folder title is required", "description": "Error message when creating a folder with no title" }
+  "folderTitleRequired": { "message": "Folder title is required", "description": "Error message when creating a folder with no title" },
+  "none": { "message": "None", "description": "Text displayed when no value is selected" },
+  "ctrlEnterToSave": { "message": "Ctrl+Enter to save • Esc to cancel", "description": "Message for Ctrl+Enter to save" },
+  "editingPreview": { "message": "Editing Preview", "description": "Title for the editing preview section" },
+  "escToCancel": { "message": "Esc to cancel", "description": "Message for the Esc to cancel" },
+  "existing": { "message": "Existing", "description": "Text displayed when a block is existing" }
 }
