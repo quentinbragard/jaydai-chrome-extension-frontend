@@ -1,4 +1,4 @@
-// src/components/prompts/blocks/MetadataCard.tsx - FIXED
+// src/components/prompts/blocks/MetadataCard.tsx
 import React from 'react';
 import {
   Block,
@@ -62,7 +62,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   onToggle,
   onRemove
 }) => {
-  console.log("availableBlocks for type", type, ":", availableBlocks);
+  console.log("availableBlocks4444444--->", availableBlocks);
   const config = METADATA_CONFIGS[type];
   const isDarkMode = useThemeDetector();
   const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
@@ -183,42 +183,6 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
 
   const selectedBlock = value && value !== 0 ? availableBlocks.find(b => b.id === value) : null;
 
-  // Helper function to get block info for multiple metadata items
-  const getBlockDisplayInfo = (item: any) => {
-    if (!item.blockId) {
-      return {
-        text: item.value || 'Custom text',
-        isCustom: true
-      };
-    }
-    
-    const block = availableBlocks.find(b => b.id === item.blockId);
-    if (!block) {
-      return {
-        text: item.value || 'Unknown block',
-        isCustom: true
-      };
-    }
-    
-    const title = getLocalizedContent(block.title);
-    const content = getLocalizedContent(block.content);
-    
-    return {
-      text: title || content || 'Untitled block',
-      isCustom: false,
-      block
-    };
-  };
-
-  // Calculate if any blocks are selected for visual feedback
-  const hasSelection = React.useMemo(() => {
-    if (!isMultipleMetadataType(type)) {
-      return value && value !== 0;
-    } else {
-      return items.some((item: any) => item.blockId || item.value?.trim());
-    }
-  }, [type, value, items]);
-
   return (
     <Card
       ref={cardRef}
@@ -232,8 +196,6 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
         'jd-border-2 jd-backdrop-blur-sm jd-py-2 jd-select-none',
         cardColors,
         isPrimary && 'jd-border-primary/20',
-        // Add visual feedback when blocks are selected
-        hasSelection && 'jd-ring-1 jd-ring-primary/30 jd-bg-primary/5',
         expanded &&
           (isDarkMode
             ? 'jd-ring-2 jd-ring-primary/50 jd-shadow-lg jd-bg-gray-800'
@@ -249,7 +211,6 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
             <span className={cn('jd-font-black', getBlockTextColors(config.blockType, isDarkMode))}>
               {config.label}
               {isMultipleMetadataType(type) && items.length > 0 ? ` (${items.length})` : ''}
-              {hasSelection && <span className="jd-ml-1 jd-text-green-500">●</span>}
             </span>
           </div>
           <div className="jd-flex jd-items-center jd-gap-1" onClick={stopPropagation}>
@@ -377,13 +338,13 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
               value && selectedBlock ? (
                 <div className="jd-text-xs jd-line-clamp-2 jd-text-bold">
                   {(selectedBlock.title) ? (
-                    <div className="jd-text-green-700 jd-dark:jd-text-green-400 jd-font-medium">
-                      ✓ {getLocalizedContent(selectedBlock.title).substring(0, 60)}
+                    <div>
+                      {getLocalizedContent(selectedBlock.title).substring(0, 60)}
                       {getLocalizedContent(selectedBlock.title).length > 60 ? '...' : ''}
                     </div>
                   ) : (
-                    <div className="jd-text-green-700 jd-dark:jd-text-green-400 jd-font-medium">
-                      ✓ {getLocalizedContent(selectedBlock.content).substring(0, 60)}
+                    <div>
+                      {getLocalizedContent(selectedBlock.content).substring(0, 60)}
                       {getLocalizedContent(selectedBlock.content).length > 60 ? '...' : ''}
                     </div>
                   )}
@@ -393,24 +354,13 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
               )
             ) : items.length > 0 ? (
               <>
-                {items.slice(0, 2).map((item: any, idx: number) => {
-                  const blockInfo = getBlockDisplayInfo(item);
-                  return (
-                    <div key={item.id} className="jd-truncate jd-mb-1">
-                      <span className="jd-text-green-700 jd-dark:jd-text-green-400 jd-font-medium">
-                        {idx + 1}. ✓ {blockInfo.text.substring(0, 50)}
-                        {blockInfo.text.length > 50 ? '...' : ''}
-                      </span>
-                      {!blockInfo.isCustom && (
-                        <span className="jd-text-xs jd-text-primary jd-ml-1">(block)</span>
-                      )}
-                    </div>
-                  );
-                })}
-                {items.length > 2 && (
-                  <div className="jd-text-xs jd-opacity-75 jd-text-green-700 jd-dark:jd-text-green-400">
-                    +{items.length - 2} more...
+                {items.slice(0, 2).map((it, idx) => (
+                  <div key={it.id} className="jd-truncate">
+                    {idx + 1}. {it.value.substring(0, 50)}{it.value.length > 50 ? '...' : ''}
                   </div>
+                ))}
+                {items.length > 2 && (
+                  <div className="jd-text-xs jd-opacity-75">+{items.length - 2} more...</div>
                 )}
               </>
             ) : (

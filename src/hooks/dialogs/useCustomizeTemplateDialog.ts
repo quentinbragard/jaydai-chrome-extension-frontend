@@ -1,5 +1,5 @@
-// src/hooks/dialogs/useCustomizeTemplateDialog.ts - FIXED Version
-import { useState, useEffect, useRef, useMemo } from 'react';
+// src/hooks/dialogs/useCustomizeTemplateDialog.ts - Simplified Version
+import { useState, useEffect, useRef } from 'react';
 
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
@@ -16,7 +16,6 @@ import { replacePlaceholders } from '@/utils/templates/placeholderHelpers';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { Block } from '@/types/prompts/blocks';
-import { parseTemplateMetadata } from '@/utils/prompts/metadataUtils';
 
 // Helper to build a cache of block ID -> translated content
 const buildBlockCache = (blocks: Block[]): Record<number, string> => {
@@ -41,6 +40,7 @@ export function useCustomizeTemplateDialog() {
     document.addEventListener('jaydai:placeholder-values', handler as EventListener);
     return () => document.removeEventListener('jaydai:placeholder-values', handler as EventListener);
   }, []);
+
 
   // Fetch blocks when dialog opens
   useEffect(() => {
@@ -125,35 +125,10 @@ export function useCustomizeTemplateDialog() {
       console.error('Error in customize template close:', error);
     }
   };
-
-  // Enhanced initial data processing
-  const enhancedInitialData = useMemo(() => {
-    if (!data) return undefined;
-
-    console.log('Raw dialog data:', data);
-
-    // Enhanced metadata parsing
-    let parsedMetadata = data.metadata;
-    if (data.metadata) {
-      try {
-        // Use the enhanced metadata parser
-        parsedMetadata = parseTemplateMetadata(data.metadata);
-        console.log('Enhanced parsed metadata:', parsedMetadata);
-      } catch (error) {
-        console.error('Error parsing metadata:', error);
-        parsedMetadata = data.metadata;
-      }
-    }
-
-    return {
-      ...data,
-      metadata: parsedMetadata
-    };
-  }, [data]);
   
   const baseHook = useTemplateDialogBase({
     dialogType: 'customize',
-    initialData: enhancedInitialData,
+    initialData: data,
     onComplete: handleComplete,
     onClose: handleClose
   });
@@ -162,6 +137,6 @@ export function useCustomizeTemplateDialog() {
     ...baseHook,
     isOpen,
     dialogProps,
-    data: enhancedInitialData
+    data
   };
 }

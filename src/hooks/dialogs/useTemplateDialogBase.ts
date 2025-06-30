@@ -24,7 +24,7 @@ import {
   getFilledMetadataTypes,
   extractCustomValues,
   validateMetadata,
-  parseTemplateMetadata,  
+  parseTemplateMetadata
 } from '@/utils/prompts/metadataUtils';
 
 export interface TemplateDialogConfig {
@@ -364,20 +364,14 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
           console.log('Customize mode - parsed metadata:', meta);
           console.log('Customize mode - filled types:', Array.from(getFilledMetadataTypes(meta)));
   
-          const filledTypes = getFilledMetadataTypes(meta);
           const activeSecondary = getActiveSecondaryMetadata(meta);
-          const unfilledPrimary = PRIMARY_METADATA.filter(t => !filledTypes.has(t));
-          const unfilledSecondary = Array.from(activeSecondary).filter(t => !filledTypes.has(t));
 
           setState(prev => ({
             ...prev,
             content,
             metadata: meta,
             // Expand only metadata types without a value
-            expandedMetadata: new Set([
-              ...unfilledPrimary,
-              ...unfilledSecondary
-            ]),
+            expandedMetadata: new Set([]),
             // Keep primary metadata visible, but collapse secondary if there are many
             metadataCollapsed: false,
             secondaryMetadataCollapsed: Array.from(activeSecondary).length > 2,
