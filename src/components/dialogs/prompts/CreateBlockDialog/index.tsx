@@ -122,9 +122,46 @@ export const CreateBlockDialog: React.FC = () => {
 
   if (!isOpen) return null;
 
+
+  // Create footer with action buttons
+  const footer = (
+    <div className="jd-flex jd-justify-end jd-gap-2">
+      <Button 
+        type="button" 
+        variant="outline" 
+        onClick={handleClose}
+        disabled={isSubmitting}
+      >
+        <X className="jd-h-4 jd-w-4 jd-mr-2" />
+        {getMessage('cancel', undefined, 'Cancel')}
+      </Button>
+      <Button
+        type="submit"
+        disabled={isSubmitting || !name.trim() || !content.trim()}
+        className={cn(
+          'jd-transition-all jd-duration-300',
+          typeColors
+        )}
+      >
+        {isSubmitting ? (
+          <>
+            <div className="jd-animate-spin jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-rounded-full jd-mr-2 !jd-text-white !jd-text-bold"></div>
+            {getMessage('creating', undefined, 'Creating...')}
+          </>
+        ) : (
+          <>
+            <Save className="jd-h-4 jd-w-4 jd-mr-2 jd-text-primary-foreground" />
+            <span className="jd-text-primary-foreground">{getMessage('createBlock', undefined, 'Create Block')}</span>
+          </>
+        )}
+      </Button>
+    </div>
+  );
+
   return (
     <BaseDialog
       open={isOpen}
+      footer={footer}
       onOpenChange={handleClose}
       title={getMessage('createBlockTitle', undefined, 'Create Block')}
       description={getMessage('createBlockDescription', undefined, 'Create a new reusable block for your prompts')}
@@ -231,39 +268,6 @@ export const CreateBlockDialog: React.FC = () => {
             className="jd-w-full jd-resize-none"
             rows={3}
           />
-        </div>
-        
-        {/* Action Buttons */}
-        <div className="jd-flex jd-justify-end jd-space-x-3 jd-pt-4 jd-border-t">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={handleClose}
-            disabled={isSubmitting}
-          >
-            <X className="jd-h-4 jd-w-4 jd-mr-2" />
-            {getMessage('cancel', undefined, 'Cancel')}
-          </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting || !name.trim() || !content.trim()}
-            className={cn(
-              'jd-transition-all jd-duration-300',
-              typeColors
-            )}
-          >
-            {isSubmitting ? (
-              <>
-                <div className="jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-animate-spin jd-rounded-full jd-inline-block jd-mr-2"></div>
-                {getMessage('creating', undefined, 'Creating...')}
-              </>
-            ) : (
-              <>
-                <Save className="jd-h-4 jd-w-4 jd-mr-2" />
-                {getMessage('createBlock', undefined, 'Create Block')}
-              </>
-            )}
-          </Button>
         </div>
       </form>
     </BaseDialog>
