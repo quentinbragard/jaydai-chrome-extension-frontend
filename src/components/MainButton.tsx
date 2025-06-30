@@ -118,7 +118,7 @@ const MainButton = () => {
         setPosition(null);
         return;
       }
-      const maxX = window.innerWidth - 10;
+      const maxX = window.innerWidth - 80;
       const maxY = window.innerHeight - 80;
       let { x, y } = savedPosition;
       console.log("x", x);

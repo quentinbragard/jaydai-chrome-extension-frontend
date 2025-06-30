@@ -1995,5 +1995,11 @@
   },
   "more": { "message": "plus", "description": "Libellé pour le bouton de plus" },
   "clickToAdd": { "message": "Cliquez pour ajouter", "description": "Libellé pour le bouton de clic pour ajouter" },
-  "add": { "message": "Ajouter", "description": "Libellé pour le bouton d'ajout" }
+  "add": { "message": "Ajouter", "description": "Libellé pour le bouton d'ajout" },
+  "premium": { "message": "Premium", "description": "Libellé pour le bouton de premium" },
+  "team_sharing": { "message": "Partage entre équipes", "description": "Libellé pour le bouton de partage de team" },
+  "priority_support": { "message": "Support prioritaire", "description": "Libellé pour le bouton de support prioritaire" },
+  "get_enterprise_access": { "message": "Accéder à l'offre entreprise", "description": "Libellé pour le bouton d'accéder à l'entreprise" },
+  "join_50_teams_already_using_enterprise": { "message": "Rejoignez 50+ équipes déjà utilisant l'entreprise", "description": "Libellé pour le bouton de rejoindre 500+ équipes déjà utilisant l'entreprise" },
+  "enterprise_feature_description": { "message": "Débloquez les templates d'entreprise, la collaboration avancée et la sécurité d'entreprise.", "description": "Libellé pour la description de la fonctionnalité entreprise" }
 }

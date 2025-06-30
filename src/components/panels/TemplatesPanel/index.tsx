@@ -72,28 +72,28 @@ const EnhancedEnterpriseCTA: React.FC<{ onContactSales: () => void }> = ({ onCon
           <div className="jd-flex jd-items-start jd-gap-3">
             {/* Enhanced icon with glow effect */}
             <div className="jd-relative jd-p-2 jd-rounded-lg jd-bg-gradient-to-br jd-from-blue-500/20 jd-to-purple-500/20 jd-dark:jd-from-blue-600/30 jd-dark:jd-to-purple-600/30">
-              <Building2 className="jd-w-5 jd-h-5 jd-text-blue-600 jd-dark:jd-text-blue-400" />
+              <Building2 className="jd-w-5 jd-h-5 jd-text-primary" />
               {isHovered && (
-                <div className="jd-absolute jd-inset-0 jd-rounded-lg jd-bg-blue-400/20 jd-animate-pulse"></div>
+                <div className="jd-absolute jd-inset-0 jd-rounded-lg jd-bg-primary/20 jd-animate-pulse"></div>
               )}
             </div>
             
             <div className="jd-flex jd-flex-col jd-gap-1">
               <div className="jd-flex jd-items-center jd-gap-2">
-                <h3 className="jd-text-sm jd-font-semibold jd-text-blue-700 jd-dark:jd-text-blue-300">
+                <h3 className="jd-text-sm jd-font-semibold jd-text-primary">
                   {getMessage('company_templates_cta_title', undefined, 'Company Templates')}
                 </h3>
                 <div className="jd-flex jd-items-center jd-gap-1 jd-px-2 jd-py-0.5 jd-rounded-full jd-bg-gradient-to-r jd-from-amber-400/20 jd-to-orange-400/20 jd-border jd-border-amber-300/30">
                   <Star className="jd-h-2.5 jd-w-2.5 jd-text-amber-600 jd-dark:jd-text-amber-400" />
                   <span className="jd-text-xs jd-font-medium jd-text-amber-700 jd-dark:jd-text-amber-400">
-                    Premium
+                    {getMessage('premium', undefined, 'Premium')}
                   </span>
                 </div>
               </div>
               
               <div className="jd-flex jd-items-center jd-gap-1">
-                <Lock className="jd-h-3 jd-w-3 jd-text-blue-500 jd-dark:jd-text-blue-400" />
-                <span className="jd-text-xs jd-font-medium jd-text-blue-600 jd-dark:jd-text-blue-400">
+                <Lock className="jd-h-3 jd-w-3 jd-text-primary" />
+                <span className="jd-text-xs jd-font-medium jd-text-primary">
                   {getMessage('enterprise_feature', undefined, 'Enterprise Feature')}
                 </span>
               </div>
@@ -110,19 +110,19 @@ const EnhancedEnterpriseCTA: React.FC<{ onContactSales: () => void }> = ({ onCon
 
         {/* Enhanced value proposition */}
         <div className="jd-space-y-2">
-          <p className="jd-text-xs jd-text-gray-700 jd-dark:jd-text-gray-300 jd-leading-relaxed">
-            Unlock team-wide templates, advanced collaboration, and enterprise-grade security.
+          <p className="jd-text-xs jd-text-secondary-foreground jd-leading-relaxed">
+            {getMessage('enterprise_feature_description', undefined, 'Unlock team-wide templates, advanced collaboration, and enterprise-grade security.')}
           </p>
           
           {/* Benefits list */}
           <div className="jd-grid jd-grid-cols-2 jd-gap-1 jd-text-xs">
             <div className="jd-flex jd-items-center jd-gap-1.5 jd-text-gray-600 jd-dark:jd-text-gray-400">
-              <Users className="jd-h-3 jd-w-3 jd-text-blue-500" />
-              <span>Team sharing</span>
+              <Users className="jd-h-3 jd-w-3 jd-text-primary" />
+              <span className="jd-text-foreground">{getMessage('team_sharing', undefined, 'Team sharing')}</span>
             </div>
             <div className="jd-flex jd-items-center jd-gap-1.5 jd-text-gray-600 jd-dark:jd-text-gray-400">
-              <Zap className="jd-h-3 jd-w-3 jd-text-purple-500" />
-              <span>Priority support</span>
+              <Zap className="jd-h-3 jd-w-3 jd-text-primary" />
+              <span className="jd-text-foreground">{getMessage('priority_support', undefined, 'Priority support')}</span>
             </div>
           </div>
         </div>
@@ -136,21 +136,21 @@ const EnhancedEnterpriseCTA: React.FC<{ onContactSales: () => void }> = ({ onCon
           className="jd-group jd-relative jd-w-full jd-overflow-hidden jd-rounded-lg jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600 jd-p-3 jd-text-white jd-transition-all jd-duration-300 hover:jd-from-blue-700 hover:jd-to-purple-700 hover:jd-shadow-lg hover:jd-shadow-blue-500/25 jd-dark:hover:jd-shadow-blue-400/20"
         >
           {/* Button shimmer effect */}
-          <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-transparent jd-via-white/10 jd-to-transparent jd-translate-x-[-100%] group-hover:jd-translate-x-[100%] jd-transition-transform jd-duration-700"></div>
+          <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-bg-secondary jd-translate-x-[-100%] group-hover:jd-translate-x-[100%] jd-transition-transform jd-duration-700"></div>
           
           <div className="jd-relative jd-flex jd-items-center jd-justify-center jd-gap-2">
-            <Mail className="jd-h-4 jd-w-4 jd-transition-transform jd-duration-300 group-hover:jd-scale-110" />
-            <span className="jd-text-sm jd-font-medium">
-              Get Enterprise Access
+            <Mail className=" jd-text-secondary-foreground jd-h-4 jd-w-4 jd-transition-transform jd-duration-300 group-hover:jd-scale-110" />
+            <span className="jd-text-sm jd-font-medium jd-text-secondary-foreground">
+              {getMessage('get_enterprise_access', undefined, 'Get Enterprise Access')}
             </span>
             <Sparkles className="jd-h-3 jd-w-3 jd-opacity-70 jd-transition-all jd-duration-300 group-hover:jd-opacity-100 group-hover:jd-rotate-12" />
           </div>
         </button>
 
         {/* Subtle social proof */}
-        <div className="jd-flex jd-items-center jd-justify-center jd-gap-1 jd-text-xs jd-text-gray-500 jd-dark:jd-text-gray-400">
+        <div className="jd-flex jd-items-center jd-justify-center jd-gap-1 jd-text-xs jd-text-secondary-foreground">
           <span>✨</span>
-          <span>Join 500+ teams already using Enterprise</span>
+          <span>{getMessage('join_50_teams_already_using_enterprise', undefined, 'Join 50+ teams already using Enterprise')}</span>
         </div>
       </div>
     </div>

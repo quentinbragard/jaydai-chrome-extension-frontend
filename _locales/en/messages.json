@@ -2013,5 +2013,11 @@
   },
   "more": { "message": "more", "description": "Label for the more button" },
   "clickToAdd": { "message": "Click to add", "description": "Label for the click to add button" },
-  "add": { "message": "Add", "description": "Label for the add button" }
+  "add": { "message": "Add", "description": "Label for the add button" },
+  "premium": { "message": "Premium", "description": "Label for the premium button" },
+  "team_sharing": { "message": "Team sharing", "description": "Label for the team sharing button" },
+  "priority_support": { "message": "Priority support", "description": "Label for the priority support button" },
+  "get_enterprise_access": { "message": "Get Enterprise Access", "description": "Label for the get enterprise access button" },
+  "join_50_teams_already_using_enterprise": { "message": "Join 50+ teams already using Enterprise", "description": "Label for the join 50+ teams already using enterprise button" },
+  "enterprise_feature_description": { "message": "Unlock team-wide templates, advanced collaboration, and enterprise-grade security.", "description": "Label for the enterprise feature description" }
 }
