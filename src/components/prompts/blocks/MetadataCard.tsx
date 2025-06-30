@@ -62,7 +62,6 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   onToggle,
   onRemove
 }) => {
-  console.log("availableBlocks4444444--->", availableBlocks);
   const config = METADATA_CONFIGS[type];
   const isDarkMode = useThemeDetector();
   const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
@@ -354,11 +353,17 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
               )
             ) : items.length > 0 ? (
               <>
-                {items.slice(0, 2).map((it, idx) => (
-                  <div key={it.id} className="jd-truncate">
-                    {idx + 1}. {it.value.substring(0, 50)}{it.value.length > 50 ? '...' : ''}
-                  </div>
-                ))}
+                {items.slice(0, 2).map((it, idx) => {
+                  const block = it.blockId ? availableBlocks.find(b => b.id === it.blockId) : undefined;
+                  const text = block ?
+                    (getLocalizedContent(block.title) || getLocalizedContent(block.content)) :
+                    it.value;
+                  return (
+                    <div key={it.id} className="jd-truncate">
+                      {idx + 1}. {text.substring(0, 50)}{text.length > 50 ? '...' : ''}
+                    </div>
+                  );
+                })}
                 {items.length > 2 && (
                   <div className="jd-text-xs jd-opacity-75">+{items.length - 2} more...</div>
                 )}
