@@ -13,7 +13,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { BlockType, Block } from '@/types/prompts/blocks';
-import { getCurrentLanguage } from '@/core/utils/i18n';
+import { getCurrentLanguage, getMessage } from '@/core/utils/i18n';
 import { METADATA_CONFIGS } from '@/types/prompts/metadata';
 
 // Updated block types including new metadata types
@@ -30,15 +30,15 @@ export const BLOCK_TYPES: BlockType[] = [
 ];
 
 export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
-  role: 'Role',
-  context: 'Context',
-  goal: 'Goal',
-  custom: 'Custom',
-  output_format: 'Output Format',
-  example: 'Example',
-  constraint: 'Constraint',
-  tone_style: 'Tone & Style',
-  audience: 'Audience'
+  role: getMessage('blockRoleLabel', undefined, 'Role'),
+  context: getMessage('blockContextLabel', undefined, 'Context'),
+  goal: getMessage('blockGoalLabel', undefined, 'Goal'),
+  custom: getMessage('blockCustomLabel', undefined, 'Custom'),
+  output_format: getMessage('blockOutputFormatLabel', undefined, 'Output Format'),
+  example: getMessage('blockExampleLabel', undefined, 'Example'),
+  constraint: getMessage('blockConstraintLabel', undefined, 'Constraint'),
+  tone_style: getMessage('blockToneStyleLabel', undefined, 'Tone & Style'),
+  audience: getMessage('blockAudienceLabel', undefined, 'Audience')
 };
 
 export const BLOCK_TYPE_ICONS: Record<BlockType, React.ComponentType<any>> = {
@@ -165,9 +165,21 @@ export const getLocalizedContent = (content: any): string => {
   return '';
 };
 
-// Enhanced prompt prefixes with better French localization
+// Prompt prefixes per language
+const PROMPT_PREFIXES_EN: Record<BlockType, string> = {
+  role: 'Role:\n ',
+  context: 'Context:\n ',
+  goal: 'Goal:\n ',
+  custom: '',
+  output_format: 'Output Format:\n ',
+  example: 'Example:\n ',
+  constraint: 'Constraint:\n ',
+  tone_style: 'Tone & Style:\n ',
+  audience: 'Audience:\n '
+};
+
 const PROMPT_PREFIXES_FR: Record<BlockType, string> = {
-  role: "Role:\n ",
+  role: 'Role:\n ',
   context: 'Contexte:\n ',
   goal: 'Objectif:\n ',
   custom: '',
@@ -175,7 +187,7 @@ const PROMPT_PREFIXES_FR: Record<BlockType, string> = {
   example: 'Exemple:\n ',
   constraint: 'Contrainte:\n ',
   tone_style: 'Ton et style:\n ',
-  audience: 'Audience cible:\n ',
+  audience: 'Audience cible:\n '
 };
 
 const escapeHtml = (str: string): string =>
@@ -191,15 +203,23 @@ export const buildPromptPart = (type: BlockType | null | undefined, content: str
   if (!type || type === 'custom') {
     return content;
   }
-  const prefix = PROMPT_PREFIXES_FR[type];
+  const lang = getCurrentLanguage().startsWith('fr') ? 'fr' : 'en';
+  const prefixes = lang === 'fr' ? PROMPT_PREFIXES_FR : PROMPT_PREFIXES_EN;
+  const prefix = prefixes[type];
   return prefix ? `${prefix}${content}` : content;
 };
 
-export const buildPromptPartHtml = (type: BlockType | null | undefined, content: string, isDarkMode: boolean): string => {
+export const buildPromptPartHtml = (
+  type: BlockType | null | undefined,
+  content: string,
+  isDarkMode: boolean
+): string => {
   if (!type || type === 'custom') {
     return escapeHtml(content);
   }
-  const prefix = PROMPT_PREFIXES_FR[type];
+  const lang = getCurrentLanguage().startsWith('fr') ? 'fr' : 'en';
+  const prefixes = lang === 'fr' ? PROMPT_PREFIXES_FR : PROMPT_PREFIXES_EN;
+  const prefix = prefixes[type];
   if (!prefix) {
     return escapeHtml(content);
   }

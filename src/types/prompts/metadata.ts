@@ -1,5 +1,6 @@
 // src/types/prompts/metadata.ts - Enhanced version
 import { BlockType } from './blocks';
+import { getMessage } from '@/core/utils/i18n';
 
 // Base metadata types
 export type SingleMetadataType = 'role' | 'context' | 'goal' | 'audience' | 'tone_style' | 'output_format';
@@ -42,56 +43,56 @@ export interface MetadataConfig {
 
 export const METADATA_CONFIGS: Record<MetadataType, MetadataConfig> = {
   role: {
-    label: 'Role',
+    label: getMessage('blockRoleLabel', undefined, 'Role'),
     description: 'Define the AI\'s role and expertise',
     blockType: 'role',
     placeholder: 'e.g., You are an expert software developer...',
     allowMultiple: false
   },
   context: {
-    label: 'Context',
+    label: getMessage('blockContextLabel', undefined, 'Context'),
     description: 'Provide background information',
     blockType: 'context',
     placeholder: 'e.g., The user is working on a React project...',
     allowMultiple: false
   },
   goal: {
-    label: 'Goal',
+    label: getMessage('blockGoalLabel', undefined, 'Goal'),
     description: 'Specify the desired outcome',
     blockType: 'goal',
     placeholder: 'e.g., Help improve code quality and performance...',
     allowMultiple: false
   },
   audience: {
-    label: 'Audience',
+    label: getMessage('blockAudienceLabel', undefined, 'Audience'),
     description: 'Define the target audience',
     blockType: 'audience',
     placeholder: 'e.g., Intermediate developers familiar with React...',
     allowMultiple: false
   },
   tone_style: {
-    label: 'Tone & Style',
+    label: getMessage('blockToneStyleLabel', undefined, 'Tone & Style'),
     description: 'Set the communication style',
     blockType: 'tone_style',
     placeholder: 'e.g., Professional but friendly, use clear example...',
     allowMultiple: false
   },
   output_format: {
-    label: 'Output Format',
+    label: getMessage('blockOutputFormatLabel', undefined, 'Output Format'),
     description: 'Specify how the response should be structured',
     blockType: 'output_format',
     placeholder: 'e.g., Provide code example with explanations...',
     allowMultiple: false
   },
   constraint: {
-    label: 'Constraint',
+    label: getMessage('blockConstraintLabel', undefined, 'Constraint'),
     description: 'Add limitations or requirements',
     blockType: 'constraint',
     placeholder: 'e.g., Keep responses under 500 words...',
     allowMultiple: true
   },
   example: {
-    label: 'Example',
+    label: getMessage('blockExampleLabel', undefined, 'Example'),
     description: 'Provide example to guide the response',
     blockType: 'example',
     placeholder: 'e.g., Good: const data = await fetch()...',
