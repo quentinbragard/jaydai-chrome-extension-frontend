@@ -314,7 +314,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           return { success: true, folder: result };
         } catch (error) {
           console.error('Error creating folder:', error);
-          return { success: false, error: 'Failed to create folder' };
+          return { success: false, error: getMessage('failedToCreateFolder', undefined, 'Failed to create folder') };
         }
       },
       onFolderCreated: async (folder: TemplateFolder) => {
@@ -422,10 +422,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               {displayItems.items.length === 0 ? (
                 <EmptyMessage>
                   {searchQuery.trim()
-                    ? `No results found for "${searchQuery}"`
+                    ? getMessage(
+                        'noResultsForQuery',
+                        [searchQuery],
+                        `No results found for "${searchQuery}"`
+                      )
                     : navigation.isAtRoot
                       ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
-                      : 'This folder is empty'
+                      : getMessage('folderEmpty', undefined, 'This folder is empty')
                   }
                 </EmptyMessage>
               ) : (
