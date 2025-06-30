@@ -377,7 +377,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         <FolderSearch
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          placeholderText="Search templates and folders..."
+          placeholderText={getMessage('searchTemplatesAndFolders', undefined, 'Search templates and folders...')}
           onReset={() => setSearchQuery('')}
         />
 
@@ -389,7 +389,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
                 <div className="jd-flex jd-items-center">
                   <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
-                  Search Results
+                  {getMessage('searchResults', undefined, 'Search Results')}
                 </div>
                 <Button
                   variant="ghost"
@@ -397,7 +397,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                   onClick={() => setSearchQuery('')}
                   className="jd-h-6 jd-px-2 jd-text-xs"
                 >
-                  Clear
+                  {getMessage('clear', undefined, 'Clear')}
                 </Button>
               </div>
             ) : (
