@@ -18,6 +18,7 @@ import {
   useAllPinnedFolders,
   useUserFolders,
   useOrganizationFolders,
+  useCompanyFolders,
   useFolderMutations,
   useTemplateMutations,
   useTemplateActions,
@@ -75,6 +76,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     isLoading: loadingOrganization,
     refetch: refetchOrganization
   } = useOrganizationFolders();
+
+  const {
+    data: companyFolders = [],
+    isLoading: loadingCompany,
+    refetch: refetchCompany
+  } = useCompanyFolders();
 
   const {
     data: unorganizedTemplates = [],
@@ -230,6 +237,22 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     return templates;
   }, [pinnedTemplateIds, userFolders, organizationFolders, unorganizedTemplates]);
 
+  const companyTemplates = useMemo(() => {
+    const templates: Template[] = [];
+    const traverse = (folders: TemplateFolder[]) => {
+      folders.forEach(folder => {
+        if (Array.isArray(folder.templates)) {
+          templates.push(...folder.templates);
+        }
+        if (Array.isArray(folder.Folders)) {
+          traverse(folder.Folders);
+        }
+      });
+    };
+    traverse(companyFolders);
+    return templates;
+  }, [companyFolders]);
+
   const filteredPinnedTemplates = useMemo(() => {
     if (!searchQuery.trim()) return pinnedTemplates;
     return pinnedTemplates.filter(t => templateMatchesQuery(t, searchQuery));
@@ -327,6 +350,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     openCreateBlock();
   }, [openCreateBlock]);
 
+  const handleContactSales = useCallback(() => {
+    window.open('https://www.jayd.ai/#Contact', '_blank');
+  }, []);
+
   // Template handlers
   const handleDeleteTemplate = useCallback((templateId: number) => {
     openConfirmation({
@@ -346,7 +373,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }, [openConfirmation, deleteTemplate, refetchUser]);
 
   // Loading state
-  const isLoading = loadingUser || loadingOrganization || loadingUnorganized;
+  const isLoading =
+    loadingUser || loadingOrganization || loadingCompany || loadingUnorganized;
 
   if (isLoading) {
     return (
@@ -487,6 +515,52 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       </div>
                     );
                   })}
+                </>
+              )}
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Company Templates Section */}
+          <div>
+            <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
+              <div className="jd-flex jd-items-center">
+                <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
+                Company Templates
+                {companyTemplates.length > 0 && (
+                  <span className="jd-ml-1 jd-text-xs jd-bg-primary/10 jd-text-primary jd-px-1.5 jd-py-0.5 jd-rounded-full">
+                    {companyTemplates.length}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
+              {companyTemplates.length === 0 ? (
+                <div className="jd-flex jd-flex-col jd-items-center jd-gap-2 jd-py-4">
+                  <p className="jd-text-sm jd-text-muted-foreground">CTP</p>
+                  <Button variant="secondary" size="sm" onClick={handleContactSales}>
+                    Contact Sales
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  {companyTemplates.map(template => (
+                    <TemplateItem
+                      key={`company-template-${template.id}`}
+                      template={template}
+                      type="company"
+                      onUseTemplate={useTemplate}
+                      onTogglePin={(id, pinned) =>
+                        handleToggleTemplatePin(id, pinned, 'company')
+                      }
+                      showEditControls={false}
+                      showDeleteControls={false}
+                      showPinControls={true}
+                      organizations={organizations}
+                    />
+                  ))}
                 </>
               )}
             </div>
