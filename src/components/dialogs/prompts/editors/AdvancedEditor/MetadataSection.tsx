@@ -23,7 +23,10 @@ import {
   MetadataType,
   PRIMARY_METADATA,
   SECONDARY_METADATA,
-  METADATA_CONFIGS
+  METADATA_CONFIGS,
+  isMultipleMetadataType,
+  SingleMetadataType,
+  MultipleMetadataType
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
@@ -52,6 +55,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
   showSecondary = true
 }) => {
   const {
+    metadata,
     setMetadata,
     expandedMetadata,
     toggleExpandedMetadata,
@@ -81,11 +85,41 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
   
   const isDarkMode = useThemeDetector();
 
-  const publishedBlocks = useMemo(() => {
-    return Object.values(availableMetadataBlocks)
-      .flat()
-      .filter(block => block.published === true);
-  }, [availableMetadataBlocks]);
+  const blocksForType = useMemo(() => {
+    const result: Record<MetadataType, Block[]> = {} as Record<MetadataType, Block[]>;
+
+    (Object.keys(METADATA_CONFIGS) as MetadataType[]).forEach(type => {
+      const allBlocks = availableMetadataBlocks[type] || [];
+      const published = allBlocks.filter(
+        b => (b as any).published === true || (b as any).is_published === true
+      );
+
+      const selectedIds: number[] = [];
+
+      if (isMultipleMetadataType(type)) {
+        const items = (metadata as any)[type as MultipleMetadataType] || [];
+        items.forEach((it: any) => {
+          if (it.blockId && !isNaN(it.blockId)) selectedIds.push(it.blockId);
+        });
+      } else {
+        const id = (metadata as any)[type as SingleMetadataType];
+        if (id && id !== 0) selectedIds.push(id);
+      }
+
+      const selectedBlocks = selectedIds
+        .map(id => allBlocks.find(b => b.id === id))
+        .filter(Boolean) as Block[];
+
+      const combined: Block[] = [...selectedBlocks];
+      published.forEach(b => {
+        if (!combined.some(sb => sb.id === b.id)) combined.push(b);
+      });
+
+      result[type] = combined;
+    });
+
+    return result;
+  }, [availableMetadataBlocks, metadata]);
 
   const renderCards = (
     types: MetadataType[],
@@ -104,7 +138,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
         >
           <MetadataCard
             type={type}
-            availableBlocks={publishedBlocks[type] || []}
+            availableBlocks={blocksForType[type] || []}
             expanded={expandedMetadata.has(type)}
             isPrimary={isPrimary}
             onToggle={() => toggleExpandedMetadata(type)}
