@@ -122,7 +122,7 @@ export const AddBlockButton: React.FC<AddBlockButtonProps> = ({
         })}
         
         {/* Existing Blocks Section */}
-        {Object.entries(availableBlocks).some(([_, blocks]) => blocks.length > 0) && (
+        {Object.entries(availableBlocks).some(([_type, blocks]) => blocks.length > 0) && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="jd-text-xs jd-text-muted-foreground">
