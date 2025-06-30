@@ -129,6 +129,7 @@ export const CreateBlockDialog: React.FC = () => {
       title={getMessage('createBlockTitle', undefined, 'Create Block')}
       description={getMessage('createBlockDescription', undefined, 'Create a new reusable block for your prompts')}
       className="jd-max-w-2xl"
+      baseZIndex={10010}
     >
       <form onSubmit={handleSubmit} className="jd-space-y-6">
         {/* Block Type Selection */}
