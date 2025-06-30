@@ -13,20 +13,28 @@ export interface BaseDialogProps {
   className?: string;
   children?: React.ReactNode;
   footer?: React.ReactNode;
+  /**
+   * Base z-index for the dialog. The backdrop will use this value,
+   * while the dialog content and close button will use higher values
+   * to ensure proper stacking when multiple dialogs are open.
+   * Defaults to 10001 which matches the previous behaviour.
+   */
+  baseZIndex?: number;
 }
 
 /**
  * A simplified BaseDialog that works better with Shadow DOM
  * Uses improved event capturing to prevent events from leaking while allowing internal functionality
  */
-export const BaseDialog: React.FC<BaseDialogProps> = ({ 
-  open, 
+export const BaseDialog: React.FC<BaseDialogProps> = ({
+  open,
   onOpenChange,
   title,
   description,
   className,
   children,
-  footer
+  footer,
+  baseZIndex = 10001
 }) => {
   // All hooks must be called unconditionally at the top
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -125,30 +133,31 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   return (
     <div
       data-dialog-root
-      className="jd-fixed jd-inset-0 jd-z-[10001] jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-overflow-hidden"
+      className="jd-fixed jd-inset-0 jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-overflow-hidden"
       onClick={handleBackdropClick}
       onMouseDown={(e) => e.stopPropagation()}
-      style={{ isolation: 'isolate' }} // Create new stacking context
+      style={{ isolation: 'isolate', zIndex: baseZIndex }} // Create new stacking context
     >
-      <div 
+      <div
         ref={dialogRef}
         className={cn(
-          "jd-bg-background jd-rounded-lg jd-shadow-xl jd-w-full jd-max-h-[90vh] jd-flex jd-flex-col jd-relative jd-z-[10002]",
+          "jd-bg-background jd-rounded-lg jd-shadow-xl jd-w-full jd-max-h-[90vh] jd-flex jd-flex-col jd-relative",
           className
         )}
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
-        style={{ isolation: 'isolate' }} // Create new stacking context for dialog content
+        style={{ isolation: 'isolate', zIndex: baseZIndex + 1 }} // Create new stacking context for dialog content
       >
         {/* Close button with higher z-index */}
-        <button 
+        <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
             onOpenChange(false);
           }}
-          className="jd-absolute jd-right-4 jd-top-4 jd-rounded-full jd-p-1 jd-bg-muted jd-text-muted-foreground hover:jd-bg-muted/80 focus:jd-outline-none jd-transition-colors jd-z-[10003]"
+          className="jd-absolute jd-right-4 jd-top-4 jd-rounded-full jd-p-1 jd-bg-muted jd-text-muted-foreground hover:jd-bg-muted/80 focus:jd-outline-none jd-transition-colors"
+          style={{ zIndex: baseZIndex + 2 }}
         >
           <X className="jd-h-4 jd-w-4" />
           <span className="jd-sr-only">Close</span>
