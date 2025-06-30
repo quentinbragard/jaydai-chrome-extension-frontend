@@ -9,7 +9,6 @@ import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
 import { getMessage } from '@/core/utils/i18n';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
-import { useLocalStorage } from '@/core/hooks/useLocalStorage';
 import { cn } from '@/core/utils/classNames';
 
 /**
@@ -25,7 +24,10 @@ const MainButton = () => {
     handleClosePanel,
   } = useMainButtonState();
 
-  const [position, setPosition] = useLocalStorage<{ x: number; y: number } | null>('mainButtonPosition', null);
+  // Position chosen by the user (persisted in localStorage)
+  const [savedPosition, setSavedPosition] = useState<{ x: number; y: number } | null>(null);
+  // Actual position rendered on screen after clamping to the viewport
+  const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const movedRef = useRef(false);
   const offsetRef = useRef({ x: 0, y: 0 });
@@ -62,14 +64,31 @@ const MainButton = () => {
 
   useEffect(() => {
     if (!isDragging) return;
-    
+
     const handleMove = (event: PointerEvent) => {
       movedRef.current = true;
-      setPosition({ x: event.clientX - offsetRef.current.x, y: event.clientY - offsetRef.current.y });
+      const newPos = {
+        x: event.clientX - offsetRef.current.x,
+        y: event.clientY - offsetRef.current.y,
+      };
+      setPosition(newPos);
     };
-    
-    const handleUp = () => {
+
+    const handleUp = (event: PointerEvent) => {
       setIsDragging(false);
+      if (movedRef.current) {
+        const newPos = {
+          x: event.clientX - offsetRef.current.x,
+          y: event.clientY - offsetRef.current.y,
+        };
+        setPosition(newPos);
+        setSavedPosition(newPos);
+        try {
+          window.localStorage.setItem('mainButtonPosition', JSON.stringify(newPos));
+        } catch (error) {
+          console.error('Error storing main button position:', error);
+        }
+      }
     };
 
     window.addEventListener('pointermove', handleMove);
@@ -78,29 +97,39 @@ const MainButton = () => {
       window.removeEventListener('pointermove', handleMove);
       window.removeEventListener('pointerup', handleUp);
     };
-  }, [isDragging, setPosition]);
+  }, [isDragging]);
 
-  // Ensure saved position remains within the viewport
+  // Load persisted position and update the on-screen position within viewport bounds
   useEffect(() => {
-    if (!position) return;
+    try {
+      const stored = window.localStorage.getItem('mainButtonPosition');
+      if (stored) {
+        setSavedPosition(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error('Error reading main button position:', error);
+    }
+  }, []);
 
+  useEffect(() => {
     const clampPosition = () => {
-      if (!position) return;
+      if (!savedPosition) {
+        setPosition(null);
+        return;
+      }
       const size = buttonRef.current?.offsetWidth || 80;
       const maxX = window.innerWidth - size;
       const maxY = window.innerHeight - size;
-      let { x, y } = position;
+      let { x, y } = savedPosition;
       x = Math.min(Math.max(0, x), maxX);
       y = Math.min(Math.max(0, y), maxY);
-      if (x !== position.x || y !== position.y) {
-        setPosition({ x, y });
-      }
+      setPosition({ x, y });
     };
 
     clampPosition();
     window.addEventListener('resize', clampPosition);
     return () => window.removeEventListener('resize', clampPosition);
-  }, [position, setPosition, buttonRef]);
+  }, [savedPosition, buttonRef]);
 
   // Removed showDragHandle state and related effects since three dots are always visible
 
@@ -108,8 +137,6 @@ const MainButton = () => {
   const darkLogo = chrome.runtime.getURL('images/letter-logo-white.png');
   const lightLogo = chrome.runtime.getURL('images/letter-logo-dark.png');
   const logoSrc = isDarkMode ? darkLogo : lightLogo;
-
-  console.log('position 🔥🔥🔥🔥', position);
 
   return (
     <ErrorBoundary>
