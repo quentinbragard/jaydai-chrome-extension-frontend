@@ -62,6 +62,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
   onToggle,
   onRemove
 }) => {
+  console.log("availableBlocks4444444--->", availableBlocks);
   const config = METADATA_CONFIGS[type];
   const isDarkMode = useThemeDetector();
   const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
