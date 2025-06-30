@@ -1933,5 +1933,5 @@
   "selectedFolderDescription": { "message": "Selected Folder", "description": "Text displayed when a folder is selected" },
   "errorCreatingFolder": { "message": "An error occurred while creating the folder", "description": "Error message when creating a folder fails" },
   "folderCreatedSuccessfully": { "message": "Folder created successfully", "description": "Success message when creating a folder" },
-  "folderTitleRequired": { "message": "Folder title is required", "description": "Error message when creating a folder with no title" },
+  "folderTitleRequired": { "message": "Folder title is required", "description": "Error message when creating a folder with no title" }
 }

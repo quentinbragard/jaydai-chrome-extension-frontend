@@ -78,6 +78,8 @@ export const EVENTS = {
   ONBOARDING_SKIPPED: 'Onboarding Skipped',
   ONBOARDING_ERROR: 'Onboarding Error',
   ONBOARDING_GOTO_CHATGPT: 'Onboarding Go To ChatGPT',
+
+  POPUP_OPENED: 'Popup Opened',
   
   // Template events
   TEMPLATE_VIEWED: 'Template Viewed',

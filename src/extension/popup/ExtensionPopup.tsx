@@ -15,11 +15,11 @@ import { AuthState } from '@/types';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Current extension version
-const EXTENSION_VERSION = "1.0.0";
+const EXTENSION_VERSION = chrome.runtime.getManifest().version;
 
 const ExtensionPopup: React.FC = () => {
   useEffect(() => {
-    trackEvent(EVENTS.EXTENSION_OPENED);
+    trackEvent(EVENTS.POPUP_OPENED);
   }, []);
   // Auth state
   const [authState, setAuthState] = useState<AuthState>({
@@ -103,7 +103,7 @@ const ExtensionPopup: React.FC = () => {
           )}
           
           <AppFooter 
-            version={chrome.runtime.getManifest().version}
+            version={EXTENSION_VERSION}
           />
         </Card>
       </div>

@@ -9,7 +9,7 @@ export const mistralConfig: PlatformConfig = {
     CHAT_COMPLETION: /\/api\/chat/,
   },
   domSelectors: {
-    PROMPT_TEXTAREA: 'textarea[name="message.text"]',
+    PROMPT_TEXTAREA: '.Editor-indented.ProseMirror',
     SUBMIT_BUTTON: 'form button[type="submit"]'
   },
   conversationIdPatterns: [
