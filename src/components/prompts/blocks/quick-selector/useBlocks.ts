@@ -9,7 +9,10 @@ export function useBlocks() {
   useEffect(() => {
     blocksApi.getBlocks().then(res => {
       if (res.success) {
-        setBlocks(res.data);
+        const published = res.data.filter(
+          b => (b as any).published === true || (b as any).is_published === true
+        );
+        setBlocks(published);
       }
       setLoading(false);
     });
