@@ -95,13 +95,19 @@ export function buildCompletePreview(metadata: PromptMetadata, content: string):
 
   if (metadata.constraint) {
     metadata.constraint.forEach(item => {
-      if (item.value.trim()) parts.push(`Contrainte: ${item.value}`);
+      if (item.value.trim()) {
+        const label = getMessage('constraintLabel', undefined, 'Constraint:');
+        parts.push(`${label} ${item.value}`);
+      }
     });
   }
 
   if (metadata.example) {
     metadata.example.forEach(item => {
-      if (item.value.trim()) parts.push(`Exemple: ${item.value}`);
+      if (item.value.trim()) {
+        const label = getMessage('exampleLabel', undefined, 'Example:');
+        parts.push(`${label} ${item.value}`);
+      }
     });
   }
 

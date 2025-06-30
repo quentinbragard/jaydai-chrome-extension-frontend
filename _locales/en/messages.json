@@ -1850,6 +1850,15 @@
   "addExistingBlock": { "message": "Add Existing Block", "description": "Label for adding an existing block" },
   "browseAllBlocks": { "message": "Browse all blocks...", "description": "Button text to browse all blocks" },
   "blockTypeLabel": { "message": "Type", "description": "Label for block type field" },
+  "blockRoleLabel": { "message": "Role", "description": "Block type label for role" },
+  "blockContextLabel": { "message": "Context", "description": "Block type label for context" },
+  "blockGoalLabel": { "message": "Goal", "description": "Block type label for goal" },
+  "blockCustomLabel": { "message": "Custom", "description": "Block type label for custom block" },
+  "blockOutputFormatLabel": { "message": "Output Format", "description": "Block type label for output format" },
+  "blockExampleLabel": { "message": "Example", "description": "Block type label for example" },
+  "blockConstraintLabel": { "message": "Constraint", "description": "Block type label for constraint" },
+  "blockToneStyleLabel": { "message": "Tone & Style", "description": "Block type label for tone and style" },
+  "blockAudienceLabel": { "message": "Audience", "description": "Block type label for audience" },
   "blockTitleLabel": { "message": "Title", "description": "Label for block title field" },
   "blockTitlePlaceholder": {
     "message": "$TYPE$ Block",
@@ -1895,11 +1904,11 @@
     "description": "Default title for template preview section"
   },
   "constraintLabel": {
-    "message": "Contrainte:",
+    "message": "Constraint:",
     "description": "Label for constraint items in template preview"
   },
   "exampleLabel": {
-    "message": "Exemple:",
+    "message": "Example:",
     "description": "Label for example items in template preview"
   },
   "previousPage": {
