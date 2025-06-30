@@ -1910,7 +1910,6 @@
     "message": "Next page",
     "description": "Tooltip for pagination next button"
   },
-  "cannotRemoveLastBlock": { "message": "Cannot remove the last block. Templates must have at least one block.", "description": "Warning when trying to remove last block" },
   "dragToMove": { "message": "Drag to move", "description": "Tooltip for dragging the main button" },
   "startUsingAI": { "message": "Start Using AI Tools Now", "description": "Title for the AI tools section" },
   "chooseYourTool": { "message": "Choose your preferred AI tool to get started", "description": "Description for the AI tools section" },
@@ -1923,5 +1922,16 @@
   "visitWebsite": { "message": "Visit website", "description": "Label for the visit website button" },
   "charactersLabel": { "message": "characters", "description": "Label for character count" },
   "linesLabel": { "message": "lines", "description": "Label for line count" },
-  "completePreview": { "message": "Complete Preview", "description": "Title for the complete preview section" }
+  "completePreview": { "message": "Complete Preview", "description": "Title for the complete preview section" },
+  "createFolder": { "message": "Create Folder", "description": "Title for the create folder section" },
+  "createFolderDescription": { "message": "Create a folder to organize your templates", "description": "Description for the create folder section" },
+  "folderTitle": { "message": "Folder Title", "description": "Label for the folder title" },
+  "enterFolderTitle": { "message": "Enter folder title", "description": "Placeholder for the folder title input" },
+  "enterFolderDescription": { "message": "Enter folder description", "description": "Placeholder for the folder description input" },
+  "selected": { "message": "Selected", "description": "Text displayed when a folder is selected" },
+  "selectedFolder": { "message": "Selected Folder", "description": "Text displayed when a folder is selected" },
+  "selectedFolderDescription": { "message": "Selected Folder", "description": "Text displayed when a folder is selected" },
+  "errorCreatingFolder": { "message": "An error occurred while creating the folder", "description": "Error message when creating a folder fails" },
+  "folderCreatedSuccessfully": { "message": "Folder created successfully", "description": "Success message when creating a folder" },
+  "folderTitleRequired": { "message": "Folder title is required", "description": "Error message when creating a folder with no title" },
 }

@@ -31,15 +31,7 @@ const MainButton = () => {
   const offsetRef = useRef({ x: 0, y: 0 });
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
-  // Set default position to bottom-right if none is stored
-  useEffect(() => {
-    if (position === null && buttonRef.current) {
-      const size = buttonRef.current.offsetWidth || 80;
-      const defaultX = window.innerWidth - size - 24; // 24px = bottom-6/right-6
-      const defaultY = window.innerHeight - size - 24;
-      setPosition({ x: defaultX, y: defaultY });
-    }
-  }, [position, buttonRef, setPosition]);
+
 
   // Use our theme detector hook to get the current theme
   const isDarkMode = useThemeDetector();
@@ -117,6 +109,8 @@ const MainButton = () => {
   const lightLogo = chrome.runtime.getURL('images/letter-logo-dark.png');
   const logoSrc = isDarkMode ? darkLogo : lightLogo;
 
+  console.log('position 🔥🔥🔥🔥', position);
+
   return (
     <ErrorBoundary>
       <div
@@ -133,8 +127,6 @@ const MainButton = () => {
           right: 'auto'
         } : {
           // Explicit positioning for bottom-right when no saved position
-          bottom: '24px',
-          right: '24px',
           top: 'auto',
           left: 'auto'
         }}

@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx - Simplified Version
+// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx - Fixed Version
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -21,11 +21,22 @@ interface TemplateEditorDialogProps {
   activeTab: 'basic' | 'advanced';
   isSubmitting: boolean;
   
+  // **NEW: Final content state**
+  finalPromptContent?: string;
+  hasUnsavedFinalChanges?: boolean;
+  modifiedBlocks?: Record<number, string>;
+  
   // Actions from base hook
   setContent: (content: string) => void;
   setActiveTab: (tab: 'basic' | 'advanced') => void;
   handleComplete: () => Promise<void>;
   handleClose: () => void;
+  
+  // **NEW: Final content actions**
+  setFinalPromptContent?: (content: string) => void;
+  applyFinalContentChanges?: () => void;
+  discardFinalContentChanges?: () => void;
+  updateBlockContent?: (blockId: number, content: string) => void;
   
   // Metadata setter for child components
   setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
@@ -57,11 +68,23 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   activeTab,
   isSubmitting,
   
+  // **NEW: Final content state**
+  finalPromptContent,
+  hasUnsavedFinalChanges,
+  modifiedBlocks,
+  
   // Actions
   setContent,
   setActiveTab,
   handleComplete,
   handleClose,
+  
+  // **NEW: Final content actions**
+  setFinalPromptContent,
+  applyFinalContentChanges,
+  discardFinalContentChanges,
+  updateBlockContent,
+  
   setMetadata,
   
   // UI state
@@ -124,6 +147,25 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     ]
   );
 
+  // Create footer with action buttons
+  const footer = (
+    <div className="jd-flex jd-justify-end jd-gap-2">
+      <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+        {getMessage('cancel', undefined, 'Cancel')}
+      </Button>
+      <Button onClick={handleComplete} disabled={isProcessing || blocksLoading || isSubmitting}>
+        {isSubmitting ? (
+          <>
+            <div className="jd-animate-spin jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-rounded-full jd-mr-2"></div>
+            {getMessage('saving', undefined, 'Saving...')}
+          </>
+        ) : (
+          mode === 'create' ? getMessage('createTemplate', undefined, 'Create Template') : getMessage('saveTemplate', undefined, 'Save Template')
+        )}
+      </Button>
+    </div>
+  );
+
   if (!isOpen) return null;
 
   if (error && !isProcessing) {
@@ -134,16 +176,18 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           if (!open) handleClose();
         }}
         title={dialogTitle}
-        className="jd-max-w-4xl jd-h-[80vh]"
+        className="jd-max-w-4xl"
+        footer={
+          <Button onClick={handleClose} variant="outline">
+            {getMessage('close')}
+          </Button>
+        }
       >
         <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-h-64">
           <Alert variant="destructive" className="jd-mb-4 jd-max-w-md">
             <AlertTriangle className="jd-h-4 jd-w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-          <Button onClick={handleClose} variant="outline">
-            {getMessage('close')}
-          </Button>
         </div>
       </BaseDialog>
     );
@@ -159,64 +203,49 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       }}
       title={dialogTitle}
       description={dialogDescription}
-      className="jd-max-w-6xl jd-h-[100vh]"
+      className="jd-max-w-6xl jd-max-h-[90vh] jd-h-[85vh]" // Fixed height with max constraint
+      footer={footer}
     >
+      {/* Info form - outside main content */}
       {infoForm}
       
       <TemplateEditorProvider value={contextValue}>
-        <div className="jd-flex jd-flex-col jd-h-full">
-          <div className="jd-flex-1 jd-flex jd-flex-col jd-gap-4 jd-overflow-y-auto">
-            {error && (
-              <Alert variant="destructive" className="jd-mb-2">
-                <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+        {/* Main content area with proper height constraints using only Tailwind */}
+        <div className="jd-flex jd-flex-col jd-h-full jd-min-h-0 jd-overflow-hidden">
+          {error && (
+            <Alert variant="destructive" className="jd-mb-2 jd-flex-shrink-0">
+              <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-            {isLoading ? (
-              <div className="jd-flex jd-items-center jd-justify-center jd-h-64">
-                <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
-                <span className="jd-ml-3 jd-text-gray-600">
-                  {getMessage('loadingTemplate')} {blocksLoading && '& blocks...'}
-                </span>
-              </div>
-            ) : (
-              <Tabs
-                value={activeTab}
-                onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
-                className="jd-flex-1 jd-flex jd-flex-col"
-              >
-                <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4">
-                  <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
-                  <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
-                </TabsList>
+          {isLoading ? (
+            <div className="jd-flex jd-items-center jd-justify-center jd-h-64 jd-flex-shrink-0">
+              <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full"></div>
+              <span className="jd-ml-3 jd-text-gray-600">
+                {getMessage('loadingTemplate')} {blocksLoading && '& blocks...'}
+              </span>
+            </div>
+          ) : (
+            <Tabs
+              value={activeTab}
+              onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
+              className="jd-flex jd-flex-col jd-flex-1 jd-min-h-0 jd-h-full jd-overflow-hidden"
+            >
+              <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4 jd-flex-shrink-0">
+                <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
+                <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="basic" className="jd-flex-1 jd-overflow-y-auto">
-                  <BasicEditor mode={mode as any} isProcessing={false} />
-                </TabsContent>
+              <TabsContent value="basic" className="jd-flex-1 jd-min-h-0 jd-overflow-hidden jd-h-full data-[state=active]:flex data-[state=active]:flex-col">
+                <BasicEditor mode={mode as any} isProcessing={false} />
+              </TabsContent>
 
-                <TabsContent value="advanced" className="jd-flex-1 jd-overflow-y-auto">
-                  <AdvancedEditor mode={mode as any} isProcessing={false} />
-                </TabsContent>
-              </Tabs>
-            )}
-          </div>
-
-          <div className="jd-sticky jd-bottom-0 jd-z-20 jd-flex jd-justify-end jd-gap-2 jd-p-4 jd-border-t jd-bg-background">
-            <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-              {getMessage('cancel', undefined, 'Cancel')}
-            </Button>
-            <Button onClick={handleComplete} disabled={isLoading || isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <div className="jd-animate-spin jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-rounded-full jd-mr-2"></div>
-                  {getMessage('saving', undefined, 'Saving...')}
-                </>
-              ) : (
-                mode === 'create' ? getMessage('createTemplate', undefined, 'Create Template') : getMessage('saveTemplate', undefined, 'Save Template')
-              )}
-            </Button>
-          </div>
+              <TabsContent value="advanced" className="jd-flex-1 jd-min-h-0 jd-overflow-hidden jd-h-full data-[state=active]:flex data-[state=active]:flex-col">
+                <AdvancedEditor mode={mode as any} isProcessing={false} />
+              </TabsContent>
+            </Tabs>
+          )}
         </div>
       </TemplateEditorProvider>
     </BaseDialog>

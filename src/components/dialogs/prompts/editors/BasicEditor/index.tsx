@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Simplified Version
+// src/components/dialogs/prompts/editors/BasicEditor/index.tsx - Fixed Version
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,7 @@ interface BasicEditorProps {
 }
 
 /**
- * Simplified Basic editor - just edits content and shows placeholders for customize mode
+ * Fixed Basic editor with proper height constraints
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   mode = 'customize',
@@ -75,7 +75,6 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }
     return [];
   });
-
 
   // Update placeholders when relevant data changes (for customize mode)
   React.useEffect(() => {
@@ -162,17 +161,22 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   // For create mode, show only the editor and allow toggling the preview
   if (mode === 'create') {
     return (
-      <div className="jd-h-full jd-flex jd-flex-col jd-p-4 jd-space-y-4">
-        <div className="jd-flex-shrink-0">
+      <div className="jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden">
+        {/* Header section */}
+        <div className="jd-flex-shrink-0 jd-mb-4">
           <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-mb-2">
             <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
             {getMessage('editTemplateContent', undefined, 'Edit Template Content')}
           </h3>
+        </div>
+
+        {/* Content editor - flexible height with Tailwind only */}
+        <div className="jd-flex-1 jd-min-h-0 jd-flex jd-flex-col jd-overflow-hidden">
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={getMessage('enterTemplateContent', undefined, 'Enter your template content here...')}
-            className="!jd-min-h-[40vh] jd-resize-none"
+            className="jd-flex-1 jd-resize-none jd-min-h-[200px] jd-h-full jd-overflow-y-auto jd-break-words jd-text-sm jd-leading-relaxed"
             onKeyDown={(e) => e.stopPropagation()}
             onKeyPress={(e) => e.stopPropagation()}
             onKeyUp={(e) => e.stopPropagation()}
@@ -180,7 +184,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         </div>
         
         {/* Toggle preview button */}
-        <div className="jd-flex-shrink-0 jd-pt-4 jd-border-t">
+        <div className="jd-flex-shrink-0 jd-pt-4">
           <Button
             onClick={togglePreview}
             variant="outline"
@@ -209,20 +213,22 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           </Button>
         </div>
 
-        {/* Animated preview section */}
+        {/* Animated preview section - using only Tailwind */}
         <div
           className={cn(
-            'jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out',
-            showPreview ? 'jd-max-h-[500px] jd-opacity-100' : 'jd-max-h-0 jd-opacity-0'
+            'jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out jd-flex-shrink-0',
+            showPreview ? 'jd-max-h-[400px] jd-opacity-100' : 'jd-max-h-0 jd-opacity-0'
           )}
         >
-          <div className="jd-space-y-3 jd-pt-4">
-            <TemplatePreview
-              metadata={metadata}
-              content={content}
-              blockContentCache={blockContentCache}
-              isDarkMode={isDark}
-            />
+          <div className="jd-pt-4">
+            <div className="jd-max-h-[350px] jd-overflow-y-auto jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100">
+              <TemplatePreview
+                metadata={metadata}
+                content={content}
+                blockContentCache={blockContentCache}
+                isDarkMode={isDark}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -231,7 +237,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
   // For customize mode, show the interface with placeholders and preview
   return (
-    <div className="jd-h-full jd-flex jd-flex-1 jd-overflow-hidden">
+    <div className="jd-h-full jd-flex jd-flex-1 jd-min-h-0 jd-overflow-hidden">
       <ResizablePanelGroup direction="horizontal" className="jd-h-full jd-w-full">
         <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
           <PlaceholderPanel
@@ -244,13 +250,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         <ResizableHandle withHandle />
         
         <ResizablePanel defaultSize={70} minSize={40}>
-          <div className="jd-h-full jd-border jd-rounded-md jd-p-4 jd-overflow-hidden jd-flex jd-flex-col">
+          <div className="jd-h-full jd-border jd-rounded-md jd-p-4 jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden">
             <TemplatePreview
               metadata={metadata}
               content={previewContent}
               blockContentCache={previewCache}
               isDarkMode={isDark}
-              className="jd-h-full jd-overflow-auto"
+              className="jd-h-full jd-min-h-0"
             />
           </div>
         </ResizablePanel>
@@ -259,7 +265,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   );
 };
 
-// Simplified Placeholder Panel Component
+// Fixed Placeholder Panel Component with Tailwind only
 const PlaceholderPanel: React.FC<{
   placeholders: Placeholder[];
   onUpdatePlaceholder: (index: number, value: string) => void;
@@ -269,8 +275,9 @@ const PlaceholderPanel: React.FC<{
   const totalCount = placeholders.length;
 
   return (
-    <div className="jd-h-full jd-space-y-4 jd-overflow-y-auto jd-p-4">
-      <div className="jd-flex jd-items-center jd-justify-between jd-mb-2">
+    <div className="jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden jd-p-4">
+      {/* Header - fixed height */}
+      <div className="jd-flex jd-items-center jd-justify-between jd-mb-4 jd-flex-shrink-0">
         <h3 className="jd-text-sm jd-font-medium">
           {getMessage('replacePlaceholders', undefined, 'Replace Placeholders')}
           {totalCount > 0 && (
@@ -285,7 +292,7 @@ const PlaceholderPanel: React.FC<{
             variant="ghost"
             size="sm"
             onClick={onResetPlaceholders}
-            className="jd-h-7 jd-px-2 jd-text-xs jd-text-muted-foreground hover:jd-text-foreground"
+            className="jd-h-7 jd-px-2 jd-text-xs jd-text-muted-foreground hover:jd-text-foreground jd-flex-shrink-0"
             title={getMessage('resetAllPlaceholders', undefined, 'Reset all placeholders')}
           >
             {getMessage('reset', undefined, 'Reset')}
@@ -293,37 +300,40 @@ const PlaceholderPanel: React.FC<{
         )}
       </div>
       
-      {placeholders.length > 0 ? (
-        <div className="jd-space-y-4">
-          {placeholders.map((placeholder, idx) => (
-            <div key={placeholder.key + idx} className="jd-space-y-1">
-              <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
-                <span className={`jd-px-2 jd-py-1 jd-rounded jd-transition-colors ${
-                  placeholder.value.trim()
-                    ? 'jd-bg-green-100 jd-text-green-800 jd-border jd-border-green-200' 
-                    : 'jd-bg-primary/10 jd-text-primary'
-                }`}>
-                  {placeholder.key}
-                </span>
-              </label>
-              
-              <Input
-                value={placeholder.value}
-                onChange={(e) => onUpdatePlaceholder(idx, e.target.value)}
-                placeholder={`${getMessage('enterValueFor', undefined, 'Enter value for')} ${placeholder.key}`}
-                className="jd-w-full"
-                onKeyDown={(e) => e.stopPropagation()}
-                onKeyPress={(e) => e.stopPropagation()}
-                onKeyUp={(e) => e.stopPropagation()}
-              />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="jd-text-muted-foreground jd-text-center jd-py-8">
-          {getMessage('noPlaceholdersFound', undefined, 'No placeholders found')}
-        </div>
-      )}
+      {/* Content - scrollable with Tailwind only */}
+      <div className="jd-flex-1 jd-min-h-0 jd-overflow-y-auto jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100 jd-pr-2">
+        {placeholders.length > 0 ? (
+          <div className="jd-space-y-4">
+            {placeholders.map((placeholder, idx) => (
+              <div key={placeholder.key + idx} className="jd-space-y-1 jd-flex-shrink-0">
+                <label className="jd-text-sm jd-font-medium jd-flex jd-items-center">
+                  <span className={`jd-px-2 jd-py-1 jd-rounded jd-transition-colors jd-text-xs jd-font-medium jd-inline-block ${
+                    placeholder.value.trim()
+                      ? 'jd-bg-green-100 jd-text-green-800 jd-border jd-border-green-200' 
+                      : 'jd-bg-primary/10 jd-text-primary'
+                  }`}>
+                    {placeholder.key}
+                  </span>
+                </label>
+                
+                <Input
+                  value={placeholder.value}
+                  onChange={(e) => onUpdatePlaceholder(idx, e.target.value)}
+                  placeholder={`${getMessage('enterValueFor', undefined, 'Enter value for')} ${placeholder.key}`}
+                  className="jd-w-full jd-text-sm"
+                  onKeyDown={(e) => e.stopPropagation()}
+                  onKeyPress={(e) => e.stopPropagation()}
+                  onKeyUp={(e) => e.stopPropagation()}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="jd-text-muted-foreground jd-text-center jd-py-8 jd-text-sm">
+            {getMessage('noPlaceholdersFound', undefined, 'No placeholders found')}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

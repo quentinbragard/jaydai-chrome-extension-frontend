@@ -22,7 +22,6 @@ import { TemplateFolder } from '@/types/prompts/templates';
  */
 export const CreateFolderDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.CREATE_FOLDER);
-  console.log("data--->", data);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +29,6 @@ export const CreateFolderDialog: React.FC = () => {
   const [parentPath, setParentPath] = useState('Root');
 
   const { data: userFolders = [] } = useUserFolders();
-  console.log("userFolders--->", userFolders);
   
   // Reset form when dialog opens
   useEffect(() => {
@@ -57,7 +55,7 @@ export const CreateFolderDialog: React.FC = () => {
     e.stopPropagation();
     
     if (!title.trim()) {
-      toast.error('Folder title is required');
+      toast.error(getMessage('folderTitleRequired', undefined, 'Folder title is required'));
       return;
     }
 
@@ -78,12 +76,12 @@ export const CreateFolderDialog: React.FC = () => {
             onFolderCreated(customResult.folder);
           }
           
-          toast.success(`Folder "${title}" created successfully`);
+          toast.success(getMessage('folderCreatedSuccessfully', undefined, 'Folder created successfully'));
           resetForm();
           dialogProps.onOpenChange(false);
           return;
         } else if (customResult && !customResult.success) {
-          toast.error(customResult.error || 'Failed to create folder');
+          toast.error(customResult.error || getMessage('failedToCreateFolder', undefined, 'Failed to create folder'));
           setIsSubmitting(false);
           return;
         }
@@ -97,15 +95,15 @@ export const CreateFolderDialog: React.FC = () => {
           onFolderCreated(response.data);
         }
         
-        toast.success(`Folder "${title}" created successfully`);
+        toast.success(getMessage('folderCreatedSuccessfully', undefined, 'Folder created successfully'));
         resetForm();
         dialogProps.onOpenChange(false);
       } else {
-        toast.error(response.message || 'Failed to create folder');
+        toast.error(response.message || getMessage('failedToCreateFolder', undefined, 'Failed to create folder'));
       }
     } catch (error) {
       console.error('Error creating folder:', error);
-      toast.error('An error occurred while creating the folder');
+      toast.error(getMessage('errorCreatingFolder', undefined, 'An error occurred while creating the folder'));
     } finally {
       setIsSubmitting(false);
     }
@@ -181,13 +179,13 @@ export const CreateFolderDialog: React.FC = () => {
 
           <div>
             <label className="jd-text-sm jd-font-medium">
-              Parent Folder
+              {getMessage('parentFolder', undefined, 'Parent Folder')}
             </label>
             <FolderPicker
               folders={userFolders as TemplateFolder[]}
               onSelect={handleParentSelect}
             />
-            <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">Selected: {parentPath}</p>
+            <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">{getMessage('selectedFolder', undefined, 'Selected')}: {parentPath}</p>
           </div>
           
           <div className="jd-flex jd-justify-end jd-space-x-2 jd-pt-4">

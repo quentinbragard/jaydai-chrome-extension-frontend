@@ -1,6 +1,3 @@
-
-import { initAmplitude, trackEvent, EVENTS } from '@/utils/amplitude';
-
 // 🔹 Open welcome page when the extension is installed
 function createContextMenus() {
   chrome.contextMenus.removeAll(() => {
@@ -21,8 +18,6 @@ function createContextMenus() {
 
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
-    initAmplitude();
-    trackEvent(EVENTS.EXTENSION_INSTALLED);
     chrome.tabs.create({ url: 'welcome.html' });
   }
   createContextMenus();

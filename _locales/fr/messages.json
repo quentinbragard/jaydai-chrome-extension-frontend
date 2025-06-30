@@ -1903,6 +1903,17 @@
   "visitWebsite": { "message": "Visiter le site web", "description": "Label pour le bouton de visite du site web" },
   "charactersLabel": { "message": "caractères", "description": "Libellé pour le nombre de caractères" },
   "linesLabel": { "message": "lignes", "description": "Libellé pour le nombre de lignes" },
-  "completePreview": { "message": "Aperçu complet", "description": "Titre pour la section d'aperçu complet" }
-
+  "completePreview": { "message": "Aperçu complet", "description": "Titre pour la section d'aperçu complet" },
+  "createFolder": { "message": "Créer un dossier", "description": "Titre pour la création d'un dossier" },
+  "createFolderDescription": { "message": "Créez un dossier pour organiser vos templates", "description": "Description pour la création d'un dossier" },
+  "folderTitle": { "message": "Titre du dossier", "description": "Étiquette pour le titre du dossier" },
+  "enterFolderTitle": { "message": "Entrez le titre du dossier", "description": "Espace réservé pour le titre du dossier" },
+  "enterFolderDescription": { "message": "Entrez la description du dossier", "description": "Espace réservé pour la description du dossier" },
+  "selected": { "message": "Sélectionné", "description": "Texte affiché lorsqu'un dossier est sélectionné" },
+  "selectedFolder": { "message": "Dossier sélectionné", "description": "Texte affiché lorsqu'un dossier est sélectionné" },
+  "selectedFolderDescription": { "message": "Dossier sélectionné", "description": "Texte affiché lorsqu'un dossier est sélectionné" },
+  "errorCreatingFolder": { "message": "Une erreur est survenue lors de la création du dossier", "description": "Message d'erreur lors de la création d'un dossier" },
+  "failedToCreateFolder": { "message": "Échec de la création du dossier", "description": "Message d'erreur lors de la création d'un dossier" },
+  "folderCreatedSuccessfully": { "message": "Dossier créé avec succès", "description": "Message de succès lors de la création d'un dossier" },
+  "folderTitleRequired": { "message": "Le titre du dossier est requis", "description": "Message d'erreur lorsque le titre du dossier est vide" }
 }
