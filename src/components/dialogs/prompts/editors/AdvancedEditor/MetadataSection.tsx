@@ -91,7 +91,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
     (Object.keys(METADATA_CONFIGS) as MetadataType[]).forEach(type => {
       const allBlocks = availableMetadataBlocks[type] || [];
       const published = allBlocks.filter(
-        b => (b as any).published === true || (b as any).is_published === true
+        b => (b as any).published || (b as any).is_published
       );
 
       const selectedIds: number[] = [];

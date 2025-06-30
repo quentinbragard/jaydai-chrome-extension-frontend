@@ -1,4 +1,5 @@
 // src/components/dialogs/DialogRegistry.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Define dialog types
 export const DIALOG_TYPES = {
   // Existing dialog types
