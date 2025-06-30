@@ -121,8 +121,8 @@ const MainButton = () => {
       const maxX = window.innerWidth - size;
       const maxY = window.innerHeight - size;
       let { x, y } = savedPosition;
-      x = Math.min(Math.max(0, x), maxX);
-      y = Math.min(Math.max(0, y), maxY);
+      x = Math.min(Math.max(-10, x), maxX);
+      y = Math.min(Math.max(-60, y), maxY);
       setPosition({ x, y });
     };
 
@@ -144,7 +144,7 @@ const MainButton = () => {
         className={cn(
           'jd-fixed jd-z-[9999] jd-select-none  jd-rounded-md jd-group',
           // Always ensure bottom-right positioning when no custom position is set
-          !position && 'jd-bottom-6 jd-right-6',
+          !position && 'jd-bottom-1 jd-right-1',
           isDragging && 'jd-cursor-grabbing'
         )}
         style={position ? { 
