@@ -114,21 +114,15 @@ const MainButton = () => {
   useEffect(() => {
     const clampPosition = () => {
       if (!savedPosition) {
-        console.log("savedPosition is null");
         setPosition(null);
         return;
       }
       const maxX = window.innerWidth - 80;
       const maxY = window.innerHeight - 80;
       let { x, y } = savedPosition;
-      console.log("x", x);
-      console.log("y", y);
-      console.log("maxX", maxX);
-      console.log("maxY", maxY);
       x = Math.min(Math.max(0, x), maxX);
       y = Math.min(Math.max(0, y), maxY);
       if (x !== position?.x || y !== position?.y) {
-        console.log("x is not equal to position?.x or y is not equal to position?.y");
         setPosition({ x, y });
       }
     };

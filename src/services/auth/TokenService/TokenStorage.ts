@@ -12,11 +12,8 @@ export class TokenStorage {
    */
   static storeAuthSession(session: AuthToken): Promise<void> {
     if (!session || !session.access_token || !session.refresh_token) {
-      console.log('Incomplete session data, not storing');
       return Promise.reject(new Error('Incomplete session data'));
     }
-    
-    console.log('Storing auth session. Expires at:', session.expires_at);
     
     return new Promise((resolve, reject) => {
       chrome.storage.local.set({
@@ -25,10 +22,8 @@ export class TokenStorage {
         token_expires_at: session.expires_at,
       }, () => {
         if (chrome.runtime.lastError) {
-          console.log('Error storing auth session:', chrome.runtime.lastError);
           reject(chrome.runtime.lastError);
         } else {
-          console.log('Auth session stored successfully');
           resolve();
         }
       });
@@ -58,7 +53,6 @@ export class TokenStorage {
       chrome.storage.local.remove(
         ["access_token", "refresh_token", "token_expires_at"], 
         () => {
-          console.log('Auth tokens cleared');
           resolve();
         }
       );

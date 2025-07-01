@@ -45,7 +45,6 @@ export function useTemplateCreation() {
         ...(data.metadata ? { metadata: data.metadata } : {})
       };
 
-      console.log("TEMPLATE DATA", templateData);
       
       const response = await promptApi.createTemplate(templateData);
       if (!response.success) {
@@ -131,7 +130,7 @@ export function useTemplateCreation() {
     templateId?: number
   ): Promise<boolean> => {
 
-    console.log("DATAAAAAAA", data);
+    
     // Validate the form data first
     if (!validateTemplateForm(data)) {
       return false;

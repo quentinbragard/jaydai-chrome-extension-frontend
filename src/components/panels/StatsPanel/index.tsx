@@ -75,7 +75,6 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
       
       // Subscribe to updates
       const unsubscribe = statsService.onUpdate((newStats) => {
-        console.log('Stats updated:', newStats);
         setStats(newStats);
       });
       

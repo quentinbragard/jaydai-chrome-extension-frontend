@@ -32,8 +32,7 @@ export class UserProfileService extends AbstractBaseService {
    * Initialize the user profile service
    */
   protected async onInitialize(): Promise<void> {
-    console.log('Initializing UserProfileService');
-    
+
     // First try to get from storage
     this.getUserInfoFromStorage().then(data => {
       if (data) {
@@ -53,7 +52,6 @@ export class UserProfileService extends AbstractBaseService {
     // Remove event listener
     document.removeEventListener('jaydai:user-info', this.handleUserInfoEvent);
     
-    console.log('UserProfileService cleaned up');
   }
   
   /**
@@ -77,7 +75,6 @@ export class UserProfileService extends AbstractBaseService {
    */
   public handleUserInfoCapture(userData: any): void {
     try {
-      console.log('User info captured from network');
       
       // Verify this is complete user data with email
       if (userData && userData.email && userData.email !== '') {
@@ -126,7 +123,6 @@ export class UserProfileService extends AbstractBaseService {
       // Save to backend
       this.saveUserMetadataToBackend();
       
-      console.log('User info processed successfully');
     } catch (error) {
       errorReporter.captureError(
         new AppError('Error processing user info', ErrorCode.VALIDATION_ERROR, error)
@@ -146,7 +142,6 @@ export class UserProfileService extends AbstractBaseService {
     try {
       // Save to chrome.storage
       chrome.storage.local.set({ [this.storageKey]: userData });
-      console.log('User info saved to storage');
     } catch (error) {
       errorReporter.captureError(
         new AppError('Error saving user info to storage', ErrorCode.STORAGE_ERROR, error)
@@ -162,10 +157,8 @@ export class UserProfileService extends AbstractBaseService {
       return new Promise((resolve) => {
         chrome.storage.local.get([this.storageKey], (result) => {
           if (result && result[this.storageKey]) {
-            console.log('Retrieved user info from storage');
             resolve(result[this.storageKey]);
           } else {
-            console.log('No user info found in storage');
             resolve(null);
           }
         });
@@ -207,7 +200,6 @@ export class UserProfileService extends AbstractBaseService {
         picture: this.userInfo.picture || undefined
       })
       .then(() => {
-        console.log('User metadata saved to backend');
       })
       .catch(error => {
         errorReporter.captureError(
@@ -229,7 +221,6 @@ export class UserProfileService extends AbstractBaseService {
     
     // Clear from storage
     chrome.storage.local.remove([this.storageKey]);
-    console.log('User info refreshed');
   }
 }
 

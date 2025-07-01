@@ -18,7 +18,6 @@ import { SaveChatParams, messageApi } from '@/services/api/MessageApi'
 
 
 export function handleChatgptConversationList(conversationItems: any[]): Promise<void> {
-    console.log('=========================handleChatgptConversationList', conversationItems);
     if (conversationItems && Array.isArray(conversationItems)) {
         const processedChats = mapConversationsToChatParams(conversationItems);
         return messageApi.saveChatBatch(processedChats);

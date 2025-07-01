@@ -15,7 +15,6 @@ export class TokenRefresher {
   static async refreshToken(): Promise<boolean> {
     return new Promise((resolve) => {
       chrome.runtime.sendMessage({ action: "refreshAuthToken" }, (response) => {
-        console.log('Token refresh response:', response.success ? 'success' : 'failed');
         
         if (response.success) {
           resolve(true);
@@ -39,7 +38,6 @@ export class TokenRefresher {
     // Get token expiration time
     TokenStorage.getTokenInfo().then((result) => {
       if (!result.token_expires_at) {
-        console.log('No token expiration time found');
         return;
       }
       
@@ -49,19 +47,15 @@ export class TokenRefresher {
       // Calculate refresh time (5 minutes before expiration)
       const refreshTime = expiresAt - now - (5 * 60 * 1000);
       
-      console.log(`Token expires in ${Math.floor((expiresAt - now) / 1000 / 60)} minutes`);
       
       if (refreshTime <= 0) {
         // Token already expired or about to expire, refresh now
-        console.log('Token expired or expiring soon, refreshing now');
         onRefresh();
         return;
       }
       
       // Set timer to refresh token
-      console.log(`Scheduling token refresh in ${Math.floor(refreshTime / 1000 / 60)} minutes`);
       TokenRefresher.refreshTimer = window.setTimeout(() => {
-        console.log('Auto-refreshing token');
         onRefresh();
       }, refreshTime);
     });

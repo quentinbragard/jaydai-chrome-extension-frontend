@@ -14,7 +14,6 @@ export function insertPrompt(content: string): boolean {
       return false;
     }
     
-    console.log(`Attempting to insert content into Claude (${content.length} chars)`);
     
     try {
       // Find Claude's input area
@@ -100,7 +99,6 @@ export function insertPrompt(content: string): boolean {
         return navigator.clipboard.writeText(normalizedContent)
           .then(() => {
             document.execCommand('paste');
-            console.log('Content pasted via Clipboard API');
             return true;
           })
           .catch(err => {

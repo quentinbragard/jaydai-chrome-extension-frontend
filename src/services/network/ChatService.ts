@@ -31,11 +31,9 @@ export class ChatService extends AbstractBaseService {
   }
 
   protected async onInitialize(): Promise<void> {
-    console.log('Initializing ChatService');
     
     // Detect current platform
     this.currentPlatform = detectPlatform();
-    console.log(`Detected platform: ${this.currentPlatform}`);
     
     // Listen for URL changes to detect conversation ID
     window.addEventListener('popstate', this.checkUrlForConversationId);
@@ -68,7 +66,6 @@ export class ChatService extends AbstractBaseService {
     document.removeEventListener('jaydai:chat-completion', handleChatCompletion);
     document.removeEventListener('jaydai:assistant-response', handleAssistantResponse);
     
-    console.log('ChatService cleaned up');
   }
   
   private observeUrlChanges(): void {
@@ -88,7 +85,7 @@ export class ChatService extends AbstractBaseService {
         subtree: true
       });
     } catch (error) {
-      console.log('Error setting up URL observer:', error);
+      console.error('Error setting up URL observer:', error);
     }
   }
 
@@ -102,7 +99,6 @@ export class ChatService extends AbstractBaseService {
       const config = getConfigByName(platformName);
       
       if (!config) {
-        console.log(`No configuration found for platform: ${platformName}`);
         return;
       }
       
@@ -132,7 +128,6 @@ export class ChatService extends AbstractBaseService {
       
       // Update conversation ID if we found one and it's different
       if (foundConversationId && foundConversationId !== this.currentConversationId) {
-        console.log(`Detected conversation ID from URL: ${foundConversationId} (platform: ${platformName})`);
         this.setCurrentConversationId(foundConversationId);
       }
     } catch (error) {
@@ -173,7 +168,6 @@ export class ChatService extends AbstractBaseService {
   public setConversationIdFromResponse(conversationId: string): void {
     if (!conversationId || conversationId === '') return;
     
-    console.log(`Setting conversation ID from API response: ${conversationId}`);
     this.setCurrentConversationId(conversationId);
   }
 }

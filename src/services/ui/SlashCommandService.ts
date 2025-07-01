@@ -33,7 +33,6 @@ export class SlashCommandService extends AbstractBaseService {
    * Useful after DOM changes or insertions
    */
   public refreshListener(): void {
-    console.log('Manually refreshing slash command listener...');
     this.attachListener();
   }
 
@@ -139,7 +138,6 @@ export class SlashCommandService extends AbstractBaseService {
     // Check for //j pattern (with optional space)
     const triggerRegex = /\/\/j\s?$/i;
     if (triggerRegex.test(value)) {
-      console.log('Slash command detected:', { value: value.substring(Math.max(0, value.length - 20)), originalCursorPos });
 
       // Set flag to prevent double execution
       this.isInserting = true;
@@ -151,12 +149,7 @@ export class SlashCommandService extends AbstractBaseService {
       // Ensure cursor position never goes negative
       const newCursorPos = Math.max(0, originalCursorPos - triggerLength);
       
-      console.log('Cursor calculation:', { 
-        originalCursorPos, 
-        triggerLength, 
-        newCursorPos,
-        valueLength: value.length 
-      });
+
 
       // Show selector without altering the input. The trigger will be removed
       // only if the user selects a block.
@@ -172,10 +165,11 @@ export class SlashCommandService extends AbstractBaseService {
             ? Math.min(newCursorPos, target.value.length)
             : Math.min(newCursorPos, (target.textContent || '').length);
 
-          console.log('Showing quick selector at position:', { position, safeCursorPos });
           this.quickSelector.open(position, target, safeCursorPos, triggerLength);
         } catch (error) {
-          console.error('Error showing quick selector:', error);
+          errorReporter.captureError(
+            new AppError('Error showing quick selector', ErrorCode.UI_ERROR, error)
+          );
         } finally {
           // Reset the flag after a delay
           setTimeout(() => {

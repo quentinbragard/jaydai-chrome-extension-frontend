@@ -323,7 +323,6 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   
   useEffect(() => {
     if (initialData) {
-      console.log('Initializing dialog with data:', initialData);
       
       setState(prev => ({
         ...prev,
@@ -361,9 +360,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             
           const content = getLocalizedContent(initialData.content || '');
   
-          console.log('Customize mode - parsed metadata:', meta);
-          console.log('Customize mode - filled types:', Array.from(getFilledMetadataTypes(meta)));
-  
+          
           const activeSecondary = getActiveSecondaryMetadata(meta);
 
           setState(prev => ({

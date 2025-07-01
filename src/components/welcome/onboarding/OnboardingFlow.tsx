@@ -126,7 +126,6 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
       };
       
       // Submit onboarding data to the new completion endpoint
-      console.log('Submitting onboarding data to completion endpoint:', submissionData);
       const result = await apiClient.request('/onboarding/complete', {
         method: 'POST',
         body: JSON.stringify(submissionData)
@@ -160,7 +159,6 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
           total_folders_pinned: result.folder_recommendations?.total_pinned?.length || 0
         });
         
-        console.log('Onboarding completed successfully:', result);
         
         // Move to completion step
         setCurrentStep(totalSteps - 1);

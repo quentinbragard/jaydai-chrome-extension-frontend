@@ -66,19 +66,17 @@ function extractMessagesFromConversation(conversation: any): Message[] {
   }
 
 export function handleChatgptSpecificConversation(responseBody: any): Promise<void> {
-    console.log('handleChatgptSpecificConversation', responseBody);
     try {
       if (!responseBody?.conversation_id) return Promise.resolve();
       
       const conversation = extractConversation(responseBody);
       const messages = extractMessagesFromConversation(responseBody);
-      console.log('messages', messages);
-      console.log('conversation', conversation);
+      
       messageApi.saveMessageBatch(messages);
       messageApi.saveChat(conversation);
       
       // Emit event with conversation and messages
-      console.log('emitting event**************************** conv loaded');
+        
       document.dispatchEvent(new CustomEvent('jaydai:conversation-loaded', {
         detail: { conversation, messages }
       }));

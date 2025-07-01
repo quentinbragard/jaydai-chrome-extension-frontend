@@ -23,7 +23,6 @@ export class MessageApi {
    * Save a batch of messages in one operation
    */
   async saveMessageBatch(messages: SaveMessageParams[]): Promise<any> {
-    console.log('saveMessageBatch', messages);
     return apiClient.request('/save/batch/message', {
       method: 'POST',
       body: JSON.stringify({

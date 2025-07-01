@@ -34,30 +34,29 @@ export function getEndpointEvent(url) {
     ? new URL(url).pathname + (new URL(url).search || '')  // Include query string
     : url;
   
-  console.log(`Checking endpoint for ${platform}: ${pathname}`);
   
   // Use matchEndpoint for all endpoint checks
   if (matchEndpoint(pathname, ENDPOINTS[platform].SPECIFIC_CONVERSATION)) {
-    console.log(`Matched ${platform} SPECIFIC_CONVERSATION`);
+   
     return EVENTS.SPECIFIC_CONVERSATION;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].USER_INFO)) {
-    console.log(`Matched ${platform} USER_INFO`);
+   
     return EVENTS.USER_INFO;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].CONVERSATIONS_LIST)) {
-    console.log(`Matched ${platform} CONVERSATIONS_LIST`);
+   
     return EVENTS.CONVERSATIONS_LIST;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].CHAT_COMPLETION)) {
-    console.log(`Matched ${platform} CHAT_COMPLETION`);
+   
     return EVENTS.CHAT_COMPLETION;
   }
   
-  console.log(`No match found for ${platform}: ${pathname}`);
+ 
   return null;
 }
 
@@ -79,7 +78,7 @@ export function extractRequestBody(init) {
     }
   } catch (e) {
     // Silent fail on parse errors
-    console.error('Error parsing request body:', e);
+   
   }
   
   return null;

@@ -18,7 +18,6 @@ export async function toggleFolderPin(folderId: number, isPinned: boolean, type:
       // This is critical for the backend to properly identify the folder type
       const queryParams = `?folder_type=${type}`;
       
-      console.log(`${isPinned ? 'Unpinning' : 'Pinning'} ${type} folder ${folderId}`);
       
       // Make the API request with the query parameter
       const response = await apiClient.request(`${endpoint}${queryParams}`, {

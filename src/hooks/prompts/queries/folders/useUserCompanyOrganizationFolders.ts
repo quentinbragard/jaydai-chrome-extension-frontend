@@ -15,7 +15,6 @@ export function useUserFolders() {
   return useQuery(QUERY_KEYS.USER_FOLDERS, async (): Promise<TemplateFolder[]> => {
     // Get folders
     const foldersResponse = await promptApi.getFolders('user', true, true, locale);
-    console.log("foldersResponse", foldersResponse);
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load user folders');
     }
@@ -39,7 +38,6 @@ export function useCompanyFolders() {
   return useQuery(QUERY_KEYS.COMPANY_FOLDERS, async (): Promise<TemplateFolder[]> => {
     // Get folders
     const foldersResponse = await promptApi.getFolders('company', true, true, locale);
-    console.log("foldersResponse", foldersResponse);
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load company folders');
     }
@@ -60,7 +58,7 @@ export function useOrganizationFolders() {
   return useQuery(QUERY_KEYS.ORGANIZATION_FOLDERS, async (): Promise<TemplateFolder[]> => {
     // Get folders
     const foldersResponse = await promptApi.getFolders('organization', true, true, locale);
-    console.log("foldersResponse", foldersResponse);
+    
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load organization folders');
     }

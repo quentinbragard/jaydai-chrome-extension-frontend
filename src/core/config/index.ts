@@ -48,10 +48,3 @@ const defaultConfig: AppConfig = {
   export function isFeatureEnabled(featureName: string): boolean {
     return config.features[featureName] === true;
   }
-
-
-// Log environment details during initialization (helps with debugging)
-console.log(`🔧 Environment: ${ENV.NODE_ENV}`);
-console.log(`🔌 API URL: ${ENV.API_URL}`);
-console.log(`🐞 Debug: ${ENV.DEBUG}`);
-console.log(`📦 Version: ${ENV.APP_VERSION}`);

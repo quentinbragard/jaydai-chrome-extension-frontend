@@ -13,13 +13,11 @@ export class MistralAdapter extends BasePlatformAdapter {
 
   extractUserMessage(requestBody: any): Message | null {
     try {
-      console.log("MISTRAL EXTRACT USER MESSAGE 🎉🎉🎉🎉🎉", requestBody);
       let messageId = requestBody.messageId || `user-${Date.now()}`;
       let conversationId = requestBody.chatId || '';
       let content = '';
       if (requestBody.mode === "start") {
           const firstSelected = document.querySelector('div.select-text span');
-          console.log("FIRST SELECTED", firstSelected);
           const domText = firstSelected?.textContent?.trim();
           if (domText) {
             content = domText;
@@ -76,7 +74,6 @@ export class MistralAdapter extends BasePlatformAdapter {
   }
 
   extractAssistantMessage(data: any): Message | null {
-    console.log("MISTRAL EXTRACT ASSISTANT MESSAGE 🙌🙌🙌", data);
     try {
       return {
         messageId: data.messageId || `mistral-${Date.now()}`,
@@ -142,7 +139,6 @@ export class MistralAdapter extends BasePlatformAdapter {
 
   handleAssistantResponse(event: CustomEvent): void {
     try {
-      console.log("DATAAAAAA", event.detail);
       const data = event.detail;
       if (!data) return;
       if (data.isComplete) {

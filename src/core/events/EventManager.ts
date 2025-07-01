@@ -21,7 +21,6 @@ class EventManager {
     // Set up DOM event listeners
     document.addEventListener('jaydai:network-intercept', this.handleDomEvent as EventListener);
     
-    console.log('EventManager initialized');
   }
   
   /**
@@ -34,7 +33,6 @@ class EventManager {
     // Remove DOM event listeners
     document.removeEventListener('jaydai:network-intercept', this.handleDomEvent as EventListener);
     
-    console.log('EventManager cleaned up');
   }
   
   /**

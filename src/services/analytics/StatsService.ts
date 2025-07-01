@@ -101,7 +101,6 @@ export class StatsService extends AbstractBaseService {
    * Initialize stats tracking
    */
   protected async onInitialize(): Promise<void> {
-    console.log('Initializing stats service...');
     
     // Listen for relevant events
     this.setupEventListeners();
@@ -118,7 +117,6 @@ export class StatsService extends AbstractBaseService {
       }
     }, 20000); // Check every 20 seconds
     
-    console.log('Stats service initialized');
   }
   
   /**
@@ -131,7 +129,6 @@ export class StatsService extends AbstractBaseService {
     }
     
     this.updateCallbacks = [];
-    console.log('Stats service cleaned up');
   }
   
  /**
@@ -173,7 +170,7 @@ private handleMessageExtracted = (event: CustomEvent): void => {
     // Trigger a debounced refresh to eventually sync with server
     this.debounceRefresh();
   } catch (error) {
-    console.log('Error handling message extracted event:', error);
+      console.error('Error handling message extracted event:', error);
   }
 };
 
@@ -223,7 +220,7 @@ private handleChatMessageSent = (event: CustomEvent): void => {
       this.trackUserMessageSent(content);
     }
   } catch (error) {
-    console.log('Error handling chat message sent event:', error);
+    console.error('Error handling chat message sent event:', error);
   }
 };
 
@@ -237,7 +234,7 @@ private handleChatMessageReceived = (event: CustomEvent): void => {
       this.trackAssistantMessageReceived(content, thinkingTime);
     }
   } catch (error) {
-    console.log('Error handling chat message received event:', error);
+    console.error('Error handling chat message received event:', error);
   }
 };
 
@@ -364,7 +361,7 @@ private handleNetworkEvent = (event: CustomEvent): void => {
         break;
     }
   } catch (error) {
-    console.log('Error handling stats event:', error);
+    console.error('Error handling stats event:', error);
   }
 };
 
@@ -397,7 +394,7 @@ private extractUserMessage(requestBody: any): { id: string, content: string } | 
       content
     };
   } catch (error) {
-    console.log('Error extracting user message:', error);
+    console.error('Error extracting user message:', error);
     return null;
   }
 }
@@ -512,7 +509,6 @@ private debounceRefresh(delay: number = 1000): void {
     this.isLoading = true;
     
     try {
-      console.log('Loading stats from backend...');
       const data = await userApi.getUserStats();
       
       if (data) {
@@ -550,7 +546,6 @@ private debounceRefresh(delay: number = 1000): void {
           this.stats.messagesPerDay = { ...data.messages_per_day };
         }
         
-        console.log('Stats updated from backend');
         this.lastLoadTime = Date.now();
         this.retryCount = 0; // Reset retry count on success
         this.notifyUpdateListeners();
@@ -567,7 +562,6 @@ private debounceRefresh(delay: number = 1000): void {
       if (this.retryCount < 3) {
         this.retryCount++;
         const delay = Math.pow(2, this.retryCount) * 1000; // 2s, 4s, 8s
-        console.log(`Will retry loading stats in ${delay/1000}s (attempt ${this.retryCount}/3)`);
         
         setTimeout(() => {
           this.isLoading = false;
@@ -576,7 +570,6 @@ private debounceRefresh(delay: number = 1000): void {
       } else {
         // Use fallback data for initial display if all retries fail
         if (this.lastLoadTime === 0) {
-          console.log('Using fallback stats data after multiple failed attempts');
           
           // Update with at least some minimal info if we have it
           if (this.stats.totalMessages === 0) {

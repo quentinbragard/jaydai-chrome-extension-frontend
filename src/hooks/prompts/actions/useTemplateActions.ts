@@ -33,24 +33,20 @@ export function useTemplateActions() {
     try {
       // Try dialog manager from context first
       if (dialogManager && typeof dialogManager.openDialog === 'function') {
-        console.log(`Opening ${dialogType} dialog via context`);
         dialogManager.openDialog(dialogType, dialogData);
         return true;
       }
       
       // Fall back to window.dialogManager
       if (window.dialogManager && typeof window.dialogManager.openDialog === 'function') {
-        console.log(`Opening ${dialogType} dialog via window`);
         window.dialogManager.openDialog(dialogType, dialogData);
         return true;
       }
       
       // If both approaches fail, try with a delay
-      console.log(`Dialog manager not fully initialized, retrying ${dialogType} dialog...`);
       setTimeout(() => {
         if (window.dialogManager && typeof window.dialogManager.openDialog === 'function') {
           window.dialogManager.openDialog(dialogType, dialogData);
-          console.log(`Successfully opened ${dialogType} dialog after delay`);
         } else {
           console.error(`Failed to open ${dialogType} dialog: dialog manager not available`);
           toast.error('System not initialized properly. Please refresh the page.');
@@ -70,7 +66,6 @@ export function useTemplateActions() {
  * with improved content processing and panel closing
  */
 const handleTemplateComplete = useCallback((finalContent: string) => {
-  console.log('Template editing completed, content length:', finalContent?.length);
   
   if (!finalContent) {
     console.error('No content received from template editor');
@@ -122,7 +117,6 @@ const useTemplate = useCallback(async (template: Template) => {
     return;
   }
   
-  console.log(`Using template: ${template.title || 'Untitled'}`);
   
   setIsProcessing(true);
   

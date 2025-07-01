@@ -55,7 +55,6 @@ export class NotificationService extends AbstractBaseService {
    * Initialize the notification service
    */
   protected async onInitialize(): Promise<void> {
-    console.log('🔔 Initializing notification service...');
     
     // Load notifications immediately
     await this.loadNotifications();
@@ -63,7 +62,6 @@ export class NotificationService extends AbstractBaseService {
     // Start polling for new notifications
     this.startPolling();
     
-    console.log('✅ Notification service initialized');
   }
   
   /**
@@ -76,7 +74,6 @@ export class NotificationService extends AbstractBaseService {
     }
     
     this.updateCallbacks = [];
-    console.log('✅ Notification service cleaned up');
   }
   
   /**
@@ -97,7 +94,6 @@ export class NotificationService extends AbstractBaseService {
     this.isLoading = true;
 
     try {
-      console.log('🔔 Loading notifications...');
       
       // Get previous unread count for comparison
       const previousUnreadCount = this.getUnreadCount();
@@ -113,7 +109,6 @@ export class NotificationService extends AbstractBaseService {
         // Calculate new unread count
         const newUnreadCount = this.getUnreadCount();
         
-        console.log(`✅ Loaded ${this.notifications.length} notifications (${newUnreadCount} unread)`);
         
         // If there are new unread notifications, show a toast
         if (newUnreadCount > previousUnreadCount) {
@@ -129,7 +124,7 @@ export class NotificationService extends AbstractBaseService {
         emitEvent(AppEvent.NOTIFICATION_COUNT_UPDATED, { count: newUnreadCount });
       }
     } catch (error) {
-      console.log('❌ Error loading notifications:', error);
+      console.error('❌ Error loading notifications:', error);
     } finally {
       this.isLoading = false;
     }
@@ -203,7 +198,7 @@ export class NotificationService extends AbstractBaseService {
       
       return true;
     } catch (error) {
-      console.log('❌ Error marking notification as read:', error);
+      console.error('❌ Error marking notification as read:', error);
       return false;
     }
   }
@@ -239,7 +234,7 @@ export class NotificationService extends AbstractBaseService {
       
       return true;
     } catch (error) {
-      console.log('❌ Error marking all notifications as read:', error);
+      console.error('❌ Error marking all notifications as read:', error);
       return false;
     }
   }
@@ -272,7 +267,7 @@ export class NotificationService extends AbstractBaseService {
       
       return true;
     } catch (error) {
-      console.log('❌ Error deleting notification:', error);
+      console.error('❌ Error deleting notification:', error);
       return false;
     }
   }
@@ -340,7 +335,6 @@ export class NotificationService extends AbstractBaseService {
       this.loadNotifications();
     }, 600000);
     
-    console.log('Started polling for notifications');
   }
   
   /**
@@ -374,7 +368,6 @@ export class NotificationService extends AbstractBaseService {
     this.unreadCount = unreadCount;
     
     // Dispatch an event that UI components can listen for
-    console.log("unreadCoun============t", unreadCount);
     document.dispatchEvent(new CustomEvent('jaydai:notification-count-changed', {
       detail: { unreadCount }
     }));
@@ -387,8 +380,7 @@ private showNewNotificationsToast(count: number): void {
     action: {
       label: getMessage('view_action', undefined, 'View'),
       onClick: () => {
-        // Log that the view action was clicked
-        console.log('Notification view action clicked');
+        
         
         // First dispatch the open-notifications event (specific handler)
         // This ensures the notifications panel will be shown
@@ -455,7 +447,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
           
         default:
           // For unknown action types, log a warning
-          console.log(`⚠️ Unknown action type: ${metadata.action_type}`);
+          console.warn(`⚠️ Unknown action type: ${metadata.action_type}`);
           toast.info(notification.title, {
             description: notification.body
           });
@@ -487,7 +479,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
         break;
     }
   } catch (error) {
-    console.log('❌ Error handling notification action:', error);
+    console.error('❌ Error handling notification action:', error);
     toast.error(getMessage('action_error', undefined, 'Failed to process notification action'));
   }
 }
@@ -507,7 +499,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
       const parsedMetadata = JSON.parse(metadata);
       return this.validateMetadata(parsedMetadata);
     } catch (error) {
-      console.log('❌ Error parsing notification metadata:', error);
+      console.error('❌ Error parsing notification metadata:', error);
       return null;
     }
   }
@@ -532,7 +524,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
          data.action_type === 'openLinkedIn' || 
          data.action_type === 'openChatGpt') && 
         (!data.action_url || typeof data.action_url !== 'string')) {
-      console.log(`⚠️ ${data.action_type} action missing valid URL`);
+      console.warn(`⚠️ ${data.action_type} action missing valid URL`);
       return null;
     }
     
@@ -548,7 +540,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
    * Get action button details for a notification
    */
   public getActionButton(notification: NotificationBase): { title: string; visible: boolean } | null {
-    console.log("notification METADATA===========", notification.metadata);
+    
     if (!notification.metadata) {
       return null;
     }
@@ -574,7 +566,7 @@ public async handleNotificationAction(id: string | number): Promise<void> {
       try {
         callback(notificationsCopy);
       } catch (error) {
-        console.log('❌ Error in notification update callback:', error);
+        console.error('❌ Error in notification update callback:', error);
       }
     });
   }

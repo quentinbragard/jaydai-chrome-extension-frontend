@@ -5,7 +5,6 @@
 import { apiClient } from "@/services/api/ApiClient";
 
 export async function updateTemplate(templateId: number, templateData: any): Promise<any> {
-  console.log('Updating template with data:', templateData);
   try {
     // Ensure required fields are present
     if (!templateData.title && !templateData.content) {

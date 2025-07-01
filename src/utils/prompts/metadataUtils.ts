@@ -102,7 +102,6 @@ export function addMetadataItem(
   type: MultipleMetadataType,
   item?: Partial<MetadataItem>
 ): PromptMetadata {
-  console.log('Adding metadata item:', type, item);
   const updated = cloneMetadata(metadata);
   
   const newItem: MetadataItem = {
@@ -570,7 +569,6 @@ export function parseTemplateMetadata(rawMetadata: any): PromptMetadata {
     parsed.values = { ...parsed.values, ...rawMetadata.values };
   }
 
-  console.log('Parsed metadata from raw:', { rawMetadata, parsed });
   
   return parsed;
 }

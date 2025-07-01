@@ -31,9 +31,7 @@ export function useCreateTemplateDialog() {
         folder_id: baseHook.selectedFolderId ? parseInt(baseHook.selectedFolderId, 10) : undefined,
         metadata: metadataToBlockMapping(metadata)
       };
-      
-      console.log('Saving template with data:', formData);
-      
+            
       const currentTemplate = data?.template;
       const success = await saveTemplate(formData, currentTemplate?.id);
       

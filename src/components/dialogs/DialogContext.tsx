@@ -136,7 +136,6 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
   
   // Dialog management functions
   const openDialog = useCallback(<T extends DialogType>(type: T, data?: DialogProps[T]) => {
-    console.log(`Opening dialog: ${type}`, data);
     setOpenDialogs((prev: Record<DialogType, boolean>) => ({ ...prev, [type]: true }));
     if (data !== undefined) {
       setDialogData(prev => ({ ...prev, [type]: data }));
@@ -144,7 +143,6 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
   }, []);
   
   const closeDialog = useCallback((type: DialogType) => {
-    console.log(`Closing dialog: ${type}`);
     setOpenDialogs((prev: Record<DialogType, boolean>) => ({ ...prev, [type]: false }));
   }, []);
   
@@ -169,7 +167,6 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
   // Assign window.dialogManager methods - using useEffect with an empty
   // dependency array ensures this only runs once on mount
   useEffect(() => {
-    console.log('Initializing window.dialogManager');
     
     // Initialize dialogManager if it doesn't exist
     if (!window.dialogManager) {
@@ -178,11 +175,9 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
         closeDialog,
         isInitialized: true
       };
-      console.log('window.dialogManager initialized successfully');
       isInitializedRef.current = true;
     } else {
       // Update existing dialog manager
-      console.log('window.dialogManager already exists, updating methods');
       window.dialogManager.openDialog = openDialog;
       window.dialogManager.closeDialog = closeDialog;
       window.dialogManager.isInitialized = true;
@@ -191,15 +186,11 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
     
     // Keep the useEffect for cleanup
     return () => {
-      console.log('Cleaning up window.dialogManager');
       if (window.dialogManager && isInitializedRef.current) {
         // Check if our functions were assigned
         if (window.dialogManager.openDialog === openDialog) {
           // Just mark as uninitialized instead of deleting
           window.dialogManager.isInitialized = false;
-          console.log('window.dialogManager marked as uninitialized');
-        } else {
-          console.log('Not cleaning up window.dialogManager as it was overridden');
         }
       }
     };

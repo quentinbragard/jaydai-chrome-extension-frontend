@@ -22,9 +22,6 @@ export class ServiceManager {
    * Register a service with optional dependencies
    */
   public registerService(name: string, service: BaseService, dependencies: string[] = []): void {
-    if (this.services.has(name)) {
-      console.log(`Service '${name}' is already registered. Overwriting.`);
-    }
     this.services.set(name, service);
     this.dependencies.set(name, dependencies);
   }
@@ -62,7 +59,6 @@ export class ServiceManager {
    */
   public async initializeAll(): Promise<boolean> {
     if (this.isInitializing) {
-      console.log('Services are already being initialized');
       return false;
     }
     
@@ -72,14 +68,12 @@ export class ServiceManager {
       // Sort services by dependency order
       const initOrder = this.getInitializationOrder();
       
-      console.log('Initializing services in order:', initOrder);
       
       // Initialize services in order
       for (const serviceName of initOrder) {
         await this.initializeService(serviceName);
       }
       
-      console.log('All services initialized successfully');
       this.isInitializing = false;
       return true;
     } catch (error) {
@@ -103,7 +97,6 @@ export class ServiceManager {
     const service = this.services.get(serviceName);
     
     if (!service) {
-      console.log(`Service '${serviceName}' not found, skipping initialization`);
       return;
     }
     
@@ -113,13 +106,10 @@ export class ServiceManager {
       await this.initializeService(dependency);
     }
     
-    console.log(`Initializing service: ${serviceName}`);
     try {
       await service.initialize();
       this.initialized.add(serviceName);
-      console.log(`Service initialized: ${serviceName}`);
     } catch (error) {
-      console.log(`Error initializing service '${serviceName}':`, error);
       throw new AppError(
         `Failed to initialize service '${serviceName}'`,
         ErrorCode.EXTENSION_ERROR,
@@ -132,7 +122,6 @@ export class ServiceManager {
    * Clean up all services in reverse initialization order
    */
   public cleanupAll(): void {
-    console.log('Cleaning up all services');
     
     // Get initialization order and reverse it for cleanup
     const cleanupOrder = [...this.getInitializationOrder()].reverse();
@@ -142,7 +131,6 @@ export class ServiceManager {
     }
     
     this.initialized.clear();
-    console.log('All services cleaned up');
   }
   
   /**
@@ -160,7 +148,6 @@ export class ServiceManager {
       return;
     }
     
-    console.log(`Cleaning up service: ${serviceName}`);
     try {
       service.cleanup();
       this.initialized.delete(serviceName);
@@ -190,7 +177,6 @@ export class ServiceManager {
       
       // Skip if service doesn't exist
       if (!this.services.has(name)) {
-        console.log(`Dependency '${name}' not found in registered services, skipping`);
         return;
       }
       

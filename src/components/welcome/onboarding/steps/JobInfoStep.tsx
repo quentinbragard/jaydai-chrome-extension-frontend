@@ -38,7 +38,6 @@ const JOB_INDUSTRIES = [
   { value: 'real_estate', label: getMessage('onboardingStep1JobIndustryRealEstate', undefined, 'Real Estate') },
   { value: 'ecommerce_retail', label: getMessage('onboardingStep1JobIndustryEcommerceRetail', undefined, 'E-commerce & Retail') },
   { value: 'education_training', label: getMessage('onboardingStep1JobIndustryEducationTraining', undefined, 'Education & Training') },
-  { value: 'media_publishing', label: getMessage('onboardingStep1JobIndustryMediaPublishing', undefined, 'Media & Publishing') },
   { value: 'hr_recruitment', label: getMessage('onboardingStep1JobIndustryHrRecruitment', undefined, 'Human Resources & Recruitment') },
   { value: 'customer_service_support', label: getMessage('onboardingStep1JobIndustryCustomerServiceSupport', undefined, 'Customer Service & Support') },
   { value: 'other', label: getMessage('onboardingStep1JobIndustryOther', undefined, 'Other') }

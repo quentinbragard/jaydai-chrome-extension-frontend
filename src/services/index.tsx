@@ -41,7 +41,6 @@ export function registerServices(): void {
   serviceManager.registerService('auth', AuthService.getInstance());
   serviceManager.registerService('user', UserProfileService.getInstance());
   
-  console.log('All services registered with ServiceManager');
 }
 
 // Auth services exports

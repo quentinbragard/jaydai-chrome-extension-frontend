@@ -23,7 +23,6 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
   function insertTextClaude(targetElement: HTMLElement, text: string, cursorPos?: number): boolean {
     if (!targetElement.isContentEditable) return false;
   
-    console.log('Attempting Claude-specific insertion');
     
     // Claude uses a complex contenteditable structure
     // Try to insert using document.execCommand first
@@ -67,12 +66,11 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
       if (document.execCommand) {
         const success = document.execCommand('insertText', false, text);
         if (success) {
-          console.log('Claude insertion successful via execCommand');
           return true;
         }
       }
     } catch (e) {
-      console.log('execCommand failed, trying manual insertion');
+      console.error('execCommand failed, trying manual insertion');
     }
   
     // Fallback to manual insertion
@@ -90,7 +88,6 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
       selection.addRange(range);
       
       targetElement.dispatchEvent(new Event('input', { bubbles: true }));
-      console.log('Claude insertion successful via manual method');
       return true;
     }
   
@@ -103,7 +100,6 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
   function insertTextChatGPT(targetElement: HTMLElement, text: string, cursorPos?: number): boolean {
     if (!(targetElement instanceof HTMLTextAreaElement)) return false;
   
-    console.log('Attempting ChatGPT-specific insertion');
     
     const start = cursorPos !== undefined ? cursorPos : (targetElement.selectionStart || 0);
     const end = cursorPos !== undefined ? cursorPos : (targetElement.selectionEnd || 0);
@@ -121,7 +117,6 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
     targetElement.dispatchEvent(new Event('change', { bubbles: true }));
     targetElement.focus();
     
-    console.log('ChatGPT insertion successful');
     return true;
   }
   
@@ -133,11 +128,6 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
     text: string, 
     savedCursorPos?: number
   ): boolean {
-    console.log('Platform-aware insertion:', { 
-      platform: getPlatformInsertionStrategy(),
-      element: targetElement.tagName,
-      text: text.substring(0, 50) + '...'
-    });
   
     const strategy = getPlatformInsertionStrategy();
     
@@ -164,7 +154,6 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
    * Generic text insertion for any platform
    */
   function insertTextGeneric(targetElement: HTMLElement, text: string, savedCursorPos?: number): boolean {
-    console.log('Attempting generic insertion');
     
     // Handle textarea elements
     if (targetElement instanceof HTMLTextAreaElement) {
@@ -181,7 +170,6 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
       targetElement.dispatchEvent(new Event('input', { bubbles: true }));
       targetElement.focus();
       
-      console.log('Generic textarea insertion successful');
       return true;
     }
   
@@ -233,7 +221,6 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
         
         targetElement.dispatchEvent(new Event('input', { bubbles: true }));
         
-        console.log('Generic contenteditable insertion successful');
         return true;
       }
     }
@@ -253,7 +240,6 @@ function getPlatformInsertionStrategy(): 'chatgpt' | 'claude' | 'generic' {
       targetElement.dispatchEvent(new Event('input', { bubbles: true }));
       targetElement.focus();
       
-      console.log('Generic input insertion successful');
       return true;
     }
   

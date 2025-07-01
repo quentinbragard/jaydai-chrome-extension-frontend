@@ -83,15 +83,14 @@ export class ChatOrchestrator extends AbstractBaseService {
   }
   
   protected async onInitialize(): Promise<void> {
-    console.log('Initializing ChatOrchestrator');
-    
+
     // Listen for network intercept events
     document.addEventListener('jaydai:conversation-changed', this.handleConversationChanged);
   }
   
   protected onCleanup(): void {
     document.removeEventListener('jaydai:conversation-changed', this.handleConversationChanged);
-    console.log('ChatOrchestrator cleaned up');
+    
   }
   
   

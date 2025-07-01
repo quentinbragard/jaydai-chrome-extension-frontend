@@ -9,7 +9,6 @@ import { EVENTS } from './constants';
  * @param {Object} data - The data to include in the event detail
  */
 export function dispatchEvent(eventName, platform, data) {
-  console.log(`Dispatching event: ${eventName}`, data);
   document.dispatchEvent(new CustomEvent(eventName, {
     detail: { ...data, platform, timestamp: Date.now() }
   }));

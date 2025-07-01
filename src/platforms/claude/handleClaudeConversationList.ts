@@ -17,7 +17,6 @@ function mapConversationsToChatParams(conversations: any[]): SaveChatParams[] {
 }
 
 export function handleClaudeConversationList(conversationItems: any[]): Promise<void> {
-    console.log('=========================handleClaudeConversationList', conversationItems);
     if (conversationItems && Array.isArray(conversationItems)) {
         const processedChats = mapConversationsToChatParams(conversationItems);
         return messageApi.saveChatBatch(processedChats);

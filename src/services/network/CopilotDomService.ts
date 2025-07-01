@@ -11,11 +11,9 @@ export class CopilotDomService extends AbstractBaseService {
 
   protected async onInitialize(): Promise<void> {
     if (detectPlatform() !== 'copilot') {
-      console.log('CopilotDomService: not on Copilot site');
       return;
     }
 
-    console.log('Initializing CopilotDomService');
     this.scanExistingMessages();
     this.observer = new MutationObserver(this.handleMutations);
     this.observer.observe(document.body, { childList: true, subtree: true });
@@ -29,7 +27,6 @@ export class CopilotDomService extends AbstractBaseService {
     this.messageObservers.forEach(obs => obs.disconnect());
     this.messageObservers.clear();
     this.processed.clear();
-    console.log('CopilotDomService cleaned up');
   }
 
   private handleMutations = (mutations: MutationRecord[]): void => {

@@ -29,7 +29,6 @@ export class MessageService extends AbstractBaseService {
   }
 
   protected async onInitialize(): Promise<void> {
-    console.log('Initializing MessageService');
     document.addEventListener('jaydai:message-extracted', this.handleExtractedMessage);
   }
     
@@ -39,7 +38,6 @@ export class MessageService extends AbstractBaseService {
       this.timer = null;
     }
     document.removeEventListener('jaydai:message-extracted', this.handleExtractedMessage);
-    console.log('MessageService cleaned up');
   }
 
   /**
@@ -82,7 +80,6 @@ export class MessageService extends AbstractBaseService {
    * Queue a message for saving
    */
   public queueMessage(message: Message): void {
-    console.log('Queueing message:', message);
     
     // Skip if already processed
     if (this.processed.has(message.messageId)) {
@@ -129,9 +126,7 @@ export class MessageService extends AbstractBaseService {
     this.queue.forEach(message => {
       // Try to get the conversation ID one more time if it's missing
       if (!message.conversationId || message.conversationId === '') {
-        console.log('No conversation IDDDDDDDD found for message:', message);
         const currentConversationId = chatService.getCurrentConversationId();
-        console.log('Current conversation ID:', currentConversationId);
         if (currentConversationId) {
           message.conversationId = currentConversationId;
         }
@@ -194,7 +189,6 @@ export class MessageService extends AbstractBaseService {
       
       // Save batch
       await messageApi.saveMessageBatch(formattedMessages);
-      console.log(`Saved batch of ${validMessages.length} messages`);
     } catch (error) {
       errorReporter.captureError(
         new AppError('Error saving message batch', ErrorCode.API_ERROR, error)

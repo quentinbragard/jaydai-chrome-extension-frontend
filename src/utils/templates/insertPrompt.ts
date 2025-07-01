@@ -12,7 +12,6 @@ export function insertContentIntoChat(content: string): boolean {
   const adapter = getAdapterByHostname(hostname);
   
   if (adapter) {
-    console.log(`Inserting content using ${adapter.name} adapter`);
     return adapter.insertPrompt(formatContentForInsertion(content));
   }
   

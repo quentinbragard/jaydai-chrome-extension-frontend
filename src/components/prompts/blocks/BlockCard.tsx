@@ -220,7 +220,7 @@ export const BlockCard: React.FC<BlockCardProps> = ({
                 </>
               )}
               {readOnly && (
-                <span className="jd-text-xs jd-text-muted-foreground">(Existing)</span>
+                <span className="jd-text-xs jd-text-muted-foreground">({getMessage('existing', undefined, 'Existing')})</span>
               )}
             </div>
           </div>
@@ -262,8 +262,8 @@ export const BlockCard: React.FC<BlockCardProps> = ({
 
           {!readOnly && content && (
             <div className="jd-flex jd-justify-between jd-text-xs jd-text-muted-foreground">
-              <span>{content.length} characters</span>
-              <span>{content.split('\n').length} lines</span>
+              <span>{content.length} {getMessage('charactersLabel', undefined, 'characters')}</span>
+              <span>{content.split('\n').length} {getMessage('linesLabel', undefined, 'lines')}</span>
             </div>
           )}
 

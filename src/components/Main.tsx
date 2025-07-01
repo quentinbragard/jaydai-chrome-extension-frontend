@@ -78,9 +78,7 @@ const Main: React.FC = () => {
 
   useEffect(() => {
     authService.subscribe((state) => {
-      console.log('authService-->', state);
       if (state.user) {
-        console.log('MAIN initAmplitude-->', state.user.id);
         initAmplitude(state.user.id, false);
         setUserProperties({
           darkMode: document.documentElement.classList.contains('dark'),

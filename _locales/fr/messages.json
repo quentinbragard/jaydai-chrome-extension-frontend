@@ -1601,10 +1601,6 @@
     "message": "Éducation & Formation",
     "description": "Job industry for education and training"
   },
-  "onboardingStep1JobIndustryMediaPublishing": {
-    "message": "Médias & Édition",
-    "description": "Job industry for media and publishing"
-  },
   "onboardingStep1JobIndustryHrRecruitment": {
     "message": "Ressources Humaines & Recrutement",
     "description": "Job industry for hr and recruitment"

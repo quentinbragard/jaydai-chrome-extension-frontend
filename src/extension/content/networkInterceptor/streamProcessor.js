@@ -81,8 +81,6 @@ export function processStreamData(data, assistantData, thinkingSteps) {
       assistantData.content = '';
     }
 
-    console.log('ASSISTANT DATA', assistantData);
-    console.log('THINKING STEPS', thinkingSteps);
     
     return { assistantData, thinkingSteps };
   }
@@ -141,8 +139,6 @@ export function processStreamData(data, assistantData, thinkingSteps) {
         }
       }
     }
-    console.log('ASSISTANT DATAAAAAAAA', assistantData);
-    console.log('THINKING STEPS', thinkingSteps);
     if (assistantData.content === "" && thinkingSteps.length > 0) {
       assistantData.content = thinkingSteps[thinkingSteps.length - 1].content;
     }
@@ -160,10 +156,6 @@ export function processStreamData(data, assistantData, thinkingSteps) {
  * @returns {Promise<void>}
  */
 export async function processMistralStreamingResponse(response, requestBody) {
-  console.log("PROCESSING MISTRAL STREAMING RESPONSE");
-  console.log("RESPONSE", response);
-  console.log("REQUEST BODY", requestBody);
-  console.log("================================================");
   if (!response.body) return;
 
   const reader = response.clone().body.getReader();
@@ -177,16 +169,13 @@ export async function processMistralStreamingResponse(response, requestBody) {
   try {
     while (true) {
       const { done, value } = await reader.read();
-      console.log("VALUE", value);
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      console.log("BUFFER", buffer);
 
       let index;
       while ((index = buffer.indexOf('\n')) !== -1) {
         const line = buffer.slice(0, index).trim();
-        console.log("LINE", line);
         buffer = buffer.slice(index + 1);
         if (!line) continue;
 
@@ -201,13 +190,9 @@ export async function processMistralStreamingResponse(response, requestBody) {
             }
           }
           content += token;
-          console.log("CONTENT", content);
         }
 
         if (line.endsWith(':null')) {
-          console.log("LINE ENDS WITH :NULL");
-          console.log("MESSAGE ID", messageId);
-          console.log("CONTENT", content);
           if (content) {
             dispatchEvent(EVENTS.ASSISTANT_RESPONSE, 'mistral', {
               messageId,
@@ -235,7 +220,6 @@ export async function processMistralStreamingResponse(response, requestBody) {
  * @returns {Promise<void>}
  */
 export async function processStreamingResponse(response, requestBody) {
-  console.log("PROCESSING STREAMING RESPONSE");
   const platform = detectPlatform();
 
   if (platform === 'mistral') {
@@ -284,8 +268,6 @@ export async function processStreamingResponse(response, requestBody) {
 
         // Handle special "[DONE]" message 
         if (dataMatch[1] === '[DONE]') {
-          console.log("Received [DONE] message, finalizing response");
-          console.log('ASSISTANT DATA', assistantData);
           if (assistantData.messageId && assistantData.content.length > 0) {
             assistantData.isComplete = true;
             dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, assistantData);
@@ -295,15 +277,12 @@ export async function processStreamingResponse(response, requestBody) {
         
         // Parse JSON data (only for non-[DONE] messages)
         try {
-          const data = JSON.parse(dataMatch[1]);
-          console.log('event type', eventType);
-          console.log('data', data);
+          const data = JSON.parse(dataMatch[1]);  
           
           // Process message stream complete event
           if (data.type === "message_stream_complete") {
             if (assistantData.messageId) {
               assistantData.isComplete = true;
-              console.log("Stream processing complete");
               dispatchEvent(EVENTS.ASSISTANT_RESPONSE,platform, assistantData);
             }
             continue;
@@ -334,7 +313,6 @@ export async function processStreamingResponse(response, requestBody) {
     // Final check: If we have message content but never got a completion signal,
     // send what we have with isComplete=true
     if (assistantData.messageId && assistantData.content.length > 0 && !assistantData.isComplete) {
-      console.log("Stream ended without completion signal, sending final data");
       assistantData.isComplete = true;
       dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, assistantData);
     }
@@ -343,7 +321,6 @@ export async function processStreamingResponse(response, requestBody) {
     
     // Try to salvage partial response in case of errors
     if (assistantData.messageId && assistantData.content.length > 0) {
-      console.log("Salvaging partial response after error");
       assistantData.isComplete = true;
       dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, assistantData);
     }

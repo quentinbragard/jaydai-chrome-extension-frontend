@@ -1618,10 +1618,6 @@
     "message": "Education & Training",
     "description": "Job industry for education and training"
   },
-  "onboardingStep1JobIndustryMediaPublishing": {
-    "message": "Media & Publishing",
-    "description": "Job industry for media and publishing"
-  },
   "onboardingStep1JobIndustryHrRecruitment": {
     "message": "Human Resources & Recruitment",
     "description": "Job industry for human resources and recruitment"

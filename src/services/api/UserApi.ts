@@ -20,7 +20,6 @@ export class UserApi {
    * Save user metadata
    */
   async saveUserMetadata(userData: UserMetadata): Promise<any> {
-    console.log('saveUserMetadata', userData);
     return apiClient.request('/save/user_metadata', {
       method: 'POST',
       body: JSON.stringify(userData)

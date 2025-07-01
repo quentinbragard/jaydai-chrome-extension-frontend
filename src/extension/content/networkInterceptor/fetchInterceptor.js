@@ -57,7 +57,6 @@ function isStreamingResponse(response, requestInit, platform) {
       isStreaming = responseContentType.toLowerCase().includes('text/event-stream');
     }
     
-    console.log("IS STREAMING--------------->", isStreaming);
     return isStreaming;
   } catch (error) {
     console.warn('Error detecting streaming response:', error);
@@ -75,7 +74,6 @@ export function initFetchInterceptor() {
   // Override fetch to intercept network requests
   window.fetch = async function(input, init) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
-    console.log('🔍 Intercepting request:', url);
     
     const eventName = getEndpointEvent(url);
     const platform = detectPlatform();
@@ -96,27 +94,19 @@ export function initFetchInterceptor() {
     
     try {
       if (eventName === EVENTS.CHAT_COMPLETION) {
-        console.log(`🔍 [${platform}] Processing CHAT_COMPLETION for: ${url}`);
         
         // Dispatch chat completion event
         dispatchEvent(EVENTS.CHAT_COMPLETION, platform, { requestBody });
         
         // Detect streaming more reliably
         const isStreaming = isStreamingResponse(response, init, platform);
-        console.log("IS STREAMING--------------->", isStreaming);
-        console.log("RESPONSE", response);
-        console.log("REQUEST BODY", requestBody);
         requestBody['parentMessageId'] = requestBody.messageId;
         
-        console.log(`🔍 [${platform}] Stream detection result: ${isStreaming}`);
-        
         if (isStreaming) {
-          console.log(`🔍 [${platform}] Processing as streaming response`);
           // Process streaming responses
           processStreamingResponse(response, requestBody);
 
         } else {
-          console.log(`🔍 [${platform}] Processing as non-streaming response`);
           // Non streaming response, parse JSON and dispatch as assistant response
           const responseData = await response.clone().json().catch(() => null);
           if (responseData) {

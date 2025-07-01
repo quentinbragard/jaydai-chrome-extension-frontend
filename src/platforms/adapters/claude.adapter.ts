@@ -411,11 +411,9 @@ export class ClaudeAdapter extends BasePlatformAdapter {
         return navigator.clipboard.writeText(normalizedContent)
           .then(() => {
             document.execCommand('paste');
-            console.log('Content pasted via Clipboard API');
             return true;
           })
           .catch(err => {
-            console.warn('Clipboard API failed for Claude:', err);
             
             // Final fallback - direct textContent manipulation
             contentEditableDiv.textContent = normalizedContent;
@@ -445,7 +443,6 @@ export class ClaudeAdapter extends BasePlatformAdapter {
   async processStreamingResponse(response: Response, requestBody: any): Promise<void> {
     // As you mentioned, Claude doesn't need streaming processing
     // We'll get the conversation data after the response is complete
-    console.log('Claude streaming not processed - conversation will be loaded separately');
     return Promise.resolve();
   }
 }

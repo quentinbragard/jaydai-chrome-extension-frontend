@@ -20,7 +20,6 @@ import { CreateBlockDialog } from './prompts/CreateBlockDialog';
 export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   // Debug check to verify dialog manager initialization
   React.useEffect(() => {
-    console.log('DialogProvider mounted, checking dialogManager availability');
     
     // Monitor for any errors in dialog functionality
     const handleError = (error: ErrorEvent) => {

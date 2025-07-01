@@ -27,7 +27,6 @@ export class TokenService extends AbstractBaseService {
    * Initialize token management
    */
   protected async onInitialize(): Promise<void> {
-    console.log('Initializing TokenService');
     
     // Set up auto token refresh
     TokenRefresher.setupAutoRefresh(() => this.refreshToken());
@@ -38,7 +37,6 @@ export class TokenService extends AbstractBaseService {
    */
   protected onCleanup(): void {
     TokenRefresher.cleanup();
-    console.log('TokenService cleaned up');
   }
   
   /**

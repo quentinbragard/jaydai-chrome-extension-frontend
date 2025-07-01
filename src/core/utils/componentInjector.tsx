@@ -269,7 +269,6 @@ class ComponentInjector {
         this.roots.set(id, root);
       }
       
-      console.log(`Component "${id}" injected successfully with enhanced focus management`);
     } catch (error) {
       console.error(`Error injecting component "${id}":`, error);
     }
@@ -312,7 +311,6 @@ class ComponentInjector {
       // Clean up shadow root reference
       this.shadowContainers.delete(id);
       
-      console.log(`Component "${id}" removed successfully`);
     } catch (error) {
       console.error(`Error removing component "${id}":`, error);
     }
@@ -327,8 +325,6 @@ class ComponentInjector {
     
     // Remove each component
     ids.forEach(id => this.remove(id));
-    
-    console.log('All components removed successfully');
   }
 
   /**

@@ -53,7 +53,6 @@ export class DialogManagerHelper {
             clearInterval(this.checkInterval);
             this.checkInterval = null;
           }
-          console.log('✅ Dialog manager is now available');
         } else {
           retries++;
           if (retries >= this.maxRetries) {
@@ -61,7 +60,6 @@ export class DialogManagerHelper {
               clearInterval(this.checkInterval);
               this.checkInterval = null;
             }
-            console.error('❌ Dialog manager not available after max retries');
           }
         }
       }, this.retryDelay);
@@ -96,7 +94,6 @@ export class DialogManagerHelper {
       const dialogManager = this.getDialogManager();
       if (dialogManager) {
         try {
-          console.log(`🔔 Opening dialog: ${type}`, data);
           dialogManager.openDialog(type, data);
           return true;
         } catch (error) {
