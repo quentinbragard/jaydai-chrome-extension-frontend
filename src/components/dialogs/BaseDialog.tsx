@@ -141,7 +141,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
       <div
         ref={dialogRef}
         className={cn(
-          "jd-bg-background jd-rounded-lg jd-shadow-xl jd-w-full jd-max-h-[90vh] jd-flex jd-flex-col jd-relative",
+          "jd-bg-background jd-rounded-lg jd-shadow-xl jd-w-full !jd-max-h-[98vh] jd-flex jd-flex-col jd-relative",
           className
         )}
         onClick={(e) => e.stopPropagation()}
@@ -160,7 +160,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
           style={{ zIndex: baseZIndex + 2 }}
         >
           <X className="jd-h-4 jd-w-4" />
-          <span className="jd-sr-only">Close</span>
+          <span className="jd-sr-only">{getMessage('close', undefined, 'Close')}</span>
         </button>
         
         {/* Header section */}

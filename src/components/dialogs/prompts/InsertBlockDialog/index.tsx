@@ -407,7 +407,7 @@ const filteredBlocks = blocks.filter(b => {
         onOpenChange={dialogProps.onOpenChange}
         title={getMessage('buildYourPrompt', undefined, 'Build Your Prompt')}
         description={getMessage('buildYourPromptDesc', undefined, 'Select and arrange blocks to create your perfect prompt')}
-        className="jd-max-w-7xl jd-max-h-[90vh]"
+        className="jd-max-w-7xl"
       >
       <div className="jd-flex jd-items-center jd-text-xs jd-text-muted-foreground jd-mb-2 jd-gap-2">
         <Info className="jd-w-4 jd-h-4 jd-text-primary" />

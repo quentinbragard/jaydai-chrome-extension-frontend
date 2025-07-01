@@ -39,6 +39,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     }
     await onActionClick(notification);
   };
+
+  console.log("notification", notification);
   
   return (
     <div 
@@ -77,7 +79,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           <div className="jd-mt-2 jd-flex jd-justify-between jd-items-center">
             {/* Action button (if available) from metadata */}
             <div className="jd-flex-1">
-              {actionButton && actionButton.type === 'openUrl' && (
+
+              {actionButton && actionButton.visible && (
                 <Button
                   size="sm"
                   variant="secondary"

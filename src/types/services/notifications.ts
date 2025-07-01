@@ -48,6 +48,7 @@ export interface NotificationDeleteResponse {
 // Different notification types
 export type NotificationType = 
   | 'welcome_first_conversation' 
+  | 'new_release_notification'
   | 'insight_prompt_length' 
   | 'insight_response_time' 
   | 'insight_conversation_quality'

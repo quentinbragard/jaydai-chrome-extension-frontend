@@ -1246,7 +1246,7 @@
     "description": "Titre pour la section des templates non organisés"
   },
   "organization_templates_title": {
-    "message": "Templates Entreprise",
+    "message": "Jaydai Entreprise",
     "description": "Title for enterprise templates section"
   },
   "enterprise_feature": {
@@ -1997,9 +1997,17 @@
   "clickToAdd": { "message": "Cliquez pour ajouter", "description": "Libellé pour le bouton de clic pour ajouter" },
   "add": { "message": "Ajouter", "description": "Libellé pour le bouton d'ajout" },
   "premium": { "message": "Premium", "description": "Libellé pour le bouton de premium" },
-  "team_sharing": { "message": "Partage entre équipes", "description": "Libellé pour le bouton de partage de team" },
-  "priority_support": { "message": "Support prioritaire", "description": "Libellé pour le bouton de support prioritaire" },
-  "get_enterprise_access": { "message": "Accéder à l'offre entreprise", "description": "Libellé pour le bouton d'accéder à l'entreprise" },
-  "join_50_teams_already_using_enterprise": { "message": "Rejoignez 50+ équipes déjà utilisant l'entreprise", "description": "Libellé pour le bouton de rejoindre 500+ équipes déjà utilisant l'entreprise" },
-  "enterprise_feature_description": { "message": "Débloquez les templates d'entreprise, la collaboration avancée et la sécurité d'entreprise.", "description": "Libellé pour la description de la fonctionnalité entreprise" }
+  "get_enterprise_access": { "message": "Obtenez 20% de réduction", "description": "Libellé pour le bouton d'accéder à l'entreprise" },
+  "join_50_teams_already_using_enterprise": { "message": "Rejoignez 50+ équipes qui utilisent déjà Jaydai entreprise", "description": "Libellé pour le bouton de rejoindre 500+ équipes déjà utilisant l'entreprise" },
+  "enterprise_feature_description": { "message": "Débloquez les templates d'entreprise, la collaboration avancée et la sécurité d'entreprise.", "description": "Libellé pour la description de la fonctionnalité entreprise" },
+  "new_release_notification_title": { "message": "Jaydai fait (déjà) peau neuve", "description": "Libellé pour le titre de la nouvelle version" },
+  "new_release_notification_body": { "message": "Vous l'avez sûrement déjà remarqué, mais on vous a préparé plein de nouveautés et de petites surprises : création de templates professionnal, décomposition en blocs, raccourici clavier, etc. On vous explique tout sur notre blog 👇", "description": "Libellé pour la description de la nouvelle version" },  
+  "mark_all_as_read": { "message": "Marquer tout comme lu", "description": "Libellé pour le bouton de marquer tout comme lu" },
+  "mark_all_read": { "message": "Marquer tout comme lu", "description": "Libellé pour le bouton de marquer tout comme lu" },
+  "loading_notifications": { "message": "Chargement des notifications...", "description": "Libellé pour le chargement des notifications" },
+  "we_will_notify_you_when_there_are_new_updates_or_important_information": { "message": "Nous vous enverrons une notification lorsque des mises à jour ou des informations importantes seront disponibles", "description": "Libellé pour la notification lorsque des mises à jour ou des informations importantes seront disponibles" },
+  "no_notifications": { "message": "Aucune notification", "description": "Libellé pour la notification d'absence de notification" },
+  "checking": { "message": "Vérification...", "description": "Libellé pour la vérification" },
+  "check_for_notifications": { "message": "Vérifier les notifications", "description": "Libellé pour la vérification des notifications" },
+  "notification_count": { "message": "notification", "description": "Libellé pour le nombre de notification" }
 }

@@ -426,19 +426,11 @@ public async handleNotificationAction(id: string | number): Promise<void> {
     if (metadata && metadata.action_type) {
       switch (metadata.action_type) {
         case 'openUrl':
-        case 'openLinkedIn':
           if (metadata.action_url) {
             window.open(metadata.action_url, '_blank');
-          } else {
-            // If no URL provided, show an error
-            toast.error(getMessage('no_url_error', undefined, 'No URL provided for action'));
           }
           break;
       
-        case 'openChatGpt':
-          // Open ChatGPT
-          window.open('https://chat.openai.com/', '_blank');
-          break;
           
         case 'openSettings':
           // Trigger settings panel open

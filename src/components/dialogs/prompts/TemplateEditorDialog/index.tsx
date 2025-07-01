@@ -203,7 +203,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       }}
       title={dialogTitle}
       description={dialogDescription}
-      className="jd-max-w-6xl jd-max-h-[90vh] jd-h-[85vh]" // Fixed height with max constraint
+      className=  "jd-max-w-7xl jd-h-[98vh]" // Fixed height with max constraint
       footer={footer}
     >
       {/* Info form - outside main content */}

@@ -108,10 +108,10 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
             className="jd-text-xs jd-flex jd-items-center jd-gap-1 jd-h-7"
             onClick={handleMarkAllAsRead}
             disabled={isRefreshing || loading}
-            title="Mark all as read"
+            title={getMessage('mark_all_as_read', undefined, 'Mark all as read')}
           >
             <CheckSquare className="jd-h-4 jd-w-4" />
-            Mark all read
+            {getMessage('mark_all_read', undefined, 'Mark all read')}
           </Button>
         </div>
       )}
@@ -119,16 +119,16 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
       {/* Notification Content */}
       {loading ? (
         <div className="jd-flex jd-justify-center jd-items-center jd-py-20">
-          <LoadingSpinner size="md" message="Loading notifications..." />
+          <LoadingSpinner size="md" message={getMessage('loading_notifications', undefined, 'Loading notifications...')} />
         </div>
       ) : notifications.length === 0 ? (
         <div className="jd-flex jd-flex-col jd-justify-center jd-items-center jd-py-10 jd-text-gray-400 jd-p-4 jd-text-center">
           <div className="jd-w-16 jd-h-16 jd-rounded-full jd-bg-gray-800 jd-flex jd-items-center jd-justify-center jd-mb-3">
             <Bell className="jd-h-8 jd-w-8 jd-text-gray-500" />
           </div>
-          <p className="jd-font-medium">No notifications</p>
+          <p className="jd-font-medium">{getMessage('no_notifications', undefined, 'No notifications')}</p>
           <p className="jd-text-xs jd-mt-1 jd-max-w-xs">
-            We'll notify you when there are new updates or important information
+            {getMessage('we_will_notify_you_when_there_are_new_updates_or_important_information', undefined, "We'll notify you when there are new updates or important information")}
           </p>
           <Button 
             variant="outline" 
@@ -140,12 +140,12 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
             {isRefreshing ? (
               <>
                 <Loader2 className="jd-h-4 jd-w-4 jd-mr-1.5 jd-animate-spin" />
-                Checking...
+                {getMessage('checking', undefined, 'Checking...')}
               </>
             ) : (
               <>
                 <RefreshCw className="jd-h-4 jd-w-4 jd-mr-1.5" />
-                Check for notifications
+                {getMessage('check_for_notifications', undefined, 'Check for notifications')}
               </>
             )}
           </Button>
@@ -167,7 +167,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
           
           {/* Footer count */}
           <div className="jd-mt-4 jd-pt-2 jd-flex jd-justify-between jd-items-center jd-text-xs jd-text-gray-400">
-            {notifications.length} notification{notifications.length !== 1 ? 's' : ''}
+            {getMessage('notification_count', undefined, 'notification')} {notifications.length}
           </div>
         </>
       )}

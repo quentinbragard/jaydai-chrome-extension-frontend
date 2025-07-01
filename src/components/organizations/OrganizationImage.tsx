@@ -1,6 +1,6 @@
 // src/components/organizations/OrganizationImage.tsx
 import React, { useState } from 'react';
-import { Building2 } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 
 interface OrganizationImageProps {
@@ -39,14 +39,7 @@ export function OrganizationImage({
   // Show fallback if no image URL, image failed to load, or showFallback is false
   if (!imageUrl || imageError || !showFallback) {
     return (
-      <Building2 
-        className={cn(
-          sizeClasses[size],
-          'jd-text-muted-foreground jd-flex-shrink-0',
-          className
-        )}
-        title={organizationName}
-      />
+      <></>
     );
   }
 

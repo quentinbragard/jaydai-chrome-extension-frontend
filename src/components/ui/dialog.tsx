@@ -59,7 +59,7 @@ const DialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "jd-fixed jd-left-[50%] jd-top-[50%] jd-z-50 jd-grid jd-max-w-7xl jd-max-h-[90vh] jd-translate-x-[-50%] jd-translate-y-[-50%] jd-gap-4 jd-border jd-p-6 jd-shadow-lg jd-duration-200 jd-overflow-y-auto data-[state=open]:jd-animate-in data-[state=closed]:jd-animate-out data-[state=closed]:jd-fade-out-0 data-[state=open]:jd-fade-in-0 data-[state=closed]:jd-zoom-out-95 data-[state=open]:jd-zoom-in-95 data-[state=closed]:jd-slide-out-to-left-1/2 data-[state=closed]:jd-slide-out-to-top-[48%] data-[state=open]:jd-slide-in-from-left-1/2 data-[state=open]:jd-slide-in-from-top-[48%] sm:jd-rounded-lg", 
+          "jd-fixed jd-left-[50%] jd-top-[50%] jd-z-50 jd-grid jd-max-w-7xl jd-translate-x-[-50%] jd-translate-y-[-50%] jd-gap-4 jd-border jd-p-6 jd-shadow-lg jd-duration-200 jd-overflow-y-auto data-[state=open]:jd-animate-in data-[state=closed]:jd-animate-out data-[state=closed]:jd-fade-out-0 data-[state=open]:jd-fade-in-0 data-[state=closed]:jd-zoom-out-95 data-[state=open]:jd-zoom-in-95 data-[state=closed]:jd-slide-out-to-left-1/2 data-[state=closed]:jd-slide-out-to-top-[48%] data-[state=open]:jd-slide-in-from-left-1/2 data-[state=open]:jd-slide-in-from-top-[48%] sm:jd-rounded-lg", 
           className
         )}
         {...props}

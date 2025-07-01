@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { promptApi } from '@/services/api';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useSafeQuery } from '@/providers/QueryProvider';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface FolderData {
   title: string;

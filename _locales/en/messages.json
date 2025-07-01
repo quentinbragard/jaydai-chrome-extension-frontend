@@ -2019,5 +2019,15 @@
   "priority_support": { "message": "Priority support", "description": "Label for the priority support button" },
   "get_enterprise_access": { "message": "Get Enterprise Access", "description": "Label for the get enterprise access button" },
   "join_50_teams_already_using_enterprise": { "message": "Join 50+ teams already using Enterprise", "description": "Label for the join 50+ teams already using enterprise button" },
-  "enterprise_feature_description": { "message": "Unlock team-wide templates, advanced collaboration, and enterprise-grade security.", "description": "Label for the enterprise feature description" }
+  "enterprise_feature_description": { "message": "Unlock team-wide templates, advanced collaboration, and enterprise-grade security.", "description": "Label for the enterprise feature description" },
+  "new_release_notification_title": { "message": "Jaydai makes (already) a new release", "description": "Label for the new release notification title" },
+  "new_release_notification_body": { "message": "You've probably already noticed, but we've prepared a lot of new features and little surprises: professional template creation, block decomposition, keyboard shortcuts, etc. We explain everything on our blog 👇", "description": "Label for the new release notification body" },
+  "mark_all_as_read": { "message": "Mark all as read", "description": "Label for the mark all as read button" },
+  "mark_all_read": { "message": "Mark all read", "description": "Label for the mark all read button" },
+  "loading_notifications": { "message": "Loading notifications...", "description": "Label for the loading notifications" },
+  "we_will_notify_you_when_there_are_new_updates_or_important_information": { "message": "We'll notify you when there are new updates or important information", "description": "Label for the we will notify you when there are new updates or important information" },
+  "no_notifications": { "message": "No notifications", "description": "Label for the no notifications" },
+  "checking": { "message": "Checking...", "description": "Label for the checking" },
+  "check_for_notifications": { "message": "Check for notifications", "description": "Label for the check for notifications" },
+  "notification_count": { "message": "notification", "description": "Label for the notification count" }
 }

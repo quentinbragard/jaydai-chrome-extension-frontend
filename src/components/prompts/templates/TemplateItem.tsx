@@ -125,6 +125,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   const shouldShowPinControls = showPinControls && onTogglePin;
 
 
+
   return (
     <div
       className={`jd-flex jd-items-center hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group/template jd-transition-colors ${
@@ -134,19 +135,8 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
       style={{ paddingLeft: `${level * 16 + 8}px` }}
 
     >
-      {/* Template Icon or Organization Image */}
-      {shouldShowOrgImage ? (
-        <OrganizationImage
-          imageUrl={templateOrganization.image_url}
-          organizationName={templateOrganization.name || template.title}
-          size="sm"
-          className="jd-mr-2 jd-flex-shrink-0"
-          showFallback={false} // Don't show fallback icon, fall back to FileText instead
-        />
-      ) : (
-        <FileText className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${iconColorMap[type]}`} />
-      )}
-      
+      <FileText className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${iconColorMap[type]}`} />
+    
       {/* Template Content */}
       <div className="jd-flex-1 jd-min-w-0">
         {/* Template Title with optional description tooltip */}

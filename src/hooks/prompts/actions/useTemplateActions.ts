@@ -272,7 +272,7 @@ const useTemplate = useCallback(async (template: Template) => {
       // The saving will be handled by the dialog's internal logic
     };
     
-    openDialog(DIALOG_TYPES.EDIT_TEMPLATE, dialogData);
+    openDialog(DIALOG_TYPES.CREATE_TEMPLATE, dialogData);
     trackEvent(EVENTS.TEMPLATE_EDIT_DIALOG_OPENED, {
       template_id: template.id,
       template_name: template.title,

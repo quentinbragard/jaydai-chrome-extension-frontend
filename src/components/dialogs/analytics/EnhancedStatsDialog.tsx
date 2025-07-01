@@ -262,7 +262,7 @@ export const EnhancedStatsDialog: React.FC = () => {
       onOpenChange={dialogProps.onOpenChange}
       title={getMessage('enhancedAiAnalytics', undefined, 'Enhanced AI Analytics')}
       description={getMessage('analyticsDescription', undefined, 'Detailed insights about your AI interactions and usage patterns')}
-      className="jd-max-w-4xl jd-max-h-[90vh] jd-overflow-y-auto"
+      className="jd-max-w-4xl jd-overflow-y-auto"
     >
       <div className="jd-flex jd-flex-col jd-space-y-4">
         <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="jd-w-full">

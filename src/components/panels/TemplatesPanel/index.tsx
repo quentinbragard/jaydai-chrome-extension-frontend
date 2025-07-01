@@ -1,6 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx - Updated with enhanced Enterprise CTA
 import React, { useCallback, memo, useMemo, useState, useEffect } from 'react';
-import { FolderOpen, RefreshCw, PlusCircle, Plus, ArrowLeft, Home, ChevronRight, Building2, Mail, Lock, Star, Users, Sparkles, Zap } from "lucide-react";
+import { FolderOpen, Shield, ChevronRight, Building2, Mail, Lock, Star, Users, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -90,13 +90,6 @@ const EnhancedEnterpriseCTA: React.FC<{ onContactSales: () => void }> = ({ onCon
                   </span>
                 </div>
               </div>
-              
-              <div className="jd-flex jd-items-center jd-gap-1">
-                <Lock className="jd-h-3 jd-w-3 jd-text-primary" />
-                <span className="jd-text-xs jd-font-medium jd-text-primary">
-                  {getMessage('enterprise_feature', undefined, 'Enterprise Feature')}
-                </span>
-              </div>
             </div>
           </div>
           
@@ -106,25 +99,6 @@ const EnhancedEnterpriseCTA: React.FC<{ onContactSales: () => void }> = ({ onCon
               isHovered ? 'jd-translate-x-1 jd-opacity-100' : 'jd-translate-x-0 jd-opacity-60'
             }`} 
           />
-        </div>
-
-        {/* Enhanced value proposition */}
-        <div className="jd-space-y-2">
-          <p className="jd-text-xs jd-text-secondary-foreground jd-leading-relaxed">
-            {getMessage('enterprise_feature_description', undefined, 'Unlock team-wide templates, advanced collaboration, and enterprise-grade security.')}
-          </p>
-          
-          {/* Benefits list */}
-          <div className="jd-grid jd-grid-cols-2 jd-gap-1 jd-text-xs">
-            <div className="jd-flex jd-items-center jd-gap-1.5 jd-text-gray-600 jd-dark:jd-text-gray-400">
-              <Users className="jd-h-3 jd-w-3 jd-text-primary" />
-              <span className="jd-text-foreground">{getMessage('team_sharing', undefined, 'Team sharing')}</span>
-            </div>
-            <div className="jd-flex jd-items-center jd-gap-1.5 jd-text-gray-600 jd-dark:jd-text-gray-400">
-              <Zap className="jd-h-3 jd-w-3 jd-text-primary" />
-              <span className="jd-text-foreground">{getMessage('priority_support', undefined, 'Priority support')}</span>
-            </div>
-          </div>
         </div>
 
         {/* Enhanced CTA button */}
