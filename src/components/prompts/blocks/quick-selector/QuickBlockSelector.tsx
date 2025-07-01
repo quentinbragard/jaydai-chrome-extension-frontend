@@ -28,14 +28,15 @@ import { calculateDropdownPosition } from './positionUtils';
 
 // Quick filter types
 const QUICK_FILTERS = [
-  { type: 'role', label: 'Role', icon: '👤' },
-  { type: 'context', label: 'Context', icon: '📝' },
-  { type: 'goal', label: 'Goal', icon: '🎯' },
-  { type: 'tone_style', label: 'Tone', icon: '🎨' },
-  { type: 'audience', label: 'Audience', icon: '👥' },
-  { type: 'output_format', label: 'Format', icon: '📋' },
-  { type: 'constraint', label: 'Constraint', icon: '🚫' },
-  { type: 'example', label: 'Example', icon: '💡' },
+  { type: 'role', label: getMessage('role', undefined, 'Role'), icon: '👤' },
+  { type: 'context', label: getMessage('context', undefined, 'Context'), icon: '📝' },
+  { type: 'goal', label: getMessage('goal', undefined, 'Goal'), icon: '🎯' },
+  { type: 'tone_style', label: getMessage('tone_style', undefined, 'Tone'), icon: '🎨' },
+  { type: 'audience', label: getMessage('audience', undefined, 'Audience'), icon: '👥' },
+  { type: 'output_format', label: getMessage('output_format', undefined, 'Format'), icon: '📋' },
+  { type: 'constraint', label: getMessage('constraint', undefined, 'Constraint'), icon: '🚫' },
+  { type: 'example', label: getMessage('example', undefined, 'Example'), icon: '💡' },
+  { type: 'custom', label: getMessage('custom', undefined, 'Custom'), icon: '🔧' },
 ] as const;
 
 interface QuickBlockSelectorProps {

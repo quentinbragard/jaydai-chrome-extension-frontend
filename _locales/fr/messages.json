@@ -40,7 +40,7 @@
     "description": "Exemple de tâche IA 5"
   },
   "welcomeDescription": {
-    "message": "Maximisez votre expérience avec l'IA générative grâce à Jaydai, l'extension Chrome gratuite qui transforme votre utilisation de ChatGPT.",
+    "message": "Maximisez votre expérience avec l'IA générative grâce à Jaydai, l'extension Chrome gratuite qui transforme votre utilisation de ChatGPT, Claude, Mistral, Copilot et tous les autres...",
     "description": "Description de la page d'accueil"
   },
   "energyInsights": {
@@ -1262,7 +1262,7 @@
     "description": "Button text to contact sales for enterprise features"
   },
   "company_templates_cta_title": {
-    "message": "Templates Entreprise",
+    "message": "Entreprise",
     "description": "Titre de l'appel à l'action lorsque aucune entreprise n'est attachée"
   },
   "company_templates_cta_description": {
@@ -2005,5 +2005,10 @@
   "no_notifications": { "message": "Aucune notification", "description": "Libellé pour la notification d'absence de notification" },
   "checking": { "message": "Vérification...", "description": "Libellé pour la vérification" },
   "check_for_notifications": { "message": "Vérifier les notifications", "description": "Libellé pour la vérification des notifications" },
-  "notification_count": { "message": "notification", "description": "Libellé pour le nombre de notification" }
+  "notification_count": { "message": "notification", "description": "Libellé pour le nombre de notification" },
+  "completeOnboarding": { "message": "C'est parti !", "description": "Libellé pour le bouton de complétion de l'onboarding" },
+  "no_folders_matching": { "message": "Aucun dossier correspondant", "description": "Libellé pour le titre des templates d'entreprise" },
+  "no_folders_available": { "message": "Aucun dossier disponible", "description": "Libellé pour le titre des templates d'entreprise" },
+  "error_loading_folders": { "message": "Erreur lors du chargement des dossiers", "description": "Libellé pour le titre des templates d'entreprise" },
+  "clickToSet": { "message": "Cliquez pour définir", "description": "Libellé pour le bouton de clic pour définir" }
 }

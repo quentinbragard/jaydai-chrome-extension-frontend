@@ -2025,5 +2025,9 @@
   "no_notifications": { "message": "No notifications", "description": "Label for the no notifications" },
   "checking": { "message": "Checking...", "description": "Label for the checking" },
   "check_for_notifications": { "message": "Check for notifications", "description": "Label for the check for notifications" },
-  "notification_count": { "message": "notification", "description": "Label for the notification count" }
+  "notification_count": { "message": "notification", "description": "Label for the notification count" },
+  "completeOnboarding": { "message": "Let's go!", "description": "Label for the complete onboarding button" },
+  "no_folders_matching": { "message": "No folders matching", "description": "Label for the no folders matching" },
+  "no_folders_available": { "message": "No folders available", "description": "Label for the no folders available" },
+  "error_loading_folders": { "message": "Error loading folders", "description": "Label for the error loading folders" }
 }

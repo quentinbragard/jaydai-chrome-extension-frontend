@@ -66,14 +66,15 @@ import { PreviewBlock } from './PreviewBlock';
 
 // Metadata type groups for filtering
 const METADATA_FILTERS = [
-  { type: 'role', label: 'Role', icon: '👤' },
-  { type: 'context', label: 'Context', icon: '📝' },
-  { type: 'goal', label: 'Goal', icon: '🎯' },
-  { type: 'tone_style', label: 'Tone', icon: '🎨' },
-  { type: 'audience', label: 'Audience', icon: '👥' },
-  { type: 'output_format', label: 'Format', icon: '📋' },
-  { type: 'constraint', label: 'Constraint', icon: '🚫' },
-  { type: 'example', label: 'Example', icon: '💡' },
+  { type: 'role', label: getMessage('role', undefined, 'Role'), icon: '👤' },
+  { type: 'context', label: getMessage('context', undefined, 'Context'), icon: '📝' },
+  { type: 'goal', label: getMessage('goal', undefined, 'Goal'), icon: '🎯' },
+  { type: 'tone_style', label: getMessage('tone_style', undefined, 'Tone'), icon: '🎨' },
+  { type: 'audience', label: getMessage('audience', undefined, 'Audience'), icon: '👥' },
+  { type: 'output_format', label: getMessage('output_format', undefined, 'Format'), icon: '📋' },
+  { type: 'constraint', label: getMessage('constraint', undefined, 'Constraint'), icon: '🚫' },
+  { type: 'example', label: getMessage('example', undefined, 'Example'), icon: '💡' },
+  { type: 'custom', label: getMessage('custom', undefined, 'Custom'), icon: '🔧' },
 ] as const;
 
 // Inline block creation component
@@ -680,7 +681,7 @@ const filteredBlocks = blocks.filter(b => {
               {getMessage('shortcutTipSuffix', undefined, 'in the prompt area to open this block selector instantly.')}
             </p>
             <img
-              src="https://media.giphy.com/media/JQqjZBZHF9giz6HnDy/giphy.gif"
+              src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif"
               alt={getMessage('shortcutDemoAlt', undefined, 'Shortcut demonstration')}
               className="jd-w-full jd-rounded-md"
             />

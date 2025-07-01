@@ -21,6 +21,7 @@ import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { useFolderSearch } from '@/hooks/prompts/utils/useFolderSearch';
 import { Template, TemplateFolder } from '@/types/prompts/templates';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { getMessage } from '@/core/utils/i18n';
 
 interface BrowseTemplatesPanelProps {
   folderType: 'organization' | 'company';
@@ -167,7 +168,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
 
   return (
     <BasePanel
-      title={folderType === 'company' ? 'Company Templates' : 'Organization Templates'}
+      title={folderType === 'company' ? getMessage('company_templates_cta_title', undefined, 'Company Templates') : getMessage('organization_templates_title', undefined, 'Organization Templates')}
       icon={FolderOpen}
       showBackButton={true}
       onBack={onBackToTemplates}
@@ -191,7 +192,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
             <LoadingState message={`Loading ${folderType} folders...`} />
           ) : error ? (
             <EmptyMessage>
-              Error loading folders: {error instanceof Error ? error.message : 'Unknown error'}
+              {getMessage('error_loading_folders', undefined, 'Error loading folders')}: {error instanceof Error ? error.message : 'Unknown error'}
             </EmptyMessage>
           ) : (
             <>
@@ -216,8 +217,8 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
               {filteredFolders.length === 0 ? (
                 <EmptyMessage>
                   {searchQuery
-                    ? `No folders matching "${searchQuery}"`
-                    : `No ${folderType} folders available`}
+                    ? getMessage('no_folders_matching', undefined, 'No folders matching') + ` "${searchQuery}"`
+                    : getMessage('no_folders_available', undefined, 'No folders available')}
                 </EmptyMessage>
               ) : (
                 <div className="jd-space-y-1 jd-px-2">
