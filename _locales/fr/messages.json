@@ -1724,7 +1724,7 @@
   "onboardingComplete": { "message": "Configuration terminée !", "description": "Titre pour l'étape de fin d'onboarding" },
   "onboardingCompleteDescription": { "message": "Merci d'avoir complété votre profil. Vos templates IA personnalisés sont maintenant prêts à l'emploi.", "description": "Description pour l'étape de fin d'onboarding" },
   "whatNext": { "message": "Et ensuite ?", "description": "Titre pour les prochaines étapes après l'onboarding" },
-  "whatNextDescription": { "message": "Ouvrez ChatGPT ou Claude pour commencer à utiliser notre extension. Retrouvez notre bouton en bas à droite de votre écran pour accéder à vos templates et suivre votre utilisation de l'IA.", "description": "Description pour les prochaines étapes après l'onboarding" },
+  "whatNextDescription": { "message": "Ouvrez ChatGPT ou un autre pour commencer à utiliser notre extension. Retrouvez notre bouton en bas à droite de votre écran pour accéder à vos templates et suivre votre utilisation de l'IA.", "description": "Description pour les prochaines étapes après l'onboarding" },
   "goToChatGPT": { "message": "Aller sur ChatGPT", "description": "Bouton pour aller sur ChatGPT après l'onboarding" },
   "goToClaude": { "message": "Aller sur Claude", "description": "Bouton pour aller sur Claude après l'onboarding" },
   "returnToHome": { "message": "Retour à l'accueil", "description": "Bouton pour retourner à l'accueil après l'onboarding" },

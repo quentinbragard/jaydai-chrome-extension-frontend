@@ -33,7 +33,7 @@ export const AI_TOOLS: AITool[] = [
     icon: <img src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images/ai_tools/claude_logo.png" alt="Claude" className="jd-h-8 jd-w-8" />,
     url: 'https://claude.ai/',
     description: getMessage('aiTools.description.Claude', undefined, 'Anthropic\'s AI assistant'),
-    disabled: false,
+    disabled: true,
     color: 'jd-from-purple-500/20 jd-to-indigo-500/20'
   },
   {
