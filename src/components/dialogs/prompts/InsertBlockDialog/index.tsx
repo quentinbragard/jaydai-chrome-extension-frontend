@@ -23,6 +23,7 @@ import {
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
+import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
 import { 
   DndContext, 
@@ -242,7 +243,29 @@ export const InsertBlockDialog: React.FC = () => {
   const [blockContents, setBlockContents] = useState<Record<number, string>>({});
   const isDark = useThemeDetector();
   const { openCreateBlock } = useDialogActions();
+  const { editBlock, deleteBlock } = useBlockActions({
+    onBlockUpdated: (updated) => {
+      setBlocks(prev => prev.map(b => (b.id === updated.id ? updated : b)));
+      setSelectedBlocks(prev => prev.map(b => (b.id === updated.id ? updated : b)));
+      setBlockContents(prev => {
+        if (prev.hasOwnProperty(updated.id)) {
+          const content = typeof updated.content === 'string' ? updated.content : updated.content?.en || '';
+          return { ...prev, [updated.id]: content };
+        }
+        return prev;
+      });
+    },
+    onBlockDeleted: (id) => {
+      setBlocks(prev => prev.filter(b => b.id !== id));
+      setSelectedBlocks(prev => prev.filter(b => b.id !== id));
+      setBlockContents(prev => {
+        const { [id]: _removed, ...rest } = prev;
+        return rest;
+      });
+    }
+  });
   const platform = detectPlatform();
+
 
   // Drag & Drop sensors
   const sensors = useSensors(
@@ -347,6 +370,14 @@ export const InsertBlockDialog: React.FC = () => {
     setBlocks(prev => [newBlock, ...prev]);
     addBlock(newBlock);
     setShowInlineCreator(false);
+  };
+
+  const handleEditBlock = (block: Block) => {
+    editBlock(block);
+  };
+
+  const handleDeleteBlock = (block: Block) => {
+    deleteBlock(block);
   };
 
 // Filter blocks based on search, type, and published status
@@ -531,6 +562,8 @@ const filteredBlocks = blocks.filter(b => {
                     block={block}
                     isDark={isDark}
                     onAdd={addBlock}
+                    onEdit={handleEditBlock}
+                    onDelete={handleDeleteBlock}
                     isSelected={!!selectedBlocks.find(b => b.id === block.id)}
                     onRemove={removeBlock}
                   />
