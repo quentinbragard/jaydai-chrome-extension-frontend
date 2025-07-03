@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Trash2, ChevronUp, ChevronDown, Plus, Check } from 'lucide-react';
+import { Trash2, ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import {
   DropdownMenu,
@@ -82,15 +82,6 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
     }
     return [];
   }, [metadata, type]);
-
-  const assigned = React.useMemo(() => {
-    if (!isMultipleMetadataType(type)) {
-      const val = metadata.values?.[type as SingleMetadataType];
-      const blockId = metadata[type as SingleMetadataType];
-      return (!!blockId && blockId !== 0) || !!val?.trim();
-    }
-    return items.length > 0;
-  }, [metadata, items, type]);
 
   const [addMenuOpen, setAddMenuOpen] = React.useState(false);
 
@@ -216,12 +207,10 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
             <div className={cn('jd-p-1.5 jd-rounded-md', iconColors)}>
               <Icon className="jd-h-4 jd-w-4" />
             </div>
-            {expanded && (
-              <span className={cn('jd-font-black', getBlockTextColors(config.blockType, isDarkMode))}>
-                {config.label}
-                {isMultipleMetadataType(type) && items.length > 0 ? ` (${items.length})` : ''}
-              </span>
-            )}
+            <span className={cn('jd-font-black', getBlockTextColors(config.blockType, isDarkMode))}>
+              {config.label}
+              {isMultipleMetadataType(type) && items.length > 0 ? ` (${items.length})` : ''}
+            </span>
           </div>
           <div className="jd-flex jd-items-center jd-gap-1" onClick={stopPropagation}>
             {!isPrimary && onRemove && (

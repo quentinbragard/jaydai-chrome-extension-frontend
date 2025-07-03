@@ -2,6 +2,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
+  Plus,
   ChevronDown,
   ChevronUp,
   User,
@@ -29,6 +30,7 @@ import {
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
+import { addSecondaryMetadata, removeSecondaryMetadata } from '@/utils/prompts/metadataUtils';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: User,
@@ -57,11 +59,29 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
     setMetadata,
     expandedMetadata,
     toggleExpandedMetadata,
+    activeSecondaryMetadata,
     metadataCollapsed,
     setMetadataCollapsed,
     secondaryMetadataCollapsed,
     setSecondaryMetadataCollapsed
   } = useTemplateEditor();
+
+
+  const handleAddSecondaryMetadata = useCallback(
+    (type: MetadataType) => {
+      setMetadata(prev => addSecondaryMetadata(prev, type));
+      if (!expandedMetadata.has(type)) toggleExpandedMetadata(type);
+    },
+    [setMetadata, expandedMetadata, toggleExpandedMetadata]
+  );
+
+  const handleRemoveSecondaryMetadata = useCallback(
+    (type: MetadataType) => {
+      setMetadata(prev => removeSecondaryMetadata(prev, type));
+      if (expandedMetadata.has(type)) toggleExpandedMetadata(type);
+    },
+    [setMetadata, expandedMetadata, toggleExpandedMetadata]
+  );
   
   const isDarkMode = useThemeDetector();
 
@@ -104,7 +124,8 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
 
   const renderCards = (
     types: MetadataType[],
-    isPrimary: boolean
+    isPrimary: boolean,
+    onRemove?: (t: MetadataType) => void
   ) => (
     <div
       className={cn(
@@ -122,9 +143,37 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
             expanded={expandedMetadata.has(type)}
             isPrimary={isPrimary}
             onToggle={() => toggleExpandedMetadata(type)}
+            onRemove={onRemove ? () => onRemove(type) : undefined}
           />
         </div>
       ))}
+    </div>
+  );
+
+  const renderAddButtons = () => (
+    <div className="jd-flex jd-flex-wrap jd-gap-2">
+      {SECONDARY_METADATA.filter(t => !activeSecondaryMetadata.has(t)).map(type => {
+        const Icon = METADATA_ICONS[type];
+        const config = METADATA_CONFIGS[type];
+        return (
+          <Button
+            key={type}
+            variant="outline"
+            size="sm"
+            onClick={() => handleAddSecondaryMetadata(type)}
+            className={cn(
+              'jd-flex jd-items-center jd-gap-1 jd-text-xs',
+              'jd-transition-all jd-duration-300',
+              'hover:jd-scale-105 hover:jd-shadow-md',
+              isDarkMode ? 'jd-bg-gray-800/50 hover:jd-bg-gray-700/50' : 'jd-bg-white/70 hover:jd-bg-white/90'
+            )}
+          >
+            <Plus className="jd-h-3 jd-w-3" />
+            <Icon className="jd-h-3 jd-w-3" />
+            {config.label}
+          </Button>
+        );
+      })}
     </div>
   );
 
@@ -164,7 +213,13 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
             </Button>
           </div>
 
-          {!secondaryMetadataCollapsed && renderCards(SECONDARY_METADATA, false)}
+          {!secondaryMetadataCollapsed && (
+            <>
+              {activeSecondaryMetadata.size > 0 &&
+                renderCards(Array.from(activeSecondaryMetadata), false, handleRemoveSecondaryMetadata)}
+              {renderAddButtons()}
+            </>
+          )}
         </div>
       )}
     </>
