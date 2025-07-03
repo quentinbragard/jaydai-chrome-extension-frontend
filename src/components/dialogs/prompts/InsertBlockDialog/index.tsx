@@ -435,6 +435,28 @@ const filteredBlocks = blocks.filter(b => {
 
   console.log("platform", platform);
 
+  const footer = (
+    <div className="jd-flex jd-justify-between">
+      <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)}>
+        {getMessage('cancel', undefined, 'Cancel')}
+      </Button>
+      <div className="jd-flex jd-gap-2">
+        <Button variant="secondary" onClick={handleCreate}>
+          <Plus className="jd-h-4 jd-w-4 jd-mr-1" />
+          {getMessage('createBlock', undefined, 'Create Block')}
+        </Button>
+        <Button
+          disabled={selectedBlocks.length === 0}
+          onClick={insertBlocks}
+          className="jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600 hover:jd-from-blue-700 hover:jd-to-purple-700"
+        >
+          <Sparkles className="jd-h-4 jd-w-4 jd-mr-1" />
+          {getMessage('insertPrompt', undefined, 'Insert Prompt')} ({selectedBlocks.length})
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <BaseDialog
@@ -443,6 +465,7 @@ const filteredBlocks = blocks.filter(b => {
         title={getMessage('buildYourPrompt', undefined, 'Build Your Prompt')}
         description={getMessage('buildYourPromptDesc', undefined, 'Select and arrange blocks to create your perfect prompt')}
         className="jd-max-w-7xl"
+        footer={footer}
       >
       <div className="jd-flex jd-items-center jd-text-xs jd-text-muted-foreground jd-mb-2 jd-gap-2">
         <Info className="jd-w-4 jd-h-4 jd-text-primary" />
@@ -671,26 +694,6 @@ const filteredBlocks = blocks.filter(b => {
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="jd-flex jd-justify-between jd-pt-4 jd-border-t jd-mt-4 jd-flex-shrink-0">
-            <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)}>
-              {getMessage('cancel', undefined, 'Cancel')}
-            </Button>
-            <div className="jd-flex jd-gap-2">
-              <Button variant="secondary" onClick={handleCreate}>
-                <Plus className="jd-h-4 jd-w-4 jd-mr-1" />
-                {getMessage('createBlock', undefined, 'Create Block')}
-              </Button>
-              <Button
-                disabled={selectedBlocks.length === 0}
-                onClick={insertBlocks}
-                className="jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600 hover:jd-from-blue-700 hover:jd-to-purple-700"
-              >
-                <Sparkles className="jd-h-4 jd-w-4 jd-mr-1" />
-                {getMessage('insertPrompt', undefined, 'Insert Prompt')} ({selectedBlocks.length})
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
       </BaseDialog>
