@@ -10,6 +10,9 @@ export interface BaseDialogProps {
   onOpenChange: (open: boolean) => void;
   title?: string;
   description?: string;
+  /** Optional custom header element. If provided, it will be rendered
+   *  instead of the title/description block. */
+  header?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
   footer?: React.ReactNode;
@@ -31,6 +34,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   onOpenChange,
   title,
   description,
+  header,
   className,
   children,
   footer,
@@ -164,11 +168,23 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
         </button>
         
         {/* Header section */}
-        {(title || description) && (
-          <div className="jd-border-b jd-px-6 jd-py-4 jd-flex-shrink-0">
-            {title && <h2 className="jd-text-xl jd-font-semibold jd-mb-1">{getMessage(title, undefined, title)}</h2>}
-            {description && <p className="jd-text-muted-foreground">{getMessage(description, undefined, description)}</p>}
-          </div>
+        {header ? (
+          <div className="jd-flex-shrink-0">{header}</div>
+        ) : (
+          (title || description) && (
+            <div className="jd-border-b jd-px-6 jd-py-4 jd-flex-shrink-0">
+              {title && (
+                <h2 className="jd-text-xl jd-font-semibold jd-mb-1">
+                  {getMessage(title, undefined, title)}
+                </h2>
+              )}
+              {description && (
+                <p className="jd-text-muted-foreground">
+                  {getMessage(description, undefined, description)}
+                </p>
+              )}
+            </div>
+          )
         )}
         
         {/* Content section with proper z-index */}
