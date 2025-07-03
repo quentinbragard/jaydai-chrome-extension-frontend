@@ -55,6 +55,7 @@ interface TemplateEditorDialogProps {
   dialogTitle: string;
   dialogDescription: string;
   mode: 'create' | 'customize' | 'edit';
+  header?: React.ReactNode;
   infoForm?: React.ReactNode;
 }
 
@@ -101,6 +102,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   dialogTitle,
   dialogDescription,
   mode,
+  header,
   infoForm
 }) => {
   const {
@@ -176,6 +178,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           if (!open) handleClose();
         }}
         title={dialogTitle}
+        header={header}
         className="jd-max-w-4xl"
         footer={
           <Button onClick={handleClose} variant="outline">
@@ -203,6 +206,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       }}
       title={dialogTitle}
       description={dialogDescription}
+      header={header}
       className=  "jd-max-w-7xl jd-h-[98vh]" // Fixed height with max constraint
       footer={footer}
     >
