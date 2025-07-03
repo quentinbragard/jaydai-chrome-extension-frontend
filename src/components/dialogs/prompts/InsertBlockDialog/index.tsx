@@ -63,6 +63,7 @@ import { getMessage } from '@/core/utils/i18n';
 import { SortableSelectedBlock } from './SortableSelectedBlock';
 import { AvailableBlockCard } from './AvailableBlockCard';
 import { PreviewBlock } from './PreviewBlock';
+import { detectPlatform } from '@/platforms/platformManager';
 
 // Metadata type groups for filtering
 const METADATA_FILTERS = [
@@ -241,6 +242,7 @@ export const InsertBlockDialog: React.FC = () => {
   const [blockContents, setBlockContents] = useState<Record<number, string>>({});
   const isDark = useThemeDetector();
   const { openCreateBlock } = useDialogActions();
+  const platform = detectPlatform();
 
   // Drag & Drop sensors
   const sensors = useSensors(
@@ -415,7 +417,7 @@ const filteredBlocks = blocks.filter(b => {
         <span>
           {getMessage('insertBlockTip', undefined, 'Tip: type ')}
           <span className="jd-font-mono">//j</span>{' '}
-          {getMessage('insertBlockTipContinuation', undefined, 'in the prompt area to quickly add blocks.')}
+          {getMessage('insertBlockTipContinuation', [platform.name], `in the prompt area to quickly add blocks on ${platform.name}.`)}
         </span>
         <button
           type="button"

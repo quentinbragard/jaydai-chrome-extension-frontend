@@ -1958,7 +1958,7 @@
   "selectedBlocks": { "message": "Blocs sélectionnés", "description": "En-tête de la section des blocs sélectionnés" },
   "shortcutDemoAlt": { "message": "Démonstration du raccourci", "description": "Texte alternatif pour la démonstration du raccourci" },
   "shortcutTipPrefix": { "message": "Tapez", "description": "Préfixe de l'aide sur le raccourci" },
-  "shortcutTipSuffix": { "message": "dans la zone de saisie pour ouvrir ce sélecteur de blocs instantanément.", "description": "Suffixe de l'aide sur le raccourci" },
+  "shortcutTipSuffix": { "message": "directement là où vous tapez votre prompt sur $PLATFORM$ pour y insérer directement des blocs.", "description": "Suffixe de l'aide sur le raccourci", "placeholders": { "platform": { "content": "$1", "example": "ChatGPT" } } },
   "titleOptional": { "message": "Titre (optionnel)", "description": "Libellé pour le champ de titre optionnel" },
   "usingShortcut": { "message": "Utiliser le raccourci //j", "description": "Titre de la boîte de dialogue d'aide sur le raccourci" },
   "type": { "message": "Type", "description": "Libellé du type de bloc" },
