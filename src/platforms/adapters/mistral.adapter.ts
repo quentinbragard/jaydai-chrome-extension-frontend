@@ -163,53 +163,64 @@ export class MistralAdapter extends BasePlatformAdapter {
     }
     
     try {
-      // Find Mistral's ProseMirror editor
-      const editor = document.querySelector(this.config.domSelectors.PROMPT_TEXTAREA);
-      
+      // Find Mistral's editor element (textarea or ProseMirror)
+      const editor = document.querySelector(
+        this.config.domSelectors.PROMPT_TEXTAREA,
+      ) as HTMLElement | HTMLTextAreaElement | null;
+
       if (!editor) {
         console.error('Could not find Mistral editor element');
         return false;
       }
-      
+
       // Normalize content (preserve all characters including quotes)
       const normalizedContent = content.replace(/\r\n/g, '\n');
-      
-      // Method 1: Try ProseMirror approach with paragraph structure
+
+      // Method 1: Handle plain textarea
       try {
-        // Focus the editor
         editor.focus();
-        
-        // Escape HTML entities
-        const escapeHTML = (str: string) => {
-          return str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-        };
-        
-        // Convert content to ProseMirror paragraph structure
-        const paragraphs = normalizedContent.split('\n');
-        const paragraphsHTML = paragraphs.map(p => 
-          p ? `<p>${escapeHTML(p)}</p>` : '<p><br class="ProseMirror-trailingBreak"></p>'
-        ).join('');
-        
-        // Set content directly
-        editor.innerHTML = paragraphsHTML;
-        
-        // Trigger input event to notify ProseMirror
-        editor.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-        
-        // Position cursor at the end
-        const selection = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(editor);
-        range.collapse(false); // Collapse to the end
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-        
-        return true;
+
+        if (editor instanceof HTMLTextAreaElement) {
+          editor.value = normalizedContent;
+          editor.dispatchEvent(
+            new Event('input', { bubbles: true, cancelable: true }),
+          );
+          editor.selectionStart = editor.selectionEnd = normalizedContent.length;
+          return true;
+        }
+
+        if (editor instanceof HTMLElement && editor.isContentEditable) {
+          const escapeHTML = (str: string) =>
+            str
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#039;');
+
+          const paragraphs = normalizedContent.split('\n');
+          const paragraphsHTML = paragraphs
+            .map(p =>
+              p
+                ? `<p>${escapeHTML(p)}</p>`
+                : '<p><br class="ProseMirror-trailingBreak"></p>',
+            )
+            .join('');
+
+          editor.innerHTML = paragraphsHTML;
+          editor.dispatchEvent(
+            new Event('input', { bubbles: true, cancelable: true }),
+          );
+
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(editor);
+          range.collapse(false);
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+
+          return true;
+        }
       } catch (e) {
         console.warn('Primary method failed for Mistral:', e);
       }
