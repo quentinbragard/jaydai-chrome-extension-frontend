@@ -1,5 +1,6 @@
 import { PromptMetadata, SingleMetadataType } from '@/types/prompts/metadata';
 import { getBlockTypeLabel, getBlockTextColors } from '@/utils/prompts/blockUtils';
+import { getMessage } from '@/core/utils/i18n';
 
 function escapeHtml(str: string): string {
   return str
