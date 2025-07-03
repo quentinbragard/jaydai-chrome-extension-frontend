@@ -2029,5 +2029,10 @@
   "completeOnboarding": { "message": "Let's go!", "description": "Label for the complete onboarding button" },
   "no_folders_matching": { "message": "No folders matching", "description": "Label for the no folders matching" },
   "no_folders_available": { "message": "No folders available", "description": "Label for the no folders available" },
-  "error_loading_folders": { "message": "Error loading folders", "description": "Label for the error loading folders" }
+  "error_loading_folders": { "message": "Error loading folders", "description": "Label for the error loading folders" },
+  "showLess": { "message": "Show less", "description": "Label for the show less button" },
+  "showMore": { "message": "Show more", "description": "Label for the show more button" },
+  "moreActions": { "message": "More actions", "description": "Label for the more actions button" },
+  "edit": { "message": "Edit", "description": "Label for the edit button" },
+  "aPerfectPrompt": { "message": "A perfect prompt contains at least a role, context and goal", "description": "Label for the a perfect prompt" }
 }

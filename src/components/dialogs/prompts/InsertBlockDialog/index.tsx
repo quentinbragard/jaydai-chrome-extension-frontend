@@ -48,11 +48,10 @@ import {
   Eye,
   Code,
   Sparkles,
-  ArrowRight,
   Copy,
   Filter,
   X,
-  Check,
+  Lightbulb,
   Save,
   Info,
   HelpCircle
@@ -434,6 +433,8 @@ const filteredBlocks = blocks.filter(b => {
 
   if (!isOpen) return null;
 
+  console.log("platform", platform);
+
   return (
     <>
       <BaseDialog
@@ -448,7 +449,7 @@ const filteredBlocks = blocks.filter(b => {
         <span>
           {getMessage('insertBlockTip', undefined, 'Tip: type ')}
           <span className="jd-font-mono">//j</span>{' '}
-          {getMessage('insertBlockTipContinuation', [platform.name], `in the prompt area to quickly add blocks on ${platform.name}.`)}
+          {getMessage('insertBlockTipContinuation', [platform], `in the prompt area to quickly add blocks on ${platform.toLowerCase()}.`)}
         </span>
         <button
           type="button"
@@ -518,19 +519,10 @@ const filteredBlocks = blocks.filter(b => {
 
             {/* Stats */}
             <div className="jd-flex jd-items-center jd-gap-4 jd-text-sm jd-text-muted-foreground">
-              <span>
-                {filteredBlocks.length}{' '}
-                {getMessage('blocksAvailable', undefined, 'blocks available')}
+              <span className="jd-flex jd-items-center jd-gap-1">
+                <Lightbulb className="jd-h-4 jd-w-4 jd-text-yellow-500" />
+                {getMessage('aPerfectPrompt', undefined, 'A perfect prompt contains at least a role, context and goal')}
               </span>
-              {selectedBlocks.length > 0 && (
-                <>
-                  <ArrowRight className="jd-h-3 jd-w-3" />
-                  <span className="jd-text-primary">
-                    {selectedBlocks.length}{' '}
-                    {getMessage('selected', undefined, 'selected')}
-                  </span>
-                </>
-              )}
             </div>
           </div>
 
@@ -566,9 +558,9 @@ const filteredBlocks = blocks.filter(b => {
                     onDelete={handleDeleteBlock}
                     isSelected={!!selectedBlocks.find(b => b.id === block.id)}
                     onRemove={removeBlock}
+                    showActions={block.user_id ? true : false}
                   />
-                ))
-              )}
+                )))}
             </div>
           </ScrollArea>
         </div>

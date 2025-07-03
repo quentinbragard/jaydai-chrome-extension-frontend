@@ -17,7 +17,7 @@ import {
   getBlockIconColors, 
   BLOCK_TYPE_LABELS 
 } from '@/utils/prompts/blockUtils';
-import { Plus, ChevronDown, ChevronRight, Check, X, Edit2, Trash2, MoreVertical } from 'lucide-react';
+import { Plus, Check, X, Edit2, Trash2, MoreVertical, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { getMessage } from '@/core/utils/i18n';
 
@@ -64,19 +64,29 @@ export function AvailableBlockCard({
     if (onDelete) onDelete(block);
   };
 
+  const handleAddRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isSelected) {
+      onRemove(block);
+    } else {
+      onAdd(block);
+    }
+  };
+
   return (
     <Card 
       className={cn(
-        'jd-cursor-pointer jd-transition-all jd-duration-200 jd-group jd-relative',
+        'jd-pt-2 jd-cursor-pointer jd-transition-all jd-duration-200 jd-group jd-relative',
         'jd-border-2 jd-backdrop-blur-sm hover:jd-shadow-lg',
-        'jd-transform hover:jd-scale-[1.02] hover:-jd-translate-y-1 jd-pt-4',
+        'jd-transform hover:jd-scale-[1.02] hover:-jd-translate-y-1',
         cardColors,
-        isSelected && 'jd-ring-2 jd-ring-primary/50 jd-shadow-md'
+        isSelected && 'jd-ring-2 jd-ring-primary/50 jd-shadow-md jd-border-primary/30'
       )}
       onClick={() => !isSelected && onAdd(block)}
     >
       <CardContent className="jd-p-4">
-        <div className="jd-flex jd-items-start jd-gap-3">
+        {/* Header with icon, title, and actions */}
+        <div className="jd-flex jd-items-start jd-gap-3 jd-mb-3">
           {/* Icon with enhanced styling */}
           <div className={cn(
             'jd-p-2 jd-rounded-lg jd-flex-shrink-0 jd-transition-all jd-duration-300',
@@ -86,40 +96,19 @@ export function AvailableBlockCard({
             <Icon className="jd-h-4 jd-w-4" />
           </div>
           
-          {/* Content */}
+          {/* Title and Badge */}
           <div className="jd-flex-1 jd-min-w-0">
-            <div className="jd-flex jd-items-center jd-gap-2 jd-mb-2">
+            <div className="jd-flex jd-items-center jd-gap-2">
               <h3 className="jd-font-semibold jd-text-sm jd-truncate jd-flex-1">{title}</h3>
               <Badge variant="secondary" className="jd-text-xs jd-px-2 jd-py-1 jd-h-auto jd-flex-shrink-0">
                 {BLOCK_TYPE_LABELS[block.type || 'custom']}
               </Badge>
             </div>
-            
-            <div className="jd-text-xs jd-text-muted-foreground jd-leading-relaxed">
-              <div className={cn(
-                'jd-transition-all jd-duration-200',
-                isExpanded ? '' : 'jd-line-clamp-2'
-              )}>
-                {content}
-              </div>
-              
-              {shouldShowExpander && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsExpanded(!isExpanded);
-                  }}
-                  className="jd-text-primary jd-hover:jd-underline jd-mt-1 jd-text-xs jd-font-medium"
-                >
-                  {isExpanded ? 'Show less' : 'Show more'}
-                </button>
-              )}
-            </div>
           </div>
           
-          {/* Actions */}
-          <div className="jd-flex jd-items-center jd-gap-1 jd-ml-2 jd-flex-shrink-0">
-            {/* Edit/Delete dropdown */}
+          {/* Action Buttons */}
+          <div className="jd-flex jd-items-center jd-gap-1 jd-flex-shrink-0">
+            {/* Edit/Delete Dropdown Menu */}
             {showActions && (onEdit || onDelete) && (
               <DropdownMenu open={showDropdown} onOpenChange={setShowDropdown}>
                 <DropdownMenuTrigger asChild>
@@ -127,14 +116,20 @@ export function AvailableBlockCard({
                     variant="ghost"
                     size="sm"
                     onClick={(e) => e.stopPropagation()}
-                    className="jd-h-8 jd-w-8 jd-p-0 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-opacity jd-text-muted-foreground hover:jd-text-foreground"
+                    className={cn(
+                      'jd-transition-all jd-duration-200',
+                      'jd-text-muted-foreground hover:jd-text-foreground',
+                      'jd-opacity-70 group-hover:jd-opacity-100 hover:jd-bg-muted',
+                      'jd-border jd-border-transparent hover:jd-border-border'
+                    )}
+                    title="More actions"
                   >
                     <MoreVertical className="jd-h-4 jd-w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="jd-w-40 jd-z-[10020]">
                   {onEdit && (
-                    <DropdownMenuItem onClick={handleEdit} className="jd-text-sm">
+                    <DropdownMenuItem onClick={handleEdit} className="jd-text-sm jd-cursor-pointer">
                       <Edit2 className="jd-h-3 jd-w-3 jd-mr-2" />
                       {getMessage('edit', undefined, 'Edit')}
                     </DropdownMenuItem>
@@ -143,7 +138,7 @@ export function AvailableBlockCard({
                   {onDelete && (
                     <DropdownMenuItem 
                       onClick={handleDelete} 
-                      className="jd-text-sm jd-text-destructive jd-focus:jd-text-destructive"
+                      className="jd-text-sm jd-text-destructive jd-focus:jd-text-destructive jd-cursor-pointer"
                     >
                       <Trash2 className="jd-h-3 jd-w-3 jd-mr-2" />
                       {getMessage('delete', undefined, 'Delete')}
@@ -153,44 +148,57 @@ export function AvailableBlockCard({
               </DropdownMenu>
             )}
 
-            {/* Add/Remove button */}
-            {isSelected ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove(block);
-                }}
-                className="jd-h-8 jd-w-8 jd-p-0 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-50"
-              >
-                <X className="jd-h-4 jd-w-4" />
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAdd(block);
-                }}
-                className={cn(
-                  'jd-h-8 jd-w-8 jd-p-0 jd-opacity-0 jd-group-hover:jd-opacity-100 jd-transition-all jd-duration-200',
-                  'jd-text-primary hover:jd-text-primary-foreground hover:jd-bg-primary'
-                )}
-              >
-                <Plus className="jd-h-4 jd-w-4" />
-              </Button>
-            )}
+            {/* Add/Remove Toggle Button */}
+            { isSelected &&
+            <Button
+              variant={isSelected ? "destructive" : "default"}
+              size="sm"
+              onClick={handleAddRemove}
+              className={cn(
+                'jd-h-8 jd-px-3 jd-transition-all jd-duration-200 jd-font-medium jd-bg-red-500 hover:jd-bg-red-600 jd-text-white jd-shadow-sm hover:jd-shadow-md'
+              )}
+              title={isSelected ? 'Remove from selection' : 'Add to selection'}
+            >
+              <X className="jd-h-3 jd-w-3 jd-mr-1 jd-font-black" />
+            </Button>
+            }
           </div>
         </div>
-
-        {/* Selection indicator */}
-        {isSelected && (
-          <div className="jd-absolute jd-top-2 jd-right-2 jd-bg-primary jd-text-primary-foreground jd-rounded-full jd-w-5 jd-h-5 jd-flex jd-items-center jd-justify-center">
-            <Check className="jd-h-3 jd-w-3" />
+        
+        {/* Content with expand/collapse */}
+        <div className="jd-text-xs jd-text-muted-foreground jd-leading-relaxed">
+          <div className={cn(
+            'jd-transition-all jd-duration-200',
+            isExpanded ? '' : 'jd-line-clamp-2'
+          )}>
+            {content}
           </div>
-        )}
+          
+          {shouldShowExpander && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(!isExpanded);
+              }}
+              className={cn(
+                'jd-flex jd-items-center jd-gap-1 jd-text-primary jd-hover:jd-underline', 
+                'jd-mt-2 jd-text-xs jd-font-medium jd-transition-colors'
+              )}
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="jd-h-3 jd-w-3" />
+                  {getMessage('showLess', undefined, 'Show less')}
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="jd-h-3 jd-w-3" />
+                  {getMessage('showMore', undefined, 'Show more')}
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

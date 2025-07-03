@@ -1944,7 +1944,7 @@
   "copy": { "message": "Copier", "description": "Bouton pour copier le texte" },
   "editPromptPreview": { "message": "Cliquez pour modifier l'aperçu de votre prompt", "description": "Instruction pour éditer l'aperçu" },
   "insertBlockTip": { "message": "Astuce : tapez", "description": "Préfixe de l'astuce pour le raccourci //j" },
-  "insertBlockTipContinuation": { "message": "dans la zone de saisie pour ajouter rapidement des blocs.", "description": "Suite de l'astuce pour le raccourci" },
+  "insertBlockTipContinuation": { "message": "directement dans $PLATFORM$ pour insérer vos blocs.", "description": "Suite de l'astuce pour le raccourci", "placeholders": { "platform": { "content": "$1", "example": "ChatGPT" } } },
   "insertPrompt": { "message": "Insérer le prompt", "description": "Bouton pour insérer le prompt" },
   "noBlocksFound": {
     "message": "Aucun bloc trouvé pour \"$TERM$\"",
@@ -2010,5 +2010,10 @@
   "no_folders_matching": { "message": "Aucun dossier correspondant", "description": "Libellé pour le titre des templates d'entreprise" },
   "no_folders_available": { "message": "Aucun dossier disponible", "description": "Libellé pour le titre des templates d'entreprise" },
   "error_loading_folders": { "message": "Erreur lors du chargement des dossiers", "description": "Libellé pour le titre des templates d'entreprise" },
-  "clickToSet": { "message": "Cliquez pour définir", "description": "Libellé pour le bouton de clic pour définir" }
+  "clickToSet": { "message": "Cliquez pour définir", "description": "Libellé pour le bouton de clic pour définir" },
+  "showLess": { "message": "Afficher moins", "description": "Libellé pour le bouton de clic pour afficher moins" },
+  "showMore": { "message": "Afficher plus", "description": "Libellé pour le bouton de clic pour afficher plus" },
+  "moreActions": { "message": "Plus d'actions", "description": "Libellé pour le bouton de clic pour plus d'actions" },
+  "edit": { "message": "Modifier", "description": "Libellé pour le bouton de clic pour modifier" },
+  "aPerfectPrompt": { "message": "Un prompt parfait contient au moins un rôle, un contexte et un objectif", "description": "Libellé pour le prompt parfait" }
 }
