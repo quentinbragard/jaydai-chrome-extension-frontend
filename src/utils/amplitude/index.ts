@@ -85,8 +85,6 @@ export const EVENTS = {
   TEMPLATE_VIEWED: 'Template Viewed',
   TEMPLATE_SELECTED: 'Template Selected',
   TEMPLATE_MODIFIED: 'Template Modified',
-  TEMPLATE_APPLIED: 'Template Applied',
-  TEMPLATE_APPLIED_ERROR: 'Template Apply Error',
   TEMPLATE_USED: 'Template Used',
   TEMPLATE_USED_ERROR: 'Template Use Error',
   TEMPLATE_FOLDER_OPENED: 'Template Folder Opened',
