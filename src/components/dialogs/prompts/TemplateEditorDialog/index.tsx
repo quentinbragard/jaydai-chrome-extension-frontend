@@ -1,4 +1,3 @@
-// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx - Fixed Version
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -207,14 +206,14 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       title={dialogTitle}
       description={dialogDescription}
       header={header}
-      className=  "jd-max-w-7xl jd-h-[98vh]" // Fixed height with max constraint
+      className="jd-max-w-7xl jd-h-[98vh]"
       footer={footer}
     >
       {/* Info form - outside main content */}
       {infoForm}
       
       <TemplateEditorProvider value={contextValue}>
-        {/* Main content area with proper height constraints using only Tailwind */}
+        {/* Main content area with proper height constraints */}
         <div className="jd-flex jd-flex-col jd-h-full jd-min-h-0 jd-overflow-hidden">
           {error && (
             <Alert variant="destructive" className="jd-mb-2 jd-flex-shrink-0">
