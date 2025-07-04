@@ -64,7 +64,9 @@ export class AppInitializer {
 
       
       this.isInitialized = true;
-      trackEvent(EVENTS.CHAT_SESSION_STARTED);
+      trackEvent(EVENTS.CHAT_SESSION_STARTED, {
+        tool: this.isChatGPTSite() ? 'chatgpt' : this.isClaudeSite() ? 'claude' : this.isMistralSite() ? 'mistral' : this.isCopilotSite() ? 'copilot' : 'unknown'
+      });
       return true;
     } catch (error) {
       errorReporter.captureError(
@@ -119,7 +121,9 @@ export class AppInitializer {
     if (!this.isInitialized) return;
 
 
-    trackEvent(EVENTS.CHAT_SESSION_ENDED);
+    trackEvent(EVENTS.CHAT_SESSION_ENDED, {
+      tool: this.isChatGPTSite() ? 'chatgpt' : this.isClaudeSite() ? 'claude' : this.isMistralSite() ? 'mistral' : this.isCopilotSite() ? 'copilot' : 'unknown'
+    });
 
     // Remove UI components
     componentInjector.removeAll();

@@ -44,19 +44,7 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
     trackEvent(EVENTS.ONBOARDING_COMPLETED);
   }, []);
 
-  const handleOpenTool = (url: string, trackChatGPT = false) => {
-    if (trackChatGPT) {
-      trackEvent(EVENTS.ONBOARDING_GOTO_CHATGPT);
-    } else {
-      trackEvent(EVENTS.ONBOARDING_COMPLETED);
-    }
-    window.open(url, '_blank');
-    onComplete();
-  };
 
-  // Get folder count for display
-  const newFoldersCount = folderRecommendations?.new_folders?.length || 0;
-  const totalFoldersCount = folderRecommendations?.total_pinned?.length || 0;
   
   return (
     <motion.div 

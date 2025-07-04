@@ -77,7 +77,7 @@ export const EVENTS = {
   ONBOARDING_COMPLETED: 'Onboarding Completed',
   ONBOARDING_SKIPPED: 'Onboarding Skipped',
   ONBOARDING_ERROR: 'Onboarding Error',
-  ONBOARDING_GOTO_CHATGPT: 'Onboarding Go To ChatGPT',
+  ONBOARDING_GOTO_AI_TOOL: 'Onboarding Go To AI Tool',
 
   POPUP_OPENED: 'Popup Opened',
   
