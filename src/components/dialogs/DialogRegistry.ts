@@ -17,7 +17,9 @@ export const DIALOG_TYPES = {
 
   // New dialog type for block creation
   CREATE_BLOCK: 'createBlock',
-  INSERT_BLOCK: 'insertBlock'
+  INSERT_BLOCK: 'insertBlock',
+  TUTORIALS_LIST: 'tutorialsList',
+  TUTORIAL_VIDEO: 'tutorialVideo'
 } as const;
 
 // Export the dialog types
@@ -92,4 +94,11 @@ export interface DialogProps {
   };
 
   [DIALOG_TYPES.INSERT_BLOCK]: Record<string, never>;
+
+  [DIALOG_TYPES.TUTORIALS_LIST]: Record<string, never>;
+
+  [DIALOG_TYPES.TUTORIAL_VIDEO]: {
+    videoId?: string;
+    title?: string;
+  };
 }

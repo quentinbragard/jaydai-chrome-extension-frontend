@@ -62,6 +62,17 @@ export function useDialogActions() {
     [openDialog]
   );
 
+  const openTutorials = useCallback(
+    () => openDialog(DIALOG_TYPES.TUTORIALS_LIST, {}),
+    [openDialog]
+  );
+
+  const openTutorialVideo = useCallback(
+    (videoId: string, title?: string) =>
+      openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { videoId, title }),
+    [openDialog]
+  );
+
   return {
     openSettings,
     openCreateTemplate,
@@ -75,5 +86,7 @@ export function useDialogActions() {
     openBrowseMoreFolders,
     openCreateBlock,
     openInsertBlock,
+    openTutorials,
+    openTutorialVideo,
   };
 }

@@ -306,6 +306,10 @@
     "message": "Block Builder",
     "description": "Menu item for block builder"
   },
+  "tutorials": {
+    "message": "Tutorials",
+    "description": "Menu item for tutorials"
+  },
   "aiNews": {
     "message": "AI News",
     "description": "Élément de menu AI News"
