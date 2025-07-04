@@ -12,6 +12,8 @@ import { ConfirmationDialog } from './common/ConfirmationDialog';
 import { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
 import { BrowseMoreFoldersDialog } from './prompts/BrowseMoreFoldersDialog';
 import { CreateBlockDialog } from './prompts/CreateBlockDialog';
+import { TutorialsDialog } from './tutorials/TutorialsDialog';
+import { TutorialVideoDialog } from './tutorials/TutorialVideoDialog';
 
 /**
  * Main dialog provider that includes all dialog components
@@ -49,6 +51,8 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <ConfirmationDialog />
       <EnhancedStatsDialog />
       <BrowseMoreFoldersDialog />
+      <TutorialsDialog />
+      <TutorialVideoDialog />
       {/* Place the customize dialog last so it appears above others */}
       <CustomizeTemplateDialog />
       <CreateBlockDialog />
@@ -69,3 +73,5 @@ export { FolderManagerDialog } from './prompts/FolderManagerDialog';
 export { BrowseMoreFoldersDialog } from './prompts/BrowseMoreFoldersDialog';
 export { BaseDialog } from './BaseDialog';
 export { CreateBlockDialog } from './prompts/CreateBlockDialog';
+export { TutorialsDialog } from './tutorials/TutorialsDialog';
+export { TutorialVideoDialog } from './tutorials/TutorialVideoDialog';
