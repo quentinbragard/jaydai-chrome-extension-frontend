@@ -8,7 +8,11 @@ import TemplatePreview from '@/components/prompts/TemplatePreview';
 import { getMessage } from '@/core/utils/i18n';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Input } from '@/components/ui/input';
-import { extractPlaceholders, replacePlaceholders } from '@/utils/templates/placeholderUtils';
+import { extractPlaceholders } from '@/utils/templates/placeholderUtils';
+import {
+  convertMetadataToVirtualBlocks,
+  extractPlaceholdersFromBlocks
+} from '@/utils/templates/enhancedPreviewUtils';
 
 interface AdvancedEditorProps {
   mode?: 'create' | 'customize';
@@ -35,46 +39,106 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const isDarkMode = useThemeDetector();
 
   // Placeholder management for customize mode
-  const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
-  const [modifiedContent, setModifiedContent] = useState(content);
   const originalContentRef = useRef(content);
+  const originalBlockCacheRef = useRef(blockContentCache);
   const inputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const activeInputIndex = useRef<number | null>(null);
 
-  // Initialize placeholders for customize mode
+  useEffect(() => {
+    originalBlockCacheRef.current = blockContentCache;
+  }, [blockContentCache]);
+
+  const getPlaceholderKeys = useCallback((): string[] => {
+    const base = mode === 'customize' ? originalContentRef.current : content;
+    const fromContent = extractPlaceholders(base).map(p => p.key);
+
+    const virtualBlocks = convertMetadataToVirtualBlocks(metadata, blockContentCache);
+    const fromBlocks = extractPlaceholdersFromBlocks(virtualBlocks).map(p => p.key);
+
+    const keys = new Set<string>();
+    fromContent.forEach(k => keys.add(k));
+    fromBlocks.forEach(k => keys.add(k));
+
+    return Array.from(keys);
+  }, [metadata, blockContentCache, mode, content]);
+
+  // Initialize placeholder state
+  const [placeholders, setPlaceholders] = useState<Placeholder[]>(() => {
+    if (mode === 'customize') {
+      const keys = getPlaceholderKeys();
+      return keys.map(key => ({ key, value: '' }));
+    }
+    return [];
+  });
+
+  // Update placeholders when relevant data changes
   useEffect(() => {
     if (mode === 'customize') {
-      const extracted = extractPlaceholders(content);
-      const uniqueKeys = Array.from(new Set(extracted.map(p => p.key)));
-      setPlaceholders(uniqueKeys.map(key => ({ key, value: '' })));
+      const keys = getPlaceholderKeys();
+      setPlaceholders(prev =>
+        keys.map(key => {
+          const existing = prev.find(p => p.key === key);
+          return { key, value: existing?.value || '' };
+        })
+      );
       originalContentRef.current = content;
     }
-    setModifiedContent(content);
-  }, [content, mode]);
+  }, [content, mode, getPlaceholderKeys]);
 
-  // Update placeholder value and content
+  // Build content with placeholders replaced
+  const computeContent = useCallback(
+    (list: Placeholder[]) => {
+      let result = originalContentRef.current;
+      const updatedCache: Record<number, string> = { ...originalBlockCacheRef.current };
+
+      list.forEach(({ key, value }) => {
+        if (!value.trim()) return;
+        const regex = new RegExp(`\\[${key.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\]`, 'g');
+        result = result.replace(regex, value);
+
+        Object.keys(updatedCache).forEach(id => {
+          updatedCache[parseInt(id, 10)] = updatedCache[parseInt(id, 10)].replace(regex, value);
+        });
+      });
+
+      return { content: result, cache: updatedCache };
+    },
+    []
+  );
+
+  const computed = React.useMemo(() => computeContent(placeholders), [computeContent, placeholders]);
+  const previewContent = computed.content;
+  const previewCache = computed.cache;
+
+  // Sync computed content back to editor state
+  useEffect(() => {
+    if (mode === 'customize') {
+      setContent(previewContent);
+    }
+  }, [previewContent, setContent, mode]);
+
+  // Broadcast placeholder values for other hooks
+  useEffect(() => {
+    if (mode === 'customize') {
+      const map: Record<string, string> = {};
+      placeholders.forEach(p => {
+        if (p.value.trim()) map[p.key] = p.value;
+      });
+      document.dispatchEvent(new CustomEvent('jaydai:placeholder-values', { detail: map }));
+    }
+  }, [placeholders, mode]);
+
   const updatePlaceholder = useCallback((index: number, value: string) => {
     setPlaceholders(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], value };
       return updated;
     });
-
-    // Update content with placeholder replacements
-    const placeholderMap = placeholders.reduce((acc, p, i) => {
-      acc[p.key] = i === index ? value : p.value;
-      return acc;
-    }, {} as Record<string, string>);
-    
-    const newContent = replacePlaceholders(originalContentRef.current, placeholderMap);
-    setModifiedContent(newContent);
-    setContent(newContent);
-  }, [placeholders, setContent]);
+  }, []);
 
   // Reset placeholders
   const resetPlaceholders = useCallback(() => {
     setPlaceholders(prev => prev.map(p => ({ ...p, value: '' })));
-    setModifiedContent(originalContentRef.current);
     setContent(originalContentRef.current);
   }, [setContent]);
 
@@ -130,8 +194,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
                     <TemplatePreview
                       metadata={metadata}
-                      content={modifiedContent}
-                      blockContentCache={blockContentCache}
+                      content={previewContent}
+                      blockContentCache={previewCache}
                       isDarkMode={isDarkMode}
                       className="jd-h-full"
                     />
