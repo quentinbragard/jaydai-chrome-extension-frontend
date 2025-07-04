@@ -9,6 +9,12 @@ import { BasicEditor, AdvancedEditor } from '../editors';
 import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
 import { PromptMetadata } from '@/types/prompts/metadata';
 import { TemplateEditorProvider } from './TemplateEditorContext';
+import { convertMetadataToVirtualBlocks } from '@/utils/templates/enhancedPreviewUtils';
+import { buildPromptPart } from '@/utils/prompts/blockUtils';
+import { updateSingleMetadata, updateMetadataItem } from '@/utils/prompts/metadataUtils';
+import { generateUnifiedPreviewHtml } from '@/utils/templates/placeholderHelpers';
+import EnhancedEditablePreview from '@/components/prompts/EnhancedEditablePreview';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface TemplateEditorDialogProps {
   // State from base hook
@@ -148,6 +154,73 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     ]
   );
 
+  const isDark = useThemeDetector();
+
+  const combinedBlockCache = React.useMemo(
+    () => ({ ...blockContentCache, ...(modifiedBlocks || {}) }),
+    [blockContentCache, modifiedBlocks]
+  );
+
+  const virtualBlocks = React.useMemo(
+    () => convertMetadataToVirtualBlocks(metadata, combinedBlockCache),
+    [metadata, combinedBlockCache]
+  );
+
+  const initialFinal = React.useMemo(() => {
+    const parts = virtualBlocks.map(v =>
+      buildPromptPart(v.type, combinedBlockCache[v.originalBlockId || 0] || v.content)
+    );
+    if (content.trim()) parts.push(content.trim());
+    return parts.join('\n\n');
+  }, [virtualBlocks, combinedBlockCache, content]);
+
+  const [localFinal, setLocalFinal] = React.useState(initialFinal);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setLocalFinal(finalPromptContent || initialFinal);
+    }
+  }, [isOpen, finalPromptContent, initialFinal]);
+
+  const finalHtml = React.useMemo(
+    () => generateUnifiedPreviewHtml(localFinal, isDark),
+    [localFinal, isDark]
+  );
+
+  const handleFinalChange = React.useCallback(
+    (text: string) => {
+      setLocalFinal(text);
+      setFinalPromptContent && setFinalPromptContent(text);
+
+      const segments = text.split(/\n{2,}/);
+      virtualBlocks.forEach((block, idx) => {
+        let seg = segments[idx] ?? '';
+        const prefix = buildPromptPart(block.type, '');
+        if (prefix && seg.startsWith(prefix)) seg = seg.slice(prefix.length);
+
+        if (block.isFromMetadata) {
+          if (block.metadataType) {
+            if (block.itemId) {
+              setMetadata(prev =>
+                updateMetadataItem(prev, block.metadataType as any, block.itemId!, {
+                  blockId: undefined,
+                  value: seg
+                })
+              );
+            } else {
+              setMetadata(prev =>
+                updateSingleMetadata(prev, block.metadataType as any, 0, seg)
+              );
+            }
+          }
+        } else if (block.originalBlockId && updateBlockContent) {
+          updateBlockContent(block.originalBlockId, seg);
+        }
+      });
+    },
+    [virtualBlocks, updateBlockContent, setMetadata, setFinalPromptContent]
+  );
+
   // Create footer with action buttons
   const footer = (
     <div className="jd-flex jd-justify-end jd-gap-2">
@@ -248,6 +321,17 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 <AdvancedEditor mode={mode as any} isProcessing={false} />
               </TabsContent>
             </Tabs>
+
+            <div className="jd-mt-4 jd-flex-shrink-0">
+              <EnhancedEditablePreview
+                metadata={metadata}
+                blockContentCache={combinedBlockCache}
+                isDarkMode={isDark}
+                finalPromptContent={localFinal}
+                onFinalContentChange={handleFinalChange}
+                editable
+              />
+            </div>
           )}
         </div>
       </TemplateEditorProvider>
