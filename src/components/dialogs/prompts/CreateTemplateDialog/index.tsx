@@ -42,7 +42,6 @@ export const CreateTemplateDialog: React.FC = () => {
       metadata={hook.metadata}
       isProcessing={hook.isProcessing}
       content={hook.content}
-      activeTab={hook.activeTab}
       isSubmitting={hook.isSubmitting}
       
       // **NEW: Final content state**
@@ -52,7 +51,6 @@ export const CreateTemplateDialog: React.FC = () => {
       
       // Actions
       setContent={hook.setContent}
-      setActiveTab={hook.setActiveTab}
       handleComplete={hook.handleComplete}
       handleClose={hook.handleClose}
       

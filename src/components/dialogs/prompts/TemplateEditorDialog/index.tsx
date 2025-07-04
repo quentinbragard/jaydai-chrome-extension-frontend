@@ -2,14 +2,15 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
-import { BasicEditor, AdvancedEditor } from '../editors';
+import { MetadataSection } from '../editors/AdvancedEditor/MetadataSection';
+import { PlaceholderPanel } from '../editors/BasicEditor/PlaceholderPanel';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
 import { PromptMetadata } from '@/types/prompts/metadata';
 import { TemplateEditorProvider } from './TemplateEditorContext';
-import { convertMetadataToVirtualBlocks } from '@/utils/templates/enhancedPreviewUtils';
+import { convertMetadataToVirtualBlocks, extractPlaceholdersFromBlocks } from '@/utils/templates/enhancedPreviewUtils';
 import { buildPromptPart } from '@/utils/prompts/blockUtils';
 import { updateSingleMetadata, updateMetadataItem } from '@/utils/prompts/metadataUtils';
 import { generateUnifiedPreviewHtml } from '@/utils/templates/placeholderHelpers';
@@ -23,7 +24,6 @@ interface TemplateEditorDialogProps {
   metadata: PromptMetadata;
   isProcessing: boolean;
   content: string;
-  activeTab: 'basic' | 'advanced';
   isSubmitting: boolean;
   
   // **NEW: Final content state**
@@ -33,7 +33,6 @@ interface TemplateEditorDialogProps {
   
   // Actions from base hook
   setContent: (content: string) => void;
-  setActiveTab: (tab: 'basic' | 'advanced') => void;
   handleComplete: () => Promise<void>;
   handleClose: () => void;
   
@@ -71,7 +70,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   metadata,
   isProcessing,
   content,
-  activeTab,
   isSubmitting,
   
   // **NEW: Final content state**
@@ -81,7 +79,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   
   // Actions
   setContent,
-  setActiveTab,
   handleComplete,
   handleClose,
   
@@ -156,9 +153,111 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
 
   const isDark = useThemeDetector();
 
+  // Placeholder management for customize mode
+  interface Placeholder {
+    key: string;
+    value: string;
+  }
+
+  const originalContentRef = React.useRef(content);
+  const originalBlockCacheRef = React.useRef(blockContentCache);
+  const inputRefs = React.useRef<Record<number, HTMLInputElement | null>>({});
+  const activeInputIndex = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    originalBlockCacheRef.current = blockContentCache;
+  }, [blockContentCache]);
+
+  const getPlaceholderKeys = React.useCallback((): string[] => {
+    const base = mode === 'customize' ? originalContentRef.current : content;
+    const fromContent = (base.match(/\[([^\]]+)\]/g) || []).map(m => m.slice(1, -1));
+
+    const virtual = convertMetadataToVirtualBlocks(metadata, blockContentCache);
+    const fromBlocks = extractPlaceholdersFromBlocks(virtual).map(p => p.key);
+
+    const keys = new Set<string>();
+    fromContent.forEach(k => keys.add(k));
+    fromBlocks.forEach(k => keys.add(k));
+
+    return Array.from(keys);
+  }, [metadata, blockContentCache, mode, content]);
+
+  const [placeholders, setPlaceholders] = React.useState<Placeholder[]>(() => {
+    if (mode === 'customize') {
+      return getPlaceholderKeys().map(key => ({ key, value: '' }));
+    }
+    return [];
+  });
+
+  React.useEffect(() => {
+    if (mode === 'customize') {
+      const keys = getPlaceholderKeys();
+      setPlaceholders(prev =>
+        keys.map(k => {
+          const existing = prev.find(p => p.key === k);
+          return { key: k, value: existing?.value || '' };
+        })
+      );
+      originalContentRef.current = content;
+    }
+  }, [content, mode, getPlaceholderKeys]);
+
+  const computeContent = React.useCallback((list: Placeholder[]) => {
+    let result = originalContentRef.current;
+    const updatedCache: Record<number, string> = { ...originalBlockCacheRef.current };
+
+    list.forEach(({ key, value }) => {
+      if (!value.trim()) return;
+      const regex = new RegExp(`\\[${key.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\]`, 'g');
+      result = result.replace(regex, value);
+
+      Object.keys(updatedCache).forEach(id => {
+        updatedCache[parseInt(id, 10)] = updatedCache[parseInt(id, 10)].replace(regex, value);
+      });
+    });
+
+    return { content: result, cache: updatedCache };
+  }, []);
+
+  const computed = React.useMemo(() => computeContent(placeholders), [computeContent, placeholders]);
+  const previewContent = computed.content;
+  const previewCache = computed.cache;
+
+  React.useEffect(() => {
+    if (mode === 'customize') {
+      setContent(previewContent);
+    }
+  }, [previewContent, setContent, mode]);
+
+  React.useEffect(() => {
+    if (mode === 'customize') {
+      const map: Record<string, string> = {};
+      placeholders.forEach(p => {
+        if (p.value.trim()) map[p.key] = p.value;
+      });
+      document.dispatchEvent(new CustomEvent('jaydai:placeholder-values', { detail: map }));
+    }
+  }, [placeholders, mode]);
+
+  const updatePlaceholder = React.useCallback((index: number, value: string) => {
+    setPlaceholders(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], value };
+      return updated;
+    });
+  }, []);
+
+  const resetPlaceholders = React.useCallback(() => {
+    setPlaceholders(prev => prev.map(p => ({ ...p, value: '' })));
+    setContent(originalContentRef.current);
+  }, [setContent]);
+
   const combinedBlockCache = React.useMemo(
-    () => ({ ...blockContentCache, ...(modifiedBlocks || {}) }),
-    [blockContentCache, modifiedBlocks]
+    () => ({
+      ...(mode === 'customize' ? previewCache : blockContentCache),
+      ...(modifiedBlocks || {})
+    }),
+    [blockContentCache, previewCache, modifiedBlocks, mode]
   );
 
   const virtualBlocks = React.useMemo(
@@ -170,9 +269,10 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     const parts = virtualBlocks.map(v =>
       buildPromptPart(v.type, combinedBlockCache[v.originalBlockId || 0] || v.content)
     );
-    if (content.trim()) parts.push(content.trim());
+    const baseContent = mode === 'customize' ? previewContent : content;
+    if (baseContent.trim()) parts.push(baseContent.trim());
     return parts.join('\n\n');
-  }, [virtualBlocks, combinedBlockCache, content]);
+  }, [virtualBlocks, combinedBlockCache, previewContent, content, mode]);
 
   const [localFinal, setLocalFinal] = React.useState(initialFinal);
 
@@ -304,33 +404,50 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             </div>
           ) : (
             <>
-              <Tabs
-                value={activeTab}
-                onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
-                className="jd-flex jd-flex-col jd-flex-1 jd-min-h-0 jd-h-full jd-overflow-hidden"
-              >
-                <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4 jd-flex-shrink-0">
-                  <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
-                  <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
-                </TabsList>
+              <div className="jd-flex jd-flex-col jd-flex-1 jd-min-h-0 jd-overflow-hidden">
+                {/* Metadata row */}
+                <div className="jd-flex-shrink-0 jd-overflow-y-auto">
+                  <MetadataSection availableMetadataBlocks={availableMetadataBlocks} />
+                </div>
 
-                <TabsContent value="basic" className="jd-flex-1 jd-min-h-0 jd-overflow-hidden jd-h-full data-[state=active]:flex data-[state=active]:flex-col">
-                  <BasicEditor mode={mode as any} isProcessing={false} />
-                </TabsContent>
+                {/* Preview / Placeholder row */}
+                <div className="jd-flex-1 jd-min-h-0 jd-mt-4 jd-overflow-hidden">
+                  {mode === 'customize' ? (
+                    <ResizablePanelGroup direction="horizontal" className="jd-h-full jd-w-full">
+                      <ResizablePanel defaultSize={30} minSize={20} maxSize={40}>
+                        <PlaceholderPanel
+                          placeholders={placeholders}
+                          inputRefs={inputRefs}
+                          activeInputIndex={activeInputIndex}
+                          onUpdatePlaceholder={updatePlaceholder}
+                          onResetPlaceholders={resetPlaceholders}
+                        />
+                      </ResizablePanel>
 
-                <TabsContent value="advanced" className="jd-flex-1 jd-min-h-0 jd-overflow-hidden jd-h-full data-[state=active]:flex data-[state=active]:flex-col">
-                  <AdvancedEditor mode={mode as any} isProcessing={false} />
-                </TabsContent>
-              </Tabs>
+                      <ResizableHandle withHandle />
 
-              <div className="jd-mt-4 jd-flex-shrink-0">
-                <EnhancedEditablePreview
-                  blockContentCache={combinedBlockCache}
-                  isDarkMode={isDark}
-                  finalPromptContent={localFinal}
-                  onFinalContentChange={handleFinalChange}
-                  editable
-                />
+                      <ResizablePanel defaultSize={70} minSize={40}>
+                        <EnhancedEditablePreview
+                          blockContentCache={combinedBlockCache}
+                          isDarkMode={isDark}
+                          finalPromptContent={localFinal}
+                          onFinalContentChange={handleFinalChange}
+                          editable
+                          className="jd-h-full"
+                        />
+                      </ResizablePanel>
+                    </ResizablePanelGroup>
+                  ) : (
+                    <EnhancedEditablePreview
+                      blockContentCache={combinedBlockCache}
+                      isDarkMode={isDark}
+                      finalPromptContent={localFinal}
+                      onFinalContentChange={handleFinalChange}
+                      editable
+                      className="jd-h-full"
+                    />
+                  )}
+                </div>
               </div>
             </>
           )}
