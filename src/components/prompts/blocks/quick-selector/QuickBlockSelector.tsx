@@ -1,7 +1,5 @@
 // src/components/prompts/blocks/quick-selector/QuickBlockSelector.tsx
-// This is a floating dropdown component, NOT a dialog
-// It appears at the cursor position when users type "//j"
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useShadowRoot } from '@/core/utils/componentInjector';
 import { Block } from '@/types/prompts/blocks';
@@ -15,27 +13,24 @@ import { Search, Maximize2, X, Plus } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { getMessage } from '@/core/utils/i18n';
-import {
-  getBlockTypeIcon,
-  getBlockIconColors,
-  BLOCK_TYPE_LABELS,
-  getLocalizedContent
-} from '@/utils/prompts/blockUtils';
+import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { BlockItem } from './BlockItem';
 import { useBlocks } from './useBlocks';
 import { useBlockInsertion } from './useBlockInsertion';
+import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 import { calculateDropdownPosition } from './positionUtils';
 
 // Quick filter types
 const QUICK_FILTERS = [
-  { type: 'role', label: 'Role', icon: '👤' },
-  { type: 'context', label: 'Context', icon: '📝' },
-  { type: 'goal', label: 'Goal', icon: '🎯' },
-  { type: 'tone_style', label: 'Tone', icon: '🎨' },
-  { type: 'audience', label: 'Audience', icon: '👥' },
-  { type: 'output_format', label: 'Format', icon: '📋' },
-  { type: 'constraint', label: 'Constraint', icon: '🚫' },
-  { type: 'example', label: 'Example', icon: '💡' },
+  { type: 'role', label: getMessage('role', undefined, 'Role'), icon: '👤' },
+  { type: 'context', label: getMessage('context', undefined, 'Context'), icon: '📝' },
+  { type: 'goal', label: getMessage('goal', undefined, 'Goal'), icon: '🎯' },
+  { type: 'tone_style', label: getMessage('tone_style', undefined, 'Tone'), icon: '🎨' },
+  { type: 'audience', label: getMessage('audience', undefined, 'Audience'), icon: '👥' },
+  { type: 'output_format', label: getMessage('output_format', undefined, 'Format'), icon: '📋' },
+  { type: 'constraint', label: getMessage('constraint', undefined, 'Constraint'), icon: '🚫' },
+  { type: 'example', label: getMessage('example', undefined, 'Example'), icon: '💡' },
+  { type: 'custom', label: getMessage('custom', undefined, 'Custom'), icon: '🔧' },
 ] as const;
 
 interface QuickBlockSelectorProps {
@@ -43,7 +38,7 @@ interface QuickBlockSelectorProps {
   onClose: () => void;
   targetElement: HTMLElement;
   onOpenFullDialog: () => void;
-  cursorPosition?: number; // Store the original cursor position
+  cursorPosition?: number;
   triggerLength?: number;
 }
 
@@ -56,7 +51,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   triggerLength
 }) => {
   const shadowRoot = useShadowRoot();
-  const { blocks, loading, addBlock } = useBlocks();
+  const { blocks, loading, addBlock, updateBlock, removeBlock, refreshBlocks } = useBlocks();
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [activeIndex, setActiveIndex] = useState(0);
@@ -66,15 +61,29 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
 
+  // Block actions hook
+  const { editBlock, deleteBlock, createBlock } = useBlockActions({
+    onBlockUpdated: (updatedBlock) => {
+      updateBlock(updatedBlock);
+    },
+    onBlockDeleted: (blockId) => {
+      removeBlock(blockId);
+    },
+    onBlockCreated: (newBlock) => {
+      addBlock(newBlock);
+    }
+  });
+
   const handleCreateBlock = () => {
-    openCreateBlock({
-      onBlockCreated: (b: Block) => {
-        addBlock(b);
-        setSearch('');
-        setSelectedFilter('all');
-        setActiveIndex(0);
-      }
-    });
+    createBlock();
+  };
+
+  const handleEditBlock = (block: Block) => {
+    editBlock(block);
+  };
+
+  const handleDeleteBlock = (block: Block) => {
+    deleteBlock(block);
   };
 
   // Focus search input on mount
@@ -180,17 +189,14 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
       style={{ 
         left: `${x}px`, 
         top: `${y}px`,
-        // Ensure proper background and isolation
         backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
         color: isDark ? '#ffffff' : '#000000',
         fontSize: '14px',
         lineHeight: '1.5',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        // Reset any inherited styles
         margin: 0,
         padding: 0,
         boxSizing: 'border-box',
-        // Ensure it's above page content but below dialogs
         zIndex: 10000,
         position: 'fixed'
       }}
@@ -198,11 +204,11 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
       {/* Header */}
       <div className="jd-flex jd-items-center jd-justify-between jd-p-3 jd-border-b jd-flex-shrink-0">
         <div className="jd-flex jd-items-center jd-gap-2">
-        <img 
-              src={isDark ? darkLogo : lightLogo}
-              alt={isDark ? "Jaydai Logo Dark" : "Jaydai Logo Light"}
-              className="jd-h-6 jd-pl-2"
-            />
+          <img 
+            src={isDark ? darkLogo : lightLogo}
+            alt={isDark ? "Jaydai Logo Dark" : "Jaydai Logo Light"}
+            className="jd-h-6 jd-pl-2"
+          />
         </div>
         <div className="jd-flex jd-items-center jd-gap-1">
           <Button
@@ -268,7 +274,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
         </div>
       </div>
 
-      {/* Blocks List - Fixed height with proper scrolling */}
+      {/* Blocks List */}
       <div className="jd-flex-1 jd-px-3 jd-pb-3 jd-min-h-0">
         <ScrollArea className="jd-h-full">
           {loading ? (
@@ -287,6 +293,8 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
                   block={block}
                   isDark={isDark}
                   onSelect={handleSelectBlock}
+                  onEdit={handleEditBlock}
+                  onDelete={handleDeleteBlock}
                   isActive={index === activeIndex}
                   itemRef={el => (itemRefs.current[index] = el)}
                 />

@@ -44,19 +44,7 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
     trackEvent(EVENTS.ONBOARDING_COMPLETED);
   }, []);
 
-  const handleOpenTool = (url: string, trackChatGPT = false) => {
-    if (trackChatGPT) {
-      trackEvent(EVENTS.ONBOARDING_GOTO_CHATGPT);
-    } else {
-      trackEvent(EVENTS.ONBOARDING_COMPLETED);
-    }
-    window.open(url, '_blank');
-    onComplete();
-  };
 
-  // Get folder count for display
-  const newFoldersCount = folderRecommendations?.new_folders?.length || 0;
-  const totalFoldersCount = folderRecommendations?.total_pinned?.length || 0;
   
   return (
     <motion.div 
@@ -160,87 +148,6 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
       >
-        {/* Folder Recommendations Summary - Compact with Scrollable List */}
-        {folderRecommendations && folderRecommendations.success && (
-          <div className="jd-bg-gray-800/40 jd-border jd-border-gray-700/50 jd-rounded-lg jd-p-4 jd-flex-1 jd-backdrop-blur-sm">
-            <div className="jd-flex jd-items-center jd-gap-2 jd-mb-3">
-              <Folder className="jd-h-4 jd-w-4 jd-text-green-400" />
-              <h4 className="jd-text-green-400 jd-font-medium jd-text-sm">
-                {getMessage('yourPersonalizedFolders', undefined, 'Your Personalized Folders')}
-              </h4>
-              <span className="jd-bg-green-600/20 jd-text-green-300 jd-px-2 jd-py-0.5 jd-rounded-full jd-text-xs jd-font-medium">
-                {totalFoldersCount}
-              </span>
-            </div>
-            
-            {/* Scrollable Folder List */}
-            {folderRecommendations.folder_details && folderRecommendations.folder_details.length > 0 ? (
-              <div className="jd-max-h-32 jd-overflow-y-auto jd-space-y-2 jd-pr-2">
-                {folderRecommendations.folder_details.map((folder) => (
-                  <div key={folder.id} className="jd-bg-gray-700/30 jd-rounded jd-p-2 jd-border jd-border-gray-600/30 jd-hover:bg-gray-700/50 jd-transition-colors">
-                    <div className="jd-flex jd-items-start jd-justify-between jd-gap-2">
-                      <div className="jd-flex-1 jd-min-w-0">
-                        <h5 className="jd-text-xs jd-font-medium jd-text-white jd-truncate">
-                          {folder.title}
-                        </h5>
-                        {folder.description && (
-                          <p className="jd-text-xs jd-text-gray-400 jd-mt-0.5 jd-leading-relaxed jd-overflow-hidden jd-text-ellipsis" 
-                             style={{
-                               display: '-webkit-box',
-                               WebkitLineClamp: 2,
-                               WebkitBoxOrient: 'vertical' as const
-                             }}>
-                            {folder.description}
-                          </p>
-                        )}
-                      </div>
-                      {folderRecommendations.new_folders.includes(folder.id) && (
-                        <span className="jd-bg-green-500/20 jd-text-green-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs jd-font-medium jd-flex-shrink-0 jd-animate-pulse">
-                          {getMessage('newLabel', undefined, 'New')}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="jd-text-xs jd-text-gray-400 jd-italic jd-py-4 jd-text-center">
-                {getMessage('folderDetailsLoading', undefined, 'Folder details will be available soon...')}
-              </div>
-            )}
-            
-            {/* Compact explanation tags */}
-            {folderRecommendations.explanation && (
-              <div className="jd-pt-3 jd-border-t jd-border-gray-700/30 jd-mt-3">
-                <p className="jd-text-xs jd-text-gray-500 jd-mb-1">
-                  {getMessage('basedOn', undefined, 'Based on:')}
-                </p>
-                <div className="jd-flex jd-flex-wrap jd-gap-1">
-                  {folderRecommendations.explanation.professional_role.length > 0 && (
-                    <span className="jd-bg-blue-600/20 jd-text-blue-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
-                      {getMessage('explanationRole', undefined, 'Role')}
-                    </span>
-                  )}
-                  {folderRecommendations.explanation.industry.length > 0 && (
-                    <span className="jd-bg-purple-600/20 jd-text-purple-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
-                      {getMessage('explanationIndustry', undefined, 'Industry')}
-                    </span>
-                  )}
-                  {folderRecommendations.explanation.seniority.length > 0 && (
-                    <span className="jd-bg-green-600/20 jd-text-green-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
-                      {getMessage('explanationLevel', undefined, 'Level')}
-                    </span>
-                  )}
-                  {folderRecommendations.explanation.interests.length > 0 && (
-                    <span className="jd-bg-orange-600/20 jd-text-orange-300 jd-px-1.5 jd-py-0.5 jd-rounded jd-text-xs">
-                      {getMessage('explanationInterests', undefined, 'Interests')}
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
         
         {/* What's Next - Compact */}
         <div className="jd-bg-gray-800/40 jd-border jd-border-gray-700/50 jd-rounded-lg jd-p-4 jd-flex-1 jd-backdrop-blur-sm">

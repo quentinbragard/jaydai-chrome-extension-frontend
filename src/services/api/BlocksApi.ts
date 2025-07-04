@@ -1,5 +1,3 @@
-
-// src/services/api/BlocksApi.ts - Enhanced Version
 import { apiClient } from './ApiClient';
 import { Block, BlockType } from '@/types/prompts/blocks';
 
@@ -129,11 +127,10 @@ class BlocksApiClient {
   }
 
   /**
-   * **NEW: Update an existing block**
+   * Update an existing block
    */
   async updateBlock(id: number, data: UpdateBlockData): Promise<ApiResponse<Block>> {
     try {
-      
       const requestBody = {
         title: data.title,             
         content: data.content,          
@@ -158,11 +155,10 @@ class BlocksApiClient {
   }
 
   /**
-   * **NEW: Delete a block**
+   * Delete a block
    */
   async deleteBlock(id: number): Promise<ApiResponse<void>> {
     try {
-      
       const response = await apiClient.request(`/prompts/blocks/${id}`, {
         method: 'DELETE'
       });
@@ -176,6 +172,7 @@ class BlocksApiClient {
       };
     }
   }
+
 
   /**
    * **NEW: Duplicate a block with modifications**
@@ -287,7 +284,11 @@ class BlocksApiClient {
       };
     }
   }
+
+  
 }
+
+
 
 // Export singleton instance
 export const blocksApi = new BlocksApiClient();

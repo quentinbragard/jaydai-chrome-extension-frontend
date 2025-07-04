@@ -23,6 +23,7 @@ import {
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
+import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
 import { 
   DndContext, 
@@ -47,11 +48,10 @@ import {
   Eye,
   Code,
   Sparkles,
-  ArrowRight,
   Copy,
   Filter,
   X,
-  Check,
+  Lightbulb,
   Save,
   Info,
   HelpCircle
@@ -63,17 +63,19 @@ import { getMessage } from '@/core/utils/i18n';
 import { SortableSelectedBlock } from './SortableSelectedBlock';
 import { AvailableBlockCard } from './AvailableBlockCard';
 import { PreviewBlock } from './PreviewBlock';
+import { detectPlatform } from '@/platforms/platformManager';
 
 // Metadata type groups for filtering
 const METADATA_FILTERS = [
-  { type: 'role', label: 'Role', icon: '👤' },
-  { type: 'context', label: 'Context', icon: '📝' },
-  { type: 'goal', label: 'Goal', icon: '🎯' },
-  { type: 'tone_style', label: 'Tone', icon: '🎨' },
-  { type: 'audience', label: 'Audience', icon: '👥' },
-  { type: 'output_format', label: 'Format', icon: '📋' },
-  { type: 'constraint', label: 'Constraint', icon: '🚫' },
-  { type: 'example', label: 'Example', icon: '💡' },
+  { type: 'role', label: getMessage('role', undefined, 'Role'), icon: '👤' },
+  { type: 'context', label: getMessage('context', undefined, 'Context'), icon: '📝' },
+  { type: 'goal', label: getMessage('goal', undefined, 'Goal'), icon: '🎯' },
+  { type: 'tone_style', label: getMessage('tone_style', undefined, 'Tone'), icon: '🎨' },
+  { type: 'audience', label: getMessage('audience', undefined, 'Audience'), icon: '👥' },
+  { type: 'output_format', label: getMessage('output_format', undefined, 'Format'), icon: '📋' },
+  { type: 'constraint', label: getMessage('constraint', undefined, 'Constraint'), icon: '🚫' },
+  { type: 'example', label: getMessage('example', undefined, 'Example'), icon: '💡' },
+  { type: 'custom', label: getMessage('custom', undefined, 'Custom'), icon: '🔧' },
 ] as const;
 
 // Inline block creation component
@@ -240,6 +242,29 @@ export const InsertBlockDialog: React.FC = () => {
   const [blockContents, setBlockContents] = useState<Record<number, string>>({});
   const isDark = useThemeDetector();
   const { openCreateBlock } = useDialogActions();
+  const { editBlock, deleteBlock } = useBlockActions({
+    onBlockUpdated: (updated) => {
+      setBlocks(prev => prev.map(b => (b.id === updated.id ? updated : b)));
+      setSelectedBlocks(prev => prev.map(b => (b.id === updated.id ? updated : b)));
+      setBlockContents(prev => {
+        if (prev.hasOwnProperty(updated.id)) {
+          const content = typeof updated.content === 'string' ? updated.content : updated.content?.en || '';
+          return { ...prev, [updated.id]: content };
+        }
+        return prev;
+      });
+    },
+    onBlockDeleted: (id) => {
+      setBlocks(prev => prev.filter(b => b.id !== id));
+      setSelectedBlocks(prev => prev.filter(b => b.id !== id));
+      setBlockContents(prev => {
+        const { [id]: _removed, ...rest } = prev;
+        return rest;
+      });
+    }
+  });
+  const platform = detectPlatform();
+
 
   // Drag & Drop sensors
   const sensors = useSensors(
@@ -346,6 +371,14 @@ export const InsertBlockDialog: React.FC = () => {
     setShowInlineCreator(false);
   };
 
+  const handleEditBlock = (block: Block) => {
+    editBlock(block);
+  };
+
+  const handleDeleteBlock = (block: Block) => {
+    deleteBlock(block);
+  };
+
 // Filter blocks based on search, type, and published status
 const filteredBlocks = blocks.filter(b => {
   const title = typeof b.title === 'string' ? b.title : b.title?.en || '';
@@ -400,6 +433,30 @@ const filteredBlocks = blocks.filter(b => {
 
   if (!isOpen) return null;
 
+  console.log("platform", platform);
+
+  const footer = (
+    <div className="jd-flex jd-justify-between">
+      <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)}>
+        {getMessage('cancel', undefined, 'Cancel')}
+      </Button>
+      <div className="jd-flex jd-gap-2">
+        <Button variant="secondary" onClick={handleCreate}>
+          <Plus className="jd-h-4 jd-w-4 jd-mr-1" />
+          {getMessage('createBlock', undefined, 'Create Block')}
+        </Button>
+        <Button
+          disabled={selectedBlocks.length === 0}
+          onClick={insertBlocks}
+          className="jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600 hover:jd-from-blue-700 hover:jd-to-purple-700"
+        >
+          <Sparkles className="jd-h-4 jd-w-4 jd-mr-1" />
+          {getMessage('insertPrompt', undefined, 'Insert Prompt')} ({selectedBlocks.length})
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <BaseDialog
@@ -408,13 +465,14 @@ const filteredBlocks = blocks.filter(b => {
         title={getMessage('buildYourPrompt', undefined, 'Build Your Prompt')}
         description={getMessage('buildYourPromptDesc', undefined, 'Select and arrange blocks to create your perfect prompt')}
         className="jd-max-w-7xl"
+        footer={footer}
       >
       <div className="jd-flex jd-items-center jd-text-xs jd-text-muted-foreground jd-mb-2 jd-gap-2">
         <Info className="jd-w-4 jd-h-4 jd-text-primary" />
         <span>
           {getMessage('insertBlockTip', undefined, 'Tip: type ')}
           <span className="jd-font-mono">//j</span>{' '}
-          {getMessage('insertBlockTipContinuation', undefined, 'in the prompt area to quickly add blocks.')}
+          {getMessage('insertBlockTipContinuation', [platform], `in the prompt area to quickly add blocks on ${platform.toLowerCase()}.`)}
         </span>
         <button
           type="button"
@@ -484,19 +542,10 @@ const filteredBlocks = blocks.filter(b => {
 
             {/* Stats */}
             <div className="jd-flex jd-items-center jd-gap-4 jd-text-sm jd-text-muted-foreground">
-              <span>
-                {filteredBlocks.length}{' '}
-                {getMessage('blocksAvailable', undefined, 'blocks available')}
+              <span className="jd-flex jd-items-center jd-gap-1">
+                <Lightbulb className="jd-h-4 jd-w-4 jd-text-yellow-500" />
+                {getMessage('aPerfectPrompt', undefined, 'A perfect prompt contains at least a role, context and goal')}
               </span>
-              {selectedBlocks.length > 0 && (
-                <>
-                  <ArrowRight className="jd-h-3 jd-w-3" />
-                  <span className="jd-text-primary">
-                    {selectedBlocks.length}{' '}
-                    {getMessage('selected', undefined, 'selected')}
-                  </span>
-                </>
-              )}
             </div>
           </div>
 
@@ -528,11 +577,13 @@ const filteredBlocks = blocks.filter(b => {
                     block={block}
                     isDark={isDark}
                     onAdd={addBlock}
+                    onEdit={handleEditBlock}
+                    onDelete={handleDeleteBlock}
                     isSelected={!!selectedBlocks.find(b => b.id === block.id)}
                     onRemove={removeBlock}
+                    showActions={block.user_id ? true : false}
                   />
-                ))
-              )}
+                )))}
             </div>
           </ScrollArea>
         </div>
@@ -643,26 +694,6 @@ const filteredBlocks = blocks.filter(b => {
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="jd-flex jd-justify-between jd-pt-4 jd-border-t jd-mt-4 jd-flex-shrink-0">
-            <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)}>
-              {getMessage('cancel', undefined, 'Cancel')}
-            </Button>
-            <div className="jd-flex jd-gap-2">
-              <Button variant="secondary" onClick={handleCreate}>
-                <Plus className="jd-h-4 jd-w-4 jd-mr-1" />
-                {getMessage('createBlock', undefined, 'Create Block')}
-              </Button>
-              <Button
-                disabled={selectedBlocks.length === 0}
-                onClick={insertBlocks}
-                className="jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600 hover:jd-from-blue-700 hover:jd-to-purple-700"
-              >
-                <Sparkles className="jd-h-4 jd-w-4 jd-mr-1" />
-                {getMessage('insertPrompt', undefined, 'Insert Prompt')} ({selectedBlocks.length})
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
       </BaseDialog>
@@ -680,7 +711,7 @@ const filteredBlocks = blocks.filter(b => {
               {getMessage('shortcutTipSuffix', undefined, 'in the prompt area to open this block selector instantly.')}
             </p>
             <img
-              src="https://media.giphy.com/media/JQqjZBZHF9giz6HnDy/giphy.gif"
+              src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif"
               alt={getMessage('shortcutDemoAlt', undefined, 'Shortcut demonstration')}
               className="jd-w-full jd-rounded-md"
             />

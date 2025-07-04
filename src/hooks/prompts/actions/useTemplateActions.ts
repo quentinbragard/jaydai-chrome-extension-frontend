@@ -84,13 +84,9 @@ const handleTemplateComplete = useCallback((finalContent: string) => {
     if (success) {
       // Only show toast on success
       toast.success('Template applied successfully');
-      trackEvent(EVENTS.TEMPLATE_APPLIED);
       incrementUserProperty('template_usage_count', 1);
     } else {
       toast.error('Failed to apply template');
-      trackEvent(EVENTS.TEMPLATE_APPLIED_ERROR, {
-        error: 'Failed to apply template'
-      });
     }
     
     // Dispatch an event to close the main button and panels
@@ -103,17 +99,11 @@ const useTemplate = useCallback(async (template: Template) => {
   // Validation
   if (!template) {
     toast.error('Invalid template data');
-    trackEvent(EVENTS.TEMPLATE_APPLIED_ERROR, {
-      error: 'Invalid template data'
-    });
     return;
   }
   
   if (!template.content) {
     toast.error('Template has no content');
-    trackEvent(EVENTS.TEMPLATE_APPLIED_ERROR, {
-      error: 'Template has no content'
-    });
     return;
   }
   

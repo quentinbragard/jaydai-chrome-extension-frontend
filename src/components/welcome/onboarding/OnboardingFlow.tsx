@@ -99,12 +99,14 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     } else {
       // Otherwise, move to the next step
       setCurrentStep(prev => prev + 1);
+      window.scrollTo(0, 0); // Scroll to the top of the page
     }
   };
   
   // Handle going back to the previous step
   const handlePreviousStep = () => {
     setCurrentStep(prev => Math.max(0, prev - 1));
+    window.scrollTo(0, 0); // Scroll to the top of the page
   };
   
   // Submit final data to the backend with new onboarding completion endpoint
@@ -205,6 +207,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     } else {
       // For any other step, just advance to the next step
       setCurrentStep(prev => prev + 1);
+      window.scrollTo(0, 0); // Scroll to the top of the page
     }
   };
   

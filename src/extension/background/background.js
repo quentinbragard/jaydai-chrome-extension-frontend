@@ -15,10 +15,8 @@ function createContextMenus() {
   });
 }
 
-chrome.runtime.onInstalled.addListener((details) => {
-  if (details.reason === 'install') {
-    chrome.tabs.create({ url: 'welcome.html' });
-  }
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.tabs.create({ url: 'welcome.html' });
   createContextMenus();
 });
 
@@ -40,17 +38,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
-chrome.commands.onCommand.addListener((command) => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const tab = tabs[0];
-    if (!tab || !tab.id) return;
-    if (command === 'create-prompt') {
-      chrome.tabs.sendMessage(tab.id, { action: 'openCreateBlockDialog', content: '' });
-    } else if (command === 'insert-prompt') {
-      chrome.tabs.sendMessage(tab.id, { action: 'openInsertBlockDialog' });
-    }
-  });
-});
 
 // 🔹 Open welcome page only when the extension is newly installed, not on updates
 //chrome.runtime.onInstalled.addListener((details) => {

@@ -1,13 +1,12 @@
 // src/components/panels/MenuPanel/index.tsx
 
 import React from 'react';
-import { FileText, Bell, BarChart, Save, Blocks } from "lucide-react";
+import { FileText, Bell, BarChart, Blocks, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
 import BasePanel from '../BasePanel';
 import { getMessage } from '@/core/utils/i18n';
-import { toast } from 'sonner';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 
@@ -63,7 +62,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   notificationCount,
 }) => {
   const { pushPanel } = usePanelNavigation();
-  const { openInsertBlock } = useDialogActions();
+  const { openInsertBlock, openTutorials } = useDialogActions();
 
   // Navigate to a specific panel
   const navigateToPanel = (panelType: 'templates' | 'notifications' | 'stats') => {
@@ -72,10 +71,6 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
 
 
 
-  // Open external link
-  const openExternalLink = (url: string) => {
-    window.open(url, '_blank');
-  };
 
   // Define menu items for better maintainability
   const menuItems: MenuItem[] = [
@@ -105,10 +100,10 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       badge: notificationCount
     },
     {
-      id: 'news',
-      icon: <Save className="jd-h-4 jd-w-4" />,
-      label: getMessage('aiNews', undefined, 'AI News'),
-      action: () => openExternalLink('https://thetunnel.substack.com/?utm_source=jaydai-extension')
+      id: 'tutorials',
+      icon: <PlayCircle className="jd-h-4 jd-w-4" />,
+      label: getMessage('tutorials', undefined, 'Tutorials'),
+      action: () => openTutorials()
     }
   ];
 

@@ -1,4 +1,3 @@
-// src/components/dialogs/prompts/TemplateEditorDialog/index.tsx - Fixed Version
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -10,6 +9,12 @@ import { BasicEditor, AdvancedEditor } from '../editors';
 import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
 import { PromptMetadata } from '@/types/prompts/metadata';
 import { TemplateEditorProvider } from './TemplateEditorContext';
+import { convertMetadataToVirtualBlocks } from '@/utils/templates/enhancedPreviewUtils';
+import { buildPromptPart } from '@/utils/prompts/blockUtils';
+import { updateSingleMetadata, updateMetadataItem } from '@/utils/prompts/metadataUtils';
+import { generateUnifiedPreviewHtml } from '@/utils/templates/placeholderHelpers';
+import EnhancedEditablePreview from '@/components/prompts/EnhancedEditablePreview';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 interface TemplateEditorDialogProps {
   // State from base hook
@@ -55,6 +60,7 @@ interface TemplateEditorDialogProps {
   dialogTitle: string;
   dialogDescription: string;
   mode: 'create' | 'customize' | 'edit';
+  header?: React.ReactNode;
   infoForm?: React.ReactNode;
 }
 
@@ -101,6 +107,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   dialogTitle,
   dialogDescription,
   mode,
+  header,
   infoForm
 }) => {
   const {
@@ -147,6 +154,73 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     ]
   );
 
+  const isDark = useThemeDetector();
+
+  const combinedBlockCache = React.useMemo(
+    () => ({ ...blockContentCache, ...(modifiedBlocks || {}) }),
+    [blockContentCache, modifiedBlocks]
+  );
+
+  const virtualBlocks = React.useMemo(
+    () => convertMetadataToVirtualBlocks(metadata, combinedBlockCache),
+    [metadata, combinedBlockCache]
+  );
+
+  const initialFinal = React.useMemo(() => {
+    const parts = virtualBlocks.map(v =>
+      buildPromptPart(v.type, combinedBlockCache[v.originalBlockId || 0] || v.content)
+    );
+    if (content.trim()) parts.push(content.trim());
+    return parts.join('\n\n');
+  }, [virtualBlocks, combinedBlockCache, content]);
+
+  const [localFinal, setLocalFinal] = React.useState(initialFinal);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setLocalFinal(finalPromptContent || initialFinal);
+    }
+  }, [isOpen, finalPromptContent, initialFinal]);
+
+  const finalHtml = React.useMemo(
+    () => generateUnifiedPreviewHtml(localFinal, isDark),
+    [localFinal, isDark]
+  );
+
+  const handleFinalChange = React.useCallback(
+    (text: string) => {
+      setLocalFinal(text);
+      setFinalPromptContent && setFinalPromptContent(text);
+
+      const segments = text.split(/\n{2,}/);
+      virtualBlocks.forEach((block, idx) => {
+        let seg = segments[idx] ?? '';
+        const prefix = buildPromptPart(block.type, '');
+        if (prefix && seg.startsWith(prefix)) seg = seg.slice(prefix.length);
+
+        if (block.isFromMetadata) {
+          if (block.metadataType) {
+            if (block.itemId) {
+              setMetadata(prev =>
+                updateMetadataItem(prev, block.metadataType as any, block.itemId!, {
+                  blockId: undefined,
+                  value: seg
+                })
+              );
+            } else {
+              setMetadata(prev =>
+                updateSingleMetadata(prev, block.metadataType as any, 0, seg)
+              );
+            }
+          }
+        } else if (block.originalBlockId && updateBlockContent) {
+          updateBlockContent(block.originalBlockId, seg);
+        }
+      });
+    },
+    [virtualBlocks, updateBlockContent, setMetadata, setFinalPromptContent]
+  );
+
   // Create footer with action buttons
   const footer = (
     <div className="jd-flex jd-justify-end jd-gap-2">
@@ -176,6 +250,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           if (!open) handleClose();
         }}
         title={dialogTitle}
+        header={header}
         className="jd-max-w-4xl"
         footer={
           <Button onClick={handleClose} variant="outline">
@@ -203,14 +278,15 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       }}
       title={dialogTitle}
       description={dialogDescription}
-      className=  "jd-max-w-7xl jd-h-[98vh]" // Fixed height with max constraint
+      header={header}
+      className="jd-max-w-7xl jd-h-[98vh]"
       footer={footer}
     >
       {/* Info form - outside main content */}
       {infoForm}
       
       <TemplateEditorProvider value={contextValue}>
-        {/* Main content area with proper height constraints using only Tailwind */}
+        {/* Main content area with proper height constraints */}
         <div className="jd-flex jd-flex-col jd-h-full jd-min-h-0 jd-overflow-hidden">
           {error && (
             <Alert variant="destructive" className="jd-mb-2 jd-flex-shrink-0">
@@ -245,6 +321,17 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                 <AdvancedEditor mode={mode as any} isProcessing={false} />
               </TabsContent>
             </Tabs>
+
+            <div className="jd-mt-4 jd-flex-shrink-0">
+              <EnhancedEditablePreview
+                metadata={metadata}
+                blockContentCache={combinedBlockCache}
+                isDarkMode={isDark}
+                finalPromptContent={localFinal}
+                onFinalContentChange={handleFinalChange}
+                editable
+              />
+            </div>
           )}
         </div>
       </TemplateEditorProvider>

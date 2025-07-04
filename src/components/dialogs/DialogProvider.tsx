@@ -13,6 +13,8 @@ import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
 import { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
 import { BrowseMoreFoldersDialog } from './prompts/BrowseMoreFoldersDialog';
+import { TutorialsDialog } from './tutorials/TutorialsDialog';
+import { TutorialVideoDialog } from './tutorials/TutorialVideoDialog';
 
 /**
  * Main dialog provider that includes all dialog components
@@ -65,6 +67,8 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <ConfirmationDialog />
       <EnhancedStatsDialog />
       <BrowseMoreFoldersDialog />
+      <TutorialsDialog />
+      <TutorialVideoDialog />
       {/* Place the customize dialog last so it stacks above others */}
       <CustomizeTemplateDialog />
     </DialogManagerProvider>

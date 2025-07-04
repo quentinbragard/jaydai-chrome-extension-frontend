@@ -37,20 +37,25 @@ export const CreateBlockDialog: React.FC = () => {
 
   // Extract data from dialog context
   const initialType = data?.initialType as BlockType;
+  const initialTitle = data?.initialTitle || '';
   const initialContent = data?.initialContent || '';
-  const onBlockCreated = data?.onBlockCreated;
+  const initialDescription = data?.initialDescription || '';
+  const onBlockCreated = data?.onBlockCreated as
+    | ((blockData: any) => Promise<boolean> | boolean)
+    | undefined;
+  const isEdit = data?.isEdit || false;
 
   // Reset form when dialog opens/closes
   useEffect(() => {
     if (isOpen) {
       setContent(initialContent);
       setBlockType(initialType || 'role');
-      setName('');
-      setDescription('');
+      setName(initialTitle);
+      setDescription(initialDescription);
       setValidationErrors({});
       setIsSubmitting(false);
     }
-  }, [isOpen, initialType, initialContent]);
+  }, [isOpen, initialType, initialTitle, initialContent, initialDescription]);
 
 
   const validateForm = () => {
@@ -85,22 +90,23 @@ export const CreateBlockDialog: React.FC = () => {
       const blockData = {
         type: blockType,
         content: content.trim(),
-        title: name.trim(),    
+        title: name.trim(),
         description: description.trim() || undefined
       };
-      
-      const response = await blocksApi.createBlock(blockData);
-  
-      if (response.success && response.data) {
-        toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
-        
-        if (onBlockCreated) {
-          onBlockCreated(response.data);
+
+      if (onBlockCreated) {
+        const result = await onBlockCreated(blockData);
+        if (result) {
+          handleClose();
         }
-        
-        handleClose();
       } else {
-        toast.error(response.message || getMessage('errorCreatingBlock', undefined, 'Failed to create block'));
+        const response = await blocksApi.createBlock(blockData);
+        if (response.success && response.data) {
+          toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
+          handleClose();
+        } else {
+          toast.error(response.message || getMessage('errorCreatingBlock', undefined, 'Failed to create block'));
+        }
       }
     } catch (error) {
       console.error('Error creating block:', error);
@@ -147,12 +153,14 @@ export const CreateBlockDialog: React.FC = () => {
         {isSubmitting ? (
           <>
             <div className="jd-animate-spin jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-rounded-full jd-mr-2 !jd-text-white !jd-text-bold"></div>
-            {getMessage('creating', undefined, 'Creating...')}
+            {getMessage(isEdit ? 'updating' : 'creating', undefined, isEdit ? 'Updating...' : 'Creating...')}
           </>
         ) : (
           <>
             <Save className="jd-h-4 jd-w-4 jd-mr-2 jd-text-primary-foreground" />
-            <span className="jd-text-primary-foreground">{getMessage('createBlock', undefined, 'Create Block')}</span>
+            <span className="jd-text-primary-foreground">
+              {getMessage(isEdit ? 'updateBlock' : 'createBlock', undefined, isEdit ? 'Update Block' : 'Create Block')}
+            </span>
           </>
         )}
       </Button>
@@ -164,8 +172,12 @@ export const CreateBlockDialog: React.FC = () => {
       open={isOpen}
       footer={footer}
       onOpenChange={handleClose}
-      title={getMessage('createBlockTitle', undefined, 'Create Block')}
-      description={getMessage('createBlockDescription', undefined, 'Create a new reusable block for your prompts')}
+      title={getMessage(isEdit ? 'editBlockTitle' : 'createBlockTitle', undefined, isEdit ? 'Edit Block' : 'Create Block')}
+      description={getMessage(
+        isEdit ? 'editBlockDescription' : 'createBlockDescription',
+        undefined,
+        isEdit ? 'Update your block details' : 'Create a new reusable block for your prompts'
+      )}
       className="jd-max-w-2xl"
       baseZIndex={10010}
     >

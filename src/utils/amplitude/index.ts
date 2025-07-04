@@ -77,7 +77,7 @@ export const EVENTS = {
   ONBOARDING_COMPLETED: 'Onboarding Completed',
   ONBOARDING_SKIPPED: 'Onboarding Skipped',
   ONBOARDING_ERROR: 'Onboarding Error',
-  ONBOARDING_GOTO_CHATGPT: 'Onboarding Go To ChatGPT',
+  ONBOARDING_GOTO_AI_TOOL: 'Onboarding Go To AI Tool',
 
   POPUP_OPENED: 'Popup Opened',
   
@@ -85,8 +85,6 @@ export const EVENTS = {
   TEMPLATE_VIEWED: 'Template Viewed',
   TEMPLATE_SELECTED: 'Template Selected',
   TEMPLATE_MODIFIED: 'Template Modified',
-  TEMPLATE_APPLIED: 'Template Applied',
-  TEMPLATE_APPLIED_ERROR: 'Template Apply Error',
   TEMPLATE_USED: 'Template Used',
   TEMPLATE_USED_ERROR: 'Template Use Error',
   TEMPLATE_FOLDER_OPENED: 'Template Folder Opened',
@@ -112,9 +110,9 @@ export const EVENTS = {
   SETTINGS_CHANGED: 'Settings Changed',
   
   // Network interceptor events
-  NETWORK_INTERCEPTOR_STARTED: 'Network Interceptor Started',
-  NETWORK_INTERCEPTOR_CAPTURED: 'Network Interceptor Captured',
-  NETWORK_INTERCEPTOR_ERROR: 'Network Interceptor Error',
+  USER_MESSAGE_CAPTURED: 'User Message Captured',
+  AI_ANSWER_CAPTURED: 'AI Answer Captured',
+  CHAT_CONVERSATION_CHANGED: 'Chat Conversation Changed',
   
   // Usage statistics events
   USAGE_STATISTICS_VIEWED: 'Usage Statistics Viewed',

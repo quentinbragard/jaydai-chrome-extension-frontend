@@ -77,7 +77,7 @@ export const CreateTemplateDialog: React.FC = () => {
       
       // Config
       dialogTitle={hook.dialogTitle}
-      dialogDescription={getMessage('CreateTemplateDialogDescription', undefined, 'Build your prompt using metadata and content')}
+      dialogDescription=""
       mode={hook.isEditMode ? 'edit' : 'create'}
       infoForm={infoForm}
     />

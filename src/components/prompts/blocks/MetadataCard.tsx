@@ -349,7 +349,7 @@ export const MetadataCard: React.FC<MetadataCardProps> = ({
                   )}
                 </div>
               ) : (
-                <div className="jd-text-xs">Click to set {config.label.toLowerCase()}</div>
+                <div className="jd-text-xs">{getMessage('clickToSet', undefined, 'Click to set')}{config.label.toLowerCase()}</div>
               )
             ) : items.length > 0 ? (
               <>

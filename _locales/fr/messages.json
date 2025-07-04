@@ -40,7 +40,7 @@
     "description": "Exemple de tâche IA 5"
   },
   "welcomeDescription": {
-    "message": "Maximisez votre expérience avec l'IA générative grâce à Jaydai, l'extension Chrome gratuite qui transforme votre utilisation de ChatGPT.",
+    "message": "Maximisez votre expérience avec l'IA générative grâce à Jaydai, l'extension Chrome gratuite qui transforme votre utilisation de ChatGPT, Claude, Mistral, Copilot et tous les autres...",
     "description": "Description de la page d'accueil"
   },
   "energyInsights": {
@@ -302,6 +302,10 @@
   "blockBuilder": {
     "message": "Blocs",
     "description": "Menu item for block builder"
+  },
+  "tutorials": {
+    "message": "Tutoriels",
+    "description": "Menu item for tutorials"
   },
   "aiNews": {
     "message": "Actualités IA",
@@ -1262,7 +1266,7 @@
     "description": "Button text to contact sales for enterprise features"
   },
   "company_templates_cta_title": {
-    "message": "Templates Entreprise",
+    "message": "Entreprise",
     "description": "Titre de l'appel à l'action lorsque aucune entreprise n'est attachée"
   },
   "company_templates_cta_description": {
@@ -1724,7 +1728,7 @@
   "onboardingComplete": { "message": "Configuration terminée !", "description": "Titre pour l'étape de fin d'onboarding" },
   "onboardingCompleteDescription": { "message": "Merci d'avoir complété votre profil. Vos templates IA personnalisés sont maintenant prêts à l'emploi.", "description": "Description pour l'étape de fin d'onboarding" },
   "whatNext": { "message": "Et ensuite ?", "description": "Titre pour les prochaines étapes après l'onboarding" },
-  "whatNextDescription": { "message": "Ouvrez ChatGPT ou Claude pour commencer à utiliser notre extension. Retrouvez notre bouton en bas à droite de votre écran pour accéder à vos templates et suivre votre utilisation de l'IA.", "description": "Description pour les prochaines étapes après l'onboarding" },
+  "whatNextDescription": { "message": "Ouvrez ChatGPT ou un autre pour commencer à utiliser notre extension. Retrouvez notre bouton en bas à droite de votre écran pour accéder à vos templates et suivre votre utilisation de l'IA.", "description": "Description pour les prochaines étapes après l'onboarding" },
   "goToChatGPT": { "message": "Aller sur ChatGPT", "description": "Bouton pour aller sur ChatGPT après l'onboarding" },
   "goToClaude": { "message": "Aller sur Claude", "description": "Bouton pour aller sur Claude après l'onboarding" },
   "returnToHome": { "message": "Retour à l'accueil", "description": "Bouton pour retourner à l'accueil après l'onboarding" },
@@ -1944,7 +1948,7 @@
   "copy": { "message": "Copier", "description": "Bouton pour copier le texte" },
   "editPromptPreview": { "message": "Cliquez pour modifier l'aperçu de votre prompt", "description": "Instruction pour éditer l'aperçu" },
   "insertBlockTip": { "message": "Astuce : tapez", "description": "Préfixe de l'astuce pour le raccourci //j" },
-  "insertBlockTipContinuation": { "message": "dans la zone de saisie pour ajouter rapidement des blocs.", "description": "Suite de l'astuce pour le raccourci" },
+  "insertBlockTipContinuation": { "message": "directement dans $PLATFORM$ pour insérer vos blocs.", "description": "Suite de l'astuce pour le raccourci", "placeholders": { "platform": { "content": "$1", "example": "ChatGPT" } } },
   "insertPrompt": { "message": "Insérer le prompt", "description": "Bouton pour insérer le prompt" },
   "noBlocksFound": {
     "message": "Aucun bloc trouvé pour \"$TERM$\"",
@@ -1958,7 +1962,7 @@
   "selectedBlocks": { "message": "Blocs sélectionnés", "description": "En-tête de la section des blocs sélectionnés" },
   "shortcutDemoAlt": { "message": "Démonstration du raccourci", "description": "Texte alternatif pour la démonstration du raccourci" },
   "shortcutTipPrefix": { "message": "Tapez", "description": "Préfixe de l'aide sur le raccourci" },
-  "shortcutTipSuffix": { "message": "dans la zone de saisie pour ouvrir ce sélecteur de blocs instantanément.", "description": "Suffixe de l'aide sur le raccourci" },
+  "shortcutTipSuffix": { "message": "directement là où vous tapez votre prompt sur $PLATFORM$ pour y insérer directement des blocs.", "description": "Suffixe de l'aide sur le raccourci", "placeholders": { "platform": { "content": "$1", "example": "ChatGPT" } } },
   "titleOptional": { "message": "Titre (optionnel)", "description": "Libellé pour le champ de titre optionnel" },
   "usingShortcut": { "message": "Utiliser le raccourci //j", "description": "Titre de la boîte de dialogue d'aide sur le raccourci" },
   "type": { "message": "Type", "description": "Libellé du type de bloc" },
@@ -2005,5 +2009,15 @@
   "no_notifications": { "message": "Aucune notification", "description": "Libellé pour la notification d'absence de notification" },
   "checking": { "message": "Vérification...", "description": "Libellé pour la vérification" },
   "check_for_notifications": { "message": "Vérifier les notifications", "description": "Libellé pour la vérification des notifications" },
-  "notification_count": { "message": "notification", "description": "Libellé pour le nombre de notification" }
+  "notification_count": { "message": "notification", "description": "Libellé pour le nombre de notification" },
+  "completeOnboarding": { "message": "C'est parti !", "description": "Libellé pour le bouton de complétion de l'onboarding" },
+  "no_folders_matching": { "message": "Aucun dossier correspondant", "description": "Libellé pour le titre des templates d'entreprise" },
+  "no_folders_available": { "message": "Aucun dossier disponible", "description": "Libellé pour le titre des templates d'entreprise" },
+  "error_loading_folders": { "message": "Erreur lors du chargement des dossiers", "description": "Libellé pour le titre des templates d'entreprise" },
+  "clickToSet": { "message": "Cliquez pour définir", "description": "Libellé pour le bouton de clic pour définir" },
+  "showLess": { "message": "Afficher moins", "description": "Libellé pour le bouton de clic pour afficher moins" },
+  "showMore": { "message": "Afficher plus", "description": "Libellé pour le bouton de clic pour afficher plus" },
+  "moreActions": { "message": "Plus d'actions", "description": "Libellé pour le bouton de clic pour plus d'actions" },
+  "edit": { "message": "Modifier", "description": "Libellé pour le bouton de clic pour modifier" },
+  "aPerfectPrompt": { "message": "Un prompt parfait contient au moins un rôle, un contexte et un objectif", "description": "Libellé pour le prompt parfait" }
 }

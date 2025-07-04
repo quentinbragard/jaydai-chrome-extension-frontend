@@ -4,6 +4,7 @@ import { AbstractBaseService } from '../BaseService';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { emitEvent, AppEvent } from '@/core/events/events';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import {
   handleConversationList,
   handleSpecificConversation,
@@ -154,7 +155,10 @@ export class ChatService extends AbstractBaseService {
     
     // Emit event for conversation change - both new app event and custom event
     emitEvent(AppEvent.CHAT_CONVERSATION_CHANGED, { conversationId });
-    
+    trackEvent(EVENTS.CHAT_CONVERSATION_CHANGED, {
+      conversationId,
+      platform: this.currentPlatform
+    });
     // Also dispatch custom event for components that listen to it directly
     document.dispatchEvent(new CustomEvent('jaydai:conversation-changed', {
       detail: { conversationId }

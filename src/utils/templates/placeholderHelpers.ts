@@ -131,34 +131,52 @@ export function highlightPlaceholdersWithColors(text: string, isDarkMode: boolea
   return generateUnifiedPreviewHtml(text, isDarkMode);
 }
 
-/**
- * Extract placeholders from text content
- */
-export function extractPlaceholders(text: string): PlaceholderMatch[] {
-  const placeholders: PlaceholderMatch[] = [];
-  const regex = /\[([^\]]+)\]/g;
-  let match;
 
-  while ((match = regex.exec(text)) !== null) {
+/**
+ * Extract all placeholders from text content
+ */
+export function extractPlaceholders(text: string): ExtractedPlaceholder[] {
+  if (!text) return [];
+  
+  const placeholderRegex = /\[([^\]]+)\]/g;
+  const placeholders: ExtractedPlaceholder[] = [];
+  let match;
+  
+  while ((match = placeholderRegex.exec(text)) !== null) {
     placeholders.push({
-      key: match[1],
-      value: '', // Default empty value
-      startIndex: match.index,
-      endIndex: match.index + match[0].length
+      key: match[1], // The content inside the brackets
+      fullMatch: match[0], // The complete match including brackets
+      position: match.index
     });
   }
-
+  
   return placeholders;
 }
 
 /**
- * Replace placeholders in text with their values
+ * Replace placeholders in text with provided values
  */
-export function replacePlaceholders(text: string, placeholderValues: Record<string, string>): string {
-  return text.replace(/\[([^\]]+)\]/g, (match, key) => {
-    return placeholderValues[key] || match;
+export function replacePlaceholders(
+  text: string, 
+  placeholderMap: Record<string, string>
+): string {
+  if (!text || !placeholderMap) return text;
+  
+  let result = text;
+  
+  // Replace each placeholder with its value
+  Object.entries(placeholderMap).forEach(([key, value]) => {
+    if (value && value.trim()) {
+      // Escape special regex characters in the key
+      const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\[${escapedKey}\\]`, 'g');
+      result = result.replace(regex, value);
+    }
   });
+  
+  return result;
 }
+
 
 /**
  * Get unique placeholder keys from text
