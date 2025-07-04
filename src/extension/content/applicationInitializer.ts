@@ -64,9 +64,7 @@ export class AppInitializer {
 
       
       this.isInitialized = true;
-      trackEvent(EVENTS.CHAT_SESSION_STARTED, {
-        tool: this.isChatGPTSite() ? 'chatgpt' : this.isClaudeSite() ? 'claude' : this.isMistralSite() ? 'mistral' : this.isCopilotSite() ? 'copilot' : 'unknown'
-      });
+      trackEvent(EVENTS.CHAT_SESSION_STARTED);
       return true;
     } catch (error) {
       errorReporter.captureError(
@@ -121,9 +119,7 @@ export class AppInitializer {
     if (!this.isInitialized) return;
 
 
-    trackEvent(EVENTS.CHAT_SESSION_ENDED, {
-      tool: this.isChatGPTSite() ? 'chatgpt' : this.isClaudeSite() ? 'claude' : this.isMistralSite() ? 'mistral' : this.isCopilotSite() ? 'copilot' : 'unknown'
-    });
+    trackEvent(EVENTS.CHAT_SESSION_ENDED);
 
     // Remove UI components
     componentInjector.removeAll();
