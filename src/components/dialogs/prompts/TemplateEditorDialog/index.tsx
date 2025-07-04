@@ -322,16 +322,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
                   <AdvancedEditor mode={mode as any} isProcessing={false} />
                 </TabsContent>
               </Tabs>
-
-              <div className="jd-mt-4 jd-flex-shrink-0">
-                <EnhancedEditablePreview
-                  blockContentCache={combinedBlockCache}
-                  isDarkMode={isDark}
-                  finalPromptContent={localFinal}
-                  onFinalContentChange={handleFinalChange}
-                  editable
-                />
-              </div>
             </>
           )}
         </div>

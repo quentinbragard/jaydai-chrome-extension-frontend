@@ -176,7 +176,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={getMessage('enterTemplateContent', undefined, 'Enter your template content here...')}
-            className="jd-flex-1 jd-resize-none jd-min-h-[200px] jd-h-full jd-overflow-y-auto jd-break-words jd-text-sm jd-leading-relaxed"
+            className="jd-flex-1 jd-resize-none jd-min-h-[200px] jd-max-h-[400px] jd-overflow-y-auto jd-break-words jd-text-sm jd-leading-relaxed"
             onKeyDown={(e) => e.stopPropagation()}
             onKeyPress={(e) => e.stopPropagation()}
             onKeyUp={(e) => e.stopPropagation()}
@@ -184,7 +184,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         </div>
         
         {/* Toggle preview button */}
-        <div className="jd-flex-shrink-0 jd-pt-4">
+       <div className="jd-flex-shrink-0 jd-sticky jd-bottom-0 jd-bg-background jd-z-10">
           <Button
             onClick={togglePreview}
             variant="outline"
