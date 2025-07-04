@@ -168,6 +168,13 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     originalBlockCacheRef.current = blockContentCache;
   }, [blockContentCache]);
 
+  React.useEffect(() => {
+    if (isOpen && mode === 'customize') {
+      originalContentRef.current = content;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, mode]);
+
   const getPlaceholderKeys = React.useCallback((): string[] => {
     const base = mode === 'customize' ? originalContentRef.current : content;
     const fromContent = (base.match(/\[([^\]]+)\]/g) || []).map(m => m.slice(1, -1));
@@ -198,7 +205,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           return { key: k, value: existing?.value || '' };
         })
       );
-      originalContentRef.current = content;
     }
   }, [content, mode, getPlaceholderKeys]);
 
