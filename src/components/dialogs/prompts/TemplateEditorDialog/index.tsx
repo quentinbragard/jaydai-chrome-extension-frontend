@@ -325,7 +325,6 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
 
               <div className="jd-mt-4 jd-flex-shrink-0">
                 <EnhancedEditablePreview
-                  metadata={metadata}
                   blockContentCache={combinedBlockCache}
                   isDarkMode={isDark}
                   finalPromptContent={localFinal}
