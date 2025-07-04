@@ -27,16 +27,9 @@ export interface PromptMetadata {
   // Multiple value metadata (arrays)
   constraint?: MetadataItem[];
   example?: MetadataItem[];
-
+  
   // Custom values for single metadata types
   values?: Record<SingleMetadataType, string>;
-
-  /**
-   * Additional free text to insert after specific metadata blocks.
-   * Keys correspond to metadata types (e.g. "context", "constraint") or
-   * special positions like "intro" or "outro".
-   */
-  additional_text?: Record<string, string>;
 }
 
 // Configuration for each metadata type
@@ -122,8 +115,7 @@ export const ALL_METADATA_TYPES: MetadataType[] = [...PRIMARY_METADATA, ...SECON
 export const DEFAULT_METADATA: PromptMetadata = {
   constraint: [],
   example: [],
-  values: {} as Record<SingleMetadataType, string>,
-  additional_text: {}
+  values: {} as Record<SingleMetadataType, string>
 };
 
 // Helper functions

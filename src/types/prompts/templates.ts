@@ -9,7 +9,6 @@ export interface TemplateMetadata {
   audience?: number;
   example?: number[];
   constraint?: number[];
-  additional_text?: Record<string, string>;
 }
 
 export interface Template {
