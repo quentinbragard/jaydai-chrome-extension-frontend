@@ -169,71 +169,9 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             {getMessage('editTemplateContent', undefined, 'Edit Template Content')}
           </h3>
         </div>
-
-        {/* Content editor - flexible height with Tailwind only */}
-        <div className="jd-flex-1 jd-min-h-0 jd-flex jd-flex-col jd-overflow-hidden">
-          <Textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={getMessage('enterTemplateContent', undefined, 'Enter your template content here...')}
-            className="jd-flex-1 jd-resize-none jd-min-h-[200px] jd-h-full jd-overflow-y-auto jd-break-words jd-text-sm jd-leading-relaxed"
-            onKeyDown={(e) => e.stopPropagation()}
-            onKeyPress={(e) => e.stopPropagation()}
-            onKeyUp={(e) => e.stopPropagation()}
-          />
-        </div>
-        
-        {/* Toggle preview button */}
-        <div className="jd-flex-shrink-0 jd-pt-4">
-          <Button
-            onClick={togglePreview}
-            variant="outline"
-            className={cn(
-              'jd-w-full jd-transition-all jd-duration-300 jd-group',
-              showPreview
-                ? 'jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90'
-                : 'jd-bg-background hover:jd-bg-muted'
-            )}
-          >
-            <div className="jd-flex jd-items-center jd-gap-2">
-              {showPreview ? (
-                <>
-                  <EyeOff className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-scale-110" />
-                  <span>{getMessage('hidePreview', undefined, 'Hide Preview')}</span>
-                  <ChevronUp className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
-                </>
-              ) : (
-                <>
-                  <Eye className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-scale-110" />
-                  <span>{getMessage('showPreview', undefined, 'Show Preview')}</span>
-                  <ChevronDown className="jd-h-4 jd-w-4 jd-transition-transform group-hover:jd-rotate-180" />
-                </>
-              )}
-            </div>
-          </Button>
-        </div>
-
-        {/* Animated preview section - using only Tailwind */}
-        <div
-          className={cn(
-            'jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out jd-flex-shrink-0',
-            showPreview ? 'jd-max-h-[400px] jd-opacity-100' : 'jd-max-h-0 jd-opacity-0'
-          )}
-        >
-          <div className="jd-pt-4">
-            <div className="jd-max-h-[350px] jd-overflow-y-auto jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100">
-              <TemplatePreview
-                metadata={metadata}
-                content={content}
-                blockContentCache={blockContentCache}
-                isDarkMode={isDark}
-              />
-            </div>
-          </div>
-        </div>
       </div>
-    );
-  }
+      )
+    }
 
   // For customize mode, show the interface with placeholders and preview
   return (

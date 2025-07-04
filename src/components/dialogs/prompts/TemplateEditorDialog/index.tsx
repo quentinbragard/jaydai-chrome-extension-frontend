@@ -287,7 +287,7 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       
       <TemplateEditorProvider value={contextValue}>
         {/* Main content area with proper height constraints */}
-        <div className="jd-flex jd-flex-col jd-h-full jd-min-h-0 jd-overflow-hidden">
+        <div className="jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden">
           {error && (
             <Alert variant="destructive" className="jd-mb-2 jd-flex-shrink-0">
               <AlertTriangle className="jd-h-4 jd-w-4 jd-mr-2" />
