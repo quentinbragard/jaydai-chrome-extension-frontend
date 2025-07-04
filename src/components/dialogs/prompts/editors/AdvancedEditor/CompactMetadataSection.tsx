@@ -287,21 +287,12 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
               {/* Ultra-compact select dropdown */}
               <div className="jd-mt-1 jd-space-y-1">
                 {isMultipleMetadataType(type) ? (
-                  <div className="jd-group jd-space-y-1 hover:jd-space-y-1">
-                    {items.map((item, idx) => (
-                      <div
-                        key={item.id}
-                        className={cn(
-                          'jd-flex jd-items-center jd-gap-1 jd-transition-all jd-duration-200',
-                          idx !== 0 && '-jd-mt-4 group-hover:jd-mt-0'
-                        )}
-                        style={{ zIndex: items.length - idx }}
-                      >
+                  <>
+                    {items.map(item => (
+                      <div key={item.id} className="jd-flex jd-items-center jd-gap-1">
                         <Select
                           value={item.blockId ? String(item.blockId) : '0'}
-                          onValueChange={val =>
-                            handleItemSelect(type as MultipleMetadataType, item.id, val)
-                          }
+                          onValueChange={val => handleItemSelect(type as MultipleMetadataType, item.id, val)}
                         >
                           <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2">
                             <SelectValue placeholder={getMessage('select', undefined, 'Select')} />
@@ -333,7 +324,7 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveItem(type as MultipleMetadataType, item.id)}
-                          className="jd-h-4 jd-w-4 jd-p-0 jd-opacity-0 group-hover:jd-opacity-100"
+                          className="jd-h-4 jd-w-4 jd-p-0"
                         >
                           <X className="jd-h-2 jd-w-2" />
                         </Button>
