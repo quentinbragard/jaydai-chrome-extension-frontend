@@ -21,6 +21,17 @@ export function convertMetadataToVirtualBlocks(
   blockContentCache: Record<number, string> = {}
 ): VirtualBlock[] {
   const virtualBlocks: VirtualBlock[] = [];
+  const additional = metadata.additional_text || {};
+
+  // Intro text before any metadata
+  if (additional.intro) {
+    virtualBlocks.push({
+      id: 'additional_intro',
+      type: 'custom',
+      content: additional.intro.trim(),
+      isFromMetadata: false
+    });
+  }
 
   // Convert single metadata types (role, context, goal, etc.)
   const singleTypes: SingleMetadataType[] = [
@@ -49,6 +60,17 @@ export function convertMetadataToVirtualBlocks(
         originalBlockId: blockId && blockId !== 0 ? blockId : undefined,
         metadataType: type
       });
+
+      // Add additional text immediately after this block if present
+      const extra = additional[type];
+      if (extra) {
+        virtualBlocks.push({
+          id: `additional_${type}_${index}`,
+          type: 'custom',
+          content: extra.trim(),
+          isFromMetadata: false
+        });
+      }
     }
   });
 
@@ -74,6 +96,15 @@ export function convertMetadataToVirtualBlocks(
         });
       }
     });
+
+    if (additional.constraint) {
+      virtualBlocks.push({
+        id: 'additional_constraint',
+        type: 'custom',
+        content: additional.constraint.trim(),
+        isFromMetadata: false
+      });
+    }
   }
 
   if (metadata.example) {
@@ -96,6 +127,25 @@ export function convertMetadataToVirtualBlocks(
           itemId: example.id
         });
       }
+    });
+
+    if (additional.example) {
+      virtualBlocks.push({
+        id: 'additional_example',
+        type: 'custom',
+        content: additional.example.trim(),
+        isFromMetadata: false
+      });
+    }
+  }
+
+  // Outro text after all metadata
+  if (additional.outro) {
+    virtualBlocks.push({
+      id: 'additional_outro',
+      type: 'custom',
+      content: additional.outro.trim(),
+      isFromMetadata: false
     });
   }
 
