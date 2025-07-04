@@ -27,9 +27,16 @@ export interface PromptMetadata {
   // Multiple value metadata (arrays)
   constraint?: MetadataItem[];
   example?: MetadataItem[];
-  
+
   // Custom values for single metadata types
   values?: Record<SingleMetadataType, string>;
+
+  /**
+   * Additional text entered in the preview editor that does not belong to a
+   * specific block. Keys are metadata types (or "intro" for text before any
+   * block) and values are the freeform text associated with that section.
+   */
+  additional_text?: Record<string, string>;
 }
 
 // Configuration for each metadata type
@@ -115,7 +122,8 @@ export const ALL_METADATA_TYPES: MetadataType[] = [...PRIMARY_METADATA, ...SECON
 export const DEFAULT_METADATA: PromptMetadata = {
   constraint: [],
   example: [],
-  values: {} as Record<SingleMetadataType, string>
+  values: {} as Record<SingleMetadataType, string>,
+  additional_text: {}
 };
 
 // Helper functions

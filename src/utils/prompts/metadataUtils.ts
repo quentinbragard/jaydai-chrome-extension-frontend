@@ -31,6 +31,7 @@ export function createMetadata(initial?: Partial<PromptMetadata>): PromptMetadat
   return {
     ...DEFAULT_METADATA,
     values: {},
+    additional_text: {},
     ...initial
   };
 }
@@ -43,7 +44,8 @@ export function cloneMetadata(metadata: PromptMetadata): PromptMetadata {
     ...metadata,
     values: { ...metadata.values },
     constraint: metadata.constraint?.map(item => ({ ...item })),
-    example: metadata.example?.map(item => ({ ...item }))
+    example: metadata.example?.map(item => ({ ...item })),
+    additional_text: { ...(metadata.additional_text || {}) }
   };
 }
 
@@ -434,8 +436,22 @@ export function metadataToBlockMapping(metadata: PromptMetadata): Record<string,
       mapping.example = exampleBlockIds;
     }
   }
-  
+
   return mapping;
+}
+
+/**
+ * Convert metadata to block mapping including additional text sections.
+ */
+export function metadataToAdvancedMapping(
+  metadata: PromptMetadata
+): Record<string, any> {
+  const base = metadataToBlockMapping(metadata);
+  const advanced: Record<string, any> = { ...base };
+  if (metadata.additional_text && Object.keys(metadata.additional_text).length > 0) {
+    advanced.additional_text = { ...metadata.additional_text };
+  }
+  return advanced;
 }
 
 /**
@@ -569,6 +585,10 @@ export function parseTemplateMetadata(rawMetadata: any): PromptMetadata {
     parsed.values = { ...parsed.values, ...rawMetadata.values };
   }
 
-  
+  if (rawMetadata.additional_text && typeof rawMetadata.additional_text === 'object') {
+    parsed.additional_text = { ...rawMetadata.additional_text };
+  }
+
+
   return parsed;
 }

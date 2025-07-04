@@ -271,22 +271,47 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     [metadata, combinedBlockCache]
   );
 
-  const initialFinal = React.useMemo(() => {
-    const parts = virtualBlocks.map(v =>
-      buildPromptPart(v.type, combinedBlockCache[v.originalBlockId || 0] || v.content)
-    );
+  const computeInitial = React.useCallback(() => {
+    const ranges: Record<string, { start: number; end: number }> = {};
+    const parts: string[] = [];
+    let index = 0;
+
+    virtualBlocks.forEach(v => {
+      const text = buildPromptPart(
+        v.type,
+        combinedBlockCache[v.originalBlockId || 0] || v.content
+      );
+      ranges[v.id] = { start: index, end: index + text.length };
+      parts.push(text);
+      index += text.length + 2; // account for \n\n when joining
+    });
+
     const baseContent = mode === 'customize' ? previewContent : content;
-    if (baseContent.trim()) parts.push(baseContent.trim());
-    return parts.join('\n\n');
+    if (baseContent.trim()) {
+      ranges['__outro__'] = { start: index, end: index + baseContent.trim().length };
+      parts.push(baseContent.trim());
+    }
+
+    return { text: parts.join('\n\n'), ranges };
   }, [virtualBlocks, combinedBlockCache, previewContent, content, mode]);
+
+  const [blockRanges, setBlockRanges] = React.useState<Record<string, { start: number; end: number }>>({});
+
+  const initialFinal = React.useMemo(() => {
+    const { text, ranges } = computeInitial();
+    setBlockRanges(ranges);
+    return text;
+  }, [computeInitial]);
 
   const [localFinal, setLocalFinal] = React.useState(initialFinal);
 
   React.useEffect(() => {
     if (isOpen) {
-      setLocalFinal(finalPromptContent || initialFinal);
+      const { text, ranges } = computeInitial();
+      setBlockRanges(ranges);
+      setLocalFinal(finalPromptContent || text);
     }
-  }, [isOpen, finalPromptContent, initialFinal]);
+  }, [isOpen, finalPromptContent, computeInitial]);
 
   const finalHtml = React.useMemo(
     () => generateUnifiedPreviewHtml(localFinal, isDark),
@@ -299,8 +324,12 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
       setFinalPromptContent && setFinalPromptContent(text);
 
       const segments = text.split(/\n{2,}/);
+      const newRanges: Record<string, { start: number; end: number }> = {};
+      let idxPos = 0;
       virtualBlocks.forEach((block, idx) => {
         let seg = segments[idx] ?? '';
+        newRanges[block.id] = { start: idxPos, end: idxPos + seg.length };
+        idxPos += seg.length + 2;
         const prefix = buildPromptPart(block.type, '');
         if (prefix && seg.startsWith(prefix)) seg = seg.slice(prefix.length);
 
@@ -323,6 +352,34 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           updateBlockContent(block.originalBlockId, seg);
         }
       });
+
+      setBlockRanges(newRanges);
+
+      const additional: Record<string, string> = {};
+      if (virtualBlocks.length === 0) {
+        if (text.trim()) additional.intro = text.trim();
+      } else {
+        const first = virtualBlocks[0];
+        const intro = text.slice(0, newRanges[first.id].start).trim();
+        if (intro) additional.intro = intro;
+        for (let i = 0; i < virtualBlocks.length; i++) {
+          const block = virtualBlocks[i];
+          const end = newRanges[block.id].end;
+          const nextStart =
+            i < virtualBlocks.length - 1
+              ? newRanges[virtualBlocks[i + 1].id].start
+              : text.length;
+          const after = text.slice(end, nextStart).trim();
+          if (after) {
+            const key = block.metadataType || block.type;
+            additional[key] = after;
+          }
+        }
+      }
+
+      if (Object.keys(additional).length > 0) {
+        setMetadata(prev => ({ ...prev, additional_text: additional }));
+      }
     },
     [virtualBlocks, updateBlockContent, setMetadata, setFinalPromptContent]
   );
