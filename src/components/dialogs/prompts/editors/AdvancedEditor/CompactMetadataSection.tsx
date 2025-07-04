@@ -1,5 +1,5 @@
 // src/components/dialogs/prompts/editors/AdvancedEditor/CompactMetadataSection.tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Plus, Check, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { getMessage } from '@/core/utils/i18n';
@@ -20,7 +20,8 @@ import {
   METADATA_CONFIGS,
   isMultipleMetadataType,
   SingleMetadataType,
-  MultipleMetadataType
+  MultipleMetadataType,
+  MetadataItem
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
@@ -39,6 +40,49 @@ import {
   getBlockTypeIcon,
   getBlockIconColors
 } from '@/utils/prompts/blockUtils';
+
+interface StackedPreviewProps {
+  items: MetadataItem[];
+  blocks: Block[];
+}
+
+const StackedPreview: React.FC<StackedPreviewProps> = ({ items, blocks }) => {
+  const preview = items.slice(0, 3);
+  const rest = items.length - preview.length;
+
+  const getLabel = (item: MetadataItem) => {
+    if (item.blockId) {
+      const blk = blocks.find(b => b.id === item.blockId);
+      return blk ? getLocalizedContent(blk.title) : '';
+    }
+    return item.value;
+  };
+
+  return (
+    <div className="jd-relative jd-h-6 jd-w-full">
+      {preview.map((it, idx) => (
+        <div
+          key={it.id}
+          className="jd-absolute jd-inset-0 jd-flex jd-items-center jd-justify-center jd-bg-muted jd-border jd-rounded jd-text-[10px] jd-px-1 jd-truncate jd-select-none jd-transition-transform jd-duration-300"
+          style={{
+            transform: `translate(${idx * 2}px, -${idx * 2}px) rotate(${idx % 2 === 0 ? -2 : 2}deg)`,
+            zIndex: preview.length - idx
+          }}
+        >
+          {getLabel(it)}
+        </div>
+      ))}
+      {rest > 0 && (
+        <div
+          className="jd-absolute jd-inset-0 jd-flex jd-items-center jd-justify-center jd-bg-muted jd-border jd-rounded jd-text-[10px] jd-px-1 jd-select-none"
+          style={{ transform: `translate(${preview.length * 2}px, -${preview.length * 2}px)` }}
+        >
+          +{rest}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: getBlockTypeIcon('role'),
@@ -66,6 +110,8 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
 
   const isDarkMode = useThemeDetector();
   const { openDialog } = useDialogManager();
+
+  const [hoveredType, setHoveredType] = useState<MetadataType | null>(null);
 
   // All metadata types combined
   const allMetadataTypes = [...PRIMARY_METADATA, ...SECONDARY_METADATA];
@@ -285,78 +331,88 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
               </div>
 
               {/* Ultra-compact select dropdown */}
-              <div className="jd-mt-1 jd-space-y-1">
+              <div
+                className="jd-mt-1 jd-space-y-1"
+                onMouseEnter={() => setHoveredType(type)}
+                onMouseLeave={() => setHoveredType(null)}
+              >
                 {isMultipleMetadataType(type) ? (
-                  <>
-                    {items.map(item => (
-                      <div key={item.id} className="jd-flex jd-items-center jd-gap-1">
-                        <Select
-                          value={item.blockId ? String(item.blockId) : '0'}
-                          onValueChange={val => handleItemSelect(type as MultipleMetadataType, item.id, val)}
-                        >
-                          <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2">
-                            <SelectValue placeholder={getMessage('select', undefined, 'Select')} />
-                          </SelectTrigger>
-                          <SelectContent className="jd-z-[10010]">
-                            <SelectItem value="0">{getMessage('none', undefined, 'None')}</SelectItem>
-                            {availableBlocks.map(block => (
-                              <SelectItem key={block.id} value={String(block.id)}>
-                                <span className="jd-text-xs">
-                                  {getLocalizedContent(block.title) || `${config.label} block`}
-                                </span>
+                  hoveredType === type || items.length <= 1 ? (
+                    <>
+                      {items.map(item => (
+                        <div key={item.id} className="jd-flex jd-items-center jd-gap-1">
+                          <Select
+                            value={item.blockId ? String(item.blockId) : '0'}
+                            onValueChange={val =>
+                              handleItemSelect(type as MultipleMetadataType, item.id, val)
+                            }
+                          >
+                            <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2">
+                              <SelectValue placeholder={getMessage('select', undefined, 'Select')} />
+                            </SelectTrigger>
+                            <SelectContent className="jd-z-[10010]">
+                              <SelectItem value="0">{getMessage('none', undefined, 'None')}</SelectItem>
+                              {availableBlocks.map(block => (
+                                <SelectItem key={block.id} value={String(block.id)}>
+                                  <span className="jd-text-xs">
+                                    {getLocalizedContent(block.title) || `${config.label} block`}
+                                  </span>
+                                </SelectItem>
+                              ))}
+                              <SelectItem value="create">
+                                <div className="jd-flex jd-items-center jd-gap-2">
+                                  <Plus className="jd-h-3 jd-w-3" />
+                                  <span className="jd-text-xs">
+                                    {getMessage(
+                                      'createTypeBlock',
+                                      [config.label.toLowerCase()],
+                                      `Create ${config.label.toLowerCase()} block`
+                                    )}
+                                  </span>
+                                </div>
                               </SelectItem>
-                            ))}
-                            <SelectItem value="create">
-                              <div className="jd-flex jd-items-center jd-gap-2">
-                                <Plus className="jd-h-3 jd-w-3" />
-                                <span className="jd-text-xs">
-                                  {getMessage(
-                                    'createTypeBlock',
-                                    [config.label.toLowerCase()],
-                                    `Create ${config.label.toLowerCase()} block`
-                                  )}
-                                </span>
-                              </div>
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveItem(type as MultipleMetadataType, item.id)}
+                            className="jd-h-4 jd-w-4 jd-p-0"
+                          >
+                            <X className="jd-h-2 jd-w-2" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Select onValueChange={val => handleAddItem(type as MultipleMetadataType, val)}>
+                        <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-border-dashed">
+                          <SelectValue placeholder="+" />
+                        </SelectTrigger>
+                        <SelectContent className="jd-z-[10010]">
+                          {availableBlocks.map(block => (
+                            <SelectItem key={block.id} value={String(block.id)}>
+                              <span className="jd-text-xs">
+                                {getLocalizedContent(block.title) || `${config.label} block`}
+                              </span>
                             </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveItem(type as MultipleMetadataType, item.id)}
-                          className="jd-h-4 jd-w-4 jd-p-0"
-                        >
-                          <X className="jd-h-2 jd-w-2" />
-                        </Button>
-                      </div>
-                    ))}
-                    <Select onValueChange={val => handleAddItem(type as MultipleMetadataType, val)}>
-                      <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-border-dashed">
-                        <SelectValue placeholder="+" />
-                      </SelectTrigger>
-                      <SelectContent className="jd-z-[10010]">
-                        {availableBlocks.map(block => (
-                          <SelectItem key={block.id} value={String(block.id)}>
-                            <span className="jd-text-xs">
-                              {getLocalizedContent(block.title) || `${config.label} block`}
-                            </span>
+                          ))}
+                          <SelectItem value="create">
+                            <div className="jd-flex jd-items-center jd-gap-2">
+                              <Plus className="jd-h-3 jd-w-3" />
+                              <span className="jd-text-xs">
+                                {getMessage(
+                                  'createTypeBlock',
+                                  [config.label.toLowerCase()],
+                                  `Create ${config.label.toLowerCase()} block`
+                                )}
+                              </span>
+                            </div>
                           </SelectItem>
-                        ))}
-                        <SelectItem value="create">
-                          <div className="jd-flex jd-items-center jd-gap-2">
-                            <Plus className="jd-h-3 jd-w-3" />
-                            <span className="jd-text-xs">
-                              {getMessage(
-                                'createTypeBlock',
-                                [config.label.toLowerCase()],
-                                `Create ${config.label.toLowerCase()} block`
-                              )}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </>
+                        </SelectContent>
+                      </Select>
+                    </>
+                  ) : (
+                    <StackedPreview items={items} blocks={availableBlocks} />
+                  )
                 ) : (
                   <Select onValueChange={val => handleSelect(type, val)}>
                     <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2">
