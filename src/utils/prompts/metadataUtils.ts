@@ -31,7 +31,6 @@ export function createMetadata(initial?: Partial<PromptMetadata>): PromptMetadat
   return {
     ...DEFAULT_METADATA,
     values: {},
-    additional_text: {},
     ...initial
   };
 }
@@ -44,10 +43,7 @@ export function cloneMetadata(metadata: PromptMetadata): PromptMetadata {
     ...metadata,
     values: { ...metadata.values },
     constraint: metadata.constraint?.map(item => ({ ...item })),
-    example: metadata.example?.map(item => ({ ...item })),
-    additional_text: metadata.additional_text
-      ? { ...metadata.additional_text }
-      : {}
+    example: metadata.example?.map(item => ({ ...item }))
   };
 }
 
@@ -573,11 +569,6 @@ export function parseTemplateMetadata(rawMetadata: any): PromptMetadata {
     parsed.values = { ...parsed.values, ...rawMetadata.values };
   }
 
-  // Handle additional text
-  if (rawMetadata.additional_text && typeof rawMetadata.additional_text === 'object') {
-    parsed.additional_text = { ...rawMetadata.additional_text };
-  }
-
-
+  
   return parsed;
 }
