@@ -110,9 +110,9 @@ export const EVENTS = {
   SETTINGS_CHANGED: 'Settings Changed',
   
   // Network interceptor events
-  NETWORK_INTERCEPTOR_STARTED: 'Network Interceptor Started',
-  NETWORK_INTERCEPTOR_CAPTURED: 'Network Interceptor Captured',
-  NETWORK_INTERCEPTOR_ERROR: 'Network Interceptor Error',
+  USER_MESSAGE_CAPTURED: 'User Message Captured',
+  AI_ANSWER_CAPTURED: 'AI Answer Captured',
+  CHAT_CONVERSATION_CHANGED: 'Chat Conversation Changed',
   
   // Usage statistics events
   USAGE_STATISTICS_VIEWED: 'Usage Statistics Viewed',
