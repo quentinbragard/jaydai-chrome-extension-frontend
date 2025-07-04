@@ -1,26 +1,23 @@
-<<<<<<< HEAD
-// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Fixed Version
-import React from 'react';
-=======
 // src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Updated Version
 import React, { useState, useRef, useCallback, useEffect } from 'react';
->>>>>>> 47e7aad (for coco)
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { CompactMetadataSection } from './CompactMetadataSection';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import TemplatePreview from '@/components/prompts/TemplatePreview';
 import { getMessage } from '@/core/utils/i18n';
-<<<<<<< HEAD
-=======
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Input } from '@/components/ui/input';
 import { extractPlaceholders, replacePlaceholders } from '@/utils/templates/placeholderUtils';
->>>>>>> 47e7aad (for coco)
 
 interface AdvancedEditorProps {
   mode?: 'create' | 'customize';
   isProcessing?: boolean;
+}
+
+interface Placeholder {
+  key: string;
+  value: string;
 }
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
@@ -30,14 +27,13 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   const {
     metadata,
     content,
+    setContent,
     availableMetadataBlocks,
     blockContentCache
   } = useTemplateEditor();
   
   const isDarkMode = useThemeDetector();
 
-<<<<<<< HEAD
-=======
   // Placeholder management for customize mode
   const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
   const [modifiedContent, setModifiedContent] = useState(content);
@@ -82,7 +78,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     setContent(originalContentRef.current);
   }, [setContent]);
 
->>>>>>> 47e7aad (for coco)
   if (isProcessing) {
     return (
       <div className="jd-flex jd-items-center jd-justify-center jd-h-full">
@@ -124,29 +119,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                 />
               </div>
 
-<<<<<<< HEAD
-        {/* 2. PREVIEW SECTION - Read Only */}
-        <div className="jd-flex-shrink-0 jd-mb-6">
-          <div className="jd-space-y-3">
-            <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
-              <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-              {getMessage('completePreview', undefined, 'Complete Preview')}
-            </h3>
-            
-            <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700">
-              <div className="jd-max-h-[400px] jd-overflow-y-auto">
-                <TemplatePreview
-                  metadata={metadata}
-                  content={content}
-                  blockContentCache={blockContentCache}
-                  isDarkMode={isDarkMode}
-                  className="jd-min-h-0"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-=======
               {/* Preview Section */}
               <div className="jd-flex-1 jd-min-h-0">
                 <div className="jd-space-y-3 jd-h-full jd-flex jd-flex-col">
@@ -172,7 +144,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       </div>
     );
   }
->>>>>>> 47e7aad (for coco)
 
   // For create mode (no placeholder panel)
   return (
