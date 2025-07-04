@@ -4,7 +4,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
-import { MetadataSection } from '../editors/AdvancedEditor/MetadataSection';
+import { CompactMetadataSection } from '../editors/AdvancedEditor/CompactMetadataSection';
 import { PlaceholderPanel } from '../editors/BasicEditor/PlaceholderPanel';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useBlockManager } from '@/hooks/prompts/editors/useBlockManager';
@@ -405,9 +405,11 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           ) : (
             <>
               <div className="jd-flex jd-flex-col jd-flex-1 jd-min-h-0 jd-overflow-hidden">
-                {/* Metadata row */}
-                <div className="jd-flex-shrink-0 jd-overflow-y-auto">
-                  <MetadataSection availableMetadataBlocks={availableMetadataBlocks} />
+                {/* Compact Metadata Section */}
+                <div className="jd-flex-shrink-0 jd-mb-6">
+                  <CompactMetadataSection
+                    availableMetadataBlocks={availableMetadataBlocks}
+                  />
                 </div>
 
                 {/* Preview / Placeholder row */}
