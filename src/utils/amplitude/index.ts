@@ -113,6 +113,23 @@ export const EVENTS = {
   TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
   TEMPLATE_EDIT_DIALOG_OPENED: 'Template Edit Dialog Opened',
   PLACEHOLDER_EDITOR_OPENED: 'Placeholder Editor Opened',
+
+  BLOCK_CREATED: 'Block Created',
+  BLOCK_DELETED: 'Block Deleted',
+  BLOCK_UPDATED: 'Block Updated',
+  INSERT_BLOCK_DIALOG_OPENED: 'Insert Block Dialog Opened',
+  INSERT_BLOCK_DIALOG_CLOSED: 'Insert Block Dialog Closed',
+  INSERT_BLOCK_DIALOG_BLOCK_SELECTED: 'Insert Block Dialog Block Selected',
+  INSERT_BLOCK_DIALOG_BLOCK_UNSELECTED: 'Insert Block Dialog Block Unselected',
+  INSERT_BLOCK_DIALOG_BLOCK_DELETED: 'Insert Block Dialog Block Deleted',
+  INSERT_BLOCK_DIALOG_BLOCK_UPDATED: 'Insert Block Dialog Block Updated',
+  INSERT_BLOCK_DIALOG_BLOCKS_INSERTED: 'Insert Block Dialog Blocks Inserted',
+
+  QUICK_BLOCK_SELECTOR_OPENED: 'Quick Block Selector Opened',
+  QUICK_BLOCK_SELECTOR_CLOSED: 'Quick Block Selector Closed',
+  QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED: 'Quick Block Selector Blocks Inserted',
+
+
   // Settings events
   SETTINGS_OPENED: 'Settings Opened',
   SETTINGS_CHANGED: 'Settings Changed',

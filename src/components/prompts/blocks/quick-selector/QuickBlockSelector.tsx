@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { Search, Maximize2, X, Plus } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
@@ -19,6 +18,7 @@ import { useBlocks } from './useBlocks';
 import { useBlockInsertion } from './useBlockInsertion';
 import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 import { calculateDropdownPosition } from './positionUtils';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Quick filter types
 const QUICK_FILTERS = [

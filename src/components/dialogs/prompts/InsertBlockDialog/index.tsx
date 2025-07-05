@@ -41,6 +41,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 import { 
   Search,
@@ -62,7 +63,6 @@ import { getMessage } from '@/core/utils/i18n';
 
 import { SortableSelectedBlock } from './SortableSelectedBlock';
 import { AvailableBlockCard } from './AvailableBlockCard';
-import { PreviewBlock } from './PreviewBlock';
 import { detectPlatform } from '@/platforms/platformManager';
 
 // Metadata type groups for filtering
