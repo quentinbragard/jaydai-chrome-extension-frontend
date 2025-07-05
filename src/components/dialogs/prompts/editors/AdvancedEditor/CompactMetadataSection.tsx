@@ -1,5 +1,5 @@
 // src/components/dialogs/prompts/editors/AdvancedEditor/CompactMetadataSection.tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -22,6 +22,7 @@ import {
   SingleMetadataType,
   MultipleMetadataType
 } from '@/types/prompts/metadata';
+import type { MetadataItem } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import {
@@ -53,11 +54,222 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   constraint: getBlockTypeIcon('constraint')
 };
 
+const CARD_HEIGHT = 24;
+const COLLAPSED_OFFSET = 4; // Smaller offset for better stacking
+const EXPANDED_OFFSET = 28;
+const STACK_ROTATION = 2; // Degrees for slight rotation effect
+
+interface StackedItemsProps {
+  type: MultipleMetadataType;
+  items: MetadataItem[];
+  availableBlocks: Block[];
+  onSelect: (id: string, val: string) => void;
+  onRemove: (id: string) => void;
+  onAdd: (val: string) => void;
+  label: string;
+}
+
+const StackedItems: React.FC<StackedItemsProps> = ({
+  type,
+  items,
+  availableBlocks,
+  onSelect,
+  onRemove,
+  onAdd,
+  label
+}) => {
+  const [hover, setHover] = useState(false);
+  const isDarkMode = useThemeDetector();
+
+  // Calculate total stack elements based on items count
+  const totalStackElements = items.length === 0 ? 1 : // Just add button
+                            items.length === 1 ? 2 : // Block + add button  
+                            items.length + 2; // Count summary + blocks + add button
+
+  const containerHeight = hover
+    ? totalStackElements * EXPANDED_OFFSET + 8
+    : CARD_HEIGHT + Math.max(0, totalStackElements - 1) * COLLAPSED_OFFSET + 8;
+
+  // Get block name for display
+  const getBlockName = (item: MetadataItem) => {
+    if (!item.blockId) return `Empty ${label}`;
+    const block = availableBlocks.find(b => b.id === item.blockId);
+    return getLocalizedContent(block?.title) || `${label} block`;
+  };
+
+  return (
+    <div
+      className="jd-relative jd-mt-2 jd-transition-all jd-duration-500 jd-ease-out"
+      style={{ height: containerHeight }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {/* Summary card for 2+ items */}
+      {items.length >= 2 && (
+        <div
+          className={cn(
+            'jd-flex jd-items-center jd-justify-center jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
+            'jd-bg-gradient-to-r jd-from-blue-50 jd-to-indigo-50 jd-dark:jd-from-blue-900/30 jd-dark:jd-to-indigo-900/30',
+            'jd-border jd-border-blue-200 jd-dark:jd-border-blue-700 jd-rounded jd-shadow-sm',
+            hover ? 'jd-shadow-md' : 'jd-shadow-sm'
+          )}
+          style={{
+            transform: hover
+              ? `translateY(0px) rotate(0deg)`
+              : `translateY(0px) rotate(${STACK_ROTATION}deg)`,
+            zIndex: hover ? 30 : 30, // Always on top
+            transformOrigin: 'center center'
+          }}
+        >
+          <span className="jd-text-[10px] jd-font-semibold jd-text-blue-700 jd-dark:jd-text-blue-300 jd-py-1">
+            {items.length} {label.toLowerCase()}{items.length > 1 ? 's' : ''}
+          </span>
+        </div>
+      )}
+
+      {/* Individual item cards */}
+      {items.map((item, index) => {
+        const stackIndex = items.length >= 2 ? index + 1 : index; // Offset for summary card
+        return (
+          <div
+            key={item.id}
+            className={cn(
+              'jd-flex jd-items-center jd-gap-1 jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
+              'jd-bg-white jd-dark:jd-bg-gray-800 jd-border jd-rounded jd-shadow-sm',
+              hover ? 'jd-shadow-md' : 'jd-shadow-sm',
+              isDarkMode 
+                ? 'jd-border-gray-600 jd-bg-gray-800' 
+                : 'jd-border-gray-200 jd-bg-white'
+            )}
+            style={{
+              transform: hover
+                ? `translateY(${stackIndex * EXPANDED_OFFSET}px) rotate(0deg)`
+                : `translateY(${stackIndex * COLLAPSED_OFFSET}px) rotate(${(stackIndex % 2 === 0 ? 1 : -1) * STACK_ROTATION * Math.min(stackIndex, 2)}deg)`,
+              zIndex: hover ? 20 + stackIndex : items.length >= 2 ? 40 - stackIndex : 10 + (totalStackElements - stackIndex),
+              transformOrigin: 'center center'
+            }}
+          >
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={() => onRemove(item.id)}
+              className={cn(
+                'jd-p-0 jd-ml-1 jd-transition-all jd-duration-200',
+                'jd-text-red-500 hover:jd-text-red-700 hover:jd-bg-red-50 jd-dark:hover:jd-bg-red-900/20',
+                hover ? 'jd-opacity-100' : 'jd-opacity-0'
+              )}
+            >
+              <X className="jd-h-3 jd-w-3" />
+            </Button>
+            {/* For single item or when expanded, show selector */}
+            {items.length === 1 || hover ? (
+              <Select
+                value={item.blockId ? String(item.blockId) : '0'}
+                onValueChange={val => onSelect(item.id, val)}
+              >
+                <SelectTrigger className={cn(
+                  'jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-border-0 jd-bg-transparent',
+                  'jd-text-gray-500 hover:jd-text-gray-700 jd-dark:jd-text-gray-400 jd-dark:hover:jd-text-gray-200'
+                )}>
+                  <SelectValue placeholder={getMessage('select', undefined, 'Select')} />
+                </SelectTrigger>
+                <SelectContent className="jd-z-[10020]">
+                  <SelectItem value="0">
+                    {getMessage('none', undefined, 'None')}
+                  </SelectItem>
+                  {availableBlocks.map(block => (
+                    <SelectItem key={block.id} value={String(block.id)}>
+                      <span className="jd-text-xs">
+                        {getLocalizedContent(block.title) || `${label} block`}
+                      </span>
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="create">
+                    <div className="jd-flex jd-items-center jd-gap-2">
+                      <Plus className="jd-h-3 jd-w-3" />
+                      <span className="jd-text-xs">
+                        {getMessage(
+                          'createTypeBlock',
+                          [label.toLowerCase()],
+                          `Create ${label.toLowerCase()} block`
+                        )}
+                      </span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              /* For multiple items when collapsed, show block name */
+              <div className="jd-flex jd-items-center jd-justify-between jd-w-full jd-px-2 jd-py-1">
+                <span className="jd-text-[10px] jd-font-medium jd-text-gray-700 jd-dark:jd-text-gray-300 jd-truncate">
+                  {getBlockName(item)}
+                </span>
+                {/* Remove button - only visible on hover */}
+           
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Add new item button - always last */}
+      <div
+        className={cn(
+          'jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-mt-1 jd-transition-all jd-duration-200',
+          'jd-border-dashed jd-border-gray-300 jd-dark:jd-border-gray-600',
+          'hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-dark:hover:jd-bg-primary/10'
+        )}
+        style={{
+          transform: hover
+            ? `translateY(${(totalStackElements - 1) * EXPANDED_OFFSET}px) rotate(0deg)`
+            : `translateY(${(totalStackElements - 1) * COLLAPSED_OFFSET}px) rotate(${((totalStackElements - 1) % 2 === 0 ? 1 : -1) * STACK_ROTATION}deg)`,
+          zIndex: hover ? 20 + (totalStackElements - 1) : items.length >= 2 ? 35 : 10,
+          transformOrigin: 'center center'
+        }}
+      >
+        <Select value="" onValueChange={val => onAdd(val)}>
+          <SelectTrigger className={cn(
+            'jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-border-0 jd-bg-transparent',
+            'jd-text-gray-500 hover:jd-text-gray-700 jd-dark:jd-text-gray-400 jd-dark:hover:jd-text-gray-200'
+          )}>
+            <div className="jd-flex jd-items-center jd-gap-1 jd-w-full">
+              <Plus className="jd-h-3 jd-w-3" />
+            </div>
+          </SelectTrigger>
+          <SelectContent className="jd-z-[10020]">
+            {availableBlocks.map(block => (
+              <SelectItem key={block.id} value={String(block.id)}>
+                <span className="jd-text-xs">
+                  {getLocalizedContent(block.title) || `${label} block`}
+                </span>
+              </SelectItem>
+            ))}
+            <SelectItem value="create">
+              <div className="jd-flex jd-items-center jd-gap-2">
+                <Plus className="jd-h-3 jd-w-3" />
+                <span className="jd-text-xs">
+                  {getMessage(
+                    'createTypeBlock',
+                    [label.toLowerCase()],
+                    `Create ${label.toLowerCase()} block`
+                  )}
+                </span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+};
+
 interface CompactMetadataProps {
+  mode?: 'create' | 'customize';
   availableMetadataBlocks: Record<MetadataType, Block[]>;
 }
 
 export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
+  mode = 'customize',
   availableMetadataBlocks
 }) => {
   const {
@@ -68,6 +280,41 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
 
   const isDarkMode = useThemeDetector();
   const { openDialog } = useDialogManager();
+
+  const blocksForType = useMemo(() => {
+    if (mode !== 'customize') return availableMetadataBlocks;
+
+    const result: Record<MetadataType, Block[]> = {} as Record<MetadataType, Block[]>;
+
+    (Object.keys(METADATA_CONFIGS) as MetadataType[]).forEach(type => {
+      const allBlocks = availableMetadataBlocks[type] || [];
+      const published = allBlocks.filter(b => (b as any).published);
+
+      const selectedIds: number[] = [];
+      if (isMultipleMetadataType(type)) {
+        const items = (metadata as any)[type as MultipleMetadataType] || [];
+        items.forEach((it: any) => {
+          if (it.blockId && !isNaN(it.blockId)) selectedIds.push(it.blockId);
+        });
+      } else {
+        const id = (metadata as any)[type as SingleMetadataType];
+        if (id && id !== 0) selectedIds.push(id);
+      }
+
+      const selectedBlocks = selectedIds
+        .map(id => allBlocks.find(b => b.id === id))
+        .filter(Boolean) as Block[];
+
+      const combined: Block[] = [...selectedBlocks];
+      published.forEach(b => {
+        if (!combined.some(sb => sb.id === b.id)) combined.push(b);
+      });
+
+      result[type] = combined;
+    });
+
+    return result;
+  }, [availableMetadataBlocks, metadata, mode]);
 
   // All metadata types combined
   const allMetadataTypes = [...PRIMARY_METADATA, ...SECONDARY_METADATA];
@@ -229,12 +476,12 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
       </h3>
 
       {/* Ultra-compact metadata grid */}
-      <div className="jd-grid jd-grid-cols-8 jd-gap-2">
+      <div className="jd-grid jd-grid-cols-8 jd-gap-3">
         {allMetadataTypes.map(type => {
           const config = METADATA_CONFIGS[type];
           const Icon = METADATA_ICONS[type];
           const assigned = isAssigned(type);
-          const availableBlocks = availableMetadataBlocks[type] || [];
+          const availableBlocks = blocksForType[type] || [];
           const items = isMultipleMetadataType(type)
             ? ((metadata as any)[type as MultipleMetadataType] || [])
             : [];
@@ -280,7 +527,7 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
                 </div>
 
                 {/* Label */}
-                <span className="jd-text-[10px] jd-font-medium jd-text-center jd-leading-tight jd-truncate jd-w-full">
+                <span className="jd-text-[9px] jd-font-medium jd-text-center jd-leading-tight jd-truncate jd-w-full jd-text-gray-700 jd-dark:jd-text-gray-300">
                   {config.label}
                 </span>
 
@@ -293,90 +540,49 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
                       e.stopPropagation();
                       handleRemove(type);
                     }}
-                    className="jd-absolute jd-top-0 jd-left-0 jd-h-4 jd-w-4 jd-p-0 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-bg-red-500 jd-text-white jd-rounded-full"
+                    className={cn(
+                      'jd-absolute jd-top-0 jd-left-0 jd-p-0 jd-transition-all jd-duration-200',
+                      'jd-opacity-0 group-hover:jd-opacity-100 jd-bg-red-500 jd-text-white jd-rounded-full',
+                      'jd-shadow-lg hover:jd-shadow-red-500/50 hover:jd-bg-red-600 jd-transform jd-scale-90 hover:jd-scale-100'
+                    )}
                   >
-                    <X className="jd-h-2 jd-w-2" />
+                    <X className="jd-h-3 jd-w-3" />
                   </Button>
                 )}
               </div>
 
-              {/* Ultra-compact select dropdown */}
-              <div className="jd-mt-1 jd-space-y-1">
+              {/* Selection area */}
+              <div className="jd-space-y-1">
                 {isMultipleMetadataType(type) ? (
-                  <>
-                    {items.map(item => (
-                      <div key={item.id} className="jd-flex jd-items-center jd-gap-1">
-                        <Select
-                          value={item.blockId ? String(item.blockId) : '0'}
-                          onValueChange={val => handleItemSelect(type as MultipleMetadataType, item.id, val)}
-                        >
-                          <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2">
-                            <SelectValue placeholder={getMessage('select', undefined, 'Select')} />
-                          </SelectTrigger>
-                          <SelectContent className="jd-z-[10010]">
-                            <SelectItem value="0">{getMessage('none', undefined, 'None')}</SelectItem>
-                            {availableBlocks.map(block => (
-                              <SelectItem key={block.id} value={String(block.id)}>
-                                <span className="jd-text-xs">
-                                  {getLocalizedContent(block.title) || `${config.label} block`}
-                                </span>
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="create">
-                              <div className="jd-flex jd-items-center jd-gap-2">
-                                <Plus className="jd-h-3 jd-w-3" />
-                                <span className="jd-text-xs">
-                                  {getMessage(
-                                    'createTypeBlock',
-                                    [config.label.toLowerCase()],
-                                    `Create ${config.label.toLowerCase()} block`
-                                  )}
-                                </span>
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveItem(type as MultipleMetadataType, item.id)}
-                          className="jd-h-4 jd-w-4 jd-p-0"
-                        >
-                          <X className="jd-h-2 jd-w-2" />
-                        </Button>
-                      </div>
-                    ))}
-                    <Select onValueChange={val => handleAddItem(type as MultipleMetadataType, val)}>
-                      <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-border-dashed">
-                        <SelectValue placeholder="+" />
-                      </SelectTrigger>
-                      <SelectContent className="jd-z-[10010]">
-                        {availableBlocks.map(block => (
-                          <SelectItem key={block.id} value={String(block.id)}>
-                            <span className="jd-text-xs">
-                              {getLocalizedContent(block.title) || `${config.label} block`}
-                            </span>
-                          </SelectItem>
-                        ))}
-                        <SelectItem value="create">
-                          <div className="jd-flex jd-items-center jd-gap-2">
-                            <Plus className="jd-h-3 jd-w-3" />
-                            <span className="jd-text-xs">
-                              {getMessage(
-                                'createTypeBlock',
-                                [config.label.toLowerCase()],
-                                `Create ${config.label.toLowerCase()} block`
-                              )}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </>
+                  <StackedItems
+                    type={type as MultipleMetadataType}
+                    items={items}
+                    availableBlocks={availableBlocks}
+                    onSelect={(id, val) =>
+                      handleItemSelect(type as MultipleMetadataType, id, val)
+                    }
+                    onRemove={id =>
+                      handleRemoveItem(type as MultipleMetadataType, id)
+                    }
+                    onAdd={val => handleAddItem(type as MultipleMetadataType, val)}
+                    label={config.label}
+                  />
                 ) : (
                   <Select onValueChange={val => handleSelect(type, val)}>
-                    <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2">
-                      <SelectValue placeholder={assigned ? '•' : '+'} />
+                    <SelectTrigger className={cn(
+                      'jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-mt-1 jd-transition-all jd-duration-200',
+                      'jd-border-dashed jd-border-gray-300 jd-dark:jd-border-gray-600',
+                      'hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-dark:hover:jd-bg-primary/10'
+                    )}>
+                      <SelectValue placeholder={
+                        <div className="jd-flex jd-items-center jd-gap-1 jd-text-gray-500">
+                          {assigned ? (
+                            <Check className="jd-h-3 jd-w-3 jd-text-green-500" />
+                          ) : (
+                            <Plus className="jd-h-3 jd-w-3" />
+                          )}
+                        </div>
+                      } />
                     </SelectTrigger>
                     <SelectContent className="jd-z-[10010]">
                       {availableBlocks.map(block => (

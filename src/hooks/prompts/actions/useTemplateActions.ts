@@ -128,9 +128,9 @@ const useTemplate = useCallback(async (template: Template) => {
     };
 
 
-    // Open the placeholder editor dialog
+    // Open the template editor dialog
     openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, dialogData);
-    trackEvent(EVENTS.PLACEHOLDER_EDITOR_OPENED, {
+    trackEvent(EVENTS.TEMPLATE_EDITOR_DIALOG_OPENED, {
       template_id: template.id,
       template_name: template.title,
       template_type: 'user'

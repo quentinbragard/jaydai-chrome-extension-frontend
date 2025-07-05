@@ -7,7 +7,15 @@ import { detectPlatform } from '@/platforms/platformManager';
  * @param userId Optional user ID to identify the user
  */
 export const initAmplitude = (userId?: string, autoCapture = true) => {
-  amplitude.init('857a9c3b48322cbc7802683533e50155', {
+  const apiKey = process.env.VITE_AMPLITUDE_API_KEY;
+  console.log('Amplitude API key:', apiKey);
+
+  if (!apiKey) {
+    console.error('Amplitude API key is not defined.');
+    return;
+  }
+
+  amplitude.init(apiKey, {
     // Enable autocapture for automatic event tracking
     autocapture: {
       elementInteractions: autoCapture
@@ -101,10 +109,28 @@ export const EVENTS = {
   TEMPLATE_BROWSE_OFFICIAL: 'Template Browse Official',
   TEMPLATE_BROWSE_ORGANIZATION: 'Template Browse Organization',
   ENTERPRISE_LIBRARY_ACCESSED: 'Enterprise Library Accessed',
+  ENTERPRISE_CTA_CLICKED: 'Enterprise CTA Clicked',
   TEMPLATE_REFRESH: 'Template Refresh',
   TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
   TEMPLATE_EDIT_DIALOG_OPENED: 'Template Edit Dialog Opened',
-  PLACEHOLDER_EDITOR_OPENED: 'Placeholder Editor Opened',
+  TEMPLATE_EDITOR_DIALOG_OPENED: 'Template Editor Dialog Opened',
+
+  BLOCK_CREATED: 'Block Created',
+  BLOCK_DELETED: 'Block Deleted',
+  BLOCK_UPDATED: 'Block Updated',
+  INSERT_BLOCK_DIALOG_OPENED: 'Insert Block Dialog Opened',
+  INSERT_BLOCK_DIALOG_CLOSED: 'Insert Block Dialog Closed',
+  INSERT_BLOCK_DIALOG_BLOCK_SELECTED: 'Insert Block Dialog Block Selected',
+  INSERT_BLOCK_DIALOG_BLOCK_UNSELECTED: 'Insert Block Dialog Block Unselected',
+  INSERT_BLOCK_DIALOG_BLOCK_DELETED: 'Insert Block Dialog Block Deleted',
+  INSERT_BLOCK_DIALOG_BLOCK_UPDATED: 'Insert Block Dialog Block Updated',
+  INSERT_BLOCK_DIALOG_BLOCKS_INSERTED: 'Insert Block Dialog Blocks Inserted',
+
+  QUICK_BLOCK_SELECTOR_OPENED: 'Quick Block Selector Opened',
+  QUICK_BLOCK_SELECTOR_CLOSED: 'Quick Block Selector Closed',
+  QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED: 'Quick Block Selector Blocks Inserted',
+
+
   // Settings events
   SETTINGS_OPENED: 'Settings Opened',
   SETTINGS_CHANGED: 'Settings Changed',
@@ -123,6 +149,9 @@ export const EVENTS = {
   // Chat session events
   CHAT_SESSION_STARTED: 'Chat Session Started',
   CHAT_SESSION_ENDED: 'Chat Session Ended',
+// Generic dialog events
+  DIALOG_OPENED: 'Dialog Opened',
+  DIALOG_CLOSED: 'Dialog Closed',
 
 };
 
