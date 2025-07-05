@@ -2,13 +2,13 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Plus, Check, X } from 'lucide-react';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu';
+import { Plus, Check, X, ChevronDown, Trash2, ArrowLeft } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { getMessage } from '@/core/utils/i18n';
@@ -29,7 +29,6 @@ import {
   updateSingleMetadata,
   addMetadataItem,
   removeMetadataItem,
-  updateMetadataItem,
   addSecondaryMetadata,
   removeSecondaryMetadata
 } from '@/utils/prompts/metadataUtils';
@@ -52,41 +51,200 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   constraint: getBlockTypeIcon('constraint')
 };
 
-const CARD_HEIGHT = 24;
-const COLLAPSED_OFFSET = 4; // Smaller offset for better stacking
-const EXPANDED_OFFSET = 28;
-const STACK_ROTATION = 2; // Degrees for slight rotation effect
+// New dropdown component for single metadata items
+interface SingleMetadataDropdownProps {
+  type: SingleMetadataType;
+  selectedBlockId: number;
+  availableBlocks: Block[];
+  onSelect: (val: string) => void;
+  label: string;
+}
 
-interface StackedItemsProps {
+const SingleMetadataDropdown: React.FC<SingleMetadataDropdownProps> = ({
+  type,
+  selectedBlockId,
+  availableBlocks,
+  onSelect,
+  label
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const isDarkMode = useThemeDetector();
+
+  const selectedBlock = selectedBlockId && selectedBlockId !== 0 
+    ? availableBlocks.find(b => b.id === selectedBlockId) 
+    : null;
+
+  const handleSelectBlock = (blockId: string) => {
+    onSelect(blockId);
+    setIsOpen(false);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+  return (
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(
+            'jd-w-full jd-h-6 jd-text-xs jd-px-2 jd-mt-1 jd-justify-between',
+            'jd-border-dashed jd-border-gray-300 jd-dark:jd-border-gray-600',
+            'hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-dark:hover:jd-bg-primary/10'
+          )}
+        >
+          <div className="jd-flex jd-items-center jd-gap-1 jd-flex-1 jd-min-w-0">
+            {selectedBlock ? (
+              <span className="jd-truncate">
+                {getLocalizedContent(selectedBlock.title) || `${label} block`}
+              </span>
+            ) : (
+              <>
+                <Plus className="jd-h-3 jd-w-3 jd-flex-shrink-0" />
+                <span className="jd-truncate">Add {label.toLowerCase()}</span>
+              </>
+            )}
+          </div>
+          <ChevronDown className="jd-h-3 jd-w-3 jd-flex-shrink-0 jd-ml-1" />
+        </Button>
+      </DropdownMenuTrigger>
+      
+      <DropdownMenuContent 
+        align="start" 
+        className="jd-w-80 jd-z-[10020] jd-p-0"
+      >
+        {/* Header */}
+        <div className="jd-flex jd-items-center jd-justify-between jd-p-3 jd-border-b jd-border-border/50">
+          <div className="jd-text-sm jd-font-medium">
+            Select {label.toLowerCase()}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClose}
+            className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground hover:jd-text-foreground"
+          >
+            <X className="jd-h-3 jd-w-3" />
+          </Button>
+        </div>
+
+        {/* Current selection (if any) */}
+        {selectedBlock && (
+          <>
+            <div className="jd-p-3 jd-bg-muted/30">
+              <div className="jd-text-xs jd-font-medium jd-text-muted-foreground jd-mb-2">
+                Current selection
+              </div>
+              <div className="jd-flex jd-items-center jd-justify-between jd-p-2 jd-bg-background jd-rounded jd-border">
+                <div className="jd-flex-1 jd-min-w-0">
+                  <div className="jd-text-sm jd-font-medium jd-truncate">
+                    {getLocalizedContent(selectedBlock.title) || `${label} block`}
+                  </div>
+                  <div className="jd-text-xs jd-text-muted-foreground jd-truncate jd-mt-1">
+                    {(() => {
+                      const content = getLocalizedContent(selectedBlock.content);
+                      return content.length > 50 ? `${content.substring(0, 50)}...` : content;
+                    })()}
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleSelectBlock('0')}
+                  className="jd-ml-2 jd-h-7 jd-w-7 jd-p-0 jd-text-muted-foreground hover:jd-text-destructive jd-flex-shrink-0"
+                  title={`Remove ${label.toLowerCase()}`}
+                >
+                  <Trash2 className="jd-h-3 jd-w-3" />
+                </Button>
+              </div>
+            </div>
+            <div className="jd-px-3 jd-py-2 jd-border-b jd-border-border/50">
+              <div className="jd-text-xs jd-font-medium jd-text-muted-foreground">
+                Or choose a different {label.toLowerCase()}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Available blocks list */}
+        <div className="jd-max-h-60 jd-overflow-y-auto">
+          {availableBlocks.length === 0 ? (
+            <div className="jd-p-4 jd-text-center jd-text-sm jd-text-muted-foreground">
+              No {label.toLowerCase()}s available
+            </div>
+          ) : (
+            availableBlocks
+              .filter(block => !selectedBlock || block.id !== selectedBlock.id) // Hide currently selected block
+              .map((block) => (
+                <div 
+                  key={block.id} 
+                  className="jd-flex jd-items-center jd-justify-between jd-p-3 jd-border-b jd-border-border/30 last:jd-border-b-0 hover:jd-bg-muted/50 jd-cursor-pointer"
+                  onClick={() => handleSelectBlock(String(block.id))}
+                >
+                  <div className="jd-flex-1 jd-min-w-0">
+                    <div className="jd-text-sm jd-font-medium jd-truncate">
+                      {getLocalizedContent(block.title) || `${label} block`}
+                    </div>
+                    <div className="jd-text-xs jd-text-muted-foreground jd-truncate jd-mt-1">
+                      {(() => {
+                        const content = getLocalizedContent(block.content);
+                        return content.length > 50 ? `${content.substring(0, 50)}...` : content;
+                      })()}
+                    </div>
+                  </div>
+                  {selectedBlock && selectedBlock.id === block.id ? (
+                    <Check className="jd-h-4 jd-w-4 jd-text-green-500 jd-ml-2 jd-flex-shrink-0" />
+                  ) : (
+                    <Plus className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-ml-2 jd-flex-shrink-0" />
+                  )}
+                </div>
+              ))
+          )}
+        </div>
+
+        {/* Create new block option */}
+        <div className="jd-p-3 jd-border-t jd-border-border/50">
+          <div 
+            className="jd-flex jd-items-center jd-gap-2 jd-p-2 jd-rounded jd-border jd-border-dashed jd-border-muted-foreground/50 hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-cursor-pointer jd-transition-colors"
+            onClick={() => handleSelectBlock('create')}
+          >
+            <Plus className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
+            <span className="jd-text-sm jd-text-muted-foreground">
+              {getMessage(
+                'createTypeBlock',
+                [label.toLowerCase()],
+                `Create new ${label.toLowerCase()} block`
+              )}
+            </span>
+          </div>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+// New dropdown component for multiple metadata items with navigation
+interface MultipleMetadataDropdownProps {
   type: MultipleMetadataType;
   items: MetadataItem[];
   availableBlocks: Block[];
-  onSelect: (id: string, val: string) => void;
   onRemove: (id: string) => void;
   onAdd: (val: string) => void;
   label: string;
 }
 
-const StackedItems: React.FC<StackedItemsProps> = ({
+const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> = ({
   type,
   items,
   availableBlocks,
-  onSelect,
   onRemove,
   onAdd,
   label
 }) => {
-  const [hover, setHover] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [view, setView] = useState<'selected' | 'available'>('selected');
   const isDarkMode = useThemeDetector();
-
-  // Calculate total stack elements based on items count
-  const totalStackElements = items.length === 0 ? 1 : // Just add button
-                            items.length === 1 ? 2 : // Block + add button  
-                            items.length + 2; // Count summary + blocks + add button
-
-  const containerHeight = hover
-    ? totalStackElements * EXPANDED_OFFSET + 8
-    : CARD_HEIGHT + Math.max(0, totalStackElements - 1) * COLLAPSED_OFFSET + 8;
 
   // Get block name for display
   const getBlockName = (item: MetadataItem) => {
@@ -95,157 +253,221 @@ const StackedItems: React.FC<StackedItemsProps> = ({
     return getLocalizedContent(block?.title) || `${label} block`;
   };
 
+  const handleItemRemove = (itemId: string) => {
+    onRemove(itemId);
+  };
+
+  const handleAddBlock = (blockId: string) => {
+    onAdd(blockId);
+    // Stay in available view so user can add more blocks
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setView('selected'); // Reset to selected view when closing
+  };
+
+  const handleGoToAvailable = () => {
+    setView('available');
+  };
+
+  const handleBackToSelected = () => {
+    setView('selected');
+  };
+
+  // Filter available blocks to exclude already selected ones
+  const availableBlocksFiltered = availableBlocks.filter(block => 
+    !items.some(item => item.blockId === block.id)
+  );
+
   return (
-    <div
-      className="jd-relative jd-mt-2 jd-transition-all jd-duration-500 jd-ease-out"
-      style={{ height: containerHeight }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      {/* Summary card for 1+ items */}
-      {items.length >= 1 && (
-        <div
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
           className={cn(
-            'jd-flex jd-items-center jd-justify-center jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
-            'jd-bg-gradient-to-r jd-from-blue-50 jd-to-indigo-50 jd-dark:jd-from-blue-900/30 jd-dark:jd-to-indigo-900/30',
-            'jd-border jd-border-blue-200 jd-dark:jd-border-blue-700 jd-rounded jd-shadow-sm',
-            hover ? 'jd-shadow-md' : 'jd-shadow-sm'
+            'jd-w-full jd-h-6 jd-text-xs jd-px-2 jd-mt-1 jd-justify-between',
+            'jd-border-dashed jd-border-gray-300 jd-dark:jd-border-gray-600',
+            'hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-dark:hover:jd-bg-primary/10'
           )}
         >
-          <span className="jd-text-xs jd-font-semibold jd-text-blue-700 jd-dark:jd-text-blue-300 jd-py-1">
-            {items.length} {label.toLowerCase()}{items.length > 1 ? 's' : ''}
-          </span>
-        </div>
-      )}
-
-      {/* Individual item cards */}
-      {items.map((item, index) => {
-        const stackIndex = items.length >= 1 ? index + 1 : index; // Offset for summary card
-        return (
-          <div
-            key={item.id}
-            className={cn(
-              'jd-flex jd-items-center jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
-              'jd-border jd-border-dashed jd-rounded jd-shadow-sm',
-              hover ? 'jd-shadow-md' : 'jd-hidden',
-              isDarkMode 
-                ? 'jd-border-gray-600 jd-bg-gray-800 jd-text-gray-300' 
-                : 'jd-border-gray-200 jd-bg-white jd-text-gray-700'
-            )}
-            style={{
-              transform: hover
-                ? `translateY(${stackIndex * EXPANDED_OFFSET}px) rotate(0deg)`
-                : `translateY(${stackIndex * COLLAPSED_OFFSET}px) rotate(${(stackIndex % 2 === 0 ? 1 : -1) * STACK_ROTATION * Math.min(stackIndex, 2)}deg)`,
-              zIndex: hover ? 20 + stackIndex : items.length >= 2 ? 40 - stackIndex : 10 + (totalStackElements - stackIndex),
-              transformOrigin: 'center center'
-            }}
-          >
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={() => onRemove(item.id)}
-              className={cn(
-                'jd-p-0 jd-transition-all jd-duration-200',
-                'jd-text-red-500 hover:jd-text-red-700 hover:jd-bg-red-50 jd-dark:hover:jd-bg-red-900/20',
-                hover ? 'jd-opacity-100' : 'jd-opacity-0'
-              )}
-            >
-              <X className="jd-h-3 jd-w-3" />
-            </Button>
-            {/* For single item or when expanded, show selector */}
-            {items.length === 1 || hover ? (
-              <Select
-                value={item.blockId ? String(item.blockId) : '0'}
-                onValueChange={val => onSelect(item.id, val)}
-              >
-                <SelectTrigger className={cn(
-                  'jd-w-full jd-h-6 jd-text-xs jd-px-2 jd-border-0 jd-bg-transparent',
-                  'jd-text-gray-500 hover:jd-text-gray-700 jd-dark:jd-text-gray-400 jd-dark:hover:jd-text-gray-200'
-                )}>
-                  <SelectValue placeholder={getMessage('select', undefined, 'Select')} />
-                </SelectTrigger>
-                <SelectContent className="jd-z-[10020]">
-                  <SelectItem value="0">
-                    {getMessage('none', undefined, 'None')}
-                  </SelectItem>
-                  {availableBlocks.map(block => (
-                    <SelectItem key={block.id} value={String(block.id)}>
-                      <span className="jd-text-xs jd-text-foreground">
-                        {getLocalizedContent(block.title) || `${label} block`}
-                      </span>
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="create">
-                    <div className="jd-flex jd-items-center jd-gap-2">
-                      <Plus className="jd-h-3 jd-w-3" />
-                      <span className="jd-text-xs jd-text-foreground">
-                        {getMessage(
-                          'createTypeBlock',
-                          [label.toLowerCase()],
-                          `Create ${label.toLowerCase()} block`
-                        )}
-                      </span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="jd-flex jd-items-center jd-gap-1">
+            {items.length > 0 ? (
+              <>
+                <span className="jd-font-medium">{items.length}</span>
+                <span className="jd-text-muted-foreground">{label.toLowerCase()}{items.length > 1 ? 's' : ''}</span>
+              </>
             ) : (
-              /* For multiple items when collapsed, show block name */
-              <div className="jd-flex jd-items-center jd-justify-between jd-w-full jd-py-1">
-                <span className="jd-text-xs jd-font-medium jd-text-foreground jd-truncate">
-                  {getBlockName(item)}
-                </span>
-           
-              </div>
+              <>
+                <Plus className="jd-h-3 jd-w-3" />
+                <span>Add {label.toLowerCase()}</span>
+              </>
             )}
           </div>
-        );
-      })}
-
-      {/* Add new item button - always last */}
-      <div
-        className={cn(
-          'jd-flex jd-items-center jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
-          'jd-border jd-border-dashed jd-rounded',
-          hover ? 'jd-shadow-md' : 'jd-shadow-sm',
-          isDarkMode 
-            ? 'jd-border-gray-600 jd-bg-gray-800 jd-text-gray-300' 
-            : 'jd-border-gray-200 jd-bg-white jd-text-gray-700'
-        )}
+          <ChevronDown className="jd-h-3 jd-w-3 jd-shrink-0" />
+        </Button>
+      </DropdownMenuTrigger>
+      
+      <DropdownMenuContent 
+        align="start" 
+        className="jd-w-80 jd-z-[10020] jd-p-0"
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          setView('selected');
+        }}
       >
-        <Select value="" onValueChange={val => onAdd(val)}>
-          <SelectTrigger className={cn(
-            'jd-w-full jd-h-6 jd-text-xs jd-px-2 jd-border-0 jd-bg-transparent',
-            'jd-text-gray-500 hover:jd-text-gray-700 jd-dark:jd-text-gray-400 jd-dark:hover:jd-text-gray-200'
-          )}>
-            <div className="jd-flex jd-items-center jd-gap-1 jd-w-full">
-              <Plus className="jd-h-3 jd-w-3" />
+        {view === 'selected' ? (
+          // Selected blocks view
+          <>
+            {/* Header */}
+            <div className="jd-flex jd-items-center jd-justify-between jd-p-3 jd-border-b jd-border-border/50">
+              <div className="jd-text-sm jd-font-medium">
+                Selected {label.toLowerCase()}s
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClose}
+                className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground hover:jd-text-foreground"
+              >
+                <X className="jd-h-3 jd-w-3" />
+              </Button>
             </div>
-          </SelectTrigger>
-          <SelectContent className="jd-z-[10020]">
-            {availableBlocks.map(block => (
-              <SelectItem key={block.id} value={String(block.id)}>
-                <span className="jd-text-xs">
-                  {getLocalizedContent(block.title) || `${label} block`}
-                </span>
-              </SelectItem>
-            ))}
-            <SelectItem value="create">
+
+            {/* Selected items list */}
+            <div className="jd-max-h-60 jd-overflow-y-auto">
+              {items.length === 0 ? (
+                <div className="jd-p-4 jd-text-center jd-text-sm jd-text-muted-foreground">
+                  No {label.toLowerCase()}s selected
+                </div>
+              ) : (
+                items.map((item) => (
+                  <div key={item.id} className="jd-flex jd-items-center jd-justify-between jd-p-3 jd-border-b jd-border-border/30 last:jd-border-b-0 hover:jd-bg-muted/50">
+                    <div className="jd-flex-1 jd-min-w-0">
+                      <div className="jd-text-sm jd-font-medium jd-truncate">
+                        {getBlockName(item)}
+                      </div>
+                      {item.blockId && (
+                        <div className="jd-text-xs jd-text-muted-foreground jd-truncate jd-mt-1">
+                          {(() => {
+                            const block = availableBlocks.find(b => b.id === item.blockId);
+                            const content = block ? getLocalizedContent(block.content) : '';
+                            return content.length > 50 ? `${content.substring(0, 50)}...` : content;
+                          })()}
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleItemRemove(item.id)}
+                      className="jd-ml-2 jd-h-7 jd-w-7 jd-p-0 jd-text-muted-foreground hover:jd-text-destructive jd-flex-shrink-0"
+                      title={`Remove ${label.toLowerCase()}`}
+                    >
+                      <Trash2 className="jd-h-3 jd-w-3" />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Add more button */}
+            <div className="jd-p-3 jd-border-t jd-border-border/50">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGoToAvailable}
+                className="jd-w-full jd-justify-center"
+                disabled={availableBlocksFiltered.length === 0}
+              >
+                <Plus className="jd-h-3 jd-w-3 jd-mr-1" />
+                Add more {label.toLowerCase()}s
+                {availableBlocksFiltered.length === 0 && (
+                  <span className="jd-ml-1 jd-text-xs jd-text-muted-foreground">
+                    (no more available)
+                  </span>
+                )}
+              </Button>
+            </div>
+          </>
+        ) : (
+          // Available blocks view
+          <>
+            {/* Header with navigation */}
+            <div className="jd-flex jd-items-center jd-justify-between jd-p-3 jd-border-b jd-border-border/50">
               <div className="jd-flex jd-items-center jd-gap-2">
-                <Plus className="jd-h-3 jd-w-3" />
-                <span className="jd-text-xs">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToSelected}
+                  className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground hover:jd-text-foreground"
+                >
+                  <ArrowLeft className="jd-h-3 jd-w-3" />
+                </Button>
+                <div className="jd-text-sm jd-font-medium">
+                  Available {label.toLowerCase()}s
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClose}
+                className="jd-h-6 jd-w-6 jd-p-0 jd-text-muted-foreground hover:jd-text-foreground"
+              >
+                <X className="jd-h-3 jd-w-3" />
+              </Button>
+            </div>
+
+            {/* Available blocks list */}
+            <div className="jd-max-h-60 jd-overflow-y-auto">
+              {availableBlocksFiltered.length === 0 ? (
+                <div className="jd-p-4 jd-text-center jd-text-sm jd-text-muted-foreground">
+                  No more {label.toLowerCase()}s available
+                </div>
+              ) : (
+                availableBlocksFiltered.map((block) => (
+                  <div 
+                    key={block.id} 
+                    className="jd-flex jd-items-center jd-justify-between jd-p-3 jd-border-b jd-border-border/30 last:jd-border-b-0 hover:jd-bg-muted/50 jd-cursor-pointer"
+                    onClick={() => handleAddBlock(String(block.id))}
+                  >
+                    <div className="jd-flex-1 jd-min-w-0">
+                      <div className="jd-text-sm jd-font-medium jd-truncate">
+                        {getLocalizedContent(block.title) || `${label} block`}
+                      </div>
+                      <div className="jd-text-xs jd-text-muted-foreground jd-truncate jd-mt-1">
+                        {(() => {
+                          const content = getLocalizedContent(block.content);
+                          return content.length > 50 ? `${content.substring(0, 50)}...` : content;
+                        })()}
+                      </div>
+                    </div>
+                    <Plus className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-ml-2 jd-flex-shrink-0" />
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Create new block option */}
+            <div className="jd-p-3 jd-border-t jd-border-border/50">
+              <div 
+                className="jd-flex jd-items-center jd-gap-2 jd-p-2 jd-rounded jd-border jd-border-dashed jd-border-muted-foreground/50 hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-cursor-pointer jd-transition-colors"
+                onClick={() => handleAddBlock('create')}
+              >
+                <Plus className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
+                <span className="jd-text-sm jd-text-muted-foreground">
                   {getMessage(
                     'createTypeBlock',
                     [label.toLowerCase()],
-                    `Create ${label.toLowerCase()} block`
+                    `Create new ${label.toLowerCase()} block`
                   )}
                 </span>
               </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
+            </div>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
@@ -362,37 +584,6 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
       );
     }
   }, [availableMetadataBlocks, setMetadata, addNewBlock, openDialog]);
-
-  const handleItemSelect = useCallback(
-    (type: MultipleMetadataType, id: string, val: string) => {
-      if (val === 'create') {
-        const config = METADATA_CONFIGS[type];
-        openDialog(DIALOG_TYPES.CREATE_BLOCK, {
-          initialType: config.blockType,
-          onBlockCreated: b => {
-            addNewBlock(b);
-            setMetadata(prev =>
-              updateMetadataItem(prev, type, id, {
-                blockId: b.id,
-                value: getLocalizedContent(b.content)
-              })
-            );
-          }
-        });
-        return;
-      }
-
-      const blockId = parseInt(val, 10);
-      const block = availableMetadataBlocks[type]?.find(b => b.id === blockId);
-      setMetadata(prev =>
-        updateMetadataItem(prev, type, id, {
-          blockId: isNaN(blockId) ? 0 : blockId,
-          value: block ? getLocalizedContent(block.content) : ''
-        })
-      );
-    },
-    [availableMetadataBlocks, setMetadata, addNewBlock, openDialog]
-  );
 
   const handleAddItem = useCallback(
     (type: MultipleMetadataType, val: string) => {
@@ -528,13 +719,10 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
               {/* Selection area */}
               <div className="jd-space-y-1">
                 {isMultipleMetadataType(type) ? (
-                  <StackedItems
+                  <MultipleMetadataDropdown
                     type={type as MultipleMetadataType}
                     items={items}
                     availableBlocks={availableBlocks}
-                    onSelect={(id, val) =>
-                      handleItemSelect(type as MultipleMetadataType, id, val)
-                    }
                     onRemove={id =>
                       handleRemoveItem(type as MultipleMetadataType, id)
                     }
@@ -542,44 +730,13 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
                     label={config.label}
                   />
                 ) : (
-                  <Select onValueChange={val => handleSelect(type, val)}>
-                    <SelectTrigger className={cn(
-                      'jd-w-full jd-h-6 jd-text-xs jd-px-2 jd-mt-1 jd-transition-all jd-duration-200',
-                      'jd-border-dashed jd-border-gray-300 jd-dark:jd-border-gray-600',
-                      'hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-dark:hover:jd-bg-primary/10'
-                    )}>
-                      <SelectValue placeholder={
-                        <div className="jd-flex jd-items-center jd-gap-1 jd-text-gray-500">
-                          {assigned ? (
-                            <Check className="jd-h-3 jd-w-3 jd-text-green-500" />
-                          ) : (
-                            <Plus className="jd-h-3 jd-w-3" />
-                          )}
-                        </div>
-                      } />
-                    </SelectTrigger>
-                    <SelectContent className="jd-z-[10010]">
-                      {availableBlocks.map(block => (
-                        <SelectItem key={block.id} value={String(block.id)}>
-                          <span className="jd-text-xs">
-                            {getLocalizedContent(block.title) || `${config.label} block`}
-                          </span>
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="create">
-                        <div className="jd-flex jd-items-center jd-gap-2">
-                          <Plus className="jd-h-3 jd-w-3" />
-                          <span className="jd-text-xs">
-                            {getMessage(
-                              'createTypeBlock',
-                              [config.label.toLowerCase()],
-                              `Create ${config.label.toLowerCase()} block`
-                            )}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <SingleMetadataDropdown
+                    type={type as SingleMetadataType}
+                    selectedBlockId={(metadata as any)[type as SingleMetadataType] || 0}
+                    availableBlocks={availableBlocks}
+                    onSelect={val => handleSelect(type, val)}
+                    label={config.label}
+                  />
                 )}
               </div>
             </div>
