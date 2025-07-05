@@ -92,7 +92,11 @@ export function useCustomizeTemplateDialog() {
         data.onComplete(finalPrompt);
       }
 
-      // Track usage
+      // Track usage with placeholder info
+      const replacedPlaceholderKeys = Object.entries(placeholders)
+        .filter(([, value]) => value && value.trim())
+        .map(([key]) => key);
+
       trackEvent(EVENTS.TEMPLATE_USED, {
         template_id: data?.id,
         template_name: data?.title,
@@ -101,7 +105,9 @@ export function useCustomizeTemplateDialog() {
           Object.keys(metadata.values || {}).length +
           (metadata.constraint?.length || 0) +
           (metadata.example?.length || 0),
-        final_content_length: finalPrompt.length
+        final_content_length: finalPrompt.length,
+        replaced_placeholders: replacedPlaceholderKeys,
+        replaced_placeholders_count: replacedPlaceholderKeys.length
       });
       
       // Trigger cleanup events
