@@ -55,6 +55,7 @@ export function FolderSection({
 
   const handleContactSales = () => {
     trackEvent(EVENTS.ENTERPRISE_LIBRARY_ACCESSED, { action: 'contact_sales' });
+    trackEvent(EVENTS.ENTERPRISE_CTA_CLICKED, { source: 'folder_section' });
     window.open('https://www.jayd.ai/#Contact', '_blank');
   };
 

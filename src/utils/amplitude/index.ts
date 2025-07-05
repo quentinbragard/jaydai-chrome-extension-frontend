@@ -109,6 +109,7 @@ export const EVENTS = {
   TEMPLATE_BROWSE_OFFICIAL: 'Template Browse Official',
   TEMPLATE_BROWSE_ORGANIZATION: 'Template Browse Organization',
   ENTERPRISE_LIBRARY_ACCESSED: 'Enterprise Library Accessed',
+  ENTERPRISE_CTA_CLICKED: 'Enterprise CTA Clicked',
   TEMPLATE_REFRESH: 'Template Refresh',
   TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
   TEMPLATE_EDIT_DIALOG_OPENED: 'Template Edit Dialog Opened',
