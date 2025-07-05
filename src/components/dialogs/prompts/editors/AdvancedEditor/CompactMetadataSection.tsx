@@ -1,5 +1,5 @@
 // src/components/dialogs/prompts/editors/AdvancedEditor/CompactMetadataSection.tsx
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -262,10 +262,12 @@ const StackedItems: React.FC<StackedItemsProps> = ({
 };
 
 interface CompactMetadataProps {
+  mode?: 'create' | 'customize';
   availableMetadataBlocks: Record<MetadataType, Block[]>;
 }
 
 export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
+  mode = 'customize',
   availableMetadataBlocks
 }) => {
   const {
@@ -276,6 +278,41 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
 
   const isDarkMode = useThemeDetector();
   const { openDialog } = useDialogManager();
+
+  const blocksForType = useMemo(() => {
+    if (mode !== 'customize') return availableMetadataBlocks;
+
+    const result: Record<MetadataType, Block[]> = {} as Record<MetadataType, Block[]>;
+
+    (Object.keys(METADATA_CONFIGS) as MetadataType[]).forEach(type => {
+      const allBlocks = availableMetadataBlocks[type] || [];
+      const published = allBlocks.filter(b => (b as any).published);
+
+      const selectedIds: number[] = [];
+      if (isMultipleMetadataType(type)) {
+        const items = (metadata as any)[type as MultipleMetadataType] || [];
+        items.forEach((it: any) => {
+          if (it.blockId && !isNaN(it.blockId)) selectedIds.push(it.blockId);
+        });
+      } else {
+        const id = (metadata as any)[type as SingleMetadataType];
+        if (id && id !== 0) selectedIds.push(id);
+      }
+
+      const selectedBlocks = selectedIds
+        .map(id => allBlocks.find(b => b.id === id))
+        .filter(Boolean) as Block[];
+
+      const combined: Block[] = [...selectedBlocks];
+      published.forEach(b => {
+        if (!combined.some(sb => sb.id === b.id)) combined.push(b);
+      });
+
+      result[type] = combined;
+    });
+
+    return result;
+  }, [availableMetadataBlocks, metadata, mode]);
 
   // All metadata types combined
   const allMetadataTypes = [...PRIMARY_METADATA, ...SECONDARY_METADATA];
@@ -442,7 +479,7 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
           const config = METADATA_CONFIGS[type];
           const Icon = METADATA_ICONS[type];
           const assigned = isAssigned(type);
-          const availableBlocks = availableMetadataBlocks[type] || [];
+          const availableBlocks = blocksForType[type] || [];
           const items = isMultipleMetadataType(type)
             ? ((metadata as any)[type as MultipleMetadataType] || [])
             : [];
