@@ -61,6 +61,13 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
 
+  useEffect(() => {
+    trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_OPENED);
+    return () => {
+      trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_CLOSED);
+    };
+  }, []);
+
   // Block actions hook
   const { editBlock, deleteBlock, createBlock } = useBlockActions({
     onBlockUpdated: (updatedBlock) => {
@@ -164,7 +171,10 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   }, [activeIndex]);
 
   const { insertBlock } = useBlockInsertion(targetElement, cursorPosition, onClose, triggerLength);
-  const handleSelectBlock = (block: Block) => insertBlock(block);
+  const handleSelectBlock = (block: Block) => {
+    trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED, { block_id: block.id, block_type: block.type });
+    insertBlock(block);
+  };
 
   const openFullDialog = () => {
     onClose();

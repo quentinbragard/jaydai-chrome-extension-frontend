@@ -6,6 +6,7 @@ import { blocksApi } from '@/services/api/BlocksApi';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export interface UseBlockActionsProps {
   onBlockUpdated?: (block: Block) => void;
@@ -65,6 +66,7 @@ export function useBlockActions({
           
           if (response.success && response.data) {
             toast.success(getMessage('blockUpdated', undefined, 'Block updated successfully'));
+            trackEvent(EVENTS.BLOCK_UPDATED, { block_id: response.data.id, block_type: response.data.type });
             if (onBlockUpdated) {
               onBlockUpdated(response.data);
             }
@@ -115,6 +117,7 @@ export function useBlockActions({
           
           if (response.success) {
             toast.success(getMessage('blockDeleted', undefined, 'Block deleted successfully'));
+            trackEvent(EVENTS.BLOCK_DELETED, { block_id: block.id, block_type: block.type });
             if (onBlockDeleted) {
               onBlockDeleted(block.id);
             }
@@ -160,6 +163,7 @@ export function useBlockActions({
           
           if (response.success && response.data) {
             toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
+            trackEvent(EVENTS.BLOCK_CREATED, { block_id: response.data.id, block_type: response.data.type });
             if (onBlockCreated) {
               onBlockCreated(response.data);
             }
