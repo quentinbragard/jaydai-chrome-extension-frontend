@@ -7,7 +7,15 @@ import { detectPlatform } from '@/platforms/platformManager';
  * @param userId Optional user ID to identify the user
  */
 export const initAmplitude = (userId?: string, autoCapture = true) => {
-  amplitude.init('857a9c3b48322cbc7802683533e50155', {
+  const apiKey = process.env.VITE_AMPLITUDE_API_KEY;
+  console.log('Amplitude API key:', apiKey);
+
+  if (!apiKey) {
+    console.error('Amplitude API key is not defined.');
+    return;
+  }
+
+  amplitude.init(apiKey, {
     // Enable autocapture for automatic event tracking
     autocapture: {
       elementInteractions: autoCapture

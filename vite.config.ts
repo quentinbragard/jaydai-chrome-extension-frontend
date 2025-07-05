@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
     const apiUrl = env.VITE_API_URL || (isProduction 
         ? 'https://jaydai-api-sw5cmqbraq-uc.a.run.app/'
         : 'http://localhost:8000');
+
     
     // Get debug setting from env or default based on mode
     const debug = env.VITE_DEBUG || (!isProduction).toString();
@@ -114,7 +115,8 @@ export default defineConfig(({ mode }) => {
             'process.env.NODE_ENV': JSON.stringify(mode),
             'process.env.VITE_API_URL': JSON.stringify(apiUrl),
             'process.env.VITE_DEBUG': JSON.stringify(debug),
-            'process.env.VITE_APP_VERSION': JSON.stringify(appVersion)
+            'process.env.VITE_APP_VERSION': JSON.stringify(appVersion),
+            'process.env.VITE_AMPLITUDE_API_KEY': JSON.stringify(env.VITE_AMPLITUDE_API_KEY)
         },
         server: {
             hmr: {
