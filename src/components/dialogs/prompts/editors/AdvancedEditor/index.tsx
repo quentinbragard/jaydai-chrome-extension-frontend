@@ -179,6 +179,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               {/* Compact Metadata Section */}
               <div className="jd-flex-shrink-0 jd-mb-4">
                 <CompactMetadataSection
+                  mode={mode as any}
                   availableMetadataBlocks={availableMetadataBlocks}
                 />
               </div>
@@ -221,6 +222,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       {/* Compact Metadata Section */}
       <div className="jd-flex-shrink-0 jd-mb-6">
         <CompactMetadataSection
+          mode={mode as any}
           availableMetadataBlocks={availableMetadataBlocks}
         />
       </div>
