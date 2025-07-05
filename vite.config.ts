@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
     
     // Get the API URL from env or use default values
     const apiUrl = env.VITE_API_URL || (isProduction 
-        ? 'https://jaydai-api-sw5cmqbraq-uc.a.run.app/'
+        ? 'https://api-prod.jaydai.com'
         : 'http://localhost:8000');
 
     

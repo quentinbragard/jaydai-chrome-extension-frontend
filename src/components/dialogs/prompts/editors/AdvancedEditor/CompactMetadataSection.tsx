@@ -132,11 +132,11 @@ const StackedItems: React.FC<StackedItemsProps> = ({
           <div
             key={item.id}
             className={cn(
-              'jd-flex jd-items-center jd-gap-1 jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out jd-relative jd-pr-5',
+              'jd-flex jd-items-center jd-gap-1 jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
               'jd-bg-white jd-dark:jd-bg-gray-800 jd-border jd-rounded jd-shadow-sm',
               hover ? 'jd-shadow-md' : 'jd-shadow-sm',
-              isDarkMode
-                ? 'jd-border-gray-600 jd-bg-gray-800'
+              isDarkMode 
+                ? 'jd-border-gray-600 jd-bg-gray-800' 
                 : 'jd-border-gray-200 jd-bg-white'
             )}
             style={{
@@ -147,6 +147,18 @@ const StackedItems: React.FC<StackedItemsProps> = ({
               transformOrigin: 'center center'
             }}
           >
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={() => onRemove(item.id)}
+              className={cn(
+                'jd-p-0 jd-ml-1 jd-transition-all jd-duration-200',
+                'jd-text-red-500 hover:jd-text-red-700 hover:jd-bg-red-50 jd-dark:hover:jd-bg-red-900/20',
+                hover ? 'jd-opacity-100' : 'jd-opacity-0'
+              )}
+            >
+              <X className="jd-h-3 jd-w-3" />
+            </Button>
             {/* For single item or when expanded, show selector */}
             {items.length === 1 || hover ? (
               <Select
@@ -190,22 +202,10 @@ const StackedItems: React.FC<StackedItemsProps> = ({
                 <span className="jd-text-[10px] jd-font-medium jd-text-gray-700 jd-dark:jd-text-gray-300 jd-truncate">
                   {getBlockName(item)}
                 </span>
+                {/* Remove button - only visible on hover */}
+           
               </div>
             )}
-            
-            {/* Remove button - only visible on hover */}
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={() => onRemove(item.id)}
-              className={cn(
-                'jd-absolute jd-top-0 jd-right-0 jd-p-0 jd-m-1 jd-transition-all jd-duration-200',
-                'jd-text-red-500 hover:jd-text-red-700 hover:jd-bg-red-50 jd-dark:hover:jd-bg-red-900/20',
-                hover ? 'jd-opacity-100' : 'jd-opacity-0'
-              )}
-            >
-              <X className="jd-h-3 jd-w-3" />
-            </Button>
           </div>
         );
       })}
@@ -213,12 +213,9 @@ const StackedItems: React.FC<StackedItemsProps> = ({
       {/* Add new item button - always last */}
       <div
         className={cn(
-          'jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
-          'jd-bg-white jd-dark:jd-bg-gray-800 jd-border- jd-border-dashed jd-rounded',
-          isDarkMode 
-            ? 'jd-border-gray-600 jd-bg-gray-800/50' 
-            : 'jd-border-gray-300 jd-bg-gray-50/50',
-          hover ? 'jd-border-primary/50 jd-bg-primary/5' : ''
+          'jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-mt-1 jd-transition-all jd-duration-200',
+          'jd-border-dashed jd-border-gray-300 jd-dark:jd-border-gray-600',
+          'hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-dark:hover:jd-bg-primary/10'
         )}
         style={{
           transform: hover
@@ -233,7 +230,7 @@ const StackedItems: React.FC<StackedItemsProps> = ({
             'jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-border-0 jd-bg-transparent',
             'jd-text-gray-500 hover:jd-text-gray-700 jd-dark:jd-text-gray-400 jd-dark:hover:jd-text-gray-200'
           )}>
-            <div className="jd-flex jd-items-center jd-gap-1">
+            <div className="jd-flex jd-items-center jd-gap-1 jd-w-full">
               <Plus className="jd-h-3 jd-w-3" />
             </div>
           </SelectTrigger>
