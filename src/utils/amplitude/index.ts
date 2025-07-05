@@ -112,7 +112,7 @@ export const EVENTS = {
   TEMPLATE_REFRESH: 'Template Refresh',
   TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
   TEMPLATE_EDIT_DIALOG_OPENED: 'Template Edit Dialog Opened',
-  PLACEHOLDER_EDITOR_OPENED: 'Placeholder Editor Opened',
+  TEMPLATE_EDITOR_DIALOG_OPENED: 'Template Editor Dialog Opened',
 
   BLOCK_CREATED: 'Block Created',
   BLOCK_DELETED: 'Block Deleted',
@@ -148,6 +148,9 @@ export const EVENTS = {
   // Chat session events
   CHAT_SESSION_STARTED: 'Chat Session Started',
   CHAT_SESSION_ENDED: 'Chat Session Ended',
+// Generic dialog events
+  DIALOG_OPENED: 'Dialog Opened',
+  DIALOG_CLOSED: 'Dialog Closed',
 
 };
 
