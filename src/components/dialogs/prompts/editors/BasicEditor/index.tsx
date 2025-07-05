@@ -250,7 +250,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         <ResizableHandle withHandle />
         
         <ResizablePanel defaultSize={70} minSize={40}>
-          <div className="jd-h-full jd-border jd-rounded-md jd-p-4 jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden">
+          <div className="jd-h-full jd-rounded-md jd-p-4 jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden">
             <TemplatePreview
               metadata={metadata}
               content={previewContent}

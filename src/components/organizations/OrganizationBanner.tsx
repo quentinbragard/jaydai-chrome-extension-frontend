@@ -32,7 +32,7 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
       className={cn(
         'jd-relative jd-overflow-hidden jd-rounded-lg jd-border',
         organization.banner_url ? 'jd-text-white' : 'jd-bg-gradient-to-br jd-from-blue-50 jd-to-indigo-100 jd-dark:jd-from-gray-800 jd-dark:jd-to-gray-900',
-        isCompact ? 'jd-p-3' : 'jd-p-4 jd-mb-4',
+        isCompact ? 'jd-p-6' : 'jd-p-8 jd-mb-4',
         className
       )}
       style={bannerStyle}
@@ -94,7 +94,7 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
                   : 'jd-text-gray-600 jd-dark:jd-text-gray-400'
               )}
             >
-              {getMessage('organizationTemplate', undefined, 'Organization Template')}
+              {getMessage('organizationTemplateNoticeWithName', [organization.name], 'Organization Template')}
             </p>
           </div>
         </div>
