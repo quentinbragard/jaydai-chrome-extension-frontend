@@ -38,7 +38,9 @@ import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import {
   getLocalizedContent,
   getBlockTypeIcon,
-  getBlockIconColors
+  getBlockIconColors,
+  getBlockTypeColors,
+  getBlockTextColors
 } from '@/utils/prompts/blockUtils';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
@@ -484,31 +486,43 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
             ? ((metadata as any)[type as MultipleMetadataType] || [])
             : [];
 
+          const cardColors = getBlockTypeColors(config.blockType, isDarkMode);
+          const iconColors = getBlockIconColors(config.blockType, isDarkMode);
+          const dotColor = getBlockTextColors(config.blockType, isDarkMode).replace('jd-text', 'jd-bg');
+
           return (
             <div key={type} className="jd-relative jd-group">
               {/* Ultra-compact metadata card */}
-              <div className={cn(
-                'jd-flex jd-flex-col jd-items-center jd-p-2 jd-rounded-lg jd-border jd-transition-all jd-duration-300',
-                'jd-hover:jd-shadow-lg jd-cursor-pointer jd-relative jd-backdrop-blur-sm',
-                assigned
-                  ? 'jd-border-green-400 jd-bg-gradient-to-br jd-from-green-50 jd-to-green-100 jd-dark:jd-border-green-500 jd-dark:jd-from-green-900/30 jd-dark:jd-to-green-800/30'
-                  : 'jd-border-gray-300 jd-bg-gradient-to-br jd-from-gray-50 jd-to-gray-100 jd-dark:jd-border-gray-600 jd-dark:jd-from-gray-800/50 jd-dark:jd-to-gray-700/50 jd-hover:jd-border-primary/50 jd-hover:jd-from-primary/5 jd-hover:jd-to-primary/10'
-              )}>
-                {/* Status indicator */}
-                <div className={cn(
-                  'jd-absolute jd-top-1.5 jd-right-1.5 jd-w-2 jd-h-2 jd-rounded-full jd-transition-all jd-duration-200',
-                  assigned 
-                    ? 'jd-bg-green-500 jd-shadow-lg jd-shadow-green-500/50' 
-                    : 'jd-bg-gray-400 jd-dark:jd-bg-gray-500'
-                )} />
+              <div
+                className={cn(
+                  'jd-flex jd-flex-col jd-items-center jd-p-2 jd-rounded jd-border jd-transition-all jd-duration-200',
+                  'jd-hover:jd-shadow-sm jd-cursor-pointer jd-relative',
+                  assigned
+                    ? cardColors
+                    : isDarkMode
+                      ? 'jd-border-gray-600 jd-bg-gray-800/50 jd-text-gray-300'
+                      : 'jd-border-gray-300 jd-bg-gray-100 jd-text-gray-600'
+                )}
+              >
+                {/* Status dot */}
+                <div
+                  className={cn(
+                    'jd-absolute jd-top-1 jd-right-1 jd-w-2 jd-h-2 jd-rounded-full',
+                    assigned ? dotColor : isDarkMode ? 'jd-bg-gray-500' : 'jd-bg-gray-400'
+                  )}
+                />
 
                 {/* Icon */}
-                <div className={cn(
-                  'jd-p-1.5 jd-rounded-lg jd-mb-1.5 jd-transition-all jd-duration-200',
-                  assigned 
-                    ? 'jd-bg-green-200 jd-text-green-800 jd-dark:jd-bg-green-800 jd-dark:jd-text-green-200' 
-                    : 'jd-bg-gray-200 jd-text-gray-600 jd-dark:jd-bg-gray-700 jd-dark:jd-text-gray-300'
-                )}>
+                <div
+                  className={cn(
+                    'jd-p-1 jd-rounded jd-mb-1',
+                    assigned
+                      ? iconColors
+                      : isDarkMode
+                        ? 'jd-bg-gray-700 jd-text-gray-300'
+                        : 'jd-bg-gray-200 jd-text-gray-600'
+                  )}
+                >
                   <Icon className="jd-h-3 jd-w-3" />
                 </div>
 
