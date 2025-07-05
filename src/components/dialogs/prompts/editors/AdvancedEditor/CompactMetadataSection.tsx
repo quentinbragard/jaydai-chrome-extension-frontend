@@ -1,5 +1,5 @@
 // src/components/dialogs/prompts/editors/AdvancedEditor/CompactMetadataSection.tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -22,6 +22,7 @@ import {
   SingleMetadataType,
   MultipleMetadataType
 } from '@/types/prompts/metadata';
+import type { MetadataItem } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
 import {
@@ -49,6 +50,134 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   example: getBlockTypeIcon('example'),
   tone_style: getBlockTypeIcon('tone_style'),
   constraint: getBlockTypeIcon('constraint')
+};
+
+const CARD_HEIGHT = 24;
+const COLLAPSED_OFFSET = 6;
+const EXPANDED_OFFSET = 28;
+
+interface StackedItemsProps {
+  type: MultipleMetadataType;
+  items: MetadataItem[];
+  availableBlocks: Block[];
+  onSelect: (id: string, val: string) => void;
+  onRemove: (id: string) => void;
+  onAdd: (val: string) => void;
+  label: string;
+}
+
+const StackedItems: React.FC<StackedItemsProps> = ({
+  type,
+  items,
+  availableBlocks,
+  onSelect,
+  onRemove,
+  onAdd,
+  label
+}) => {
+  const [hover, setHover] = useState(false);
+
+  const containerHeight = hover
+    ? (items.length + 1) * EXPANDED_OFFSET
+    : CARD_HEIGHT + COLLAPSED_OFFSET * (items.length - 1);
+
+  return (
+    <div
+      className="jd-relative jd-mt-1 jd-transition-all jd-duration-300"
+      style={{ height: containerHeight }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {items.map((item, index) => (
+        <div
+          key={item.id}
+          className="jd-flex jd-items-center jd-gap-1 jd-absolute jd-w-full jd-transition-all jd-duration-300"
+          style={{
+            transform: `translateY(${
+              hover ? index * EXPANDED_OFFSET : -index * COLLAPSED_OFFSET
+            }px)`
+          }}
+        >
+          <Select
+            value={item.blockId ? String(item.blockId) : '0'}
+            onValueChange={val => onSelect(item.id, val)}
+          >
+            <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2">
+              <SelectValue placeholder={getMessage('select', undefined, 'Select')} />
+            </SelectTrigger>
+            <SelectContent className="jd-z-[10010]">
+              <SelectItem value="0">
+                {getMessage('none', undefined, 'None')}
+              </SelectItem>
+              {availableBlocks.map(block => (
+                <SelectItem key={block.id} value={String(block.id)}>
+                  <span className="jd-text-xs">
+                    {getLocalizedContent(block.title) || `${label} block`}
+                  </span>
+                </SelectItem>
+              ))}
+              <SelectItem value="create">
+                <div className="jd-flex jd-items-center jd-gap-2">
+                  <Plus className="jd-h-3 jd-w-3" />
+                  <span className="jd-text-xs">
+                    {getMessage(
+                      'createTypeBlock',
+                      [label.toLowerCase()],
+                      `Create ${label.toLowerCase()} block`
+                    )}
+                  </span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onRemove(item.id)}
+            className="jd-h-4 jd-w-4 jd-p-0"
+          >
+            <X className="jd-h-2 jd-w-2" />
+          </Button>
+        </div>
+      ))}
+
+      <div
+        className="jd-absolute jd-w-full jd-transition-all jd-duration-300"
+        style={{
+          transform: `translateY(${
+            hover ? items.length * EXPANDED_OFFSET : -items.length * COLLAPSED_OFFSET
+          }px)`
+        }}
+      >
+        <Select onValueChange={val => onAdd(val)}>
+          <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-border-dashed">
+            <SelectValue placeholder="+" />
+          </SelectTrigger>
+          <SelectContent className="jd-z-[10010]">
+            {availableBlocks.map(block => (
+              <SelectItem key={block.id} value={String(block.id)}>
+                <span className="jd-text-xs">
+                  {getLocalizedContent(block.title) || `${label} block`}
+                </span>
+              </SelectItem>
+            ))}
+            <SelectItem value="create">
+              <div className="jd-flex jd-items-center jd-gap-2">
+                <Plus className="jd-h-3 jd-w-3" />
+                <span className="jd-text-xs">
+                  {getMessage(
+                    'createTypeBlock',
+                    [label.toLowerCase()],
+                    `Create ${label.toLowerCase()} block`
+                  )}
+                </span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
 };
 
 interface CompactMetadataProps {
@@ -287,76 +416,19 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
               {/* Ultra-compact select dropdown */}
               <div className="jd-mt-1 jd-space-y-1">
                 {isMultipleMetadataType(type) ? (
-                  <>
-                    {items.map(item => (
-                      <div key={item.id} className="jd-flex jd-items-center jd-gap-1">
-                        <Select
-                          value={item.blockId ? String(item.blockId) : '0'}
-                          onValueChange={val => handleItemSelect(type as MultipleMetadataType, item.id, val)}
-                        >
-                          <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2">
-                            <SelectValue placeholder={getMessage('select', undefined, 'Select')} />
-                          </SelectTrigger>
-                          <SelectContent className="jd-z-[10010]">
-                            <SelectItem value="0">{getMessage('none', undefined, 'None')}</SelectItem>
-                            {availableBlocks.map(block => (
-                              <SelectItem key={block.id} value={String(block.id)}>
-                                <span className="jd-text-xs">
-                                  {getLocalizedContent(block.title) || `${config.label} block`}
-                                </span>
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="create">
-                              <div className="jd-flex jd-items-center jd-gap-2">
-                                <Plus className="jd-h-3 jd-w-3" />
-                                <span className="jd-text-xs">
-                                  {getMessage(
-                                    'createTypeBlock',
-                                    [config.label.toLowerCase()],
-                                    `Create ${config.label.toLowerCase()} block`
-                                  )}
-                                </span>
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveItem(type as MultipleMetadataType, item.id)}
-                          className="jd-h-4 jd-w-4 jd-p-0"
-                        >
-                          <X className="jd-h-2 jd-w-2" />
-                        </Button>
-                      </div>
-                    ))}
-                    <Select onValueChange={val => handleAddItem(type as MultipleMetadataType, val)}>
-                      <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-border-dashed">
-                        <SelectValue placeholder="+" />
-                      </SelectTrigger>
-                      <SelectContent className="jd-z-[10010]">
-                        {availableBlocks.map(block => (
-                          <SelectItem key={block.id} value={String(block.id)}>
-                            <span className="jd-text-xs">
-                              {getLocalizedContent(block.title) || `${config.label} block`}
-                            </span>
-                          </SelectItem>
-                        ))}
-                        <SelectItem value="create">
-                          <div className="jd-flex jd-items-center jd-gap-2">
-                            <Plus className="jd-h-3 jd-w-3" />
-                            <span className="jd-text-xs">
-                              {getMessage(
-                                'createTypeBlock',
-                                [config.label.toLowerCase()],
-                                `Create ${config.label.toLowerCase()} block`
-                              )}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </>
+                  <StackedItems
+                    type={type as MultipleMetadataType}
+                    items={items}
+                    availableBlocks={availableBlocks}
+                    onSelect={(id, val) =>
+                      handleItemSelect(type as MultipleMetadataType, id, val)
+                    }
+                    onRemove={id =>
+                      handleRemoveItem(type as MultipleMetadataType, id)
+                    }
+                    onAdd={val => handleAddItem(type as MultipleMetadataType, val)}
+                    label={config.label}
+                  />
                 ) : (
                   <Select onValueChange={val => handleSelect(type, val)}>
                     <SelectTrigger className="jd-w-full jd-h-6 jd-text-[10px] jd-px-2">
