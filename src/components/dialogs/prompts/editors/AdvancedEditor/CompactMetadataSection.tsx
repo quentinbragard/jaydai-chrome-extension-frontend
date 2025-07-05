@@ -132,11 +132,11 @@ const StackedItems: React.FC<StackedItemsProps> = ({
           <div
             key={item.id}
             className={cn(
-              'jd-flex jd-items-center jd-gap-1 jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
+              'jd-flex jd-items-center jd-gap-1 jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out jd-relative jd-pr-5',
               'jd-bg-white jd-dark:jd-bg-gray-800 jd-border jd-rounded jd-shadow-sm',
               hover ? 'jd-shadow-md' : 'jd-shadow-sm',
-              isDarkMode 
-                ? 'jd-border-gray-600 jd-bg-gray-800' 
+              isDarkMode
+                ? 'jd-border-gray-600 jd-bg-gray-800'
                 : 'jd-border-gray-200 jd-bg-white'
             )}
             style={{
@@ -199,7 +199,7 @@ const StackedItems: React.FC<StackedItemsProps> = ({
               size="xs"
               onClick={() => onRemove(item.id)}
               className={cn(
-                'jd-p-0 jd-mr-1 jd-transition-all jd-duration-200',
+                'jd-absolute jd-top-0 jd-right-0 jd-p-0 jd-m-1 jd-transition-all jd-duration-200',
                 'jd-text-red-500 hover:jd-text-red-700 hover:jd-bg-red-50 jd-dark:hover:jd-bg-red-900/20',
                 hover ? 'jd-opacity-100' : 'jd-opacity-0'
               )}
