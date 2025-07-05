@@ -15,6 +15,7 @@ import { updateSingleMetadata, updateMetadataItem } from '@/utils/prompts/metada
 import { generateUnifiedPreviewHtml } from '@/utils/templates/placeholderHelpers';
 import { EnhancedEditablePreview } from '@/components/prompts/EnhancedEditablePreview';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface TemplateEditorDialogProps {
   // State from base hook
@@ -215,6 +216,10 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           }
         } else if (block.originalBlockId && updateBlockContent) {
           updateBlockContent(block.originalBlockId, seg);
+          trackEvent(EVENTS.BLOCK_UPDATED, {
+            block_id: block.originalBlockId,
+            block_type: block.type
+          });
         }
       });
     },

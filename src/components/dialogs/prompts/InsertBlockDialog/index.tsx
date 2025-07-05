@@ -107,6 +107,7 @@ const InlineBlockCreator: React.FC<{
 
       if (response.success && response.data) {
         toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
+        trackEvent(EVENTS.BLOCK_CREATED, { block_id: response.data.id, block_type: response.data.type });
         onBlockCreated(response.data);
       } else {
         toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
@@ -228,6 +229,15 @@ const InlineBlockCreator: React.FC<{
 
 export const InsertBlockDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.INSERT_BLOCK);
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        trackEvent(EVENTS.INSERT_BLOCK_DIALOG_CLOSED);
+      }
+      dialogProps.onOpenChange(open);
+    },
+    [dialogProps]
+  );
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedBlocks, setSelectedBlocks] = useState<Block[]>([]);
@@ -280,6 +290,7 @@ export const InsertBlockDialog: React.FC = () => {
 
   useEffect(() => {
     if (isOpen) {
+      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_OPENED);
       setLoading(true);
       setSelectedBlocks([]);
       setBlockContents({});
@@ -326,6 +337,7 @@ export const InsertBlockDialog: React.FC = () => {
       setSelectedBlocks(prev => [...prev, block]);
       const content = typeof block.content === 'string' ? block.content : block.content.en || '';
       setBlockContents(prev => ({ ...prev, [block.id]: content }));
+      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_SELECTED, { block_id: block.id, block_type: block.type });
     }
   };
 
@@ -335,6 +347,7 @@ export const InsertBlockDialog: React.FC = () => {
       const { [block.id]: _removed, ...rest } = prev;
       return rest;
     });
+    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_UNSELECTED, { block_id: block.id, block_type: block.type });
   };
 
   const handleEditableContentChange = (text: string) => {
@@ -357,7 +370,8 @@ export const InsertBlockDialog: React.FC = () => {
   const insertBlocks = () => {
     // Use the editable content which might have been modified by the user
     insertIntoPromptArea(editableContent);
-    dialogProps.onOpenChange(false);
+    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCKS_INSERTED, { count: selectedBlocks.length });
+    handleOpenChange(false);
     toast.success(getMessage('promptInserted', undefined, 'Prompt inserted successfully'));
   };
 
@@ -372,10 +386,12 @@ export const InsertBlockDialog: React.FC = () => {
   };
 
   const handleEditBlock = (block: Block) => {
+    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_UPDATED, { block_id: block.id, block_type: block.type });
     editBlock(block);
   };
 
   const handleDeleteBlock = (block: Block) => {
+    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_DELETED, { block_id: block.id, block_type: block.type });
     deleteBlock(block);
   };
 
@@ -437,7 +453,7 @@ const filteredBlocks = blocks.filter(b => {
 
   const footer = (
     <div className="jd-flex jd-justify-between">
-      <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)}>
+      <Button variant="outline" onClick={() => handleOpenChange(false)}>
         {getMessage('cancel', undefined, 'Cancel')}
       </Button>
       <div className="jd-flex jd-gap-2">
@@ -461,7 +477,7 @@ const filteredBlocks = blocks.filter(b => {
     <>
       <BaseDialog
         open={isOpen}
-        onOpenChange={dialogProps.onOpenChange}
+        onOpenChange={handleOpenChange}
         title={getMessage('buildYourPrompt', undefined, 'Build Your Prompt')}
         description={getMessage('buildYourPromptDesc', undefined, 'Select and arrange blocks to create your perfect prompt')}
         className="jd-max-w-7xl"
