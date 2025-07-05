@@ -17,19 +17,16 @@ export default defineConfig(({ mode }) => {
     // mode can be 'development' or 'production'
     const env = loadEnv(mode, process.cwd(), 'VITE_');
     
-    const isProduction = mode === 'production' || mode === 'local';
+    const isProduction = mode === 'production';
     
-    // Get the API URL from env or use default values
-    const apiUrl = env.VITE_API_URL || (isProduction 
-        ? 'https://api-prod.jaydai.com'
-        : 'http://localhost:8000');
-
+    // Get the API URL from env
+    const apiUrl = env.VITE_API_URL;
     
-    // Get debug setting from env or default based on mode
-    const debug = env.VITE_DEBUG || (!isProduction).toString();
+    // Get debug setting from env
+    const debug = env.VITE_DEBUG;
     
-    // Get app version from env or default
-    const appVersion = env.VITE_APP_VERSION || '1.0.0';
+    // Get app version from env
+    const appVersion = env.VITE_APP_VERSION;
     
     console.log(`🚀 Building for ${mode} environment`);
     console.log(`🔌 API URL: ${apiUrl}`);
@@ -113,10 +110,11 @@ export default defineConfig(({ mode }) => {
         define: {
             // Make environment variables available in the code
             'process.env.NODE_ENV': JSON.stringify(mode),
-            'process.env.VITE_API_URL': JSON.stringify(apiUrl),
-            'process.env.VITE_DEBUG': JSON.stringify(debug),
-            'process.env.VITE_APP_VERSION': JSON.stringify(appVersion),
-            'process.env.VITE_AMPLITUDE_API_KEY': JSON.stringify(env.VITE_AMPLITUDE_API_KEY)
+            'process.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL),
+            'process.env.VITE_DEBUG': JSON.stringify(env.VITE_DEBUG),
+            'process.env.VITE_APP_VERSION': JSON.stringify(env.VITE_APP_VERSION),
+            'process.env.VITE_AMPLITUDE_API_KEY': JSON.stringify(env.VITE_AMPLITUDE_API_KEY),
+            'process.env.VITE_LINKEDIN_CLIENT_ID': JSON.stringify(env.VITE_LINKEDIN_CLIENT_ID)
         },
         server: {
             hmr: {
