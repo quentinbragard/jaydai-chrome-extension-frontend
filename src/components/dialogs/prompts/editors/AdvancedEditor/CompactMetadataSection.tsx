@@ -102,8 +102,8 @@ const StackedItems: React.FC<StackedItemsProps> = ({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      {/* Summary card for 2+ items */}
-      {items.length >= 2 && (
+      {/* Summary card for 1+ items */}
+      {items.length >= 1 && (
         <div
           className={cn(
             'jd-flex jd-items-center jd-justify-center jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
@@ -111,15 +111,8 @@ const StackedItems: React.FC<StackedItemsProps> = ({
             'jd-border jd-border-blue-200 jd-dark:jd-border-blue-700 jd-rounded jd-shadow-sm',
             hover ? 'jd-shadow-md' : 'jd-shadow-sm'
           )}
-          style={{
-            transform: hover
-              ? `translateY(0px) rotate(0deg)`
-              : `translateY(0px) rotate(${STACK_ROTATION}deg)`,
-            zIndex: hover ? 30 : 30, // Always on top
-            transformOrigin: 'center center'
-          }}
         >
-          <span className="jd-text-[10px] jd-font-semibold jd-text-blue-700 jd-dark:jd-text-blue-300 jd-py-1">
+          <span className="jd-text-xs jd-font-semibold jd-text-blue-700 jd-dark:jd-text-blue-300 jd-py-1">
             {items.length} {label.toLowerCase()}{items.length > 1 ? 's' : ''}
           </span>
         </div>
@@ -127,17 +120,17 @@ const StackedItems: React.FC<StackedItemsProps> = ({
 
       {/* Individual item cards */}
       {items.map((item, index) => {
-        const stackIndex = items.length >= 2 ? index + 1 : index; // Offset for summary card
+        const stackIndex = items.length >= 1 ? index + 1 : index; // Offset for summary card
         return (
           <div
             key={item.id}
             className={cn(
-              'jd-flex jd-items-center jd-gap-1 jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
-              'jd-bg-white jd-dark:jd-bg-gray-800 jd-border jd-rounded jd-shadow-sm',
-              hover ? 'jd-shadow-md' : 'jd-shadow-sm',
+              'jd-flex jd-items-center jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
+              'jd-border jd-border-dashed jd-rounded jd-shadow-sm',
+              hover ? 'jd-shadow-md' : 'jd-hidden',
               isDarkMode 
-                ? 'jd-border-gray-600 jd-bg-gray-800' 
-                : 'jd-border-gray-200 jd-bg-white'
+                ? 'jd-border-gray-600 jd-bg-gray-800 jd-text-gray-300' 
+                : 'jd-border-gray-200 jd-bg-white jd-text-gray-700'
             )}
             style={{
               transform: hover
@@ -152,7 +145,7 @@ const StackedItems: React.FC<StackedItemsProps> = ({
               size="xs"
               onClick={() => onRemove(item.id)}
               className={cn(
-                'jd-p-0 jd-ml-1 jd-transition-all jd-duration-200',
+                'jd-p-0 jd-transition-all jd-duration-200',
                 'jd-text-red-500 hover:jd-text-red-700 hover:jd-bg-red-50 jd-dark:hover:jd-bg-red-900/20',
                 hover ? 'jd-opacity-100' : 'jd-opacity-0'
               )}
@@ -166,7 +159,7 @@ const StackedItems: React.FC<StackedItemsProps> = ({
                 onValueChange={val => onSelect(item.id, val)}
               >
                 <SelectTrigger className={cn(
-                  'jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-border-0 jd-bg-transparent',
+                  'jd-w-full jd-h-6 jd-text-xs jd-px-2 jd-border-0 jd-bg-transparent',
                   'jd-text-gray-500 hover:jd-text-gray-700 jd-dark:jd-text-gray-400 jd-dark:hover:jd-text-gray-200'
                 )}>
                   <SelectValue placeholder={getMessage('select', undefined, 'Select')} />
@@ -177,7 +170,7 @@ const StackedItems: React.FC<StackedItemsProps> = ({
                   </SelectItem>
                   {availableBlocks.map(block => (
                     <SelectItem key={block.id} value={String(block.id)}>
-                      <span className="jd-text-xs">
+                      <span className="jd-text-xs jd-text-foreground">
                         {getLocalizedContent(block.title) || `${label} block`}
                       </span>
                     </SelectItem>
@@ -185,7 +178,7 @@ const StackedItems: React.FC<StackedItemsProps> = ({
                   <SelectItem value="create">
                     <div className="jd-flex jd-items-center jd-gap-2">
                       <Plus className="jd-h-3 jd-w-3" />
-                      <span className="jd-text-xs">
+                      <span className="jd-text-xs jd-text-foreground">
                         {getMessage(
                           'createTypeBlock',
                           [label.toLowerCase()],
@@ -198,11 +191,10 @@ const StackedItems: React.FC<StackedItemsProps> = ({
               </Select>
             ) : (
               /* For multiple items when collapsed, show block name */
-              <div className="jd-flex jd-items-center jd-justify-between jd-w-full jd-px-2 jd-py-1">
-                <span className="jd-text-[10px] jd-font-medium jd-text-gray-700 jd-dark:jd-text-gray-300 jd-truncate">
+              <div className="jd-flex jd-items-center jd-justify-between jd-w-full jd-py-1">
+                <span className="jd-text-xs jd-font-medium jd-text-foreground jd-truncate">
                   {getBlockName(item)}
                 </span>
-                {/* Remove button - only visible on hover */}
            
               </div>
             )}
@@ -213,21 +205,17 @@ const StackedItems: React.FC<StackedItemsProps> = ({
       {/* Add new item button - always last */}
       <div
         className={cn(
-          'jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-mt-1 jd-transition-all jd-duration-200',
-          'jd-border-dashed jd-border-gray-300 jd-dark:jd-border-gray-600',
-          'hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-dark:hover:jd-bg-primary/10'
+          'jd-flex jd-items-center jd-absolute jd-w-full jd-transition-all jd-duration-500 jd-ease-out',
+          'jd-border jd-border-dashed jd-rounded',
+          hover ? 'jd-shadow-md' : 'jd-shadow-sm',
+          isDarkMode 
+            ? 'jd-border-gray-600 jd-bg-gray-800 jd-text-gray-300' 
+            : 'jd-border-gray-200 jd-bg-white jd-text-gray-700'
         )}
-        style={{
-          transform: hover
-            ? `translateY(${(totalStackElements - 1) * EXPANDED_OFFSET}px) rotate(0deg)`
-            : `translateY(${(totalStackElements - 1) * COLLAPSED_OFFSET}px) rotate(${((totalStackElements - 1) % 2 === 0 ? 1 : -1) * STACK_ROTATION}deg)`,
-          zIndex: hover ? 20 + (totalStackElements - 1) : items.length >= 2 ? 35 : 10,
-          transformOrigin: 'center center'
-        }}
       >
         <Select value="" onValueChange={val => onAdd(val)}>
           <SelectTrigger className={cn(
-            'jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-border-0 jd-bg-transparent',
+            'jd-w-full jd-h-6 jd-text-xs jd-px-2 jd-border-0 jd-bg-transparent',
             'jd-text-gray-500 hover:jd-text-gray-700 jd-dark:jd-text-gray-400 jd-dark:hover:jd-text-gray-200'
           )}>
             <div className="jd-flex jd-items-center jd-gap-1 jd-w-full">
@@ -498,8 +486,8 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
                 <div className={cn(
                   'jd-absolute jd-top-1.5 jd-right-1.5 jd-w-2 jd-h-2 jd-rounded-full jd-transition-all jd-duration-200',
                   assigned 
-                    ? 'jd-bg-green-500 jd-shadow-lg jd-shadow-green-500/50' 
-                    : 'jd-bg-gray-400 jd-dark:jd-bg-gray-500'
+                    ? `${getBlockIconColors(config.blockType, isDarkMode)} jd-shadow-lg jd-shadow-green-500/50` 
+                    : `jd-bg-gray-400 jd-dark:jd-bg-gray-500`
                 )} />
 
                 {/* Icon */}
@@ -513,7 +501,7 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
                 </div>
 
                 {/* Label */}
-                <span className="jd-text-[9px] jd-font-medium jd-text-center jd-leading-tight jd-truncate jd-w-full jd-text-gray-700 jd-dark:jd-text-gray-300">
+                <span className="jd-text-xs jd-font-medium jd-text-center jd-leading-tight jd-truncate jd-w-full jd-text-foreground">
                   {config.label}
                 </span>
 
@@ -556,7 +544,7 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
                 ) : (
                   <Select onValueChange={val => handleSelect(type, val)}>
                     <SelectTrigger className={cn(
-                      'jd-w-full jd-h-6 jd-text-[10px] jd-px-2 jd-mt-1 jd-transition-all jd-duration-200',
+                      'jd-w-full jd-h-6 jd-text-xs jd-px-2 jd-mt-1 jd-transition-all jd-duration-200',
                       'jd-border-dashed jd-border-gray-300 jd-dark:jd-border-gray-600',
                       'hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-dark:hover:jd-bg-primary/10'
                     )}>
