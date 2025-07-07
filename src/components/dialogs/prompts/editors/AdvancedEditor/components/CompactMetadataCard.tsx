@@ -11,7 +11,7 @@ import {
 } from '@/types/prompts/metadata';
 import type { MetadataItem } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
-import { getBlockTypeIcon, getBlockIconColors } from '@/utils/prompts/blockUtils';
+import { getBlockTypeIcon, getBlockIconColors, getBlockTextColors } from '@/utils/prompts/blockUtils';
 import { X } from 'lucide-react';
 import { SingleMetadataDropdown } from './SingleMetadataDropdown';
 import { MultipleMetadataDropdown } from './MultipleMetadataDropdown';
@@ -51,16 +51,16 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
           'jd-flex jd-flex-col jd-items-center jd-p-2 jd-rounded-lg jd-border jd-transition-all jd-duration-300',
           'jd-hover:jd-shadow-lg jd-cursor-pointer jd-relative jd-backdrop-blur-sm',
           assigned
-            ? 'jd-border-green-400 jd-bg-gradient-to-br jd-from-green-50 jd-to-green-100 jd-dark:jd-border-green-500 jd-dark:jd-from-green-900/30 jd-dark:jd-to-green-800/30'
-            : 'jd-border-gray-300 jd-bg-gradient-to-br jd-from-gray-50 jd-to-gray-100 jd-dark:jd-border-gray-600 jd-dark:jd-from-gray-800/50 jd-dark:jd-to-gray-700/50 jd-hover:jd-border-primary/50 jd-hover:jd-from-primary/5 jd-hover:jd-to-primary/10'
+            ? `jd-border-green-400 jd-bg-gradient-to-br jd-from-green-50 jd-to-green-100 ${isDarkMode ? 'jd-border-green-500 jd-from-green-900/30 jd-to-green-800/30' : ''}`
+            : `jd-border-gray-300 jd-bg-gradient-to-br jd-from-gray-50 jd-to-gray-100 ${isDarkMode ? 'jd-border-gray-600 jd-from-gray-800/50 jd-to-gray-700/50' : ''} jd-hover:jd-border-primary/50 jd-hover:jd-from-primary/5 jd-hover:jd-to-primary/10`
         )}
       >
         <div
           className={cn(
             'jd-absolute jd-top-1.5 jd-right-1.5 jd-w-2 jd-h-2 jd-rounded-full jd-transition-all jd-duration-200',
             assigned
-              ? `${getBlockIconColors(config.blockType, isDarkMode)} jd-shadow-lg jd-shadow-green-500/50`
-              : `jd-bg-gray-400 jd-dark:jd-bg-gray-500`
+              ? `jd-bg-green-400 jd-shadow-lg`
+              : `jd-bg-gray-400 ${isDarkMode ? 'jd-bg-gray-500' : ''}`
           )}
         />
 
@@ -68,8 +68,8 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
           className={cn(
             'jd-p-1.5 jd-rounded-lg jd-mb-1.5 jd-transition-all jd-duration-200',
             assigned
-              ? 'jd-bg-green-200 jd-text-green-800 jd-dark:jd-bg-green-800 jd-dark:jd-text-green-200'
-              : 'jd-bg-gray-200 jd-text-gray-600 jd-dark:jd-bg-gray-700 jd-dark:jd-text-gray-300'
+              ? `${getBlockTextColors(config.blockType, isDarkMode)} ${getBlockIconColors(config.blockType, isDarkMode)}`
+              : `jd-bg-gray-200 jd-text-gray-600 ${isDarkMode ? 'jd-bg-gray-700 jd-text-gray-300' : ''}`
           )}
         >
           <Icon className="jd-h-3 jd-w-3" />
@@ -89,7 +89,7 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
             }}
             className={cn(
               'jd-absolute jd-top-0 jd-left-0 jd-p-0 jd-transition-all jd-duration-200',
-              'jd-opacity-0 group-hover:jd-opacity-100 jd-bg-red-500 jd-text-white jd-rounded-full',
+              'jd-opacity-0 group-hover:jd-opacity-100  jd-text-foreground jd-rounded-full',
               'jd-shadow-lg hover:jd-shadow-red-500/50 hover:jd-bg-red-600 jd-transform jd-scale-90 hover:jd-scale-100'
             )}
           >
@@ -121,4 +121,3 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
     </div>
   );
 };
-
