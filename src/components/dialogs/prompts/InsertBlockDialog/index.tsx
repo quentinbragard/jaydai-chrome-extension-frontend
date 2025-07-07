@@ -107,7 +107,11 @@ const InlineBlockCreator: React.FC<{
 
       if (response.success && response.data) {
         toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
-        trackEvent(EVENTS.BLOCK_CREATED, { block_id: response.data.id, block_type: response.data.type });
+        trackEvent(EVENTS.BLOCK_CREATED, {
+          block_id: response.data.id,
+          block_type: response.data.type,
+          source: 'InsertBlockDialog'
+        });
         onBlockCreated(response.data);
       } else {
         toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
@@ -547,7 +551,7 @@ const filteredBlocks = blocks.filter(b => {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => openCreateBlock()}
+                  onClick={() => openCreateBlock({ source: 'InsertBlockDialog' })}
                   className="jd-h-6 jd-text-xs jd-px-2 jd-border-dashed"
                 >
                   <Plus className="jd-h-3 jd-w-3 jd-mr-1" />

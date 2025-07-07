@@ -15,6 +15,7 @@ import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { BlockType } from '@/types/prompts/blocks';
 import { BLOCK_TYPE_LABELS, getBlockTypeIcon, getBlockTypeColors } from '@/utils/prompts/blockUtils';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 const AVAILABLE_BLOCK_TYPES: BlockType[] = [
   'role', 'context', 'goal', 'custom',
@@ -103,6 +104,11 @@ export const CreateBlockDialog: React.FC = () => {
         const response = await blocksApi.createBlock(blockData);
         if (response.success && response.data) {
           toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
+          trackEvent(EVENTS.BLOCK_CREATED, {
+            block_id: response.data.id,
+            block_type: response.data.type,
+            source: (data?.source as string) || 'CreateBlockDialog'
+          });
           handleClose();
         } else {
           toast.error(response.message || getMessage('errorCreatingBlock', undefined, 'Failed to create block'));

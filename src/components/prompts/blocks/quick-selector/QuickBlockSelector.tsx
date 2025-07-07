@@ -82,7 +82,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   });
 
   const handleCreateBlock = () => {
-    createBlock();
+    createBlock(undefined, 'QuickBlockSelector');
   };
 
   const handleEditBlock = (block: Block) => {

@@ -217,7 +217,8 @@ const useTemplate = useCallback(async (template: Template) => {
           queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
           trackEvent(EVENTS.TEMPLATE_FOLDER_CREATED, {
             folder_id: newFolder.id,
-            folder_name: newfolder.title
+            folder_name: newFolder.title,
+            source: 'TemplatesPanel'
           });
           
           // Open create template dialog with the new folder selected
