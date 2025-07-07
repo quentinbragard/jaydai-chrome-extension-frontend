@@ -186,14 +186,13 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
               {/* Preview Section */}
               <div className="jd-flex-1 jd-min-h-0">
-                <div className="jd-space-y-3 jd-h-full jd-flex jd-flex-col">
+                <div className="jd-space-y-3 jd-min-h-[25vh] jd-max-h-[50vh] jd-flex jd-flex-col">
                   <div className="jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
                     <TemplatePreview
                       metadata={metadata}
                       content={previewContent}
                       blockContentCache={previewCache}
                       isDarkMode={isDarkMode}
-                      className="jd-h-full"
                     />
                   </div>
                 </div>
@@ -224,14 +223,13 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
       {/* Preview Section */}
       <div className="jd-flex-1 jd-min-h-0">
-        <div className="jd-space-y-3 jd-h-full jd-flex jd-flex-col">
-          <div className="jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
+      <div className="jd-space-y-3 jd-min-h-[25vh] jd-max-h-[50vh] jd-flex jd-flex-col">
+      <div className="jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
             <TemplatePreview
               metadata={metadata}
               content={content}
               blockContentCache={blockContentCache}
               isDarkMode={isDarkMode}
-              className="jd-h-full"
             />
           </div>
         </div>

@@ -236,12 +236,12 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         {/* Animated preview section - using only Tailwind */}
         <div
           className={cn(
-            'jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out jd-flex-shrink-0',
-            showPreview ? 'jd-max-h-[400px] jd-opacity-100' : 'jd-max-h-0 jd-opacity-0'
+            'jd-min-h-[25vh] jd-max-h-[50vh] jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out jd-flex-shrink-0',
+            showPreview ? ' jd-opacity-100' : 'jd-opacity-0'
           )}
         >
           <div className="jd-pt-4">
-            <div className="jd-max-h-[350px] jd-overflow-y-auto jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100">
+            <div className=" jd-overflow-y-auto jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100">
               <TemplatePreview
                 metadata={metadata}
                 content={content}

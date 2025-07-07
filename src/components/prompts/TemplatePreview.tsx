@@ -74,7 +74,7 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   }, [metadata, content, blockContentCache, isDarkMode]);
 
   return (
-    <div className={cn('jd-space-y-3 jd-h-full jd-flex jd-flex-col jd-min-h-0', className)}>
+    <div className={cn('jd-space-y-3 jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden jd-overflow-y-auto', className)}>
       {/* Header - fixed height */}
       <div className="jd-flex jd-items-center jd-gap-2 jd-flex-shrink-0">
         <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
