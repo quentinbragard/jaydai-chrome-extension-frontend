@@ -2020,9 +2020,9 @@
   "moreActions": { "message": "Plus d'actions", "description": "Libellé pour le bouton de clic pour plus d'actions" },
   "edit": { "message": "Modifier", "description": "Libellé pour le bouton de clic pour modifier" },
   "aPerfectPrompt": { "message": "Un prompt parfait contient au moins un rôle, un contexte et un objectif", "description": "Libellé pour le prompt parfait" },
-  "noPrimaryMetadataWarning": { "message": "Ajoutez au moins un rôle, un contexte ou un objectif", "description": "Avertissement lorsqu'aucune métadonnée primaire n'est définie" },
-  "missingSomePrimaryMetadata": { "message": "Renseignez le rôle, le contexte et l'objectif pour de meilleurs résultats", "description": "Avertissement lorsque les métadonnées primaires sont incomplètes" },
-  "allPrimaryMetadataSet": { "message": "Parfait ! Toutes les métadonnées principales sont ajoutées", "description": "Message lorsque toutes les métadonnées principales sont définies" },
+  "noPrimaryMetadataWarning": { "message": "En ajoutant au moins un rôle, un contexte et un objectif, vous obtiendrez de meilleurs résultats", "description": "Avertissement lorsqu'aucune métadonnée primaire n'est définie" },
+  "missingSomePrimaryMetadata": { "message": "Avec un rôle, un contexte et un objectif, votre prompt fera partie des 5% les plus efficaces", "description": "Avertissement lorsque les métadonnées primaires sont incomplètes" },
+  "allPrimaryMetadataSet": { "message": "Bravo, votre prompt est bien construit. Vous pouvez maintenant jouer avec les autres blocs pour optimiser encore un peu vos résultats", "description": "Message lorsque toutes les métadonnées principales sont définies" },
   "contentOrMetadataRequired": { "message": "Ajoutez du contenu ou au moins une métadonnée", "description": "Erreur de validation lors de la création du template" },
   "addBlocksTitle": { "message": "Ajouter des blocs", "description": "Libellé pour le titre de la section des blocs" }
 }

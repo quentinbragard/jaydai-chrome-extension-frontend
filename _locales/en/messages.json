@@ -2039,9 +2039,9 @@
   "moreActions": { "message": "More actions", "description": "Label for the more actions button" },
   "edit": { "message": "Edit", "description": "Label for the edit button" },
   "aPerfectPrompt": { "message": "A perfect prompt contains at least a role, context and goal", "description": "Label for the a perfect prompt" },
-  "noPrimaryMetadataWarning": { "message": "Add at least one of role, context or goal", "description": "Warning when no primary metadata is set" },
-  "missingSomePrimaryMetadata": { "message": "Fill role, context and goal for best results", "description": "Warning when primary metadata is incomplete" },
-  "allPrimaryMetadataSet": { "message": "Great! All primary metadata added", "description": "Message when all primary metadata are set" },
-  "contentOrMetadataRequired": { "message": "Provide template content or at least one metadata item", "description": "Validation error when creating template" },
+  "noPrimaryMetadataWarning": { "message": "Add at least one of role, context or goal to get the best results", "description": "Warning when no primary metadata is set" },
+  "missingSomePrimaryMetadata": { "message": "With a role, context and goal, your prompt will be part of the top 5%", "description": "Warning when primary metadata is incomplete" },
+  "allPrimaryMetadataSet": { "message": "Great! All primary metadata added. You can now play with the other blocks to optimize your results even more", "description": "Message when all primary metadata are set" },
+  "contentOrMetadataRequired": { "message": "Add content or at least one metadata item", "description": "Validation error when creating template" },
   "addBlocksTitle": { "message": "Add blocks", "description": "Label for the add blocks title" }
 }
