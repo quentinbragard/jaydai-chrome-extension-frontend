@@ -58,6 +58,8 @@ export const EVENTS = {
   BUTTON_INJECTED: 'Button Injected',
   BUTTON_CLICKED: 'Button Clicked',
   MAIN_BUTTON_CLICKED: 'Main Button Clicked',
+  MAIN_BUTTON_DRAG_STARTED: 'Main Button Drag Started',
+  MAIN_BUTTON_DRAG_ENDED: 'Main Button Drag Ended',
   
   // Authentication events
   SIGNIN_STARTED: 'Sign In Started',

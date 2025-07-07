@@ -56,6 +56,7 @@ const MainButton = () => {
     offsetRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     setIsDragging(true);
     movedRef.current = false;
+    trackEvent(EVENTS.MAIN_BUTTON_DRAG_STARTED);
     
     // Prevent button click when starting drag
     e.preventDefault();
@@ -88,6 +89,7 @@ const MainButton = () => {
         } catch (error) {
           console.error('Error storing main button position:', error);
         }
+        trackEvent(EVENTS.MAIN_BUTTON_DRAG_ENDED, { x: newPos.x, y: newPos.y });
       }
     };
 
