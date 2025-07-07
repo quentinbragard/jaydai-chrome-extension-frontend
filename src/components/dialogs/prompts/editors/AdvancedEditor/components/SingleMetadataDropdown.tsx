@@ -170,11 +170,11 @@ export const SingleMetadataDropdown: React.FC<SingleMetadataDropdownProps> = ({
         {/* Create new block option */}
         <div className="jd-p-3 jd-border-t jd-border-border/50">
           <div
-            className="jd-flex jd-items-center jd-gap-2 jd-p-2 jd-rounded jd-border jd-border-dashed jd-border-muted-foreground/50 hover:jd-border-primary/50 hover:jd-bg-primary/5 jd-cursor-pointer jd-transition-colors"
+            className="jd-flex jd-items-center jd-gap-2 jd-p-2 jd-rounded jd-border jd-border-primary jd-bg-primary/10 jd-text-primary hover:jd-bg-primary/20 jd-cursor-pointer jd-transition-colors"
             onClick={() => handleSelectBlock('create')}
           >
-            <Plus className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
-            <span className="jd-text-sm jd-text-muted-foreground">
+            <Plus className="jd-h-4 jd-w-4" />
+            <span className="jd-text-sm">
               {getMessage('createTypeBlock', [label.toLowerCase()], `Create new ${label.toLowerCase()} block`)}
             </span>
           </div>
