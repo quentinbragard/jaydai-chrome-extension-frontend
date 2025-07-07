@@ -14,6 +14,7 @@ import {
   convertMetadataToVirtualBlocks,
   extractPlaceholdersFromBlocks
 } from '@/utils/templates/enhancedPreviewUtils';
+import { countMetadataItems } from '@/utils/prompts/metadataUtils';
 
 interface Placeholder {
   key: string; // without brackets
@@ -41,6 +42,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
 
   const isDark = useThemeDetector();
   const [showPreview, setShowPreview] = useState(mode === 'customize');
+  const [previewHiddenManually, setPreviewHiddenManually] = useState(false);
 
   // Keep a reference to the original content so placeholder replacements do not
   // accumulate when editing values in the placeholder panel
@@ -135,6 +137,18 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }
   }, [previewContent, setContent, mode]);
 
+  // Automatically show preview in create mode when metadata is present
+  useEffect(() => {
+    if (
+      mode === 'create' &&
+      !showPreview &&
+      !previewHiddenManually &&
+      countMetadataItems(metadata) > 0
+    ) {
+      setShowPreview(true);
+    }
+  }, [metadata, mode, showPreview, previewHiddenManually]);
+
   const updatePlaceholder = useCallback((index: number, value: string) => {
     setPlaceholders(prev => {
       const updated = [...prev];
@@ -147,7 +161,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     setPlaceholders(prev => prev.map(p => ({ ...p, value: '' })));
   }, []);
 
-  const togglePreview = () => setShowPreview(prev => !prev);
+  const togglePreview = () => {
+    setShowPreview(prev => {
+      const next = !prev;
+      setPreviewHiddenManually(!next);
+      return next;
+    });
+  };
 
   if (isProcessing) {
     return (
