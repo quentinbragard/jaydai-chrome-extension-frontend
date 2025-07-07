@@ -1,4 +1,5 @@
 import React from 'react';
+import { Video } from 'lucide-react';
 import { BaseDialog } from '../BaseDialog';
 import { useDialog, useDialogManager } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
@@ -54,28 +55,25 @@ export const TutorialsDialog: React.FC = () => {
               key={i}
               src={GIF_URL}
               alt={`Tutorial gif ${i + 1}`}
-              className="jd-w-full jd-h-48 md:jd-h-56 jd-rounded jd-object-cover jd-transition-transform hover:jd-scale-110"
+              className="jd-w-full jd-h-48 md:jd-h-56 jd-rounded jd-object-cover jd-transition-transform hover:jd-scale-150 jd-z-10"
 
             />
           ))}
         </div>
 
-        <div className="jd-grid jd-grid-cols-2 md:jd-grid-cols-3 jd-gap-4">
+        <ul className="jd-space-y-2">
           {videos.map((v) => (
-            <button
-              key={v.id}
-              onClick={() => openVideo(v.videoId, v.title)}
-              className="jd-flex jd-flex-col jd-items-center jd-space-y-2 focus:jd-outline-none"
-            >
-              <img
-                src={`https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`}
-                alt={v.title}
-                className="jd-w-full jd-rounded"
-              />
-              <span className="jd-text-sm jd-text-center">{v.title}</span>
-            </button>
+            <li key={v.id}>
+              <button
+                onClick={() => openVideo(v.videoId, v.title)}
+                className="jd-flex jd-items-center jd-space-x-2 jd-w-full jd-p-2 jd-rounded jd-border jd-border-border hover:jd-bg-muted focus:jd-outline-none"
+              >
+                <Video className="jd-w-4 jd-h-4 jd-flex-shrink-0" />
+                <span className="jd-text-sm">{v.title}</span>
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </BaseDialog>
   );
