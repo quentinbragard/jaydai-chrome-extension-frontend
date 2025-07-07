@@ -72,7 +72,16 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
   const { openDialog } = useDialogManager();
 
   const blocksForType = useMemo(() => {
-    if (mode !== 'customize') return availableMetadataBlocks;
+    if (mode !== 'customize') {
+      const result: Record<MetadataType, Block[]> = {} as Record<MetadataType, Block[]>;
+
+      (Object.keys(METADATA_CONFIGS) as MetadataType[]).forEach(type => {
+        const allBlocks = availableMetadataBlocks[type] || [];
+        result[type] = allBlocks.filter(b => (b as any).published);
+      });
+
+      return result;
+    }
 
     const result: Record<MetadataType, Block[]> = {} as Record<MetadataType, Block[]>;
 
