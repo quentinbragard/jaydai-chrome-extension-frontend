@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Video, Play, ExternalLink, Sparkles } from 'lucide-react';
 import { BaseDialog } from '../BaseDialog';
 import { useDialog, useDialogManager } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 const GIF_URLS = [
   {
@@ -80,6 +81,22 @@ export const TutorialsDialog: React.FC = () => {
   const { openDialog } = useDialogManager();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+  useEffect(() => {
+    if (isOpen) {
+      trackEvent(EVENTS.TUTORIALS_LIST_OPENED);
+    }
+  }, [isOpen]);
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        trackEvent(EVENTS.TUTORIALS_LIST_CLOSED);
+      }
+      dialogProps.onOpenChange(open);
+    },
+    [dialogProps]
+  );
+
   const openVideo = (url: string, title: string) => {
     openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { url, title });
   };
@@ -112,7 +129,7 @@ export const TutorialsDialog: React.FC = () => {
   return (
     <BaseDialog
       open={isOpen}
-      onOpenChange={dialogProps.onOpenChange}
+      onOpenChange={handleOpenChange}
       title={getMessage('tutorials', undefined, 'Tutorials')}
       className="jd-max-w-6xl"
       footer={footer}

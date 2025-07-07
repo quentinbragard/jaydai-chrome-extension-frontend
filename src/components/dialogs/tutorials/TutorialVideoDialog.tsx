@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BaseDialog } from '../BaseDialog';
 import { useDialog } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export const TutorialVideoDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.TUTORIAL_VIDEO);
+
+  useEffect(() => {
+    if (isOpen) {
+      trackEvent(EVENTS.TUTORIAL_VIDEO_PLAYED, {
+        video_title: data?.title,
+      });
+    }
+  }, [isOpen, data]);
 
   if (!isOpen) return null;
 

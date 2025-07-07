@@ -131,6 +131,11 @@ export const EVENTS = {
   QUICK_BLOCK_SELECTOR_CLOSED: 'Quick Block Selector Closed',
   QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED: 'Quick Block Selector Blocks Inserted',
 
+  // Tutorial events
+  TUTORIALS_LIST_OPENED: 'Tutorials List Opened',
+  TUTORIALS_LIST_CLOSED: 'Tutorials List Closed',
+  TUTORIAL_VIDEO_PLAYED: 'Tutorial Video Played',
+
   // Notification events
   NOTIFICATIONS_PANEL_OPENED: 'Notifications Panel Opened',
   NOTIFICATION_ACTION_CLICKED: 'Notification Action Clicked',
