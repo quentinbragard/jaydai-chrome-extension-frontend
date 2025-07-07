@@ -5,9 +5,16 @@ import { DIALOG_TYPES } from '../DialogRegistry';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 
-const mockTutorials = [
-  { id: 'intro', title: 'Getting Started', videoId: 'dQw4w9WgXcQ' },
-  { id: 'advanced', title: 'Advanced Tips', videoId: 'oHg5SJYRHA0' },
+const GIF_URL =
+  'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif';
+
+const videos = [
+  { id: 'v1', title: 'Video 1', videoId: 'dQw4w9WgXcQ' },
+  { id: 'v2', title: 'Video 2', videoId: 'oHg5SJYRHA0' },
+  { id: 'v3', title: 'Video 3', videoId: 'dQw4w9WgXcQ' },
+  { id: 'v4', title: 'Video 4', videoId: 'oHg5SJYRHA0' },
+  { id: 'v5', title: 'Video 5', videoId: 'dQw4w9WgXcQ' },
+  { id: 'v6', title: 'Video 6', videoId: 'oHg5SJYRHA0' },
 ];
 
 export const TutorialsDialog: React.FC = () => {
@@ -39,17 +46,34 @@ export const TutorialsDialog: React.FC = () => {
       className="jd-max-w-md"
       footer={footer}
     >
-      <div className="jd-flex jd-flex-col jd-space-y-2">
-        {mockTutorials.map((t) => (
-          <Button
-            key={t.id}
-            variant="ghost"
-            className="jd-justify-start"
-            onClick={() => openVideo(t.videoId, t.title)}
-          >
-            {t.title}
-          </Button>
-        ))}
+      <div className="jd-flex jd-flex-col jd-space-y-4">
+        <div className="jd-grid jd-grid-cols-3 jd-gap-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <img
+              key={i}
+              src={GIF_URL}
+              alt={`Tutorial gif ${i + 1}`}
+              className="jd-w-full jd-rounded jd-transition-transform hover:jd-scale-110"
+            />
+          ))}
+        </div>
+
+        <div className="jd-grid jd-grid-cols-2 md:jd-grid-cols-3 jd-gap-4">
+          {videos.map((v) => (
+            <button
+              key={v.id}
+              onClick={() => openVideo(v.videoId, v.title)}
+              className="jd-flex jd-flex-col jd-items-center jd-space-y-2 focus:jd-outline-none"
+            >
+              <img
+                src={`https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`}
+                alt={v.title}
+                className="jd-w-full jd-rounded"
+              />
+              <span className="jd-text-sm jd-text-center">{v.title}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </BaseDialog>
   );
