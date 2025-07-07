@@ -169,12 +169,14 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           
           {/* Metadata and Preview Panel */}
           <ResizablePanel defaultSize={75} minSize={50}>
-            <div className={cn(
-              'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-hidden jd-p-4',
-              isDarkMode
-                ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
-                : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
-            )}>
+            <div
+              className={cn(
+                'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-y-auto jd-p-4 jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100 dark:jd-scrollbar-thumb-gray-600 dark:jd-scrollbar-track-gray-800',
+                isDarkMode
+                  ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
+                  : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
+              )}
+            >
               
               {/* Compact Metadata Section */}
               <div className="jd-flex-shrink-0 jd-mb-4">
@@ -211,12 +213,14 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
   // For create mode (no placeholder panel)
   return (
-    <div className={cn(
-      'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-hidden jd-p-6',
-      isDarkMode
-        ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
-        : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
-    )}>
+    <div
+      className={cn(
+        'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-y-auto jd-p-6 jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100 dark:jd-scrollbar-thumb-gray-600 dark:jd-scrollbar-track-gray-800',
+        isDarkMode
+          ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
+          : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
+      )}
+    >
       
       {/* Compact Metadata Section */}
       <div className="jd-flex-shrink-0 jd-mb-6">
