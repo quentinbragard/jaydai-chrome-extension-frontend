@@ -246,6 +246,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
                 content={content}
                 blockContentCache={blockContentCache}
                 isDarkMode={isDark}
+                className="jd-h-full jd-min-h-0 jd-overflow-y-auto"
               />
             </div>
           </div>
@@ -275,7 +276,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               content={previewContent}
               blockContentCache={previewCache}
               isDarkMode={isDark}
-              className="jd-h-full jd-min-h-0"
+              className="jd-h-full jd-min-h-0 jd-overflow-y-auto"
             />
           </div>
         </ResizablePanel>
