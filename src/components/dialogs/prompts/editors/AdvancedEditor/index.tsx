@@ -13,6 +13,13 @@ import {
   convertMetadataToVirtualBlocks,
   extractPlaceholdersFromBlocks
 } from '@/utils/templates/enhancedPreviewUtils';
+import { Block } from '@/types/prompts/blocks';
+import {
+  MetadataType,
+  SingleMetadataType,
+  MultipleMetadataType,
+  isMultipleMetadataType
+} from '@/types/prompts/metadata';
 
 interface AdvancedEditorProps {
   mode?: 'create' | 'customize';
@@ -35,8 +42,40 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     availableMetadataBlocks,
     blockContentCache
   } = useTemplateEditor();
-  
+
   const isDarkMode = useThemeDetector();
+
+  const filteredMetadataBlocks = React.useMemo(() => {
+    const result: Record<MetadataType, Block[]> = {} as any;
+    Object.entries(availableMetadataBlocks).forEach(([key, blocks]) => {
+      const type = key as MetadataType;
+      const published = blocks.filter(b => (b as any).published);
+
+      if (mode === 'create') {
+        result[type] = published;
+        return;
+      }
+
+      const ids: number[] = [];
+      if (isMultipleMetadataType(type)) {
+        const items = (metadata as any)[type as MultipleMetadataType] || [];
+        items.forEach((i: any) => {
+          if (i.blockId) ids.push(i.blockId);
+        });
+      } else {
+        const id = (metadata as any)[type as SingleMetadataType];
+        if (id) ids.push(id);
+      }
+
+      const selected = blocks.filter(b => ids.includes(b.id));
+      const combined = [...published];
+      selected.forEach(b => {
+        if (!combined.find(c => c.id === b.id)) combined.push(b);
+      });
+      result[type] = combined;
+    });
+    return result;
+  }, [availableMetadataBlocks, metadata, mode]);
 
   // Placeholder management for customize mode
   const originalContentRef = useRef(content);
@@ -181,7 +220,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               {/* Compact Metadata Section */}
               <div className="jd-flex-shrink-0 jd-mb-4">
                 <CompactMetadataSection
-                  availableMetadataBlocks={availableMetadataBlocks}
+                  availableMetadataBlocks={filteredMetadataBlocks}
                 />
               </div>
 
@@ -225,7 +264,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       {/* Compact Metadata Section */}
       <div className="jd-flex-shrink-0 jd-mb-6">
         <CompactMetadataSection
-          availableMetadataBlocks={availableMetadataBlocks}
+          availableMetadataBlocks={filteredMetadataBlocks}
         />
       </div>
 
