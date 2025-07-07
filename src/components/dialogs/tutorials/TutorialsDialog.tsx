@@ -8,37 +8,43 @@ import { getMessage } from '@/core/utils/i18n';
 const mockTutorials = [
   {
     id: 'full-tour',
-    title: 'Full Tour',
+    titleId: 'tutorialFullTour',
+    defaultTitle: 'Full Tour',
     videoUrl:
       'https://www.loom.com/embed/c910c2ceeea042d99b977b12bd8dba3e?sid=527cefc8-71d7-41d6-a858-f428bed6e57b',
   },
   {
     id: 'templates',
-    title: 'Templates',
+    titleId: 'tutorialTemplates',
+    defaultTitle: 'Templates',
     videoUrl:
       'https://www.loom.com/embed/af9a0a363d194ac29d6aee3d18b9cdbb?sid=b5879af0-38a7-4432-9983-e3d617401b5e',
   },
   {
     id: 'blocks',
-    title: 'Blocks',
+    titleId: 'tutorialBlocks',
+    defaultTitle: 'Blocks',
     videoUrl:
       'https://www.loom.com/embed/93ac2850b69d4307ba07f1d519a5ed67?sid=8c3c9fab-189f-4464-9449-13c911f2f9f9',
   },
   {
     id: 'folders-org',
-    title: 'Folders & Organization',
+    titleId: 'tutorialFoldersOrganization',
+    defaultTitle: 'Folders & Organization',
     videoUrl:
       'https://www.loom.com/embed/63928ee9359345d9baa89a7ddab7979f?sid=e1796a60-3f1c-43f8-b194-6c9a73f29a0e',
   },
   {
     id: 'extension-popup',
-    title: 'Extension Popup',
+    titleId: 'tutorialExtensionPopup',
+    defaultTitle: 'Extension Popup',
     videoUrl:
       'https://www.loom.com/embed/0113fa04ad104011810d9283df046fb2?sid=56d5ade1-d984-4765-ae00-77b81f21cbc1',
   },
   {
     id: 'stats',
-    title: 'Stats',
+    titleId: 'tutorialStats',
+    defaultTitle: 'Stats',
     videoUrl:
       'https://www.loom.com/embed/c517179557a94a5ba2491a6c7a76f2b0?sid=f055137e-b4e3-4f2f-b4ee-9da6298b2960',
   },
@@ -48,8 +54,11 @@ export const TutorialsDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.TUTORIALS_LIST);
   const { openDialog } = useDialogManager();
 
-  const openVideo = (videoUrl: string, title: string) => {
-    openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { videoUrl, title });
+  const openVideo = (videoUrl: string, titleId: string, defaultTitle: string) => {
+    openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, {
+      videoUrl,
+      title: getMessage(titleId, undefined, defaultTitle),
+    });
   };
 
   const openSubstack = () => {
@@ -79,9 +88,9 @@ export const TutorialsDialog: React.FC = () => {
             key={t.id}
             variant="ghost"
             className="jd-justify-start"
-            onClick={() => openVideo(t.videoUrl, t.title)}
+            onClick={() => openVideo(t.videoUrl, t.titleId, t.defaultTitle)}
           >
-            {t.title}
+            {getMessage(t.titleId, undefined, t.defaultTitle)}
           </Button>
         ))}
       </div>
