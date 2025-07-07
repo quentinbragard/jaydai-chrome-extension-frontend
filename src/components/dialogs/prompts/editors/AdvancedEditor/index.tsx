@@ -193,6 +193,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                       content={previewContent}
                       blockContentCache={previewCache}
                       isDarkMode={isDarkMode}
+                      className="jd-h-full jd-min-h-0 jd-overflow-y-auto"
                     />
                   </div>
                 </div>
@@ -230,6 +231,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               content={content}
               blockContentCache={blockContentCache}
               isDarkMode={isDarkMode}
+              className="jd-h-full jd-min-h-0 jd-overflow-y-auto"
             />
           </div>
         </div>
