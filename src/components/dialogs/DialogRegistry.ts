@@ -7,7 +7,7 @@ export const DIALOG_TYPES = {
   EDIT_TEMPLATE: 'editTemplate',
   CREATE_FOLDER: 'createFolder',
   FOLDER_MANAGER: 'folderManager',
-  PLACEHOLDER_EDITOR: 'placeholderEditor',
+  PLACEHOLDER_EDITOR: 'templateDialog',
   AUTH: 'auth',
   CONFIRMATION: 'confirmation',
   ENHANCED_STATS: 'enhancedStats',

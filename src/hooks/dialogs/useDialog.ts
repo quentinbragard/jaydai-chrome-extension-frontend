@@ -26,7 +26,7 @@ export function useOpenDialog() {
     
     openAuth: (props: any) => openDialog('auth', props),
     
-    openPlaceholderEditor: (props: any) => openDialog('placeholderEditor', props),
+    opentemplateDialog: (props: any) => openDialog('templateDialog', props),
     
     openConfirmation: (props: any) => openDialog('confirmation', props),
     

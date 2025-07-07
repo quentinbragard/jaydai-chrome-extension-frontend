@@ -130,11 +130,6 @@ const useTemplate = useCallback(async (template: Template) => {
 
     // Open the template editor dialog
     openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, dialogData);
-    trackEvent(EVENTS.TEMPLATE_EDITOR_DIALOG_OPENED, {
-      template_id: template.id,
-      template_name: template.title,
-      template_type: 'user'
-    });
     
     // Track template usage (don't await)
     if (template.id) {
@@ -258,11 +253,6 @@ const useTemplate = useCallback(async (template: Template) => {
     };
     
     openDialog(DIALOG_TYPES.CREATE_TEMPLATE, dialogData);
-    trackEvent(EVENTS.TEMPLATE_EDIT_DIALOG_OPENED, {
-      template_id: template.id,
-      template_name: template.title,
-      template_type: 'user'
-    });
   }, [openDialog, queryClient]);
 
   const deleteTemplateWithConfirm = useCallback((id: number) => {

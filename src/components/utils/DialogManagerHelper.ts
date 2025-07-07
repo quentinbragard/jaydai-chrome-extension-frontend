@@ -128,7 +128,7 @@ export class DialogManagerHelper {
   /**
    * Open the placeholder editor dialog for a template
    */
-  public openPlaceholderEditor(
+  public opentemplateDialog(
     templateContent: string, 
     templateTitle: string = 'Template', 
     onComplete?: (finalContent: string) => void

@@ -115,15 +115,11 @@ export const EVENTS = {
   ORGANIZATION_WEBSITE_CLICKED: 'Organization Website Clicked',
   TEMPLATE_REFRESH: 'Template Refresh',
   TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
-  TEMPLATE_EDIT_DIALOG_OPENED: 'Template Edit Dialog Opened',
-  TEMPLATE_EDITOR_DIALOG_OPENED: 'Template Editor Dialog Opened',
   TEMPLATE_DIALOG_VIEW_CHANGED: 'Template Dialog View Changed',
 
   BLOCK_CREATED: 'Block Created',
   BLOCK_DELETED: 'Block Deleted',
   BLOCK_UPDATED: 'Block Updated',
-  INSERT_BLOCK_DIALOG_OPENED: 'Insert Block Dialog Opened',
-  INSERT_BLOCK_DIALOG_CLOSED: 'Insert Block Dialog Closed',
   INSERT_BLOCK_DIALOG_BLOCK_SELECTED: 'Insert Block Dialog Block Selected',
   INSERT_BLOCK_DIALOG_BLOCK_UNSELECTED: 'Insert Block Dialog Block Unselected',
   INSERT_BLOCK_DIALOG_BLOCK_DELETED: 'Insert Block Dialog Block Deleted',
@@ -135,8 +131,6 @@ export const EVENTS = {
   QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED: 'Quick Block Selector Blocks Inserted',
 
   // Tutorial events
-  TUTORIALS_LIST_OPENED: 'Tutorials List Opened',
-  TUTORIALS_LIST_CLOSED: 'Tutorials List Closed',
   TUTORIAL_VIDEO_PLAYED: 'Tutorial Video Played',
 
   // Notification events

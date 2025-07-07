@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Play,
-  Video
   ExternalLink,
   Sparkles,
   Compass,
@@ -102,17 +101,8 @@ export const TutorialsDialog: React.FC = () => {
   const { openDialog } = useDialogManager();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      trackEvent(EVENTS.TUTORIALS_LIST_OPENED);
-    }
-  }, [isOpen]);
-
   const handleOpenChange = useCallback(
     (open: boolean) => {
-      if (!open) {
-        trackEvent(EVENTS.TUTORIALS_LIST_CLOSED);
-      }
       dialogProps.onOpenChange(open);
     },
     [dialogProps]

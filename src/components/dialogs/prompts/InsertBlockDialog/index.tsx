@@ -234,9 +234,6 @@ export const InsertBlockDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.INSERT_BLOCK);
   const handleOpenChange = useCallback(
     (open: boolean) => {
-      if (!open) {
-        trackEvent(EVENTS.INSERT_BLOCK_DIALOG_CLOSED);
-      }
       dialogProps.onOpenChange(open);
     },
     [dialogProps]
@@ -296,7 +293,6 @@ export const InsertBlockDialog: React.FC = () => {
 
   useEffect(() => {
     if (isOpen) {
-      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_OPENED);
       setLoading(true);
       setSelectedBlocks([]);
       setBlockContents({});

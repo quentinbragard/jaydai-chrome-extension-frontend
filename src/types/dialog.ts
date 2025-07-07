@@ -12,7 +12,7 @@ export const DIALOG_TYPES = {
   EDIT_TEMPLATE: 'editTemplate',
   CREATE_FOLDER: 'createFolder',
   FOLDER_MANAGER: 'folderManager',
-  PLACEHOLDER_EDITOR: 'placeholderEditor',
+  PLACEHOLDER_EDITOR: 'templateDialog',
   AUTH: 'auth',
   CONFIRMATION: 'confirmation'
 } as const;
@@ -60,7 +60,7 @@ export interface AuthDialogData {
 /**
  * Placeholder editor dialog data
  */
-export interface PlaceholderEditorData {
+export interface templateDialogData {
   content: string;
   title?: string;
   onComplete: (modifiedContent: string) => void;
