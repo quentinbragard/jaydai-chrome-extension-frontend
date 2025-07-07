@@ -116,15 +116,6 @@ export const TutorialsDialog: React.FC = () => {
                         {tutorial.subtitle}
                       </p>
                     </div>
-                    
-                    {/* Play Button */}
-                    <div className={`jd-absolute jd-top-1/2 jd-left-1/2 jd-transform -jd-translate-x-1/2 -jd-translate-y-1/2 jd-transition-all jd-duration-300 ${
-                      isHovered ? 'jd-scale-100 jd-opacity-100' : 'jd-scale-75 jd-opacity-0'
-                    }`}>
-                      <div className="jd-w-16 jd-h-16 jd-bg-white/20 jd-backdrop-blur-sm jd-rounded-full jd-flex jd-items-center jd-justify-center jd-shadow-2xl">
-                        <Play className="jd-w-6 jd-h-6 jd-text-white jd-ml-1" fill="currentColor" />
-                      </div>
-                    </div>
                   </div>
                 </div>
               );
