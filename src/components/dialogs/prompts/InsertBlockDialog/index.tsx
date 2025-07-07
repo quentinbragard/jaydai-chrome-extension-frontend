@@ -22,7 +22,6 @@ import {
 } from '@/utils/prompts/blockUtils';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
 import { 
@@ -255,8 +254,7 @@ export const InsertBlockDialog: React.FC = () => {
   const [editableContent, setEditableContent] = useState('');
   const [blockContents, setBlockContents] = useState<Record<number, string>>({});
   const isDark = useThemeDetector();
-  const { openCreateBlock } = useDialogActions();
-  const { editBlock, deleteBlock } = useBlockActions({
+  const { editBlock, deleteBlock, createBlock } = useBlockActions({
     onBlockUpdated: (updated) => {
       setBlocks(prev => prev.map(b => (b.id === updated.id ? updated : b)));
       setSelectedBlocks(prev => prev.map(b => (b.id === updated.id ? updated : b)));
@@ -275,6 +273,10 @@ export const InsertBlockDialog: React.FC = () => {
         const { [id]: _removed, ...rest } = prev;
         return rest;
       });
+    }
+    },
+    onBlockCreated: (newBlock) => {
+      setBlocks(prev => [newBlock, ...prev]);
     }
   });
   const platform = detectPlatform();
@@ -551,7 +553,7 @@ const filteredBlocks = blocks.filter(b => {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => openCreateBlock({ source: 'InsertBlockDialog' })}
+                  onClick={() => createBlock(undefined, 'InsertBlockDialog')}
                   className="jd-h-6 jd-text-xs jd-px-2 jd-border-dashed"
                 >
                   <Plus className="jd-h-3 jd-w-3 jd-mr-1" />
