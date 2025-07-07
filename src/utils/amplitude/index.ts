@@ -130,6 +130,13 @@ export const EVENTS = {
   QUICK_BLOCK_SELECTOR_CLOSED: 'Quick Block Selector Closed',
   QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED: 'Quick Block Selector Blocks Inserted',
 
+  // Notification events
+  NOTIFICATIONS_PANEL_OPENED: 'Notifications Panel Opened',
+  NOTIFICATION_ACTION_CLICKED: 'Notification Action Clicked',
+  NOTIFICATION_MARKED_READ: 'Notification Marked Read',
+  NOTIFICATION_MARK_ALL_READ: 'Notification Mark All Read',
+  NOTIFICATION_DELETED: 'Notification Deleted',
+
 
   // Settings events
   SETTINGS_OPENED: 'Settings Opened',
