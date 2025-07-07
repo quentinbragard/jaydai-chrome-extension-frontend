@@ -88,10 +88,11 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         className={cn(
           'jd-flex-1 jd-min-h-0 jd-p-4 jd-rounded-lg jd-border jd-text-sm jd-leading-relaxed',
           'jd-whitespace-pre-wrap jd-break-words jd-break-all jd-overflow-y-auto jd-overflow-x-hidden',
+          'jd-max-h-[400px]',
           'jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100',
           'dark:jd-scrollbar-thumb-gray-600 dark:jd-scrollbar-track-gray-800',
-          isDarkMode 
-            ? 'jd-bg-gray-800 jd-border-gray-700 jd-text-white' 
+          isDarkMode
+            ? 'jd-bg-gray-800 jd-border-gray-700 jd-text-white'
             : 'jd-bg-white jd-border-gray-200 jd-text-gray-900'
         )}
         dangerouslySetInnerHTML={{ __html: previewHtml }}
