@@ -43,17 +43,19 @@ export const TutorialsDialog: React.FC = () => {
       open={isOpen}
       onOpenChange={dialogProps.onOpenChange}
       title={getMessage('tutorials', undefined, 'Tutorials')}
-      className="jd-max-w-md"
+      className="jd-max-w-5xl"
       footer={footer}
     >
-      <div className="jd-flex jd-flex-col jd-space-y-4">
-        <div className="jd-grid jd-grid-cols-3 jd-gap-2">
+      <div className="jd-flex jd-flex-col jd-space-y-6">
+        <div className="jd-grid jd-grid-cols-3 jd-gap-4">
+
           {Array.from({ length: 3 }).map((_, i) => (
             <img
               key={i}
               src={GIF_URL}
               alt={`Tutorial gif ${i + 1}`}
-              className="jd-w-full jd-rounded jd-transition-transform hover:jd-scale-110"
+              className="jd-w-full jd-h-48 md:jd-h-56 jd-rounded jd-object-cover jd-transition-transform hover:jd-scale-110"
+
             />
           ))}
         </div>
