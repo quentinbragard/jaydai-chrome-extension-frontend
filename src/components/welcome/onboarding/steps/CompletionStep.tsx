@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Sparkles, Star, Folder, TrendingUp } from 'lucide-react';
+import { CheckCircle2, Sparkles, Star, Folder, TrendingUp, Play } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { AIToolGrid } from '@/components/welcome/AIToolGrid';
@@ -159,11 +159,38 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
           </div>
           <p className="jd-text-gray-400 jd-text-xs jd-leading-relaxed">
             {getMessage(
-              'whatNextDescription', 
-              undefined, 
+              'whatNextDescription',
+              undefined,
               'Open your preferred AI tool above to start using personalized templates. Look for our extension button in the bottom corner.'
             )}
           </p>
+        </div>
+
+        {/* Video Walkthrough */}
+        <div className="jd-bg-gray-800/40 jd-border jd-border-gray-700/50 jd-rounded-lg jd-p-4 jd-flex-1 jd-backdrop-blur-sm">
+          <div className="jd-flex jd-items-center jd-gap-2 jd-mb-3">
+            <Play className="jd-h-4 jd-w-4 jd-text-blue-400" />
+            <h4 className="jd-text-blue-400 jd-font-medium jd-text-sm">
+              {getMessage('watchVideo', undefined, 'Quick Start Video')}
+            </h4>
+          </div>
+          <p className="jd-text-gray-400 jd-text-xs jd-leading-relaxed jd-mb-3">
+            {getMessage(
+              'watchVideoDescription',
+              undefined,
+              'Watch this short video to see how JayDai works.'
+            )}
+          </p>
+          <div style={{ position: 'relative', paddingBottom: '62.5%', height: 0 }}>
+            <iframe
+              src="https://www.loom.com/embed/c910c2ceeea042d99b977b12bd8dba3e?sid=0ffed202-793e-4924-afad-8e89569a68c4"
+              frameBorder="0"
+              allow="fullscreen"
+              webkitAllowFullScreen
+              mozAllowFullScreen
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+            />
+          </div>
         </div>
       </motion.div>
     </motion.div>
