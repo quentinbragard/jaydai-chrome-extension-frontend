@@ -2038,5 +2038,6 @@
   "showMore": { "message": "Show more", "description": "Label for the show more button" },
   "moreActions": { "message": "More actions", "description": "Label for the more actions button" },
   "edit": { "message": "Edit", "description": "Label for the edit button" },
-  "aPerfectPrompt": { "message": "A perfect prompt contains at least a role, context and goal", "description": "Label for the a perfect prompt" }
+  "aPerfectPrompt": { "message": "A perfect prompt contains at least a role, context and goal", "description": "Label for the a perfect prompt" },
+  "addBlocksTitle": { "message": "Add blocks", "description": "Label for the add blocks title" }
 }

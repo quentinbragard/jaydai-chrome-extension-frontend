@@ -208,7 +208,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   // For create mode (no placeholder panel)
   return (
     <div className={cn(
-      'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-hidden jd-p-6',
+      'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-hidden',
       isDarkMode
         ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
         : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
@@ -225,12 +225,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
       {/* Preview Section */}
       <div className="jd-flex-1 jd-min-h-0">
         <div className="jd-space-y-3 jd-h-full jd-flex jd-flex-col">
-          <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-flex-shrink-0">
-            <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-            {getMessage('completePreview', undefined, 'Complete Preview')}
-          </h3>
-          
-          <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
+          <div className="jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
             <TemplatePreview
               metadata={metadata}
               content={content}

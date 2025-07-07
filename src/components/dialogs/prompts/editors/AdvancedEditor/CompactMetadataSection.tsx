@@ -231,7 +231,7 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
     <div className="jd-space-y-4">
       <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
         <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
-        {getMessage('promptMetadata', undefined, 'Prompt Metadata')}
+        {getMessage('addBlocksTitle', undefined, 'Add some blocks to your prompt')}
       </h3>
 
       {/* Ultra-compact metadata grid */}
