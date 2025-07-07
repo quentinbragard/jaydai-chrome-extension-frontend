@@ -7,7 +7,7 @@ import { useTemplateCreation } from '@/hooks/prompts/useTemplateCreation';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { PromptMetadata } from '@/types/prompts/metadata';
-import { metadataToBlockMapping } from '@/utils/prompts/metadataUtils';
+import { metadataToBlockMapping, listFilledMetadataFields } from '@/utils/prompts/metadataUtils';
 
 export function useCreateTemplateDialog() {
   const createDialog = useDialog(DIALOG_TYPES.CREATE_TEMPLATE);
@@ -29,7 +29,8 @@ export function useCreateTemplateDialog() {
         content: content, // Use the base content directly
         description: baseHook.description?.trim(),
         folder_id: baseHook.selectedFolderId ? parseInt(baseHook.selectedFolderId, 10) : undefined,
-        metadata: metadataToBlockMapping(metadata)
+        metadata: metadataToBlockMapping(metadata),
+        metadata_fields: listFilledMetadataFields(metadata)
       };
             
       const currentTemplate = data?.template;

@@ -392,6 +392,37 @@ export function countMetadataItems(metadata: PromptMetadata): number {
   return count;
 }
 
+/**
+ * Create a list of metadata types that contain values. Multiple metadata
+ * types (like `example`) will appear as many times as there are filled items.
+ */
+export function listFilledMetadataFields(metadata: PromptMetadata): string[] {
+  const fields: string[] = [];
+
+  [...PRIMARY_METADATA, ...SECONDARY_METADATA].forEach(type => {
+    if (isMultipleMetadataType(type)) {
+      const key = MULTI_TYPE_KEY_MAP[type];
+      const items = (metadata as any)[key];
+      if (Array.isArray(items)) {
+        items.forEach((item: MetadataItem) => {
+          if (item.value && item.value.trim()) {
+            fields.push(type);
+          }
+        });
+      }
+    } else {
+      const singleType = type as SingleMetadataType;
+      const blockId = metadata[singleType];
+      const customValue = metadata.values?.[singleType];
+      if ((blockId && blockId !== 0) || (customValue && customValue.trim())) {
+        fields.push(type);
+      }
+    }
+  });
+
+  return fields;
+}
+
 // ============================================================================
 // METADATA CONVERSION
 // ============================================================================
