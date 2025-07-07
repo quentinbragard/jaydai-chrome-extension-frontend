@@ -333,20 +333,17 @@ export function validateMetadata(metadata: PromptMetadata): {
 } {
   const errors: string[] = [];
   const warnings: string[] = [];
-  
-  // Check if at least one primary metadata is filled
-  const hasPrimaryMetadata = PRIMARY_METADATA.some(type => {
-    if (!isMultipleMetadataType(type)) {
-      const singleType = type as SingleMetadataType;
-      const blockId = metadata[singleType];
-      const customValue = metadata.values?.[singleType];
-      return (blockId && blockId !== 0) || (customValue && customValue.trim());
-    }
-    return false;
-  });
-  
-  if (!hasPrimaryMetadata) {
-    errors.push('At least one of Role, Context, or Goal is required');
+
+  const primaryCount = PRIMARY_METADATA.reduce((count, type) => {
+    const blockId = metadata[type as SingleMetadataType];
+    const custom = metadata.values?.[type as SingleMetadataType];
+    return (blockId && blockId !== 0) || (custom && custom.trim()) ? count + 1 : count;
+  }, 0);
+
+  if (primaryCount === 0) {
+    warnings.push('noPrimary');
+  } else if (primaryCount < PRIMARY_METADATA.length) {
+    warnings.push('missingPrimary');
   }
   
   // Check for empty multiple metadata items

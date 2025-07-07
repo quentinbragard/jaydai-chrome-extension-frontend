@@ -13,6 +13,8 @@ import {
   convertMetadataToVirtualBlocks,
   extractPlaceholdersFromBlocks
 } from '@/utils/templates/enhancedPreviewUtils';
+import { PRIMARY_METADATA, SingleMetadataType } from '@/types/prompts/metadata';
+import { AlertTriangle, Check } from 'lucide-react';
 
 interface AdvancedEditorProps {
   mode?: 'create' | 'customize';
@@ -37,6 +39,38 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   } = useTemplateEditor();
   
   const isDarkMode = useThemeDetector();
+
+  const primaryCount = React.useMemo(() => {
+    return PRIMARY_METADATA.reduce((acc, type) => {
+      const blockId = metadata[type as SingleMetadataType];
+      const val = metadata.values?.[type as SingleMetadataType];
+      return (blockId && blockId !== 0) || (val && val.trim()) ? acc + 1 : acc;
+    }, 0);
+  }, [metadata]);
+
+  let metadataBanner: React.ReactNode = null;
+  if (primaryCount === 0) {
+    metadataBanner = (
+      <div className="jd-flex jd-items-center jd-gap-2 jd-bg-red-100 jd-text-red-700 jd-border jd-border-red-200 jd-rounded jd-p-2 jd-text-sm">
+        <AlertTriangle className="jd-h-4 jd-w-4 jd-text-red-500" />
+        {getMessage('noPrimaryMetadataWarning', undefined, 'Add at least one of role, context or goal')}
+      </div>
+    );
+  } else if (primaryCount < PRIMARY_METADATA.length) {
+    metadataBanner = (
+      <div className="jd-flex jd-items-center jd-gap-2 jd-bg-amber-50 jd-text-amber-700 jd-border jd-border-amber-200 jd-rounded jd-p-2 jd-text-sm">
+        <AlertTriangle className="jd-h-4 jd-w-4 jd-text-amber-500" />
+        {getMessage('missingSomePrimaryMetadata', undefined, 'Add role, context and goal for best results')}
+      </div>
+    );
+  } else {
+    metadataBanner = (
+      <div className="jd-flex jd-items-center jd-gap-2 jd-bg-green-100 jd-text-green-700 jd-border jd-border-green-200 jd-rounded jd-p-2 jd-text-sm">
+        <Check className="jd-h-4 jd-w-4 jd-text-green-600" />
+        {getMessage('allPrimaryMetadataSet', undefined, 'Great! You added role, context and goal')}
+      </div>
+    );
+  }
 
   // Placeholder management for customize mode
   const originalContentRef = useRef(content);
@@ -183,6 +217,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   availableMetadataBlocks={availableMetadataBlocks}
                 />
               </div>
+              <div className="jd-mb-4">{metadataBanner}</div>
 
               {/* Preview Section */}
               <div className="jd-flex-1 jd-min-h-0">
@@ -221,6 +256,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           availableMetadataBlocks={availableMetadataBlocks}
         />
       </div>
+      <div className="jd-mb-4">{metadataBanner}</div>
 
       {/* Preview Section */}
       <div className="jd-flex-1 jd-min-h-0">
