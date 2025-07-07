@@ -15,6 +15,7 @@ interface TemplateFormData {
   tags?: string[];
   locale?: string;
   metadata?: Record<string, number | number[]>;
+  metadata_fields?: string[];
   source?: string;
 }
 
@@ -34,7 +35,7 @@ export function useTemplateCreation() {
   // Create template mutation
   const createTemplateMutation = useMutation(
     async (data: TemplateFormData) => {
-      const { source, ...form } = data;
+      const { source, metadata_fields, ...form } = data;
       // Prepare API payload
       const templateData = {
         title: form.name.trim(),
@@ -60,6 +61,7 @@ export function useTemplateCreation() {
         template_id: response.data.id,
         template_name: response.data.title,
         template_type: response.data.type,
+        metadata_fields: metadata_fields,
         source: source || 'CreateTemplateDialog'
       });
       return response.data;
@@ -81,13 +83,14 @@ export function useTemplateCreation() {
   const updateTemplateMutation = useMutation(
     async ({ id, data }: { id: number; data: TemplateFormData }) => {
       // Prepare API payload
+      const { metadata_fields, ...rest } = data;
       const templateData = {
-        title: data.name.trim(),
-        content: data.content.trim(),
-        description: data.description?.trim(),
-        folder_id: data.folder_id || null,
-        tags: data.tags || [],
-        ...(data.metadata ? { metadata: data.metadata } : {})
+        title: rest.name.trim(),
+        content: rest.content.trim(),
+        description: rest.description?.trim(),
+        folder_id: rest.folder_id || null,
+        tags: rest.tags || [],
+        ...(rest.metadata ? { metadata: rest.metadata } : {})
       };
       
       const response = await promptApi.updateTemplate(id, templateData);
