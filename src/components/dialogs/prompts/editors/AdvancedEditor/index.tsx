@@ -4,7 +4,7 @@ import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { CompactMetadataSection } from './CompactMetadataSection';
 import { useTemplateEditor } from '../../TemplateEditorDialog/TemplateEditorContext';
-import TemplatePreview from '@/components/prompts/TemplatePreview';
+import BlockEditablePreview from '@/components/prompts/BlockEditablePreview';
 import { getMessage } from '@/core/utils/i18n';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Input } from '@/components/ui/input';
@@ -188,12 +188,13 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
               <div className="jd-flex-1 jd-min-h-0">
                 <div className="jd-space-y-3 jd-h-full jd-flex jd-flex-col">
                   <div className="jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
-                    <TemplatePreview
+                    <BlockEditablePreview
                       metadata={metadata}
-                      content={previewContent}
-                      blockContentCache={previewCache}
+                      content={content}
+                      blockContentCache={blockContentCache}
                       isDarkMode={isDarkMode}
                       className="jd-h-full"
+                      onContentChange={setContent}
                     />
                   </div>
                 </div>
@@ -231,12 +232,13 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           </h3>
           
           <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
-            <TemplatePreview
+            <BlockEditablePreview
               metadata={metadata}
               content={content}
               blockContentCache={blockContentCache}
               isDarkMode={isDarkMode}
               className="jd-h-full"
+              onContentChange={setContent}
             />
           </div>
         </div>
