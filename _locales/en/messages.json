@@ -2040,5 +2040,11 @@
   "showMore": { "message": "Show more", "description": "Label for the show more button" },
   "moreActions": { "message": "More actions", "description": "Label for the more actions button" },
   "edit": { "message": "Edit", "description": "Label for the edit button" },
-  "aPerfectPrompt": { "message": "A perfect prompt contains at least a role, context and goal", "description": "Label for the a perfect prompt" }
+  "aPerfectPrompt": { "message": "A perfect prompt contains at least a role, context and goal", "description": "Label for the a perfect prompt" },
+  "tutorialFullTour": { "message": "Full Tour", "description": "Title for the Full Tour tutorial" },
+  "tutorialTemplates": { "message": "Templates", "description": "Title for the Templates tutorial" },
+  "tutorialBlocks": { "message": "Blocks", "description": "Title for the Blocks tutorial" },
+  "tutorialFoldersOrganization": { "message": "Folders & Organization", "description": "Title for the Folders & Organization tutorial" },
+  "tutorialExtensionPopup": { "message": "Extension Popup", "description": "Title for the Extension Popup tutorial" },
+  "tutorialStats": { "message": "Stats", "description": "Title for the Stats tutorial" }
 }

@@ -2021,5 +2021,11 @@
   "showMore": { "message": "Afficher plus", "description": "Libellé pour le bouton de clic pour afficher plus" },
   "moreActions": { "message": "Plus d'actions", "description": "Libellé pour le bouton de clic pour plus d'actions" },
   "edit": { "message": "Modifier", "description": "Libellé pour le bouton de clic pour modifier" },
-  "aPerfectPrompt": { "message": "Un prompt parfait contient au moins un rôle, un contexte et un objectif", "description": "Libellé pour le prompt parfait" }
+  "aPerfectPrompt": { "message": "Un prompt parfait contient au moins un rôle, un contexte et un objectif", "description": "Libellé pour le prompt parfait" },
+  "tutorialFullTour": { "message": "Visite complète", "description": "Titre pour le tutoriel Full Tour" },
+  "tutorialTemplates": { "message": "Templates", "description": "Titre pour le tutoriel Templates" },
+  "tutorialBlocks": { "message": "Blocs", "description": "Titre pour le tutoriel Blocs" },
+  "tutorialFoldersOrganization": { "message": "Dossiers & Organisation", "description": "Titre pour le tutoriel Dossiers et Organisation" },
+  "tutorialExtensionPopup": { "message": "Popup de l'extension", "description": "Titre pour le tutoriel Popup de l'extension" },
+  "tutorialStats": { "message": "Statistiques", "description": "Titre pour le tutoriel Statistiques" }
 }
