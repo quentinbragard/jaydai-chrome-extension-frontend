@@ -9,7 +9,7 @@ export const TutorialVideoDialog: React.FC = () => {
 
   if (!isOpen) return null;
 
-  const videoId = data?.videoId || '';
+  const url = data?.url || '';
   const title = data?.title || getMessage('tutorials', undefined, 'Tutorial');
 
   return (
@@ -22,7 +22,7 @@ export const TutorialVideoDialog: React.FC = () => {
       <div className="jd-relative jd-w-full jd-h-0 jd-pb-[56.25%]">
         <iframe
           className="jd-absolute jd-top-0 jd-left-0 jd-w-full jd-h-full"
-          src={`https://www.youtube.com/embed/${videoId}`}
+          src={url}
           title={title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen

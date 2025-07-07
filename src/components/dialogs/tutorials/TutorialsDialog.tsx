@@ -10,12 +10,48 @@ const GIF_URL =
   'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif';
 
 const videos = [
-  { id: 'v1', title: 'Getting Started with AI Tools', videoId: 'dQw4w9WgXcQ', duration: '3:45', description: 'Learn the basics of our AI-powered features' },
-  { id: 'v2', title: 'Advanced Workflow Automation', videoId: 'oHg5SJYRHA0', duration: '5:20', description: 'Streamline your workflow with smart automation' },
-  { id: 'v3', title: 'Keyboard Shortcuts Masterclass', videoId: 'dQw4w9WgXcQ', duration: '2:15', description: 'Boost productivity with essential shortcuts' },
-  { id: 'v4', title: 'Integration Best Practices', videoId: 'oHg5SJYRHA0', duration: '7:30', description: 'Connect with your favorite tools seamlessly' },
-  { id: 'v5', title: 'Tips & Tricks from Power Users', videoId: 'dQw4w9WgXcQ', duration: '4:55', description: 'Pro tips to maximize your efficiency' },
-  { id: 'v6', title: 'Troubleshooting Common Issues', videoId: 'oHg5SJYRHA0', duration: '6:10', description: 'Quick solutions to frequent problems' },
+  {
+    id: 'tour',
+    title: 'Full Tour',
+    url: 'https://www.loom.com/embed/c910c2ceeea042d99b977b12bd8dba3e',
+    duration: '2:00',
+    description: 'Complete walkthrough of the extension.',
+  },
+  {
+    id: 'templates',
+    title: 'Templates',
+    url: 'https://www.loom.com/embed/af9a0a363d194ac29d6aee3d18b9cdbb',
+    duration: '2:00',
+    description: 'How to use templates.',
+  },
+  {
+    id: 'blocks',
+    title: 'Blocks',
+    url: 'https://www.loom.com/embed/93ac2850b69d4307ba07f1d519a5ed67',
+    duration: '2:00',
+    description: 'Overview of the blocks feature.',
+  },
+  {
+    id: 'folders',
+    title: 'Folders & Organization',
+    url: 'https://www.loom.com/embed/63928ee9359345d9baa89a7ddab7979f',
+    duration: '2:00',
+    description: 'Organizing folders in JayDai.',
+  },
+  {
+    id: 'popup',
+    title: 'Extension Popup',
+    url: 'https://www.loom.com/embed/0113fa04ad104011810d9283df046fb2',
+    duration: '1:30',
+    description: 'Using the extension popup.',
+  },
+  {
+    id: 'stats',
+    title: 'Stats',
+    url: 'https://www.loom.com/embed/c517179557a94a5ba2491a6c7a76f2b0',
+    duration: '1:30',
+    description: 'Exploring the stats view.',
+  },
 ];
 
 const featuredTutorials = [
@@ -29,8 +65,8 @@ export const TutorialsDialog: React.FC = () => {
   const { openDialog } = useDialogManager();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const openVideo = (videoId: string, title: string) => {
-    openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { videoId, title });
+  const openVideo = (url: string, title: string) => {
+    openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { url, title });
   };
 
   const openSubstack = () => {
@@ -137,7 +173,7 @@ export const TutorialsDialog: React.FC = () => {
             {videos.map((video, index) => (
               <button
                 key={video.id}
-                onClick={() => openVideo(video.videoId, video.title)}
+                onClick={() => openVideo(video.url, video.title)}
                 className="jd-group jd-flex jd-items-start jd-gap-4 jd-p-4 jd-rounded-xl jd-border jd-border-border/50 jd-bg-card hover:jd-bg-muted/50 jd-transition-all jd-duration-300 hover:jd-shadow-lg hover:jd-scale-[1.02] focus:jd-outline-none focus:jd-ring-2 focus:jd-ring-ring focus:jd-ring-offset-2 jd-text-left"
               >
                 {/* Video Icon Container */}
