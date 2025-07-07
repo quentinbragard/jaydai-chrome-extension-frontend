@@ -176,7 +176,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={getMessage('enterTemplateContent', undefined, 'Enter your template content here...')}
-            className="jd-flex-1 jd-resize-none !jd-min-h-[40vh] jd-max-h-[50vh] jd-overflow-y-auto jd-break-words jd-text-sm jd-leading-relaxed"
+            className="jd-flex-1 jd-resize-none !jd-min-h-[25vh] jd-max-h-[50vh] jd-overflow-y-auto jd-break-words jd-text-sm jd-leading-relaxed"
             onKeyDown={(e) => e.stopPropagation()}
             onKeyPress={(e) => e.stopPropagation()}
             onKeyUp={(e) => e.stopPropagation()}
