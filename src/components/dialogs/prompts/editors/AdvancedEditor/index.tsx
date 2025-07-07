@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Updated Version
+// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Fixed Version
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
@@ -204,7 +204,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           {/* Metadata and Preview Panel */}
           <ResizablePanel defaultSize={75} minSize={50}>
             <div className={cn(
-              'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-hidden jd-p-4',
+              'jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden jd-p-4',
               isDarkMode
                 ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
                 : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
@@ -217,20 +217,17 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
                   availableMetadataBlocks={availableMetadataBlocks}
                 />
               </div>
-              <div className="jd-mb-4">{metadataBanner}</div>
 
-              {/* Preview Section */}
-              <div className="jd-flex-1 jd-min-h-0">
-                <div className="jd-space-y-3 jd-min-h-[25vh] jd-max-h-[50vh] jd-flex jd-flex-col">
-                  <div className="jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
-                    <TemplatePreview
-                      metadata={metadata}
-                      content={previewContent}
-                      blockContentCache={previewCache}
-                      isDarkMode={isDarkMode}
-                      className="jd-h-full jd-min-h-0 jd-overflow-y-auto"
-                    />
-                  </div>
+              {/* Preview Section - Fixed height container that allows scrolling */}
+              <div className="jd-flex-1 jd-min-h-0 jd-overflow-hidden">
+                <div className="jd-h-full jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10">
+                  <TemplatePreview
+                    metadata={metadata}
+                    content={previewContent}
+                    blockContentCache={previewCache}
+                    isDarkMode={isDarkMode}
+                    className="jd-h-full jd-w-full"
+                  />
                 </div>
               </div>
             </div>
@@ -243,7 +240,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   // For create mode (no placeholder panel)
   return (
     <div className={cn(
-      'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-hidden',
+      'jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden jd-p-4',
       isDarkMode
         ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
         : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
@@ -255,21 +252,20 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           mode={mode as any}
           availableMetadataBlocks={availableMetadataBlocks}
         />
-      </div>
-      <div className="jd-mb-4">{metadataBanner}</div>
+        <div className="jd-mt-2 jd-flex-shrink-0">{metadataBanner}</div>
 
-      {/* Preview Section */}
-      <div className="jd-flex-1 jd-min-h-0">
-      <div className="jd-space-y-3 jd-min-h-[25vh] jd-max-h-[50vh] jd-flex jd-flex-col">
-      <div className="jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
-            <TemplatePreview
-              metadata={metadata}
-              content={content}
-              blockContentCache={blockContentCache}
-              isDarkMode={isDarkMode}
-              className="jd-h-full jd-min-h-0 jd-overflow-y-auto"
-            />
-          </div>
+      </div>
+
+      {/* Preview Section - Fixed height container that allows scrolling */}
+      <div className="jd-flex-1 jd-min-h-0 jd-overflow-hidden">
+        <div className="jd-h-full jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10">
+          <TemplatePreview
+            metadata={metadata}
+            content={content}
+            blockContentCache={blockContentCache}
+            isDarkMode={isDarkMode}
+            className="jd-h-full jd-w-full"
+          />
         </div>
       </div>
     </div>

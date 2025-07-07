@@ -1,4 +1,4 @@
-// src/components/prompts/TemplatePreview.tsx - Fixed Version
+// src/components/prompts/TemplatePreview.tsx - Fixed Version with Proper Scrolling
 import React from 'react';
 import { cn } from '@/core/utils/classNames';
 import { PromptMetadata } from '@/types/prompts/metadata';
@@ -74,31 +74,45 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   }, [metadata, content, blockContentCache, isDarkMode]);
 
   return (
-    <div className={cn('jd-space-y-3 jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden jd-overflow-y-auto', className)}>
-      {/* Header - fixed height */}
-      <div className="jd-flex jd-items-center jd-gap-2 jd-flex-shrink-0">
+    <div className={cn(
+      'jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden', 
+      className
+    )}>
+      {/* Header - fixed height, no flex grow */}
+      <div className="jd-flex jd-items-center jd-gap-2 jd-flex-shrink-0 jd-pb-3">
         <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2">
           <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
           {title}
         </h3>
       </div>
 
-      {/* Preview Content - Scrollable with Tailwind only */}
-      <div
-        className={cn(
-          'jd-flex-1 jd-min-h-0 jd-p-4 jd-rounded-lg jd-border jd-text-sm jd-leading-relaxed',
-          'jd-whitespace-pre-wrap jd-break-words jd-break-all jd-overflow-y-auto jd-overflow-x-hidden',
-          'jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100',
-          'dark:jd-scrollbar-thumb-gray-600 dark:jd-scrollbar-track-gray-800',
-          isDarkMode 
-            ? 'jd-bg-gray-800 jd-border-gray-700 jd-text-white' 
-            : 'jd-bg-white jd-border-gray-200 jd-text-gray-900'
-        )}
-        dangerouslySetInnerHTML={{ __html: previewHtml }}
-      />
+      {/* Preview Content - This is the scrollable area */}
+      <div className="jd-flex-1 jd-min-h-0 jd-overflow-hidden jd-rounded-lg jd-border jd-bg-card">
+        <div
+          className={cn(
+            'jd-h-full jd-w-full jd-p-4 jd-text-sm jd-leading-relaxed',
+            'jd-whitespace-pre-wrap jd-break-words jd-overflow-y-auto jd-overflow-x-hidden',
+            // Custom scrollbar styling
+            'jd-scrollbar-thin jd-scrollbar-thumb-rounded-full jd-scrollbar-track-rounded-full',
+            isDarkMode 
+              ? 'jd-bg-gray-800 jd-border-gray-700 jd-text-white jd-scrollbar-thumb-gray-600 jd-scrollbar-track-gray-800' 
+              : 'jd-bg-white jd-border-gray-200 jd-text-gray-900 jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100'
+          )}
+          dangerouslySetInnerHTML={{ __html: previewHtml }}
+          style={{
+            // Ensure consistent scrolling behavior across browsers
+            scrollBehavior: 'smooth',
+            // Force hardware acceleration for smooth scrolling
+            transform: 'translateZ(0)',
+            // Prevent content from pushing boundaries
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word'
+          }}
+        />
+      </div>
       
-      {/* Info - fixed height */}
-      <div className="jd-flex jd-justify-between jd-items-center jd-text-xs jd-text-muted-foreground jd-flex-shrink-0">
+      {/* Footer - fixed height, no flex grow */}
+      <div className="jd-flex jd-justify-between jd-items-center jd-text-xs jd-text-muted-foreground jd-flex-shrink-0 jd-pt-3">
         <span>{content.length} {getMessage('charactersLabel', undefined, 'characters')}</span>
         <span>{content.split('\n').length} {getMessage('linesLabel', undefined, 'lines')}</span>
       </div>

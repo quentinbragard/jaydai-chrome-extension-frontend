@@ -27,7 +27,7 @@ interface BasicEditorProps {
 }
 
 /**
- * Fixed Basic editor with proper height constraints
+ * Fixed Basic editor with proper height constraints and scrolling
  */
 export const BasicEditor: React.FC<BasicEditorProps> = ({
   mode = 'customize',
@@ -181,7 +181,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   // For create mode, show only the editor and allow toggling the preview
   if (mode === 'create') {
     return (
-      <div className="jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden">
+      <div className="jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden">
         {/* Header section */}
         <div className="jd-flex-shrink-0 jd-mb-4">
           <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-mb-2">
@@ -189,21 +189,21 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           </h3>
         </div>
 
-        {/* Content editor - flexible height with Tailwind only */}
-        <div className="jd-flex-1 jd-min-h-0 jd-flex jd-flex-col jd-overflow-hidden">
+        {/* Content editor - compact height */}
+        <div className="jd-flex-shrink-0">
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={getMessage('enterTemplateContent', undefined, 'Enter your template content here...')}
-            className="jd-flex-1 jd-resize-none !jd-min-h-[25vh] jd-max-h-[50vh] jd-overflow-y-auto jd-break-words jd-text-sm jd-leading-relaxed"
+            className="jd-w-full !jd-min-h-[25vh] jd-resize-none jd-overflow-y-auto jd-text-sm jd-leading-relaxed"
             onKeyDown={(e) => e.stopPropagation()}
             onKeyPress={(e) => e.stopPropagation()}
             onKeyUp={(e) => e.stopPropagation()}
           />
         </div>
         
-        {/* Toggle preview button */}
-       <div className="jd-flex-shrink-0 jd-sticky jd-bottom-0 jd-bg-background jd-z-10 jd-mt-2">
+        {/* Toggle preview button - directly below textarea */}
+        <div className="jd-flex-shrink-0 jd-mt-2">
           <Button
             onClick={togglePreview}
             variant="outline"
@@ -232,23 +232,21 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
           </Button>
         </div>
 
-        {/* Animated preview section - using only Tailwind */}
+        {/* Animated preview section - takes remaining space */}
         <div
           className={cn(
-            'jd-min-h-[25vh] jd-max-h-[50vh] jd-overflow-hidden jd-transition-all jd-duration-500 jd-ease-in-out jd-flex-shrink-0',
-            showPreview ? ' jd-opacity-100' : 'jd-opacity-0'
+            'jd-transition-all jd-duration-500 jd-ease-in-out jd-overflow-hidden',
+            showPreview ? 'jd-flex-1 jd-opacity-100 jd-mt-2' : 'jd-h-0 jd-opacity-0'
           )}
         >
-          <div className="jd-pt-4">
-            <div className=" jd-overflow-y-auto jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100">
-              <TemplatePreview
-                metadata={metadata}
-                content={content}
-                blockContentCache={blockContentCache}
-                isDarkMode={isDark}
-                className="jd-h-full jd-min-h-0 jd-overflow-y-auto"
-              />
-            </div>
+          <div className="jd-h-full jd-rounded-lg jd-overflow-hidden">
+            <TemplatePreview
+              metadata={metadata}
+              content={content}
+              blockContentCache={blockContentCache}
+              isDarkMode={isDark}
+              className="jd-h-full jd-w-full"
+            />
           </div>
         </div>
       </div>
@@ -276,7 +274,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
               content={previewContent}
               blockContentCache={previewCache}
               isDarkMode={isDark}
-              className="jd-h-full jd-min-h-0 jd-overflow-y-auto"
+              className="jd-h-full jd-w-full"
             />
           </div>
         </ResizablePanel>
@@ -285,7 +283,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   );
 };
 
-// Fixed Placeholder Panel Component with Tailwind only
+// Fixed Placeholder Panel Component
 const PlaceholderPanel: React.FC<{
   placeholders: Placeholder[];
   onUpdatePlaceholder: (index: number, value: string) => void;
@@ -320,8 +318,8 @@ const PlaceholderPanel: React.FC<{
         )}
       </div>
       
-      {/* Content - scrollable with Tailwind only */}
-      <div className="jd-flex-1 jd-min-h-0 jd-overflow-y-auto jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100 jd-pr-2">
+      {/* Content - scrollable area */}
+      <div className="jd-flex-1 jd-min-h-0 jd-overflow-y-auto jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100 jd-dark:jd-scrollbar-thumb-gray-600 jd-dark:jd-scrollbar-track-gray-800 jd-pr-2">
         {placeholders.length > 0 ? (
           <div className="jd-space-y-4">
             {placeholders.map((placeholder, idx) => (
