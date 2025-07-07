@@ -4,6 +4,7 @@ import { AbstractBaseService } from '../BaseService';
 import { notificationApi } from "@/services/api/NotificationApi";
 import { toast } from "sonner";
 import { emitEvent, AppEvent } from '@/core/events/events';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 import { getMessage } from '@/core/utils/i18n';
 
@@ -192,6 +193,7 @@ export class NotificationService extends AbstractBaseService {
       
       // Emit event
       emitEvent(AppEvent.NOTIFICATION_READ, { notificationId: id });
+      trackEvent(EVENTS.NOTIFICATION_MARKED_READ, { notification_id: id });
       
       // Call API to mark as read
       await notificationApi.markNotificationRead(id.toString());
@@ -228,6 +230,7 @@ export class NotificationService extends AbstractBaseService {
       
       // Call API to mark all as read
       await notificationApi.markAllNotificationsRead();
+      trackEvent(EVENTS.NOTIFICATION_MARK_ALL_READ, { count: unreadCount });
       
       // Show success notification
       toast.success(getMessage('notifications_marked_read', {count: unreadCount}, `Marked ${unreadCount} notifications as read`));
@@ -258,6 +261,7 @@ export class NotificationService extends AbstractBaseService {
       
       // Emit event
       emitEvent(AppEvent.NOTIFICATION_DELETED, { notificationId: id });
+      trackEvent(EVENTS.NOTIFICATION_DELETED, { notification_id: id });
       
       // Call API to delete notification
       await notificationApi.deleteNotification(id.toString());
@@ -385,12 +389,13 @@ private showNewNotificationsToast(count: number): void {
         // First dispatch the open-notifications event (specific handler)
         // This ensures the notifications panel will be shown
         document.dispatchEvent(new CustomEvent('jaydai:open-notifications'));
-        
+        trackEvent(EVENTS.NOTIFICATIONS_PANEL_OPENED);
+
         // Then emit the app event for tracking
-        emitEvent(AppEvent.NOTIFICATION_RECEIVED, { 
-          notificationId: '', 
-          title: '', 
-          body: '' 
+        emitEvent(AppEvent.NOTIFICATION_RECEIVED, {
+          notificationId: '',
+          title: '',
+          body: ''
         });
       }
     }
@@ -400,16 +405,21 @@ private showNewNotificationsToast(count: number): void {
 /**
  * Handle a notification action based on metadata
  */
-public async handleNotificationAction(id: string | number): Promise<void> {
-  try {
-    // Find the notification
-    const notification = this.notifications.find(n => n.id === id);
-    if (!notification) {
-      return;
-    }
-    
-    // Mark as read first
-    await this.markAsRead(id);
+  public async handleNotificationAction(id: string | number): Promise<void> {
+    try {
+      // Find the notification
+      const notification = this.notifications.find(n => n.id === id);
+      if (!notification) {
+        return;
+      }
+
+      // Mark as read first
+      await this.markAsRead(id);
+
+      trackEvent(EVENTS.NOTIFICATION_ACTION_CLICKED, {
+        notification_id: id,
+        action_type: this.parseMetadataSafe(notification.metadata)?.action_type || notification.type,
+      });
     
     // Parse metadata if present
     const metadata = this.parseMetadataSafe(notification.metadata);
