@@ -68,8 +68,8 @@ export function useDialogActions() {
   );
 
   const openTutorialVideo = useCallback(
-    (videoId: string, title?: string) =>
-      openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { videoId, title }),
+    (videoUrl: string, title?: string) =>
+      openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { videoUrl, title }),
     [openDialog]
   );
 
