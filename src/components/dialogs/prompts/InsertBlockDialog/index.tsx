@@ -271,15 +271,9 @@ export const InsertBlockDialog: React.FC = () => {
         return rest;
       });
     }
-    },
-    onBlockCreated: (newBlock) => {
-      setBlocks(prev => [newBlock, ...prev]);
-    }
   });
+
   const platform = detectPlatform();
-
-
-  // Drag & Drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {

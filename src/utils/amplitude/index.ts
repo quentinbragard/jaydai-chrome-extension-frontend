@@ -149,6 +149,7 @@ export const EVENTS = {
   USER_MESSAGE_CAPTURED: 'User Message Captured',
   AI_ANSWER_CAPTURED: 'AI Answer Captured',
   CHAT_CONVERSATION_CHANGED: 'Chat Conversation Changed',
+  CHAT_CAPTURED: 'Chat Captured',
   
   // Usage statistics events
   USAGE_STATISTICS_VIEWED: 'Usage Statistics Viewed',
