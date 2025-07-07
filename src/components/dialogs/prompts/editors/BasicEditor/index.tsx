@@ -185,8 +185,7 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
         {/* Header section */}
         <div className="jd-flex-shrink-0 jd-mb-4">
           <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-mb-2">
-            <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-            {getMessage('editTemplateContent', undefined, 'Edit Template Content')}
+            {getMessage('editTemplateContent', undefined, 'Create Template Content')}
           </h3>
         </div>
 

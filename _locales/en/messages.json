@@ -1935,7 +1935,7 @@
   "resetAllPlaceholders": { "message": "Reset all placeholders", "description": "Title for the reset all placeholders button" },
   "reset": { "message": "Reset", "description": "Button for resetting placeholders" },
   "noPlaceholdersFound": { "message": "No placeholders found", "description": "Message when no placeholders are found" },
-  "editTemplateContent": { "message": "Edit Template Content", "description": "Title for the edit template content section" },
+  "editTemplateContent": { "message": "Create Template Content", "description": "Title for the edit template content section" },
   "visitWebsite": { "message": "Visit website", "description": "Label for the visit website button" },
   "charactersLabel": { "message": "characters", "description": "Label for character count" },
   "linesLabel": { "message": "lines", "description": "Label for line count" },
