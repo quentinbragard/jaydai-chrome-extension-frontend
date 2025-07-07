@@ -20,7 +20,8 @@ import {
   METADATA_CONFIGS,
   isMultipleMetadataType,
   SingleMetadataType,
-  MultipleMetadataType
+  MultipleMetadataType,
+  PromptMetadata
 } from '@/types/prompts/metadata';
 import type { MetadataItem } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
@@ -65,7 +66,9 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
   const {
     metadata,
     setMetadata,
-    addNewBlock
+    addNewBlock,
+    initialMetadata,
+    resetMetadata
   } = useTemplateEditor();
 
   const isDarkMode = useThemeDetector();
@@ -90,15 +93,21 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
       const published = allBlocks.filter(b => (b as any).published);
 
       const selectedIds: number[] = [];
-      if (isMultipleMetadataType(type)) {
-        const items = (metadata as any)[type as MultipleMetadataType] || [];
-        items.forEach((it: any) => {
-          if (it.blockId && !isNaN(it.blockId)) selectedIds.push(it.blockId);
-        });
-      } else {
-        const id = (metadata as any)[type as SingleMetadataType];
-        if (id && id !== 0) selectedIds.push(id);
-      }
+
+      const collectIds = (meta: PromptMetadata) => {
+        if (isMultipleMetadataType(type)) {
+          const items = (meta as any)[type as MultipleMetadataType] || [];
+          items.forEach((it: any) => {
+            if (it.blockId && !isNaN(it.blockId)) selectedIds.push(it.blockId);
+          });
+        } else {
+          const id = (meta as any)[type as SingleMetadataType];
+          if (id && id !== 0) selectedIds.push(id);
+        }
+      };
+
+      collectIds(metadata);
+      collectIds(initialMetadata);
 
       const selectedBlocks = selectedIds
         .map(id => allBlocks.find(b => b.id === id))
@@ -113,7 +122,7 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
     });
 
     return result;
-  }, [availableMetadataBlocks, metadata, mode]);
+  }, [availableMetadataBlocks, metadata, initialMetadata, mode]);
 
   // All metadata types combined
   const allMetadataTypes = [...PRIMARY_METADATA, ...SECONDARY_METADATA];
@@ -242,6 +251,14 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
         <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-green-500 jd-to-teal-600 jd-rounded-full"></span>
         {getMessage('addBlocksTitle', undefined, 'Add some blocks to your prompt')}
       </h3>
+      {mode === 'customize' && (
+        <button
+          onClick={resetMetadata}
+          className="jd-text-xs jd-underline jd-text-muted-foreground hover:jd-text-foreground"
+        >
+          {getMessage('restoreOriginalMetadata', undefined, 'Restore original metadata')}
+        </button>
+      )}
 
       {/* Ultra-compact metadata grid */}
       <div className="jd-grid jd-grid-cols-8 jd-gap-3">
