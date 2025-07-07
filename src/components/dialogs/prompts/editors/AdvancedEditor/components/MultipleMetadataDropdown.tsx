@@ -81,12 +81,14 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
               </>
             ) : (
               <>
-                <Plus className="jd-h-3 jd-w-3" />
-                <span>Add {label.toLowerCase()}</span>
               </>
             )}
           </div>
-          <ChevronDown className="jd-h-3 jd-w-3 jd-shrink-0" />
+          {items.length > 0 ?(
+            <ChevronDown className="jd-h-3 jd-w-3 jd-shrink-0" />
+          ) : (
+            <Plus className="jd-h-3 jd-w-3 jd-shrink-0" />
+          )}
         </Button>
       </DropdownMenuTrigger>
 
