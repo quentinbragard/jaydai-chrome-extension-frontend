@@ -48,16 +48,18 @@ export const TutorialsDialog: React.FC = () => {
       footer={footer}
     >
       <div className="jd-flex jd-flex-col jd-space-y-6">
-        <div className="jd-grid jd-grid-cols-3 jd-gap-4">
-
+        <div className="jd-grid jd-grid-cols-3 jd-gap-4 group">
           {Array.from({ length: 3 }).map((_, i) => (
-            <img
+            <div
               key={i}
-              src={GIF_URL}
-              alt={`Tutorial gif ${i + 1}`}
-              className="jd-w-full jd-h-48 md:jd-h-56 jd-rounded jd-object-cover jd-transition-transform hover:jd-scale-150 jd-z-10"
-
-            />
+              className="jd-h-48 md:jd-h-56 jd-overflow-hidden jd-rounded jd-relative"
+            >
+              <img
+                src={GIF_URL}
+                alt={`Tutorial gif ${i + 1}`}
+                className="jd-w-full jd-h-full jd-object-cover jd-transition-transform group-hover:jd-scale-75 hover:jd-scale-150 hover:jd-z-10"
+              />
+            </div>
           ))}
         </div>
 
