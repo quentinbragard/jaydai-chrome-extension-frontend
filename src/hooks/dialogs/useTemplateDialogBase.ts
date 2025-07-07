@@ -28,6 +28,7 @@ import {
   parseTemplateMetadata,
   countMetadataItems
 } from '@/utils/prompts/metadataUtils';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export interface TemplateDialogConfig {
   dialogType: 'create' | 'customize';
@@ -233,6 +234,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   
   const setActiveTab = useCallback((activeTab: 'basic' | 'advanced') => {
     setState(prev => ({ ...prev, activeTab }));
+    trackEvent(EVENTS.TEMPLATE_DIALOG_VIEW_CHANGED, { view: activeTab });
   }, []);
 
   const toggleExpandedMetadata = useCallback((type: MetadataType) => {
