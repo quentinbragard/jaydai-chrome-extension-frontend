@@ -1,6 +1,5 @@
 // src/components/dialogs/BaseDialog.tsx
 import React, { useRef, useEffect, useState } from 'react';
-import { useDialogFocusGuard } from '@/core/utils/shadowDomFocusManager';
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from "@/core/utils/classNames";
 import { X } from "lucide-react";
@@ -137,7 +136,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   return (
     <div
       data-dialog-root
-      className="jd-fixed jd-inset-0 jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-overflow-hidden"
+      className="jd-fixed jd-inset-0 jd-bg-black/50 jd-flex jd-items-start md:jd-items-center jd-justify-center jd-overflow-y-auto"
       onClick={handleBackdropClick}
       onMouseDown={(e) => e.stopPropagation()}
       style={{ isolation: 'isolate', zIndex: baseZIndex }} // Create new stacking context

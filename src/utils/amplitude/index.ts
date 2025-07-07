@@ -112,6 +112,7 @@ export const EVENTS = {
   TEMPLATE_BROWSE_ORGANIZATION: 'Template Browse Organization',
   ENTERPRISE_LIBRARY_ACCESSED: 'Enterprise Library Accessed',
   ENTERPRISE_CTA_CLICKED: 'Enterprise CTA Clicked',
+  ORGANIZATION_WEBSITE_CLICKED: 'Organization Website Clicked',
   TEMPLATE_REFRESH: 'Template Refresh',
   TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
   TEMPLATE_EDIT_DIALOG_OPENED: 'Template Edit Dialog Opened',
@@ -174,7 +175,7 @@ export const EVENTS = {
  * Set user properties to track
  * @param properties User properties to track
  */
-export const setUserProperties = (properties: Record<string, any>) => {
+export const setUserProperties = (properties: Record<string, unknown>) => {
   // Create a new Identify object
   const identify = new amplitude.Identify();
   
