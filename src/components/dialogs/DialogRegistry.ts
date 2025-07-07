@@ -98,7 +98,7 @@ export interface DialogProps {
   [DIALOG_TYPES.TUTORIALS_LIST]: Record<string, never>;
 
   [DIALOG_TYPES.TUTORIAL_VIDEO]: {
-    videoId?: string;
+    videoUrl?: string;
     title?: string;
   };
 }
