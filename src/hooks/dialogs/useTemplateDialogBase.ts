@@ -20,6 +20,7 @@ import {
   reorderMetadataItems,
   addSecondaryMetadata,
   removeSecondaryMetadata,
+  cloneMetadata,
   getActiveSecondaryMetadata,
   getFilledMetadataTypes,
   extractCustomValues,
@@ -44,6 +45,7 @@ export interface TemplateDialogState {
   
   // Metadata state
   metadata: PromptMetadata;
+  initialMetadata: PromptMetadata;
   
   // UI state
   activeTab: 'basic' | 'advanced';
@@ -77,6 +79,7 @@ export interface TemplateDialogActions {
 
   // Direct metadata setter
   setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
+  resetMetadata: () => void;
   
   // UI actions
   setActiveTab: (tab: 'basic' | 'advanced') => void;
@@ -106,6 +109,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     
     // Metadata state
     metadata: createMetadata(),
+    initialMetadata: createMetadata(),
     
     // UI state
     activeTab: 'basic',
@@ -218,6 +222,10 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     },
     []
   );
+
+  const resetMetadata = useCallback(() => {
+    setState(prev => ({ ...prev, metadata: cloneMetadata(prev.initialMetadata) }));
+  }, []);
   
   // ============================================================================
   // UI ACTIONS
@@ -314,6 +322,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       content: '',
       selectedFolderId: '',
       metadata: createMetadata(),
+      initialMetadata: createMetadata(),
       activeTab: 'basic',
       expandedMetadata: new Set(PRIMARY_METADATA),
       metadataCollapsed: false,
@@ -353,6 +362,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             content,
             selectedFolderId: initialData.selectedFolder?.id?.toString() || '',
             metadata: meta,
+            initialMetadata: meta,
             expandedMetadata: new Set([
               ...PRIMARY_METADATA,
               ...Array.from(getFilledMetadataTypes(meta))
@@ -368,14 +378,15 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             : createMetadata();
             
           const content = getLocalizedContent(initialData.content || '');
-  
-          
+
+
           const activeSecondary = getActiveSecondaryMetadata(meta);
 
           setState(prev => ({
             ...prev,
             content,
             metadata: meta,
+            initialMetadata: meta,
             // Expand only metadata types without a value
             expandedMetadata: new Set([]),
             // Keep primary metadata visible, but collapse secondary if there are many
@@ -415,11 +426,12 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     updateMultipleMetadataItem,
     reorderMultipleMetadataItems,
     addSecondaryMetadataType,
-    removeSecondaryMetadataType,
-    setMetadata,
-    
-    // UI actions
-    setActiveTab,
+  removeSecondaryMetadataType,
+  setMetadata,
+  resetMetadata,
+
+  // UI actions
+  setActiveTab,
     toggleExpandedMetadata,
     setMetadataCollapsed,
     setSecondaryMetadataCollapsed,

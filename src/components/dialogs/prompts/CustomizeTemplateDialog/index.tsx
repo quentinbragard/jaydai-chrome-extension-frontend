@@ -62,6 +62,8 @@ export const CustomizeTemplateDialog: React.FC = () => {
       
       // Metadata update
       setMetadata={hook.setMetadata}
+      initialMetadata={hook.initialMetadata}
+      resetMetadata={hook.resetMetadata}
       
       // UI state
       expandedMetadata={hook.expandedMetadata}

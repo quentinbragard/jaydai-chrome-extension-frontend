@@ -46,6 +46,8 @@ interface TemplateEditorDialogProps {
   
   // Metadata setter for child components
   setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
+  initialMetadata: PromptMetadata;
+  resetMetadata: () => void;
   
   // UI state from base hook
   expandedMetadata: Set<string>;
@@ -91,8 +93,10 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   applyFinalContentChanges,
   discardFinalContentChanges,
   updateBlockContent,
-  
+
   setMetadata,
+  initialMetadata,
+  resetMetadata,
   
   // UI state
   expandedMetadata,
@@ -122,6 +126,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     () => ({
       metadata,
       setMetadata,
+      initialMetadata,
+      resetMetadata,
       expandedMetadata,
       toggleExpandedMetadata,
       activeSecondaryMetadata,
@@ -139,6 +145,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     [
       metadata,
       setMetadata,
+      initialMetadata,
+      resetMetadata,
       expandedMetadata,
       toggleExpandedMetadata,
       activeSecondaryMetadata,
