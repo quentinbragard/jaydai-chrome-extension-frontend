@@ -67,13 +67,15 @@ export const SingleMetadataDropdown: React.FC<SingleMetadataDropdownProps> = ({
                 {getLocalizedContent(selectedBlock.title) || `${label} block`}
               </span>
             ) : (
-              <>
-                <Plus className="jd-h-3 jd-w-3 jd-flex-shrink-0" />
-                <span className="jd-truncate">Add {label.toLowerCase()}</span>
+              <> 
               </>
             )}
           </div>
-          <ChevronDown className="jd-h-3 jd-w-3 jd-flex-shrink-0 jd-ml-1" />
+          {selectedBlock ? (
+            <ChevronDown className="jd-h-3 jd-w-3 jd-flex-shrink-0 jd-ml-1" />
+          ) : (
+            <Plus className="jd-h-3 jd-w-3 jd-flex-shrink-0" />
+          )}
         </Button>
       </DropdownMenuTrigger>
 
