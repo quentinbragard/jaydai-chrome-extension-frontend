@@ -530,9 +530,9 @@ const filteredBlocks = blocks.filter(b => {
                 ))}
                 <Button
                   size="sm"
-                  variant="outline"
-                  onClick={() => openCreateBlock()}
-                  className="jd-h-6 jd-text-xs jd-px-2 jd-border-dashed"
+                  variant="default"
+                  onClick={handleCreate}
+                  className="jd-h-6 jd-text-xs jd-px-2"
                 >
                   <Plus className="jd-h-3 jd-w-3 jd-mr-1" />
                   {getMessage('newBlock', undefined, 'New Block')}
