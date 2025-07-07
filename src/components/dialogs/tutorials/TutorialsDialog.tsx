@@ -6,9 +6,24 @@ import { DIALOG_TYPES } from '../DialogRegistry';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 
-const GIF_URL =
-  'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif';
-
+const GIF_URLS = [
+  {
+    title: 'InsertBlocks',
+    url:'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif',
+    description: 'InsertBlocks',
+  },
+  {
+    title: 'PromptBuilder',
+    url:'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//blocs_demo.gif',
+    description: 'PromptBuilder',
+  },
+  {
+    title: 'CreateTemplate',
+    url:'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//templates_demo.gif',
+    description: 'CreateTemplate',
+  },
+  
+]
 const videos = [
   {
     id: 'tour',
@@ -131,8 +146,8 @@ export const TutorialsDialog: React.FC = () => {
                   {/* Background Image */}
                   <div className="jd-absolute jd-inset-0">
                     <img
-                      src={GIF_URL}
-                      alt={`Tutorial: ${tutorial.title}`}
+                      src={GIF_URLS[i].url}
+                      alt={`Tutorial: ${GIF_URLS[i].title}`}
                       className={`jd-w-full jd-h-full jd-object-cover jd-transition-all jd-duration-500 ${
                         isHovered ? 'jd-scale-110' : 'jd-scale-105'
                       }`}
