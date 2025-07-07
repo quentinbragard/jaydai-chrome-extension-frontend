@@ -2039,5 +2039,9 @@
   "moreActions": { "message": "More actions", "description": "Label for the more actions button" },
   "edit": { "message": "Edit", "description": "Label for the edit button" },
   "aPerfectPrompt": { "message": "A perfect prompt contains at least a role, context and goal", "description": "Label for the a perfect prompt" },
+  "noPrimaryMetadataWarning": { "message": "Add at least one of role, context or goal", "description": "Warning when no primary metadata is set" },
+  "missingSomePrimaryMetadata": { "message": "Fill role, context and goal for best results", "description": "Warning when primary metadata is incomplete" },
+  "allPrimaryMetadataSet": { "message": "Great! All primary metadata added", "description": "Message when all primary metadata are set" },
+  "contentOrMetadataRequired": { "message": "Provide template content or at least one metadata item", "description": "Validation error when creating template" },
   "addBlocksTitle": { "message": "Add blocks", "description": "Label for the add blocks title" }
 }

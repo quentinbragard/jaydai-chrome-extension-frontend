@@ -24,7 +24,8 @@ import {
   getFilledMetadataTypes,
   extractCustomValues,
   validateMetadata,
-  parseTemplateMetadata
+  parseTemplateMetadata,
+  countMetadataItems
 } from '@/utils/prompts/metadataUtils';
 
 export interface TemplateDialogConfig {
@@ -260,6 +261,14 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     // insert a prompt even if some fields are missing.
     if (state.activeTab === 'advanced' && dialogType !== 'customize') {
       const metadataValidation = validateMetadata(state.metadata);
+      if (!state.content.trim() && countMetadataItems(state.metadata) === 0) {
+        errors.content = getMessage(
+          'contentOrMetadataRequired',
+          undefined,
+          'Provide content or at least one metadata element'
+        );
+      }
+      // metadataValidation currently only yields warnings
       if (!metadataValidation.isValid) {
         errors.content = metadataValidation.errors.join(', ');
       }
