@@ -114,6 +114,7 @@ export const EVENTS = {
   TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
   TEMPLATE_EDIT_DIALOG_OPENED: 'Template Edit Dialog Opened',
   TEMPLATE_EDITOR_DIALOG_OPENED: 'Template Editor Dialog Opened',
+  TEMPLATE_DIALOG_VIEW_CHANGED: 'Template Dialog View Changed',
 
   BLOCK_CREATED: 'Block Created',
   BLOCK_DELETED: 'Block Deleted',
