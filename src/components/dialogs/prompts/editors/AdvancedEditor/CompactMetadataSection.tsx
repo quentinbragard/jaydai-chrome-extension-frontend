@@ -159,6 +159,7 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
               updateSingleMetadata(prev, type as SingleMetadataType, b.id)
             );
           }
+          return true;
         }
       });
       return;
@@ -199,6 +200,7 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
                 value: getLocalizedContent(b.content)
               })
             );
+            return true;
           }
         });
         return;
