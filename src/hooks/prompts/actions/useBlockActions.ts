@@ -140,13 +140,14 @@ export function useBlockActions({
   /**
    * Create a new block
    */
-  const createBlock = useCallback((initialData?: Partial<Block>) => {
+  const createBlock = useCallback((initialData?: Partial<Block>, source: string = 'CreateBlockDialog') => {
     openDialog(DIALOG_TYPES.CREATE_BLOCK, {
       isEdit: false,
       initialType: initialData?.type || 'custom',
       initialTitle: initialData?.title || '',
       initialContent: initialData?.content || '',
       initialDescription: initialData?.description || '',
+      source,
       onBlockCreated: async (blockData: any) => {
         try {
           setIsLoading(true);
@@ -163,7 +164,11 @@ export function useBlockActions({
           
           if (response.success && response.data) {
             toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
-            trackEvent(EVENTS.BLOCK_CREATED, { block_id: response.data.id, block_type: response.data.type });
+            trackEvent(EVENTS.BLOCK_CREATED, {
+              block_id: response.data.id,
+              block_type: response.data.type,
+              source
+            });
             if (onBlockCreated) {
               onBlockCreated(response.data);
             }

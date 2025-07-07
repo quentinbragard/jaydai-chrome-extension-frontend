@@ -427,12 +427,17 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       },
       onFolderCreated: async (folder: TemplateFolder) => {
         await refetchUser();
+        trackEvent(EVENTS.TEMPLATE_FOLDER_CREATED, {
+          folder_id: folder.id,
+          folder_name: typeof folder.title === 'string' ? folder.title : (folder.title as any)?.en || folder.name,
+          source: 'TemplatesPanel'
+        });
       },
     });
   }, [openCreateFolder, createFolder, refetchUser]);
 
   const handleCreateBlock = useCallback(() => {
-    openCreateBlock();
+    openCreateBlock({ source: 'TemplatesPanel' });
   }, [openCreateBlock]);
 
   const handleContactSales = useCallback(() => {

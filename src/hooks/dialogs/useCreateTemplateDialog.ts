@@ -33,7 +33,7 @@ export function useCreateTemplateDialog() {
       };
             
       const currentTemplate = data?.template;
-      const success = await saveTemplate(formData, currentTemplate?.id);
+      const success = await saveTemplate(formData, currentTemplate?.id, 'CreateTemplateDialog');
       
       if (success) {
         if (currentTemplate) {
