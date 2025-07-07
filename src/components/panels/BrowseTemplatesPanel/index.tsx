@@ -72,7 +72,7 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
   } = useFolderSearch(folders);
 
   useEffect(() => {
-    trackEvent(EVENTS.TEMPLATE_SEARCH, { query: searchQuery });
+    trackEvent(EVENTS.TEMPLATE_SEARCH, { search_content: searchQuery });
   }, [searchQuery]);
   
   // Get folder mutations
