@@ -5,6 +5,7 @@ import { cn } from '@/core/utils/classNames';
 import { OrganizationImage } from '@/components/organizations';
 import { Organization } from '@/types/organizations';
 import { getMessage } from '@/core/utils/i18n';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface OrganizationBannerProps {
   organization: Organization;
@@ -106,6 +107,12 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
               href={organization.website_url}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent(EVENTS.ORGANIZATION_WEBSITE_CLICKED, {
+                  organization_id: organization.id,
+                  organization_name: organization.name,
+                })
+              }
               className={cn(
                 'jd-group jd-inline-flex jd-items-center jd-gap-2 jd-px-3 jd-py-2 jd-rounded-full jd-text-xs jd-font-medium jd-transition-all jd-duration-200 jd-transform hover:jd-scale-105 jd-shadow-sm hover:jd-shadow-md',
                 organization.banner_url
