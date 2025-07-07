@@ -2024,5 +2024,16 @@
   "missingSomePrimaryMetadata": { "message": "Avec un rôle, un contexte et un objectif, votre prompt fera partie des 5% les plus efficaces", "description": "Avertissement lorsque les métadonnées primaires sont incomplètes" },
   "allPrimaryMetadataSet": { "message": "Bravo, votre prompt est bien construit. Vous pouvez maintenant jouer avec les autres blocs pour optimiser encore un peu vos résultats", "description": "Message lorsque toutes les métadonnées principales sont définies" },
   "contentOrMetadataRequired": { "message": "Ajoutez du contenu ou au moins une métadonnée", "description": "Erreur de validation lors de la création du template" },
-  "addBlocksTitle": { "message": "Ajouter des blocs", "description": "Libellé pour le titre de la section des blocs" }
+  "addBlocksTitle": { "message": "Ajouter des blocs", "description": "Libellé pour le titre de la section des blocs" },
+  "featuredTutorials": { "message": "Tutoriels", "description": "Libellé pour le titre des tutoriels" },
+  "videoLibrary": { "message": "Bibliothèque de vidéos", "description": "Libellé pour le titre de la bibliothèque de vidéos" },
+  "stayUpdated": { "message": "Restez informés des dernières fonctionnalités", "description": "Libellé pour la notification de mise à jour" },
+  "fullTour": { "message": "Parcours complet", "description": "Libellé pour le titre du parcours complet" },
+  "templates": { "message": "Templates", "description": "Libellé pour le titre des templates" },
+  "blocks": { "message": "Blocs", "description": "Libellé pour le titre des blocs" },
+  "folders": { "message": "Dossiers", "description": "Libellé pour le titre des dossiers" },
+  "extensionPopup": { "message": "Extension Popup", "description": "Libellé pour le titre de l'extension popup" },
+  "stats": { "message": "Stats", "description": "Libellé pour le titre des stats" },
+  "insertBlocks": { "message": "Insérer des blocs", "description": "Libellé pour le titre des blocs" },
+  "promptBuilder": { "message": "Créateur de prompt", "description": "Libellé pour le titre du prompt builder" }
 }

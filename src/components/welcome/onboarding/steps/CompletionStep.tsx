@@ -40,9 +40,6 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
   folderRecommendations 
 }) => {
   // Track when component mounts
-  useEffect(() => {
-    trackEvent(EVENTS.ONBOARDING_COMPLETED);
-  }, []);
 
 
   

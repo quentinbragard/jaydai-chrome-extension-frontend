@@ -143,6 +143,7 @@ export class MessageService extends AbstractBaseService {
           role: message.role,
           conversationId: message.conversationId
         });
+        
         messagesToProcess.push(message);
         // Mark as processed now that we have a conversation ID
         if (!this.processed.has(message.messageId)) {

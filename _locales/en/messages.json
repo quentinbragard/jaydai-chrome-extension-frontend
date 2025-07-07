@@ -2043,5 +2043,15 @@
   "missingSomePrimaryMetadata": { "message": "With a role, context and goal, your prompt will be part of the top 5%", "description": "Warning when primary metadata is incomplete" },
   "allPrimaryMetadataSet": { "message": "Great! All primary metadata added. You can now play with the other blocks to optimize your results even more", "description": "Message when all primary metadata are set" },
   "contentOrMetadataRequired": { "message": "Add content or at least one metadata item", "description": "Validation error when creating template" },
-  "addBlocksTitle": { "message": "Add blocks", "description": "Label for the add blocks title" }
+  "addBlocksTitle": { "message": "Add blocks", "description": "Label for the add blocks title" },
+  "featuredTutorials": { "message": "Featured Tutorials", "description": "Label for the featured tutorials" },
+  "videoLibrary": { "message": "Video Library", "description": "Label for the video library" },
+  "stayUpdated": { "message": "Stay updated with the latest features", "description": "Label for the stay updated" },
+  "fullTour": { "message": "Full Tour", "description": "Label for the full tour" },
+  "blocks": { "message": "Blocks", "description": "Label for the blocks" },
+  "folders": { "message": "Folders", "description": "Label for the folders" },
+  "extensionPopup": { "message": "Extension Popup", "description": "Label for the extension popup" },
+  "stats": { "message": "Stats", "description": "Label for the stats" },
+  "insertBlocks": { "message": "Insert Blocks", "description": "Label for the insert blocks" },
+  "promptBuilder": { "message": "Prompt Builder", "description": "Label for the prompt builder" }
 }

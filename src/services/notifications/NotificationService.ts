@@ -193,7 +193,7 @@ export class NotificationService extends AbstractBaseService {
       
       // Emit event
       emitEvent(AppEvent.NOTIFICATION_READ, { notificationId: id });
-      trackEvent(EVENTS.NOTIFICATION_MARKED_READ, { notification_id: id });
+      trackEvent(EVENTS.NOTIFICATION_MARKED_READ, { notification_id: id, title: notification.title, body: notification.body, type: notification.type });
       
       // Call API to mark as read
       await notificationApi.markNotificationRead(id.toString());
@@ -261,7 +261,7 @@ export class NotificationService extends AbstractBaseService {
       
       // Emit event
       emitEvent(AppEvent.NOTIFICATION_DELETED, { notificationId: id });
-      trackEvent(EVENTS.NOTIFICATION_DELETED, { notification_id: id });
+      trackEvent(EVENTS.NOTIFICATION_DELETED, { notification_id: id, title: notification.title, body: notification.body, type: notification.type });
       
       // Call API to delete notification
       await notificationApi.deleteNotification(id.toString());
@@ -389,7 +389,9 @@ private showNewNotificationsToast(count: number): void {
         // First dispatch the open-notifications event (specific handler)
         // This ensures the notifications panel will be shown
         document.dispatchEvent(new CustomEvent('jaydai:open-notifications'));
-        trackEvent(EVENTS.NOTIFICATIONS_PANEL_OPENED);
+        trackEvent(EVENTS.NOTIFICATIONS_PANEL_OPENED, {
+          count: count,
+        });
 
         // Then emit the app event for tracking
         emitEvent(AppEvent.NOTIFICATION_RECEIVED, {
@@ -419,6 +421,7 @@ private showNewNotificationsToast(count: number): void {
       trackEvent(EVENTS.NOTIFICATION_ACTION_CLICKED, {
         notification_id: id,
         action_type: this.parseMetadataSafe(notification.metadata)?.action_type || notification.type,
+        metadata: notification.metadata,
       });
     
     // Parse metadata if present

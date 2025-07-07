@@ -125,13 +125,18 @@ export const EVENTS = {
   INSERT_BLOCK_DIALOG_BLOCK_DELETED: 'Insert Block Dialog Block Deleted',
   INSERT_BLOCK_DIALOG_BLOCK_UPDATED: 'Insert Block Dialog Block Updated',
   INSERT_BLOCK_DIALOG_BLOCKS_INSERTED: 'Insert Block Dialog Blocks Inserted',
-
+  INSERT_BLOCK_DIALOG_BLOCKS_COPIED_TO_CLIPBOARD: 'Insert Block Dialog Blocks Copied To Clipboard',
+  INSERT_BLOCK_DIALOG_PREVIEW_MODE_CHANGED: 'Insert Block Dialog Preview Mode Changed',
+  INSERT_BLOCK_DIALOG_SHORTCUT_HELP_OPENED: 'Insert Block Dialog Shortcut Help Opened',
+  
   QUICK_BLOCK_SELECTOR_OPENED: 'Quick Block Selector Opened',
   QUICK_BLOCK_SELECTOR_CLOSED: 'Quick Block Selector Closed',
   QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED: 'Quick Block Selector Blocks Inserted',
 
   // Tutorial events
   TUTORIAL_VIDEO_PLAYED: 'Tutorial Video Played',
+  SUBSTACK_CLICKED: 'Substack Clicked',
+  TUTORIAL_GIF_HOVERED: 'Tutorial GIF Hovered',
 
   // Notification events
   NOTIFICATIONS_PANEL_OPENED: 'Notifications Panel Opened',

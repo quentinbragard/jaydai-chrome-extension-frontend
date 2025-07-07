@@ -437,6 +437,7 @@ const filteredBlocks = blocks.filter(b => {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(editableContent);
+      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCKS_COPIED_TO_CLIPBOARD, { count: selectedBlocks.length });
       toast.success(getMessage('copiedToClipboard', undefined, 'Copied to clipboard'));
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
@@ -488,7 +489,10 @@ const filteredBlocks = blocks.filter(b => {
         </span>
         <button
           type="button"
-          onClick={() => setShowShortcutHelp(true)}
+          onClick={() => {
+            setShowShortcutHelp(true);
+            trackEvent(EVENTS.INSERT_BLOCK_DIALOG_SHORTCUT_HELP_OPENED);
+          }}
           className="jd-ml-auto jd-flex jd-items-center jd-justify-center jd-w-5 jd-h-5 jd-rounded-full jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90 jd-animate-bounce"
         >
           <HelpCircle className="jd-w-3 jd-h-3" />
@@ -543,10 +547,10 @@ const filteredBlocks = blocks.filter(b => {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => createBlock(undefined, 'InsertBlockDialog')}
-                  className="jd-h-6 jd-text-xs jd-px-2 jd-border-dashed"
+                  onClick={handleCreate}
+                  className="jd-h-6 jd-text-xs jd-px-2 jd-border-2 jd-border-dashed jd-border-primary jd-text-primary !jd-font-black"
                 >
-                  <Plus className="jd-h-3 jd-w-3 jd-mr-1" />
+                  <Plus className="jd-h-3 jd-w-3 jd-mr-1 jd-font-black" />
                   {getMessage('newBlock', undefined, 'New Block')}
                 </Button>
               </div>
@@ -618,7 +622,10 @@ const filteredBlocks = blocks.filter(b => {
               </Button>
               <div className="jd-flex jd-bg-muted jd-rounded-md jd-p-1">
                 <button
-                  onClick={() => setPreviewMode('text')}
+                  onClick={() => {
+                    setPreviewMode('text');
+                    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_PREVIEW_MODE_CHANGED, { mode: 'text' });
+                  }}
                   className={cn(
                     'jd-px-2 jd-py-1 jd-text-xs jd-rounded jd-transition-colors',
                     previewMode === 'text' ? 'jd-bg-background jd-shadow-sm' : 'jd-hover:bg-background/50'
@@ -627,7 +634,10 @@ const filteredBlocks = blocks.filter(b => {
                   <Code className="jd-h-3 jd-w-3" />
                 </button>
                 <button
-                  onClick={() => setPreviewMode('visual')}
+                  onClick={() => {
+                    setPreviewMode('visual');
+                    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_PREVIEW_MODE_CHANGED, { mode: 'visual' });
+                  }}
                   className={cn(
                     'jd-px-2 jd-py-1 jd-text-xs jd-rounded jd-transition-colors',
                     previewMode === 'visual' ? 'jd-bg-background jd-shadow-sm' : 'jd-hover:bg-background/50'
