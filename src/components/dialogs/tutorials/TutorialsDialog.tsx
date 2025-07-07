@@ -1,5 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Video, Play, ExternalLink, Sparkles } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  Play,
+  Video
+  ExternalLink,
+  Sparkles,
+  Compass,
+  LayoutTemplate,
+  Blocks,
+  Folder,
+  AppWindow,
+  BarChart2,
+} from 'lucide-react';
+
 import { BaseDialog } from '../BaseDialog';
 import { useDialog, useDialogManager } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
@@ -7,31 +20,40 @@ import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 
-const GIF_URLS = [
+interface VideoInfo {
+  id: string;
+  title: string;
+  url: string;
+  duration: string;
+  description: string;
+  icon: LucideIcon;
+}
+
+const featuredTutorials = [
   {
-    title: 'InsertBlocks',
-    url:'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif',
-    description: 'InsertBlocks',
+    title: 'Insert Blocks',
+    subtitle: 'Quickly add blocks using shortcuts',
+    url: 'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif',
   },
   {
-    title: 'PromptBuilder',
-    url:'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//blocs_demo.gif',
-    description: 'PromptBuilder',
+    title: 'Prompt Builder',
+    subtitle: 'Build prompts with ease',
+    url: 'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//blocs_demo.gif',
   },
   {
-    title: 'CreateTemplate',
-    url:'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//templates_demo.gif',
-    description: 'CreateTemplate',
+    title: 'Create Template',
+    subtitle: 'Save and reuse your prompts',
+    url: 'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//templates_demo.gif',
   },
-  
-]
-const videos = [
+];
+const videos: VideoInfo[] = [
   {
     id: 'tour',
     title: 'Full Tour',
     url: 'https://www.loom.com/embed/c910c2ceeea042d99b977b12bd8dba3e',
     duration: '2:00',
     description: 'Complete walkthrough of the extension.',
+    icon: Compass,
   },
   {
     id: 'templates',
@@ -39,6 +61,7 @@ const videos = [
     url: 'https://www.loom.com/embed/af9a0a363d194ac29d6aee3d18b9cdbb',
     duration: '2:00',
     description: 'How to use templates.',
+    icon: LayoutTemplate,
   },
   {
     id: 'blocks',
@@ -46,6 +69,7 @@ const videos = [
     url: 'https://www.loom.com/embed/93ac2850b69d4307ba07f1d519a5ed67',
     duration: '2:00',
     description: 'Overview of the blocks feature.',
+    icon: Blocks,
   },
   {
     id: 'folders',
@@ -53,6 +77,7 @@ const videos = [
     url: 'https://www.loom.com/embed/63928ee9359345d9baa89a7ddab7979f',
     duration: '2:00',
     description: 'Organizing folders in JayDai.',
+    icon: Folder,
   },
   {
     id: 'popup',
@@ -60,6 +85,7 @@ const videos = [
     url: 'https://www.loom.com/embed/0113fa04ad104011810d9283df046fb2',
     duration: '1:30',
     description: 'Using the extension popup.',
+    icon: AppWindow,
   },
   {
     id: 'stats',
@@ -67,13 +93,8 @@ const videos = [
     url: 'https://www.loom.com/embed/c517179557a94a5ba2491a6c7a76f2b0',
     duration: '1:30',
     description: 'Exploring the stats view.',
+    icon: BarChart2,
   },
-];
-
-const featuredTutorials = [
-  { title: 'Quick Start Guide', subtitle: 'Get up and running in minutes' },
-  { title: 'Pro Features', subtitle: 'Unlock advanced capabilities' },
-  { title: 'Best Practices', subtitle: 'Learn from the experts' },
 ];
 
 export const TutorialsDialog: React.FC = () => {
@@ -163,10 +184,10 @@ export const TutorialsDialog: React.FC = () => {
                   {/* Background Image */}
                   <div className="jd-absolute jd-inset-0">
                     <img
-                      src={GIF_URLS[i].url}
-                      alt={`Tutorial: ${GIF_URLS[i].title}`}
-                      className={`jd-w-full jd-h-full jd-object-cover jd-transition-all jd-duration-500 ${
-                        isHovered ? 'jd-scale-110' : 'jd-scale-105'
+                      src={tutorial.url}
+                      alt={`Tutorial: ${tutorial.title}`}
+                      className={`jd-w-full jd-h-full jd-object-contain jd-transition-all jd-duration-500 ${
+                        isHovered ? 'jd-scale-105' : 'jd-scale-100'
                       }`}
                       draggable={false}
                     />
@@ -210,7 +231,7 @@ export const TutorialsDialog: React.FC = () => {
               >
                 {/* Video Icon Container */}
                 <div className="jd-flex-shrink-0 jd-w-12 jd-h-12 jd-bg-gradient-to-br jd-from-blue-500 jd-to-purple-600 jd-rounded-lg jd-flex jd-items-center jd-justify-center jd-shadow-lg group-hover:jd-shadow-xl jd-transition-all jd-duration-300 group-hover:jd-scale-110">
-                  <Video className="jd-w-5 jd-h-5 jd-text-white" />
+                  <video.icon className="jd-w-5 jd-h-5 jd-text-white" />
                 </div>
 
                 {/* Video Info */}
