@@ -276,7 +276,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
           ))}
           <button
             onClick={handleCreateBlock}
-            className="jd-px-2 jd-py-1 jd-text-xs jd-rounded-md jd-transition-colors jd-flex jd-items-center jd-gap-1 jd-border-2 jd-border-dashed jd-border-primary jd-text-primary !jd-font-black"
+            className="jd-px-2 jd-py-1 jd-text-xs jd-rounded-md jd-transition-colors jd-flex jd-items-center jd-gap-1 jd-border jd-border-dashed jd-border-primary jd-text-primary !jd-font-black"
           >
             <Plus className="jd-h-3 jd-w-3" />
             <span>{getMessage('newBlock', undefined, 'New')}</span>
