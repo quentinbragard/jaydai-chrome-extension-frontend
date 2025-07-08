@@ -115,7 +115,8 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
         .filter(Boolean) as Block[];
 
       const combined: Block[] = [...selectedBlocks];
-      published.forEach(b => {
+      const toAdd = published.length > 0 ? published : allBlocks;
+      toAdd.forEach(b => {
         if (!combined.some(sb => sb.id === b.id)) combined.push(b);
       });
 
