@@ -194,9 +194,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     setGlobalSearchQuery(searchQuery);
   }, [searchQuery, setGlobalSearchQuery]);
 
-  useEffect(() => {
-    trackEvent(EVENTS.TEMPLATE_SEARCH, { search_content: searchQuery });
-  }, [searchQuery]);
 
   // Navigation hook for combined user + organization folders
   const navigation = useBreadcrumbNavigation({

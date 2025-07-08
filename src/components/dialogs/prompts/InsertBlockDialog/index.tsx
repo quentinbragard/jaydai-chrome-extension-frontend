@@ -232,6 +232,7 @@ const InlineBlockCreator: React.FC<{
 
 export const InsertBlockDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.INSERT_BLOCK);
+  const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
   const handleOpenChange = useCallback(
     (open: boolean) => {
       dialogProps.onOpenChange(open);
@@ -508,7 +509,13 @@ const filteredBlocks = blocks.filter(b => {
               <Search className="jd-absolute jd-left-3 jd-top-1/2 jd-transform jd--translate-y-1/2 jd-h-4 jd-w-4 jd-text-muted-foreground" />
               <Input
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => {
+                  setSearch(e.target.value);
+                  if (!hasTriggeredAmplitudeEvent) {
+                    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_SEARCHED, { search_content_first_letter: e.target.value });
+                    setHasTriggeredAmplitudeEvent(true);
+                  }
+                }}
                 placeholder={getMessage('searchBlocksPlaceholder', undefined, 'Search blocks...')}
                 className="jd-pl-9"
                 onKeyDown={(e) => e.stopPropagation()}
@@ -537,7 +544,10 @@ const filteredBlocks = blocks.filter(b => {
                     key={filter.type}
                     size="sm"
                     variant={selectedTypeFilter === filter.type ? 'default' : 'outline'}
-                    onClick={() => setSelectedTypeFilter(filter.type)}
+                    onClick={() => {
+                      setSelectedTypeFilter(filter.type);
+                      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_TYPE_FILTER_CHANGED, { type: filter.type });
+                    }}
                     className="jd-h-6 jd-text-xs jd-px-2"
                   >
                     <span className="jd-mr-1">{filter.icon}</span>

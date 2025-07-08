@@ -17,6 +17,7 @@ import {
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface SingleMetadataDropdownProps {
   type: SingleMetadataType;
@@ -44,7 +45,10 @@ export const SingleMetadataDropdown: React.FC<SingleMetadataDropdownProps> = ({
   // FIXED: Enhanced block selection with error handling and proper dropdown closing
   const handleSelectBlock = (blockId: string) => {
     try {
-      console.log(`Selecting block: ${blockId} for type: ${type}`);
+      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_SELECTED, {
+        blockId: blockId,
+        type: type
+      });
       onSelect(blockId);
       setIsOpen(false);
     } catch (error) {

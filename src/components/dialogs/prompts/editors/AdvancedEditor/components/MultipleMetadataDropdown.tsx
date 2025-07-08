@@ -14,6 +14,7 @@ import { getMessage } from '@/core/utils/i18n';
 import { MultipleMetadataType, MetadataItem } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface MultipleMetadataDropdownProps {
   type: MultipleMetadataType;
@@ -53,6 +54,10 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
   // FIXED: Close dropdown when creating a block and add error handling
   const handleAddBlock = (blockId: string) => {
     try {
+      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_SELECTED, {
+        blockId: blockId,
+        type: type
+      });
       onAdd(blockId);
       // Close dropdown when creating a new block
       if (blockId === 'create') {

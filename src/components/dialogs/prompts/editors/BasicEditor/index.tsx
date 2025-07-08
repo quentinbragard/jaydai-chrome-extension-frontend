@@ -15,6 +15,7 @@ import {
   extractPlaceholdersFromBlocks
 } from '@/utils/templates/enhancedPreviewUtils';
 import { countMetadataItems } from '@/utils/prompts/metadataUtils';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface Placeholder {
   key: string; // without brackets
@@ -158,10 +159,18 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
   }, []);
 
   const resetPlaceholders = useCallback(() => {
+    trackEvent(EVENTS.TEMPLATE_RESET_PLACEHOLDERS, {
+      content: content,
+      placeholders: placeholders
+    });
     setPlaceholders(prev => prev.map(p => ({ ...p, value: '' })));
   }, []);
 
   const togglePreview = () => {
+    trackEvent(EVENTS.TEMPLATE_TOGGLE_PREVIEW, {
+      content: content,
+      placeholders: placeholders
+    });
     setShowPreview(prev => {
       const next = !prev;
       setPreviewHiddenManually(!next);

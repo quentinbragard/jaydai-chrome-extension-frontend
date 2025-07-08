@@ -60,6 +60,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
 
   useEffect(() => {
     trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_OPENED);
@@ -229,7 +230,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
             title={getMessage('openBlockBuilder', undefined, 'Open block builder')}
           >
             <Maximize2 className="jd-h-3 jd-w-3 jd-mr-1" />
-            Builder
+            {getMessage('blockBuilder', undefined, 'Block Builder')}
           </Button>
           <Button
             size="sm"
@@ -248,7 +249,13 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
           <Input
             ref={searchInputRef}
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => {
+              setSearch(e.target.value);
+              if (!hasTriggeredAmplitudeEvent) {
+                trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_BLOCK_SEARCHED, { search_content_first_letter: e.target.value });
+                setHasTriggeredAmplitudeEvent(true);
+              }
+            }}
             placeholder={getMessage('searchBlocksPlaceholder', undefined, 'Search blocks...')}
             className="jd-pl-8 jd-h-8 jd-text-sm"
           />
@@ -261,7 +268,10 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
           {QUICK_FILTERS.map(filter => (
             <button
               key={filter.type}
-              onClick={() => setSelectedFilter(filter.type)}
+              onClick={() => {
+                setSelectedFilter(filter.type);
+                trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_BLOCK_TYPE_FILTER_CHANGED, { type: filter.type });
+              }}
               className={cn(
                 'jd-px-2 jd-py-1 jd-text-xs jd-rounded-md jd-transition-colors',
                 'jd-flex jd-items-center jd-gap-1',

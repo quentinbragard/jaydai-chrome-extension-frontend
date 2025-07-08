@@ -38,7 +38,7 @@ export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   example: getMessage('blockExampleLabel', undefined, 'Example'),
   constraint: getMessage('blockConstraintLabel', undefined, 'Constraint'),
   tone_style: getMessage('blockToneStyleLabel', undefined, 'Tone & Style'),
-  audience: getMessage('blockAudienceLabel', undefined, 'Audience')
+  audience: getMessage('blockAudienceLabel', undefined, 'Audience'),
 };
 
 export const BLOCK_TYPE_ICONS: Record<BlockType, React.ComponentType<any>> = {

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, X } from "lucide-react";
 import { cn } from "@/core/utils/classNames";
 import { useThemeDetector } from "@/hooks/useThemeDetector";
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface PanelHeaderProps {
   title?: string;
@@ -29,7 +30,12 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   const darkLogo = chrome.runtime.getURL('images/full-logo-white.png');
   const lightLogo = chrome.runtime.getURL('images/full-logo-dark.png');
   const isDarkMode = useThemeDetector();
-  
+  const handleClose = () => {
+    trackEvent(EVENTS.PANEL_CLOSED, {
+      panel: title
+    });
+    onClose?.();
+  };
   return (
     <div className={cn(
       "jd-flex jd-items-center jd-justify-between jd-p-2 jd-border-b jd-rounded-t-md jd-text-foreground",
@@ -72,7 +78,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={onClose}
+            onClick={handleClose}
           >
             <X className="jd-h-4 jd-w-4" />
           </Button>

@@ -70,10 +70,6 @@ const BrowseTemplatesPanel: React.FC<BrowseTemplatesPanelProps> = ({
     filteredFolders,
     clearSearch
   } = useFolderSearch(folders);
-
-  useEffect(() => {
-    trackEvent(EVENTS.TEMPLATE_SEARCH, { search_content: searchQuery });
-  }, [searchQuery]);
   
   // Get folder mutations
   const { toggleFolderPin } = useFolderMutations();

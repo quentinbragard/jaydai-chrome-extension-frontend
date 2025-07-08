@@ -101,6 +101,8 @@ export const EVENTS = {
   TEMPLATE_SEARCH: 'Template Search',
   TEMPLATE_CREATE: 'Template Created',
   TEMPLATE_CREATE_ERROR: 'Template Create Error',
+  TEMPLATE_RESET_PLACEHOLDERS: 'Template Reset Placeholders',
+  TEMPLATE_TOGGLE_PREVIEW: 'Template Toggle Preview',
   TEMPLATE_DELETE: 'Template Deleted',
   TEMPLATE_DELETE_FOLDER: 'Template Folder Deleted',
   TEMPLATE_EDIT: 'Template Edited',
@@ -120,6 +122,8 @@ export const EVENTS = {
   BLOCK_CREATED: 'Block Created',
   BLOCK_DELETED: 'Block Deleted',
   BLOCK_UPDATED: 'Block Updated',
+
+  INSERT_BLOCK_DIALOG_BLOCK_TYPE_FILTER_CHANGED: 'Insert Block Dialog Block Type Filter Changed',
   INSERT_BLOCK_DIALOG_BLOCK_SELECTED: 'Insert Block Dialog Block Selected',
   INSERT_BLOCK_DIALOG_BLOCK_UNSELECTED: 'Insert Block Dialog Block Unselected',
   INSERT_BLOCK_DIALOG_BLOCK_DELETED: 'Insert Block Dialog Block Deleted',
@@ -128,10 +132,14 @@ export const EVENTS = {
   INSERT_BLOCK_DIALOG_BLOCKS_COPIED_TO_CLIPBOARD: 'Insert Block Dialog Blocks Copied To Clipboard',
   INSERT_BLOCK_DIALOG_PREVIEW_MODE_CHANGED: 'Insert Block Dialog Preview Mode Changed',
   INSERT_BLOCK_DIALOG_SHORTCUT_HELP_OPENED: 'Insert Block Dialog Shortcut Help Opened',
+  INSERT_BLOCK_DIALOG_BLOCK_SEARCHED: 'Insert Block Dialog Block Searched',
+
   
   QUICK_BLOCK_SELECTOR_OPENED: 'Quick Block Selector Opened',
   QUICK_BLOCK_SELECTOR_CLOSED: 'Quick Block Selector Closed',
   QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED: 'Quick Block Selector Blocks Inserted',
+  QUICK_BLOCK_SELECTOR_BLOCK_SEARCHED: 'Quick Block Selector Block Searched',
+  QUICK_BLOCK_SELECTOR_BLOCK_TYPE_FILTER_CHANGED: 'Quick Block Selector Block Type Filter Changed',
 
   // Tutorial events
   TUTORIAL_VIDEO_PLAYED: 'Tutorial Video Played',
@@ -149,6 +157,8 @@ export const EVENTS = {
   // Settings events
   SETTINGS_OPENED: 'Settings Opened',
   SETTINGS_CHANGED: 'Settings Changed',
+
+  PANEL_CLOSED: 'Panel Closed',
   
   // Network interceptor events
   MESSAGE_CAPTURED: 'Message Captured',
