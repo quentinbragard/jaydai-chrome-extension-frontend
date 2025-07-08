@@ -84,7 +84,7 @@ export function initFetchInterceptor() {
     }
     
     // Extract request body
-    const requestBody = extractRequestBody(init);
+    const requestBody = extractRequestBody(init) || {};
     
     // Call original fetch
     const response = await originalFetch.apply(this, arguments);
@@ -100,7 +100,9 @@ export function initFetchInterceptor() {
         
         // Detect streaming more reliably
         const isStreaming = isStreamingResponse(response, init, platform);
-        requestBody['parentMessageId'] = requestBody.messageId;
+        if (requestBody) {
+          requestBody['parentMessageId'] = requestBody.messageId;
+        }
         
         if (isStreaming) {
           // Process streaming responses
