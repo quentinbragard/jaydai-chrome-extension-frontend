@@ -36,9 +36,14 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
   useThemeDetector();
 
   const getBlockName = (item: MetadataItem) => {
-    if (!item.blockId) return `Empty ${label}`;
+    if (!item.blockId) {
+      return getMessage('emptyType', [label], `Empty ${label}`);
+    }
     const block = availableBlocks.find(b => b.id === item.blockId);
-    return getLocalizedContent(block?.title) || `${label} block`;
+    return (
+      getLocalizedContent(block?.title) ||
+      getMessage('typeBlock', [label], `${label} block`)
+    );
   };
 
   const handleItemRemove = (itemId: string) => {
@@ -107,7 +112,9 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
       <DropdownMenuContent align="start" className="jd-w-80 jd-z-[10020] jd-p-0">
         {/* Header */}
         <div className="jd-flex jd-items-center jd-justify-between jd-p-3 jd-border-b jd-border-border/50">
-          <div className="jd-text-sm jd-font-medium">Select {label.toLowerCase()}s</div>
+          <div className="jd-text-sm jd-font-medium">
+            {getMessage('selectTypePlural', [label.toLowerCase() + 's'], `Select ${label.toLowerCase()}s`)}
+          </div>
           <Button
             variant="ghost"
             size="sm"
@@ -123,7 +130,7 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
           <>
             <div className="jd-p-3 jd-bg-muted/30">
               <div className="jd-text-xs jd-font-medium jd-text-muted-foreground jd-mb-2">
-                Selected {label.toLowerCase()}s
+                {getMessage('selectedTypePlural', [label.toLowerCase() + 's'], `Selected ${label.toLowerCase()}s`)}
               </div>
               {items.map(item => (
                 <div
@@ -149,7 +156,7 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
                     size="sm"
                     onClick={() => handleItemRemove(item.id)}
                     className="jd-ml-2 jd-h-7 jd-w-7 jd-p-0 jd-text-muted-foreground hover:jd-text-destructive jd-flex-shrink-0"
-                    title={`Remove ${label.toLowerCase()}`}
+                    title={getMessage('removeType', [label.toLowerCase()], `Remove ${label.toLowerCase()}`)}
                   >
                     <Trash2 className="jd-h-3 jd-w-3" />
                   </Button>
@@ -158,7 +165,7 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
             </div>
             <div className="jd-px-3 jd-py-2 jd-border-b jd-border-border/50">
               <div className="jd-text-xs jd-font-medium jd-text-muted-foreground">
-                Add existing {label.toLowerCase()}s
+                {getMessage('addExistingTypePlural', [label.toLowerCase() + 's'], `Add existing ${label.toLowerCase()}s`)}
               </div>
             </div>
           </>
@@ -168,7 +175,7 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
         <div className="jd-max-h-60 jd-overflow-y-auto">
           {availableBlocksFiltered.length === 0 ? (
             <div className="jd-p-4 jd-text-center jd-text-sm jd-text-muted-foreground">
-              No more {label.toLowerCase()}s available
+              {getMessage('noMoreTypeAvailable', [label.toLowerCase() + 's'], `No more ${label.toLowerCase()}s available`)}
             </div>
           ) : (
             availableBlocksFiltered.map(block => (
@@ -179,7 +186,8 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
               >
                 <div className="jd-flex-1 jd-min-w-0">
                   <div className="jd-text-sm jd-font-medium jd-truncate">
-                    {getLocalizedContent(block.title) || `${label} block`}
+                    {getLocalizedContent(block.title) ||
+                      getMessage('typeBlock', [label], `${label} block`)}
                   </div>
                   <div className="jd-text-xs jd-text-muted-foreground jd-truncate jd-mt-1">
                     {(() => {
