@@ -45,7 +45,7 @@ export const SingleMetadataDropdown: React.FC<SingleMetadataDropdownProps> = ({
   // FIXED: Enhanced block selection with error handling and proper dropdown closing
   const handleSelectBlock = (blockId: string) => {
     try {
-      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_SELECTED, {
+      trackEvent(EVENTS.COMPACT_METADATA_CARD_BLOCK_SELECTED, {
         blockId: blockId,
         type: type
       });

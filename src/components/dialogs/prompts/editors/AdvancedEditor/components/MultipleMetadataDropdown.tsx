@@ -54,7 +54,7 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
   // FIXED: Close dropdown when creating a block and add error handling
   const handleAddBlock = (blockId: string) => {
     try {
-      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_SELECTED, {
+      trackEvent(EVENTS.COMPACT_METADATA_CARD_BLOCK_SELECTED, {
         blockId: blockId,
         type: type
       });
@@ -192,7 +192,7 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
                 disabled={availableBlocksFiltered.length === 0}
               >
                 <Plus className="jd-h-3 jd-w-3 jd-mr-1" />
-                Add existing {label.toLowerCase()}s
+                {getMessage('addExisting', [label.toLowerCase()], `Add existing ${label.toLowerCase()}s`)}
                 {availableBlocksFiltered.length === 0 && (
                   <span className="jd-ml-1 jd-text-xs jd-text-muted-foreground">
                     (no more available)

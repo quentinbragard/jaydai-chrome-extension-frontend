@@ -119,6 +119,8 @@ export const EVENTS = {
   TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
   TEMPLATE_DIALOG_VIEW_CHANGED: 'Template Dialog View Changed',
 
+  COMPACT_METADATA_CARD_BLOCK_SELECTED: 'Compact Metadata Card Block Selected',
+
   BLOCK_CREATED: 'Block Created',
   BLOCK_DELETED: 'Block Deleted',
   BLOCK_UPDATED: 'Block Updated',
