@@ -12,6 +12,8 @@ import { Plus, X } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { getMessage } from '@/core/utils/i18n';
+import { blocksApi } from '@/services/api/BlocksApi';
+import { toast } from 'sonner';
 
 import {
   MetadataType,
@@ -153,30 +155,43 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
         openDialog(DIALOG_TYPES.CREATE_BLOCK, {
           initialType: config.blockType,
           source: 'CompactMetadataSection',
-          onBlockCreated: (b: Block) => {
-            console.log(`Block created:`, b);
-            
+          onBlockCreated: async (data: any) => {
             try {
-              // Add block to available blocks
-              addNewBlock(b);
-              
-              // Add to metadata
-              if (isMultipleMetadataType(type)) {
-                setMetadata(prev =>
-                  addMetadataItem(prev, type as MultipleMetadataType, {
-                    blockId: b.id,
-                    value: getLocalizedContent(b.content)
-                  })
-                );
+              const response = await blocksApi.createBlock({
+                title: data.title,
+                content: data.content,
+                type: data.type,
+                description: data.description,
+                published: data.published ?? true
+              });
+
+              if (response.success && response.data) {
+                const b = response.data;
+                addNewBlock(b);
+
+                if (isMultipleMetadataType(type)) {
+                  setMetadata(prev =>
+                    addMetadataItem(prev, type as MultipleMetadataType, {
+                      blockId: b.id,
+                      value: getLocalizedContent(b.content)
+                    })
+                  );
+                } else {
+                  setMetadata(prev =>
+                    updateSingleMetadata(prev, type as SingleMetadataType, b.id)
+                  );
+                }
+
+                toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
+                return true;
               } else {
-                setMetadata(prev =>
-                  updateSingleMetadata(prev, type as SingleMetadataType, b.id)
-                );
+                toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
+                return false;
               }
-              return true; // Signal success to close dialog
             } catch (error) {
-              console.error('Error adding block to metadata:', error);
-              return false; // Keep dialog open on error
+              console.error('Error creating block:', error);
+              toast.error(getMessage('blockCreateError', undefined, 'An error occurred while creating the block'));
+              return false;
             }
           }
         });
@@ -224,24 +239,35 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
           openDialog(DIALOG_TYPES.CREATE_BLOCK, {
             initialType: config.blockType,
             source: 'CompactMetadataSection',
-            onBlockCreated: b => {
-              console.log(`Block created for multiple type:`, b);
-              
+            onBlockCreated: async (data: any) => {
               try {
-                // Add block to available blocks
-                addNewBlock(b);
-                
-                // Add to metadata
-                setMetadata(prev =>
-                  addMetadataItem(prev, type, {
-                    blockId: b.id,
-                    value: getLocalizedContent(b.content)
-                  })
-                );
-                return true; // Signal success to close dialog
+                const response = await blocksApi.createBlock({
+                  title: data.title,
+                  content: data.content,
+                  type: data.type,
+                  description: data.description,
+                  published: data.published ?? true
+                });
+
+                if (response.success && response.data) {
+                  const b = response.data;
+                  addNewBlock(b);
+                  setMetadata(prev =>
+                    addMetadataItem(prev, type, {
+                      blockId: b.id,
+                      value: getLocalizedContent(b.content)
+                    })
+                  );
+                  toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
+                  return true;
+                } else {
+                  toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
+                  return false;
+                }
               } catch (error) {
-                console.error('Error adding block to multiple metadata:', error);
-                return false; // Keep dialog open on error
+                console.error('Error creating block:', error);
+                toast.error(getMessage('blockCreateError', undefined, 'An error occurred while creating the block'));
+                return false;
               }
             }
           });
