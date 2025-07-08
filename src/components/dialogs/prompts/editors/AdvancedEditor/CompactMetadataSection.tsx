@@ -43,6 +43,7 @@ import {
   getBlockIconColors
 } from '@/utils/prompts/blockUtils';
 import { CompactMetadataCard } from './components/CompactMetadataCard';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: getBlockTypeIcon('role'),
@@ -336,7 +337,10 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
       </h3>
       {mode === 'customize' && (
         <button
-          onClick={resetMetadata}
+          onClick={() => {
+            resetMetadata();
+            trackEvent(EVENTS.COMPACT_METADATA_SECTION_RESTORE_ORIGINAL_METADATA);
+          }}
           className="jd-text-xs jd-underline jd-text-muted-foreground hover:jd-text-foreground"
         >
           {getMessage('restoreOriginalMetadata', undefined, 'Restore original metadata')}

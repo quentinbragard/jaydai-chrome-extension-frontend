@@ -120,6 +120,7 @@ export const EVENTS = {
   TEMPLATE_DIALOG_VIEW_CHANGED: 'Template Dialog View Changed',
 
   COMPACT_METADATA_CARD_BLOCK_SELECTED: 'Compact Metadata Card Block Selected',
+  COMPACT_METADATA_SECTION_RESTORE_ORIGINAL_METADATA: 'Compact Metadata Section Restore Original Metadata',
 
   BLOCK_CREATED: 'Block Created',
   BLOCK_DELETED: 'Block Deleted',

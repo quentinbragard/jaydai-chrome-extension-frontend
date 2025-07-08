@@ -2053,5 +2053,7 @@
   "extensionPopup": { "message": "Extension Popup", "description": "Label for the extension popup" },
   "stats": { "message": "Stats", "description": "Label for the stats" },
   "insertBlocks": { "message": "Insert Blocks", "description": "Label for the insert blocks" },
-  "promptBuilder": { "message": "Prompt Builder", "description": "Label for the prompt builder" }
+  "promptBuilder": { "message": "Prompt Builder", "description": "Label for the prompt builder" },
+  "aiCompanion": { "message": "Your companion to adopt AI generation like a pro", "description": "Label for the ai companion" },
+  "restoreOriginalMetadata": { "message": "Restore original metadata", "description": "Label for the restore original metadata" }
 }
