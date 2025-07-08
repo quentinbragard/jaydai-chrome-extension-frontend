@@ -43,11 +43,25 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
   };
 
   const handleItemRemove = (itemId: string) => {
-    onRemove(itemId);
+    try {
+      onRemove(itemId);
+    } catch (error) {
+      console.error('Error removing item:', error);
+    }
   };
 
+  // FIXED: Close dropdown when creating a block and add error handling
   const handleAddBlock = (blockId: string) => {
-    onAdd(blockId);
+    try {
+      onAdd(blockId);
+      // Close dropdown when creating a new block
+      if (blockId === 'create') {
+        setIsOpen(false);
+        setView('selected'); // Reset view
+      }
+    } catch (error) {
+      console.error('Error adding block:', error);
+    }
   };
 
   const handleClose = () => {
@@ -152,7 +166,19 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
               )}
             </div>
 
-            <div className="jd-p-3 jd-border-t jd-border-border/50">
+            <div className="jd-p-3 jd-border-t jd-border-border/50 jd-space-y-2">
+              {/* Create new block option - Always visible at top */}
+              <div
+                className="jd-flex jd-items-center jd-gap-2 jd-p-2 jd-rounded jd-border jd-border-primary jd-bg-primary/10 jd-text-primary hover:jd-bg-primary/20 jd-cursor-pointer jd-transition-colors"
+                onClick={() => handleAddBlock('create')}
+              >
+                <Plus className="jd-h-4 jd-w-4" />
+                <span className="jd-text-sm">
+                  {getMessage('createTypeBlock', [label.toLowerCase()], `Create new ${label.toLowerCase()} block`)}
+                </span>
+              </div>
+              
+              {/* Add existing blocks button */}
               <Button
                 variant="outline"
                 size="sm"
@@ -161,7 +187,7 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
                 disabled={availableBlocksFiltered.length === 0}
               >
                 <Plus className="jd-h-3 jd-w-3 jd-mr-1" />
-                Add more {label.toLowerCase()}s
+                Add existing {label.toLowerCase()}s
                 {availableBlocksFiltered.length === 0 && (
                   <span className="jd-ml-1 jd-text-xs jd-text-muted-foreground">
                     (no more available)
@@ -242,4 +268,3 @@ export const MultipleMetadataDropdown: React.FC<MultipleMetadataDropdownProps> =
     </DropdownMenu>
   );
 };
-

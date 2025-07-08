@@ -44,6 +44,47 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
   const config = METADATA_CONFIGS[type];
   const Icon = getBlockTypeIcon(config.blockType);
 
+  // FIXED: Enhanced error handling for remove action
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      console.log(`Removing metadata for type: ${type}`);
+      onRemove();
+    } catch (error) {
+      console.error(`Error removing metadata for type ${type}:`, error);
+    }
+  };
+
+  // FIXED: Enhanced error handling for select action
+  const handleSelect = (val: string) => {
+    try {
+      console.log(`Selecting value: ${val} for type: ${type}`);
+      onSelect(val);
+    } catch (error) {
+      console.error(`Error selecting value ${val} for type ${type}:`, error);
+    }
+  };
+
+  // FIXED: Enhanced error handling for add item action
+  const handleAddItem = (val: string) => {
+    try {
+      console.log(`Adding item: ${val} for type: ${type}`);
+      onAddItem(val);
+    } catch (error) {
+      console.error(`Error adding item ${val} for type ${type}:`, error);
+    }
+  };
+
+  // FIXED: Enhanced error handling for remove item action
+  const handleRemoveItem = (id: string) => {
+    try {
+      console.log(`Removing item: ${id} for type: ${type}`);
+      onRemoveItem(id);
+    } catch (error) {
+      console.error(`Error removing item ${id} for type ${type}:`, error);
+    }
+  };
+
   return (
     <div className="jd-relative jd-group">
       <div
@@ -83,13 +124,10 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={e => {
-              e.stopPropagation();
-              onRemove();
-            }}
+            onClick={handleRemove}
             className={cn(
               'jd-absolute jd-top-0 jd-left-0 jd-p-0 jd-transition-all jd-duration-200',
-              'jd-opacity-0 group-hover:jd-opacity-100  jd-text-foreground jd-rounded-full',
+              'jd-opacity-0 group-hover:jd-opacity-100 jd-text-foreground jd-rounded-full',
               'jd-shadow-lg hover:jd-shadow-red-500/50 hover:jd-bg-red-600 jd-transform jd-scale-90 hover:jd-scale-100'
             )}
           >
@@ -104,8 +142,8 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
             type={type as MultipleMetadataType}
             items={items}
             availableBlocks={availableBlocks}
-            onRemove={onRemoveItem}
-            onAdd={onAddItem}
+            onRemove={handleRemoveItem}
+            onAdd={handleAddItem}
             label={config.label}
           />
         ) : (
@@ -113,7 +151,7 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
             type={type as SingleMetadataType}
             selectedBlockId={selectedBlockId}
             availableBlocks={availableBlocks}
-            onSelect={onSelect}
+            onSelect={handleSelect}
             label={config.label}
           />
         )}

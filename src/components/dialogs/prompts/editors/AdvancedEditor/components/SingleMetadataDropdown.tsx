@@ -41,9 +41,16 @@ export const SingleMetadataDropdown: React.FC<SingleMetadataDropdownProps> = ({
       ? availableBlocks.find(b => b.id === selectedBlockId)
       : null;
 
+  // FIXED: Enhanced block selection with error handling and proper dropdown closing
   const handleSelectBlock = (blockId: string) => {
-    onSelect(blockId);
-    setIsOpen(false);
+    try {
+      console.log(`Selecting block: ${blockId} for type: ${type}`);
+      onSelect(blockId);
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Error selecting block:', error);
+      // Keep dropdown open on error
+    }
   };
 
   const handleClose = () => {
@@ -93,6 +100,19 @@ export const SingleMetadataDropdown: React.FC<SingleMetadataDropdownProps> = ({
           >
             <X className="jd-h-3 jd-w-3" />
           </Button>
+        </div>
+
+        {/* Create new block option - Always at top for easy access */}
+        <div className="jd-p-3 jd-border-b jd-border-border/50">
+          <div
+            className="jd-flex jd-items-center jd-gap-2 jd-p-2 jd-rounded jd-border jd-border-primary jd-bg-primary/10 jd-text-primary hover:jd-bg-primary/20 jd-cursor-pointer jd-transition-colors"
+            onClick={() => handleSelectBlock('create')}
+          >
+            <Plus className="jd-h-4 jd-w-4" />
+            <span className="jd-text-sm">
+              {getMessage('createTypeBlock', [label.toLowerCase()], `Create new ${label.toLowerCase()} block`)}
+            </span>
+          </div>
         </div>
 
         {/* Current selection (if any) */}
@@ -168,21 +188,7 @@ export const SingleMetadataDropdown: React.FC<SingleMetadataDropdownProps> = ({
               ))
           )}
         </div>
-
-        {/* Create new block option */}
-        <div className="jd-p-3 jd-border-t jd-border-border/50">
-          <div
-            className="jd-flex jd-items-center jd-gap-2 jd-p-2 jd-rounded jd-border jd-border-primary jd-bg-primary/10 jd-text-primary hover:jd-bg-primary/20 jd-cursor-pointer jd-transition-colors"
-            onClick={() => handleSelectBlock('create')}
-          >
-            <Plus className="jd-h-4 jd-w-4" />
-            <span className="jd-text-sm">
-              {getMessage('createTypeBlock', [label.toLowerCase()], `Create new ${label.toLowerCase()} block`)}
-            </span>
-          </div>
-        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
-

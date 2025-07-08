@@ -53,7 +53,6 @@ const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   constraint: getBlockTypeIcon('constraint')
 };
 
-
 interface CompactMetadataProps {
   mode?: 'create' | 'customize';
   availableMetadataBlocks: Record<MetadataType, Block[]>;
@@ -139,109 +138,166 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
     }
   }, [metadata]);
 
-  // Handle single metadata selection
+  // FIXED: Handle single metadata selection with proper error handling
   const handleSelect = useCallback((type: MetadataType, val: string) => {
-    if (val === 'create') {
-      const config = METADATA_CONFIGS[type];
-      openDialog(DIALOG_TYPES.CREATE_BLOCK, {
-        initialType: config.blockType,
-        onBlockCreated: (b: Block) => {
-          addNewBlock(b);
-          if (isMultipleMetadataType(type)) {
-            setMetadata(prev =>
-              addMetadataItem(prev, type as MultipleMetadataType, {
-                blockId: b.id,
-                value: getLocalizedContent(b.content)
-              })
-            );
-          } else {
-            setMetadata(prev =>
-              updateSingleMetadata(prev, type as SingleMetadataType, b.id)
-            );
-          }
-        }
-      });
-      return;
-    }
-
-    if (isMultipleMetadataType(type)) {
-      const blockId = parseInt(val, 10);
-      const block = availableMetadataBlocks[type]?.find(b => b.id === blockId);
-      setMetadata(prev =>
-        addMetadataItem(prev, type as MultipleMetadataType, {
-          blockId: isNaN(blockId) ? undefined : blockId,
-          value: block ? getLocalizedContent(block.content) : ''
-        })
-      );
-    } else {
-      const blockId = parseInt(val, 10);
-      setMetadata(prev =>
-        updateSingleMetadata(
-          prev,
-          type as SingleMetadataType,
-          isNaN(blockId) ? 0 : blockId
-        )
-      );
-    }
-  }, [availableMetadataBlocks, setMetadata, addNewBlock, openDialog]);
-
-  const handleAddItem = useCallback(
-    (type: MultipleMetadataType, val: string) => {
+    try {
       if (val === 'create') {
         const config = METADATA_CONFIGS[type];
+        if (!config) {
+          console.error(`No config found for metadata type: ${type}`);
+          return;
+        }
+
+        console.log(`Creating block for type: ${type}, blockType: ${config.blockType}`);
+        
         openDialog(DIALOG_TYPES.CREATE_BLOCK, {
           initialType: config.blockType,
-          onBlockCreated: b => {
-            addNewBlock(b);
-            setMetadata(prev =>
-              addMetadataItem(prev, type, {
-                blockId: b.id,
-                value: getLocalizedContent(b.content)
-              })
-            );
+          source: 'CompactMetadataSection',
+          onBlockCreated: (b: Block) => {
+            console.log(`Block created:`, b);
+            
+            try {
+              // Add block to available blocks
+              addNewBlock(b);
+              
+              // Add to metadata
+              if (isMultipleMetadataType(type)) {
+                setMetadata(prev =>
+                  addMetadataItem(prev, type as MultipleMetadataType, {
+                    blockId: b.id,
+                    value: getLocalizedContent(b.content)
+                  })
+                );
+              } else {
+                setMetadata(prev =>
+                  updateSingleMetadata(prev, type as SingleMetadataType, b.id)
+                );
+              }
+              return true; // Signal success to close dialog
+            } catch (error) {
+              console.error('Error adding block to metadata:', error);
+              return false; // Keep dialog open on error
+            }
           }
         });
         return;
       }
 
-      const blockId = parseInt(val, 10);
-      const block = availableMetadataBlocks[type]?.find(b => b.id === blockId);
-      setMetadata(prev =>
-        addMetadataItem(prev, type, {
-          blockId: isNaN(blockId) ? undefined : blockId,
-          value: block ? getLocalizedContent(block.content) : ''
-        })
-      );
+      // Handle existing block selection
+      if (isMultipleMetadataType(type)) {
+        const blockId = parseInt(val, 10);
+        const block = availableMetadataBlocks[type]?.find(b => b.id === blockId);
+        setMetadata(prev =>
+          addMetadataItem(prev, type as MultipleMetadataType, {
+            blockId: isNaN(blockId) ? undefined : blockId,
+            value: block ? getLocalizedContent(block.content) : ''
+          })
+        );
+      } else {
+        const blockId = parseInt(val, 10);
+        setMetadata(prev =>
+          updateSingleMetadata(
+            prev,
+            type as SingleMetadataType,
+            isNaN(blockId) ? 0 : blockId
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error in handleSelect:', error);
+    }
+  }, [availableMetadataBlocks, setMetadata, addNewBlock, openDialog]);
+
+  // FIXED: Handle adding items to multiple metadata with proper error handling
+  const handleAddItem = useCallback(
+    (type: MultipleMetadataType, val: string) => {
+      try {
+        if (val === 'create') {
+          const config = METADATA_CONFIGS[type];
+          if (!config) {
+            console.error(`No config found for metadata type: ${type}`);
+            return;
+          }
+
+          console.log(`Creating block for multiple type: ${type}, blockType: ${config.blockType}`);
+          
+          openDialog(DIALOG_TYPES.CREATE_BLOCK, {
+            initialType: config.blockType,
+            source: 'CompactMetadataSection',
+            onBlockCreated: b => {
+              console.log(`Block created for multiple type:`, b);
+              
+              try {
+                // Add block to available blocks
+                addNewBlock(b);
+                
+                // Add to metadata
+                setMetadata(prev =>
+                  addMetadataItem(prev, type, {
+                    blockId: b.id,
+                    value: getLocalizedContent(b.content)
+                  })
+                );
+                return true; // Signal success to close dialog
+              } catch (error) {
+                console.error('Error adding block to multiple metadata:', error);
+                return false; // Keep dialog open on error
+              }
+            }
+          });
+          return;
+        }
+
+        // Handle existing block selection
+        const blockId = parseInt(val, 10);
+        const block = availableMetadataBlocks[type]?.find(b => b.id === blockId);
+        setMetadata(prev =>
+          addMetadataItem(prev, type, {
+            blockId: isNaN(blockId) ? undefined : blockId,
+            value: block ? getLocalizedContent(block.content) : ''
+          })
+        );
+      } catch (error) {
+        console.error('Error in handleAddItem:', error);
+      }
     },
     [availableMetadataBlocks, setMetadata, addNewBlock, openDialog]
   );
 
   const handleRemoveItem = useCallback(
     (type: MultipleMetadataType, id: string) => {
-      setMetadata(prev => removeMetadataItem(prev, type, id));
+      try {
+        setMetadata(prev => removeMetadataItem(prev, type, id));
+      } catch (error) {
+        console.error('Error in handleRemoveItem:', error);
+      }
     },
     [setMetadata]
   );
 
   // Handle removing metadata
   const handleRemove = useCallback((type: MetadataType) => {
-    if (isMultipleMetadataType(type)) {
-      setMetadata(prev => ({
-        ...prev,
-        [type]: []
-      }));
-    } else {
-      setMetadata(prev => {
-        const newMetadata = { ...prev };
-        (newMetadata as any)[type] = 0;
-        if (newMetadata.values) {
-          newMetadata.values = {
-            ...newMetadata.values,
-            [type]: ''
-          };
-        }
-        return newMetadata;
-      });
+    try {
+      if (isMultipleMetadataType(type)) {
+        setMetadata(prev => ({
+          ...prev,
+          [type]: []
+        }));
+      } else {
+        setMetadata(prev => {
+          const newMetadata = { ...prev };
+          (newMetadata as any)[type] = 0;
+          if (newMetadata.values) {
+            newMetadata.values = {
+              ...newMetadata.values,
+              [type]: ''
+            };
+          }
+          return newMetadata;
+        });
+      }
+    } catch (error) {
+      console.error('Error in handleRemove:', error);
     }
   }, [setMetadata]);
 
