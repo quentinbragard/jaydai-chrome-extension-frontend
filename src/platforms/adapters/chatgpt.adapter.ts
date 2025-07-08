@@ -146,6 +146,7 @@ export class ChatGptAdapter extends BasePlatformAdapter {
    * Handle conversation list event
    */
   async handleConversationList(responseData: any): Promise<void> {
+    console.log('RESPONSE DATA----->', responseData);
     try {
       if (!responseData?.items || !Array.isArray(responseData.items)) {
         return Promise.resolve();

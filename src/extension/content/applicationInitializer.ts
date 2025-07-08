@@ -43,6 +43,8 @@ export class AppInitializer {
     if (!this.isChatGPTSite() && !this.isClaudeSite() && !this.isMistralSite() && !this.isCopilotSite()) {
       return false;
     }
+
+    console.log('🔍 Initializing application on ', window.location.hostname, this.isCopilotSite());
     
     try {
       // Inject UI components - Main component will set up the dialog system

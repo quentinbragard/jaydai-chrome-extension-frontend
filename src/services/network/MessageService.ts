@@ -137,13 +137,6 @@ export class MessageService extends AbstractBaseService {
       
       // Only process messages that have a conversation ID
       if (message.conversationId && message.conversationId !== '') {
-        trackEvent(EVENTS.MESSAGE_CAPTURED, {
-          messageId: message.messageId,
-          contentLength: message.content.length,
-          role: message.role,
-          conversationId: message.conversationId
-        });
-        
         messagesToProcess.push(message);
         // Mark as processed now that we have a conversation ID
         if (!this.processed.has(message.messageId)) {

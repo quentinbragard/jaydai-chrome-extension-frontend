@@ -2035,5 +2035,6 @@
   "extensionPopup": { "message": "Extension Popup", "description": "Libellé pour le titre de l'extension popup" },
   "stats": { "message": "Stats", "description": "Libellé pour le titre des stats" },
   "insertBlocks": { "message": "Insérer des blocs", "description": "Libellé pour le titre des blocs" },
-  "promptBuilder": { "message": "Créateur de prompt", "description": "Libellé pour le titre du prompt builder" }
+  "promptBuilder": { "message": "Créateur de prompt", "description": "Libellé pour le titre du prompt builder" },
+  "aiCompanion": { "message": "Votre compagnon pour adopter l'IA génératie comme un pro", "description": "Libellé pour la description de l'extension" }
 }

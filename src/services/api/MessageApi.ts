@@ -1,6 +1,7 @@
 
 // src/api/MessageApi.ts - Updated interface
 import { apiClient } from './ApiClient';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export interface SaveMessageParams {
   message_provider_id: string;
@@ -23,12 +24,24 @@ export class MessageApi {
    * Save a batch of messages in one operation
    */
   async saveMessageBatch(messages: SaveMessageParams[]): Promise<any> {
-    return apiClient.request('/save/batch/message', {
+    const response = await apiClient.request('/save/batch/message', {
       method: 'POST',
       body: JSON.stringify({
         messages: messages
       })
     });
+    if (response.success && response.data.length > 0) {
+      for (const message of response.data) {
+        console.log('MESSAGE----->', message);
+      trackEvent(EVENTS.MESSAGE_CAPTURED, {
+        messageId: message.message_provider_id,
+        contentLength: message.content.length,
+        role: message.role,
+        conversationId: message.chat_provider_id
+      });
+      }
+    }
+    return response;
   }
   
   /**
