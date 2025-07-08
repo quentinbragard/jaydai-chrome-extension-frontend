@@ -90,6 +90,7 @@ export const EVENTS = {
   ONBOARDING_GOTO_AI_TOOL: 'Onboarding Go To AI Tool',
 
   POPUP_OPENED: 'Popup Opened',
+  POPUP_AI_TOOL_CLICKED: 'Popup AI Tool Clicked',
   
   // Template events
   TEMPLATE_VIEWED: 'Template Viewed',
