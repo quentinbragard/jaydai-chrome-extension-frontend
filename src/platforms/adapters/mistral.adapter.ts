@@ -13,10 +13,10 @@ export class MistralAdapter extends BasePlatformAdapter {
 
   extractUserMessage(requestBody: any): Message | null {
     try {
-      let messageId = requestBody.messageId || `user-${Date.now()}`;
-      let conversationId = requestBody.chatId || '';
+      let messageId = requestBody?.messageId || `user-${Date.now()}`;
+      let conversationId = requestBody?.chatId || '';
       let content = '';
-      if (requestBody.mode === "start") {
+      if (requestBody?.mode === "start") {
           const firstSelected = document.querySelector('div.select-text span');
           const domText = firstSelected?.textContent?.trim();
           if (domText) {
@@ -32,7 +32,7 @@ export class MistralAdapter extends BasePlatformAdapter {
           parent_message_provider_id: 'start',
         };
       } else {
-      let parentMessageId = requestBody.parentMessageId;
+      let parentMessageId = requestBody?.parentMessageId;
 
       // First message of a conversation is wrapped under the "0.json" key
       if (requestBody["0"]?.json) {
@@ -60,7 +60,7 @@ export class MistralAdapter extends BasePlatformAdapter {
         conversationId,
         content,
         role: 'user',
-        model: requestBody.model || 'mistral',
+        model: requestBody?.model || 'mistral',
         timestamp: Date.now(),
         parent_message_provider_id: parentMessageId,
         };
