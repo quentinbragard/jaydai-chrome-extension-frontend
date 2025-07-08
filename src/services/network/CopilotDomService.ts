@@ -51,42 +51,58 @@ export class CopilotDomService extends AbstractBaseService {
   private processMessageNode(el: HTMLElement): void {
     const dataContent = el.getAttribute('data-content');
     if (!dataContent) return;
-    const id = el.id || `msg-${Date.now()}-${Math.random()}`;
-    if (!el.id) {
-      el.id = id;
-    }
-    if (this.processed.has(id)) return;
 
-    const role = dataContent === 'user-message' ? 'user' : 'assistant';
+    const handleWithId = (msgId: string) => {
+      if (this.processed.has(msgId)) return;
 
-    if (role === 'assistant') {
-      this.waitForAssistantMessage(el, id);
-      return;
-    }
+      const role = dataContent === 'user-message' ? 'user' : 'assistant';
 
-    const contentEl = el.querySelector('.font-ligatures-none');
-    const text = (contentEl ? contentEl.textContent : el.textContent || '')?.trim() || '';
-    if (!text) return;
+      if (role === 'assistant') {
+        this.waitForAssistantMessage(el, msgId);
+        return;
+      }
 
-    const message: Message = {
-      messageId: id,
-      conversationId: chatService.getCurrentConversationId() || '',
-      content: text,
-      role: 'user',
-      model: 'copilot',
-      timestamp: Date.now(),
-      parent_message_provider_id: null,
+      const contentEl = el.querySelector('.font-ligatures-none');
+      const text = (contentEl ? contentEl.textContent : el.textContent || '')?.trim() || '';
+      if (!text) return;
+
+      const message: Message = {
+        messageId: msgId,
+        conversationId: chatService.getCurrentConversationId() || '',
+        content: text,
+        role: 'user',
+        model: 'copilot',
+        timestamp: Date.now(),
+        parent_message_provider_id: null,
+      };
+
+      this.processed.add(msgId);
+      document.dispatchEvent(
+        new CustomEvent('jaydai:message-extracted', { detail: { message, platform: 'copilot' } })
+      );
     };
 
-    this.processed.add(id);
-    document.dispatchEvent(
-      new CustomEvent('jaydai:message-extracted', { detail: { message, platform: 'copilot' } })
-    );
+    const id = el.id;
+    if (id) {
+      handleWithId(id);
+    } else {
+      const attrObserver = new MutationObserver(mutations => {
+        for (const m of mutations) {
+          if (m.type === 'attributes' && m.attributeName === 'id' && el.id) {
+            attrObserver.disconnect();
+            handleWithId(el.id);
+            break;
+          }
+        }
+      });
+      attrObserver.observe(el, { attributes: true });
+    }
   }
 
   private waitForAssistantMessage(el: HTMLElement, id: string): void {
     const sendMessage = () => {
       if (this.processed.has(id)) return;
+      if (el.querySelector('[data-testid="stop-button"]')) return;
       if (!el.querySelector('[data-testid="message-item-reactions"]')) return;
 
       const spans = el.querySelectorAll('p span.font-ligatures-none');
