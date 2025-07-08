@@ -106,6 +106,8 @@ export const EVENTS = {
   TEMPLATE_DELETE: 'Template Deleted',
   TEMPLATE_DELETE_FOLDER: 'Template Folder Deleted',
   TEMPLATE_EDIT: 'Template Edited',
+  TEMPLATE_FOLDER_EDIT: 'Template Folder Edited',
+  TEMPLATE_FOLDER_DELETE: 'Template Folder Deleted',
   TEMPLATE_PINNED: 'Template Pinned',
   TEMPLATE_UNPINNED: 'Template Unpinned',
   FOLDER_PINNED: 'Folder Pinned',

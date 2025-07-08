@@ -8,6 +8,7 @@ import { OrganizationImage } from '@/components/organizations';
 import { Template } from '@/types/prompts/templates';
 import { getMessage } from '@/core/utils/i18n';
 import { usePinnedTemplates } from '@/hooks/prompts';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 const iconColorMap = {
   user: 'jd-text-gray-600',
@@ -197,7 +198,13 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
                     <Button 
                       variant="ghost" 
                       size="xs"
-                      onClick={handleDeleteClick}
+                      onClick={(e) => {
+                        handleDeleteClick(e);
+                        trackEvent(EVENTS.TEMPLATE_DELETE, {
+                          templateId: template.id,
+                          source: 'TemplateItem'
+                        });
+                      }}
                       disabled={isProcessing}
                     >
                       <Trash2 className="jd-h-4 jd-w-4 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30" />
