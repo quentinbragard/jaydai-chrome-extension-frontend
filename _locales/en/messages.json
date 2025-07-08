@@ -1746,6 +1746,8 @@
   "onboardingCompleteDescription": { "message": "Thank you for completing your profile. Your personalized AI templates are now ready to use.", "description": "Description for onboarding completion step" },
   "whatNext": { "message": "What's next?", "description": "Title for next steps after onboarding" },
   "whatNextDescription": { "message": "Open ChatGPT or Claude to start using our extension. Look for our button in the bottom right corner of your screen to access your templates and track your AI usage.", "description": "Description for next steps after onboarding" },
+  "watchVideo": { "message": "Quick Start Video", "description": "Title for video walkthrough" },
+  "watchVideoDescription": { "message": "Watch this short video to see how JayDai works.", "description": "Description for video walkthrough" },
   "goToChatGPT": { "message": "Go to ChatGPT", "description": "Button to go to ChatGPT after onboarding" },
   "goToClaude": { "message": "Go to Claude", "description": "Button to go to Claude after onboarding" },
   "returnToHome": { "message": "Return to Home", "description": "Button to return to home after onboarding" },
@@ -2105,4 +2107,5 @@
       "type": { "content": "$1", "example": "constraint" }
     }
   }
+
 }

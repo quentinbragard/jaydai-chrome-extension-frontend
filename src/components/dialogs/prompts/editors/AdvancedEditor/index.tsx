@@ -16,6 +16,7 @@ import {
 import { PRIMARY_METADATA, SingleMetadataType } from '@/types/prompts/metadata';
 import { AlertTriangle, Check } from 'lucide-react';
 
+
 interface AdvancedEditorProps {
   mode?: 'create' | 'customize';
   isProcessing?: boolean;
@@ -37,7 +38,7 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     availableMetadataBlocks,
     blockContentCache
   } = useTemplateEditor();
-  
+
   const isDarkMode = useThemeDetector();
 
   const primaryCount = React.useMemo(() => {

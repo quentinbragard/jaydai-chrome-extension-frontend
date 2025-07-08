@@ -85,7 +85,6 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
           {title}
         </h3>
       </div>
-
       {/* Preview Content - This is the scrollable area */}
       <div className="jd-flex-1 jd-min-h-0 jd-overflow-hidden jd-rounded-lg jd-border jd-bg-card">
         <div
