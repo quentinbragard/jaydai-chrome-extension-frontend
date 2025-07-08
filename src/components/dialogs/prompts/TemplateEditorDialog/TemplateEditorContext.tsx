@@ -17,6 +17,8 @@ export interface MetadataUIState {
 export interface TemplateEditorContextValue extends MetadataUIState {
   metadata: PromptMetadata;
   setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
+  initialMetadata: PromptMetadata;
+  resetMetadata: () => void;
 
   // Editor state - simplified
   content: string;

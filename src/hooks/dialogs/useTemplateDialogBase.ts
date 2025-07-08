@@ -20,12 +20,15 @@ import {
   reorderMetadataItems,
   addSecondaryMetadata,
   removeSecondaryMetadata,
+  cloneMetadata,
   getActiveSecondaryMetadata,
   getFilledMetadataTypes,
   extractCustomValues,
   validateMetadata,
-  parseTemplateMetadata
+  parseTemplateMetadata,
+  countMetadataItems
 } from '@/utils/prompts/metadataUtils';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export interface TemplateDialogConfig {
   dialogType: 'create' | 'customize';
@@ -43,6 +46,7 @@ export interface TemplateDialogState {
   
   // Metadata state
   metadata: PromptMetadata;
+  initialMetadata: PromptMetadata;
   
   // UI state
   activeTab: 'basic' | 'advanced';
@@ -76,6 +80,7 @@ export interface TemplateDialogActions {
 
   // Direct metadata setter
   setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
+  resetMetadata: () => void;
   
   // UI actions
   setActiveTab: (tab: 'basic' | 'advanced') => void;
@@ -105,6 +110,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     
     // Metadata state
     metadata: createMetadata(),
+    initialMetadata: createMetadata(),
     
     // UI state
     activeTab: 'basic',
@@ -217,6 +223,10 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     },
     []
   );
+
+  const resetMetadata = useCallback(() => {
+    setState(prev => ({ ...prev, metadata: cloneMetadata(prev.initialMetadata) }));
+  }, []);
   
   // ============================================================================
   // UI ACTIONS
@@ -224,6 +234,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
   
   const setActiveTab = useCallback((activeTab: 'basic' | 'advanced') => {
     setState(prev => ({ ...prev, activeTab }));
+    trackEvent(EVENTS.TEMPLATE_DIALOG_VIEW_CHANGED, { view: activeTab });
   }, []);
 
   const toggleExpandedMetadata = useCallback((type: MetadataType) => {
@@ -260,6 +271,14 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     // insert a prompt even if some fields are missing.
     if (state.activeTab === 'advanced' && dialogType !== 'customize') {
       const metadataValidation = validateMetadata(state.metadata);
+      if (!state.content.trim() && countMetadataItems(state.metadata) === 0) {
+        errors.content = getMessage(
+          'contentOrMetadataRequired',
+          undefined,
+          'Provide content or at least one metadata element'
+        );
+      }
+      // metadataValidation currently only yields warnings
       if (!metadataValidation.isValid) {
         errors.content = metadataValidation.errors.join(', ');
       }
@@ -305,6 +324,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       content: '',
       selectedFolderId: '',
       metadata: createMetadata(),
+      initialMetadata: createMetadata(),
       activeTab: 'basic',
       expandedMetadata: new Set(PRIMARY_METADATA),
       metadataCollapsed: false,
@@ -344,6 +364,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             content,
             selectedFolderId: initialData.selectedFolder?.id?.toString() || '',
             metadata: meta,
+            initialMetadata: meta,
             expandedMetadata: new Set([
               ...PRIMARY_METADATA,
               ...Array.from(getFilledMetadataTypes(meta))
@@ -359,14 +380,15 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             : createMetadata();
             
           const content = getLocalizedContent(initialData.content || '');
-  
-          
+
+
           const activeSecondary = getActiveSecondaryMetadata(meta);
 
           setState(prev => ({
             ...prev,
             content,
             metadata: meta,
+            initialMetadata: meta,
             // Expand only metadata types without a value
             expandedMetadata: new Set([]),
             // Keep primary metadata visible, but collapse secondary if there are many
@@ -406,11 +428,12 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     updateMultipleMetadataItem,
     reorderMultipleMetadataItems,
     addSecondaryMetadataType,
-    removeSecondaryMetadataType,
-    setMetadata,
-    
-    // UI actions
-    setActiveTab,
+  removeSecondaryMetadataType,
+  setMetadata,
+  resetMetadata,
+
+  // UI actions
+  setActiveTab,
     toggleExpandedMetadata,
     setMetadataCollapsed,
     setSecondaryMetadataCollapsed,

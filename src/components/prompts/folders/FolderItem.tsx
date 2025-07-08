@@ -297,7 +297,13 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                     <Button 
                       variant="ghost" 
                       size="xs" 
-                      onClick={handleEditFolder} 
+                      onClick={(e) => {
+                        handleEditFolder(e);
+                        trackEvent(EVENTS.TEMPLATE_FOLDER_EDIT, {
+                          folderId: folder.id,
+                          source: 'FolderItem'
+                        });
+                      }}
                     >
                       <Edit className="jd-h-4 jd-w-4 jd-text-blue-600 hover:jd-text-blue-700 hover:jd-bg-blue-100 jd-dark:jd-text-blue-400 jd-dark:hover:jd-text-blue-300 jd-dark:hover:jd-bg-blue-900/30" />
                       </Button>
@@ -317,7 +323,13 @@ export const FolderItem: React.FC<FolderItemProps> = ({
                     <Button 
                       variant="ghost" 
                       size="xs" 
-                      onClick={handleDeleteFolder}
+                      onClick={(e) => {
+                        handleDeleteFolder(e);
+                        trackEvent(EVENTS.TEMPLATE_DELETE_FOLDER, {
+                          folderId: folder.id,
+                          source: 'FolderItem'
+                        });
+                      }}
                     >
                       <Trash2 className="jd-h-4 jd-w-4 jd-text-red-500 hover:jd-text-red-600 hover:jd-bg-red-100 jd-dark:hover:jd-bg-red-900/30" />
                     </Button>

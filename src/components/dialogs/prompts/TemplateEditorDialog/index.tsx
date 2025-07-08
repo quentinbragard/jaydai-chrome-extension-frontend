@@ -13,8 +13,9 @@ import { convertMetadataToVirtualBlocks } from '@/utils/templates/enhancedPrevie
 import { buildPromptPart } from '@/utils/prompts/blockUtils';
 import { updateSingleMetadata, updateMetadataItem } from '@/utils/prompts/metadataUtils';
 import { generateUnifiedPreviewHtml } from '@/utils/templates/placeholderHelpers';
-import EnhancedEditablePreview from '@/components/prompts/EnhancedEditablePreview';
+import { EnhancedEditablePreview } from '@/components/prompts/EnhancedEditablePreview';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface TemplateEditorDialogProps {
   // State from base hook
@@ -45,6 +46,8 @@ interface TemplateEditorDialogProps {
   
   // Metadata setter for child components
   setMetadata: (updater: (metadata: PromptMetadata) => PromptMetadata) => void;
+  initialMetadata: PromptMetadata;
+  resetMetadata: () => void;
   
   // UI state from base hook
   expandedMetadata: Set<string>;
@@ -90,8 +93,10 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
   applyFinalContentChanges,
   discardFinalContentChanges,
   updateBlockContent,
-  
+
   setMetadata,
+  initialMetadata,
+  resetMetadata,
   
   // UI state
   expandedMetadata,
@@ -121,6 +126,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     () => ({
       metadata,
       setMetadata,
+      initialMetadata,
+      resetMetadata,
       expandedMetadata,
       toggleExpandedMetadata,
       activeSecondaryMetadata,
@@ -138,6 +145,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
     [
       metadata,
       setMetadata,
+      initialMetadata,
+      resetMetadata,
       expandedMetadata,
       toggleExpandedMetadata,
       activeSecondaryMetadata,
@@ -215,6 +224,10 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           }
         } else if (block.originalBlockId && updateBlockContent) {
           updateBlockContent(block.originalBlockId, seg);
+          trackEvent(EVENTS.BLOCK_UPDATED, {
+            block_id: block.originalBlockId,
+            block_type: block.type
+          });
         }
       });
     },
@@ -303,35 +316,26 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
               </span>
             </div>
           ) : (
-            <Tabs
-              value={activeTab}
-              onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
-              className="jd-flex jd-flex-col jd-flex-1 jd-min-h-0 jd-h-full jd-overflow-hidden"
-            >
-              <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4 jd-flex-shrink-0">
-                <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
-                <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
-              </TabsList>
+            <>
+              <Tabs
+                value={activeTab}
+                onValueChange={value => setActiveTab(value as 'basic' | 'advanced')}
+                className="jd-flex jd-flex-col jd-flex-1 jd-min-h-0 jd-h-full jd-overflow-hidden"
+              >
+                <TabsList className="jd-grid jd-w-full jd-grid-cols-2 jd-mb-4 jd-flex-shrink-0">
+                  <TabsTrigger value="basic">{getMessage('basic')}</TabsTrigger>
+                  <TabsTrigger value="advanced">{getMessage('advanced')}</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="basic" className="jd-flex-1 jd-min-h-0 jd-overflow-hidden jd-h-full data-[state=active]:flex data-[state=active]:flex-col">
-                <BasicEditor mode={mode as any} isProcessing={false} />
-              </TabsContent>
+                <TabsContent value="basic" className="jd-flex-1 jd-min-h-0 jd-overflow-hidden jd-h-full data-[state=active]:flex data-[state=active]:flex-col">
+                  <BasicEditor mode={mode as any} isProcessing={false} />
+                </TabsContent>
 
-              <TabsContent value="advanced" className="jd-flex-1 jd-min-h-0 jd-overflow-hidden jd-h-full data-[state=active]:flex data-[state=active]:flex-col">
-                <AdvancedEditor mode={mode as any} isProcessing={false} />
-              </TabsContent>
-            </Tabs>
-
-            <div className="jd-mt-4 jd-flex-shrink-0">
-              <EnhancedEditablePreview
-                metadata={metadata}
-                blockContentCache={combinedBlockCache}
-                isDarkMode={isDark}
-                finalPromptContent={localFinal}
-                onFinalContentChange={handleFinalChange}
-                editable
-              />
-            </div>
+                <TabsContent value="advanced" className="jd-flex-1 jd-min-h-0 jd-overflow-hidden jd-h-full data-[state=active]:flex data-[state=active]:flex-col">
+                  <AdvancedEditor mode={mode as any} isProcessing={false} />
+                </TabsContent>
+              </Tabs>
+            </>
           )}
         </div>
       </TemplateEditorProvider>

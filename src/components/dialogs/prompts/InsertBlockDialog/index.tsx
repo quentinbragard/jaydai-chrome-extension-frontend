@@ -22,7 +22,6 @@ import {
 } from '@/utils/prompts/blockUtils';
 import EditablePromptPreview from '@/components/prompts/EditablePromptPreview';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 import { insertIntoPromptArea } from '@/utils/templates/placeholderUtils';
 import { 
@@ -41,6 +40,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 import { 
   Search,
@@ -62,7 +62,6 @@ import { getMessage } from '@/core/utils/i18n';
 
 import { SortableSelectedBlock } from './SortableSelectedBlock';
 import { AvailableBlockCard } from './AvailableBlockCard';
-import { PreviewBlock } from './PreviewBlock';
 import { detectPlatform } from '@/platforms/platformManager';
 
 // Metadata type groups for filtering
@@ -107,6 +106,11 @@ const InlineBlockCreator: React.FC<{
 
       if (response.success && response.data) {
         toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
+        trackEvent(EVENTS.BLOCK_CREATED, {
+          block_id: response.data.id,
+          block_type: response.data.type,
+          source: 'InsertBlockDialog'
+        });
         onBlockCreated(response.data);
       } else {
         toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
@@ -228,6 +232,13 @@ const InlineBlockCreator: React.FC<{
 
 export const InsertBlockDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.INSERT_BLOCK);
+  const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      dialogProps.onOpenChange(open);
+    },
+    [dialogProps]
+  );
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedBlocks, setSelectedBlocks] = useState<Block[]>([]);
@@ -241,8 +252,7 @@ export const InsertBlockDialog: React.FC = () => {
   const [editableContent, setEditableContent] = useState('');
   const [blockContents, setBlockContents] = useState<Record<number, string>>({});
   const isDark = useThemeDetector();
-  const { openCreateBlock } = useDialogActions();
-  const { editBlock, deleteBlock } = useBlockActions({
+  const { editBlock, deleteBlock, createBlock } = useBlockActions({
     onBlockUpdated: (updated) => {
       setBlocks(prev => prev.map(b => (b.id === updated.id ? updated : b)));
       setSelectedBlocks(prev => prev.map(b => (b.id === updated.id ? updated : b)));
@@ -263,10 +273,8 @@ export const InsertBlockDialog: React.FC = () => {
       });
     }
   });
+
   const platform = detectPlatform();
-
-
-  // Drag & Drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -326,6 +334,7 @@ export const InsertBlockDialog: React.FC = () => {
       setSelectedBlocks(prev => [...prev, block]);
       const content = typeof block.content === 'string' ? block.content : block.content.en || '';
       setBlockContents(prev => ({ ...prev, [block.id]: content }));
+      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_SELECTED, { block_id: block.id, block_type: block.type });
     }
   };
 
@@ -335,6 +344,7 @@ export const InsertBlockDialog: React.FC = () => {
       const { [block.id]: _removed, ...rest } = prev;
       return rest;
     });
+    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_UNSELECTED, { block_id: block.id, block_type: block.type });
   };
 
   const handleEditableContentChange = (text: string) => {
@@ -357,7 +367,8 @@ export const InsertBlockDialog: React.FC = () => {
   const insertBlocks = () => {
     // Use the editable content which might have been modified by the user
     insertIntoPromptArea(editableContent);
-    dialogProps.onOpenChange(false);
+    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCKS_INSERTED, { count: selectedBlocks.length });
+    handleOpenChange(false);
     toast.success(getMessage('promptInserted', undefined, 'Prompt inserted successfully'));
   };
 
@@ -372,10 +383,12 @@ export const InsertBlockDialog: React.FC = () => {
   };
 
   const handleEditBlock = (block: Block) => {
+    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_UPDATED, { block_id: block.id, block_type: block.type });
     editBlock(block);
   };
 
   const handleDeleteBlock = (block: Block) => {
+    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_DELETED, { block_id: block.id, block_type: block.type });
     deleteBlock(block);
   };
 
@@ -425,6 +438,7 @@ const filteredBlocks = blocks.filter(b => {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(editableContent);
+      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCKS_COPIED_TO_CLIPBOARD, { count: selectedBlocks.length });
       toast.success(getMessage('copiedToClipboard', undefined, 'Copied to clipboard'));
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
@@ -437,7 +451,7 @@ const filteredBlocks = blocks.filter(b => {
 
   const footer = (
     <div className="jd-flex jd-justify-between">
-      <Button variant="outline" onClick={() => dialogProps.onOpenChange(false)}>
+      <Button variant="outline" onClick={() => handleOpenChange(false)}>
         {getMessage('cancel', undefined, 'Cancel')}
       </Button>
       <div className="jd-flex jd-gap-2">
@@ -461,7 +475,7 @@ const filteredBlocks = blocks.filter(b => {
     <>
       <BaseDialog
         open={isOpen}
-        onOpenChange={dialogProps.onOpenChange}
+        onOpenChange={handleOpenChange}
         title={getMessage('buildYourPrompt', undefined, 'Build Your Prompt')}
         description={getMessage('buildYourPromptDesc', undefined, 'Select and arrange blocks to create your perfect prompt')}
         className="jd-max-w-7xl"
@@ -476,7 +490,10 @@ const filteredBlocks = blocks.filter(b => {
         </span>
         <button
           type="button"
-          onClick={() => setShowShortcutHelp(true)}
+          onClick={() => {
+            setShowShortcutHelp(true);
+            trackEvent(EVENTS.INSERT_BLOCK_DIALOG_SHORTCUT_HELP_OPENED);
+          }}
           className="jd-ml-auto jd-flex jd-items-center jd-justify-center jd-w-5 jd-h-5 jd-rounded-full jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90 jd-animate-bounce"
         >
           <HelpCircle className="jd-w-3 jd-h-3" />
@@ -492,7 +509,13 @@ const filteredBlocks = blocks.filter(b => {
               <Search className="jd-absolute jd-left-3 jd-top-1/2 jd-transform jd--translate-y-1/2 jd-h-4 jd-w-4 jd-text-muted-foreground" />
               <Input
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => {
+                  setSearch(e.target.value);
+                  if (!hasTriggeredAmplitudeEvent) {
+                    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_SEARCHED, { search_content_first_letter: e.target.value });
+                    setHasTriggeredAmplitudeEvent(true);
+                  }
+                }}
                 placeholder={getMessage('searchBlocksPlaceholder', undefined, 'Search blocks...')}
                 className="jd-pl-9"
                 onKeyDown={(e) => e.stopPropagation()}
@@ -521,7 +544,10 @@ const filteredBlocks = blocks.filter(b => {
                     key={filter.type}
                     size="sm"
                     variant={selectedTypeFilter === filter.type ? 'default' : 'outline'}
-                    onClick={() => setSelectedTypeFilter(filter.type)}
+                    onClick={() => {
+                      setSelectedTypeFilter(filter.type);
+                      trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_TYPE_FILTER_CHANGED, { type: filter.type });
+                    }}
                     className="jd-h-6 jd-text-xs jd-px-2"
                   >
                     <span className="jd-mr-1">{filter.icon}</span>
@@ -530,11 +556,11 @@ const filteredBlocks = blocks.filter(b => {
                 ))}
                 <Button
                   size="sm"
-                  variant="default"
+                  variant="outline"
                   onClick={handleCreate}
-                  className="jd-h-6 jd-text-xs jd-px-2"
+                  className="jd-h-6 jd-text-xs jd-px-2 jd-border-2 jd-border-dashed jd-border-primary jd-text-primary !jd-font-black"
                 >
-                  <Plus className="jd-h-3 jd-w-3 jd-mr-1" />
+                  <Plus className="jd-h-3 jd-w-3 jd-mr-1 jd-font-black" />
                   {getMessage('newBlock', undefined, 'New Block')}
                 </Button>
               </div>
@@ -606,7 +632,10 @@ const filteredBlocks = blocks.filter(b => {
               </Button>
               <div className="jd-flex jd-bg-muted jd-rounded-md jd-p-1">
                 <button
-                  onClick={() => setPreviewMode('text')}
+                  onClick={() => {
+                    setPreviewMode('text');
+                    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_PREVIEW_MODE_CHANGED, { mode: 'text' });
+                  }}
                   className={cn(
                     'jd-px-2 jd-py-1 jd-text-xs jd-rounded jd-transition-colors',
                     previewMode === 'text' ? 'jd-bg-background jd-shadow-sm' : 'jd-hover:bg-background/50'
@@ -615,7 +644,10 @@ const filteredBlocks = blocks.filter(b => {
                   <Code className="jd-h-3 jd-w-3" />
                 </button>
                 <button
-                  onClick={() => setPreviewMode('visual')}
+                  onClick={() => {
+                    setPreviewMode('visual');
+                    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_PREVIEW_MODE_CHANGED, { mode: 'visual' });
+                  }}
                   className={cn(
                     'jd-px-2 jd-py-1 jd-text-xs jd-rounded jd-transition-colors',
                     previewMode === 'visual' ? 'jd-bg-background jd-shadow-sm' : 'jd-hover:bg-background/50'

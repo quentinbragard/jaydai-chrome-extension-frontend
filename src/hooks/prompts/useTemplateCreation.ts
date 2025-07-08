@@ -15,6 +15,8 @@ interface TemplateFormData {
   tags?: string[];
   locale?: string;
   metadata?: Record<string, number | number[]>;
+  metadata_fields?: string[];
+  source?: string;
 }
 
 interface TemplateValidationErrors {
@@ -33,16 +35,17 @@ export function useTemplateCreation() {
   // Create template mutation
   const createTemplateMutation = useMutation(
     async (data: TemplateFormData) => {
+      const { source, metadata_fields, ...form } = data;
       // Prepare API payload
       const templateData = {
-        title: data.name.trim(),
-        content: data.content.trim(),
-        description: data.description?.trim(),
-        folder_id: data.folder_id || null,
-        metadata: data.metadata || {},
-        tags: data.tags || [],
-        locale: data.locale || navigator.language || 'en',
-        ...(data.metadata ? { metadata: data.metadata } : {})
+        title: form.name.trim(),
+        content: form.content.trim(),
+        description: form.description?.trim(),
+        folder_id: form.folder_id || null,
+        metadata: form.metadata || {},
+        tags: form.tags || [],
+        locale: form.locale || navigator.language || 'en',
+        ...(form.metadata ? { metadata: form.metadata } : {})
       };
 
       
@@ -57,7 +60,9 @@ export function useTemplateCreation() {
       trackEvent(EVENTS.TEMPLATE_CREATE, {
         template_id: response.data.id,
         template_name: response.data.title,
-        template_type: response.data.type
+        template_type: response.data.type,
+        metadata_fields: metadata_fields,
+        source: source || 'CreateTemplateDialog'
       });
       return response.data;
     },
@@ -78,13 +83,14 @@ export function useTemplateCreation() {
   const updateTemplateMutation = useMutation(
     async ({ id, data }: { id: number; data: TemplateFormData }) => {
       // Prepare API payload
+      const { metadata_fields, ...rest } = data;
       const templateData = {
-        title: data.name.trim(),
-        content: data.content.trim(),
-        description: data.description?.trim(),
-        folder_id: data.folder_id || null,
-        tags: data.tags || [],
-        ...(data.metadata ? { metadata: data.metadata } : {})
+        title: rest.name.trim(),
+        content: rest.content.trim(),
+        description: rest.description?.trim(),
+        folder_id: rest.folder_id || null,
+        tags: rest.tags || [],
+        ...(rest.metadata ? { metadata: rest.metadata } : {})
       };
       
       const response = await promptApi.updateTemplate(id, templateData);
@@ -126,8 +132,9 @@ export function useTemplateCreation() {
    * Save a template (create new or update existing)
    */
   const saveTemplate = useCallback(async (
-    data: TemplateFormData, 
-    templateId?: number
+    data: TemplateFormData,
+    templateId?: number,
+    source: string = 'CreateTemplateDialog'
   ): Promise<boolean> => {
 
     
@@ -142,7 +149,7 @@ export function useTemplateCreation() {
         await updateTemplateMutation.mutateAsync({ id: templateId, data });
       } else {
         // Create new template
-        await createTemplateMutation.mutateAsync(data);
+        await createTemplateMutation.mutateAsync({ ...data, source });
       }
       return true;
     } catch (error) {
@@ -167,7 +174,7 @@ export function useTemplateCreation() {
         folder_id: template.folder_id
       };
       
-      await createTemplateMutation.mutateAsync(clonedData);
+      await createTemplateMutation.mutateAsync({ ...clonedData, source: 'CreateTemplateDialog' });
       return true;
     } catch (error) {
       console.error('Error cloning template:', error);

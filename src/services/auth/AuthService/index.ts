@@ -5,7 +5,7 @@ import { AuthStateManager } from './AuthStateManager';
 import { AuthOperations } from './AuthOperations';
 import { AuthNotifications } from './AuthNotifications';
 import { TokenService } from '../TokenService';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS, setUserProperties } from '@/utils/amplitude';
 
 /**
  * Service for managing authentication state and operations
@@ -171,6 +171,9 @@ export class AuthService extends AbstractBaseService {
           error: null
         });
         trackEvent(EVENTS.SIGNUP_COMPLETED, { user_id: response.user.id });
+        setUserProperties({
+          startVersion: chrome.runtime.getManifest().version
+        });
       }
 
       // Store session token if provided

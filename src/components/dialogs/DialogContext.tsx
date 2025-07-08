@@ -2,6 +2,7 @@
 // src/components/dialogs/DialogContext.tsx
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { DialogType, DialogProps } from './DialogRegistry';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Define the Dialog Manager context type
 interface DialogManagerContextType {
@@ -43,6 +44,7 @@ const createFallbackDialogManager = (): DialogManagerContextType => {
       } else {
         console.error(`Cannot open dialog ${type}: dialog manager not available`);
       }
+      trackEvent(EVENTS.DIALOG_OPENED, { dialog_type: type });
     },
     closeDialog: (type) => {
       console.warn(`Attempted to close dialog ${type} using fallback dialog manager`);
@@ -51,6 +53,7 @@ const createFallbackDialogManager = (): DialogManagerContextType => {
       } else {
         console.error(`Cannot close dialog ${type}: dialog manager not available`);
       }
+      trackEvent(EVENTS.DIALOG_CLOSED, { dialog_type: type });
     },
     isDialogOpen: () => false,
     getDialogData: () => undefined,
@@ -71,8 +74,14 @@ export function useDialogManager(): DialogManagerContextType {
       return {
         openDialogs: {} as Record<DialogType, boolean>,
         dialogData: {} as DialogProps,
-        openDialog: window.dialogManager.openDialog,
-        closeDialog: window.dialogManager.closeDialog,
+        openDialog: (type: DialogType, data?: DialogProps[DialogType]) => {
+          window.dialogManager!.openDialog(type, data);
+          trackEvent(EVENTS.DIALOG_OPENED, { dialog_type: type });
+        },
+        closeDialog: (type: DialogType) => {
+          window.dialogManager!.closeDialog(type);
+          trackEvent(EVENTS.DIALOG_CLOSED, { dialog_type: type });
+        },
         isDialogOpen: () => false,
         getDialogData: () => undefined,
       };
@@ -140,10 +149,12 @@ export const DialogManagerProvider: React.FC<DialogManagerProviderProps> = ({ ch
     if (data !== undefined) {
       setDialogData(prev => ({ ...prev, [type]: data }));
     }
+    trackEvent(EVENTS.DIALOG_OPENED, { dialog_type: type });
   }, []);
   
   const closeDialog = useCallback((type: DialogType) => {
     setOpenDialogs((prev: Record<DialogType, boolean>) => ({ ...prev, [type]: false }));
+    trackEvent(EVENTS.DIALOG_CLOSED, { dialog_type: type });
   }, []);
   
   const isDialogOpen = useCallback((type: DialogType): boolean => {

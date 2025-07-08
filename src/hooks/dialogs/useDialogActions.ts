@@ -32,7 +32,7 @@ export function useDialogActions() {
     [openDialog]
   );
 
-  const openPlaceholderEditor = useCallback(
+  const opentemplateDialog = useCallback(
     (props?: any) => openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, props),
     [openDialog]
   );
@@ -68,8 +68,8 @@ export function useDialogActions() {
   );
 
   const openTutorialVideo = useCallback(
-    (videoUrl: string, title?: string) =>
-      openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { videoUrl, title }),
+    (url: string, title?: string) =>
+      openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { url, title }),
     [openDialog]
   );
 
@@ -80,7 +80,7 @@ export function useDialogActions() {
     openCreateFolder,
     openFolderManager,
     openAuth,
-    openPlaceholderEditor,
+    opentemplateDialog,
     openConfirmation,
     openEnhancedStats,
     openBrowseMoreFolders,

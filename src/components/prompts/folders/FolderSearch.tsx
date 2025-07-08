@@ -1,8 +1,9 @@
 // src/components/templates/FolderSearch.tsx
-import React from 'react';
+import React, {useState} from 'react';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface FolderSearchProps {
   searchQuery: string;
@@ -22,9 +23,14 @@ export function FolderSearch({
   onReset,
   className = ''
 }: FolderSearchProps) {
+  const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearchChange(e.target.value);
+    if (!hasTriggeredAmplitudeEvent) {
+      trackEvent(EVENTS.TEMPLATE_SEARCH, { search_content_first_letter: e.target.value });
+      setHasTriggeredAmplitudeEvent(true);
+    }
   };
   
   // Handle reset button click

@@ -4,6 +4,7 @@ import { AbstractBaseService } from '../BaseService';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { Message } from '@/types';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Service interfaces
 interface IConversationManager {
@@ -103,6 +104,9 @@ export class ChatOrchestrator extends AbstractBaseService {
       if (!conversationId) return;
       
       this.pendingTracker.processPendingMessages(conversationId);
+      trackEvent(EVENTS.CHAT_CONVERSATION_CHANGED, {
+        conversationId: conversationId,
+      });
     } catch (error) {
       errorReporter.captureError(
         new AppError('Error handling conversation change', ErrorCode.ORCHESTRATION_ERROR, error)

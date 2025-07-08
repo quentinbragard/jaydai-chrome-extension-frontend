@@ -11,7 +11,7 @@ export const claudeConfig: PlatformConfig = {
     SPECIFIC_CONVERSATION: /\/api\/organizations\/[a-f0-9-]+\/chat_conversations\/([a-f0-9-]+)/
   },
   domSelectors: {
-    PROMPT_TEXTAREA: '[aria-label="Write your prompt to Claude"] .ProseMirror[contenteditable="true"]',
+    PROMPT_TEXTAREA: '[aria-label="Write your prompt to Claude"]',
     SUBMIT_BUTTON: 'button[class*="send"]'
   },
    // ChatGPT conversation ID detection patterns

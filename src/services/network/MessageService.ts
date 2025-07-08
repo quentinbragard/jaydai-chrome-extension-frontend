@@ -7,6 +7,7 @@ import { messageApi } from '@/services/api/MessageApi';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { chatService } from './ChatService';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export class MessageService extends AbstractBaseService {
   private static instance: MessageService;
@@ -57,6 +58,8 @@ export class MessageService extends AbstractBaseService {
       
       // Queue message for processing
       this.queueMessage(message);
+
+      
       
       // Emit appropriate event based on message role
       if (message.role === 'user') {

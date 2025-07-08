@@ -6,13 +6,13 @@
 🔍 Running TypeScript type checking...
 src/components/dialogs/core/DialogContext.tsx(21,5): error TS2687: All declarations of 'dialogManager' must have identical modifiers.
 src/components/dialogs/core/DialogContext.tsx(137,21): error TS7006: Parameter 'prev' implicitly has an 'any' type.
-src/components/dialogs/templates/PlaceHolderEditor.tsx(168,28): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
+src/components/dialogs/templates/templateDialog.tsx(168,28): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
   Type 'CustomEvent<unknown>' is not assignable to type 'CustomEvent<{ type: string; data: any; }>'.
     Type 'unknown' is not assignable to type '{ type: string; data: any; }'.
-src/components/dialogs/templates/PlaceHolderEditor.tsx(178,28): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
+src/components/dialogs/templates/templateDialog.tsx(178,28): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
   Type 'CustomEvent<unknown>' is not assignable to type 'CustomEvent<{ type: string; data: any; }>'.
     Type 'unknown' is not assignable to type '{ type: string; data: any; }'.
-src/components/dialogs/templates/PlaceHolderEditor.tsx(189,32): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
+src/components/dialogs/templates/templateDialog.tsx(189,32): error TS2345: Argument of type 'CustomEvent<unknown>' is not assignable to parameter of type 'CustomEvent<{ type: string; data: any; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ message: Message; }> | CustomEvent<{ ...; }> | ... 5 more ... | CustomEvent<...>'.
   Type 'CustomEvent<unknown>' is not assignable to type 'CustomEvent<{ type: string; data: any; }>'.
     Type 'unknown' is not assignable to type '{ type: string; data: any; }'.
 src/components/folders/FolderItem.tsx(63,28): error TS6133: 'e' is declared but its value is never read.
@@ -48,7 +48,7 @@ src/components/panels/TemplatesPanel/index.tsx(282,17): error TS2322: Type '(tem
     Type 'number' is not assignable to type 'Template'.
 src/components/utils/DialogManagerHelper.ts(99,36): error TS2345: Argument of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"' is not assignable to parameter of type 'DialogType'.
   Type '"SETTINGS"' is not assignable to type 'DialogType'. Did you mean '"settings"'?
-src/components/utils/DialogManagerHelper.ts(138,28): error TS2345: Argument of type '"placeholderEditor"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
+src/components/utils/DialogManagerHelper.ts(138,28): error TS2345: Argument of type '"templateDialog"' is not assignable to parameter of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"'.
 src/components/utils/DialogManagerHelper.ts(155,33): error TS2345: Argument of type '"SETTINGS" | "CREATE_TEMPLATE" | "EDIT_TEMPLATE" | "CREATE_FOLDER" | "PLACEHOLDER_EDITOR" | "AUTH" | "CONFIRMATION"' is not assignable to parameter of type 'DialogType'.
   Type '"SETTINGS"' is not assignable to type 'DialogType'. Did you mean '"settings"'?
 src/core/errors/ErrorReporter.ts(41,23): error TS2339: Property 'UNHANDLED_ERROR' does not exist on type 'typeof ErrorCode'.

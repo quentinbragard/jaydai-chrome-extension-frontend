@@ -43,6 +43,8 @@ export class AppInitializer {
     if (!this.isChatGPTSite() && !this.isClaudeSite() && !this.isMistralSite() && !this.isCopilotSite()) {
       return false;
     }
+
+    console.log('🔍 Initializing application on ', window.location.hostname, this.isCopilotSite());
     
     try {
       // Inject UI components - Main component will set up the dialog system
@@ -64,9 +66,7 @@ export class AppInitializer {
 
       
       this.isInitialized = true;
-      trackEvent(EVENTS.CHAT_SESSION_STARTED, {
-        tool: this.isChatGPTSite() ? 'chatgpt' : this.isClaudeSite() ? 'claude' : this.isMistralSite() ? 'mistral' : this.isCopilotSite() ? 'copilot' : 'unknown'
-      });
+      trackEvent(EVENTS.CHAT_SESSION_STARTED);
       return true;
     } catch (error) {
       errorReporter.captureError(
@@ -121,9 +121,7 @@ export class AppInitializer {
     if (!this.isInitialized) return;
 
 
-    trackEvent(EVENTS.CHAT_SESSION_ENDED, {
-      tool: this.isChatGPTSite() ? 'chatgpt' : this.isClaudeSite() ? 'claude' : this.isMistralSite() ? 'mistral' : this.isCopilotSite() ? 'copilot' : 'unknown'
-    });
+    trackEvent(EVENTS.CHAT_SESSION_ENDED);
 
     // Remove UI components
     componentInjector.removeAll();

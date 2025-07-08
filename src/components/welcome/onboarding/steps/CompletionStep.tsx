@@ -40,9 +40,6 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
   folderRecommendations 
 }) => {
   // Track when component mounts
-  useEffect(() => {
-    trackEvent(EVENTS.ONBOARDING_COMPLETED);
-  }, []);
 
 
   
@@ -191,6 +188,31 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
               style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
             />
           </div>
+        </div>
+      </motion.div>
+
+      {/* Onboarding walkthrough video */}
+      <motion.div
+        className="jd-w-full jd-max-w-2xl jd-mx-auto jd-mt-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9 }}
+      >
+        <div
+          style={{ position: 'relative', paddingBottom: '62.5%', height: 0 }}
+        >
+          <iframe
+            src="https://www.loom.com/embed/c910c2ceeea042d99b977b12bd8dba3e?sid=0ffed202-793e-4924-afad-8e89569a68c4"
+            frameBorder="0"
+            allowFullScreen
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+            }}
+          />
         </div>
       </motion.div>
     </motion.div>

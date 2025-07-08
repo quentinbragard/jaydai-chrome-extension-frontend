@@ -1763,8 +1763,8 @@
   "onboardingStepReferral": { "message": "Comment vous nous avez connu", "description": "Titre d'étape pour la recommandation" },
   "onboardingStepComplete": { "message": "Terminé", "description": "Titre d'étape pour la fin" },
   "skipForNow": { "message": "Passer pour l'instant", "description": "Bouton pour passer une étape d'onboarding" },
-  "placeholderEditor": { "message": "Éditeur de blocs", "description": "Titre de la fenêtre d'édition de blocs" },
-  "placeholderEditorDescription": { "message": "Construisez votre prompt avec des blocs", "description": "Description de l'éditeur de blocs" },
+  "templateDialog": { "message": "Éditeur de blocs", "description": "Titre de la fenêtre d'édition de blocs" },
+  "templateDialogDescription": { "message": "Construisez votre prompt avec des blocs", "description": "Description de l'éditeur de blocs" },
   "basic": { "message": "Basique", "description": "Libellé du mode basique" },
   "advanced": { "message": "Avancé", "description": "Libellé du mode avancé" },
   "basicEditor": { "message": "Éditeur Basique", "description": "Onglet pour l'éditeur basique" },
@@ -1918,7 +1918,7 @@
   "resetAllPlaceholders": { "message": "Réinitialiser tous les placeholders", "description": "Titre pour la réinitialisation de tous les placeholders" },
   "reset": { "message": "Réinitialiser", "description": "Bouton pour réinitialiser les placeholders" },
   "noPlaceholdersFound": { "message": "Aucun placeholder trouvé", "description": "Message lorsqu'aucun placeholder n'est trouvé" },
-  "editTemplateContent": { "message": "Modifier le contenu du template", "description": "Titre pour la section de modification du contenu du template" },
+  "editTemplateContent": { "message": "Créer le contenu du template", "description": "Titre pour la section de modification du contenu du template" },
   "visitWebsite": { "message": "Visiter le site web", "description": "Label pour le bouton de visite du site web" },
   "charactersLabel": { "message": "caractères", "description": "Libellé pour le nombre de caractères" },
   "linesLabel": { "message": "lignes", "description": "Libellé pour le nombre de lignes" },
@@ -2022,10 +2022,71 @@
   "moreActions": { "message": "Plus d'actions", "description": "Libellé pour le bouton de clic pour plus d'actions" },
   "edit": { "message": "Modifier", "description": "Libellé pour le bouton de clic pour modifier" },
   "aPerfectPrompt": { "message": "Un prompt parfait contient au moins un rôle, un contexte et un objectif", "description": "Libellé pour le prompt parfait" },
-  "tutorialFullTour": { "message": "Visite complète", "description": "Titre pour le tutoriel Full Tour" },
-  "tutorialTemplates": { "message": "Templates", "description": "Titre pour le tutoriel Templates" },
-  "tutorialBlocks": { "message": "Blocs", "description": "Titre pour le tutoriel Blocs" },
-  "tutorialFoldersOrganization": { "message": "Dossiers & Organisation", "description": "Titre pour le tutoriel Dossiers et Organisation" },
-  "tutorialExtensionPopup": { "message": "Popup de l'extension", "description": "Titre pour le tutoriel Popup de l'extension" },
-  "tutorialStats": { "message": "Statistiques", "description": "Titre pour le tutoriel Statistiques" }
+  "noPrimaryMetadataWarning": { "message": "En ajoutant au moins un rôle, un contexte et un objectif, vous obtiendrez de meilleurs résultats", "description": "Avertissement lorsqu'aucune métadonnée primaire n'est définie" },
+  "missingSomePrimaryMetadata": { "message": "Avec un rôle, un contexte et un objectif, votre prompt fera partie des 5% les plus efficaces", "description": "Avertissement lorsque les métadonnées primaires sont incomplètes" },
+  "allPrimaryMetadataSet": { "message": "Bravo, votre prompt est bien construit. Vous pouvez maintenant jouer avec les autres blocs pour optimiser encore un peu vos résultats", "description": "Message lorsque toutes les métadonnées principales sont définies" },
+  "contentOrMetadataRequired": { "message": "Ajoutez du contenu ou au moins une métadonnée", "description": "Erreur de validation lors de la création du template" },
+  "addBlocksTitle": { "message": "Ajouter des blocs", "description": "Libellé pour le titre de la section des blocs" },
+  "featuredTutorials": { "message": "Tutoriels", "description": "Libellé pour le titre des tutoriels" },
+  "videoLibrary": { "message": "Bibliothèque de vidéos", "description": "Libellé pour le titre de la bibliothèque de vidéos" },
+  "stayUpdated": { "message": "Restez informés des dernières fonctionnalités", "description": "Libellé pour la notification de mise à jour" },
+  "fullTour": { "message": "Parcours complet", "description": "Libellé pour le titre du parcours complet" },
+  "templates": { "message": "Templates", "description": "Libellé pour le titre des templates" },
+  "blocks": { "message": "Blocs", "description": "Libellé pour le titre des blocs" },
+  "folders": { "message": "Dossiers", "description": "Libellé pour le titre des dossiers" },
+  "extensionPopup": { "message": "Extension Popup", "description": "Libellé pour le titre de l'extension popup" },
+  "stats": { "message": "Stats", "description": "Libellé pour le titre des stats" },
+  "insertBlocks": { "message": "Insérer des blocs", "description": "Libellé pour le titre des blocs" },
+  "promptBuilder": { "message": "Créateur de prompt", "description": "Libellé pour le titre du prompt builder" },
+  "aiCompanion": { "message": "Votre compagnon pour adopter l'IA génératie comme un pro", "description": "Libellé pour la description de l'extension" },
+  "restoreOriginalMetadata": { "message": "Restaurer les blocs d'origine", "description": "Libellé pour le bouton de restauration des métadonnées originales" },
+  "emptyType": {
+    "message": "Aucune $TYPE$",
+    "description": "Libellé lorsqu'aucun bloc n'est sélectionné",
+    "placeholders": {
+      "type": { "content": "$1", "example": "contrainte" }
+    }
+  },
+  "typeBlock": {
+    "message": "Bloc $TYPE$",
+    "description": "Libellé par défaut pour un bloc",
+    "placeholders": {
+      "type": { "content": "$1", "example": "objectif" }
+    }
+  },
+  "selectTypePlural": {
+    "message": "Sélectionner les $TYPES$",
+    "description": "En-tête pour sélectionner plusieurs blocs de métadonnées",
+    "placeholders": {
+      "types": { "content": "$1", "example": "contraintes" }
+    }
+  },
+  "selectedTypePlural": {
+    "message": "$TYPES$ sélectionnées",
+    "description": "Libellé pour les blocs de métadonnées sélectionnés",
+    "placeholders": {
+      "types": { "content": "$1", "example": "contraintes" }
+    }
+  },
+  "addExistingTypePlural": {
+    "message": "Ajouter des $TYPES$ existantes",
+    "description": "Libellé avant la liste des blocs disponibles",
+    "placeholders": {
+      "types": { "content": "$1", "example": "contraintes" }
+    }
+  },
+  "noMoreTypeAvailable": {
+    "message": "Plus de $TYPES$ disponibles",
+    "description": "Message lorsqu'il n'y a plus de blocs disponibles pour ce type",
+    "placeholders": {
+      "types": { "content": "$1", "example": "contraintes" }
+    }
+  },
+  "removeType": {
+    "message": "Supprimer $TYPE$",
+    "description": "Info-bulle pour supprimer un bloc de métadonnées",
+    "placeholders": {
+      "type": { "content": "$1", "example": "contrainte" }
+    }
+  }
 }

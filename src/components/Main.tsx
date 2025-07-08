@@ -82,7 +82,8 @@ const Main: React.FC = () => {
         initAmplitude(state.user.id, false);
         setUserProperties({
           darkMode: document.documentElement.classList.contains('dark'),
-          language: getCurrentLanguage()
+          language: getCurrentLanguage(),
+          version: chrome.runtime.getManifest().version
         });
       }
     });

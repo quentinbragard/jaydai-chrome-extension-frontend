@@ -1,4 +1,4 @@
-// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Updated Version
+// src/components/dialogs/prompts/editors/AdvancedEditor/index.tsx - Fixed Version
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { cn } from '@/core/utils/classNames';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
@@ -13,13 +13,9 @@ import {
   convertMetadataToVirtualBlocks,
   extractPlaceholdersFromBlocks
 } from '@/utils/templates/enhancedPreviewUtils';
-import { Block } from '@/types/prompts/blocks';
-import {
-  MetadataType,
-  SingleMetadataType,
-  MultipleMetadataType,
-  isMultipleMetadataType
-} from '@/types/prompts/metadata';
+import { PRIMARY_METADATA, SingleMetadataType } from '@/types/prompts/metadata';
+import { AlertTriangle, Check } from 'lucide-react';
+
 
 interface AdvancedEditorProps {
   mode?: 'create' | 'customize';
@@ -45,37 +41,37 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
   const isDarkMode = useThemeDetector();
 
-  const filteredMetadataBlocks = React.useMemo(() => {
-    const result: Record<MetadataType, Block[]> = {} as any;
-    Object.entries(availableMetadataBlocks).forEach(([key, blocks]) => {
-      const type = key as MetadataType;
-      const published = blocks.filter(b => (b as any).published);
+  const primaryCount = React.useMemo(() => {
+    return PRIMARY_METADATA.reduce((acc, type) => {
+      const blockId = metadata[type as SingleMetadataType];
+      const val = metadata.values?.[type as SingleMetadataType];
+      return (blockId && blockId !== 0) || (val && val.trim()) ? acc + 1 : acc;
+    }, 0);
+  }, [metadata]);
 
-      if (mode === 'create') {
-        result[type] = published;
-        return;
-      }
-
-      const ids: number[] = [];
-      if (isMultipleMetadataType(type)) {
-        const items = (metadata as any)[type as MultipleMetadataType] || [];
-        items.forEach((i: any) => {
-          if (i.blockId) ids.push(i.blockId);
-        });
-      } else {
-        const id = (metadata as any)[type as SingleMetadataType];
-        if (id) ids.push(id);
-      }
-
-      const selected = blocks.filter(b => ids.includes(b.id));
-      const combined = [...published];
-      selected.forEach(b => {
-        if (!combined.find(c => c.id === b.id)) combined.push(b);
-      });
-      result[type] = combined;
-    });
-    return result;
-  }, [availableMetadataBlocks, metadata, mode]);
+  let metadataBanner: React.ReactNode = null;
+  if (primaryCount === 0) {
+    metadataBanner = (
+      <div className="jd-flex jd-items-center jd-gap-2 jd-bg-red-100 jd-text-red-700 jd-border jd-border-red-200 jd-rounded jd-p-2 jd-text-sm">
+        <AlertTriangle className="jd-h-4 jd-w-4 jd-text-red-500" />
+        {getMessage('noPrimaryMetadataWarning', undefined, 'Add at least one of role, context or goal')}
+      </div>
+    );
+  } else if (primaryCount < PRIMARY_METADATA.length) {
+    metadataBanner = (
+      <div className="jd-flex jd-items-center jd-gap-2 jd-bg-amber-50 jd-text-amber-700 jd-border jd-border-amber-200 jd-rounded jd-p-2 jd-text-sm">
+        <AlertTriangle className="jd-h-4 jd-w-4 jd-text-amber-500" />
+        {getMessage('missingSomePrimaryMetadata', undefined, 'Add role, context and goal for best results')}
+      </div>
+    );
+  } else {
+    metadataBanner = (
+      <div className="jd-flex jd-items-center jd-gap-2 jd-bg-green-100 jd-text-green-700 jd-border jd-border-green-200 jd-rounded jd-p-2 jd-text-sm">
+        <Check className="jd-h-4 jd-w-4 jd-text-green-600" />
+        {getMessage('allPrimaryMetadataSet', undefined, 'Great! You added role, context and goal')}
+      </div>
+    );
+  }
 
   // Placeholder management for customize mode
   const originalContentRef = useRef(content);
@@ -208,39 +204,31 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           
           {/* Metadata and Preview Panel */}
           <ResizablePanel defaultSize={75} minSize={50}>
-            <div
-              className={cn(
-                'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-y-auto jd-p-4 jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100 dark:jd-scrollbar-thumb-gray-600 dark:jd-scrollbar-track-gray-800',
-                isDarkMode
-                  ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
-                  : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
-              )}
-            >
+            <div className={cn(
+              'jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden jd-p-4',
+              isDarkMode
+                ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
+                : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
+            )}>
               
               {/* Compact Metadata Section */}
               <div className="jd-flex-shrink-0 jd-mb-4">
                 <CompactMetadataSection
-                  availableMetadataBlocks={filteredMetadataBlocks}
+                  mode={mode as any}
+                  availableMetadataBlocks={availableMetadataBlocks}
                 />
               </div>
 
-              {/* Preview Section */}
-              <div className="jd-flex-1 jd-min-h-0">
-                <div className="jd-space-y-3 jd-h-full jd-flex jd-flex-col">
-                  <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-flex-shrink-0">
-                    <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-                    {getMessage('completePreview', undefined, 'Complete Preview')}
-                  </h3>
-                  
-                  <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
-                    <TemplatePreview
-                      metadata={metadata}
-                      content={previewContent}
-                      blockContentCache={previewCache}
-                      isDarkMode={isDarkMode}
-                      className="jd-h-full"
-                    />
-                  </div>
+              {/* Preview Section - Fixed height container that allows scrolling */}
+              <div className="jd-flex-1 jd-min-h-0 jd-overflow-hidden">
+                <div className="jd-h-full jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10">
+                  <TemplatePreview
+                    metadata={metadata}
+                    content={previewContent}
+                    blockContentCache={previewCache}
+                    isDarkMode={isDarkMode}
+                    className="jd-h-full jd-w-full"
+                  />
                 </div>
               </div>
             </div>
@@ -252,39 +240,33 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 
   // For create mode (no placeholder panel)
   return (
-    <div
-      className={cn(
-        'jd-h-full jd-flex jd-flex-col jd-relative jd-overflow-y-auto jd-p-6 jd-scrollbar-thin jd-scrollbar-thumb-gray-300 jd-scrollbar-track-gray-100 dark:jd-scrollbar-thumb-gray-600 dark:jd-scrollbar-track-gray-800',
-        isDarkMode
-          ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
-          : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
-      )}
-    >
+    <div className={cn(
+      'jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden jd-p-4',
+      isDarkMode
+        ? 'jd-bg-gradient-to-br jd-from-gray-900 jd-via-gray-800 jd-to-gray-900'
+        : 'jd-bg-gradient-to-br jd-from-slate-50 jd-via-white jd-to-slate-100'
+    )}>
       
       {/* Compact Metadata Section */}
       <div className="jd-flex-shrink-0 jd-mb-6">
         <CompactMetadataSection
-          availableMetadataBlocks={filteredMetadataBlocks}
+          mode={mode as any}
+          availableMetadataBlocks={availableMetadataBlocks}
         />
+        <div className="jd-mt-2 jd-flex-shrink-0">{metadataBanner}</div>
+
       </div>
 
-      {/* Preview Section */}
-      <div className="jd-flex-1 jd-min-h-0">
-        <div className="jd-space-y-3 jd-h-full jd-flex jd-flex-col">
-          <h3 className="jd-text-lg jd-font-semibold jd-flex jd-items-center jd-gap-2 jd-flex-shrink-0">
-            <span className="jd-w-2 jd-h-6 jd-bg-gradient-to-b jd-from-blue-500 jd-to-purple-600 jd-rounded-full"></span>
-            {getMessage('completePreview', undefined, 'Complete Preview')}
-          </h3>
-          
-          <div className="jd-border jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10 jd-border-blue-200 jd-dark:jd-border-blue-700 jd-flex-1 jd-min-h-0">
-            <TemplatePreview
-              metadata={metadata}
-              content={content}
-              blockContentCache={blockContentCache}
-              isDarkMode={isDarkMode}
-              className="jd-h-full"
-            />
-          </div>
+      {/* Preview Section - Fixed height container that allows scrolling */}
+      <div className="jd-flex-1 jd-min-h-0 jd-overflow-hidden">
+        <div className="jd-h-full jd-rounded-lg jd-p-1 jd-bg-gradient-to-r jd-from-blue-500/10 jd-to-purple-500/10">
+          <TemplatePreview
+            metadata={metadata}
+            content={content}
+            blockContentCache={blockContentCache}
+            isDarkMode={isDarkMode}
+            className="jd-h-full jd-w-full"
+          />
         </div>
       </div>
     </div>

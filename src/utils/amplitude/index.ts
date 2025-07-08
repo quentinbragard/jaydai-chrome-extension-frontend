@@ -7,7 +7,15 @@ import { detectPlatform } from '@/platforms/platformManager';
  * @param userId Optional user ID to identify the user
  */
 export const initAmplitude = (userId?: string, autoCapture = true) => {
-  amplitude.init('857a9c3b48322cbc7802683533e50155', {
+  const apiKey = process.env.VITE_AMPLITUDE_API_KEY;
+  console.log('Amplitude API key:', apiKey);
+
+  if (!apiKey) {
+    console.error('Amplitude API key is not defined.');
+    return;
+  }
+
+  amplitude.init(apiKey, {
     // Enable autocapture for automatic event tracking
     autocapture: {
       elementInteractions: autoCapture
@@ -50,6 +58,8 @@ export const EVENTS = {
   BUTTON_INJECTED: 'Button Injected',
   BUTTON_CLICKED: 'Button Clicked',
   MAIN_BUTTON_CLICKED: 'Main Button Clicked',
+  MAIN_BUTTON_DRAG_STARTED: 'Main Button Drag Started',
+  MAIN_BUTTON_DRAG_ENDED: 'Main Button Drag Ended',
   
   // Authentication events
   SIGNIN_STARTED: 'Sign In Started',
@@ -80,6 +90,7 @@ export const EVENTS = {
   ONBOARDING_GOTO_AI_TOOL: 'Onboarding Go To AI Tool',
 
   POPUP_OPENED: 'Popup Opened',
+  POPUP_AI_TOOL_CLICKED: 'Popup AI Tool Clicked',
   
   // Template events
   TEMPLATE_VIEWED: 'Template Viewed',
@@ -91,9 +102,13 @@ export const EVENTS = {
   TEMPLATE_SEARCH: 'Template Search',
   TEMPLATE_CREATE: 'Template Created',
   TEMPLATE_CREATE_ERROR: 'Template Create Error',
+  TEMPLATE_RESET_PLACEHOLDERS: 'Template Reset Placeholders',
+  TEMPLATE_TOGGLE_PREVIEW: 'Template Toggle Preview',
   TEMPLATE_DELETE: 'Template Deleted',
   TEMPLATE_DELETE_FOLDER: 'Template Folder Deleted',
   TEMPLATE_EDIT: 'Template Edited',
+  TEMPLATE_FOLDER_EDIT: 'Template Folder Edited',
+  TEMPLATE_FOLDER_DELETE: 'Template Folder Deleted',
   TEMPLATE_PINNED: 'Template Pinned',
   TEMPLATE_UNPINNED: 'Template Unpinned',
   FOLDER_PINNED: 'Folder Pinned',
@@ -101,18 +116,60 @@ export const EVENTS = {
   TEMPLATE_BROWSE_OFFICIAL: 'Template Browse Official',
   TEMPLATE_BROWSE_ORGANIZATION: 'Template Browse Organization',
   ENTERPRISE_LIBRARY_ACCESSED: 'Enterprise Library Accessed',
+  ENTERPRISE_CTA_CLICKED: 'Enterprise CTA Clicked',
+  ORGANIZATION_WEBSITE_CLICKED: 'Organization Website Clicked',
   TEMPLATE_REFRESH: 'Template Refresh',
   TEMPLATE_FOLDER_CREATED: 'Template Folder Created',
-  TEMPLATE_EDIT_DIALOG_OPENED: 'Template Edit Dialog Opened',
-  PLACEHOLDER_EDITOR_OPENED: 'Placeholder Editor Opened',
+  TEMPLATE_DIALOG_VIEW_CHANGED: 'Template Dialog View Changed',
+
+  COMPACT_METADATA_CARD_BLOCK_SELECTED: 'Compact Metadata Card Block Selected',
+  COMPACT_METADATA_SECTION_RESTORE_ORIGINAL_METADATA: 'Compact Metadata Section Restore Original Metadata',
+
+  BLOCK_CREATED: 'Block Created',
+  BLOCK_DELETED: 'Block Deleted',
+  BLOCK_UPDATED: 'Block Updated',
+
+  INSERT_BLOCK_DIALOG_BLOCK_TYPE_FILTER_CHANGED: 'Insert Block Dialog Block Type Filter Changed',
+  INSERT_BLOCK_DIALOG_BLOCK_SELECTED: 'Insert Block Dialog Block Selected',
+  INSERT_BLOCK_DIALOG_BLOCK_UNSELECTED: 'Insert Block Dialog Block Unselected',
+  INSERT_BLOCK_DIALOG_BLOCK_DELETED: 'Insert Block Dialog Block Deleted',
+  INSERT_BLOCK_DIALOG_BLOCK_UPDATED: 'Insert Block Dialog Block Updated',
+  INSERT_BLOCK_DIALOG_BLOCKS_INSERTED: 'Insert Block Dialog Blocks Inserted',
+  INSERT_BLOCK_DIALOG_BLOCKS_COPIED_TO_CLIPBOARD: 'Insert Block Dialog Blocks Copied To Clipboard',
+  INSERT_BLOCK_DIALOG_PREVIEW_MODE_CHANGED: 'Insert Block Dialog Preview Mode Changed',
+  INSERT_BLOCK_DIALOG_SHORTCUT_HELP_OPENED: 'Insert Block Dialog Shortcut Help Opened',
+  INSERT_BLOCK_DIALOG_BLOCK_SEARCHED: 'Insert Block Dialog Block Searched',
+
+  
+  QUICK_BLOCK_SELECTOR_OPENED: 'Quick Block Selector Opened',
+  QUICK_BLOCK_SELECTOR_CLOSED: 'Quick Block Selector Closed',
+  QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED: 'Quick Block Selector Blocks Inserted',
+  QUICK_BLOCK_SELECTOR_BLOCK_SEARCHED: 'Quick Block Selector Block Searched',
+  QUICK_BLOCK_SELECTOR_BLOCK_TYPE_FILTER_CHANGED: 'Quick Block Selector Block Type Filter Changed',
+
+  // Tutorial events
+  TUTORIAL_VIDEO_PLAYED: 'Tutorial Video Played',
+  SUBSTACK_CLICKED: 'Substack Clicked',
+  TUTORIAL_GIF_HOVERED: 'Tutorial GIF Hovered',
+
+  // Notification events
+  NOTIFICATIONS_PANEL_OPENED: 'Notifications Panel Opened',
+  NOTIFICATION_ACTION_CLICKED: 'Notification Action Clicked',
+  NOTIFICATION_MARKED_READ: 'Notification Marked Read',
+  NOTIFICATION_MARK_ALL_READ: 'Notification Mark All Read',
+  NOTIFICATION_DELETED: 'Notification Deleted',
+
+
   // Settings events
   SETTINGS_OPENED: 'Settings Opened',
   SETTINGS_CHANGED: 'Settings Changed',
+
+  PANEL_CLOSED: 'Panel Closed',
   
   // Network interceptor events
-  USER_MESSAGE_CAPTURED: 'User Message Captured',
-  AI_ANSWER_CAPTURED: 'AI Answer Captured',
+  MESSAGE_CAPTURED: 'Message Captured',
   CHAT_CONVERSATION_CHANGED: 'Chat Conversation Changed',
+
   
   // Usage statistics events
   USAGE_STATISTICS_VIEWED: 'Usage Statistics Viewed',
@@ -123,6 +180,9 @@ export const EVENTS = {
   // Chat session events
   CHAT_SESSION_STARTED: 'Chat Session Started',
   CHAT_SESSION_ENDED: 'Chat Session Ended',
+// Generic dialog events
+  DIALOG_OPENED: 'Dialog Opened',
+  DIALOG_CLOSED: 'Dialog Closed',
 
 };
 
@@ -130,7 +190,7 @@ export const EVENTS = {
  * Set user properties to track
  * @param properties User properties to track
  */
-export const setUserProperties = (properties: Record<string, any>) => {
+export const setUserProperties = (properties: Record<string, unknown>) => {
   // Create a new Identify object
   const identify = new amplitude.Identify();
   

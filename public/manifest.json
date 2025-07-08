@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvneO+KCb6Mw9KTmGgC9Ds19UZUF13PlIPnLV8sc2X8FDzMOPLH6vO92ELpFJDXk6kxrmNv/Pmwj2zbPlVMbSVZ+3odxeUSpA7wxrVSiHbTTJNSCW52M2vhNumRiSLRk4eU+d+Cgom3qtZtxiYS/yOyovPqS8Xspw2sgx+7eg/GcQ95Q+RYzNa8xDLneXXlfUH4H/INMyg72fg/oc5UMqOwPurGQ1IG5EiLv4AiQDtesCR3y+nxpVAaCd02fRptTzc1ctULQYHLBloRyVQmHSXUOPKtM81HHLKS2iupshnQdq66KX7qb5vP3+Q64KVyTBXye4OB4aMLrvKhdh6KB//wIDAQAB",
   "name": "__MSG_appName__",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "__MSG_appDesc__",
   "default_locale": "fr",
   "permissions": [
@@ -19,7 +19,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://chatgpt.com/*", "https://chat.mistral.ai/*", "https://copilot.microsoft.com/*", "https://claude.ai/*", "https://www.perplexity.ai/*", "https://gemini.google.com/*"],
+    "matches": ["<all_urls>"],
     "js": ["content.js"],
       "run_at": "document_start",
       "type": "module"

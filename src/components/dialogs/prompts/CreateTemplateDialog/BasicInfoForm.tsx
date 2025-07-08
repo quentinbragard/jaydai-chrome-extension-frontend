@@ -10,6 +10,7 @@ import { QUERY_KEYS } from '@/constants/queryKeys';
 import { TemplateFolder } from '@/types/prompts/templates';
 import { getMessage } from '@/core/utils/i18n';
 import { FolderData, truncateFolderPath } from '@/utils/prompts/templateUtils';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface Props {
   name: string;
@@ -65,6 +66,11 @@ export const BasicInfoForm: React.FC<Props> = ({
         onFolderCreated: async (folder: TemplateFolder) => {
           await queryClient.invalidateQueries(QUERY_KEYS.USER_FOLDERS);
           handleFolderSelect(folder.id.toString());
+          trackEvent(EVENTS.TEMPLATE_FOLDER_CREATED, {
+            folder_id: folder.id,
+            folder_name: typeof folder.title === 'string' ? folder.title : (folder.title as any)?.en || folder.name,
+            source: 'CreateTemplateDialog'
+          });
         }
       });
       return;

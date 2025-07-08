@@ -79,10 +79,13 @@ export class ErrorReporter {
     
     // Log the error
     console.error('[ErrorReporter]', appError);
+    if (appError.message !== "API request to /stats/user failed" && appError.message !== "Error loading stats") {
+      console.log('appError', appError);
     trackEvent(EVENTS.ERROR_OCCURRED, {
-      code: appError.code,
-      message: appError.message
-    });
+        code: appError.code,
+        message: appError.message
+      });
+    }
     
     // Store in recent errors
     this.recentErrors.push({

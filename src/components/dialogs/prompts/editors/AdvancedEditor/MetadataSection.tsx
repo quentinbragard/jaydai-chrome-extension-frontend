@@ -92,7 +92,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
       const allBlocks = availableMetadataBlocks[type] || [];
       const published = allBlocks.filter(
 
-        b => (b as any).published 
+        b => (b as any).published
       );
 
       const selectedIds: number[] = [];
@@ -112,7 +112,8 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({
         .filter(Boolean) as Block[];
 
       const combined: Block[] = [...selectedBlocks];
-      published.forEach(b => {
+      const toAdd = published.length > 0 ? published : allBlocks;
+      toAdd.forEach(b => {
         if (!combined.some(sb => sb.id === b.id)) combined.push(b);
       });
 

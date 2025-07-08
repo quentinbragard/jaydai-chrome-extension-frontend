@@ -12,15 +12,12 @@ import './popup.css';
 import { getMessage } from '@/core/utils/i18n';
 import { authService } from '@/services/auth/AuthService';
 import { AuthState } from '@/types';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { initAmplitude, trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Current extension version
 const EXTENSION_VERSION = chrome.runtime.getManifest().version;
 
 const ExtensionPopup: React.FC = () => {
-  useEffect(() => {
-    trackEvent(EVENTS.POPUP_OPENED);
-  }, []);
   // Auth state
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -46,6 +43,14 @@ const ExtensionPopup: React.FC = () => {
       unsubscribe();
     };
   }, []);
+
+  // Track popup opened event once the user information is available
+  useEffect(() => {
+    if (authState.user) {
+      initAmplitude(authState.user.id, false);
+      trackEvent(EVENTS.POPUP_OPENED);
+    }
+  }, [authState.user]);
 
   const handleLogout = async () => {
     try {

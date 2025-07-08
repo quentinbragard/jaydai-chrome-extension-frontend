@@ -5,11 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import EditablePromptPreview from './EditablePromptPreview';
-import { PromptMetadata } from '@/types/prompts/metadata';
-import { formatPromptHtml } from '@/utils/prompts/promptFormatter';
+import { generateUnifiedPreviewHtml } from '@/utils/templates/placeholderHelpers';
 
 interface EnhancedEditablePreviewProps {
-  metadata: PromptMetadata;
   blockContentCache?: Record<number, string>;
   isDarkMode: boolean;
   finalPromptContent: string;
@@ -22,7 +20,6 @@ interface EnhancedEditablePreviewProps {
 }
 
 export const EnhancedEditablePreview: React.FC<EnhancedEditablePreviewProps> = ({
-  metadata,
   blockContentCache,
   isDarkMode,
   finalPromptContent,
@@ -40,13 +37,8 @@ export const EnhancedEditablePreview: React.FC<EnhancedEditablePreviewProps> = (
       return '<span class="jd-text-muted-foreground jd-italic">Your prompt will appear here...</span>';
     }
 
-    return formatPromptHtml(
-      metadata,
-      finalPromptContent,
-      isDarkMode,
-      blockContentCache
-    );
-  }, [finalPromptContent, metadata, isDarkMode, blockContentCache]);
+    return generateUnifiedPreviewHtml(finalPromptContent, isDarkMode);
+  }, [finalPromptContent, isDarkMode]);
 
 
   const toggleCollapsed = () => {

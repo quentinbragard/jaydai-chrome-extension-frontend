@@ -79,6 +79,6 @@ export interface TemplateFolder {
     FOLDER_MANAGER: 'folderManager',
     SETTINGS: 'settings',
     AUTH: 'auth',
-    PLACEHOLDER_EDITOR: 'placeholderEditor',
+    PLACEHOLDER_EDITOR: 'templateDialog',
     CONFIRMATION: 'confirmation'
   };

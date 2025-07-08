@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { Search, Maximize2, X, Plus } from 'lucide-react';
 import { cn } from '@/core/utils/classNames';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
@@ -19,6 +18,7 @@ import { useBlocks } from './useBlocks';
 import { useBlockInsertion } from './useBlockInsertion';
 import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 import { calculateDropdownPosition } from './positionUtils';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Quick filter types
 const QUICK_FILTERS = [
@@ -60,6 +60,14 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
+
+  useEffect(() => {
+    trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_OPENED);
+    return () => {
+      trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_CLOSED);
+    };
+  }, []);
 
   // Block actions hook
   const { editBlock, deleteBlock, createBlock } = useBlockActions({
@@ -75,7 +83,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   });
 
   const handleCreateBlock = () => {
-    createBlock();
+    createBlock(undefined, 'QuickBlockSelector');
   };
 
   const handleEditBlock = (block: Block) => {
@@ -164,7 +172,10 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   }, [activeIndex]);
 
   const { insertBlock } = useBlockInsertion(targetElement, cursorPosition, onClose, triggerLength);
-  const handleSelectBlock = (block: Block) => insertBlock(block);
+  const handleSelectBlock = (block: Block) => {
+    trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED, { block_id: block.id, block_type: block.type });
+    insertBlock(block);
+  };
 
   const openFullDialog = () => {
     onClose();
@@ -219,7 +230,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
             title={getMessage('openBlockBuilder', undefined, 'Open block builder')}
           >
             <Maximize2 className="jd-h-3 jd-w-3 jd-mr-1" />
-            Builder
+            {getMessage('blockBuilder', undefined, 'Block Builder')}
           </Button>
           <Button
             size="sm"
@@ -238,7 +249,13 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
           <Input
             ref={searchInputRef}
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => {
+              setSearch(e.target.value);
+              if (!hasTriggeredAmplitudeEvent) {
+                trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_BLOCK_SEARCHED, { search_content_first_letter: e.target.value });
+                setHasTriggeredAmplitudeEvent(true);
+              }
+            }}
             placeholder={getMessage('searchBlocksPlaceholder', undefined, 'Search blocks...')}
             className="jd-pl-8 jd-h-8 jd-text-sm"
           />
@@ -251,7 +268,10 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
           {QUICK_FILTERS.map(filter => (
             <button
               key={filter.type}
-              onClick={() => setSelectedFilter(filter.type)}
+              onClick={() => {
+                setSelectedFilter(filter.type);
+                trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_BLOCK_TYPE_FILTER_CHANGED, { type: filter.type });
+              }}
               className={cn(
                 'jd-px-2 jd-py-1 jd-text-xs jd-rounded-md jd-transition-colors',
                 'jd-flex jd-items-center jd-gap-1',
@@ -266,7 +286,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
           ))}
           <button
             onClick={handleCreateBlock}
-            className="jd-px-2 jd-py-1 jd-text-xs jd-rounded-md jd-transition-colors jd-flex jd-items-center jd-gap-1 jd-border jd-border-dashed jd-bg-muted hover:jd-bg-muted/80"
+            className="jd-px-2 jd-py-1 jd-text-xs jd-rounded-md jd-transition-colors jd-flex jd-items-center jd-gap-1 jd-border jd-border-dashed jd-border-primary jd-text-primary !jd-font-black"
           >
             <Plus className="jd-h-3 jd-w-3" />
             <span>{getMessage('newBlock', undefined, 'New')}</span>

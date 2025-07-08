@@ -1780,8 +1780,8 @@
   "onboardingStepReferral": { "message": "How You Found Us", "description": "Step title for referral" },
   "onboardingStepComplete": { "message": "Complete", "description": "Step title for completion" },
   "skipForNow": { "message": "Skip for now", "description": "Button to skip onboarding step" },
-  "placeholderEditor": { "message": "Prompt Block Editor", "description": "Title for placeholder editor dialog" },
-  "placeholderEditorDescription": { "message": "Build your prompt using blocks", "description": "Description for placeholder editor" },
+  "templateDialog": { "message": "Prompt Block Editor", "description": "Title for placeholder editor dialog" },
+  "templateDialogDescription": { "message": "Build your prompt using blocks", "description": "Description for placeholder editor" },
   "basic": { "message": "Basic", "description": "Label for basic mode" },
   "advanced": { "message": "Advanced", "description": "Label for advanced mode" },
   "basicEditor": { "message": "Basic Editor", "description": "Tab label for basic editor" },
@@ -1937,7 +1937,7 @@
   "resetAllPlaceholders": { "message": "Reset all placeholders", "description": "Title for the reset all placeholders button" },
   "reset": { "message": "Reset", "description": "Button for resetting placeholders" },
   "noPlaceholdersFound": { "message": "No placeholders found", "description": "Message when no placeholders are found" },
-  "editTemplateContent": { "message": "Edit Template Content", "description": "Title for the edit template content section" },
+  "editTemplateContent": { "message": "Create Template Content", "description": "Title for the edit template content section" },
   "visitWebsite": { "message": "Visit website", "description": "Label for the visit website button" },
   "charactersLabel": { "message": "characters", "description": "Label for character count" },
   "linesLabel": { "message": "lines", "description": "Label for line count" },
@@ -2041,10 +2041,71 @@
   "moreActions": { "message": "More actions", "description": "Label for the more actions button" },
   "edit": { "message": "Edit", "description": "Label for the edit button" },
   "aPerfectPrompt": { "message": "A perfect prompt contains at least a role, context and goal", "description": "Label for the a perfect prompt" },
-  "tutorialFullTour": { "message": "Full Tour", "description": "Title for the Full Tour tutorial" },
-  "tutorialTemplates": { "message": "Templates", "description": "Title for the Templates tutorial" },
-  "tutorialBlocks": { "message": "Blocks", "description": "Title for the Blocks tutorial" },
-  "tutorialFoldersOrganization": { "message": "Folders & Organization", "description": "Title for the Folders & Organization tutorial" },
-  "tutorialExtensionPopup": { "message": "Extension Popup", "description": "Title for the Extension Popup tutorial" },
-  "tutorialStats": { "message": "Stats", "description": "Title for the Stats tutorial" }
+  "noPrimaryMetadataWarning": { "message": "Add at least one of role, context or goal to get the best results", "description": "Warning when no primary metadata is set" },
+  "missingSomePrimaryMetadata": { "message": "With a role, context and goal, your prompt will be part of the top 5%", "description": "Warning when primary metadata is incomplete" },
+  "allPrimaryMetadataSet": { "message": "Great! All primary metadata added. You can now play with the other blocks to optimize your results even more", "description": "Message when all primary metadata are set" },
+  "contentOrMetadataRequired": { "message": "Add content or at least one metadata item", "description": "Validation error when creating template" },
+  "addBlocksTitle": { "message": "Add blocks", "description": "Label for the add blocks title" },
+  "featuredTutorials": { "message": "Featured Tutorials", "description": "Label for the featured tutorials" },
+  "videoLibrary": { "message": "Video Library", "description": "Label for the video library" },
+  "stayUpdated": { "message": "Stay updated with the latest features", "description": "Label for the stay updated" },
+  "fullTour": { "message": "Full Tour", "description": "Label for the full tour" },
+  "blocks": { "message": "Blocks", "description": "Label for the blocks" },
+  "folders": { "message": "Folders", "description": "Label for the folders" },
+  "extensionPopup": { "message": "Extension Popup", "description": "Label for the extension popup" },
+  "stats": { "message": "Stats", "description": "Label for the stats" },
+  "insertBlocks": { "message": "Insert Blocks", "description": "Label for the insert blocks" },
+  "promptBuilder": { "message": "Prompt Builder", "description": "Label for the prompt builder" },
+  "aiCompanion": { "message": "Your companion to adopt AI generation like a pro", "description": "Label for the ai companion" },
+  "restoreOriginalMetadata": { "message": "Restore original metadata", "description": "Label for the restore original metadata" },
+  "emptyType": {
+    "message": "Empty $TYPE$",
+    "description": "Label when no block is selected",
+    "placeholders": {
+      "type": { "content": "$1", "example": "constraint" }
+    }
+  },
+  "typeBlock": {
+    "message": "$TYPE$ block",
+    "description": "Fallback label for a block name",
+    "placeholders": {
+      "type": { "content": "$1", "example": "goal" }
+    }
+  },
+  "selectTypePlural": {
+    "message": "Select $TYPES$",
+    "description": "Header prompting to select multiple metadata blocks",
+    "placeholders": {
+      "types": { "content": "$1", "example": "constraints" }
+    }
+  },
+  "selectedTypePlural": {
+    "message": "Selected $TYPES$",
+    "description": "Label for currently selected metadata blocks",
+    "placeholders": {
+      "types": { "content": "$1", "example": "constraints" }
+    }
+  },
+  "addExistingTypePlural": {
+    "message": "Add existing $TYPES$",
+    "description": "Label before the list of available blocks",
+    "placeholders": {
+      "types": { "content": "$1", "example": "constraints" }
+    }
+  },
+  "noMoreTypeAvailable": {
+    "message": "No more $TYPES$ available",
+    "description": "Message when no more blocks of that type are available",
+    "placeholders": {
+      "types": { "content": "$1", "example": "constraints" }
+    }
+  },
+  "removeType": {
+    "message": "Remove $TYPE$",
+    "description": "Tooltip for removing a metadata block",
+    "placeholders": {
+      "type": { "content": "$1", "example": "constraint" }
+    }
+  }
+
 }
