@@ -37,16 +37,20 @@ const ExtensionPopup: React.FC = () => {
     if (!authService.isInitialized()) {
       authService.initialize();
     }
-    if (authState.user) {
-      initAmplitude(authState.user.id, false);
-      trackEvent(EVENTS.POPUP_OPENED);
-    }
 
     // Cleanup subscription
     return () => {
       unsubscribe();
     };
   }, []);
+
+  // Track popup opened event once the user information is available
+  useEffect(() => {
+    if (authState.user) {
+      initAmplitude(authState.user.id, false);
+      trackEvent(EVENTS.POPUP_OPENED);
+    }
+  }, [authState.user]);
 
   const handleLogout = async () => {
     try {
