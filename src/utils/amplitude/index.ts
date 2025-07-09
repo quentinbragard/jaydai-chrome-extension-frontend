@@ -2,15 +2,6 @@
 import * as amplitude from '@amplitude/analytics-browser';
 import { detectPlatform } from '@/platforms/platformManager';
 
-declare global {
-  interface Window {
-    analytics?: {
-      track: (event: string, properties?: Record<string, unknown>) => void;
-      page?: (properties?: Record<string, unknown>) => void;
-    };
-  }
-}
-
 /**
  * Initialize Amplitude with the API key and user ID (if available)
  * @param userId Optional user ID to identify the user
@@ -54,15 +45,7 @@ export const setAmplitudeUserId = (userId: string) => {
  */
 export const trackEvent = (eventName: string, eventProperties = {}) => {
   const platform = detectPlatform();
-  const props = { ...eventProperties, 'ai_platform': platform };
-  amplitude.track(eventName, props);
-  if (window.analytics && typeof window.analytics.track === 'function') {
-    try {
-      window.analytics.track(eventName, props);
-    } catch (err) {
-      console.error('Segment track error', err);
-    }
-  }
+  amplitude.track(eventName, { ...eventProperties, 'ai_platform': platform });
 };
 
 /**
@@ -241,12 +224,5 @@ export const incrementUserProperty = (property: string, value: number = 1) => {
  * @param pageName Name of the page being viewed
  */
 export const trackPageView = (pageName: string) => {
-  const props = { page_name: pageName };
-  amplitude.track('Page Viewed', props);
-  if (window.analytics && typeof window.analytics.page === 'function') {
-    try {
-      window.analytics.page(props);
-    } catch (err) {
-      console.error('Segment page error', err);
-    }
-  }};
+  amplitude.track('Page Viewed', { page_name: pageName });
+};
