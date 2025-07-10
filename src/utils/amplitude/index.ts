@@ -132,8 +132,6 @@ export const EVENTS = {
   INSERT_BLOCK_DIALOG_BLOCK_TYPE_FILTER_CHANGED: 'Insert Block Dialog Block Type Filter Changed',
   INSERT_BLOCK_DIALOG_BLOCK_SELECTED: 'Insert Block Dialog Block Selected',
   INSERT_BLOCK_DIALOG_BLOCK_UNSELECTED: 'Insert Block Dialog Block Unselected',
-  INSERT_BLOCK_DIALOG_BLOCK_DELETED: 'Insert Block Dialog Block Deleted',
-  INSERT_BLOCK_DIALOG_BLOCK_UPDATED: 'Insert Block Dialog Block Updated',
   INSERT_BLOCK_DIALOG_BLOCKS_INSERTED: 'Insert Block Dialog Blocks Inserted',
   INSERT_BLOCK_DIALOG_BLOCKS_COPIED_TO_CLIPBOARD: 'Insert Block Dialog Blocks Copied To Clipboard',
   INSERT_BLOCK_DIALOG_PREVIEW_MODE_CHANGED: 'Insert Block Dialog Preview Mode Changed',
