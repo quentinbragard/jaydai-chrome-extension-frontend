@@ -226,7 +226,8 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
           updateBlockContent(block.originalBlockId, seg);
           trackEvent(EVENTS.BLOCK_UPDATED, {
             block_id: block.originalBlockId,
-            block_type: block.type
+            block_type: block.type,
+            source: 'TemplateEditorDialog'
           });
         }
       });

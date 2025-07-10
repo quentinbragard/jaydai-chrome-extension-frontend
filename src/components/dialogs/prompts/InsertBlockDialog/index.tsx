@@ -383,12 +383,12 @@ export const InsertBlockDialog: React.FC = () => {
   };
 
   const handleEditBlock = (block: Block) => {
-    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_UPDATED, { block_id: block.id, block_type: block.type });
+    trackEvent(EVENTS.BLOCK_UPDATED, { block_id: block.id, block_type: block.type, source: 'InsertBlockDialog' });
     editBlock(block);
   };
 
   const handleDeleteBlock = (block: Block) => {
-    trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_DELETED, { block_id: block.id, block_type: block.type });
+    trackEvent(EVENTS.BLOCK_DELETED, { block_id: block.id, block_type: block.type, source: 'InsertBlockDialog' });
     deleteBlock(block);
   };
 
