@@ -633,7 +633,7 @@ const filteredBlocks = blocks.filter(b => {
                     ))
                   )}
                 </>
-              ))}
+              )}
             </div>
           </ScrollArea>
         </div>
