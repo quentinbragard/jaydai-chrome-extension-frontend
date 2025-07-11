@@ -6,6 +6,8 @@ import { Block } from '@/types/prompts/blocks';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { VirtualizedList } from '@/components/common/VirtualizedList';
+import { FixedSizeList } from 'react-window';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { Search, Maximize2, X, Plus } from 'lucide-react';
@@ -60,6 +62,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const listRef = useRef<FixedSizeList>(null);
   const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
 
   useEffect(() => {
@@ -165,11 +168,15 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
 
   // Scroll the active item into view when navigating
   useEffect(() => {
-    const el = itemRefs.current[activeIndex];
-    if (el) {
-      el.scrollIntoView({ block: 'nearest' });
+    if (filteredBlocks.length > 30) {
+      listRef.current?.scrollToItem(activeIndex, 'auto');
+    } else {
+      const el = itemRefs.current[activeIndex];
+      if (el) {
+        el.scrollIntoView({ block: 'nearest' });
+      }
     }
-  }, [activeIndex]);
+  }, [activeIndex, filteredBlocks.length]);
 
   const { insertBlock } = useBlockInsertion(targetElement, cursorPosition, onClose, triggerLength);
   const handleSelectBlock = (block: Block) => {
@@ -307,18 +314,38 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
             </div>
           ) : (
             <div className="jd-space-y-1 jd-pr-2">
-              {filteredBlocks.map((block, index) => (
-                <BlockItem
-                  key={block.id}
-                  block={block}
-                  isDark={isDark}
-                  onSelect={handleSelectBlock}
-                  onEdit={handleEditBlock}
-                  onDelete={handleDeleteBlock}
-                  isActive={index === activeIndex}
-                  itemRef={el => (itemRefs.current[index] = el)}
+              {filteredBlocks.length > 30 ? (
+                <VirtualizedList
+                  items={filteredBlocks}
+                  height={360}
+                  itemHeight={68}
+                  listRef={listRef}
+                  renderItem={(block, index) => (
+                    <BlockItem
+                      key={block.id}
+                      block={block}
+                      isDark={isDark}
+                      onSelect={handleSelectBlock}
+                      onEdit={handleEditBlock}
+                      onDelete={handleDeleteBlock}
+                      isActive={index === activeIndex}
+                    />
+                  )}
                 />
-              ))}
+              ) : (
+                filteredBlocks.map((block, index) => (
+                  <BlockItem
+                    key={block.id}
+                    block={block}
+                    isDark={isDark}
+                    onSelect={handleSelectBlock}
+                    onEdit={handleEditBlock}
+                    onDelete={handleDeleteBlock}
+                    isActive={index === activeIndex}
+                    itemRef={el => (itemRefs.current[index] = el)}
+                  />
+                ))
+              )}
             </div>
           )}
         </ScrollArea>
