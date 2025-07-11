@@ -48,7 +48,7 @@ export function useCustomizeTemplateDialog() {
     if (!isOpen) return;
     const loadBlocks = async () => {
       try {
-        const res = await blocksApi.getBlocks();
+        const res = await blocksApi.getBlocks({ published: true });
         if (res.success && Array.isArray(res.data)) {
           setBlockContentCache(buildBlockCache(res.data));
         }

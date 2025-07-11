@@ -15,12 +15,9 @@ export function useBlocks() {
   const fetchBlocks = async () => {
     setLoading(true);
     try {
-      const res = await blocksApi.getBlocks();
+      const res = await blocksApi.getBlocks({ published: true });
       if (res.success) {
-        const published = res.data.filter(
-          b => (b as any).published
-        );
-        setBlocks(published);
+        setBlocks(res.data);
       } else {
         setBlocks([]);
       }
