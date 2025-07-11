@@ -13,8 +13,8 @@ export function useUserFolders() {
   const locale = getCurrentLanguage();
 
   return useQuery(QUERY_KEYS.USER_FOLDERS, async (): Promise<TemplateFolder[]> => {
-    // Get folders without templates to minimize payload
-    const foldersResponse = await promptApi.getFolders('user', true, false, locale);
+    // Get folders
+    const foldersResponse = await promptApi.getFolders('user', true, true, locale);
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load user folders');
     }
@@ -36,8 +36,8 @@ export function useCompanyFolders() {
   const locale = getCurrentLanguage();
 
   return useQuery(QUERY_KEYS.COMPANY_FOLDERS, async (): Promise<TemplateFolder[]> => {
-    // Get folders without templates to minimize payload
-    const foldersResponse = await promptApi.getFolders('company', true, false, locale);
+    // Get folders
+    const foldersResponse = await promptApi.getFolders('company', true, true, locale);
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load company folders');
     }
@@ -56,8 +56,8 @@ export function useOrganizationFolders() {
   const locale = getCurrentLanguage();
 
   return useQuery(QUERY_KEYS.ORGANIZATION_FOLDERS, async (): Promise<TemplateFolder[]> => {
-    // Get folders without templates to minimize payload
-    const foldersResponse = await promptApi.getFolders('organization', true, false, locale);
+    // Get folders
+    const foldersResponse = await promptApi.getFolders('organization', true, true, locale);
     
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load organization folders');
