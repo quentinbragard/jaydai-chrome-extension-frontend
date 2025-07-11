@@ -13,7 +13,7 @@ export function useUserFolders() {
   const locale = getCurrentLanguage();
 
   return useQuery(QUERY_KEYS.USER_FOLDERS, async (): Promise<TemplateFolder[]> => {
-    // Get folders
+    // Get folders including their templates so BrowseMoreDialog can display them
     const foldersResponse = await promptApi.getFolders('user', true, true, locale);
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load user folders');
@@ -36,7 +36,7 @@ export function useCompanyFolders() {
   const locale = getCurrentLanguage();
 
   return useQuery(QUERY_KEYS.COMPANY_FOLDERS, async (): Promise<TemplateFolder[]> => {
-    // Get folders
+    // Get folders including their templates so BrowseMoreDialog can display them
     const foldersResponse = await promptApi.getFolders('company', true, true, locale);
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load company folders');
@@ -56,7 +56,7 @@ export function useOrganizationFolders() {
   const locale = getCurrentLanguage();
 
   return useQuery(QUERY_KEYS.ORGANIZATION_FOLDERS, async (): Promise<TemplateFolder[]> => {
-    // Get folders
+    // Get folders including their templates so BrowseMoreDialog can display them
     const foldersResponse = await promptApi.getFolders('organization', true, true, locale);
     
     if (!foldersResponse.success) {
