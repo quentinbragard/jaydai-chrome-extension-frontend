@@ -294,12 +294,9 @@ export const InsertBlockDialog: React.FC = () => {
       setSearch('');
       setSelectedTypeFilter('all');
       setShowInlineCreator(false);
-      blocksApi.getBlocks().then(res => {
+      blocksApi.getBlocks({ published: true }).then(res => {
         if (res.success) {
-          const published = res.data.filter(
-            b => (b as any).published
-          );
-          setBlocks(published);
+          setBlocks(res.data);
         } else {
           setBlocks([]);
         }
@@ -392,15 +389,14 @@ export const InsertBlockDialog: React.FC = () => {
     deleteBlock(block);
   };
 
-// Filter blocks based on search, type, and published status
+// Filter blocks based on search and type
 const filteredBlocks = blocks.filter(b => {
   const title = typeof b.title === 'string' ? b.title : b.title?.en || '';
   const content = typeof b.content === 'string' ? b.content : b.content.en || '';
   const term = search.toLowerCase();
   const matchesSearch = title.toLowerCase().includes(term) || content.toLowerCase().includes(term);
   const matchesType = selectedTypeFilter === 'all' || b.type === selectedTypeFilter;
-  const isPublished = (b as any).published;
-  return matchesSearch && matchesType && isPublished;
+  return matchesSearch && matchesType;
 });
 
   // Get unique block types for filter
