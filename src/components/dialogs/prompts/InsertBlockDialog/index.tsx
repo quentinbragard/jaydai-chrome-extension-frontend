@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { FixedSizeList } from 'react-window';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -587,30 +588,45 @@ const filteredBlocks = blocks.filter(b => {
 
           {/* Available Blocks */}
           <ScrollArea className="jd-h-[65vh]">
-            <div className="jd-space-y-3 jd-pr-4">
-              {loading ? (
+            {loading ? (
+              <div className="jd-p-4 jd-pr-4">
                 <LoadingSpinner size="sm" message={getMessage('loadingBlocks', undefined, 'Loading blocks...')} />
-              ) : filteredBlocks.length === 0 ? (
+              </div>
+            ) : filteredBlocks.length === 0 ? (
+              <div className="jd-p-4 jd-pr-4">
                 <EmptyMessage>
                   {search
                     ? getMessage('noBlocksFound', [search], `No blocks found for "${search}"`)
                     : getMessage('noBlocksAvailable', undefined, 'No blocks available')}
                 </EmptyMessage>
-              ) : (
-                filteredBlocks.map(block => (
-                  <AvailableBlockCard
-                    key={block.id}
-                    block={block}
-                    isDark={isDark}
-                    onAdd={addBlock}
-                    onEdit={handleEditBlock}
-                    onDelete={handleDeleteBlock}
-                    isSelected={!!selectedBlocks.find(b => b.id === block.id)}
-                    onRemove={removeBlock}
-                    showActions={block.user_id ? true : false}
-                  />
-                )))}
-            </div>
+              </div>
+            ) : (
+              <FixedSizeList
+                height={400}
+                width="100%"
+                itemCount={filteredBlocks.length}
+                itemSize={150}
+                className="jd-pr-4"
+              >
+                {({ index, style }) => {
+                  const block = filteredBlocks[index];
+                  return (
+                    <div style={{ ...style, paddingBottom: '0.75rem' }}>
+                      <AvailableBlockCard
+                        block={block}
+                        isDark={isDark}
+                        onAdd={addBlock}
+                        onEdit={handleEditBlock}
+                        onDelete={handleDeleteBlock}
+                        isSelected={!!selectedBlocks.find(b => b.id === block.id)}
+                        onRemove={removeBlock}
+                        showActions={block.user_id ? true : false}
+                      />
+                    </div>
+                  );
+                }}
+              </FixedSizeList>
+            )}
           </ScrollArea>
         </div>
 

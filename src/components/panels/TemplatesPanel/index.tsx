@@ -1,5 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx - Updated with enhanced Enterprise CTA
 import React, { useCallback, memo, useMemo, useState, useEffect } from 'react';
+import { FixedSizeList } from 'react-window';
 import { FolderOpen, Shield, ChevronRight, Building2, Mail, Lock, Star, Users, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -535,7 +536,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             )}
 
             {/* Display Items */}
-            <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
+            <div className="jd-px-2 jd-max-h-96">
               {displayItems.items.length === 0 ? (
                 <EmptyMessage>
                   {searchQuery.trim()
@@ -550,31 +551,40 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                   }
                 </EmptyMessage>
               ) : (
-                <>
-                  {displayItems.items.map(item => {
+                <FixedSizeList
+                  height={384}
+                  width="100%"
+                  itemCount={displayItems.items.length}
+                  itemSize={52}
+                  className="jd-overflow-y-auto"
+                >
+                  {({ index, style }) => {
+                    const item = displayItems.items[index];
                     const isFolder = 'templates' in item || 'Folders' in item;
                     if (isFolder) {
                       const folder = item as TemplateFolder;
                       return (
-                        <FolderItem
-                          key={`${displayItems.isGlobalSearch ? 'search-' : ''}folder-${folder.id}`}
-                          folder={folder}
-                          type={navigation.getItemType(folder)}
-                          enableNavigation={!displayItems.isGlobalSearch}
-                          onNavigateToFolder={displayItems.isGlobalSearch ? undefined : navigation.navigateToFolder}
-                          onTogglePin={handleTogglePin}
-                          onToggleTemplatePin={handleToggleTemplatePin}
-                          onEditFolder={handleEditFolder}
-                          onDeleteFolder={handleDeleteFolder}
-                          onUseTemplate={useTemplate}
-                          onEditTemplate={editTemplate}
-                          onDeleteTemplate={handleDeleteTemplate}
-                          organizations={organizations}
-                          showPinControls={true}
-                          showEditControls={navigation.getItemType(folder) === 'user'}
-                          showDeleteControls={navigation.getItemType(folder) === 'user'}
-                          pinnedFolderIds={allPinnedFolderIds}
-                        />
+                        <div style={{ ...style, paddingBottom: '0.25rem' }}>
+                          <FolderItem
+                            key={`${displayItems.isGlobalSearch ? 'search-' : ''}folder-${folder.id}`}
+                            folder={folder}
+                            type={navigation.getItemType(folder)}
+                            enableNavigation={!displayItems.isGlobalSearch}
+                            onNavigateToFolder={displayItems.isGlobalSearch ? undefined : navigation.navigateToFolder}
+                            onTogglePin={handleTogglePin}
+                            onToggleTemplatePin={handleToggleTemplatePin}
+                            onEditFolder={handleEditFolder}
+                            onDeleteFolder={handleDeleteFolder}
+                            onUseTemplate={useTemplate}
+                            onEditTemplate={editTemplate}
+                            onDeleteTemplate={handleDeleteTemplate}
+                            organizations={organizations}
+                            showPinControls={true}
+                            showEditControls={navigation.getItemType(folder) === 'user'}
+                            showDeleteControls={navigation.getItemType(folder) === 'user'}
+                            pinnedFolderIds={allPinnedFolderIds}
+                          />
+                        </div>
                       );
                     }
                     const template = item as Template;
@@ -583,8 +593,10 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       : navigation.getItemType(template);
 
                     return (
-                      <div key={`${displayItems.isGlobalSearch ? 'search-' : ''}template-${template.id}`}>
-                        
+                      <div
+                        key={`${displayItems.isGlobalSearch ? 'search-' : ''}template-${template.id}`}
+                        style={{ ...style, paddingBottom: '0.25rem' }}
+                      >
                         <TemplateItem
                           template={template}
                           type={templateType}
@@ -599,8 +611,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                         />
                       </div>
                     );
-                  })}
-                </>
+                  }}
+                </FixedSizeList>
               )}
             </div>
           </div>
@@ -621,27 +633,38 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               </div>
             </div>
 
-            <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
+            <div className="jd-px-2 jd-max-h-96">
               {companyTemplates.length === 0 ? (
                 <EnhancedEnterpriseCTA onContactSales={handleContactSales} />
               ) : (
-                <>
-                  {companyTemplates.map(template => (
-                    <TemplateItem
-                      key={`company-template-${template.id}`}
-                      template={template}
-                      type="company"
-                      onUseTemplate={useTemplate}
-                      onTogglePin={(id, pinned) =>
-                        handleToggleTemplatePin(id, pinned, 'company')
-                      }
-                      showEditControls={false}
-                      showDeleteControls={false}
-                      showPinControls={true}
-                      organizations={organizations}
-                    />
-                  ))}
-                </>
+                <FixedSizeList
+                  height={384}
+                  width="100%"
+                  itemCount={companyTemplates.length}
+                  itemSize={52}
+                  className="jd-overflow-y-auto"
+                >
+                  {({ index, style }) => {
+                    const template = companyTemplates[index];
+                    return (
+                      <div style={{ ...style, paddingBottom: '0.25rem' }}>
+                        <TemplateItem
+                          key={`company-template-${template.id}`}
+                          template={template}
+                          type="company"
+                          onUseTemplate={useTemplate}
+                          onTogglePin={(id, pinned) =>
+                            handleToggleTemplatePin(id, pinned, 'company')
+                          }
+                          showEditControls={false}
+                          showDeleteControls={false}
+                          showPinControls={true}
+                          organizations={organizations}
+                        />
+                      </div>
+                    );
+                  }}
+                </FixedSizeList>
               )}
             </div>
           </div>
@@ -665,58 +688,69 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               </Button>
             </div>
 
-            <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
+            <div className="jd-px-2 jd-max-h-96">
               {sortedPinnedItems.length === 0 ? (
                 <EmptyMessage>
                   {getMessage('noPinnedTemplates', undefined, 'No pinned templates. Pin your favorites for quick access.')}
                 </EmptyMessage>
               ) : (
-                <>
-                  {sortedPinnedItems.map(item => {
+                <FixedSizeList
+                  height={384}
+                  width="100%"
+                  itemCount={sortedPinnedItems.length}
+                  itemSize={52}
+                  className="jd-overflow-y-auto"
+                >
+                  {({ index, style }) => {
+                    const item = sortedPinnedItems[index];
                     const isFolder = 'templates' in item || 'Folders' in item;
                     if (isFolder) {
                       const folder = item as TemplateFolder;
                       const folderType = (item as any).folderType || 'user';
                       return (
-                        <FolderItem
-                          key={`pinned-folder-${folder.id}`}
-                          folder={folder}
-                          type={folderType}
-                          enableNavigation={false}
-                          onTogglePin={handleTogglePin}
-                          onToggleTemplatePin={handleToggleTemplatePin}
-                          onUseTemplate={useTemplate}
-                          onEditTemplate={editTemplate}
-                          onDeleteTemplate={handleDeleteTemplate}
-                          onEditFolder={handleEditFolder}
-                          onDeleteFolder={handleDeleteFolder}
-                          organizations={organizations}
-                          showPinControls={true}
-                          showEditControls={folderType === 'user'}
-                          showDeleteControls={folderType === 'user'}
-                          pinnedFolderIds={allPinnedFolderIds}
-                        />
+                        <div style={{ ...style, paddingBottom: '0.25rem' }}>
+                          <FolderItem
+                            key={`pinned-folder-${folder.id}`}
+                            folder={folder}
+                            type={folderType}
+                            enableNavigation={false}
+                            onTogglePin={handleTogglePin}
+                            onToggleTemplatePin={handleToggleTemplatePin}
+                            onUseTemplate={useTemplate}
+                            onEditTemplate={editTemplate}
+                            onDeleteTemplate={handleDeleteTemplate}
+                            onEditFolder={handleEditFolder}
+                            onDeleteFolder={handleDeleteFolder}
+                            organizations={organizations}
+                            showPinControls={true}
+                            showEditControls={folderType === 'user'}
+                            showDeleteControls={folderType === 'user'}
+                            pinnedFolderIds={allPinnedFolderIds}
+                          />
+                        </div>
                       );
                     }
                     const template = item as Template;
                     const templateType = (template as any).type || 'user';
                     return (
-                      <TemplateItem
-                        key={`pinned-template-${template.id}`}
-                        template={template}
-                        type={templateType}
-                        onUseTemplate={useTemplate}
-                        onEditTemplate={editTemplate}
-                        onDeleteTemplate={handleDeleteTemplate}
-                        onTogglePin={handleToggleTemplatePin}
-                        showEditControls={templateType === 'user'}
-                        showDeleteControls={templateType === 'user'}
-                        showPinControls={true}
-                        organizations={organizations}
-                      />
+                      <div style={{ ...style, paddingBottom: '0.25rem' }}>
+                        <TemplateItem
+                          key={`pinned-template-${template.id}`}
+                          template={template}
+                          type={templateType}
+                          onUseTemplate={useTemplate}
+                          onEditTemplate={editTemplate}
+                          onDeleteTemplate={handleDeleteTemplate}
+                          onTogglePin={handleToggleTemplatePin}
+                          showEditControls={templateType === 'user'}
+                          showDeleteControls={templateType === 'user'}
+                          showPinControls={true}
+                          organizations={organizations}
+                        />
+                      </div>
                     );
-                  })}
-                </>
+                  }}
+                </FixedSizeList>
               )}
             </div>
           </div>
