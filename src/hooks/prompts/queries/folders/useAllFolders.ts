@@ -19,6 +19,8 @@ export function useAllFolders() {
       organization: (organizationResponse.data.folders.organization || []) as TemplateFolder[]
     };
   }, {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
       toast.error(`Failed to load folders: ${error.message}`);

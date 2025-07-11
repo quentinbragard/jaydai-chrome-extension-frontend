@@ -12,6 +12,8 @@ export function useUserTemplates() {
     }
     return response.data as Template[];
   }, {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
       toast.error(`Failed to load user templates: ${error.message}`);

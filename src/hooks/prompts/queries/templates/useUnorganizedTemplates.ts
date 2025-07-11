@@ -16,6 +16,8 @@ export function useUnorganizedTemplates() {
     }
     return response.data.filter((template: Template) => !template.folder_id) as Template[];
   }, {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
       toast.error(`Failed to load unorganized templates: ${error.message}`);
