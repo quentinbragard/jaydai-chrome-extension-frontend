@@ -9,7 +9,7 @@ import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { toast } from 'sonner';
-import { promptApi } from '@/services/api';
+import { useFolderMutations } from '@/hooks/prompts/actions';
 import { TemplateFolder } from '@/types/prompts/templates';
 
 interface FolderManagerData {
@@ -20,6 +20,7 @@ interface FolderManagerData {
 
 export const FolderManagerDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.FOLDER_MANAGER);
+  const { updateFolder } = useFolderMutations();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [parentId, setParentId] = useState<number | null>(null);
@@ -47,20 +48,19 @@ export const FolderManagerDialog: React.FC = () => {
     e.stopPropagation();
     setIsSubmitting(true);
     try {
-      const res = await promptApi.updateFolder(folder.id, {
-        title,
-        ...(description ? { description } : {}),
-        parent_folder_id: parentId,
+      await updateFolder.mutateAsync({
+        id: folder.id,
+        data: {
+          title,
+          ...(description ? { description } : {}),
+          parent_folder_id: parentId,
+        },
       });
-      if (res.success) {
-        toast.success('Folder updated');
-        if (dialogData.onUpdated) {
-          dialogData.onUpdated({ ...folder, title, description, parent_folder_id: parentId });
-        }
-        dialogProps.onOpenChange(false);
-      } else {
-        toast.error(res.message || 'Failed to update');
+      toast.success('Folder updated');
+      if (dialogData.onUpdated) {
+        dialogData.onUpdated({ ...folder, title, description, parent_folder_id: parentId });
       }
+      dialogProps.onOpenChange(false);
     } catch (error) {
       console.error('Error updating folder:', error);
       toast.error('Failed to update folder');

@@ -13,8 +13,9 @@ export function useUserFolders() {
   const locale = getCurrentLanguage();
 
   return useQuery(QUERY_KEYS.USER_FOLDERS, async (): Promise<TemplateFolder[]> => {
-    // Get folders without templates to minimize payload
-    const foldersResponse = await promptApi.getFolders('user', true, false, locale);
+    // Get folders including their templates so BrowseMoreDialog can display them
+    const foldersResponse = await promptApi.getFolders('user', true, true, locale);
+
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load user folders');
     }
@@ -25,6 +26,8 @@ export function useUserFolders() {
     // causing parent_folder_id to always be null in CreateFolderDialog
     return folders;
   }, {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
       toast.error(`Failed to load user folders: ${error.message}`);
@@ -36,8 +39,9 @@ export function useCompanyFolders() {
   const locale = getCurrentLanguage();
 
   return useQuery(QUERY_KEYS.COMPANY_FOLDERS, async (): Promise<TemplateFolder[]> => {
-    // Get folders without templates to minimize payload
-    const foldersResponse = await promptApi.getFolders('company', true, false, locale);
+    // Get folders including their templates so BrowseMoreDialog can display them
+    const foldersResponse = await promptApi.getFolders('company', true, true, locale);
+
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load company folders');
     }
@@ -45,6 +49,8 @@ export function useCompanyFolders() {
     // Return all folders to allow nested selection in folder pickers
     return folders;
   }, {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
       toast.error(`Failed to load company folders: ${error.message}`);
@@ -56,8 +62,8 @@ export function useOrganizationFolders() {
   const locale = getCurrentLanguage();
 
   return useQuery(QUERY_KEYS.ORGANIZATION_FOLDERS, async (): Promise<TemplateFolder[]> => {
-    // Get folders without templates to minimize payload
-    const foldersResponse = await promptApi.getFolders('organization', true, false, locale);
+    // Get folders including their templates so BrowseMoreDialog can display them
+    const foldersResponse = await promptApi.getFolders('organization', true, true, locale);
     
     if (!foldersResponse.success) {
       throw new Error(foldersResponse.message || 'Failed to load organization folders');
@@ -66,6 +72,8 @@ export function useOrganizationFolders() {
     // Return the full hierarchy so nested folders are preserved
     return folders;
   }, {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
       toast.error(`Failed to load organization folders: ${error.message}`);

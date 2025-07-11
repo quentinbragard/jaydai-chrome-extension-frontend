@@ -27,6 +27,7 @@ import {
 } from '@/hooks/prompts';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { useOrganizations } from '@/hooks/organizations';
+import { VirtualizedList } from '@/components/common/VirtualizedList';
 
 import { FolderSearch } from '@/components/prompts/folders';
 import { LoadingState } from './LoadingState';
@@ -559,55 +560,108 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 </EmptyMessage>
               ) : (
                 <>
-                  {displayItems.items.map(item => {
-                    const isFolder = 'templates' in item || 'Folders' in item;
-                    if (isFolder) {
-                      const folder = item as TemplateFolder;
+                  {displayItems.items.length > 30 ? (
+                    <VirtualizedList
+                      items={displayItems.items}
+                      height={384}
+                      itemHeight={60}
+                      renderItem={(item) => {
+                        const isFolder = 'templates' in item || 'Folders' in item;
+                        if (isFolder) {
+                          const folder = item as TemplateFolder;
+                          return (
+                            <FolderItem
+                              key={`${displayItems.isGlobalSearch ? 'search-' : ''}folder-${folder.id}`}
+                              folder={folder}
+                              type={navigation.getItemType(folder)}
+                              enableNavigation={!displayItems.isGlobalSearch}
+                              onNavigateToFolder={displayItems.isGlobalSearch ? undefined : navigation.navigateToFolder}
+                              onTogglePin={handleTogglePin}
+                              onToggleTemplatePin={handleToggleTemplatePin}
+                              onEditFolder={handleEditFolder}
+                              onDeleteFolder={handleDeleteFolder}
+                              onUseTemplate={useTemplate}
+                              onEditTemplate={editTemplate}
+                              onDeleteTemplate={handleDeleteTemplate}
+                              organizations={organizations}
+                              showPinControls={true}
+                              showEditControls={navigation.getItemType(folder) === 'user'}
+                              showDeleteControls={navigation.getItemType(folder) === 'user'}
+                              pinnedFolderIds={allPinnedFolderIds}
+                            />
+                          );
+                        }
+                        const template = item as Template;
+                        const templateType = displayItems.isGlobalSearch
+                          ? (template as any).folderType || 'user'
+                          : navigation.getItemType(template);
+                        return (
+                          <div key={`${displayItems.isGlobalSearch ? 'search-' : ''}template-${template.id}`}> 
+                            <TemplateItem
+                              template={template}
+                              type={templateType}
+                              onUseTemplate={useTemplate}
+                              onEditTemplate={editTemplate}
+                              onDeleteTemplate={handleDeleteTemplate}
+                              onTogglePin={handleToggleTemplatePin}
+                              showEditControls={templateType === 'user'}
+                              showDeleteControls={templateType === 'user'}
+                              showPinControls={true}
+                              organizations={organizations}
+                            />
+                          </div>
+                        );
+                      }}
+                    />
+                  ) : (
+                    displayItems.items.map(item => {
+                      const isFolder = 'templates' in item || 'Folders' in item;
+                      if (isFolder) {
+                        const folder = item as TemplateFolder;
+                        return (
+                          <FolderItem
+                            key={`${displayItems.isGlobalSearch ? 'search-' : ''}folder-${folder.id}`}
+                            folder={folder}
+                            type={navigation.getItemType(folder)}
+                            enableNavigation={!displayItems.isGlobalSearch}
+                            onNavigateToFolder={displayItems.isGlobalSearch ? undefined : navigation.navigateToFolder}
+                            onTogglePin={handleTogglePin}
+                            onToggleTemplatePin={handleToggleTemplatePin}
+                            onEditFolder={handleEditFolder}
+                            onDeleteFolder={handleDeleteFolder}
+                            onUseTemplate={useTemplate}
+                            onEditTemplate={editTemplate}
+                            onDeleteTemplate={handleDeleteTemplate}
+                            organizations={organizations}
+                            showPinControls={true}
+                            showEditControls={navigation.getItemType(folder) === 'user'}
+                            showDeleteControls={navigation.getItemType(folder) === 'user'}
+                            pinnedFolderIds={allPinnedFolderIds}
+                          />
+                        );
+                      }
+                      const template = item as Template;
+                      const templateType = displayItems.isGlobalSearch
+                        ? (template as any).folderType || 'user'
+                        : navigation.getItemType(template);
                       return (
-                        <FolderItem
-                          key={`${displayItems.isGlobalSearch ? 'search-' : ''}folder-${folder.id}`}
-                          folder={folder}
-                          type={navigation.getItemType(folder)}
-                          enableNavigation={!displayItems.isGlobalSearch}
-                          onNavigateToFolder={displayItems.isGlobalSearch ? undefined : navigation.navigateToFolder}
-                          onTogglePin={handleTogglePin}
-                          onToggleTemplatePin={handleToggleTemplatePin}
-                          onEditFolder={handleEditFolder}
-                          onDeleteFolder={handleDeleteFolder}
-                          onUseTemplate={useTemplate}
-                          onEditTemplate={editTemplate}
-                          onDeleteTemplate={handleDeleteTemplate}
-                          organizations={organizations}
-                          showPinControls={true}
-                          showEditControls={navigation.getItemType(folder) === 'user'}
-                          showDeleteControls={navigation.getItemType(folder) === 'user'}
-                          pinnedFolderIds={allPinnedFolderIds}
-                        />
+                        <div key={`${displayItems.isGlobalSearch ? 'search-' : ''}template-${template.id}`}> 
+                          <TemplateItem
+                            template={template}
+                            type={templateType}
+                            onUseTemplate={useTemplate}
+                            onEditTemplate={editTemplate}
+                            onDeleteTemplate={handleDeleteTemplate}
+                            onTogglePin={handleToggleTemplatePin}
+                            showEditControls={templateType === 'user'}
+                            showDeleteControls={templateType === 'user'}
+                            showPinControls={true}
+                            organizations={organizations}
+                          />
+                        </div>
                       );
-                    }
-                    const template = item as Template;
-                    const templateType = displayItems.isGlobalSearch
-                      ? (template as any).folderType || 'user'
-                      : navigation.getItemType(template);
-
-                    return (
-                      <div key={`${displayItems.isGlobalSearch ? 'search-' : ''}template-${template.id}`}>
-                        
-                        <TemplateItem
-                          template={template}
-                          type={templateType}
-                          onUseTemplate={useTemplate}
-                          onEditTemplate={editTemplate}
-                          onDeleteTemplate={handleDeleteTemplate}
-                          onTogglePin={handleToggleTemplatePin}
-                          showEditControls={templateType === 'user'}
-                          showDeleteControls={templateType === 'user'}
-                          showPinControls={true}
-                          organizations={organizations}
-                        />
-                      </div>
-                    );
-                  })}
+                    })
+                  )}
                 </>
               )}
             </div>
