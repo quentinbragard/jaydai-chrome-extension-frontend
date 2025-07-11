@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
+import { useTemplatesByFolder } from '@/hooks/prompts/queries/templates';
 
 export interface Breadcrumb {
   id: number;
@@ -50,8 +51,21 @@ export function useBreadcrumbNavigation({ userFolders, organizationFolders, unor
     return findFolderById(source, last.id);
   }, [breadcrumbs, userFolders, organizationFolders]);
 
+  const { data: fetchedTemplates = [] } = useTemplatesByFolder(
+    currentFolder?.id,
+    !!currentFolder && (!currentFolder.templates || currentFolder.templates.length === 0)
+  );
+
+  const folderWithTemplates = useMemo(() => {
+    if (!currentFolder) return null;
+    if (currentFolder.templates && currentFolder.templates.length > 0) {
+      return currentFolder;
+    }
+    return { ...currentFolder, templates: fetchedTemplates };
+  }, [currentFolder, fetchedTemplates]);
+
   const currentItems = useMemo(() => {
-    if (!currentFolder) {
+    if (!folderWithTemplates) {
       const userRootFolders = userFolders.map(f => ({ ...f, type: 'user' as const }));
       const orgRootFolders = organizationFolders.map(f => ({ ...f, type: 'organization' as const }));
 
@@ -62,10 +76,10 @@ export function useBreadcrumbNavigation({ userFolders, organizationFolders, unor
 
     const type = breadcrumbs[0].type;
     const items: Array<TemplateFolder | Template> = [];
-    currentFolder.Folders?.forEach(f => items.push({ ...f, type }));
-    currentFolder.templates?.forEach(t => items.push({ ...t, type }));
+    folderWithTemplates.Folders?.forEach(f => items.push({ ...f, type }));
+    folderWithTemplates.templates?.forEach(t => items.push({ ...t, type }));
     return sortItems(items);
-  }, [currentFolder, userFolders, organizationFolders, unorganizedTemplates, breadcrumbs]);
+  }, [folderWithTemplates, userFolders, organizationFolders, unorganizedTemplates, breadcrumbs]);
 
   const navigateToFolder = (folder: TemplateFolder & { type: 'user' | 'organization' }) => {
     setBreadcrumbs(prev => [...prev, { id: folder.id, title: folder.title || '', type: folder.type! }]);
@@ -81,7 +95,7 @@ export function useBreadcrumbNavigation({ userFolders, organizationFolders, unor
 
   return {
     breadcrumbs,
-    currentFolder,
+    currentFolder: folderWithTemplates,
     currentItems,
     navigateToFolder,
     navigateBack,

@@ -5,3 +5,4 @@ export { getUnorganizedTemplates } from './getUnorganizedTemplates';
 export { getUserTemplates } from './getUserTemplates';
 export { trackTemplateUsage } from './trackTemplateUsage';
 export { toggleTemplatePin } from './toggleTemplatePin';
+export { getTemplatesByFolder } from './getTemplatesByFolder';

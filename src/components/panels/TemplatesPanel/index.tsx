@@ -316,8 +316,16 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       }
     });
 
+    if (navigation.currentFolder?.templates) {
+      navigation.currentFolder.templates.forEach(t => {
+        if (pinnedTemplateIds.includes(t.id)) {
+          templates.push({ ...t, type: navigation.getItemType(navigation.currentFolder as any) });
+        }
+      });
+    }
+
     return templates;
-  }, [pinnedTemplateIds, userFolders, organizationFolders, unorganizedTemplates]);
+  }, [pinnedTemplateIds, userFolders, organizationFolders, unorganizedTemplates, navigation.currentFolder]);
 
   const companyTemplates = useMemo(() => {
     const templates: Template[] = [];
