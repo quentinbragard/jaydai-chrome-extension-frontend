@@ -2,6 +2,7 @@ import { apiClient } from '@/services/api/ApiClient';
 
 /**
  * Fetch templates that belong to a specific folder
+
  */
 export async function getTemplatesByFolder(folderId: number): Promise<any> {
   try {

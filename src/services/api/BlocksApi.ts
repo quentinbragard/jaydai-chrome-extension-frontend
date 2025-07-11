@@ -30,9 +30,17 @@ class BlocksApiClient {
   /**
    * Get all blocks
    */
-  async getBlocks(): Promise<ApiResponse<Block[]>> {
+  async getBlocks(options: { published?: boolean; q?: string } = {}): Promise<ApiResponse<Block[]>> {
     try {
-      const response = await apiClient.request('/prompts/blocks');
+      const params = new URLSearchParams();
+      if (typeof options.published === 'boolean') {
+        params.append('published', String(options.published));
+      }
+      if (options.q) {
+        params.append('q', options.q);
+      }
+      const query = params.toString() ? `?${params.toString()}` : '';
+      const response = await apiClient.request(`/prompts/blocks${query}`);
       return response;
     } catch (error) {
       console.error('Error fetching blocks:', error);

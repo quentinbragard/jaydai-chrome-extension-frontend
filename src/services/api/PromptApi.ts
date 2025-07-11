@@ -15,6 +15,7 @@ import {
         deleteTemplate,
         getUnorganizedTemplates,
         getUserTemplates,
+        getTemplatesByFolder,
         trackTemplateUsage,
         toggleTemplatePin
       } from './prompts/templates';

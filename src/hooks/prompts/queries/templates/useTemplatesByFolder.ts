@@ -13,6 +13,7 @@ export function useTemplatesByFolder(folderId?: number, enabled = true) {
     }
     return response.data as Template[];
   }, {
+    staleTime: 5 * 60 * 1000,
     enabled: enabled && folderId !== undefined,
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
