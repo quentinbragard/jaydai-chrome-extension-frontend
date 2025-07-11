@@ -23,6 +23,8 @@ export function useAllFoldersOfType(folderType: 'organization' | 'company') {
       return (response.data.folders[folderType] || []) as TemplateFolder[];
     },
     {
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
       onError: (error: Error) => {
         toast.error(`Failed to load ${folderType} folders: ${error.message}`);

@@ -25,6 +25,8 @@ export function useUserFolders() {
     // causing parent_folder_id to always be null in CreateFolderDialog
     return folders;
   }, {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
       toast.error(`Failed to load user folders: ${error.message}`);
@@ -45,6 +47,8 @@ export function useCompanyFolders() {
     // Return all folders to allow nested selection in folder pickers
     return folders;
   }, {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
       toast.error(`Failed to load company folders: ${error.message}`);
@@ -66,6 +70,8 @@ export function useOrganizationFolders() {
     // Return the full hierarchy so nested folders are preserved
     return folders;
   }, {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     onError: (error: Error) => {
       toast.error(`Failed to load organization folders: ${error.message}`);
