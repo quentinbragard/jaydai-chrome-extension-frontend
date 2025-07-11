@@ -13,8 +13,10 @@ export const QUERY_KEYS = {
     ALL_FOLDERS: 'allFolders',
     USER_TEMPLATES: 'userTemplates',
     UNORGANIZED_TEMPLATES: 'unorganizedTemplates',
+    TEMPLATES_BY_FOLDER: 'templatesByFolder',
     PINNED_FOLDERS: 'pinnedFolders',
     PINNED_TEMPLATES: 'pinnedTemplates',
+    TEMPLATES_BY_FOLDER: 'templatesByFolder',
     
     // User related queries
     USER_METADATA: 'userMetadata',
