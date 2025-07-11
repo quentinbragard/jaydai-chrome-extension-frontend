@@ -47,6 +47,7 @@
     "react-resizable-panels": "^3.0.2",
     "recharts": "^2.15.1",
     "sonner": "^2.0.1",
+    "react-window": "^1.8.7",
     "tailwind-merge": "^2.6.0",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss-animate": "^1.0.7",
