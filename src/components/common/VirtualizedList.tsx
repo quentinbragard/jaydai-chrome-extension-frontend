@@ -6,15 +6,17 @@ export interface VirtualizedListProps<T> {
   itemHeight: number;
   height: number;
   renderItem: (item: T) => React.ReactNode;
+  listRef?: React.Ref<FixedSizeList>;
 }
 
-export function VirtualizedList<T>({ items, itemHeight, height, renderItem }: VirtualizedListProps<T>) {
+export function VirtualizedList<T>({ items, itemHeight, height, renderItem, listRef }: VirtualizedListProps<T>) {
   const Row = ({ index, style }: ListChildComponentProps) => (
     <div style={style}>{renderItem(items[index])}</div>
   );
 
   return (
     <FixedSizeList
+      ref={listRef as any}
       height={height}
       itemCount={items.length}
       itemSize={itemHeight}
