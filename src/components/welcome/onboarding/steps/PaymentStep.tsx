@@ -5,7 +5,7 @@ import { CreditCard, ArrowLeft, Shield, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
-import { PricingPlans } from '@/components/pricing/PricingPlans';
+import { PricingSection } from '@/components/pricing/PricingSection';
 import { stripeService } from '@/services/stripe/StripeService';
 import { User } from '@/types';
 import { PaymentResult } from '@/types/stripe';
@@ -183,7 +183,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
       </div>
 
       {/* Pricing Plans */}
-      <PricingPlans
+      <PricingSection
         user={user}
         onPaymentSuccess={handlePaymentSuccess}
         onPaymentCancel={() => setPaymentResult({ success: false, type: 'cancel' })}
