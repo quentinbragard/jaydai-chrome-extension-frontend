@@ -89,6 +89,22 @@ export const EVENTS = {
   ONBOARDING_ERROR: 'Onboarding Error',
   ONBOARDING_GOTO_AI_TOOL: 'Onboarding Go To AI Tool',
 
+    // Payment & Subscription events
+    PAYMENT_INITIATED: 'Payment Initiated',
+    PAYMENT_COMPLETED: 'Payment Completed',
+    PAYMENT_FAILED: 'Payment Failed',
+    PAYMENT_CANCELLED: 'Payment Cancelled',
+    SUBSCRIPTION_CREATED: 'Subscription Created',
+    SUBSCRIPTION_UPDATED: 'Subscription Updated',
+    SUBSCRIPTION_CANCELLED: 'Subscription Cancelled',
+    SUBSCRIPTION_RENEWED: 'Subscription Renewed',
+    
+    // Onboarding payment specific
+    ONBOARDING_PAYMENT_STEP_VIEWED: 'Onboarding Payment Step Viewed',
+    ONBOARDING_PAYMENT_COMPLETED: 'Onboarding Payment Completed',
+    ONBOARDING_PAYMENT_CANCELLED: 'Onboarding Payment Cancelled',
+    ONBOARDING_PAYMENT_SKIPPED: 'Onboarding Payment Skipped',
+
   POPUP_OPENED: 'Popup Opened',
   POPUP_AI_TOOL_CLICKED: 'Popup AI Tool Clicked',
   

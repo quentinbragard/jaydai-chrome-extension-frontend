@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
     console.log(`🔌 API URL: ${apiUrl}`);
     console.log(`🐞 Debug: ${debug}`);
     console.log(`📦 Version: ${appVersion}`);
+    console.log(`💳 Stripe: ${env.VITE_STRIPE_PUBLISHABLE_KEY ? 'Configured' : 'Not configured'}`);
 
     return {
         plugins: [
@@ -84,9 +85,6 @@ export default defineConfig(({ mode }) => {
                     welcome: resolve(__dirname, 'src/extension/welcome/welcome.tsx'),
                     'networkInterceptor': resolve(__dirname, 'src/extension/content/networkInterceptor/index.js'),
                     'applicationInitializer': resolve(__dirname, 'src/extension/content/applicationInitializer.ts'),
-                    //'popup-styles': resolve(__dirname, 'src/extension/popup/popup.css'),
-                    //'welcome-styles': resolve(__dirname, 'src/extension/welcome/welcome.css'),
-                    //'content-styles': resolve(__dirname, 'src/extension/content/content.css')
                 },
                 output: {
                     entryFileNames: '[name].js',
@@ -114,7 +112,13 @@ export default defineConfig(({ mode }) => {
             'process.env.VITE_DEBUG': JSON.stringify(env.VITE_DEBUG),
             'process.env.VITE_APP_VERSION': JSON.stringify(env.VITE_APP_VERSION),
             'process.env.VITE_AMPLITUDE_API_KEY': JSON.stringify(env.VITE_AMPLITUDE_API_KEY),
-            'process.env.VITE_LINKEDIN_CLIENT_ID': JSON.stringify(env.VITE_LINKEDIN_CLIENT_ID)
+            'process.env.VITE_LINKEDIN_CLIENT_ID': JSON.stringify(env.VITE_LINKEDIN_CLIENT_ID),
+            // Stripe environment variables
+            'process.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(env.VITE_STRIPE_PUBLISHABLE_KEY),
+            'process.env.VITE_STRIPE_MONTHLY_PRICE_ID': JSON.stringify(env.VITE_STRIPE_MONTHLY_PRICE_ID),
+            'process.env.VITE_STRIPE_YEARLY_PRICE_ID': JSON.stringify(env.VITE_STRIPE_YEARLY_PRICE_ID),
+            'process.env.VITE_STRIPE_SUCCESS_URL': JSON.stringify(env.VITE_STRIPE_SUCCESS_URL),
+            'process.env.VITE_STRIPE_CANCEL_URL': JSON.stringify(env.VITE_STRIPE_CANCEL_URL)
         },
         server: {
             hmr: {

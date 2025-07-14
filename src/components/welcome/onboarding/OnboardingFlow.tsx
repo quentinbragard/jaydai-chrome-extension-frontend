@@ -12,6 +12,7 @@ import { JobInfoStep } from './steps/JobInfoStep';
 import { InterestsStep } from './steps/InterestsStep';
 import { ReferralStep } from './steps/ReferralStep';
 import { CompletionStep } from './steps/CompletionStep';
+import { PaymentStep } from './steps/PaymentStep';
 
 // Components
 import { OnboardingCard } from '@/components/welcome/onboarding/OnboardingCard';
@@ -77,7 +78,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   const [folderRecommendations, setFolderRecommendations] = useState<FolderRecommendationResult | null>(null);
   
   // Total number of steps
-  const totalSteps = 4; // 3 input steps + completion step
+  const totalSteps = 5; // 3 input steps + completion step + payment step
   
   // Step titles for the progress indicator
   const stepTitles = [
@@ -266,6 +267,14 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
           />
         );
       case 3:
+        return (
+          <PaymentStep
+            user={user}
+            onComplete={onComplete}
+            onBack={handlePreviousStep}
+          />
+        );
+      case 4:
         return (
           <CompletionStep
             onComplete={onComplete}
