@@ -51,6 +51,7 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
       
       try {
         const response = await blocksApi.getBlocks({ published: true });
+        console.log('response', response);
         if (response.success && response.data) {
           response.data.forEach(block => {
             if (!blockMap[block.type]) {
