@@ -293,6 +293,32 @@ class BlocksApiClient {
     }
   }
 
+  /**
+   * Get specific blocks by their IDs (including unpublished ones)
+   */
+  async getBlocksByIds(blockIds: number[]): Promise<ApiResponse<Block[]>> {
+    try {
+      if (!blockIds || blockIds.length === 0) {
+        return {
+          success: true,
+          data: []
+        };
+      }
+
+      // Create query string with block IDs
+      const idsParam = blockIds.join(',');
+      const response = await apiClient.request(`/prompts/blocks?ids=${idsParam}`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching blocks by IDs:', error);
+      return {
+        success: false,
+        data: [],
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
   
 }
 

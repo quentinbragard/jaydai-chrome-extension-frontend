@@ -8,6 +8,7 @@ import {
 } from '@/types/prompts/metadata';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { BLOCK_TYPES } from '@/utils/prompts/blockUtils';
+import { extractBlockIdsFromTemplateMetadata } from '@/utils/prompts/metadataBlockExtractor';
 
 interface UseBlockManagerReturn {
   // Loading state
@@ -36,7 +37,7 @@ interface UseBlockManagerProps {
 }
 
 export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerReturn {
-  const { enabled = true } = props || {};
+  const { enabled = true, metadata } = props || {};
 
   const [isLoading, setIsLoading] = useState(true);
   const [availableMetadataBlocks, setAvailableMetadataBlocks] = useState<Record<MetadataType, Block[]>>({} as Record<MetadataType, Block[]>);
@@ -44,22 +45,39 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
   const [blockContentCache, setBlockContentCache] = useState<Record<number, string>>({});
 
   // Fetch all blocks
-  const fetchBlocks = useCallback(async () => {
+  const fetchBlocks = useCallback(async (metadataBlockIds?: number[]) => {
     setIsLoading(true);
     try {
       const blockMap: Record<BlockType, Block[]> = {} as any;
       
       try {
-        const response = await blocksApi.getBlocks({ published: true });
-        console.log('response', response);
-        if (response.success && response.data) {
-          response.data.forEach(block => {
-            if (!blockMap[block.type]) {
-              blockMap[block.type] = [];
-            }
-            blockMap[block.type].push(block);
-          });
+        // Get all published blocks
+        const publishedResponse = await blocksApi.getBlocks({ published: true });
+        let allBlocks: Block[] = [];
+        
+        if (publishedResponse.success && publishedResponse.data) {
+          allBlocks = [...publishedResponse.data];
         }
+
+        // If we have specific metadata block IDs, fetch those too (including unpublished)
+        if (metadataBlockIds && metadataBlockIds.length > 0) {
+          const metadataBlocksResponse = await blocksApi.getBlocksByIds(metadataBlockIds);
+          
+          if (metadataBlocksResponse.success && metadataBlocksResponse.data) {
+            // Merge with published blocks, avoiding duplicates
+            const existingIds = new Set(allBlocks.map(b => b.id));
+            const newBlocks = metadataBlocksResponse.data.filter(b => !existingIds.has(b.id));
+            allBlocks = [...allBlocks, ...newBlocks];
+          }
+        }
+
+        // Group blocks by type
+        allBlocks.forEach(block => {
+          if (!blockMap[block.type]) {
+            blockMap[block.type] = [];
+          }
+          blockMap[block.type].push(block);
+        });
       } catch (error) {
         console.error('Failed to load blocks:', error);
       }
@@ -95,8 +113,11 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
   // Initial fetch and re-fetch when enabled becomes true
   useEffect(() => {
     if (!enabled) return;
-    fetchBlocks();
-  }, [fetchBlocks, enabled]);
+    
+    // Extract block IDs from metadata if available
+    const metadataBlockIds = metadata ? extractBlockIdsFromTemplateMetadata(metadata) : undefined;
+    fetchBlocks(metadataBlockIds);
+  }, [fetchBlocks, enabled, metadata]);
 
   // Add a new block to the cache
   const addNewBlock = useCallback((block: Block) => {
