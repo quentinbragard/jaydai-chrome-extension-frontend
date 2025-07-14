@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { VirtualizedList } from '@/components/common/VirtualizedList';
-import { FixedSizeList } from 'react-window';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -253,7 +251,8 @@ export const InsertBlockDialog: React.FC = () => {
   const [showShortcutHelp, setShowShortcutHelp] = useState(false);
   const [editableContent, setEditableContent] = useState('');
   const [blockContents, setBlockContents] = useState<Record<number, string>>({});
-  const listRef = useRef<FixedSizeList>(null);
+  const [visibleCount, setVisibleCount] = useState(20);
+  const listRef = React.useRef<HTMLDivElement>(null);
   const isDark = useThemeDetector();
   const { editBlock, deleteBlock, createBlock } = useBlockActions({
     onBlockUpdated: (updated) => {
@@ -401,6 +400,22 @@ const filteredBlocks = blocks.filter(b => {
   const matchesType = selectedTypeFilter === 'all' || b.type === selectedTypeFilter;
   return matchesSearch && matchesType;
 });
+
+useEffect(() => {
+  setVisibleCount(20);
+}, [search, selectedTypeFilter, blocks]);
+
+useEffect(() => {
+  const el = listRef.current;
+  if (!el) return;
+  const onScroll = () => {
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 100) {
+      setVisibleCount(v => Math.min(filteredBlocks.length, v + 20));
+    }
+  };
+  el.addEventListener('scroll', onScroll);
+  return () => el.removeEventListener('scroll', onScroll);
+}, [filteredBlocks.length]);
 
   // Get unique block types for filter
   const blockTypes = Array.from(new Set(blocks.map(b => b.type || 'custom')));
@@ -585,7 +600,7 @@ const filteredBlocks = blocks.filter(b => {
           )}
 
           {/* Available Blocks */}
-          <ScrollArea className="jd-h-[65vh]">
+          <ScrollArea className="jd-h-[65vh]" ref={listRef}>
             <div className="jd-space-y-3 jd-pr-4">
               {loading ? (
                 <LoadingSpinner size="sm" message={getMessage('loadingBlocks', undefined, 'Loading blocks...')} />
@@ -596,44 +611,19 @@ const filteredBlocks = blocks.filter(b => {
                     : getMessage('noBlocksAvailable', undefined, 'No blocks available')}
                 </EmptyMessage>
               ) : (
-                <>
-                  {filteredBlocks.length > 30 ? (
-                    <VirtualizedList
-                      items={filteredBlocks}
-                      height={500}
-                      itemHeight={160}
-                      listRef={listRef}
-                      renderItem={block => (
-                        <AvailableBlockCard
-                          key={block.id}
-                          block={block}
-                          isDark={isDark}
-                          onAdd={addBlock}
-                          onEdit={handleEditBlock}
-                          onDelete={handleDeleteBlock}
-                          isSelected={!!selectedBlocks.find(b => b.id === block.id)}
-                          onRemove={removeBlock}
-                          showActions={block.user_id ? true : false}
-                        />
-                      )}
-                    />
-                  ) : (
-                    filteredBlocks.map(block => (
-                      <AvailableBlockCard
-                        key={block.id}
-                        block={block}
-                        isDark={isDark}
-                        onAdd={addBlock}
-                        onEdit={handleEditBlock}
-                        onDelete={handleDeleteBlock}
-                        isSelected={!!selectedBlocks.find(b => b.id === block.id)}
-                        onRemove={removeBlock}
-                        showActions={block.user_id ? true : false}
-                      />
-                    ))
-                  )}
-                </>
-              )}
+                filteredBlocks.slice(0, visibleCount).map(block => (
+                  <AvailableBlockCard
+                    key={block.id}
+                    block={block}
+                    isDark={isDark}
+                    onAdd={addBlock}
+                    onEdit={handleEditBlock}
+                    onDelete={handleDeleteBlock}
+                    isSelected={!!selectedBlocks.find(b => b.id === block.id)}
+                    onRemove={removeBlock}
+                    showActions={block.user_id ? true : false}
+                  />
+                )))}
             </div>
           </ScrollArea>
         </div>

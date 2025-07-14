@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
@@ -22,8 +22,6 @@ import { useOrganizations } from '@/hooks/organizations';
 import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 import { useFolderSearch } from '@/hooks/prompts/utils/useFolderSearch';
-import { VirtualizedList } from '@/components/common/VirtualizedList';
-import { FixedSizeList } from 'react-window';
 
 export const BrowseMoreFoldersDialog: React.FC = () => {
   const { isOpen, dialogProps, close } = useDialog(
@@ -41,7 +39,6 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
 
   const pinnedFolderIds = useMemo(() => pinnedData?.pinnedIds || [], [pinnedData]);
   const [localPinnedIds, setLocalPinnedIds] = useState<number[]>(pinnedFolderIds);
-  const listRef = useRef<FixedSizeList>(null);
 
   useEffect(() => {
     setLocalPinnedIds(pinnedFolderIds);
@@ -144,84 +141,37 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
               </EmptyMessage>
             ) : (
               <div className="jd-space-y-1 jd-px-2">
-                {(() => {
-                  const combinedItems = [...foldersWithPin, ...filteredTemplates];
-                  return combinedItems.length > 30 ? (
-                    <VirtualizedList
-                      items={combinedItems}
-                      height={500}
-                      itemHeight={60}
-                      listRef={listRef}
-                      renderItem={item => {
-                        const isFolder = 'templates' in item || 'Folders' in item;
-                        if (isFolder) {
-                          const folder = item as any;
-                          return (
-                            <FolderItem
-                              key={`browse-folder-${folder.id}`}
-                              folder={folder}
-                              type={folder.type as any}
-                              enableNavigation={false}
-                              onUseTemplate={handleUseTemplateFromDialog}
-                              onTogglePin={(id, pinned) => handleTogglePin(id, pinned, folder.type as any)}
-                              onToggleTemplatePin={handleToggleTemplatePin}
-                              organizations={organizations}
-                              showPinControls={true}
-                              showEditControls={false}
-                              showDeleteControls={false}
-                              pinnedFolderIds={localPinnedIds}
-                            />
-                          );
-                        }
-                        const template = item as Template;
-                        return (
-                          <TemplateItem
-                            key={`browse-template-${template.id}`}
-                            template={template}
-                            type="user"
-                            onUseTemplate={handleUseTemplateFromDialog}
-                            onTogglePin={(id, pinned) => handleToggleTemplatePin(id, pinned, 'user')}
-                            showEditControls={false}
-                            showDeleteControls={false}
-                            showPinControls={true}
-                          />
-                        );
-                      }}
-                    />
-                  ) : (
-                    <>
-                      {foldersWithPin.map(folder => (
-                        <FolderItem
-                          key={`browse-folder-${folder.id}`}
-                          folder={folder}
-                          type={folder.type as any}
-                          enableNavigation={false}
-                          onUseTemplate={handleUseTemplateFromDialog}
-                          onTogglePin={(id, pinned) => handleTogglePin(id, pinned, folder.type as any)}
-                          onToggleTemplatePin={handleToggleTemplatePin}
-                          organizations={organizations}
-                          showPinControls={true}
-                          showEditControls={false}
-                          showDeleteControls={false}
-                          pinnedFolderIds={localPinnedIds}
-                        />
-                      ))}
-                      {filteredTemplates.map(template => (
-                        (template.type !== 'user') &&
-                        <TemplateItem
-                          key={`browse-template-${template.id}`}
-                          template={template}
-                          type="user"
-                          onUseTemplate={handleUseTemplateFromDialog}
-                          onTogglePin={(id, pinned) => handleToggleTemplatePin(id, pinned, 'user')}
-                          showEditControls={false}
-                          showDeleteControls={false}
-                          showPinControls={true}
-                        />
-                      ))}
-                    </>
-                  );
-                })()}
+                {foldersWithPin.map(folder => (
+                  <FolderItem
+                    key={`browse-folder-${folder.id}`}
+                    folder={folder}
+                    type={folder.type as any}
+                    enableNavigation={false}
+                    onUseTemplate={handleUseTemplateFromDialog}
+                    onTogglePin={(id, pinned) =>
+                      handleTogglePin(id, pinned, folder.type as any)
+                    }
+                    onToggleTemplatePin={handleToggleTemplatePin}
+                    organizations={organizations}
+                    showPinControls={true}
+                    showEditControls={false}
+                    showDeleteControls={false}
+                    pinnedFolderIds={localPinnedIds}
+                  />
+                ))}
+                {filteredTemplates.map(template => (
+                  (template.type !== 'user') &&
+                  <TemplateItem
+                    key={`browse-template-${template.id}`}
+                    template={template}
+                    type="user"
+                    onUseTemplate={handleUseTemplateFromDialog}
+                    onTogglePin={(id, pinned) => handleToggleTemplatePin(id, pinned, 'user')}
+                    showEditControls={false}
+                    showDeleteControls={false}
+                    showPinControls={true}
+                  />
+                ))}
               </div>
             )}
           </div>
