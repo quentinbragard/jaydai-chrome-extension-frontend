@@ -6,4 +6,3 @@ export { getUserTemplates } from './getUserTemplates';
 export { getTemplatesByFolder } from './getTemplatesByFolder';
 export { trackTemplateUsage } from './trackTemplateUsage';
 export { toggleTemplatePin } from './toggleTemplatePin';
-export { getTemplatesByFolder } from './getTemplatesByFolder';

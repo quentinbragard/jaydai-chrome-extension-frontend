@@ -57,7 +57,7 @@ class BlocksApiClient {
    */
   async getBlocksByType(type: BlockType): Promise<ApiResponse<Block[]>> {
     try {
-      const response = await apiClient.request(`/prompts/blocks?type=${type}`);
+      const response = await apiClient.request(`/prompts/blocks?type=${type}&published=true`);
       return response;
     } catch (error) {
       console.error(`Error fetching blocks of type ${type}:`, error);

@@ -49,17 +49,19 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
     try {
       const blockMap: Record<BlockType, Block[]> = {} as any;
       
-      await Promise.all(
-        BLOCK_TYPES.map(async (blockType) => {
-          try {
-            const response = await blocksApi.getBlocksByType(blockType);
-            blockMap[blockType] = response.success ? response.data : [];
-          } catch (error) {
-            console.warn(`Failed to load blocks for type ${blockType}:`, error);
-            blockMap[blockType] = [];
-          }
-        })
-      );
+      try {
+        const response = await blocksApi.getBlocks({ published: true });
+        if (response.success && response.data) {
+          response.data.forEach(block => {
+            if (!blockMap[block.type]) {
+              blockMap[block.type] = [];
+            }
+            blockMap[block.type].push(block);
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load blocks:', error);
+      }
 
       // Group blocks by metadata type
       const metadataBlocks: Record<MetadataType, Block[]> = {} as any;

@@ -16,7 +16,6 @@ export const QUERY_KEYS = {
     TEMPLATES_BY_FOLDER: 'templatesByFolder',
     PINNED_FOLDERS: 'pinnedFolders',
     PINNED_TEMPLATES: 'pinnedTemplates',
-    TEMPLATES_BY_FOLDER: 'templatesByFolder',
     
     // User related queries
     USER_METADATA: 'userMetadata',
