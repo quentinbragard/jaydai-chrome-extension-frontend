@@ -79,8 +79,8 @@ export class StripeService {
 
       const request: CreateCheckoutSessionRequest = {
         priceId: plan.priceId,
-        successUrl: this.buildReturnUrl('success'),
-        cancelUrl: this.buildReturnUrl('cancel'),
+        successUrl: await this.buildReturnUrl('success'),
+        cancelUrl: await this.buildReturnUrl('cancel'),
         userId,
         userEmail
       };
@@ -201,14 +201,51 @@ export class StripeService {
   }
 
   /**
-   * Build return URLs for Stripe checkout
+   * Build return URLs for Stripe checkout with auth token
    */
-  private buildReturnUrl(type: 'success' | 'cancel'): string {
+  private async buildReturnUrl(type: 'success' | 'cancel'): Promise<string> {
     const baseUrl = type === 'success' ? this.config.successUrl : this.config.cancelUrl;
     
-    // Replace EXTENSION_ID placeholder with actual extension ID
-    const extensionId = chrome.runtime.id;
-    return baseUrl.replace('EXTENSION_ID', extensionId);
+    // Get the current auth token from storage or API client
+    const authToken = await this.getAuthToken();
+    
+    // Add auth token and extension ID to the URL
+    const url = new URL(baseUrl);
+    if (authToken) {
+      url.searchParams.set('auth_token', authToken);
+    }
+    
+    // Add extension ID if available
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      url.searchParams.set('extension_id', chrome.runtime.id);
+    }
+    
+    return url.toString();
+  }
+
+  /**
+   * Get the current auth token
+   */
+  private async getAuthToken(): Promise<string | null> {
+    try {
+      // Try to get token from chrome storage first
+      if (typeof chrome !== 'undefined' && chrome.storage) {
+        const result = await chrome.storage.local.get(['authToken']);
+        if (result.authToken) {
+          return result.authToken;
+        }
+      }
+
+      // Fallback to get from API client or localStorage
+      const token = localStorage.getItem('authToken') || 
+                   localStorage.getItem('supabase.auth.token') ||
+                   sessionStorage.getItem('authToken');
+      
+      return token;
+    } catch (error) {
+      console.error('❌ Error getting auth token:', error);
+      return null;
+    }
   }
 
   /**
@@ -243,7 +280,7 @@ export class StripeService {
         method: 'POST',
         body: JSON.stringify({ 
           userId,
-          returnUrl: this.buildReturnUrl('success')
+          returnUrl: await this.buildReturnUrl('success')
         })
       });
 
