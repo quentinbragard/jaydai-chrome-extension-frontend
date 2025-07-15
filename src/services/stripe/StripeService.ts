@@ -9,6 +9,7 @@ import {
   SubscriptionStatus,
   PaymentResult
 } from '@/types/stripe';
+import { getCurrentLanguage } from '@/core/utils/i18n';
 
 export class StripeService {
   private config: StripeConfig;
@@ -18,8 +19,8 @@ export class StripeService {
       publishableKey: process.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
       monthlyPriceId: process.env.VITE_STRIPE_MONTHLY_PRICE_ID || '',
       yearlyPriceId: process.env.VITE_STRIPE_YEARLY_PRICE_ID || '',
-      successUrl: process.env.VITE_STRIPE_SUCCESS_URL || '',
-      cancelUrl: process.env.VITE_STRIPE_CANCEL_URL || ''
+      successUrl: 'https://jayd.ai/stripe-checkout',
+      cancelUrl: 'https://jayd.ai/'
     };
 
     // Validate configuration
