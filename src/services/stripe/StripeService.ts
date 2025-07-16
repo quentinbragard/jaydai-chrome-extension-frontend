@@ -145,7 +145,22 @@ export class StripeService {
         throw new Error(response.error || 'Failed to get subscription status');
       }
 
-      return response.subscription;
+      const subscription: SubscriptionStatus | undefined =
+        response.subscription ||
+        (response.data && (response.data.subscription || response.data));
+
+      if (subscription) {
+        return subscription;
+      }
+
+      return {
+        isActive: false,
+        planId: null,
+        currentPeriodEnd: null,
+        cancelAtPeriodEnd: false,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null
+      };
     } catch (error) {
       console.error('❌ Error getting subscription status:', error);
       
