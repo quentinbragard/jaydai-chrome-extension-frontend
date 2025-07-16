@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRightIcon, CheckIcon } from "@radix-ui/react-icons"
 import { cn } from "@/core/utils/classNames"
+import { useThemeDetector } from "@/hooks/useThemeDetector"
 
 interface Feature {
   name: string
@@ -28,36 +29,30 @@ interface PricingTier {
 interface PricingSectionProps {
   tiers: PricingTier[]
   className?: string
+  onSelectPlan?: (billingPeriod: 'monthly' | 'yearly', tier: PricingTier) => void
 }
 
-function PricingSection({ tiers, className }: PricingSectionProps) {
+function PricingSection({ tiers, className, onSelectPlan }: PricingSectionProps) {
   const [isYearly, setIsYearly] = useState(false)
+  const isDark = useThemeDetector()
 
   const buttonStyles = {
     default: cn(
-      "jd-h-12 jd-bg-white jd-dark:jd-bg-zinc-900",
-      "hover:jd-bg-zinc-50 dark:jd-hover:jd-bg-zinc-800",
-      "jd-text-zinc-900 dark:jd-text-zinc-100",
-      "jd-border jd-border-zinc-200 dark:jd-border-zinc-800",
-      "hover:jd-border-zinc-300 dark:hover:jd-border-zinc-700",
-      "jd-shadow-sm hover:jd-shadow-md",
-      "jd-text-sm jd-font-medium",
+      "jd-h-12",
+      isDark ? "jd-bg-zinc-900 jd-text-zinc-100 jd-border-zinc-800 hover:jd-bg-zinc-800 hover:jd-border-zinc-700" :
+        "jd-bg-white jd-text-zinc-900 jd-border-zinc-200 hover:jd-bg-zinc-50 hover:jd-border-zinc-300",
+      "jd-border jd-shadow-sm hover:jd-shadow-md jd-text-sm jd-font-medium"
     ),
     highlight: cn(
-      "jd-h-12 jd-bg-zinc-900 dark:jd-bg-zinc-100",
-      "hover:jd-bg-zinc-800 dark:jd-hover:jd-bg-zinc-300",
-      "jd-text-white dark:jd-text-zinc-900",
-      "jd-shadow-[0_1px_15px_rgba(0,0,0,0.1)]",
-      "hover:jd-shadow-[0_1px_20px_rgba(0,0,0,0.15)]",
-      "jd-font-semibold jd-text-base",
-    ),
+      "jd-h-12",
+      isDark ? "jd-bg-zinc-100 jd-text-zinc-900 hover:jd-bg-zinc-300" : "jd-bg-zinc-900 jd-text-white hover:jd-bg-zinc-800",
+      "jd-shadow-[0_1px_15px_rgba(0,0,0,0.1)] hover:jd-shadow-[0_1px_20px_rgba(0,0,0,0.15)] jd-font-semibold jd-text-base"
+    )
   }
 
   const badgeStyles = cn(
-    "jd-px-4 jd-py-1.5 jd-text-sm jd-font-medium",
-    "jd-bg-zinc-900 dark:jd-bg-zinc-100",
-    "jd-text-white dark:jd-text-zinc-900",
-    "jd-border-none jd-shadow-lg",
+    "jd-px-4 jd-py-1.5 jd-text-sm jd-font-medium jd-border-none jd-shadow-lg",
+    isDark ? "jd-bg-zinc-100 jd-text-zinc-900" : "jd-bg-zinc-900 jd-text-white"
   )
 
   return (
@@ -71,10 +66,18 @@ function PricingSection({ tiers, className }: PricingSectionProps) {
     >
       <div className="jd-w-full jd-max-w-5xl jd-mx-auto">
         <div className="jd-flex jd-flex-col jd-items-center jd-gap-4 jd-mb-12">
-          <h2 className="jd-text-3xl jd-font-bold jd-text-zinc-900 dark:jd-text-zinc-50">
+          <h2 className={cn(
+            "jd-text-3xl jd-font-bold",
+            isDark ? "jd-text-zinc-50" : "jd-text-zinc-900"
+          )}>
             Simple, transparent pricing
           </h2>
-          <div className="jd-inline-flex jd-items-center jd-p-1.5 jd-bg-white dark:jd-bg-zinc-800/50 jd-rounded-full jd-border jd-border-zinc-200 dark:jd-border-zinc-700 jd-shadow-sm">
+          <div
+            className={cn(
+              "jd-inline-flex jd-items-center jd-p-1.5 jd-rounded-full jd-border jd-shadow-sm",
+              isDark ? "jd-bg-zinc-800/50 jd-border-zinc-700" : "jd-bg-white jd-border-zinc-200"
+            )}
+          >
             {["Monthly", "Yearly"].map((period) => (
               <button
                 key={period}
@@ -82,8 +85,12 @@ function PricingSection({ tiers, className }: PricingSectionProps) {
                 className={cn(
                   "jd-px-8 jd-py-2.5 jd-text-sm jd-font-medium jd-rounded-full jd-transition-all jd-duration-300",
                   (period === "Yearly") === isYearly
-                    ? "jd-bg-zinc-900 dark:jd-bg-zinc-100 jd-text-white dark:jd-text-zinc-900 jd-shadow-lg"
-                    : "jd-text-zinc-600 dark:jd-text-zinc-400 jd-hover:jd-text-zinc-900 dark:jd-hover:jd-text-zinc-100",
+                    ? isDark
+                      ? "jd-bg-zinc-100 jd-text-zinc-900 jd-shadow-lg"
+                      : "jd-bg-zinc-900 jd-text-white jd-shadow-lg"
+                    : isDark
+                      ? "jd-text-zinc-400 hover:jd-text-zinc-100"
+                      : "jd-text-zinc-600 hover:jd-text-zinc-900"
                 )}
               >
                 {period}
@@ -101,12 +108,20 @@ function PricingSection({ tiers, className }: PricingSectionProps) {
                 "jd-rounded-3xl jd-transition-all jd-duration-300",
                 "jd-flex jd-flex-col",
                 tier.highlight
-                  ? "jd-bg-gradient-to-b jd-from-zinc-100/80 jd-to-transparent dark:jd-from-zinc-400/[0.15]"
-                  : "jd-bg-white dark:jd-bg-zinc-800/50",
+                  ? isDark
+                    ? "jd-bg-gradient-to-b jd-from-zinc-400/[0.15] jd-to-transparent"
+                    : "jd-bg-gradient-to-b jd-from-zinc-100/80 jd-to-transparent"
+                  : isDark
+                    ? "jd-bg-zinc-800/50"
+                    : "jd-bg-white",
                 "jd-border",
                 tier.highlight
-                  ? "jd-border-zinc-400/50 dark:jd-border-zinc-400/20 jd-shadow-xl"
-                  : "jd-border-zinc-200 dark:jd-border-zinc-700 jd-shadow-md",
+                  ? isDark
+                    ? "jd-border-zinc-400/20 jd-shadow-xl"
+                    : "jd-border-zinc-400/50 jd-shadow-xl"
+                  : isDark
+                    ? "jd-border-zinc-700 jd-shadow-md"
+                    : "jd-border-zinc-200 jd-shadow-md",
                 "hover:translate-y-0 hover:shadow-lg",
               )}
             >
@@ -122,27 +137,46 @@ function PricingSection({ tiers, className }: PricingSectionProps) {
                     className={cn(
                       "jd-p-3 jd-rounded-xl",
                       tier.highlight
-                        ? "jd-bg-zinc-100 dark:jd-bg-zinc-800 jd-text-zinc-900 dark:jd-text-zinc-100"
-                        : "jd-bg-zinc-100 dark:jd-bg-zinc-800 jd-text-zinc-600 dark:jd-text-zinc-400",
+                        ? isDark
+                          ? "jd-bg-zinc-800 jd-text-zinc-100"
+                          : "jd-bg-zinc-100 jd-text-zinc-900"
+                        : isDark
+                          ? "jd-bg-zinc-800 jd-text-zinc-400"
+                          : "jd-bg-zinc-100 jd-text-zinc-600"
                     )}
                   >
                     {tier.icon}
                   </div>
-                  <h3 className="jd-text-xl jd-font-semibold jd-text-zinc-900 dark:jd-text-zinc-100">
+                  <h3
+                    className={cn(
+                      "jd-text-xl jd-font-semibold",
+                      isDark ? "jd-text-zinc-100" : "jd-text-zinc-900"
+                    )}
+                  >
                     {tier.name}
                   </h3>
                 </div>
 
                 <div className="jd-mb-6">
                   <div className="jd-flex jd-items-baseline jd-gap-2">
-                    <span className="jd-text-4xl jd-font-bold jd-text-zinc-900 dark:jd-text-zinc-100">
-                      ${isYearly ? tier.price.yearly : tier.price.monthly}
+                    <span
+                      className={cn(
+                        "jd-text-4xl jd-font-bold",
+                        isDark ? "jd-text-zinc-100" : "jd-text-zinc-900"
+                      )}
+                    >
+                      {isYearly ? tier.price.yearly : tier.price.monthly}
                     </span>
-                    <span className="jd-text-sm jd-text-zinc-500 dark:jd-text-zinc-400">
+                    <span className={cn("jd-text-sm", isDark ? "jd-text-zinc-400" : "jd-text-zinc-500")}>
                       /{isYearly ? "year" : "month"}
                     </span>
                   </div>
-                  <p className="jd-mt-2 jd-text-sm jd-text-zinc-600 dark:jd-text-zinc-400">
+                  <p
+                    className={cn(
+                      "jd-mt-2 jd-text-sm",
+                      isDark ? "jd-text-zinc-400" : "jd-text-zinc-600"
+                    )}
+                  >
                     {tier.description}
                   </p>
                 </div>
@@ -154,17 +188,26 @@ function PricingSection({ tiers, className }: PricingSectionProps) {
                         className={cn(
                           "jd-mt-1 jd-p-0.5 jd-rounded-full jd-transition-colors jd-duration-200",
                           feature.included
-                            ? "jd-text-emerald-600 dark:jd-text-emerald-400"
-                            : "jd-text-zinc-400 dark:jd-text-zinc-600",
+                            ? isDark
+                              ? "jd-text-emerald-400"
+                              : "jd-text-emerald-600"
+                            : isDark
+                              ? "jd-text-zinc-600"
+                              : "jd-text-zinc-400"
                         )}
                       >
                         <CheckIcon className="jd-w-4 jd-h-4" />
                       </div>
                       <div>
-                        <div className="jd-text-sm jd-font-medium jd-text-zinc-900 dark:jd-text-zinc-100">
+                        <div
+                          className={cn(
+                            "jd-text-sm jd-font-medium",
+                            isDark ? "jd-text-zinc-100" : "jd-text-zinc-900"
+                          )}
+                        >
                           {feature.name}
                         </div>
-                        <div className="jd-text-sm jd-text-zinc-500 dark:jd-text-zinc-400">
+                        <div className={cn("jd-text-sm", isDark ? "jd-text-zinc-400" : "jd-text-zinc-500")}>
                           {feature.description}
                         </div>
                       </div>
@@ -175,6 +218,7 @@ function PricingSection({ tiers, className }: PricingSectionProps) {
 
               <div className="jd-p-8 jd-pt-0 jd-mt-auto">
                 <Button
+                  onClick={() => onSelectPlan?.(isYearly ? 'yearly' : 'monthly', tier)}
                   className={cn(
                     "jd-w-full jd-relative jd-transition-all jd-duration-300",
                     tier.highlight

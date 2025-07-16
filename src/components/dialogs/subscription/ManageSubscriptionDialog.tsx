@@ -14,7 +14,7 @@ import { getMessage } from '@/core/utils/i18n';
 import { stripeService } from '@/services/stripe/StripeService';
 import { useAuthState } from '@/hooks/auth/useAuthState';
 import { useSubscription } from '@/state/SubscriptionContext';
-import { PricingPlans } from '@/components/pricing/PricingPlans';
+import { PricingSection } from '@/components/pricing/pricing-section';
 
 /**
  * Dialog for managing user subscription
@@ -25,6 +25,34 @@ export const ManageSubscriptionDialog: React.FC = () => {
   const { subscription, isLoading, refreshSubscription } = useSubscription();
   const [loading, setLoading] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
+
+  const plans = stripeService.getPricingPlans();
+  const monthlyPlan = plans.find(p => p.id === 'monthly');
+  const yearlyPlan = plans.find(p => p.id === 'yearly');
+
+  const features = [
+    getMessage('feature1', undefined, 'Unlimited AI conversations'),
+    getMessage('feature2', undefined, 'Smart template library'),
+    getMessage('feature3', undefined, 'Energy usage insights'),
+    getMessage('feature4', undefined, 'Priority customer support'),
+    getMessage('feature5', undefined, 'Advanced analytics'),
+    getMessage('feature6', undefined, 'Custom folder organization'),
+  ].map(name => ({ name, description: '', included: true }));
+
+  const pricingTiers = [
+    {
+      name: getMessage('premium_plan', undefined, 'Jaydai Premium'),
+      price: {
+        monthly: monthlyPlan?.price || 0,
+        yearly: yearlyPlan?.price || 0,
+      },
+      description: getMessage('premiumDescriptionShort', undefined, 'Unlock all premium features'),
+      features,
+      highlight: true,
+      badge: getMessage('best_value', undefined, 'Best value'),
+      icon: <Crown className="jd-w-5 jd-h-5" />,
+    },
+  ];
 
   // Load subscription status when dialog opens
   useEffect(() => {
@@ -115,6 +143,33 @@ export const ManageSubscriptionDialog: React.FC = () => {
     toast.info(getMessage('payment_cancelled', undefined, 'Payment cancelled.'));
   };
 
+  const handleSelectPlan = async (period: 'monthly' | 'yearly') => {
+    if (!authState.user?.email || !authState.user.id) {
+      toast.error(getMessage('userEmailRequired', undefined, 'User email is required for payment'));
+      return;
+    }
+    setLoading(true);
+    try {
+      await stripeService.redirectToCheckout(period, authState.user.id, authState.user.email);
+      toast.info(
+        getMessage('redirectingToPayment', undefined, 'Redirecting to payment...'),
+        {
+          description: getMessage('completePaymentInNewTab', undefined, 'Complete your payment in the new tab')
+        }
+      );
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error(
+        getMessage('paymentError', undefined, 'Payment failed'),
+        {
+          description: error instanceof Error ? error.message : getMessage('tryAgainLater', undefined, 'Please try again later')
+        }
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -142,10 +197,9 @@ export const ManageSubscriptionDialog: React.FC = () => {
               </p>
             </div>
             
-            <PricingPlans 
-              user={authState.user!}
-              onPaymentSuccess={handlePaymentSuccess}
-              onPaymentCancel={handlePaymentCancel}
+            <PricingSection
+              tiers={pricingTiers}
+              onSelectPlan={handleSelectPlan}
             />
             
             <div className="jd-flex jd-justify-center jd-pt-4">
