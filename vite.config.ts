@@ -115,8 +115,8 @@ export default defineConfig(({ mode }) => {
             'process.env.VITE_LINKEDIN_CLIENT_ID': JSON.stringify(env.VITE_LINKEDIN_CLIENT_ID),
             // Stripe environment variables
             'process.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(env.VITE_STRIPE_PUBLISHABLE_KEY),
-            'process.env.VITE_STRIPE_MONTHLY_PRICE_ID': JSON.stringify(env.VITE_STRIPE_MONTHLY_PRICE_ID),
-            'process.env.VITE_STRIPE_YEARLY_PRICE_ID': JSON.stringify(env.VITE_STRIPE_YEARLY_PRICE_ID),
+            'process.env.VITE_STRIPE_PLUS_MONTHLY_PRICE_ID': JSON.stringify(env.VITE_STRIPE_PLUS_MONTHLY_PRICE_ID),
+            'process.env.VITE_STRIPE_PLUS_YEARLY_PRICE_ID': JSON.stringify(env.VITE_STRIPE_PLUS_YEARLY_PRICE_ID),
             'process.env.VITE_STRIPE_SUCCESS_URL': JSON.stringify(env.VITE_STRIPE_SUCCESS_URL),
             'process.env.VITE_STRIPE_CANCEL_URL': JSON.stringify(env.VITE_STRIPE_CANCEL_URL)
         },

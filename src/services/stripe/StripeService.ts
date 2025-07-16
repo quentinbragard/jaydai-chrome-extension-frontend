@@ -17,8 +17,8 @@ export class StripeService {
   constructor() {
     this.config = {
       publishableKey: process.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
-      monthlyPriceId: process.env.VITE_STRIPE_MONTHLY_PRICE_ID || '',
-      yearlyPriceId: process.env.VITE_STRIPE_YEARLY_PRICE_ID || '',
+      monthlyPriceId: process.env.VITE_STRIPE_PLUS_MONTHLY_PRICE_ID || '',
+      yearlyPriceId: process.env.VITE_STRIPE_PLUS_YEARLY_PRICE_ID || '',
       successUrl: 'https://jayd.ai/stripe-checkout',
       cancelUrl: 'https://jayd.ai/'
     };
