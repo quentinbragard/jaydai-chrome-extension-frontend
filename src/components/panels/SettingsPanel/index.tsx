@@ -43,6 +43,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     refreshSubscription();
   }, []);
 
+  console.log('subscription', subscription);
+
   const loadUserPreferences = async () => {
     try {
       setLoading(true);
@@ -128,15 +130,15 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const subscriptionItem = {
     id: 'subscription',
     icon: <CreditCard className="jd-h-5 jd-w-5 jd-text-blue-500" />,
-    title: subscription?.isActive
+    title: subscription?.subscription_status === 'active'
       ? getMessage('manage_subscription', undefined, 'Manage Subscription')
       : getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium'),
-    description: subscription?.isActive
+    description: subscription?.subscription_status === 'active'
       ? getMessage('manage_subscription_desc', undefined, 'Upgrade, cancel, or modify your subscription')
       : getMessage('unlock_premium_features', undefined, 'Unlock all premium features'),
     action: handleManageSubscription,
     type: 'button' as const,
-    highlight: !subscription?.isActive
+    highlight: subscription?.subscription_status !== 'active'
   };
 
   const settingsItems = [
@@ -211,7 +213,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     className="jd-min-w-[80px]"
                   >
                     {item.id === 'subscription'
-                      ? subscription?.isActive
+                      ? subscription?.subscription_status === 'active'
                         ? getMessage('manage', undefined, 'Manage')
                         : getMessage('subscribe', undefined, 'Subscribe')
                       : getMessage('open', undefined, 'Open')}

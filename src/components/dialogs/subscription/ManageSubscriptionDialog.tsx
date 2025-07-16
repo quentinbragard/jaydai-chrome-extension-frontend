@@ -58,7 +58,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
   useEffect(() => {
     if (isOpen && authState.user?.id) {
       refreshSubscription().then(() => {
-        if (subscription && !subscription.isActive) {
+        if (subscription && subscription.subscription_status !== 'active') {
           setShowPricing(true);
         }
       });
@@ -103,7 +103,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
       if (success) {
         toast.success(getMessage('subscription_cancelled', undefined, 'Subscription cancelled successfully'));
         await refreshSubscription();
-        if (subscription && !subscription.isActive) {
+        if (subscription && subscription.subscription_status !== 'active') {
           setShowPricing(true);
         }
       } else {
@@ -226,7 +226,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
               <CardContent className="jd-space-y-4">
                 <div className="jd-flex jd-items-center jd-justify-between jd-p-4 jd-bg-muted jd-rounded-lg">
                   <div className="jd-flex jd-items-center jd-space-x-3">
-                    {subscription?.isActive ? (
+                    {subscription?.subscription_status === 'active' ? (
                       <CheckCircle className="jd-w-5 jd-h-5 jd-text-green-500" />
                     ) : (
                       <XCircle className="jd-w-5 jd-h-5 jd-text-muted-foreground" />
@@ -234,10 +234,10 @@ export const ManageSubscriptionDialog: React.FC = () => {
                     
                     <div>
                       <p className="jd-font-medium">
-                        {getPlanDisplayName(subscription?.planId)}
+                        {getPlanDisplayName(subscription?.subscription_plan)}
                       </p>
                       <p className="jd-text-sm jd-text-muted-foreground">
-                        {subscription?.isActive 
+                        {subscription?.subscription_status === 'active' 
                           ? getMessage('active_subscription', undefined, 'Active subscription')
                           : getMessage('no_active_subscription', undefined, 'No active subscription')
                         }
@@ -246,20 +246,20 @@ export const ManageSubscriptionDialog: React.FC = () => {
                   </div>
                   
                   <Badge 
-                    variant={subscription?.isActive ? "default" : "secondary"}
-                    className={subscription?.isActive 
+                    variant={subscription?.subscription_status === 'active' ? "default" : "secondary"}
+                    className={subscription?.subscription_status === 'active' 
                       ? 'jd-bg-green-100 jd-text-green-800' 
                       : 'jd-bg-gray-100 jd-text-gray-600'
                     }
                   >
-                    {subscription?.isActive 
+                    {subscription?.subscription_status === 'active' 
                       ? getMessage('active', undefined, 'Active')
                       : getMessage('inactive', undefined, 'Inactive')
                     }
                   </Badge>
                 </div>
 
-                {subscription?.isActive && (
+                {subscription?.subscription_status === 'active' && (
                   <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-4 jd-pt-4">
                     <div className="jd-space-y-2">
                       <p className="jd-text-sm jd-text-muted-foreground">
@@ -284,7 +284,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
                   </div>
                 )}
 
-                {subscription?.isActive && subscription.cancelAtPeriodEnd && (
+                {subscription?.subscription_status === 'active' && subscription.cancelAtPeriodEnd && (
                   <div className="jd-flex jd-items-start jd-space-x-2 jd-p-3 jd-bg-yellow-50 jd-border jd-border-yellow-200 jd-rounded-lg">
                     <AlertTriangle className="jd-w-5 jd-h-5 jd-text-yellow-600 jd-mt-0.5" />
                     <div>
@@ -305,7 +305,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="jd-space-y-3">
-              {subscription?.isActive ? (
+              {subscription?.subscription_status === 'active' ? (
                 <>
                   <Button
                     onClick={handleManageSubscription}
