@@ -107,6 +107,12 @@ export const EVENTS = {
 
   POPUP_OPENED: 'Popup Opened',
   POPUP_AI_TOOL_CLICKED: 'Popup AI Tool Clicked',
+
+   // Settings panel events
+   SETTINGS_PANEL_OPENED: 'settings_panel_opened',
+   DATA_COLLECTION_TOGGLED: 'data_collection_toggled',
+   MANAGE_SUBSCRIPTION_CLICKED: 'manage_subscription_clicked',
+   EXTERNAL_LINK_CLICKED: 'external_link_clicked',
   
   // Template events
   TEMPLATE_VIEWED: 'Template Viewed',

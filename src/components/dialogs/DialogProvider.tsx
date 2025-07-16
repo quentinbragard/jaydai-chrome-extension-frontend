@@ -1,4 +1,3 @@
-
 // src/components/dialogs/DialogProvider.tsx
 import React, { useEffect } from 'react';
 import { DialogManagerProvider } from './DialogContext';
@@ -15,6 +14,7 @@ import { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
 import { BrowseMoreFoldersDialog } from './prompts/BrowseMoreFoldersDialog';
 import { TutorialsDialog } from './tutorials/TutorialsDialog';
 import { TutorialVideoDialog } from './tutorials/TutorialVideoDialog';
+import { ManageSubscriptionDialog } from './subscription/ManageSubscriptionDialog';
 
 /**
  * Main dialog provider that includes all dialog components
@@ -69,6 +69,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <BrowseMoreFoldersDialog />
       <TutorialsDialog />
       <TutorialVideoDialog />
+      <ManageSubscriptionDialog />
       {/* Place the customize dialog last so it stacks above others */}
       <CustomizeTemplateDialog />
     </DialogManagerProvider>

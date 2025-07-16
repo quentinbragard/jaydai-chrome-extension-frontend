@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export type PanelType = 'menu' | 'notifications' | 'templates' | 'stats' | 'templatesBrowse';
+export type PanelType = 'menu' | 'notifications' | 'templates' | 'stats' | 'templatesBrowse' | 'settings';
 
 export const useMainButtonState = () => {
   const [isOpen, setIsOpen] = useState(false);

@@ -1,4 +1,3 @@
-
 // src/services/api/UserApi.ts
 import { apiClient } from './ApiClient';
 
@@ -13,6 +12,11 @@ export interface UserMetadata {
   pinned_folder_ids?: number[];
   pinned_template_ids?: number[];
   preferences_metadata?: Record<string, any>;
+  data_collection?: boolean;
+}
+
+export interface DataCollectionRequest {
+  data_collection: boolean;
 }
 
 export class UserApi {
@@ -31,6 +35,16 @@ export class UserApi {
    */
   async getUserMetadata(): Promise<any> {
     return apiClient.request('/user/metadata');
+  }
+
+  /**
+   * Update user's data collection preference
+   */
+  async updateDataCollection(enabled: boolean): Promise<any> {
+    return apiClient.request('/user/data-collection', {
+      method: 'PUT',
+      body: JSON.stringify({ data_collection: enabled })
+    });
   }
   
   /**

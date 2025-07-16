@@ -19,7 +19,10 @@ export const DIALOG_TYPES = {
   CREATE_BLOCK: 'createBlock',
   INSERT_BLOCK: 'insertBlock',
   TUTORIALS_LIST: 'tutorialsList',
-  TUTORIAL_VIDEO: 'tutorialVideo'
+  TUTORIAL_VIDEO: 'tutorialVideo',
+  
+  // New dialog type for subscription management
+  MANAGE_SUBSCRIPTION: 'manageSubscription'
 } as const;
 
 // Export the dialog types
@@ -101,4 +104,6 @@ export interface DialogProps {
     url?: string;
     title?: string;
   };
+
+  [DIALOG_TYPES.MANAGE_SUBSCRIPTION]: Record<string, never>;
 }

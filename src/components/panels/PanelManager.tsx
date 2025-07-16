@@ -7,6 +7,7 @@ import MenuPanel from './MenuPanel';
 import TemplatesPanel from './TemplatesPanel';
 import NotificationsPanel from './NotificationsPanel';
 import StatsPanel from './StatsPanel';
+import SettingsPanel from './SettingsPanel';
 import BrowseTemplatesPanel from './BrowseTemplatesPanel';
 import type { PanelType } from '@/hooks/ui/useMainButtonState';
 
@@ -69,6 +70,14 @@ const PanelContainer: React.FC<{
     case 'stats':
       return (
         <StatsPanel
+          showBackButton={panelStack.length > 1}
+          onBack={popPanel}
+          onClose={handlePanelClose}
+        />
+      );
+    case 'settings':
+      return (
+        <SettingsPanel
           showBackButton={panelStack.length > 1}
           onBack={popPanel}
           onClose={handlePanelClose}

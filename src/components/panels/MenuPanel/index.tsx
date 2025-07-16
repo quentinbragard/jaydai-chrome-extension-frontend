@@ -1,7 +1,7 @@
 // src/components/panels/MenuPanel/index.tsx
 
 import React from 'react';
-import { FileText, Bell, BarChart, Blocks, PlayCircle } from "lucide-react";
+import { FileText, Bell, BarChart, Blocks, PlayCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
@@ -65,12 +65,9 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   const { openInsertBlock, openTutorials } = useDialogActions();
 
   // Navigate to a specific panel
-  const navigateToPanel = (panelType: 'templates' | 'notifications' | 'stats') => {
+  const navigateToPanel = (panelType: 'templates' | 'notifications' | 'stats' | 'settings') => {
     pushPanel({ type: panelType });
   };
-
-
-
 
   // Define menu items for better maintainability
   const menuItems: MenuItem[] = [
@@ -104,6 +101,12 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       icon: <PlayCircle className="jd-h-4 jd-w-4" />,
       label: getMessage('tutorials', undefined, 'Tutorials'),
       action: () => openTutorials()
+    },
+    {
+      id: 'settings',
+      icon: <Settings className="jd-h-4 jd-w-4" />,
+      label: getMessage('settings', undefined, 'Settings'),
+      action: () => navigateToPanel('settings')
     }
   ];
 
