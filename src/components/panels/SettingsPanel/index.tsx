@@ -12,6 +12,7 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { userApi } from '@/services/api/UserApi';
+import { useSubscription } from '@/state/SubscriptionContext';
 
 interface SettingsPanelProps {
   showBackButton?: boolean;
@@ -30,6 +31,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   maxHeight = '75vh' 
 }) => {
   const { openDialog } = useDialogManager();
+  const { subscription, refreshSubscription, isLoading: subscriptionLoading } = useSubscription();
   const [dataCollection, setDataCollection] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
@@ -38,6 +40,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   useEffect(() => {
     trackEvent(EVENTS.SETTINGS_PANEL_OPENED);
     loadUserPreferences();
+    refreshSubscription();
   }, []);
 
   const loadUserPreferences = async () => {
@@ -122,15 +125,22 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     window.open(url, '_blank');
   };
 
+  const subscriptionItem = {
+    id: 'subscription',
+    icon: <CreditCard className="jd-h-5 jd-w-5 jd-text-blue-500" />,
+    title: subscription?.isActive
+      ? getMessage('manage_subscription', undefined, 'Manage Subscription')
+      : getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium'),
+    description: subscription?.isActive
+      ? getMessage('manage_subscription_desc', undefined, 'Upgrade, cancel, or modify your subscription')
+      : getMessage('unlock_premium_features', undefined, 'Unlock all premium features'),
+    action: handleManageSubscription,
+    type: 'button' as const,
+    highlight: !subscription?.isActive
+  };
+
   const settingsItems = [
-    {
-      id: 'subscription',
-      icon: <CreditCard className="jd-h-5 jd-w-5 jd-text-blue-500" />,
-      title: getMessage('manage_subscription', undefined, 'Manage Subscription'),
-      description: getMessage('manage_subscription_desc', undefined, 'Upgrade, cancel, or modify your subscription'),
-      action: handleManageSubscription,
-      type: 'button' as const
-    },
+    subscriptionItem,
     {
       id: 'linkedin',
       icon: <ExternalLink className="jd-h-5 jd-w-5 jd-text-blue-600" />,
@@ -170,7 +180,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     >
       <div>
         {settingsItems.map((item) => (
-          <Card key={item.id} className="jd-p-4 jd-bg-card !jd-shadow-none">
+          <Card
+            key={item.id}
+            className={`jd-p-4 jd-bg-card !jd-shadow-none ${
+              item.highlight ? 'jd-border jd-border-blue-500 jd-animate-pulse-slow' : ''
+            }`}
+          >
             <div className="jd-flex jd-items-center jd-justify-between">
               <div className="jd-flex jd-items-start jd-space-x-3 jd-flex-1">
                 <div className="jd-flex-shrink-0 jd-mt-0.5">
@@ -192,14 +207,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={item.action}
-                    disabled={loading}
+                    disabled={loading || subscriptionLoading}
                     className="jd-min-w-[80px]"
                   >
-                    {item.id === 'subscription' ? (
-                      getMessage('manage', undefined, 'Manage')
-                    ) : (
-                      getMessage('open', undefined, 'Open')
-                    )}
+                    {item.id === 'subscription'
+                      ? subscription?.isActive
+                        ? getMessage('manage', undefined, 'Manage')
+                        : getMessage('subscribe', undefined, 'Subscribe')
+                      : getMessage('open', undefined, 'Open')}
                   </Button>
                 ) : (
                   <Switch

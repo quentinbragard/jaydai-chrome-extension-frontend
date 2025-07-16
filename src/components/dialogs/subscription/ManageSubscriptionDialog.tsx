@@ -12,8 +12,8 @@ import { useDialog } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
 import { stripeService } from '@/services/stripe/StripeService';
-import { SubscriptionStatus } from '@/types/stripe';
 import { useAuthState } from '@/hooks/auth/useAuthState';
+import { useSubscription } from '@/state/SubscriptionContext';
 import { PricingPlans } from '@/components/pricing/PricingPlans';
 
 /**
@@ -22,36 +22,21 @@ import { PricingPlans } from '@/components/pricing/PricingPlans';
 export const ManageSubscriptionDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.MANAGE_SUBSCRIPTION);
   const { authState } = useAuthState();
-  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
+  const { subscription, isLoading, refreshSubscription } = useSubscription();
   const [loading, setLoading] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
 
   // Load subscription status when dialog opens
   useEffect(() => {
     if (isOpen && authState.user?.id) {
-      loadSubscriptionStatus();
+      refreshSubscription().then(() => {
+        if (subscription && !subscription.isActive) {
+          setShowPricing(true);
+        }
+      });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, authState.user?.id]);
-
-  const loadSubscriptionStatus = async () => {
-    if (!authState.user?.id) return;
-
-    try {
-      setLoading(true);
-      const status = await stripeService.getSubscriptionStatus(authState.user.id);
-      setSubscription(status);
-      
-      // If user has no active subscription, show pricing
-      if (!status.isActive) {
-        setShowPricing(true);
-      }
-    } catch (error) {
-      console.error('Error loading subscription:', error);
-      toast.error(getMessage('error_loading_subscription', undefined, 'Failed to load subscription status'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleManageSubscription = async () => {
     if (!authState.user?.id) return;
@@ -89,7 +74,10 @@ export const ManageSubscriptionDialog: React.FC = () => {
       
       if (success) {
         toast.success(getMessage('subscription_cancelled', undefined, 'Subscription cancelled successfully'));
-        await loadSubscriptionStatus(); // Reload status
+        await refreshSubscription();
+        if (subscription && !subscription.isActive) {
+          setShowPricing(true);
+        }
       } else {
         toast.error(getMessage('error_cancelling_subscription', undefined, 'Failed to cancel subscription'));
       }
@@ -119,7 +107,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
 
   const handlePaymentSuccess = () => {
     toast.success(getMessage('payment_successful', undefined, 'Payment successful! Your subscription is now active.'));
-    loadSubscriptionStatus();
+    refreshSubscription();
     setShowPricing(false);
   };
 
@@ -136,7 +124,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
       className="jd-max-w-2xl"
     >
       <div className="jd-space-y-6">
-        {loading && !subscription ? (
+        {(loading || isLoading) && !subscription ? (
           <div className="jd-flex jd-items-center jd-justify-center jd-py-8">
             <RefreshCw className="jd-w-6 jd-h-6 jd-animate-spin jd-mr-2" />
             <span className="jd-text-muted-foreground">
@@ -164,7 +152,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={() => setShowPricing(false)}
-                disabled={loading}
+                disabled={loading || isLoading}
               >
                 {getMessage('back_to_subscription', undefined, 'Back to Subscription')}
               </Button>
@@ -267,7 +255,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
                 <>
                   <Button
                     onClick={handleManageSubscription}
-                    disabled={loading}
+                    disabled={loading || isLoading}
                     className="jd-w-full jd-flex jd-items-center jd-justify-center jd-space-x-2"
                   >
                     {loading ? (
@@ -283,7 +271,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
                   {!subscription.cancelAtPeriodEnd && (
                     <Button
                       onClick={handleCancelSubscription}
-                      disabled={loading}
+                      disabled={loading || isLoading}
                       variant="outline"
                       className="jd-w-full jd-text-red-600 jd-border-red-600 hover:jd-bg-red-50"
                     >
@@ -307,8 +295,8 @@ export const ManageSubscriptionDialog: React.FC = () => {
             {/* Refresh Button */}
             <div className="jd-flex jd-justify-center jd-pt-4">
               <Button
-                onClick={loadSubscriptionStatus}
-                disabled={loading}
+                onClick={() => refreshSubscription()}
+                disabled={loading || isLoading}
                 variant="ghost"
                 size="sm"
                 className="jd-text-muted-foreground hover:jd-text-foreground"
