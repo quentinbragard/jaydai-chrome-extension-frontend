@@ -137,27 +137,20 @@ export class StripeService {
    */
   async getSubscriptionStatus(userId: string): Promise<SubscriptionStatus> {
     try {
-      const response = await apiClient.request(`/stripe/subscription-status/${userId}`, {
+      const response = await apiClient.request(`/user/subscription-status`, {
         method: 'GET'
       });
+
+      console.log('response --->', response);
 
       if (!response.success) {
         throw new Error(response.error || 'Failed to get subscription status');
       }
 
-      return response.subscription;
+      return response.data;
     } catch (error) {
       console.error('❌ Error getting subscription status:', error);
-      
-      // Return default status on error
-      return {
-        isActive: false,
-        planId: null,
-        currentPeriodEnd: null,
-        cancelAtPeriodEnd: false,
-        stripeCustomerId: null,
-        stripeSubscriptionId: null
-      };
+      throw error;
     }
   }
 
