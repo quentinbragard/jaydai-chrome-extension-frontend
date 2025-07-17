@@ -46,12 +46,12 @@ export function useSubscriptionStatus() {
       null;
 
     const hasSubscription =
-      subscription?.hasSubscription ??
-      isActive || isTrialing || isPastDue || isCancelled;
+      subscription?.hasSubscription ?? 
+      (isActive || isTrialing || isPastDue || isCancelled);
 
     const status =
-      (subscription as any)?.subscription_status ??
-      (subscription as any)?.status ??
+      (subscription as SubscriptionData)?.subscription_status ??
+      (subscription as SubscriptionData)?.status ??
       (isActive
         ? 'active'
         : isTrialing

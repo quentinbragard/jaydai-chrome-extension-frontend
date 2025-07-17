@@ -12,6 +12,7 @@ interface Props {
 }
 
 export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusInfo }) => {
+  console.log('subscription 👀👀👀👀--->', subscription);
   return (
     <Card>
       <CardHeader>
