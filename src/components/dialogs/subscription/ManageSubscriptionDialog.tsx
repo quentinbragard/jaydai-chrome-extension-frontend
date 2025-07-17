@@ -50,10 +50,10 @@ export const ManageSubscriptionDialog: React.FC = () => {
 
   // Separate effect to handle showing pricing based on subscription status
   useEffect(() => {
-    if (isOpen && subscription && !subscription.isActive && !subscription.isTrialing) {
+    if (isOpen && subscription && subscription.status !== 'active' && subscription.status !== 'trialing') {
       setShowPricing(true);
     }
-  }, [isOpen, subscription?.isActive, subscription?.isTrialing]);
+  }, [isOpen, subscription?.status]);
 
   const handleManageSubscription = async () => {
     if (!authState.user?.id) return;
@@ -146,7 +146,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
 
   if (!isOpen) return null;
 
-  const statusInfo = getStatusInfo(subscription?.subscription_status || 'inactive');
+  const statusInfo = getStatusInfo(subscription?.status || 'inactive');
 
   return (
     <BaseDialog 

@@ -2,10 +2,10 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, ExternalLink, Crown } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
-import { SubscriptionData } from '@/types/subscription';
+import { SubscriptionStatus } from '@/types/subscription';
 
 interface Props {
-  subscription: SubscriptionData | null;
+  subscription: SubscriptionStatus | null;
   loading: boolean;
   isLoading: boolean;
   onManage: () => void;
@@ -27,7 +27,7 @@ export const ActionButtons: React.FC<Props> = ({
 }) => (
   <>
     <div className="jd-space-y-3">
-      {subscription?.isActive || subscription?.isTrialing ? (
+      {subscription?.status === 'active' || subscription?.status === 'trialing' ? (
         <>
           <Button
             onClick={onManage}
@@ -42,7 +42,7 @@ export const ActionButtons: React.FC<Props> = ({
             <span>{getMessage('manage_billing', undefined, 'Manage Billing & Payment')}</span>
           </Button>
 
-          {!subscription.cancelAtPeriodEnd && (
+        {subscription.status !== 'cancelled' && subscription.status !== 'inactive' && subscription.status !== 'past_due' && (
             <Button
               onClick={onCancel}
               disabled={loading || isLoading}
@@ -53,7 +53,7 @@ export const ActionButtons: React.FC<Props> = ({
             </Button>
           )}
         </>
-      ) : subscription?.isCancelled && subscription.cancelAtPeriodEnd ? (
+      ) : subscription?.status === 'cancelled' && subscription.cancelAtPeriodEnd ? (
         <Button
           onClick={onReactivate}
           disabled={loading || isLoading}
@@ -66,7 +66,7 @@ export const ActionButtons: React.FC<Props> = ({
           )}
           <span>{getMessage('reactivate_subscription', undefined, 'Reactivate Subscription')}</span>
         </Button>
-      ) : subscription?.isPastDue ? (
+      ) : subscription?.status === 'past_due' ? (
         <>
           <Button
             onClick={onManage}

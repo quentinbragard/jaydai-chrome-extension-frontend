@@ -35,7 +35,7 @@ export interface StripeConfig {
   
   export interface SubscriptionStatus {
     isActive: boolean;
-    planId: 'monthly' | 'yearly' | null;
+    planName: 'monthly' | 'yearly' | null;
     currentPeriodEnd: string | null;
     cancelAtPeriodEnd: boolean;
     stripeCustomerId: string | null;

@@ -98,8 +98,8 @@ export const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ 
     return new Date(dateString).toLocaleDateString();
   };
 
-  const getPlanDisplayName = (planId: string | null) => {
-    switch (planId) {
+  const getPlanDisplayName = (planName: string | null) => {
+    switch (planName) {
       case 'monthly':
         return getMessage('monthlyPlan', undefined, 'Monthly Plan');
       case 'yearly':
@@ -150,7 +150,7 @@ export const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ 
               
               <div>
                 <p className="jd-font-medium jd-text-white">
-                  {getPlanDisplayName(subscription?.planId)}
+                  {getPlanDisplayName(subscription?.planName)}
                 </p>
                 <p className="jd-text-sm jd-text-gray-400">
                   {subscription?.isActive 

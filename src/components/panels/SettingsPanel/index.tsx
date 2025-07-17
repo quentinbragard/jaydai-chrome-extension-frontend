@@ -35,21 +35,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     subscription,
     loading: subscriptionLoading,
     refreshStatus,
-    isActive,
-    isTrialing,
-    isPastDue,
-    isCancelled,
-    planId,
-    status
   } = useSubscriptionStatus();
 
   console.log('subscription --->', subscription);
-  console.log('isActive --->', isActive);
-  console.log('isTrialing --->', isTrialing);
-  console.log('isPastDue --->', isPastDue);
-  console.log('isCancelled --->', isCancelled);
-  console.log('planId --->', planId);
-  console.log('status --->', status);
   
   const [dataCollection, setDataCollection] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
@@ -139,8 +127,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const handleManageSubscription = () => {
     trackEvent(EVENTS.MANAGE_SUBSCRIPTION_CLICKED, {
       source: 'settings_panel',
-      subscription_status: status,
-      subscription_plan: planId
+      subscription_status: subscription?.status,
+      subscription_plan: subscription?.planName
     });
     openDialog(DIALOG_TYPES.MANAGE_SUBSCRIPTION);
   };
@@ -157,15 +145,15 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const getSubscriptionButtonText = () => {
     if (subscriptionLoading || subscription === null) return getMessage('loading', undefined, 'Loading...');
     
-    if (isActive || isTrialing) {
+    if (subscription?.status === 'active' || subscription?.status === 'trialing') {
       return getMessage('manage', undefined, 'Manage');
     }
     
-    if (isPastDue) {
+    if (subscription?.status === 'past_due') {
       return getMessage('update_payment', undefined, 'Update Payment');
     }
     
-    if (isCancelled) {
+    if (subscription?.status === 'cancelled') {
       return getMessage('reactivate', undefined, 'Reactivate');
     }
     
@@ -173,19 +161,19 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   };
 
   const getSubscriptionDescription = () => {
-    if (isActive) {
+    if (subscription?.status === 'active') {
       return getMessage('manage_subscription_desc', undefined, 'Manage your active subscription');
     }
     
-    if (isTrialing) {
+    if (subscription?.status === 'trialing') {
       return getMessage('trial_subscription_desc', undefined, 'You are in your trial period');
     }
     
-    if (isPastDue) {
+    if (subscription?.status === 'past_due') {
       return getMessage('past_due_subscription_desc', undefined, 'Payment is overdue - update payment method');
     }
     
-    if (isCancelled) {
+    if (subscription?.status === 'cancelled') {
       return getMessage('cancelled_subscription_desc', undefined, 'Reactivate your cancelled subscription');
     }
     
@@ -193,19 +181,19 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   };
 
   const getSubscriptionStatus = () => {
-    if (isActive) {
+    if (subscription?.status === 'active') {
       return { label: getMessage('active', undefined, 'Active'), color: 'jd-bg-green-100 jd-text-green-800' };
     }
     
-    if (isTrialing) {
+    if (subscription?.status === 'trialing') {
       return { label: getMessage('trial', undefined, 'Trial'), color: 'jd-bg-blue-100 jd-text-blue-800' };
     }
     
-    if (isPastDue) {
+    if (subscription?.status === 'past_due') {
       return { label: getMessage('past_due', undefined, 'Past Due'), color: 'jd-bg-red-100 jd-text-red-800' };
     }
     
-    if (isCancelled) {
+    if (subscription?.status === 'cancelled') {
       return { label: getMessage('cancelled', undefined, 'Cancelled'), color: 'jd-bg-yellow-100 jd-text-yellow-800' };
     }
     
@@ -217,19 +205,19 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const subscriptionItem = {
     id: 'subscription',
     icon: <CreditCard className="jd-h-5 jd-w-5 jd-text-blue-500" />,
-    title: isActive || isTrialing
+    title: subscription?.status === 'active' || subscription?.status === 'trialing'
       ? getMessage('manage_subscription', undefined, 'Manage Subscription')
       : getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium'),
     description: getSubscriptionDescription(),
     action: handleManageSubscription,
     type: 'button' as const,
-    highlight: !isActive && !isTrialing,
-    badge: subscription?.hasSubscription ? (
+    highlight: subscription?.status !== 'active' && subscription?.status !== 'trialing',
+    badge: subscription?.status === 'active' || subscription?.status === 'trialing' ? (
       <Badge className={`jd-text-xs ${subscriptionStatus.color}`}>
         {subscriptionStatus.label}
       </Badge>
     ) : null,
-    warning: isPastDue
+      warning: subscription?.status === 'past_due' || subscription?.status === 'cancelled'
   };
 
   const settingsItems = [

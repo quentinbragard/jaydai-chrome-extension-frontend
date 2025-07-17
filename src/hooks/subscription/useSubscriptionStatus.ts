@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { stripeApi } from '@/services/api/StripeApi';
 import { useAuthState } from '@/hooks/auth/useAuthState';
-import { SubscriptionData } from '@/types/subscription';
+import { SubscriptionStatus } from '@/types/subscription';
 
 export function useSubscriptionStatus() {
   const { authState } = useAuthState();
-  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +20,7 @@ export function useSubscriptionStatus() {
       setLoading(true);
       setError(null);
       const result = await stripeApi.getSubscriptionStatus(userId);
-      setSubscription(result as unknown as SubscriptionData);
+      setSubscription(result as unknown as SubscriptionStatus);
     } catch (err) {
       console.error('Error fetching subscription status:', err);
       setError('Failed to fetch subscription status');
@@ -34,44 +34,10 @@ export function useSubscriptionStatus() {
     fetchStatus();
   }, [fetchStatus]);
 
-  const flags = useMemo(() => {
-    const isActive = subscription?.isActive ?? false;
-    const isTrialing = subscription?.isTrialing ?? false;
-    const isPastDue = subscription?.isPastDue ?? false;
-    const isCancelled = subscription?.isCancelled ?? false;
-
-    const planId =
-      (subscription as any)?.subscription_plan ??
-      (subscription as any)?.planId ??
-      null;
-
-    const hasSubscription =
-      subscription?.hasSubscription ?? 
-      (isActive || isTrialing || isPastDue || isCancelled);
-
-    const status =
-      (subscription as SubscriptionData)?.subscription_status ??
-      (subscription as SubscriptionData)?.status ??
-      (isActive
-        ? 'active'
-        : isTrialing
-        ? 'trialing'
-        : isPastDue
-        ? 'past_due'
-        : isCancelled
-        ? 'cancelled'
-        : 'inactive');
-
-    return {
-      isActive,
-      isTrialing,
-      isPastDue,
-      isCancelled,
-      hasSubscription,
-      planId,
-      status,
-    };
-  }, [subscription]);
-
-  return { subscription, loading, error, refreshStatus: fetchStatus, ...flags };
+  return {
+    subscription,
+    loading,
+    refreshStatus: fetchStatus,
+    error
+  };
 }

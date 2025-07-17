@@ -15,3 +15,16 @@ export interface SubscriptionData {
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
 }
+
+export interface SubscriptionStatus {
+  status: 'active' | 'trialing' | 'past_due' | 'cancelled' | 'inactive'
+  planName: string | null;
+  createdAt: string | null;
+  trialStart: string | null;
+  trialEnd: string | null;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
+}

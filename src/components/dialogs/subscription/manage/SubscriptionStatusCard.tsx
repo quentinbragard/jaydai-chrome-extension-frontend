@@ -2,12 +2,12 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Crown } from 'lucide-react';
-import { SubscriptionData } from '@/types/subscription';
+import { SubscriptionStatus } from '@/types/subscription';
 import { getMessage } from '@/core/utils/i18n';
 import { formatDate, getPlanDisplayName, StatusInfo } from './helpers';
 
 interface Props {
-  subscription: SubscriptionData;
+  subscription: SubscriptionStatus;
   statusInfo: StatusInfo;
 }
 
@@ -28,7 +28,7 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusIn
             {statusInfo.icon}
             <div>
               <p className="jd-font-medium">
-                {getPlanDisplayName(subscription.subscription_plan)}
+                {getPlanDisplayName(subscription.planName)}
               </p>
               <p className="jd-text-sm jd-text-muted-foreground">{statusInfo.message}</p>
             </div>
@@ -37,9 +37,9 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusIn
           <Badge className={statusInfo.color}>{statusInfo.label}</Badge>
         </div>
 
-        {subscription.hasSubscription && (
+        {subscription.status === 'active' && (
           <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-4 jd-pt-4">
-            {subscription.isTrialing && subscription.trialEnd && (
+            {subscription.status === 'trialing' && subscription.trialEnd && (
               <div className="jd-space-y-2">
                 <p className="jd-text-sm jd-text-muted-foreground">
                   {getMessage('trial_ends', undefined, 'Trial ends')}
@@ -48,10 +48,10 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusIn
               </div>
             )}
 
-            {(subscription.isActive || subscription.isTrialing) && subscription.currentPeriodEnd && (
+            {(subscription.status === 'active' || subscription.status === 'trialing') && subscription.currentPeriodEnd && (
               <div className="jd-space-y-2">
                 <p className="jd-text-sm jd-text-muted-foreground">
-                  {subscription.isTrialing
+                  {subscription.status === 'trialing'
                     ? getMessage('trial_period_end', undefined, 'Trial period ends')
                     : getMessage('next_billing_date', undefined, 'Next billing date')}
                 </p>
@@ -66,9 +66,9 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusIn
               <p className="jd-font-medium">
                 {subscription.cancelAtPeriodEnd
                   ? getMessage('cancelling_at_period_end', undefined, 'Cancelling at period end')
-                  : subscription.isActive
+                  : subscription.status === 'active'
                   ? getMessage('active_renewing', undefined, 'Active & renewing')
-                  : subscription.isTrialing
+                  : subscription.status === 'trialing'
                   ? getMessage('trial_period', undefined, 'Trial period')
                   : getMessage('inactive', undefined, 'Inactive')}
               </p>
@@ -76,7 +76,7 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusIn
           </div>
         )}
 
-        {subscription.cancelAtPeriodEnd && subscription.currentPeriodEnd && (
+        {subscription.status === 'cancelled' && subscription.currentPeriodEnd && (
           <div className="jd-flex jd-items-start jd-space-x-2 jd-p-3 jd-bg-yellow-50 jd-border jd-border-yellow-200 jd-rounded-lg">
             <AlertTriangle className="jd-w-5 jd-h-5 jd-text-yellow-600 jd-mt-0.5" />
             <div>
@@ -94,7 +94,7 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusIn
           </div>
         )}
 
-        {subscription.isPastDue && (
+        {subscription.status === 'past_due' && (
           <div className="jd-flex jd-items-start jd-space-x-2 jd-p-3 jd-bg-red-50 jd-border jd-border-red-200 jd-rounded-lg">
             <AlertTriangle className="jd-w-5 jd-h-5 jd-text-red-600 jd-mt-0.5" />
             <div>

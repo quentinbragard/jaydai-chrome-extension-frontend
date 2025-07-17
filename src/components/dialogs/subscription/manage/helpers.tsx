@@ -14,8 +14,8 @@ export const formatDate = (dateString: string | null | undefined) => {
   return new Date(dateString).toLocaleDateString();
 };
 
-export const getPlanDisplayName = (planId: string | null) => {
-  switch (planId) {
+export const getPlanDisplayName = (planName: string | null) => {
+  switch (planName) {
     case 'monthly':
       return getMessage('monthly_plan', undefined, 'Monthly Plan');
     case 'yearly':
