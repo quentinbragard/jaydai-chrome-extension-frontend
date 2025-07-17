@@ -1,6 +1,6 @@
 // src/components/panels/SettingsPanel/index.tsx - Refined for narrow panel
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, CreditCard, ExternalLink, Shield, Eye, EyeOff, Crown, AlertTriangle, Gift, Sparkles } from "lucide-react";
+import { Settings, ExternalLink, Shield, Eye, EyeOff, Crown, AlertTriangle, Gift, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -213,11 +213,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
   const subscriptionItem = {
     id: 'subscription',
-    icon: subscription?.status === 'active' || subscription?.status === 'trialing' ? 
-      <Crown className="jd-h-5 jd-w-5 jd-text-blue-500" /> :
-      <Gift className="jd-h-5 jd-w-5 jd-text-green-500" />,
+    icon: subscription?.status === 'active' || subscription?.status === 'trialing'
+      ? <Crown className="jd-h-5 jd-w-5 jd-text-blue-500" />
+      : <Gift className="jd-h-5 jd-w-5 jd-text-green-500" />,
     title: getSubscriptionTitle(),
-    description: getSubscriptionDescription(),
+    description: isNonSubscriber ? undefined : getSubscriptionDescription(),
     action: handleManageSubscription,
     type: 'button' as const,
     highlight: isNonSubscriber,
@@ -226,13 +226,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         {subscriptionStatus.label}
       </Badge>
     ) : (
-      <div className="jd-flex jd-items-center jd-space-x-1">
+      <div className="jd-flex jd-items-center jd-space-x-1 jd-animate-bounce">
         <Sparkles className="jd-w-3 jd-h-3 jd-text-green-400" />
         <Badge className="jd-bg-green-500 jd-text-white !jd-text-xs !jd-font-medium">
           {getMessage('free_trial', undefined, 'FREE TRIAL')}
         </Badge>
       </div>
     ),
+    badgeAsSubtitle: isNonSubscriber,
     warning: subscription?.status === 'past_due' || subscription?.status === 'cancelled'
   };
 
@@ -297,14 +298,21 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     <h3 className="jd-font-medium jd-text-foreground jd-text-sm jd-truncate">
                       {item.title}
                     </h3>
-                    {item.badge}
+                    {!item.badgeAsSubtitle && item.badge}
                     {item.warning && (
                       <AlertTriangle className="jd-w-4 jd-h-4 jd-text-red-500 jd-flex-shrink-0" />
                     )}
                   </div>
-                  <p className="jd-text-xs jd-text-muted-foreground jd-leading-relaxed">
-                    {item.description}
-                  </p>
+                  {item.badgeAsSubtitle && (
+                    <div className="jd-mb-1">
+                      {item.badge}
+                    </div>
+                  )}
+                  {item.description && (
+                    <p className="jd-text-xs jd-text-muted-foreground jd-leading-relaxed">
+                      {item.description}
+                    </p>
+                  )}
                 </div>
               </div>
               
