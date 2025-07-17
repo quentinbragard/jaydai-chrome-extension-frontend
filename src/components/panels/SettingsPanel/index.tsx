@@ -1,10 +1,10 @@
-// src/components/panels/SettingsPanel/index.tsx
-
-import React, { useState, useEffect } from 'react';
-import { Settings, CreditCard, ExternalLink, Shield, Eye, EyeOff } from "lucide-react";
+// src/components/panels/SettingsPanel/index.tsx - Fixed version
+import React, { useState, useEffect, useRef } from 'react';
+import { Settings, CreditCard, ExternalLink, Shield, Eye, EyeOff, Crown, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import BasePanel from '../BasePanel';
 import { getMessage } from '@/core/utils/i18n';
@@ -12,7 +12,7 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { userApi } from '@/services/api/UserApi';
-import { useSubscription } from '@/state/SubscriptionContext';
+import { useSubscription, useSubscriptionStatus } from '@/state/SubscriptionContext';
 
 interface SettingsPanelProps {
   showBackButton?: boolean;
@@ -31,19 +31,32 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   maxHeight = '75vh' 
 }) => {
   const { openDialog } = useDialogManager();
-  const { subscription, refreshSubscription, isLoading: subscriptionLoading } = useSubscription();
+  const { subscription, isLoading: subscriptionLoading, refreshSubscription } = useSubscription();
+  const { isActive, isTrialing, isPastDue, isCancelled, planId, status } = useSubscriptionStatus();
+  
   const [dataCollection, setDataCollection] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  
+  // Use ref to track if we've already refreshed to avoid infinite loops
+  const hasRefreshedRef = useRef(false);
 
   // Load user preferences on mount
   useEffect(() => {
     trackEvent(EVENTS.SETTINGS_PANEL_OPENED);
     loadUserPreferences();
-    refreshSubscription();
-  }, []);
-
-  console.log('subscription', subscription);
+    
+    // Only refresh subscription once when panel opens
+    if (!hasRefreshedRef.current) {
+      hasRefreshedRef.current = true;
+      refreshSubscription();
+    }
+    
+    // Reset ref when component unmounts
+    return () => {
+      hasRefreshedRef.current = false;
+    };
+  }, []); // Empty dependency array to avoid infinite loops
 
   const loadUserPreferences = async () => {
     try {
@@ -51,7 +64,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       const response = await userApi.getUserMetadata();
       
       if (response.success && response.data) {
-        setDataCollection(response.data.data_collection !== false); // Default to true if not set
+        setDataCollection(response.data.data_collection !== false);
       }
     } catch (error) {
       console.error('Error loading user preferences:', error);
@@ -93,27 +106,24 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
   const handleDataCollectionToggle = (enabled: boolean) => {
     if (enabled) {
-      // Enabling data collection - no confirmation needed
       updateDataCollection(true);
     } else {
-      // Disabling data collection - show confirmation
       openDialog(DIALOG_TYPES.CONFIRMATION, {
         title: getMessage('disable_data_collection', undefined, 'Disable Data Collection'),
         description: getMessage('disable_data_collection_warning', undefined, 'Warning: Without data collection, you won\'t be able to see your AI statistics and usage analytics. Are you sure you want to continue?'),
         confirmText: getMessage('disable', undefined, 'Disable'),
         cancelText: getMessage('cancel', undefined, 'Cancel'),
         onConfirm: () => updateDataCollection(false),
-        onCancel: () => {
-          // Reset switch to previous state
-          setDataCollection(true);
-        }
+        onCancel: () => setDataCollection(true)
       });
     }
   };
 
   const handleManageSubscription = () => {
     trackEvent(EVENTS.MANAGE_SUBSCRIPTION_CLICKED, {
-      source: 'settings_panel'
+      source: 'settings_panel',
+      subscription_status: status,
+      subscription_plan: planId
     });
     openDialog(DIALOG_TYPES.MANAGE_SUBSCRIPTION);
   };
@@ -127,18 +137,82 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     window.open(url, '_blank');
   };
 
+  const getSubscriptionButtonText = () => {
+    if (subscriptionLoading) return getMessage('loading', undefined, 'Loading...');
+    
+    if (isActive || isTrialing) {
+      return getMessage('manage', undefined, 'Manage');
+    }
+    
+    if (isPastDue) {
+      return getMessage('update_payment', undefined, 'Update Payment');
+    }
+    
+    if (isCancelled) {
+      return getMessage('reactivate', undefined, 'Reactivate');
+    }
+    
+    return getMessage('subscribe', undefined, 'Subscribe');
+  };
+
+  const getSubscriptionDescription = () => {
+    if (isActive) {
+      return getMessage('manage_subscription_desc', undefined, 'Manage your active subscription');
+    }
+    
+    if (isTrialing) {
+      return getMessage('trial_subscription_desc', undefined, 'You are in your trial period');
+    }
+    
+    if (isPastDue) {
+      return getMessage('past_due_subscription_desc', undefined, 'Payment is overdue - update payment method');
+    }
+    
+    if (isCancelled) {
+      return getMessage('cancelled_subscription_desc', undefined, 'Reactivate your cancelled subscription');
+    }
+    
+    return getMessage('unlock_premium_features', undefined, 'Unlock all premium features');
+  };
+
+  const getSubscriptionStatus = () => {
+    if (isActive) {
+      return { label: getMessage('active', undefined, 'Active'), color: 'jd-bg-green-100 jd-text-green-800' };
+    }
+    
+    if (isTrialing) {
+      return { label: getMessage('trial', undefined, 'Trial'), color: 'jd-bg-blue-100 jd-text-blue-800' };
+    }
+    
+    if (isPastDue) {
+      return { label: getMessage('past_due', undefined, 'Past Due'), color: 'jd-bg-red-100 jd-text-red-800' };
+    }
+    
+    if (isCancelled) {
+      return { label: getMessage('cancelled', undefined, 'Cancelled'), color: 'jd-bg-yellow-100 jd-text-yellow-800' };
+    }
+    
+    return { label: getMessage('inactive', undefined, 'Inactive'), color: 'jd-bg-gray-100 jd-text-gray-600' };
+  };
+
+  const subscriptionStatus = getSubscriptionStatus();
+
   const subscriptionItem = {
     id: 'subscription',
     icon: <CreditCard className="jd-h-5 jd-w-5 jd-text-blue-500" />,
-    title: subscription?.subscription_status === 'active' || subscription?.subscription_status === 'trialing'
+    title: isActive || isTrialing
       ? getMessage('manage_subscription', undefined, 'Manage Subscription')
       : getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium'),
-    description: subscription?.subscription_status === 'active' || subscription?.subscription_status === 'trialing'
-      ? getMessage('manage_subscription_desc', undefined, 'Upgrade, cancel, or modify your subscription')
-      : getMessage('unlock_premium_features', undefined, 'Unlock all premium features'),
+    description: getSubscriptionDescription(),
     action: handleManageSubscription,
     type: 'button' as const,
-    highlight: (subscription?.subscription_status !== 'active' && subscription?.subscription_status !== 'trialing')
+    highlight: !isActive && !isTrialing,
+    badge: subscription?.hasSubscription ? (
+      <Badge className={`jd-text-xs ${subscriptionStatus.color}`}>
+        {subscriptionStatus.label}
+      </Badge>
+    ) : null,
+    warning: isPastDue
   };
 
   const settingsItems = [
@@ -184,8 +258,10 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         {settingsItems.map((item) => (
           <Card
             key={item.id}
-            className={`jd-p-4 jd-bg-card !jd-shadow-none ${
+            className={`jd-p-4 jd-bg-card !jd-shadow-none jd-mb-2 ${
               item.highlight ? 'jd-border jd-border-blue-500 jd-animate-pulse-slow' : ''
+            } ${
+              item.warning ? 'jd-border jd-border-red-500' : ''
             }`}
           >
             <div className="jd-flex jd-items-center jd-justify-between">
@@ -194,9 +270,15 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   {item.icon}
                 </div>
                 <div className="jd-flex-1 jd-min-w-0">
-                  <h3 className="jd-font-medium jd-text-foreground jd-mb-1 jd-text-sm">
-                    {item.title}
-                  </h3>
+                  <div className="jd-flex jd-items-center jd-gap-2 jd-mb-1">
+                    <h3 className="jd-font-medium jd-text-foreground jd-text-sm">
+                      {item.title}
+                    </h3>
+                    {item.badge}
+                    {item.warning && (
+                      <AlertTriangle className="jd-w-4 jd-h-4 jd-text-red-500" />
+                    )}
+                  </div>
                   <p className="jd-text-xs jd-text-muted-foreground jd-leading-relaxed">
                     {item.description}
                   </p>
@@ -210,13 +292,13 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     size="sm"
                     onClick={item.action}
                     disabled={loading || subscriptionLoading}
-                    className="jd-min-w-[80px]"
+                    className={`jd-min-w-[80px] ${
+                      item.highlight ? 'jd-border-blue-500 jd-text-blue-600' : ''
+                    } ${
+                      item.warning ? 'jd-border-red-500 jd-text-red-600' : ''
+                    }`}
                   >
-                    {item.id === 'subscription'
-                      ? subscription?.subscription_status === 'active' || subscription?.subscription_status === 'trialing'
-                        ? getMessage('manage', undefined, 'Manage')
-                        : getMessage('subscribe', undefined, 'Subscribe')
-                      : getMessage('open', undefined, 'Open')}
+                    {getSubscriptionButtonText()}
                   </Button>
                 ) : (
                   <Switch

@@ -9,7 +9,7 @@ import {
   SubscriptionStatus,
   PaymentResult
 } from '@/types/stripe';
-import { getCurrentLanguage } from '@/core/utils/i18n';
+import { detectPlatform } from '@/extension/content/networkInterceptor/detectPlatform';
 
 export class StripeService {
   private config: StripeConfig;
@@ -207,10 +207,9 @@ export class StripeService {
     if (authToken) {
       url.searchParams.set('auth_token', authToken);
     }
-    
-    // Add extension ID if available
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
-      url.searchParams.set('extension_id', chrome.runtime.id);
+
+    if (detectPlatform() !== 'unknown') {
+      url.searchParams.set('redirect_url', window.location.href);
     }
     
     return url.toString();

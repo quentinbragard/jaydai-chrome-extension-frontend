@@ -19,6 +19,27 @@ export interface DataCollectionRequest {
   data_collection: boolean;
 }
 
+export interface SubscriptionStatusResponse {
+  success: boolean;
+  data: {
+    hasSubscription: boolean;
+    subscription_status: 'active' | 'trialing' | 'past_due' | 'cancelled' | 'inactive' | 'incomplete' | 'unpaid';
+    subscription_plan: string | null;
+    isActive: boolean;
+    isTrialing: boolean;
+    isPastDue: boolean;
+    isCancelled: boolean;
+    cancelAtPeriodEnd: boolean;
+    currentPeriodStart?: string;
+    currentPeriodEnd?: string;
+    trialStart?: string;
+    trialEnd?: string;
+    cancelledAt?: string;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+  };
+}
+
 export class UserApi {
   /**
    * Save user metadata
@@ -52,6 +73,22 @@ export class UserApi {
    */
   async getUserStats(): Promise<any> {
     return apiClient.request('/stats/user');
+  }
+
+  /**
+   * Get detailed subscription status
+   */
+  async getSubscriptionStatus(): Promise<SubscriptionStatusResponse> {
+    return apiClient.request('/user/subscription-status');
+  }
+
+  /**
+   * Reactivate a cancelled subscription
+   */
+  async reactivateSubscription(): Promise<any> {
+    return apiClient.request('/user/subscription/reactivate', {
+      method: 'POST'
+    });
   }
 
   /**
