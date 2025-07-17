@@ -6,6 +6,7 @@ import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS, setUserProperties } from '@/utils/amplitude';
 import { apiClient } from '@/services/api/ApiClient';
 import { User } from '@/types';
+import { useSubscriptionStatus } from '@/hooks/subscription/useSubscriptionStatus';
 
 // Onboarding steps
 import { JobInfoStep } from './steps/JobInfoStep';
@@ -77,8 +78,11 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   // Success state for folder recommendations
   const [folderRecommendations, setFolderRecommendations] = useState<FolderRecommendationResult | null>(null);
   
-  // Total number of steps
-  const totalSteps = 5; // 3 input steps + completion step + payment step
+  // Subscription status to determine if payment step is needed
+  const { isActive: hasActiveSubscription } = useSubscriptionStatus();
+
+  // Total number of steps depends on subscription
+  const totalSteps = hasActiveSubscription ? 4 : 5; // 3 input steps + completion step + optional payment step
   
   // Step titles for the progress indicator
   const stepTitles = [
@@ -267,7 +271,12 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
           />
         );
       case 3:
-        return (
+        return hasActiveSubscription ? (
+          <CompletionStep
+            onComplete={onComplete}
+            folderRecommendations={folderRecommendations}
+          />
+        ) : (
           <PaymentStep
             user={user}
             onComplete={onComplete}
