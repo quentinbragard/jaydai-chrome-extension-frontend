@@ -8,6 +8,7 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { DialogProvider } from '@/components/dialogs/DialogProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ThemeProvider } from '@/components/theme-provider';
+import SubscriptionPrefetcher from '@/components/subscription/SubscriptionPrefetcher';
 import { initAmplitude, setUserProperties } from '@/utils/amplitude';
 import { authService } from '@/services/auth/AuthService';
 import { getCurrentLanguage } from '@/core/utils/i18n';
@@ -102,6 +103,8 @@ const Main: React.FC = () => {
             <QueryProvider>
               {/* Updated to use our new dialog system */}
               <DialogProvider>
+                {/* Prefetch subscription status */}
+                <SubscriptionPrefetcher />
                 {/* UI Components */}
                 <MainButton />
                 {/* Toast notifications */}
