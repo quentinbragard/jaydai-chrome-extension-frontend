@@ -17,11 +17,15 @@ import { NotificationService } from './notifications/NotificationService';
 import { StatsService } from './analytics/StatsService';
 import { UserProfileService } from './user/UserProfileService';
 import { SlashCommandService } from './ui/SlashCommandService';
+import { apiClient } from './api/ApiClient';
+import { stripeService } from './stripe/StripeService';
 
 /**
  * Register all services with the ServiceManager
  */
 export function registerServices(): void {
+  serviceManager.registerService('api.client', apiClient);
+  serviceManager.registerService('stripe', stripeService, ['api.client']);
   // Chat services (network interception)
   serviceManager.registerService('chat.network', ChatService.getInstance());
   serviceManager.registerService('message.network', MessageService.getInstance());

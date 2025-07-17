@@ -41,6 +41,11 @@ export function useInitializeServices() {
         if (authService && !authService.isInitialized()) {
           await authService.initialize();
         }
+
+        const stripeService = serviceManager.getService('stripe');
+        if (stripeService && !stripeService.isInitialized()) {
+          await stripeService.initialize();
+        }
         
         servicesInitialized = true;
         setIsInitialized(true);
