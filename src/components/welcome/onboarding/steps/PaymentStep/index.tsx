@@ -1,7 +1,7 @@
 // src/components/welcome/onboarding/steps/PaymentStep/index.tsx
 import React, { useState, useEffect } from 'react';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
-import { stripeService } from '@/services/stripe/StripeService';
+import { handlePaymentResult } from '@/utils/stripe';
 import { User } from '@/types';
 import { PaymentResult } from '@/types/stripe';
 import { PaymentSuccess } from './PaymentSuccess';
@@ -29,7 +29,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
     const paymentStatus = urlParams.get('payment');
 
     if (paymentStatus) {
-      const result = stripeService.handlePaymentResult();
+      const result = handlePaymentResult();
       setPaymentResult(result);
 
       const newUrl = window.location.pathname;
