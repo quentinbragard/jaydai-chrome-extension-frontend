@@ -77,10 +77,11 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       setIsLoading(true);
       setError(null);
 
-      const response = await userApi.getSubscriptionStatus();
-      
+      const response = await stripeApi.getSubscriptionStatus(userId);
+
+      console.log('respooooooooonse --->', response);
       if (response.success) {
-        setSubscription(response.data);
+        setSubscription(response);
       } else {
         setError(response.message || 'Failed to fetch subscription status');
         setSubscription(defaultSubscription);
@@ -131,7 +132,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
 
     try {
       setIsLoading(true);
-      const response = await userApi.reactivateSubscription();
+      const response = await stripeApi.reactivateSubscription();
       
       if (response.success) {
         await refreshSubscription();

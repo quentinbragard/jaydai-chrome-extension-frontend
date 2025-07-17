@@ -153,6 +153,23 @@ export class StripeApi {
       };
     }
   }
+
+  /**
+   * Reactivate a subscription
+   */
+  async reactivateSubscription(): Promise<boolean> {
+    try {
+      const response = await apiClient.request('/stripe/reactivate-subscription', {
+        method: 'POST',
+        body: JSON.stringify({ userId })
+      });
+
+      return response.success;
+    } catch (error) {
+      console.error('❌ Error reactivating subscription:', error);
+      return false;
+    }
+  }
 }
 
 // Export singleton instance
