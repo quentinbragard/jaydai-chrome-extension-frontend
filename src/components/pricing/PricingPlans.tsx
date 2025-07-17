@@ -7,7 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
-import { stripeService } from '@/services/stripe/StripeService';
+import { stripeApi } from '@/services/api/StripeApi';
+import { buildReturnUrl } from '@/utils/stripe';
 import { User } from '@/types';
 import { cn } from '@/core/utils/classNames';
 
@@ -27,7 +28,26 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
   
-  const plans = stripeService.getPricingPlans();
+  const plans = [
+    {
+      id: 'yearly' as const,
+      name: 'Yearly Plan',
+      price: 6.99,
+      currency: 'EUR',
+      interval: 'year' as const,
+      priceId: process.env.VITE_STRIPE_PLUS_YEARLY_PRICE_ID || '',
+      savings: 'Save 22%',
+      popular: true
+    },
+    {
+      id: 'monthly' as const,
+      name: 'Monthly Plan',
+      price: 8.99,
+      currency: 'EUR',
+      interval: 'month' as const,
+      priceId: process.env.VITE_STRIPE_PLUS_MONTHLY_PRICE_ID || ''
+    }
+  ];
   const currentPlan = plans.find(p => p.id === selectedPlan);
 
   const handleSelectPlan = async () => {
@@ -39,7 +59,20 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
     setIsLoading(true);
 
     try {
-      await stripeService.redirectToCheckout(selectedPlan, user.id, user.email);
+      const plan = plans.find(p => p.id === selectedPlan);
+      if (!plan) throw new Error('Invalid plan selected');
+
+      const session = await stripeApi.createCheckoutSession({
+        priceId: plan.priceId,
+        successUrl: await buildReturnUrl('success'),
+        cancelUrl: await buildReturnUrl('cancel'),
+        userId: user.id,
+        userEmail: user.email,
+      });
+
+      if (session.url) {
+        window.open(session.url, '_blank');
+      }
       
       toast.info(
         getMessage('redirectingToPayment', undefined, 'Redirecting to payment...'),

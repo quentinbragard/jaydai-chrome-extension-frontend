@@ -16,7 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
-import { stripeService } from '@/services/stripe/StripeService';
+import { stripeApi } from '@/services/api/StripeApi';
+import { buildReturnUrl } from '@/utils/stripe';
 import { SubscriptionStatus } from '@/types/stripe';
 import { User } from '@/types';
 
@@ -37,7 +38,7 @@ export const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ 
   const loadSubscriptionStatus = async () => {
     try {
       setIsLoading(true);
-      const status = await stripeService.getSubscriptionStatus(user.id);
+      const status = await stripeApi.getSubscriptionStatus(user.id);
       setSubscription(status);
     } catch (error) {
       console.error('Error loading subscription:', error);
@@ -50,7 +51,10 @@ export const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ 
   const handleManageSubscription = async () => {
     try {
       setIsUpdating(true);
-      const portalUrl = await stripeService.getCustomerPortalUrl(user.id);
+      const portalUrl = await stripeApi.getCustomerPortalUrl(
+        user.id,
+        await buildReturnUrl('success')
+      );
       
       if (portalUrl) {
         window.open(portalUrl, '_blank');
@@ -73,7 +77,7 @@ export const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ 
 
     try {
       setIsUpdating(true);
-      const success = await stripeService.cancelSubscription(user.id);
+      const success = await stripeApi.cancelSubscription(user.id);
       
       if (success) {
         toast.success(getMessage('subscriptionCancelled', undefined, 'Subscription cancelled successfully'));
