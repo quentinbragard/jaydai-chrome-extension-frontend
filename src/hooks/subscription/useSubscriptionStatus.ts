@@ -34,44 +34,15 @@ export function useSubscriptionStatus() {
     fetchStatus();
   }, [fetchStatus]);
 
-  const flags = useMemo(() => {
-    const isActive = subscription?.isActive ?? false;
-    const isTrialing = subscription?.isTrialing ?? false;
-    const isPastDue = subscription?.isPastDue ?? false;
-    const isCancelled = subscription?.isCancelled ?? false;
-
-    const planId =
-      (subscription as any)?.subscription_plan ??
-      (subscription as any)?.planId ??
-      null;
-
-    const hasSubscription =
-      subscription?.hasSubscription ??
-      isActive || isTrialing || isPastDue || isCancelled;
-
-    const status =
-      (subscription as any)?.subscription_status ??
-      (subscription as any)?.status ??
-      (isActive
-        ? 'active'
-        : isTrialing
-        ? 'trialing'
-        : isPastDue
-        ? 'past_due'
-        : isCancelled
-        ? 'cancelled'
-        : 'inactive');
-
-    return {
-      isActive,
-      isTrialing,
-      isPastDue,
-      isCancelled,
-      hasSubscription,
-      planId,
-      status,
-    };
-  }, [subscription]);
+  const flags = useMemo(() => ({
+    isActive: subscription?.isActive ?? false,
+    isTrialing: subscription?.isTrialing ?? false,
+    isPastDue: subscription?.isPastDue ?? false,
+    isCancelled: subscription?.isCancelled ?? false,
+    hasSubscription: subscription?.hasSubscription ?? false,
+    planId: subscription?.subscription_plan ?? null,
+    status: subscription?.subscription_status ?? 'inactive',
+  }), [subscription]);
 
   return { subscription, loading, error, refreshStatus: fetchStatus, ...flags };
 }
