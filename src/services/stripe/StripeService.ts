@@ -1,5 +1,6 @@
 // src/services/stripe/StripeService.ts
 import { apiClient } from '@/services/api/ApiClient';
+import { stripeApi, SubscriptionStatusResponse } from '@/services/api/StripeApi';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { 
   StripeConfig, 
@@ -137,20 +138,31 @@ export class StripeService {
    */
   async getSubscriptionStatus(userId: string): Promise<SubscriptionStatus> {
     try {
-      const response = await apiClient.request(`/user/subscription-status`, {
-        method: 'GET'
-      });
+      const response: SubscriptionStatusResponse = await stripeApi.getSubscriptionStatus();
 
       console.log('response --->', response);
 
       if (!response.success) {
-        throw new Error(response.error || 'Failed to get subscription status');
+        throw new Error(response.message || 'Failed to get subscription status');
       }
 
       return response.data;
     } catch (error) {
       console.error('❌ Error getting subscription status:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Reactivate a cancelled subscription
+   */
+  async reactivateSubscription(): Promise<boolean> {
+    try {
+      const response = await stripeApi.reactivateSubscription();
+      return response.success ?? true;
+    } catch (error) {
+      console.error('❌ Error reactivating subscription:', error);
+      return false;
     }
   }
 

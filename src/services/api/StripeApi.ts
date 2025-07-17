@@ -1,10 +1,31 @@
 // src/services/api/StripeApi.ts
 import { apiClient } from './ApiClient';
-import { 
-  CreateCheckoutSessionRequest, 
+import {
+  CreateCheckoutSessionRequest,
   CreateCheckoutSessionResponse,
-  SubscriptionStatus 
+  SubscriptionStatus
 } from '@/types/stripe';
+
+export interface SubscriptionStatusResponse {
+  success: boolean;
+  data: {
+    hasSubscription: boolean;
+    subscription_status: 'active' | 'trialing' | 'past_due' | 'cancelled' | 'inactive' | 'incomplete' | 'unpaid';
+    subscription_plan: string | null;
+    isActive: boolean;
+    isTrialing: boolean;
+    isPastDue: boolean;
+    isCancelled: boolean;
+    cancelAtPeriodEnd: boolean;
+    currentPeriodStart?: string;
+    currentPeriodEnd?: string;
+    trialStart?: string;
+    trialEnd?: string;
+    cancelledAt?: string;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+  };
+}
 
 export class StripeApi {
   /**
@@ -33,34 +54,19 @@ export class StripeApi {
   }
 
   /**
-   * Get subscription status for a user
+   * Get detailed subscription status for the current user
    */
-  async getSubscriptionStatus(userId: string): Promise<SubscriptionStatus> {
-    try {
-      const response = await apiClient.request(`/stripe/subscription-status/${userId}`, {
-        method: 'GET'
-      });
+  async getSubscriptionStatus(): Promise<SubscriptionStatusResponse> {
+    return apiClient.request('/user/subscription-status');
+  }
 
-      console.log('response --->', response);
-
-      if (!response.success) {
-        throw new Error(response.error || 'Failed to get subscription status');
-      }
-
-      return response.subscription;
-    } catch (error) {
-      console.error('❌ Error getting subscription status:', error);
-      
-      // Return default status on error
-      return {
-        isActive: false,
-        planId: null,
-        currentPeriodEnd: null,
-        cancelAtPeriodEnd: false,
-        stripeCustomerId: null,
-        stripeSubscriptionId: null
-      };
-    }
+  /**
+   * Reactivate a cancelled subscription
+   */
+  async reactivateSubscription(): Promise<any> {
+    return apiClient.request('/user/subscription/reactivate', {
+      method: 'POST'
+    });
   }
 
   /**

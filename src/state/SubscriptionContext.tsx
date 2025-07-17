@@ -1,7 +1,6 @@
 // src/state/SubscriptionContext.tsx - Fixed version with proper memoization
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useAuthState } from '@/hooks/auth/useAuthState';
-import { userApi } from '@/services/api/UserApi';
 import { stripeService } from '@/services/stripe/StripeService';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
@@ -77,14 +76,8 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       setIsLoading(true);
       setError(null);
 
-      const response = await userApi.getSubscriptionStatus();
-      
-      if (response.success) {
-        setSubscription(response.data);
-      } else {
-        setError(response.message || 'Failed to fetch subscription status');
-        setSubscription(defaultSubscription);
-      }
+      const data = await stripeService.getSubscriptionStatus(userId);
+      setSubscription(data);
     } catch (error) {
       console.error('Error fetching subscription status:', error);
       setError('Failed to fetch subscription status');
@@ -131,9 +124,9 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
 
     try {
       setIsLoading(true);
-      const response = await userApi.reactivateSubscription();
-      
-      if (response.success) {
+      const success = await stripeService.reactivateSubscription();
+
+      if (success) {
         await refreshSubscription();
         toast.success(getMessage('subscription_reactivated', undefined, 'Subscription reactivated successfully'));
         return true;
