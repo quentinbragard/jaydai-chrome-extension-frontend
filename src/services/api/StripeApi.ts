@@ -47,19 +47,12 @@ export class StripeApi {
         throw new Error(response.error || 'Failed to get subscription status');
       }
 
-      return response.subscription;
+      const subscription = response.data;
+
+      return subscription;
     } catch (error) {
       console.error('❌ Error getting subscription status:', error);
-      
-      // Return default status on error
-      return {
-        isActive: false,
-        planId: null,
-        currentPeriodEnd: null,
-        cancelAtPeriodEnd: false,
-        stripeCustomerId: null,
-        stripeSubscriptionId: null
-      };
+      throw error;
     }
   }
 

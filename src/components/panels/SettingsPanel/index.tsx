@@ -42,6 +42,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     planId,
     status
   } = useSubscriptionStatus();
+
+  console.log('subscription --->', subscription);
+  console.log('isActive --->', isActive);
+  console.log('isTrialing --->', isTrialing);
+  console.log('isPastDue --->', isPastDue);
+  console.log('isCancelled --->', isCancelled);
+  console.log('planId --->', planId);
+  console.log('status --->', status);
   
   const [dataCollection, setDataCollection] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
@@ -147,7 +155,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   };
 
   const getSubscriptionButtonText = () => {
-    if (subscriptionLoading) return getMessage('loading', undefined, 'Loading...');
+    if (subscriptionLoading || subscription === null) return getMessage('loading', undefined, 'Loading...');
     
     if (isActive || isTrialing) {
       return getMessage('manage', undefined, 'Manage');
@@ -300,7 +308,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={item.action}
-                    disabled={loading || subscriptionLoading}
+                    disabled={loading || subscriptionLoading || subscription === null}
                     className={`jd-min-w-[80px] ${
                       item.highlight ? 'jd-border-blue-500 jd-text-blue-600' : ''
                     } ${
