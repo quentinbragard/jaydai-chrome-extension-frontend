@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, ExternalLink, Crown } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
-import { SubscriptionData } from '@/state/SubscriptionContext';
+import { SubscriptionData } from '@/types/subscription';
 
 interface Props {
   subscription: SubscriptionData | null;

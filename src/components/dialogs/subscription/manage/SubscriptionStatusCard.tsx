@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Crown } from 'lucide-react';
-import { SubscriptionData } from '@/state/SubscriptionContext';
+import { SubscriptionData } from '@/types/subscription';
 import { getMessage } from '@/core/utils/i18n';
 import { formatDate, getPlanDisplayName, StatusInfo } from './helpers';
 

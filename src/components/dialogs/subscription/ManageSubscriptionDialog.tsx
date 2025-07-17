@@ -11,7 +11,7 @@ import { getMessage } from '@/core/utils/i18n';
 import { stripeApi } from '@/services/api/StripeApi';
 import { buildReturnUrl } from '@/utils/stripe';
 import { useAuthState } from '@/hooks/auth/useAuthState';
-import { useSubscription, useSubscriptionActions } from '@/state/SubscriptionContext';
+import { useSubscriptionStatus } from '@/hooks/subscription/useSubscriptionStatus';
 import { PricingPlans } from '@/components/pricing/PricingPlans';
 import {
   getStatusInfo,
@@ -25,8 +25,7 @@ import {
 export const ManageSubscriptionDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.MANAGE_SUBSCRIPTION);
   const { authState } = useAuthState();
-  const { subscription, isLoading } = useSubscription();
-  const { cancelSubscription, reactivateSubscription, refreshSubscription } = useSubscriptionActions();
+  const { subscription, loading: isLoading, refreshStatus } = useSubscriptionStatus();
   const [loading, setLoading] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   
@@ -37,7 +36,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
   useEffect(() => {
     if (isOpen && authState.user?.id && !hasRefreshedRef.current) {
       hasRefreshedRef.current = true;
-      refreshSubscription().then(() => {
+      refreshStatus().then(() => {
         // Show pricing if user has no active subscription
         // We'll handle this in a separate effect to avoid dependency issues
       });
@@ -87,18 +86,40 @@ export const ManageSubscriptionDialog: React.FC = () => {
 
     if (!confirmCancel) return;
 
+    if (!authState.user?.id) return;
+
     setLoading(true);
     try {
-      await cancelSubscription();
+      const success = await stripeApi.cancelSubscription(authState.user.id);
+      if (success) {
+        await refreshStatus();
+        toast.success(getMessage('subscription_cancelled', undefined, 'Subscription cancelled successfully'));
+      } else {
+        toast.error(getMessage('error_cancelling_subscription', undefined, 'Failed to cancel subscription'));
+      }
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+      toast.error(getMessage('error_cancelling_subscription', undefined, 'Failed to cancel subscription'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleReactivateSubscription = async () => {
+    if (!authState.user?.id) return;
+
     setLoading(true);
     try {
-      await reactivateSubscription();
+      const success = await stripeApi.reactivateSubscription(authState.user.id);
+      if (success) {
+        await refreshStatus();
+        toast.success(getMessage('subscription_reactivated', undefined, 'Subscription reactivated successfully'));
+      } else {
+        toast.error(getMessage('error_reactivating_subscription', undefined, 'Failed to reactivate subscription'));
+      }
+    } catch (error) {
+      console.error('Error reactivating subscription:', error);
+      toast.error(getMessage('error_reactivating_subscription', undefined, 'Failed to reactivate subscription'));
     } finally {
       setLoading(false);
     }
@@ -107,7 +128,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
   const handleRefreshSubscription = async () => {
     setLoading(true);
     try {
-      await refreshSubscription();
+      await refreshStatus();
     } finally {
       setLoading(false);
     }
@@ -115,7 +136,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
 
   const handlePaymentSuccess = () => {
     toast.success(getMessage('payment_successful', undefined, 'Payment successful! Your subscription is now active.'));
-    refreshSubscription();
+    refreshStatus();
     setShowPricing(false);
   };
 

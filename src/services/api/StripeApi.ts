@@ -157,7 +157,7 @@ export class StripeApi {
   /**
    * Reactivate a subscription
    */
-  async reactivateSubscription(): Promise<boolean> {
+  async reactivateSubscription(userId: string): Promise<boolean> {
     try {
       const response = await apiClient.request('/stripe/reactivate-subscription', {
         method: 'POST',

@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/state/AuthContext';
-import { SubscriptionProvider } from '@/state/SubscriptionContext';
 import MainButton from '@/components/MainButton';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { DialogProvider } from '@/components/dialogs/DialogProvider';
@@ -94,7 +93,6 @@ const Main: React.FC = () => {
     <div id="jaydai-shadow-root" className="jd-w-full jd-h-full jd-z-[9999]">
       <ErrorBoundary>
         <AuthProvider>
-          <SubscriptionProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -182,7 +180,6 @@ const Main: React.FC = () => {
               </DialogProvider>
             </QueryProvider>
           </ThemeProvider>
-          </SubscriptionProvider>
         </AuthProvider>
       </ErrorBoundary>
     </div>
