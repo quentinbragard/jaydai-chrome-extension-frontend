@@ -12,7 +12,7 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { userApi } from '@/services/api/UserApi';
-import { useSubscription, useSubscriptionStatus } from '@/state/SubscriptionContext';
+import { useSubscriptionStatus } from '@/hooks/subscription/useSubscriptionStatus';
 
 interface SettingsPanelProps {
   showBackButton?: boolean;
@@ -31,8 +31,17 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   maxHeight = '75vh' 
 }) => {
   const { openDialog } = useDialogManager();
-  const { subscription, isLoading: subscriptionLoading, refreshSubscription } = useSubscription();
-  const { isActive, isTrialing, isPastDue, isCancelled, planId, status } = useSubscriptionStatus();
+  const {
+    subscription,
+    loading: subscriptionLoading,
+    refreshStatus,
+    isActive,
+    isTrialing,
+    isPastDue,
+    isCancelled,
+    planId,
+    status
+  } = useSubscriptionStatus();
   
   const [dataCollection, setDataCollection] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
@@ -49,7 +58,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     // Only refresh subscription once when panel opens
     if (!hasRefreshedRef.current) {
       hasRefreshedRef.current = true;
-      refreshSubscription();
+      refreshStatus();
     }
     
     // Reset ref when component unmounts
