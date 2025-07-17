@@ -2086,5 +2086,85 @@
     "placeholders": {
       "type": { "content": "$1", "example": "contrainte" }
     }
+  },
+  "almostDone": {
+    "message": "Presque fini !",
+    "description": "Indicateur de progression pour l'onboarding"
+  },
+  "unlockFullPotential": {
+    "message": "Débloquez Tout Votre Potentiel IA",
+    "description": "Titre principal pour l'étape de paiement"
+  },
+  "joinThousands": {
+    "message": "Rejoignez 1000+ professionnels qui économisent 2h+ par jour avec l'IA",
+    "description": "Sous-titre de preuve sociale"
+  },
+  "limitedTime": {
+    "message": "Offre Limitée",
+    "description": "Label pour offre à durée limitée"
+  },
+  "save22Percent": {
+    "message": "Économisez 22%",
+    "description": "Badge de pourcentage de remise"
+  },
+  "monthly": {
+    "message": "Mensuel",
+    "description": "Label pour l'abonnement mensuel"
+  },
+  "yearly": {
+    "message": "Annuel",
+    "description": "Label pour l'abonnement annuel"
+  },
+  "yearlyPlanOffer": {
+    "message": "sur les abonnements annuels",
+    "description": "Contexte de remise abonnement annuel"
+  },
+  "activeUsers": {
+    "message": "utilisateurs actifs",
+    "description": "Label pour statistique du nombre d'utilisateurs"
+  },
+  "rating": {
+    "message": "note",
+    "description": "Label pour statistique de notation"
+  },
+  "hoursSaved": {
+    "message": "h économisées",
+    "description": "Abréviation heures économisées"
+  },
+  "daily": {
+    "message": "par jour",
+    "description": "Label de fréquence quotidienne"
+  },
+  "instantAccess": {
+    "message": "Accès Instantané",
+    "description": "Titre d'avantage"
+  },
+  "instantAccessDesc": {
+    "message": "1000+ modèles premium",
+    "description": "Description avantage accès instantané"
+  },
+  "unlimitedUse": {
+    "message": "Utilisation Illimitée",
+    "description": "Titre d'avantage"
+  },
+  "unlimitedUseDesc": {
+    "message": "Aucune limite quotidienne ou restriction",
+    "description": "Description avantage utilisation illimitée"
+  },
+  "prioritySupportDesc": {
+    "message": "Support premium 24/7",
+    "description": "Description avantage support prioritaire"
+  },
+  "moneyBackGuarantee": {
+    "message": "Garantie satisfait ou remboursé 30 jours",
+    "description": "Texte garantie remboursement"
+  },
+  "continueWithFree": {
+    "message": "Continuer avec la version gratuite",
+    "description": "Texte option ignorer paiement"
+  },
+  "instantActivation": {
+    "message": "Activation instantanée",
+    "description": "Signal de confiance pour accès immédiat"
   }
 }

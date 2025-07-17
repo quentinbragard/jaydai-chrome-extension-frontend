@@ -2104,5 +2104,85 @@
     "placeholders": {
       "type": { "content": "$1", "example": "constraint" }
     }
+  },
+  "almostDone": {
+    "message": "Almost done!",
+    "description": "Progress indicator for onboarding"
+  },
+  "unlockFullPotential": {
+    "message": "Unlock Your Full AI Potential",
+    "description": "Main headline for payment step"
+  },
+  "joinThousands": {
+    "message": "Join 1,000+ professionals who save 2+ hours daily with AI",
+    "description": "Social proof subtitle"
+  },
+  "limitedTime": {
+    "message": "Limited Time",
+    "description": "Limited time offer label"
+  },
+  "save22Percent": {
+    "message": "SAVE 22%",
+    "description": "Discount percentage badge"
+  },
+  "monthly": {
+    "message": "Monthly",
+    "description": "Monthly plan label"
+  },
+  "yearly": {
+    "message": "Yearly",
+    "description": "Yearly plan label"
+  },
+  "yearlyPlanOffer": {
+    "message": "on yearly plans",
+    "description": "Yearly plan discount context"
+  },
+  "activeUsers": {
+    "message": "active users",
+    "description": "Label for user count statistic"
+  },
+  "rating": {
+    "message": "rating",
+    "description": "Label for rating statistic"
+  },
+  "hoursSaved": {
+    "message": "hrs saved",
+    "description": "Hours saved abbreviation"
+  },
+  "daily": {
+    "message": "daily",
+    "description": "Daily frequency label"
+  },
+  "instantAccess": {
+    "message": "Instant Access",
+    "description": "Benefit title"
+  },
+  "instantAccessDesc": {
+    "message": "1000+ premium templates",
+    "description": "Instant access benefit description"
+  },
+  "unlimitedUse": {
+    "message": "Unlimited Use",
+    "description": "Benefit title"
+  },
+  "unlimitedUseDesc": {
+    "message": "No daily limits or restrictions",
+    "description": "Unlimited use benefit description"
+  },
+  "prioritySupportDesc": {
+    "message": "24/7 premium support",
+    "description": "Priority support benefit description"
+  },
+  "moneyBackGuarantee": {
+    "message": "30-day money-back guarantee",
+    "description": "Money back guarantee text"
+  },
+  "continueWithFree": {
+    "message": "Continue with free",
+    "description": "Skip payment option text"
+  },
+  "instantActivation": {
+    "message": "Instant activation",
+    "description": "Trust signal for immediate access"
   }
 }

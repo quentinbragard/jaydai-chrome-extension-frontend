@@ -36,7 +36,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
       currency: 'EUR',
       interval: 'year' as const,
       priceId: process.env.VITE_STRIPE_PLUS_YEARLY_PRICE_ID || '',
-      savings: 'Save 22%',
+      savings: getMessage('save22Percent', undefined, 'Save 22%'),
       popular: true
     },
     {
@@ -186,11 +186,8 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
                     }
                   </span>
                   {period === 'yearly' && (
-                    <Badge className={cn(
-                      "jd-text-xs",
-                      isDark ? "jd-bg-green-600 jd-text-white" : "jd-bg-green-600 jd-text-white"
-                    )}>
-                      {getMessage('save', undefined, 'Save 22%')}
+                    <Badge className="jd-bg-gradient-to-r jd-from-orange-500 jd-to-red-500 jd-text-white jd-font-bold jd-text-xs jd-px-3 jd-py-1">
+                      -22%
                     </Badge>
                   )}
                 </span>
@@ -212,23 +209,15 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
               : "jd-bg-gradient-to-b jd-from-blue-50 jd-to-white jd-border-blue-500 jd-shadow-blue-500/20"
           )}
         >
-          {/* Most Popular Badge */}
-          <div className="jd-absolute jd-top-[-12px] jd-left-1/2 jd-transform jd--translate-x-1/2">
-            <Badge className={badgeStyles}>
-              <Crown className="jd-w-3 jd-h-3 jd-mr-1" />
-              {getMessage('mostPopular', undefined, 'Most Popular')}
-            </Badge>
-          </div>
-
+        
           <CardHeader className="jd-p-8 jd-pb-4">
             <div className="jd-flex jd-items-center jd-justify-between jd-mb-4">
-              <div className={cn(
-                "jd-p-3 jd-rounded-xl",
-                isDark 
-                  ? "jd-bg-blue-600 jd-text-white"
-                  : "jd-bg-blue-600 jd-text-white"
-              )}>
-                <Crown className="jd-w-6 jd-h-6" />
+              <div>
+                <img 
+                  src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//jaydai-org-avatar.png" 
+                  alt="Enterprise Icon" 
+                  className="jd-w-6 jd-h-6"
+                />
               </div>
               <h3 className={cn(
                 "jd-text-xl jd-font-semibold",
@@ -257,7 +246,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
               {selectedPlan === 'yearly' && (
                 <div className="jd-mt-2">
                   <span className="jd-text-green-500 jd-text-sm jd-font-medium">
-                    {getMessage('save22', undefined, 'Save 22%')}
+                    {getMessage('save22Percent', undefined, 'Save 22%')}
                   </span>
                   <div className="jd-mt-1">
                     <span className={cn(

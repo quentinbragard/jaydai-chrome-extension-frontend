@@ -1,12 +1,14 @@
 // src/components/welcome/onboarding/OnboardingFlow.tsx - Updated
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS, setUserProperties } from '@/utils/amplitude';
 import { apiClient } from '@/services/api/ApiClient';
 import { User } from '@/types';
-import { useSubscriptionStatus } from '@/hooks/subscription/useSubscriptionStatus';
+import { SubscriptionStatus } from '@/types/subscription';
+import { stripeApi } from '@/services/api/StripeApi';
+
 
 // Onboarding steps
 import { JobInfoStep } from './steps/JobInfoStep';
@@ -68,27 +70,34 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     signup_source: null,
     other_source: null
   });
-  
-  // Loading state for form submission
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Error state
-  const [error, setError] = useState<string | null>(null);
-  
-  // Success state for folder recommendations
-  const [folderRecommendations, setFolderRecommendations] = useState<FolderRecommendationResult | null>(null);
-  
-  // Subscription status to determine if payment step is needed
-  const { isActive: hasActiveSubscription } = useSubscriptionStatus();
 
-  // Total number of steps depends on subscription
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [folderRecommendations, setFolderRecommendations] = useState<FolderRecommendationResult | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+
+  useEffect(() => {
+    const fetchSubscriptionStatus = async () => {
+      const status = await stripeApi.getSubscriptionStatus(user?.id as string);
+      setSubscriptionStatus(status);
+      setHasActiveSubscription(status?.status === 'active' || status?.status === 'trialing');
+    };
+    fetchSubscriptionStatus();
+  }, [user?.id]);
   const totalSteps = hasActiveSubscription ? 4 : 5; // 3 input steps + completion step + optional payment step
   
   // Step titles for the progress indicator
-  const stepTitles = [
+  const stepTitles = hasActiveSubscription ? [
     getMessage('onboardingStepJob', undefined, 'Your Job'),
     getMessage('onboardingStepInterests', undefined, 'Interests'),
     getMessage('onboardingStepReferral', undefined, 'How You Found Us'),
+    getMessage('onboardingStepComplete', undefined, 'Complete')
+  ] : [
+    getMessage('onboardingStepJob', undefined, 'Your Job'),
+    getMessage('onboardingStepInterests', undefined, 'Interests'),
+    getMessage('onboardingStepReferral', undefined, 'How You Found Us'),
+    getMessage('onboardingStepPayment', undefined, 'Payment'),
     getMessage('onboardingStepComplete', undefined, 'Complete')
   ];
   
