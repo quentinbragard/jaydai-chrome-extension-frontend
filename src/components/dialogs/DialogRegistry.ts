@@ -20,9 +20,12 @@ export const DIALOG_TYPES = {
   INSERT_BLOCK: 'insertBlock',
   TUTORIALS_LIST: 'tutorialsList',
   TUTORIAL_VIDEO: 'tutorialVideo',
-  
+
   // New dialog type for subscription management
-  MANAGE_SUBSCRIPTION: 'manageSubscription'
+  MANAGE_SUBSCRIPTION: 'manageSubscription',
+
+  // Dialog shown when a paid subscription is required
+  PAYWALL: 'paywall'
 } as const;
 
 // Export the dialog types
@@ -106,4 +109,6 @@ export interface DialogProps {
   };
 
   [DIALOG_TYPES.MANAGE_SUBSCRIPTION]: Record<string, never>;
+
+  [DIALOG_TYPES.PAYWALL]: Record<string, never>;
 }

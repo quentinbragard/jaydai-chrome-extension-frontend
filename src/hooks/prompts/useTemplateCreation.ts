@@ -4,6 +4,8 @@ import { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { toast } from 'sonner';
 import { promptApi } from '@/services/api/PromptApi';
+import { useDialogManager } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { Template } from '@/types/prompts/templates';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
 
@@ -30,6 +32,7 @@ interface TemplateValidationErrors {
  */
 export function useTemplateCreation() {
   const queryClient = useQueryClient();
+  const { openDialog } = useDialogManager();
   const [validationErrors, setValidationErrors] = useState<TemplateValidationErrors>({});
   
   // Create template mutation
@@ -74,6 +77,9 @@ export function useTemplateCreation() {
       },
       onError: (error: any) => {
         console.error('Error creating template:', error);
+        if (error?.message && error.message.includes('Subscription')) {
+          openDialog(DIALOG_TYPES.PAYWALL);
+        }
         toast.error(`Failed to create template: ${error?.message || 'Unknown error'}`);
       }
     }
@@ -153,6 +159,9 @@ export function useTemplateCreation() {
       }
       return true;
     } catch (error) {
+      if (error instanceof Error && error.message.includes('Subscription')) {
+        openDialog(DIALOG_TYPES.PAYWALL);
+      }
       return false;
     }
   }, [validateTemplateForm, createTemplateMutation, updateTemplateMutation]);
