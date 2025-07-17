@@ -27,4 +27,7 @@ export const QUERY_KEYS = {
 
     ORGANIZATIONS: 'organizations',
     ORGANIZATION_BY_ID: 'organizationById',
+
+    // Subscription related
+    SUBSCRIPTION_STATUS: 'subscriptionStatus',
   };

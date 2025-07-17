@@ -1,43 +1,35 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
 import { stripeApi } from '@/services/api/StripeApi';
 import { useAuthState } from '@/hooks/auth/useAuthState';
 import { SubscriptionStatus } from '@/types/subscription';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 export function useSubscriptionStatus() {
   const { authState } = useAuthState();
-  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const userId = authState.user?.id;
 
-  const fetchStatus = useCallback(async () => {
-    const userId = authState.user?.id;
-    if (!userId) {
-      setSubscription(null);
-      return;
+  const query = useQuery<SubscriptionStatus>(
+    [QUERY_KEYS.SUBSCRIPTION_STATUS, userId],
+    () => stripeApi.getSubscriptionStatus(userId as string),
+    {
+      enabled: !!userId,
+      staleTime: 60 * 60 * 1000,
+      cacheTime: 60 * 60 * 1000,
     }
+  );
 
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await stripeApi.getSubscriptionStatus(userId);
-      setSubscription(result as unknown as SubscriptionStatus);
-    } catch (err) {
-      console.error('Error fetching subscription status:', err);
-      setError('Failed to fetch subscription status');
-      setSubscription(null);
-    } finally {
-      setLoading(false);
+  const refreshStatus = useCallback(async () => {
+    if (userId) {
+      await queryClient.invalidateQueries([QUERY_KEYS.SUBSCRIPTION_STATUS, userId]);
     }
-  }, [authState.user?.id]);
-
-  useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus]);
+  }, [queryClient, userId]);
 
   return {
-    subscription,
-    loading,
-    refreshStatus: fetchStatus,
-    error
+    subscription: query.data ?? null,
+    loading: query.isLoading,
+    refreshStatus,
+    error: query.error ? (query.error as Error).message : null,
   };
 }
