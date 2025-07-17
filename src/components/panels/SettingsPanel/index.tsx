@@ -1,6 +1,6 @@
-// src/components/panels/SettingsPanel/index.tsx - Fixed version
+// src/components/panels/SettingsPanel/index.tsx - Refined for narrow panel
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, CreditCard, ExternalLink, Shield, Eye, EyeOff, Crown, AlertTriangle } from "lucide-react";
+import { Settings, CreditCard, ExternalLink, Shield, Eye, EyeOff, Crown, AlertTriangle, Gift, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -157,7 +157,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       return getMessage('reactivate', undefined, 'Reactivate');
     }
     
-    return getMessage('subscribe', undefined, 'Subscribe');
+    return getMessage('startTrial', undefined, 'Start Trial');
   };
 
   const getSubscriptionDescription = () => {
@@ -177,7 +177,15 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       return getMessage('cancelled_subscription_desc', undefined, 'Reactivate your cancelled subscription');
     }
     
-    return getMessage('unlock_premium_features', undefined, 'Unlock all premium features');
+    return getMessage('try_premium_free', undefined, '3-day free trial • No commitment');
+  };
+
+  const getSubscriptionTitle = () => {
+    if (subscription?.status === 'active' || subscription?.status === 'trialing') {
+      return getMessage('manage_subscription', undefined, 'Manage Subscription');
+    }
+    
+    return getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium');
   };
 
   const getSubscriptionStatus = () => {
@@ -197,27 +205,35 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       return { label: getMessage('cancelled', undefined, 'Cancelled'), color: 'jd-bg-yellow-100 jd-text-yellow-800' };
     }
     
-    return { label: getMessage('inactive', undefined, 'Inactive'), color: 'jd-bg-gray-100 jd-text-gray-600' };
+    return { label: getMessage('free', undefined, 'Free'), color: 'jd-bg-gray-100 jd-text-gray-600' };
   };
 
   const subscriptionStatus = getSubscriptionStatus();
+  const isNonSubscriber = subscription?.status !== 'active' && subscription?.status !== 'trialing';
 
   const subscriptionItem = {
     id: 'subscription',
-    icon: <CreditCard className="jd-h-5 jd-w-5 jd-text-blue-500" />,
-    title: subscription?.status === 'active' || subscription?.status === 'trialing'
-      ? getMessage('manage_subscription', undefined, 'Manage Subscription')
-      : getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium'),
+    icon: subscription?.status === 'active' || subscription?.status === 'trialing' ? 
+      <Crown className="jd-h-5 jd-w-5 jd-text-blue-500" /> :
+      <Gift className="jd-h-5 jd-w-5 jd-text-green-500" />,
+    title: getSubscriptionTitle(),
     description: getSubscriptionDescription(),
     action: handleManageSubscription,
     type: 'button' as const,
-    highlight: subscription?.status !== 'active' && subscription?.status !== 'trialing',
+    highlight: isNonSubscriber,
     badge: subscription?.status === 'active' || subscription?.status === 'trialing' ? (
       <Badge className={`jd-text-xs ${subscriptionStatus.color}`}>
         {subscriptionStatus.label}
       </Badge>
-    ) : null,
-      warning: subscription?.status === 'past_due' || subscription?.status === 'cancelled'
+    ) : (
+      <div className="jd-flex jd-items-center jd-space-x-1">
+        <Sparkles className="jd-w-3 jd-h-3 jd-text-green-400" />
+        <Badge className="jd-bg-green-500 jd-text-white !jd-text-xs !jd-font-medium">
+          {getMessage('free_trial', undefined, 'FREE TRIAL')}
+        </Badge>
+      </div>
+    ),
+    warning: subscription?.status === 'past_due' || subscription?.status === 'cancelled'
   };
 
   const settingsItems = [
@@ -228,7 +244,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       title: getMessage('linkedin', undefined, 'LinkedIn'),
       description: getMessage('linkedin_desc', undefined, 'Follow us on LinkedIn for updates'),
       action: () => handleExternalLink('https://www.linkedin.com/company/jaydai/', 'linkedin'),
-      type: 'button' as const
+      type: 'button' as const,
+      buttonText: getMessage('follow', undefined, 'Follow')
     },
     {
       id: 'privacy',
@@ -236,7 +253,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       title: getMessage('privacy_policy', undefined, 'Privacy Policy'),
       description: getMessage('privacy_desc', undefined, 'Read our privacy policy'),
       action: () => handleExternalLink('https://www.jayd.ai/fr/privacy', 'privacy'),
-      type: 'button' as const
+      type: 'button' as const,
+      buttonText: getMessage('read', undefined, 'Read')
     },
     {
       id: 'dataCollection',
@@ -263,25 +281,25 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         {settingsItems.map((item) => (
           <Card
             key={item.id}
-            className={`jd-p-4 jd-bg-card !jd-shadow-none jd-mb-2 ${
-              item.highlight ? 'jd-border jd-border-blue-500 jd-animate-pulse-slow' : ''
+            className={`jd-p-3 jd-bg-card !jd-shadow-none jd-mb-2 jd-transition-all jd-duration-200 ${
+              item.highlight ? 'jd-border jd-border-green-500/50 jd-bg-gradient-to-r jd-from-green-500/5 jd-to-emerald-500/5' : ''
             } ${
               item.warning ? 'jd-border jd-border-red-500' : ''
             }`}
           >
             <div className="jd-flex jd-items-center jd-justify-between">
-              <div className="jd-flex jd-items-start jd-space-x-3 jd-flex-1">
+              <div className="jd-flex jd-items-start jd-space-x-3 jd-flex-1 jd-min-w-0">
                 <div className="jd-flex-shrink-0 jd-mt-0.5">
                   {item.icon}
                 </div>
                 <div className="jd-flex-1 jd-min-w-0">
                   <div className="jd-flex jd-items-center jd-gap-2 jd-mb-1">
-                    <h3 className="jd-font-medium jd-text-foreground jd-text-sm">
+                    <h3 className="jd-font-medium jd-text-foreground jd-text-sm jd-truncate">
                       {item.title}
                     </h3>
                     {item.badge}
                     {item.warning && (
-                      <AlertTriangle className="jd-w-4 jd-h-4 jd-text-red-500" />
+                      <AlertTriangle className="jd-w-4 jd-h-4 jd-text-red-500 jd-flex-shrink-0" />
                     )}
                   </div>
                   <p className="jd-text-xs jd-text-muted-foreground jd-leading-relaxed">
@@ -296,14 +314,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={item.action}
-                    disabled={loading || subscriptionLoading || subscription === null}
-                    className={`jd-min-w-[80px] ${
-                      item.highlight ? 'jd-border-blue-500 jd-text-blue-600' : ''
+                    disabled={loading || (item.id === 'subscription' && (subscriptionLoading || subscription === null))}
+                    className={`jd-text-xs jd-h-8 jd-px-3 ${
+                      item.highlight ? 'jd-border-green-500 jd-text-green-600 jd-bg-green-500/10 hover:jd-bg-green-500/20' : ''
                     } ${
                       item.warning ? 'jd-border-red-500 jd-text-red-600' : ''
                     }`}
                   >
-                    {getSubscriptionButtonText()}
+                    {item.id === 'subscription' ? getSubscriptionButtonText() : item.buttonText}
                   </Button>
                 ) : (
                   <Switch

@@ -1,7 +1,7 @@
 // src/components/pricing/PricingPlans.tsx
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Crown, CreditCard, Shield, ArrowRightIcon, Sparkles, FileText, Database, BarChart3 } from 'lucide-react';
+import { Check, Crown, CreditCard, Shield, ArrowRightIcon, Sparkles, FileText, Database, BarChart3, Gift, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -196,6 +196,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
           </motion.div>
         </div>
 
+
         {/* Single Pricing Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -227,7 +228,36 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
               </h3>
             </div>
 
+            {/* TRIAL PRICING DISPLAY */}
             <div className="jd-text-center jd-mb-6">
+             {/* FREE TRIAL BANNER */}
+            <motion.div
+              className="jd-bg-gradient-to-r jd-from-green-600/20 jd-to-emerald-600/20 jd-border-2 jd-border-green-500/50 jd-rounded-xl jd-p-4 jd-mb-6 jd-text-center"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
+              <div className="jd-flex jd-items-center jd-justify-center jd-space-x-2 jd-mb-2">
+                <Gift className="jd-w-5 jd-h-5 jd-text-green-400" />
+                <span className="jd-text-green-400 jd-font-bold jd-text-lg">
+                  {getMessage('startWith3DayFreeTrial', undefined, 'Start with 3-Day FREE Trial')}
+                </span>
+                <Gift className="jd-w-5 jd-h-5 jd-text-green-400" />
+              </div>
+              <div className={`jd-flex jd-items-center jd-justify-center jd-space-x-4 jd-text-sm ${isDark ? 'jd-text-gray-400' : 'jd-text-gray-500'}`}>
+                <div className="jd-flex jd-items-center jd-space-x-1">
+                  <Calendar className="jd-w-4 jd-h-4" />
+                  <span>{getMessage('tryAllFeaturesFree', undefined, 'Try all features free for 3 days')}</span>
+                </div>
+                <div className="jd-w-1 jd-h-1 jd-bg-green-400 jd-rounded-full"></div>
+                <div className="jd-flex jd-items-center jd-space-x-1">
+                  <Clock className="jd-w-4 jd-h-4" />
+                  <span>{getMessage('cancelAnytimeDuringTrial', undefined, 'Cancel anytime during trial')}</span>
+                </div>
+              </div>
+            </motion.div>
+
+              {/* Regular Pricing */}
               <div className="jd-flex jd-items-baseline jd-justify-center jd-gap-2">
                 <span className={cn(
                   "jd-text-4xl jd-font-bold",
@@ -258,6 +288,11 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
                   </div>
                 </div>
               )}
+
+              {/* Trial reminder */}
+              <div className="jd-mt-3 jd-text-xs jd-text-gray-400">
+                {getMessage('afterTrialPeriod', undefined, 'After your 3-day free trial period')}
+              </div>
             </div>
           </CardHeader>
 
@@ -294,7 +329,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
               ))}
             </div>
 
-            {/* CTA Button */}
+            {/* CTA Button with Trial Messaging */}
             <div className="jd-mt-auto jd-pt-6">
               <Button
                 onClick={handleSelectPlan}
@@ -311,31 +346,41 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
                   </div>
                 ) : (
                   <span className="jd-relative jd-z-10 jd-flex jd-items-center jd-justify-center jd-gap-2">
-                    <CreditCard className="jd-w-4 jd-h-4" />
+                    <Gift className="jd-w-4 jd-h-4" />
                     <span>
-                      {getMessage('upgradeToPremium', undefined, 'Upgrade to Premium')}
+                      {getMessage('startFreeTrial', undefined, 'Start Free Trial')}
                     </span>
                     <ArrowRightIcon className="jd-w-4 jd-h-4" />
                   </span>
                 )}
               </Button>
+              
+              {/* Button subtext */}
+              <p className="jd-text-center jd-text-xs jd-text-gray-400 jd-mt-2">
+                {getMessage('noChargeFor3Days', undefined, 'No charge for 3 days. Cancel anytime during trial.')}
+              </p>
             </div>
           </CardContent>
         </motion.div>
 
-        {/* Security Notice */}
+        {/* Security Notice with Trial Emphasis */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="jd-flex jd-items-center jd-justify-center jd-space-x-2 jd-text-sm jd-mt-8"
+          className="jd-flex jd-flex-col jd-items-center jd-space-y-2 jd-text-sm jd-mt-8"
         >
-          <Shield className="jd-w-4 jd-h-4 jd-text-green-500" />
-          <span className={cn(
-            isDark ? "jd-text-gray-400" : "jd-text-gray-500"
-          )}>
-            {getMessage('securePayment', undefined, 'Secure payment powered by Stripe')}
-          </span>
+          <div className="jd-flex jd-items-center jd-space-x-2">
+            <Shield className="jd-w-4 jd-h-4 jd-text-green-500" />
+            <span className={cn(
+              isDark ? "jd-text-gray-400" : "jd-text-gray-500"
+            )}>
+              {getMessage('securePayment', undefined, 'Secure payment powered by Stripe')}
+            </span>
+          </div>
+          <div className="jd-text-center jd-text-xs jd-text-gray-500 jd-max-w-md">
+            {getMessage('trialPaymentNote', undefined, 'Your payment method will be saved securely but not charged during your 3-day trial period.')}
+          </div>
         </motion.div>
       </div>
     </section>

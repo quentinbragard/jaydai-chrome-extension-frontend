@@ -18,6 +18,7 @@ import {
   SubscriptionStatusCard,
   ActionButtons,
 } from './manage';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 /**
  * Dialog for managing user subscription
@@ -28,7 +29,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
   const { subscription, loading: isLoading, refreshStatus } = useSubscriptionStatus();
   const [loading, setLoading] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
-  
+  const isDark = useThemeDetector();
   // Use ref to track if we've already refreshed to avoid infinite loops
   const hasRefreshedRef = useRef(false);
 
@@ -177,6 +178,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
               user={authState.user!}
               onPaymentSuccess={handlePaymentSuccess}
               onPaymentCancel={handlePaymentCancel}
+              isDark={isDark}
             />
 
             <div className="jd-flex jd-justify-center jd-pt-4">
