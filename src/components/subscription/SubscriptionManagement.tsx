@@ -20,6 +20,8 @@ import { stripeApi } from '@/services/api/StripeApi';
 import { buildReturnUrl } from '@/utils/stripe';
 import { SubscriptionStatus } from '@/types/stripe';
 import { User } from '@/types';
+import { useDialogManager } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 
 interface SubscriptionManagementProps {
   user: User;
@@ -29,6 +31,7 @@ export const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ 
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { openDialog } = useDialogManager();
 
   // Load subscription status on mount
   useEffect(() => {
@@ -70,27 +73,31 @@ export const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ 
     }
   };
 
-  const handleCancelSubscription = async () => {
-    if (!confirm(getMessage('confirmCancelSubscription', undefined, 'Are you sure you want to cancel your subscription?'))) {
-      return;
-    }
+  const handleCancelSubscription = () => {
+    openDialog(DIALOG_TYPES.CONFIRMATION, {
+      title: getMessage('cancel_subscription', undefined, 'Cancel Subscription'),
+      description: getMessage('confirmCancelSubscription', undefined, 'Are you sure you want to cancel your subscription?'),
+      confirmText: getMessage('confirm', undefined, 'Confirm'),
+      cancelText: getMessage('cancel', undefined, 'Cancel'),
+      onConfirm: async () => {
+        try {
+          setIsUpdating(true);
+          const success = await stripeApi.cancelSubscription(user.id);
 
-    try {
-      setIsUpdating(true);
-      const success = await stripeApi.cancelSubscription(user.id);
-      
-      if (success) {
-        toast.success(getMessage('subscriptionCancelled', undefined, 'Subscription cancelled successfully'));
-        await loadSubscriptionStatus(); // Reload status
-      } else {
-        toast.error(getMessage('errorCancellingSubscription', undefined, 'Failed to cancel subscription'));
-      }
-    } catch (error) {
-      console.error('Error cancelling subscription:', error);
-      toast.error(getMessage('errorCancellingSubscription', undefined, 'Failed to cancel subscription'));
-    } finally {
-      setIsUpdating(false);
-    }
+          if (success) {
+            toast.success(getMessage('subscriptionCancelled', undefined, 'Subscription cancelled successfully'));
+            await loadSubscriptionStatus(); // Reload status
+          } else {
+            toast.error(getMessage('errorCancellingSubscription', undefined, 'Failed to cancel subscription'));
+          }
+        } catch (error) {
+          console.error('Error cancelling subscription:', error);
+          toast.error(getMessage('errorCancellingSubscription', undefined, 'Failed to cancel subscription'));
+        } finally {
+          setIsUpdating(false);
+        }
+      },
+    });
   };
 
   const formatDate = (dateString: string | null) => {
@@ -249,7 +256,7 @@ export const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ 
                     variant="outline"
                     className="jd-w-full jd-border-red-600 jd-text-red-400 hover:jd-bg-red-900/20"
                   >
-                    {getMessage('cancelSubscription', undefined, 'Cancel Subscription')}
+                    {getMessage('cancel_subscription', undefined, 'Cancel Subscription')}
                   </Button>
                 )}
               </>

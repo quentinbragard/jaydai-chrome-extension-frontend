@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { BaseDialog } from '../BaseDialog';
-import { useDialog } from '../DialogContext';
+import { useDialog, useDialogManager } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
 import { stripeApi } from '@/services/api/StripeApi';
@@ -24,6 +24,7 @@ import {
  */
 export const ManageSubscriptionDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.MANAGE_SUBSCRIPTION);
+  const { openDialog } = useDialogManager();
   const { authState } = useAuthState();
   const { subscription, loading: isLoading, refreshStatus } = useSubscriptionStatus();
   const [loading, setLoading] = useState(false);
@@ -79,30 +80,36 @@ export const ManageSubscriptionDialog: React.FC = () => {
     }
   };
 
-  const handleCancelSubscription = async () => {
-    const confirmCancel = window.confirm(
-      getMessage('confirm_cancel_subscription', undefined, 'Are you sure you want to cancel your subscription? You will continue to have access until the end of your billing period.')
-    );
+  const handleCancelSubscription = () => {
+    openDialog(DIALOG_TYPES.CONFIRMATION, {
+      title: getMessage('cancel_subscription', undefined, 'Cancel Subscription'),
+      description: getMessage(
+        'confirm_cancel_subscription',
+        undefined,
+        'Are you sure you want to cancel your subscription? You will continue to have access until the end of your billing period.'
+      ),
+      confirmText: getMessage('confirm', undefined, 'Confirm'),
+      cancelText: getMessage('cancel', undefined, 'Cancel'),
+      onConfirm: async () => {
+        if (!authState.user?.id) return;
 
-    if (!confirmCancel) return;
-
-    if (!authState.user?.id) return;
-
-    setLoading(true);
-    try {
-      const success = await stripeApi.cancelSubscription(authState.user.id);
-      if (success) {
-        await refreshStatus();
-        toast.success(getMessage('subscription_cancelled', undefined, 'Subscription cancelled successfully'));
-      } else {
-        toast.error(getMessage('error_cancelling_subscription', undefined, 'Failed to cancel subscription'));
-      }
-    } catch (error) {
-      console.error('Error cancelling subscription:', error);
-      toast.error(getMessage('error_cancelling_subscription', undefined, 'Failed to cancel subscription'));
-    } finally {
-      setLoading(false);
-    }
+        setLoading(true);
+        try {
+          const success = await stripeApi.cancelSubscription(authState.user.id);
+          if (success) {
+            await refreshStatus();
+            toast.success(getMessage('subscription_cancelled', undefined, 'Subscription cancelled successfully'));
+          } else {
+            toast.error(getMessage('error_cancelling_subscription', undefined, 'Failed to cancel subscription'));
+          }
+        } catch (error) {
+          console.error('Error cancelling subscription:', error);
+          toast.error(getMessage('error_cancelling_subscription', undefined, 'Failed to cancel subscription'));
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
   };
 
   const handleReactivateSubscription = async () => {
