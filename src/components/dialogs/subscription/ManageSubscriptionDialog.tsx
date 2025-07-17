@@ -30,7 +30,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
   useEffect(() => {
     if (isOpen && authState.user?.id) {
       refreshSubscription().then(() => {
-        if (subscription && subscription.subscription_status !== 'active') {
+        if (subscription && subscription.subscription_status !== 'active' && subscription.subscription_status !== 'trialing') {
           setShowPricing(true);
         }
       });
@@ -75,7 +75,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
       if (success) {
         toast.success(getMessage('subscription_cancelled', undefined, 'Subscription cancelled successfully'));
         await refreshSubscription();
-        if (subscription && subscription.subscription_status !== 'active') {
+        if (subscription && subscription.subscription_status !== 'active' && subscription.subscription_status !== 'trialing') {
           setShowPricing(true);
         }
       } else {

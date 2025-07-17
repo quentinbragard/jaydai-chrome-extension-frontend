@@ -1,42 +1,45 @@
 // src/components/pricing/PricingPlans.tsx
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Crown, CreditCard, Shield, Zap } from 'lucide-react';
+import { Check, Crown, CreditCard, Shield, ArrowRightIcon, Sparkles, FileText, Database, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { stripeService } from '@/services/stripe/StripeService';
-import { PricingPlan } from '@/types/stripe';
 import { User } from '@/types';
+import { cn } from '@/core/utils/classNames';
 
 interface PricingPlansProps {
   user: User;
   onPaymentSuccess?: () => void;
   onPaymentCancel?: () => void;
+  isDark?: boolean;
 }
 
 export const PricingPlans: React.FC<PricingPlansProps> = ({
   user,
   onPaymentSuccess,
-  onPaymentCancel
+  onPaymentCancel,
+  isDark = true
 }) => {
-  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
   
   const plans = stripeService.getPricingPlans();
+  const currentPlan = plans.find(p => p.id === selectedPlan);
 
-  const handleSelectPlan = async (planId: 'monthly' | 'yearly') => {
+  const handleSelectPlan = async () => {
     if (!user?.email) {
       toast.error(getMessage('userEmailRequired', undefined, 'User email is required for payment'));
       return;
     }
 
-    setIsLoading(planId);
+    setIsLoading(true);
 
     try {
-      await stripeService.redirectToCheckout(planId, user.id, user.email);
+      await stripeService.redirectToCheckout(selectedPlan, user.id, user.email);
       
       toast.info(
         getMessage('redirectingToPayment', undefined, 'Redirecting to payment...'),
@@ -53,188 +56,266 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
         }
       );
     } finally {
-      setIsLoading(null);
+      setIsLoading(false);
     }
   };
 
   const features = [
-    getMessage('feature1', undefined, 'Unlimited AI conversations'),
-    getMessage('feature2', undefined, 'Smart template library'),
-    getMessage('feature3', undefined, 'Energy usage insights'),
-    getMessage('feature4', undefined, 'Priority customer support'),
-    getMessage('feature5', undefined, 'Advanced analytics'),
-    getMessage('feature6', undefined, 'Custom folder organization')
+    {
+      name: getMessage('premiumTemplates', undefined, 'Access to 1000+ premium prompt templates'),
+      description: getMessage('premiumTemplatesDesc', undefined, 'Curated templates for all use cases'),
+      included: true,
+      icon: <FileText className="jd-w-4 jd-h-4" />
+    },
+    {
+      name: getMessage('unlimitedPersonalTemplates', undefined, 'Unlimited personal prompt templates'),
+      description: getMessage('unlimitedPersonalTemplatesDesc', undefined, 'Create and save your own templates'),
+      included: true,
+      icon: <Sparkles className="jd-w-4 jd-h-4" />
+    },
+    {
+      name: getMessage('unlimitedPromptBlocks', undefined, 'Unlimited personal prompt blocks'),
+      description: getMessage('unlimitedPromptBlocksDesc', undefined, 'Build reusable prompt components'),
+      included: true,
+      icon: <Database className="jd-w-4 jd-h-4" />
+    },
+    {
+      name: getMessage('advancedAnalytics', undefined, 'Advanced Data Analytics'),
+      description: getMessage('advancedAnalyticsDesc', undefined, 'Detailed insights and usage statistics (coming soon)'),
+      included: true,
+      icon: <BarChart3 className="jd-w-4 jd-h-4" />
+    }
   ];
 
+  const buttonStyles = cn(
+    "jd-h-12 jd-w-full jd-py-6 jd-text-base jd-font-semibold jd-relative jd-transition-all jd-duration-200",
+    isDark ? "jd-bg-blue-600 jd-text-white" : "jd-bg-blue-600 jd-text-white",
+    isDark ? "hover:jd-bg-blue-700" : "hover:jd-bg-blue-700",
+    "jd-shadow-lg hover:jd-shadow-xl",
+  );
+
+  const badgeStyles = cn(
+    "jd-px-4 jd-py-1.5 jd-text-sm jd-font-medium",
+    isDark ? "jd-bg-blue-600 jd-text-white" : "jd-bg-blue-600 jd-text-white",
+    "jd-border-none jd-shadow-lg",
+  );
+
   return (
-    <div className="jd-w-full jd-max-w-4xl jd-mx-auto jd-space-y-8">
-      {/* Header */}
-      <div className="jd-text-center jd-space-y-4">
+    <section className={cn(
+      "jd-relative jd-py-8 jd-px-4 jd-overflow-hidden",
+      isDark ? "jd-bg-gray-900 jd-text-white" : "jd-bg-white jd-text-gray-900"
+    )}>
+      <div className="jd-w-full jd-max-w-2xl jd-mx-auto">
+        {/* Header */}
+        <div className="jd-flex jd-flex-col jd-items-center jd-gap-4 jd-mb-8">
+          <motion.h2 
+            className={cn(
+              "jd-text-3xl jd-font-bold jd-text-center",
+              isDark ? "jd-text-white" : "jd-text-gray-900"
+            )}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {getMessage('choosePlan', undefined, 'Choose Your Plan')}
+          </motion.h2>
+          
+          {/* Pricing Toggle */}
+          <motion.div
+            className={cn(
+              "jd-inline-flex jd-items-center jd-p-1.5 jd-rounded-full jd-border jd-shadow-sm",
+              isDark ? "jd-bg-gray-800 jd-border-gray-600" : "jd-bg-white jd-border-gray-200"
+            )}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            {["monthly", "yearly"].map((period) => (
+              <button
+                key={period}
+                onClick={() => setSelectedPlan(period as 'monthly' | 'yearly')}
+                className={cn(
+                  "jd-px-8 jd-py-2.5 jd-text-sm jd-font-medium jd-rounded-full jd-transition-all jd-duration-300",
+                  (period === selectedPlan)
+                    ? isDark 
+                      ? "jd-bg-blue-600 jd-text-white jd-shadow-lg" 
+                      : "jd-bg-blue-600 jd-text-white jd-shadow-lg"
+                    : isDark
+                      ? "jd-text-gray-400 hover:jd-text-white"
+                      : "jd-text-gray-600 hover:jd-text-gray-900",
+                )}
+              >
+                <span className="jd-flex jd-items-center jd-space-x-2">
+                  <span>
+                    {period === 'monthly' 
+                      ? getMessage('monthly', undefined, 'Monthly') 
+                      : getMessage('yearly', undefined, 'Yearly')
+                    }
+                  </span>
+                  {period === 'yearly' && (
+                    <Badge className={cn(
+                      "jd-text-xs",
+                      isDark ? "jd-bg-green-600 jd-text-white" : "jd-bg-green-600 jd-text-white"
+                    )}>
+                      {getMessage('save', undefined, 'Save 22%')}
+                    </Badge>
+                  )}
+                </span>
+              </button>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Single Pricing Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className={cn(
+            "jd-relative jd-group jd-backdrop-blur-sm jd-transition-all jd-duration-300",
+            "jd-rounded-3xl jd-flex jd-flex-col jd-border jd-shadow-lg hover:jd-shadow-xl",
+            isDark 
+              ? "jd-bg-gradient-to-b jd-from-gray-800 jd-to-gray-900 jd-border-blue-500 jd-shadow-blue-500/20"
+              : "jd-bg-gradient-to-b jd-from-blue-50 jd-to-white jd-border-blue-500 jd-shadow-blue-500/20"
+          )}
         >
-          <h2 className="jd-text-3xl jd-font-bold jd-text-white jd-font-heading">
-            {getMessage('choosePlan', undefined, 'Choose Your Plan')}
-          </h2>
-          <p className="jd-text-lg jd-text-gray-300 jd-max-w-2xl jd-mx-auto">
-            {getMessage('pricingDescription', undefined, 'Unlock the full potential of AI with our premium features')}
-          </p>
-        </motion.div>
-      </div>
-
-      {/* Pricing Toggle */}
-      <motion.div
-        className="jd-flex jd-justify-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        <div className="jd-bg-gray-800 jd-rounded-lg jd-p-1 jd-flex jd-space-x-1">
-          <button
-            onClick={() => setSelectedPlan('monthly')}
-            className={`jd-px-6 jd-py-2 jd-rounded-md jd-text-sm jd-font-medium jd-transition-all jd-duration-200 ${
-              selectedPlan === 'monthly'
-                ? 'jd-bg-blue-600 jd-text-white jd-shadow-md'
-                : 'jd-text-gray-400 hover:jd-text-white'
-            }`}
-          >
-            {getMessage('monthly', undefined, 'Monthly')}
-          </button>
-          <button
-            onClick={() => setSelectedPlan('yearly')}
-            className={`jd-px-6 jd-py-2 jd-rounded-md jd-text-sm jd-font-medium jd-transition-all jd-duration-200 jd-flex jd-items-center jd-space-x-2 ${
-              selectedPlan === 'yearly'
-                ? 'jd-bg-blue-600 jd-text-white jd-shadow-md'
-                : 'jd-text-gray-400 hover:jd-text-white'
-            }`}
-          >
-            <span>{getMessage('yearly', undefined, 'Yearly')}</span>
-            <Badge className="jd-bg-green-600 jd-text-white jd-text-xs">
-              {getMessage('save', undefined, 'Save 22%')}
+          {/* Most Popular Badge */}
+          <div className="jd-absolute jd-top-[-12px] jd-left-1/2 jd-transform jd--translate-x-1/2">
+            <Badge className={badgeStyles}>
+              <Crown className="jd-w-3 jd-h-3 jd-mr-1" />
+              {getMessage('mostPopular', undefined, 'Most Popular')}
             </Badge>
-          </button>
-        </div>
-      </motion.div>
+          </div>
 
-      {/* Pricing Cards */}
-      <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-6 jd-max-w-4xl jd-mx-auto">
-        {plans.map((plan, index) => (
-          <motion.div
-            key={plan.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-            className={`jd-relative ${selectedPlan === plan.id ? 'jd-scale-105' : ''} jd-transition-transform jd-duration-300`}
-          >
-            <Card className={`jd-relative jd-overflow-hidden jd-bg-gray-900 jd-border-gray-800 jd-h-full ${
-              plan.popular ? 'jd-border-blue-500 jd-shadow-lg jd-shadow-blue-500/20' : ''
-            }`}>
-              {plan.popular && (
-                <div className="jd-absolute jd-top-0 jd-left-0 jd-w-full jd-h-1 jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600"></div>
-              )}
+          <CardHeader className="jd-p-8 jd-pb-4">
+            <div className="jd-flex jd-items-center jd-justify-between jd-mb-4">
+              <div className={cn(
+                "jd-p-3 jd-rounded-xl",
+                isDark 
+                  ? "jd-bg-blue-600 jd-text-white"
+                  : "jd-bg-blue-600 jd-text-white"
+              )}>
+                <Crown className="jd-w-6 jd-h-6" />
+              </div>
+              <h3 className={cn(
+                "jd-text-xl jd-font-semibold",
+                isDark ? "jd-text-white" : "jd-text-gray-900"
+              )}>
+                {getMessage('plusPlan', undefined, 'Jaydai Plus')}
+              </h3>
+            </div>
+
+            <div className="jd-text-center jd-mb-6">
+              <div className="jd-flex jd-items-baseline jd-justify-center jd-gap-2">
+                <span className={cn(
+                  "jd-text-4xl jd-font-bold",
+                  isDark ? "jd-text-white" : "jd-text-gray-900"
+                )}>
+                  €{currentPlan?.price || '6.99'}
+                </span>
+                <span className={cn(
+                  "jd-text-sm",
+                  isDark ? "jd-text-gray-400" : "jd-text-gray-500"
+                )}>
+                  /{getMessage('month', undefined, 'month')}
+                </span>
+              </div>
               
-              <CardHeader className="jd-text-center jd-space-y-4 jd-pb-4">
-                {plan.popular && (
-                  <Badge className="jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600 jd-text-white jd-w-fit jd-mx-auto">
-                    <Crown className="jd-w-3 jd-h-3 jd-mr-1" />
-                    {getMessage('mostPopular', undefined, 'Most Popular')}
-                  </Badge>
-                )}
-                
-                <div>
-                  <h3 className="jd-text-xl jd-font-semibold jd-text-white jd-font-heading">
-                    {plan.name}
-                  </h3>
-                  
-                  <div className="jd-mt-4">
-                    <div className="jd-flex jd-items-baseline jd-justify-center jd-space-x-1">
-                      <span className="jd-text-4xl jd-font-bold jd-text-white">
-                        €{plan.price}
-                      </span>
-                      <span className="jd-text-gray-400">
-                        /{getMessage(plan.interval, undefined, plan.interval)}
-                      </span>
-                    </div>
-                    
-                    {plan.savings && (
-                      <div className="jd-mt-2">
-                        <span className="jd-text-green-400 jd-text-sm jd-font-medium">
-                          {plan.savings}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {plan.id === 'yearly' && (
-                      <div className="jd-mt-1">
-                        <span className="jd-text-gray-400 jd-text-sm">
-                          {getMessage('billedAnnually', undefined, 'Billed annually')}
-                        </span>
-                      </div>
-                    )}
+              {selectedPlan === 'yearly' && (
+                <div className="jd-mt-2">
+                  <span className="jd-text-green-500 jd-text-sm jd-font-medium">
+                    {getMessage('save22', undefined, 'Save 22%')}
+                  </span>
+                  <div className="jd-mt-1">
+                    <span className={cn(
+                      "jd-text-sm",
+                      isDark ? "jd-text-gray-400" : "jd-text-gray-500"
+                    )}>
+                      {getMessage('billedAnnually', undefined, 'Billed annually')}
+                    </span>
                   </div>
                 </div>
-              </CardHeader>
+              )}
+            </div>
+          </CardHeader>
 
-              <CardContent className="jd-space-y-6">
-                {/* Features */}
-                <div className="jd-space-y-3">
-                  {features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="jd-flex jd-items-center jd-space-x-3">
-                      <div className="jd-flex-shrink-0 jd-w-5 jd-h-5 jd-bg-blue-600 jd-rounded-full jd-flex jd-items-center jd-justify-center">
-                        <Check className="jd-w-3 jd-h-3 jd-text-white" />
-                      </div>
-                      <span className="jd-text-gray-300 jd-text-sm">{feature}</span>
+          <CardContent className="jd-p-8 jd-pt-0 jd-space-y-6 jd-flex-1">
+            {/* Features */}
+            <div className="jd-space-y-4">
+              {features.map((feature, featureIndex) => (
+                <div key={featureIndex} className="jd-flex jd-gap-4">
+                  <div className={cn(
+                    "jd-mt-1 jd-p-0.5 jd-rounded-full jd-transition-colors jd-duration-200",
+                    feature.included
+                      ? "jd-text-green-500"
+                      : isDark 
+                        ? "jd-text-gray-600"
+                        : "jd-text-gray-400"
+                  )}>
+                    <Check className="jd-w-4 jd-h-4" />
+                  </div>
+                  <div className="jd-flex-1">
+                    <div className={cn(
+                      "jd-text-sm jd-font-medium jd-mb-1",
+                      isDark ? "jd-text-white" : "jd-text-gray-900"
+                    )}>
+                      {feature.name}
                     </div>
-                  ))}
+                    <div className={cn(
+                      "jd-text-sm",
+                      isDark ? "jd-text-gray-400" : "jd-text-gray-500"
+                    )}>
+                      {feature.description}
+                    </div>
+                  </div>
                 </div>
+              ))}
+            </div>
 
-                {/* CTA Button */}
-                <Button
-                  onClick={() => handleSelectPlan(plan.id)}
-                  disabled={isLoading === plan.id}
-                  className={`jd-w-full jd-py-6 jd-text-base jd-font-semibold jd-transition-all jd-duration-300 ${
-                    plan.popular
-                      ? 'jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600 hover:jd-from-blue-700 hover:jd-to-purple-700 jd-shadow-lg hover:jd-shadow-xl'
-                      : 'jd-bg-gray-800 jd-text-white jd-border jd-border-gray-700 hover:jd-bg-gray-700 hover:jd-border-gray-600'
-                  }`}
-                >
-                  {isLoading === plan.id ? (
-                    <div className="jd-flex jd-items-center jd-justify-center jd-space-x-2">
-                      <svg className="jd-animate-spin jd-h-4 jd-w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="jd-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="jd-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>{getMessage('processing', undefined, 'Processing...')}</span>
-                    </div>
-                  ) : (
-                    <div className="jd-flex jd-items-center jd-justify-center jd-space-x-2">
-                      <CreditCard className="jd-w-4 jd-h-4" />
-                      <span>
-                        {getMessage('choosePlan', undefined, 'Choose Plan')}
-                      </span>
-                    </div>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
+            {/* CTA Button */}
+            <div className="jd-mt-auto jd-pt-6">
+              <Button
+                onClick={handleSelectPlan}
+                disabled={isLoading}
+                className={buttonStyles}
+              >
+                {isLoading ? (
+                  <div className="jd-flex jd-items-center jd-justify-center jd-space-x-2">
+                    <svg className="jd-animate-spin jd-h-4 jd-w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="jd-opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="jd-opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>{getMessage('processing', undefined, 'Processing...')}</span>
+                  </div>
+                ) : (
+                  <span className="jd-relative jd-z-10 jd-flex jd-items-center jd-justify-center jd-gap-2">
+                    <CreditCard className="jd-w-4 jd-h-4" />
+                    <span>
+                      {getMessage('upgradeToPremium', undefined, 'Upgrade to Premium')}
+                    </span>
+                    <ArrowRightIcon className="jd-w-4 jd-h-4" />
+                  </span>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </motion.div>
+
+        {/* Security Notice */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="jd-flex jd-items-center jd-justify-center jd-space-x-2 jd-text-sm jd-mt-8"
+        >
+          <Shield className="jd-w-4 jd-h-4 jd-text-green-500" />
+          <span className={cn(
+            isDark ? "jd-text-gray-400" : "jd-text-gray-500"
+          )}>
+            {getMessage('securePayment', undefined, 'Secure payment powered by Stripe')}
+          </span>
+        </motion.div>
       </div>
-
-      {/* Security Notice */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="jd-flex jd-items-center jd-justify-center jd-space-x-2 jd-text-sm jd-text-gray-400"
-      >
-        <Shield className="jd-w-4 jd-h-4" />
-        <span>
-          {getMessage('securePayment', undefined, 'Secure payment powered by Stripe')}
-        </span>
-      </motion.div>
-    </div>
+    </section>
   );
 };
