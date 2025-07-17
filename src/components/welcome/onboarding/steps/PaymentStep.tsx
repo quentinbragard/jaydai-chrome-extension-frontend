@@ -15,8 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
-import { PricingSection } from '@/components/pricing/pricing-section';
-import { toast } from 'sonner';
+import { PricingPlans } from '@/components/pricing/PricingPlans';
 import { stripeService } from '@/services/stripe/StripeService';
 import { User } from '@/types';
 import { PaymentResult } from '@/types/stripe';
@@ -36,31 +35,6 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
 }) => {
   const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const plans = stripeService.getPricingPlans();
-  const monthlyPlan = plans.find(p => p.id === 'monthly');
-  const yearlyPlan = plans.find(p => p.id === 'yearly');
-
-  const features = [
-    getMessage('feature1', undefined, 'Unlimited AI conversations'),
-    getMessage('feature2', undefined, 'Smart template library'),
-    getMessage('feature3', undefined, 'Energy usage insights'),
-    getMessage('feature4', undefined, 'Priority customer support'),
-    getMessage('feature5', undefined, 'Advanced analytics'),
-    getMessage('feature6', undefined, 'Custom folder organization'),
-  ].map(name => ({ name, description: '', included: true }));
-
-  const pricingTiers = [
-    {
-      name: getMessage('premium_plan', undefined, 'Jaydai Premium'),
-      price: { monthly: monthlyPlan?.price || 0, yearly: yearlyPlan?.price || 0 },
-      description: getMessage('premiumDescriptionShort', undefined, 'Unlock all premium features'),
-      features,
-      highlight: true,
-      badge: getMessage('best_value', undefined, 'Best value'),
-      icon: <Crown className="jd-w-5 jd-h-5" />,
-    },
-  ];
 
   // Check for payment result on component mount
   useEffect(() => {
@@ -94,32 +68,23 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
     }
   }, [user.id, onComplete]);
 
+  const handlePaymentSuccess = () => {
+    setIsProcessing(true);
+    trackEvent(EVENTS.ONBOARDING_PAYMENT_COMPLETED, {
+      userId: user.id
+    });
+    
+    // Show success state briefly before completing
+    setTimeout(() => {
+      onComplete();
+    }, 1500);
+  };
+
   const handleSkipPayment = () => {
     trackEvent(EVENTS.ONBOARDING_PAYMENT_SKIPPED, {
       userId: user.id
     });
     onSkip?.();
-  };
-
-  const handleSelectPlan = async (period: 'monthly' | 'yearly') => {
-    if (!user.email) {
-      trackEvent(EVENTS.PAYMENT_FAILED, { userId: user.id });
-      toast.error(getMessage('userEmailRequired', undefined, 'User email is required for payment'));
-      return;
-    }
-    setIsProcessing(true);
-    try {
-      await stripeService.redirectToCheckout(period, user.id, user.email);
-      trackEvent(EVENTS.PAYMENT_INITIATED, { userId: user.id, plan: period });
-      toast.info(
-        getMessage('redirectingToPayment', undefined, 'Redirecting to payment...'),
-        { description: getMessage('completePaymentInNewTab', undefined, 'Complete your payment in the new tab') }
-      );
-    } catch (error) {
-      console.error('Payment error:', error);
-      setIsProcessing(false);
-      toast.error(getMessage('paymentError', undefined, 'Payment failed'));
-    }
   };
 
   // Show success state
@@ -343,9 +308,10 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7, duration: 0.5 }}
       >
-        <PricingSection
-          tiers={pricingTiers}
-          onSelectPlan={handleSelectPlan}
+        <PricingPlans
+          user={user}
+          onPaymentSuccess={handlePaymentSuccess}
+          onPaymentCancel={() => setPaymentResult({ success: false, type: 'cancel' })}
         />
       </motion.div>
 
