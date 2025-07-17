@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
-import { stripeService } from '@/services/stripe/StripeService';
+import { getPricingPlans, redirectToCheckout } from '@/utils/stripeUtils';
 import { User } from '@/types';
 import { cn } from '@/core/utils/classNames';
 
@@ -27,7 +27,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
   
-  const plans = stripeService.getPricingPlans();
+  const plans = getPricingPlans();
   const currentPlan = plans.find(p => p.id === selectedPlan);
 
   const handleSelectPlan = async () => {
@@ -39,7 +39,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
     setIsLoading(true);
 
     try {
-      await stripeService.redirectToCheckout(selectedPlan, user.id, user.email);
+      await redirectToCheckout(selectedPlan, user.id, user.email);
       
       toast.info(
         getMessage('redirectingToPayment', undefined, 'Redirecting to payment...'),

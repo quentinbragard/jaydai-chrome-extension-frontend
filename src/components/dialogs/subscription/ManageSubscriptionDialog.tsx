@@ -10,7 +10,7 @@ import { BaseDialog } from '../BaseDialog';
 import { useDialog } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
-import { stripeService } from '@/services/stripe/StripeService';
+import { getCustomerPortalUrl } from '@/utils/stripeUtils';
 import { useAuthState } from '@/hooks/auth/useAuthState';
 import { useSubscription, useSubscriptionActions } from '@/state/SubscriptionContext';
 import { PricingPlans } from '@/components/pricing/PricingPlans';
@@ -57,7 +57,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
 
     try {
       setLoading(true);
-      const portalUrl = await stripeService.getCustomerPortalUrl(authState.user.id);
+      const portalUrl = await getCustomerPortalUrl(authState.user.id);
       
       if (portalUrl) {
         window.open(portalUrl, '_blank');

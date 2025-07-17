@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { PricingPlans } from '@/components/pricing/PricingPlans';
-import { stripeService } from '@/services/stripe/StripeService';
+import { handlePaymentResult } from '@/utils/stripeUtils';
 import { User } from '@/types';
 import { PaymentResult } from '@/types/stripe';
 
@@ -42,7 +42,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
     const paymentStatus = urlParams.get('payment');
     
     if (paymentStatus) {
-      const result = stripeService.handlePaymentResult();
+      const result = handlePaymentResult();
       setPaymentResult(result);
       
       // Clean up URL

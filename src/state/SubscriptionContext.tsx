@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useAuthState } from '@/hooks/auth/useAuthState';
 import { userApi } from '@/services/api/UserApi';
-import { stripeService } from '@/services/stripe/StripeService';
+import { stripeApi } from '@/services/api/StripeApi';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 
@@ -103,7 +103,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
 
     try {
       setIsLoading(true);
-      const success = await stripeService.cancelSubscription(userId);
+      const success = await stripeApi.cancelSubscription(userId);
       
       if (success) {
         await refreshSubscription();
