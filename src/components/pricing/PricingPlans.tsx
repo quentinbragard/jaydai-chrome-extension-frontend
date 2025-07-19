@@ -11,7 +11,7 @@ import { stripeApi } from '@/services/api/StripeApi';
 import { buildReturnUrl } from '@/utils/stripe';
 import { User } from '@/types';
 import { cn } from '@/core/utils/classNames';
-import { detectPlatform } from '@/core/utils/platform';
+import { detectPlatform } from '@/extension/content/networkInterceptor/detectPlatform';
 
 interface PricingPlansProps {
   user: User;

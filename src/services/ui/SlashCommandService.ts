@@ -7,6 +7,8 @@ import {
   getCursorCoordinates,
   getCursorTextPosition
 } from './slashUtils';
+import { userApi } from '@/services/api/UserApi';
+
 
 export class SlashCommandService extends AbstractBaseService {
   private static instance: SlashCommandService;
@@ -103,6 +105,15 @@ export class SlashCommandService extends AbstractBaseService {
     this.inputEl = null;
   }
 
+  private async markKeyboardShortcutUsed() {
+    try {
+      await userApi.markKeyboardShortcutUsed();
+    } catch (error) {
+      // Silently fail for onboarding tracking
+      console.log('Note: Could not update onboarding checklist for keyboard shortcut usage');
+    }
+  }
+
 
   /**
    * Get current cursor position in text content (not screen coordinates)
@@ -141,6 +152,8 @@ export class SlashCommandService extends AbstractBaseService {
 
       // Set flag to prevent double execution
       this.isInserting = true;
+      this.markKeyboardShortcutUsed();
+
 
       // Calculate the cursor position after removing the trigger
       const triggerMatch = value.match(triggerRegex);

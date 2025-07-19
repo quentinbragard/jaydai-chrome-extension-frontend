@@ -7,6 +7,7 @@ import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { useOnboardingChecklist } from '@/hooks/useOnboardingChecklist';
 
 export interface UseBlockActionsProps {
   onBlockUpdated?: (block: Block) => void;
@@ -21,6 +22,8 @@ export function useBlockActions({
 }: UseBlockActionsProps = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const { openDialog } = useDialogManager();
+  const { markFirstBlockCreated } = useOnboardingChecklist();
+
 
   /**
    * Open edit dialog for a block
@@ -169,6 +172,7 @@ export function useBlockActions({
               block_type: response.data.type,
               source
             });
+            await markFirstBlockCreated();
             if (onBlockCreated) {
               onBlockCreated(response.data);
             }
@@ -192,7 +196,7 @@ export function useBlockActions({
         }
       }
     });
-  }, [openDialog, onBlockCreated]);
+  }, [openDialog, onBlockCreated, markFirstBlockCreated]);
 
   /**
    * Duplicate a block

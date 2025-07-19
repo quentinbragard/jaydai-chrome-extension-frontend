@@ -105,6 +105,11 @@ export const EVENTS = {
     ONBOARDING_PAYMENT_CANCELLED: 'Onboarding Payment Cancelled',
     ONBOARDING_PAYMENT_SKIPPED: 'Onboarding Payment Skipped',
 
+    ONBOARDING_CHECKLIST_VIEWED: 'onboarding_checklist_viewed',
+    ONBOARDING_CHECKLIST_ITEM_COMPLETED: 'onboarding_checklist_item_completed',
+    ONBOARDING_CHECKLIST_ACTION_CLICKED: 'onboarding_checklist_action_clicked',
+    ONBOARDING_CHECKLIST_COMPLETED: 'onboarding_checklist_completed',
+
   POPUP_OPENED: 'Popup Opened',
   POPUP_AI_TOOL_CLICKED: 'Popup AI Tool Clicked',
 

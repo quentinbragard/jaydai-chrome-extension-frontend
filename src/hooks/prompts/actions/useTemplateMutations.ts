@@ -6,6 +6,8 @@ import { QUERY_KEYS } from '@/constants/queryKeys';
 import { Template } from '@/types/prompts/templates';
 import { useSafeQuery } from '@/providers/QueryProvider';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { useOnboardingChecklist } from '@/hooks/useOnboardingChecklist';
+
 
 
 interface TemplateData {
@@ -23,6 +25,8 @@ interface TemplateData {
 export function useTemplateMutations() {
   // Use our safe query to handle case where QueryClient isn't available
   const { isQueryAvailable, queryClient: safeQueryClient } = useSafeQuery();
+  const { markFirstTemplateCreated } = useOnboardingChecklist();
+
   
   // Try to get queryClient from React Query context first
   let queryClient;
@@ -58,14 +62,14 @@ export function useTemplateMutations() {
           return response.data;
         },
         {
-          onSuccess: (_data, variables) => {
+          onSuccess: async (data, variables) => {
             invalidateTemplateQueries();
-            trackEvent(EVENTS.TEMPLATE_EDIT, { template_id: variables.id });
+            trackEvent(EVENTS.TEMPLATE_EDIT, { template_id: data?.id });
+            
+            // ADD: Mark first template created for onboarding
+            await markFirstTemplateCreated();
           },
-          onError: (error: Error) => {
-            console.error('Error creating template:', error);
-            toast.error(`Failed to create template: ${error.message}`);
-          }
+          // ... rest of existing handlers
         }
       );
     } catch (error) {

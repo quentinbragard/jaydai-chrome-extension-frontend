@@ -13,6 +13,7 @@ import { getMessage } from '@/core/utils/i18n';
 import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrackets } from '@/utils/templates/insertPrompt';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
 import { parseMetadataIds } from '@/utils/templates/metadataPrefill';
+import { useOnboardingChecklist } from '@/hooks/useOnboardingChecklist';
 
 
 /**
@@ -20,6 +21,7 @@ import { parseMetadataIds } from '@/utils/templates/metadataPrefill';
  * for both ChatGPT and Claude
  */
 export function useTemplateActions() {
+  const { markFirstTemplateUsed } = useOnboardingChecklist();
   const [isProcessing, setIsProcessing] = useState(false);
   const { trackTemplateUsage, createTemplate: createTemplateMutation, deleteTemplate } = useTemplateMutations();
   const { createFolder: createFolderMutation } = useFolderMutations();
@@ -134,6 +136,8 @@ const useTemplate = useCallback(async (template: Template) => {
     // Track template usage (don't await)
     if (template.id) {
       trackTemplateUsage.mutate(template.id);
+      await markFirstTemplateUsed();
+
     }
     
     // Close all panels when template is used
@@ -146,7 +150,7 @@ const useTemplate = useCallback(async (template: Template) => {
   } finally {
     setIsProcessing(false);
   }
-}, [openDialog, handleTemplateComplete, trackTemplateUsage]);
+}, [openDialog, handleTemplateComplete, trackTemplateUsage, markFirstTemplateUsed]);
   
   /**
    * Open template editor to create a new template
