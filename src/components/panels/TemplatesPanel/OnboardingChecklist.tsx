@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { CheckCircle2, Circle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { cn } from '@/core/utils/classNames';
 import { getMessage } from '@/core/utils/i18n';
 import { userApi } from '@/services/api/UserApi';
@@ -187,26 +187,21 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
       </div>
 
       {/* Keyboard Shortcut Info Dialog */}
-      <Dialog open={showKeyboardInfo} onOpenChange={setShowKeyboardInfo}>
-        <DialogContent className="jd-max-w-md">
-          <DialogHeader>
-            <DialogTitle className="jd-flex jd-items-center jd-gap-2">
-              <span>{getMessage('keyboard_shortcut_title', undefined, 'Keyboard Shortcut')}</span>
-              <Badge variant="secondary" className="jd-text-xs">
-                //j
-              </Badge>
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="jd-space-y-4">
-            <p className="jd-text-sm jd-text-muted-foreground">
-              {getMessage('keyboard_shortcut_description', undefined, 'Type "//j" in any text field to quickly insert blocks and templates.')}
-            </p>
+      <BaseDialog
+        open={showKeyboardInfo}
+        onOpenChange={setShowKeyboardInfo}
+        title={getMessage('keyboard_shortcut_title', undefined, 'Keyboard Shortcut')}
+        className="jd-max-w-md"
+      >
+        <div className="jd-space-y-4">
+          <p className="jd-text-sm jd-text-muted-foreground">
+            {getMessage('keyboard_shortcut_description', undefined, 'Type "//j" in any text field to quickly insert blocks and templates.')}
+          </p>
             
             {/* Placeholder for GIF - replace src with actual GIF URL */}
             <div className="jd-rounded-lg jd-overflow-hidden jd-border jd-bg-gray-100 jd-dark:jd-bg-gray-800">
-              <img 
-                src="/path/to/keyboard-shortcut-demo.gif" 
+              <img
+                src="https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif"
                 alt="Keyboard shortcut demonstration"
                 className="jd-w-full jd-h-auto"
                 onError={(e) => {
@@ -233,8 +228,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </BaseDialog>
     </>
   );
 };
