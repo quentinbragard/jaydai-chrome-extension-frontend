@@ -88,6 +88,19 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
     fetchChecklistData();
   }, [fetchChecklistData]);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<OnboardingChecklistData>).detail;
+      if (detail) {
+        setChecklistData(detail);
+      }
+    };
+    document.addEventListener('jaydai:onboarding-checklist-updated', handler);
+    return () => {
+      document.removeEventListener('jaydai:onboarding-checklist-updated', handler);
+    };
+  }, []);
+
   // Handle item clicks
   const handleItemClick = useCallback((item: ChecklistItem) => {
     if (checklistData?.[item.key]) return; // Already completed
