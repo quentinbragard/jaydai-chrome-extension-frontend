@@ -58,6 +58,7 @@ export function useOnboardingChecklist() {
             new CustomEvent('jaydai:onboarding-checklist-updated', {
               detail: response.data
             })
+
           );
         }
         return response.data;
@@ -82,6 +83,7 @@ export function useOnboardingChecklist() {
             new CustomEvent('jaydai:onboarding-checklist-updated', {
               detail: response.data
             })
+
           );
         }
         return response.data;
@@ -106,6 +108,7 @@ export function useOnboardingChecklist() {
             new CustomEvent('jaydai:onboarding-checklist-updated', {
               detail: response.data
             })
+
           );
         }
         return response.data;
@@ -140,6 +143,7 @@ export function useOnboardingChecklist() {
             new CustomEvent('jaydai:onboarding-checklist-updated', {
               detail: response.data
             })
+
           );
         }
         return response.data;
