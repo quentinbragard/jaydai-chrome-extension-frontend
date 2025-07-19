@@ -29,6 +29,11 @@ export function useOnboardingChecklist() {
           action: 'first_template_created',
           progress: response.data?.progress || 'unknown'
         });
+        if (response.data) {
+          document.dispatchEvent(
+            new CustomEvent('jaydai:onboarding-checklist-updated', { detail: response.data })
+          );
+        }
         return response.data;
       }
     } catch (error) {
@@ -46,6 +51,11 @@ export function useOnboardingChecklist() {
           action: 'first_template_used',
           progress: response.data?.progress || 'unknown'
         });
+        if (response.data) {
+          document.dispatchEvent(
+            new CustomEvent('jaydai:onboarding-checklist-updated', { detail: response.data })
+          );
+        }
         return response.data;
       }
     } catch (error) {
@@ -63,6 +73,11 @@ export function useOnboardingChecklist() {
           action: 'first_block_created',
           progress: response.data?.progress || 'unknown'
         });
+        if (response.data) {
+          document.dispatchEvent(
+            new CustomEvent('jaydai:onboarding-checklist-updated', { detail: response.data })
+          );
+        }
         return response.data;
       }
     } catch (error) {
@@ -80,6 +95,11 @@ export function useOnboardingChecklist() {
           action: 'keyboard_shortcut_used',
           progress: response.data?.progress || 'unknown'
         });
+        if (response.data) {
+          document.dispatchEvent(
+            new CustomEvent('jaydai:onboarding-checklist-updated', { detail: response.data })
+          );
+        }
         return response.data;
       }
     } catch (error) {
@@ -107,6 +127,11 @@ export function useOnboardingChecklist() {
             });
           }
         });
+        if (response.data) {
+          document.dispatchEvent(
+            new CustomEvent('jaydai:onboarding-checklist-updated', { detail: response.data })
+          );
+        }
         return response.data;
       }
     } catch (error) {
