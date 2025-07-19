@@ -33,6 +33,7 @@ import { FolderSearch } from '@/components/prompts/folders';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
 import OnboardingChecklist from './OnboardingChecklist';
+import useOnboardingChecklist from '@/hooks/useOnboardingChecklist';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { getFolderTitle } from '@/utils/prompts/folderUtils';
@@ -144,6 +145,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isChecklistComplete, setIsChecklistComplete] = useState<boolean | null>(null);
+
+  const { getChecklistStatus } = useOnboardingChecklist();
 
 
   // Enhanced pinning
@@ -198,6 +202,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     setGlobalSearchQuery(searchQuery);
   }, [searchQuery, setGlobalSearchQuery]);
 
+  // Fetch onboarding checklist status on mount
+  useEffect(() => {
+    (async () => {
+      const status = await getChecklistStatus();
+      setIsChecklistComplete(status?.is_complete ?? false);
+    })();
+  }, [getChecklistStatus]);
+
 
   // Navigation hook for combined user + organization folders
   const navigation = useBreadcrumbNavigation({
@@ -245,21 +257,11 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     },
     [templateMatchesQuery]
   );
-  const hasUserTemplates = useMemo(() => {
-    // Check if user has any templates (in folders or unorganized)
-    const userFolderTemplates = userFolders.reduce((count, folder) => {
-      return count + (folder.templates?.length || 0);
-    }, 0);
-    
-    const unorganizedCount = unorganizedTemplates.length;
-    
-    return userFolderTemplates > 0 || unorganizedCount > 0;
-  }, [userFolders, unorganizedTemplates]);
 
-  // ADD: Update onboarding visibility based on user templates
+  // Update onboarding visibility based on checklist status
   useEffect(() => {
-    setShowOnboarding(!hasUserTemplates && !searchQuery.trim());
-  }, [hasUserTemplates, searchQuery]);
+    setShowOnboarding(isChecklistComplete === false && !searchQuery.trim());
+  }, [isChecklistComplete, searchQuery]);
 
 
   // When there's a search query, show global results; otherwise show navigation items
@@ -564,28 +566,28 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
             {/* Display Items */}
               <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
+                {showOnboarding && (
+                  <div className="jd-px-2">
+                    <OnboardingChecklist
+                      onCreateTemplate={createTemplate}
+                      onCreateBlock={handleCreateBlock}
+                    />
+                  </div>
+                )}
+
                 {displayItems.items.length === 0 ? (
-                  showOnboarding ? (
-                    <div className="jd-px-2">
-                      <OnboardingChecklist
-                        onCreateTemplate={createTemplate}
-                        onCreateBlock={handleCreateBlock}
-                      />
-                    </div>
-                  ) : (
-                    <EmptyMessage>
-                      {searchQuery.trim()
-                        ? getMessage(
-                            'noResultsForQuery',
-                            [searchQuery],
-                            `No results found for "${searchQuery}"`
-                          )
-                        : navigation.isAtRoot
-                          ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
-                          : getMessage('folderEmpty', undefined, 'This folder is empty')
-                      }
-                    </EmptyMessage>
-                  )
+                  <EmptyMessage>
+                    {searchQuery.trim()
+                      ? getMessage(
+                          'noResultsForQuery',
+                          [searchQuery],
+                          `No results found for "${searchQuery}"`
+                        )
+                      : navigation.isAtRoot
+                        ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
+                        : getMessage('folderEmpty', undefined, 'This folder is empty')
+                    }
+                  </EmptyMessage>
                 ) : (
                 <>
                   {displayItems.items.length > 30 ? (
