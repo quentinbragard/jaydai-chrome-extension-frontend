@@ -11,6 +11,7 @@ import { stripeApi } from '@/services/api/StripeApi';
 import { buildReturnUrl } from '@/utils/stripe';
 import { User } from '@/types';
 import { cn } from '@/core/utils/classNames';
+import { detectPlatform } from '@/core/utils/platform';
 
 interface PricingPlansProps {
   user: User;
@@ -68,6 +69,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
         cancelUrl: await buildReturnUrl('cancel'),
         userId: user.id,
         userEmail: user.email,
+        redirectUrl: detectPlatform() !== 'unknown' ? window.location.href : undefined
       });
 
       if (session.url) {
@@ -205,10 +207,12 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
           className={cn(
             "jd-relative jd-group jd-backdrop-blur-sm jd-transition-all jd-duration-300",
             "jd-rounded-3xl jd-flex jd-flex-col jd-border jd-shadow-lg hover:jd-shadow-xl",
+            "jd-cursor-pointer hover:jd-scale-105 jd-transition-all jd-duration-300",
             isDark 
               ? "jd-bg-gradient-to-b jd-from-gray-800 jd-to-gray-900 jd-border-blue-500 jd-shadow-blue-500/20"
               : "jd-bg-gradient-to-b jd-from-blue-50 jd-to-white jd-border-blue-500 jd-shadow-blue-500/20"
           )}
+          onClick={handleSelectPlan}
         >
         
           <CardHeader className="jd-p-8 jd-pb-4">

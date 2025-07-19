@@ -226,10 +226,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         {subscriptionStatus.label}
       </Badge>
     ) : (
-      <div className="jd-flex jd-items-center jd-space-x-1 jd-animate-bounce">
-        <Sparkles className="jd-w-3 jd-h-3 jd-text-green-400" />
+      <div className="jd-flex jd-items-center jd-space-x-1 jd-animate-bounce jd-mt-1">
         <Badge className="jd-bg-green-500 jd-text-white !jd-text-xs !jd-font-medium">
-          {getMessage('free_trial', undefined, 'FREE TRIAL')}
+          {getMessage('free_trial', undefined, 'Free Trial')}
         </Badge>
       </div>
     ),

@@ -20,7 +20,8 @@ export class StripeService {
       monthlyPriceId: process.env.VITE_STRIPE_PLUS_MONTHLY_PRICE_ID || '',
       yearlyPriceId: process.env.VITE_STRIPE_PLUS_YEARLY_PRICE_ID || '',
       successUrl: 'https://jayd.ai/stripe-checkout',
-      cancelUrl: 'https://jayd.ai/'
+      cancelUrl: 'https://jayd.ai/',
+      redirectUrl: detectPlatform() !== 'unknown' ? window.location.href : undefined
     };
 
     // Validate configuration
@@ -206,10 +207,6 @@ export class StripeService {
     const url = new URL(baseUrl);
     if (authToken) {
       url.searchParams.set('auth_token', authToken);
-    }
-
-    if (detectPlatform() !== 'unknown') {
-      url.searchParams.set('redirect_url', window.location.href);
     }
     
     return url.toString();

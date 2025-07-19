@@ -1,5 +1,4 @@
 // src/utils/stripe.ts
-import { detectPlatform } from '@/extension/content/networkInterceptor/detectPlatform';
 import { PaymentResult } from '@/types/stripe';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 
@@ -31,10 +30,6 @@ export async function buildReturnUrl(type: 'success' | 'cancel'): Promise<string
 
   if (authToken) {
     url.searchParams.set('auth_token', authToken);
-  }
-
-  if (detectPlatform() !== 'unknown') {
-    url.searchParams.set('redirect_url', window.location.href);
   }
 
   return url.toString();

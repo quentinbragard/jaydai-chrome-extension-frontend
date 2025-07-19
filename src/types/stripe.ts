@@ -5,6 +5,7 @@ export interface StripeConfig {
     yearlyPriceId: string;
     successUrl: string;
     cancelUrl: string;
+    redirectUrl?: string;
   }
   
   export interface PricingPlan {
@@ -24,6 +25,7 @@ export interface StripeConfig {
     cancelUrl: string;
     userId: string;
     userEmail: string;
+    redirectUrl?: string;
   }
   
   export interface CreateCheckoutSessionResponse {

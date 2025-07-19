@@ -2166,5 +2166,9 @@
   "instantActivation": {
     "message": "Activation instantanée",
     "description": "Signal de confiance pour accès immédiat"
+  },
+  "freeTrial": {
+    "message": "Essai gratuit",
+    "description": "Texte essai gratuit"
   }
 }

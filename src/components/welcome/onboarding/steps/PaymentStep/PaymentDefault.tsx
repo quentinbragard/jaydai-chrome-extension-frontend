@@ -27,23 +27,8 @@ export const PaymentDefault: React.FC<PaymentDefaultProps> = ({
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -20 }}
     transition={{ duration: 0.3 }}
-    className="jd-space-y-6"
+    className="jd-space-y-2"
   >
-    {/* Header with progress indicator */}
-    <div className="jd-text-center jd-space-y-4">
-      <div className="jd-flex jd-items-center jd-justify-center jd-space-x-2 jd-mb-4">
-        <div className="jd-flex jd-space-x-1">
-          <div className="jd-w-2 jd-h-2 jd-bg-blue-500 jd-rounded-full"></div>
-          <div className="jd-w-2 jd-h-2 jd-bg-blue-500 jd-rounded-full"></div>
-          <div className="jd-w-2 jd-h-2 jd-bg-blue-500 jd-rounded-full"></div>
-          <div className="jd-w-6 jd-h-2 jd-bg-gradient-to-r jd-from-blue-500 jd-to-purple-500 jd-rounded-full"></div>
-        </div>
-        <span className="jd-text-xs jd-text-gray-400 jd-font-medium">
-          {getMessage('almostDone', undefined, 'Almost done!')}
-        </span>
-      </div>
-    </div>
-
     {/* Social proof */}
     <motion.div
       className="jd-flex jd-justify-center jd-items-center jd-space-x-6 jd-py-4"
@@ -65,36 +50,6 @@ export const PaymentDefault: React.FC<PaymentDefaultProps> = ({
         <TrendingUp className="jd-w-4 jd-h-4 jd-text-green-400" />
         <span className="jd-text-white jd-font-semibold jd-text-sm">2+ {getMessage('hoursSaved', undefined, 'hrs saved')}</span>
         <span className="jd-text-gray-400 jd-text-sm">{getMessage('daily', undefined, 'daily')}</span>
-      </div>
-    </motion.div>
-
-    {/* Trial Benefits Section */}
-    <motion.div 
-      className="jd-bg-gray-800/50 jd-border jd-border-gray-700/50 jd-rounded-lg jd-p-4"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.9 }}
-    >
-      <h3 className="jd-text-lg jd-font-semibold jd-text-white jd-mb-3 jd-text-center">
-        {getMessage('whatYouGetInTrial', undefined, 'What you get in your trial:')}
-      </h3>
-      <div className="jd-grid jd-grid-cols-2 jd-gap-3 jd-text-sm">
-        <div className="jd-flex jd-items-center jd-space-x-2 jd-text-green-300">
-          <CheckCircle className="jd-w-4 jd-h-4 jd-flex-shrink-0" />
-          <span>{getMessage('trial1000Templates', undefined, '1000+ premium templates')}</span>
-        </div>
-        <div className="jd-flex jd-items-center jd-space-x-2 jd-text-green-300">
-          <CheckCircle className="jd-w-4 jd-h-4 jd-flex-shrink-0" />
-          <span>{getMessage('trialUnlimitedPersonal', undefined, 'Unlimited personal templates')}</span>
-        </div>
-        <div className="jd-flex jd-items-center jd-space-x-2 jd-text-green-300">
-          <CheckCircle className="jd-w-4 jd-h-4 jd-flex-shrink-0" />
-          <span>{getMessage('trialAdvancedAnalytics', undefined, 'Advanced analytics')}</span>
-        </div>
-        <div className="jd-flex jd-items-center jd-space-x-2 jd-text-green-300">
-          <CheckCircle className="jd-w-4 jd-h-4 jd-flex-shrink-0" />
-          <span>{getMessage('trialPremiumSupport', undefined, 'Premium support')}</span>
-        </div>
       </div>
     </motion.div>
 
