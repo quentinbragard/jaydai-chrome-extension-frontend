@@ -2188,5 +2188,77 @@
   "freeTrial": {
     "message": "Free Trial",
     "description": "Free trial text"
+  },
+  "createFirstTemplateDesc": {
+    "message": "Build a reusable prompt template",
+    "description": "Description for creating your first template"
+  },
+  "useFirstTemplate": {
+    "message": "Use your first template",
+    "description": "Title for using the first template action"
+  },
+  "useFirstTemplateDesc": {
+    "message": "Try out the template customization",
+    "description": "Description for using the first template"
+  },
+  "createFirstBlock": {
+    "message": "Create your first block",
+    "description": "Title for creating the first block"
+  },
+  "createFirstBlockDesc": {
+    "message": "Build reusable prompt components",
+    "description": "Description for creating the first block"
+  },
+  "useKeyboardShortcut": {
+    "message": "Learn keyboard shortcuts",
+    "description": "Title for using keyboard shortcuts"
+  },
+  "useKeyboardShortcutDesc": {
+    "message": "Speed up your workflow",
+    "description": "Description for using keyboard shortcuts"
+  },
+  "completed": {
+    "message": "completed",
+    "description": "Completion status label"
+  },
+  "onboardingDismissed": {
+    "message": "Onboarding dismissed",
+    "description": "Toast message when onboarding is dismissed"
+  },
+  "errorDismissingOnboarding": {
+    "message": "Failed to dismiss onboarding",
+    "description": "Error message when onboarding dismissal fails"
+  },
+  "keyboardShortcuts": {
+    "message": "Keyboard Shortcuts",
+    "description": "Dialog title for keyboard shortcuts"
+  },
+  "keyboardShortcutsDesc": {
+    "message": "Speed up your workflow with these shortcuts",
+    "description": "Dialog description for keyboard shortcuts"
+  },
+  "quickBlockInsertion": {
+    "message": "Quick Block Insertion",
+    "description": "Section title explaining quick block insertion"
+  },
+  "typeToOpenSelector": {
+    "message": "Type to open block selector",
+    "description": "Instruction for opening the block selector"
+  },
+  "shortcutDescription": {
+    "message": "Type //j in any chat input to quickly insert blocks and templates. It's like having a magic wand for your prompts!",
+    "description": "Explanation of the keyboard shortcut"
+  },
+  "keyboardShortcutDemo": {
+    "message": "Keyboard shortcut demonstration",
+    "description": "Alt text for the keyboard shortcut demonstration image"
+  },
+  "tryItNow": {
+    "message": "Try it now!",
+    "description": "Call to action to try the keyboard shortcut"
+  },
+  "tryShortcutInstructions": {
+    "message": "Close this dialog and type //j in any chat input to see the magic happen.",
+    "description": "Instructions to try the shortcut"
   }
 }
