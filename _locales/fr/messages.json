@@ -2171,4 +2171,117 @@
     "message": "Essai gratuit",
     "description": "Texte essai gratuit"
   }
+  ,
+  "monthlyPlan": {
+    "message": "Abonnement mensuel",
+    "description": "Libellé pour l'offre mensuelle"
+  },
+  "yearlyPlan": {
+    "message": "Abonnement annuel",
+    "description": "Libellé pour l'offre annuelle"
+  },
+  "freePlan": {
+    "message": "Offre gratuite",
+    "description": "Libellé pour l'offre gratuite"
+  },
+  "choosePlan": {
+    "message": "Choisissez votre offre",
+    "description": "Titre de la section des abonnements"
+  },
+  "premiumTemplates": {
+    "message": "Accès à plus de 1000 modèles de prompts premium",
+    "description": "Titre de fonctionnalité : modèles premium"
+  },
+  "premiumTemplatesDesc": {
+    "message": "Modèles sélectionnés pour tous les cas d'usage",
+    "description": "Description des modèles premium"
+  },
+  "unlimitedPersonalTemplates": {
+    "message": "Modèles personnels illimités",
+    "description": "Titre de fonctionnalité pour modèles personnels illimités"
+  },
+  "unlimitedPersonalTemplatesDesc": {
+    "message": "Créez et enregistrez vos propres modèles",
+    "description": "Description pour modèles personnels illimités"
+  },
+  "unlimitedPromptBlocks": {
+    "message": "Blocs de prompt personnels illimités",
+    "description": "Titre de fonctionnalité pour blocs illimités"
+  },
+  "unlimitedPromptBlocksDesc": {
+    "message": "Construisez des composants de prompt réutilisables",
+    "description": "Description pour blocs de prompt illimités"
+  },
+  "advancedAnalytics": {
+    "message": "Analyses de données avancées",
+    "description": "Titre de fonctionnalité pour les analyses"
+  },
+  "advancedAnalyticsDesc": {
+    "message": "Informations détaillées et statistiques d'utilisation (bientôt disponible)",
+    "description": "Description pour les analyses"
+  },
+  "plusPlan": {
+    "message": "Jaydai Plus",
+    "description": "Nom de l'offre premium"
+  },
+  "startWith3DayFreeTrial": {
+    "message": "Commencez avec 3 jours d'essai GRATUIT",
+    "description": "Texte de la bannière d'essai gratuit"
+  },
+  "tryAllFeaturesFree": {
+    "message": "Testez toutes les fonctionnalités gratuitement pendant 3 jours",
+    "description": "Texte d'essai gratuit"
+  },
+  "cancelAnytimeDuringTrial": {
+    "message": "Annulez à tout moment pendant l'essai",
+    "description": "Note d'annulation pendant l'essai"
+  },
+  "billedAnnually": {
+    "message": "Facturé annuellement",
+    "description": "Note de fréquence de facturation"
+  },
+  "afterTrialPeriod": {
+    "message": "Après votre période d'essai gratuite de 3 jours",
+    "description": "Texte rappel de l'essai"
+  },
+  "startFreeTrial": {
+    "message": "Démarrer l'essai gratuit",
+    "description": "Texte du bouton CTA"
+  },
+  "noChargeFor3Days": {
+    "message": "Aucun frais pendant 3 jours. Annulation possible à tout moment.",
+    "description": "Sous-texte du bouton CTA"
+  },
+  "securePayment": {
+    "message": "Paiement sécurisé par Stripe",
+    "description": "Note de sécurité du paiement"
+  },
+  "trialPaymentNote": {
+    "message": "Votre moyen de paiement sera enregistré en toute sécurité mais ne sera pas débité pendant les 3 jours d'essai.",
+    "description": "Note sur le paiement pendant l'essai"
+  },
+  "userEmailRequired": {
+    "message": "L'adresse e-mail est requise pour le paiement",
+    "description": "Erreur lorsqu'aucun email n'est fourni"
+  },
+  "redirectingToPayment": {
+    "message": "Redirection vers le paiement...",
+    "description": "Toast d'information avant la redirection"
+  },
+  "completePaymentInNewTab": {
+    "message": "Finalisez votre paiement dans le nouvel onglet",
+    "description": "Description du toast de paiement"
+  },
+  "paymentError": {
+    "message": "Échec du paiement",
+    "description": "Titre générique d'erreur de paiement"
+  },
+  "tryAgainLater": {
+    "message": "Veuillez réessayer plus tard",
+    "description": "Suggestion générique de réessayer"
+  },
+  "invalidPlanSelected": {
+    "message": "Offre invalide sélectionnée",
+    "description": "Message d'erreur lorsque l'offre est invalide"
+  }
 }
