@@ -454,13 +454,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     });
   }, [openCreateBlock, markBlockCreated]);
 
+  const handleKeyboardShortcutUsed = useCallback(() => {
+    markKeyboardShortcutUsed();
+  }, [markKeyboardShortcutUsed]);
+
+
   const handleShowKeyboardShortcut = useCallback(() => {
     openKeyboardShortcut({ onShortcutUsed: handleKeyboardShortcutUsed });
   }, [openKeyboardShortcut, handleKeyboardShortcutUsed]);
 
-  const handleKeyboardShortcutUsed = useCallback(() => {
-    markKeyboardShortcutUsed();
-  }, [markKeyboardShortcutUsed]);
 
   // Enhanced pin handler that works with the navigation system
   const handleTogglePin = useCallback(

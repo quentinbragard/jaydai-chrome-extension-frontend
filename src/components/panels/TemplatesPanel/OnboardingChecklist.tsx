@@ -99,7 +99,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
           variant="ghost"
           size="sm"
           onClick={onDismiss}
-          className="jd-h-8 jd-w-8 jd-p-0 jd-text-muted-foreground hover:jd-text-foreground"
+          className="jd-text-muted-foreground hover:jd-text-foreground"
           disabled={isLoading}
         >
           <X className="jd-h-4 jd-w-4" />
@@ -151,9 +151,6 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
                   action.completed ? "jd-text-green-700 jd-dark:jd-text-green-400" : "jd-text-foreground"
                 )}>
                   {action.title}
-                </p>
-                <p className="jd-text-xs jd-text-muted-foreground jd-truncate">
-                  {action.description}
                 </p>
               </div>
             </button>
