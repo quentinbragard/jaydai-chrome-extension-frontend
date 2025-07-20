@@ -16,10 +16,10 @@ import {
         getUnorganizedTemplates,
         getUserTemplates,
         getTemplatesByFolder,
+        getTemplateById,
         trackTemplateUsage,
         toggleTemplatePin
       } from './prompts/templates';
-import { getTemplatesByFolder } from './prompts/templates/getTemplatesByFolder';
 
 /**
  * API client for working with prompt templates
@@ -77,6 +77,10 @@ class PromptApiClient {
 
   async getTemplatesByFolder(folderId: number): Promise<any> {
     return getTemplatesByFolder(folderId);
+  }
+
+  async getTemplateById(templateId: number): Promise<any> {
+    return getTemplateById(templateId);
   }
 
   async createFolder(folderData: { title: string; description?: string; parent_folder_id?: number | null }): Promise<any> {
