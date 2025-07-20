@@ -2373,5 +2373,13 @@
   "invalidPlanSelected": {
     "message": "Invalid plan selected",
     "description": "Error message when an invalid plan is chosen"
+  },
+  "noRiskTrial": {
+    "message": "No risk: 3-day free trial + 30-day money-back guarantee",
+    "description": "Text of the free trial banner"
+  },
+  "trialDisclaimer": {
+    "message": "You won't be charged during your 3-day trial. Cancel anytime before it ends and pay nothing.",
+    "description": "Subtext of the free trial banner"
   }
 }

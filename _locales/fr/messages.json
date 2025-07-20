@@ -2355,6 +2355,15 @@
   "invalidPlanSelected": {
     "message": "Offre invalide sélectionnée",
     "description": "Message d'erreur lorsque l'offre est invalide"
+  },
+  "noRiskTrial": {
+    "message": "Aucun risque : essai gratuit de 3 jours + garantie de remboursement de 30 jours",
+    "description": "Texte de la bannière d'essai gratuit"
+  },
+  "trialDisclaimer": {
+    "message": "Vous ne serez pas facturé pendant votre essai gratuit. Annulez à tout moment avant la fin de l'essai et ne payez rien.",
+    "description": "Sous-texte de la bannière d'essai gratuit"
   }
+
 
 }
