@@ -1,0 +1,173 @@
+// src/components/panels/TemplatesPanel/OnboardingChecklist.tsx
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Circle, X, Play, FileText, Blocks, Keyboard } from 'lucide-react';
+import { getMessage } from '@/core/utils/i18n';
+import { cn } from '@/core/utils/classNames';
+
+interface OnboardingChecklistData {
+  first_template_created: boolean;
+  first_template_used: boolean;
+  first_block_created: boolean;
+  keyboard_shortcut_used: boolean;
+  progress: string;
+  completed_count: number;
+  total_count: number;
+  is_complete: boolean;
+  is_dismissed: boolean;
+}
+
+interface OnboardingChecklistProps {
+  checklist: OnboardingChecklistData;
+  onCreateTemplate: () => void;
+  onUseTemplate: () => void;
+  onCreateBlock: () => void;
+  onShowKeyboardShortcut: () => void;
+  onDismiss: () => void;
+  isLoading?: boolean;
+}
+
+export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
+  checklist,
+  onCreateTemplate,
+  onUseTemplate,
+  onCreateBlock,
+  onShowKeyboardShortcut,
+  onDismiss,
+  isLoading = false
+}) => {
+  const actions = [
+    {
+      key: 'first_template_created',
+      title: getMessage('createFirstTemplate', undefined, 'Create your first template'),
+      description: getMessage('createFirstTemplateDesc', undefined, 'Build a reusable prompt template'),
+      icon: FileText,
+      completed: checklist.first_template_created,
+      onClick: onCreateTemplate
+    },
+    {
+      key: 'first_template_used',
+      title: getMessage('useFirstTemplate', undefined, 'Use your first template'),
+      description: getMessage('useFirstTemplateDesc', undefined, 'Try out the template customization'),
+      icon: Play,
+      completed: checklist.first_template_used,
+      onClick: onUseTemplate,
+      disabled: !checklist.first_template_created // Can't use template if none created
+    },
+    {
+      key: 'first_block_created',
+      title: getMessage('createFirstBlock', undefined, 'Create your first block'),
+      description: getMessage('createFirstBlockDesc', undefined, 'Build reusable prompt components'),
+      icon: Blocks,
+      completed: checklist.first_block_created,
+      onClick: onCreateBlock
+    },
+    {
+      key: 'keyboard_shortcut_used',
+      title: getMessage('useKeyboardShortcut', undefined, 'Learn keyboard shortcuts'),
+      description: getMessage('useKeyboardShortcutDesc', undefined, 'Speed up your workflow'),
+      icon: Keyboard,
+      completed: checklist.keyboard_shortcut_used,
+      onClick: onShowKeyboardShortcut
+    }
+  ];
+
+  if (checklist.is_dismissed) {
+    return null;
+  }
+
+  return (
+    <div className="jd-bg-gradient-to-br jd-from-blue-50 jd-to-indigo-50 jd-dark:jd-from-blue-950/30 jd-dark:jd-to-indigo-950/30 jd-rounded-lg jd-border jd-border-blue-200 jd-dark:jd-border-blue-800 jd-p-4 jd-mx-2 jd-my-3">
+      {/* Header */}
+      <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
+        <div className="jd-flex jd-items-center jd-gap-2">
+          <div className="jd-w-8 jd-h-8 jd-bg-blue-500 jd-rounded-full jd-flex jd-items-center jd-justify-center">
+            <span className="jd-text-white jd-font-bold jd-text-sm">
+              {checklist.completed_count}
+            </span>
+          </div>
+          <div>
+            <h3 className="jd-font-semibold jd-text-foreground jd-text-sm">
+              {getMessage('getStarted', undefined, 'Get Started')}
+            </h3>
+            <p className="jd-text-xs jd-text-muted-foreground">
+              {checklist.progress} {getMessage('completed', undefined, 'completed')}
+            </p>
+          </div>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onDismiss}
+          className="jd-h-8 jd-w-8 jd-p-0 jd-text-muted-foreground hover:jd-text-foreground"
+          disabled={isLoading}
+        >
+          <X className="jd-h-4 jd-w-4" />
+        </Button>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="jd-w-full jd-bg-gray-200 jd-dark:jd-bg-gray-700 jd-rounded-full jd-h-2 jd-mb-4">
+        <div 
+          className="jd-bg-blue-500 jd-h-2 jd-rounded-full jd-transition-all jd-duration-300" 
+          style={{ width: `${(checklist.completed_count / checklist.total_count) * 100}%` }}
+        />
+      </div>
+
+      {/* Action Items */}
+      <div className="jd-space-y-2">
+        {actions.map((action) => {
+          const Icon = action.icon;
+          return (
+            <button
+              key={action.key}
+              onClick={action.onClick}
+              disabled={action.disabled || isLoading}
+              className={cn(
+                "jd-w-full jd-flex jd-items-center jd-gap-3 jd-p-2 jd-rounded-md jd-text-left jd-transition-colors",
+                action.completed
+                  ? "jd-bg-green-50 jd-dark:jd-bg-green-950/30 jd-border jd-border-green-200 jd-dark:jd-border-green-800"
+                  : action.disabled
+                  ? "jd-bg-gray-50 jd-dark:jd-bg-gray-900/30 jd-cursor-not-allowed jd-opacity-60"
+                  : "jd-bg-white jd-dark:jd-bg-gray-800/50 jd-border jd-border-gray-200 jd-dark:jd-border-gray-700 hover:jd-bg-gray-50 jd-dark:hover:jd-bg-gray-800 jd-cursor-pointer"
+              )}
+            >
+              <div className="jd-flex-shrink-0">
+                {action.completed ? (
+                  <CheckCircle className="jd-h-5 jd-w-5 jd-text-green-500" />
+                ) : (
+                  <Circle className="jd-h-5 jd-w-5 jd-text-gray-400" />
+                )}
+              </div>
+              <div className="jd-flex-shrink-0">
+                <Icon className={cn(
+                  "jd-h-4 jd-w-4",
+                  action.completed ? "jd-text-green-600" : "jd-text-blue-500"
+                )} />
+              </div>
+              <div className="jd-flex-1 jd-min-w-0">
+                <p className={cn(
+                  "jd-text-sm jd-font-medium",
+                  action.completed ? "jd-text-green-700 jd-dark:jd-text-green-400" : "jd-text-foreground"
+                )}>
+                  {action.title}
+                </p>
+                <p className="jd-text-xs jd-text-muted-foreground jd-truncate">
+                  {action.description}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {checklist.is_complete && (
+        <div className="jd-mt-3 jd-p-2 jd-bg-green-50 jd-dark:jd-bg-green-950/30 jd-border jd-border-green-200 jd-dark:jd-border-green-800 jd-rounded-md">
+          <p className="jd-text-sm jd-text-green-700 jd-dark:jd-text-green-400 jd-text-center jd-font-medium">
+            🎉 {getMessage('onboardingComplete', undefined, 'Great job! You\'ve completed the onboarding.')}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};

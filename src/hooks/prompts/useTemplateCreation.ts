@@ -1,5 +1,4 @@
-
-// src/hooks/templates/useTemplateCreation.ts
+// src/hooks/prompts/useTemplateCreation.ts - Updated with onboarding tracking
 import { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { toast } from 'sonner';
@@ -8,6 +7,7 @@ import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { Template } from '@/types/prompts/templates';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
+import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 
 interface TemplateFormData {
   name: string;
@@ -28,14 +28,14 @@ interface TemplateValidationErrors {
 }
 
 /**
- * Hook for template creation and management functionality
+ * Hook for template creation and management functionality with onboarding tracking
  */
 export function useTemplateCreation() {
   const queryClient = useQueryClient();
   const { openDialog } = useDialogManager();
   const [validationErrors, setValidationErrors] = useState<TemplateValidationErrors>({});
   
-  // Create template mutation
+  // Create template mutation with onboarding tracking
   const createTemplateMutation = useMutation(
     async (data: TemplateFormData) => {
       const { source, metadata_fields, ...form } = data;
@@ -51,7 +51,6 @@ export function useTemplateCreation() {
         ...(form.metadata ? { metadata: form.metadata } : {})
       };
 
-      
       const response = await promptApi.createTemplate(templateData);
       if (!response.success) {
         trackEvent(EVENTS.TEMPLATE_CREATE_ERROR, {
@@ -59,6 +58,10 @@ export function useTemplateCreation() {
         });
         throw new Error(response.message || 'Failed to create template');
       }
+
+      // Track onboarding completion for first template
+      await onboardingTracker.markTemplateCreated();
+      
       incrementUserProperty('template_created_count', 1);
       trackEvent(EVENTS.TEMPLATE_CREATE, {
         template_id: response.data.id,
@@ -85,7 +88,7 @@ export function useTemplateCreation() {
     }
   );
   
-  // Update template mutation
+  // Update template mutation with onboarding tracking
   const updateTemplateMutation = useMutation(
     async ({ id, data }: { id: number; data: TemplateFormData }) => {
       // Prepare API payload
@@ -129,20 +132,18 @@ export function useTemplateCreation() {
       errors.name = 'Template name is required';
     }
     
-    
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   }, []);
   
   /**
-   * Save a template (create new or update existing)
+   * Save a template (create new or update existing) with onboarding tracking
    */
   const saveTemplate = useCallback(async (
     data: TemplateFormData,
     templateId?: number,
     source: string = 'CreateTemplateDialog'
   ): Promise<boolean> => {
-
     
     // Validate the form data first
     if (!validateTemplateForm(data)) {
@@ -167,7 +168,7 @@ export function useTemplateCreation() {
   }, [validateTemplateForm, createTemplateMutation, updateTemplateMutation]);
   
   /**
-   * Clone a template
+   * Clone a template with onboarding tracking
    */
   const cloneTemplate = useCallback(async (template: Template): Promise<boolean> => {
     if (!template) {

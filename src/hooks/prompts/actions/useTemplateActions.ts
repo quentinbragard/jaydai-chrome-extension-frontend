@@ -1,5 +1,4 @@
-
-// src/hooks/prompts/actions/useTemplateActions.ts
+// src/hooks/prompts/actions/useTemplateActions.ts - Updated with onboarding tracking
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Template } from '@/types/prompts/templates';
@@ -13,11 +12,11 @@ import { getMessage } from '@/core/utils/i18n';
 import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrackets } from '@/utils/templates/insertPrompt';
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
 import { parseMetadataIds } from '@/utils/templates/metadataPrefill';
-
+import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 
 /**
  * A redesigned template action hook with cross-platform support
- * for both ChatGPT and Claude
+ * for both ChatGPT and Claude, including onboarding tracking
  */
 export function useTemplateActions() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -61,92 +60,93 @@ export function useTemplateActions() {
     }
   }, [dialogManager]);
 
-/**
- * Handle template content after editing in the placeholder editor
- * with improved content processing and panel closing
- */
-const handleTemplateComplete = useCallback((finalContent: string) => {
-  
-  if (!finalContent) {
-    console.error('No content received from template editor');
-    toast.error('Template content is empty');
-    return;
-  }
-  
-  const cleanContent = removePlaceholderBrackets(finalContent);
-  // Format content for insertion - normalizes newlines while preserving paragraph breaks
-  const formattedContent = formatContentForInsertion(cleanContent);
-  
-  // Insert the content with a small delay to ensure dialog is fully closed
-  setTimeout(() => {
-    const success = insertContentIntoChat(formattedContent);
+  /**
+   * Handle template content after editing in the placeholder editor
+   * with improved content processing and panel closing, including onboarding tracking
+   */
+  const handleTemplateComplete = useCallback((finalContent: string) => {
     
-    if (success) {
-      // Only show toast on success
-      toast.success('Template applied successfully');
-      incrementUserProperty('template_usage_count', 1);
-    } else {
-      toast.error('Failed to apply template');
+    if (!finalContent) {
+      console.error('No content received from template editor');
+      toast.error('Template content is empty');
+      return;
     }
     
-    // Dispatch an event to close the main button and panels
-    //document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
-  }, 50);
-}, []);
-
-// Updated useTemplate function with cross-platform support
-const useTemplate = useCallback(async (template: Template) => {
-  // Validation
-  if (!template) {
-    toast.error('Invalid template data');
-    return;
-  }
-  
-  if (!template.content) {
-    toast.error('Template has no content');
-    return;
-  }
-  
-  
-  setIsProcessing(true);
-  
-  try {
-    let parsedMetadata = template.metadata
-      ? parseMetadataIds(template.metadata as any)
-      : undefined;
-
-    let dialogData: any = {
-      content: template.content,
-      metadata: parsedMetadata,
-      title: template.title || 'Untitled Template',
-      type: template.type,
-      id: template.id,
-      organization: (template as any).organization,
-      organization_id: (template as any).organization_id,
-      image_url: (template as any).image_url,
-      onComplete: handleTemplateComplete
-    };
-
-
-    // Open the template editor dialog
-    openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, dialogData);
+    const cleanContent = removePlaceholderBrackets(finalContent);
+    // Format content for insertion - normalizes newlines while preserving paragraph breaks
+    const formattedContent = formatContentForInsertion(cleanContent);
     
-    // Track template usage (don't await)
-    if (template.id) {
-      trackTemplateUsage.mutate(template.id);
+    // Insert the content with a small delay to ensure dialog is fully closed
+    setTimeout(() => {
+      const success = insertContentIntoChat(formattedContent);
+      
+      if (success) {
+        // Mark onboarding completion for first template use
+        onboardingTracker.markTemplateUsed();
+        
+        // Only show toast on success
+        toast.success('Template applied successfully');
+        incrementUserProperty('template_usage_count', 1);
+      } else {
+        toast.error('Failed to apply template');
+      }
+      
+      // Dispatch an event to close the main button and panels
+      //document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+    }, 50);
+  }, []);
+
+  // Updated useTemplate function with cross-platform support and onboarding tracking
+  const useTemplate = useCallback(async (template: Template) => {
+    // Validation
+    if (!template) {
+      toast.error('Invalid template data');
+      return;
     }
     
-    // Close all panels when template is used
-    // Note: We're closing panels here even before template editing completes
-    // because the template dialog will be visible instead
-    document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
-  } catch (error) {
-    console.error('Error using template:', error);
-    toast.error('Failed to open template editor');
-  } finally {
-    setIsProcessing(false);
-  }
-}, [openDialog, handleTemplateComplete, trackTemplateUsage]);
+    if (!template.content) {
+      toast.error('Template has no content');
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      let parsedMetadata = template.metadata
+        ? parseMetadataIds(template.metadata as any)
+        : undefined;
+
+      let dialogData: any = {
+        content: template.content,
+        metadata: parsedMetadata,
+        title: template.title || 'Untitled Template',
+        type: template.type,
+        id: template.id,
+        organization: (template as any).organization,
+        organization_id: (template as any).organization_id,
+        image_url: (template as any).image_url,
+        onComplete: handleTemplateComplete
+      };
+
+      // Open the template editor dialog
+      openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, dialogData);
+      
+      // Track template usage (don't await)
+      if (template.id) {
+        trackTemplateUsage.mutate(template.id);
+      }
+      
+      // Close all panels when template is used
+      // Note: We're closing panels here even before template editing completes
+      // because the template dialog will be visible instead
+      document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
+    } catch (error) {
+      console.error('Error using template:', error);
+      toast.error('Failed to open template editor');
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [openDialog, handleTemplateComplete, trackTemplateUsage]);
   
   /**
    * Open template editor to create a new template

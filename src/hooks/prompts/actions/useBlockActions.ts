@@ -1,4 +1,4 @@
-// src/hooks/prompts/actions/useBlockActions.ts
+// src/hooks/prompts/actions/useBlockActions.ts - Updated with onboarding tracking
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Block } from '@/types/prompts/blocks';
@@ -7,6 +7,7 @@ import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 
 export interface UseBlockActionsProps {
   onBlockUpdated?: (block: Block) => void;
@@ -138,7 +139,7 @@ export function useBlockActions({
   }, [openDialog, onBlockDeleted]);
 
   /**
-   * Create a new block
+   * Create a new block with onboarding tracking
    */
   const createBlock = useCallback((initialData?: Partial<Block>, source: string = 'CreateBlockDialog') => {
     openDialog(DIALOG_TYPES.CREATE_BLOCK, {
@@ -163,6 +164,9 @@ export function useBlockActions({
           const response = await blocksApi.createBlock(createPayload);
           
           if (response.success && response.data) {
+            // Track onboarding completion for first block
+            await onboardingTracker.markBlockCreated();
+            
             toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
             trackEvent(EVENTS.BLOCK_CREATED, {
               block_id: response.data.id,

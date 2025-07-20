@@ -1,11 +1,17 @@
-// src/components/panels/TemplatesPanel/index.tsx - Updated with enhanced Enterprise CTA
+// src/components/panels/TemplatesPanel/index.tsx - Updated with onboarding
 import React, { useCallback, memo, useMemo, useState, useEffect } from 'react';
 import { FolderOpen, Shield, ChevronRight, Building2, Mail, Lock, Star, Users, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getMessage } from '@/core/utils/i18n';
 import BasePanel from '../BasePanel';
+import { toast } from 'sonner';
+import { Separator } from "@/components/ui/separator";
+
+// Import onboarding components
+import { OnboardingChecklist } from './OnboardingChecklist';
+import { KeyboardShortcutDialog } from '@/components/dialogs/onboarding/KeyboardShortcutDialog';
+import { useOnboardingChecklist } from '@/hooks/onboarding/useOnboardingChecklist';
 
 // Import enhanced components
 import { FolderItem } from '@/components/prompts/folders/FolderItem';
@@ -32,20 +38,10 @@ import { VirtualizedList } from '@/components/common/VirtualizedList';
 import { FolderSearch } from '@/components/prompts/folders';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
-import EmptyState from './EmptyState';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { getFolderTitle } from '@/utils/prompts/folderUtils';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
-
-// Import the new global search hook
-import { useGlobalTemplateSearch } from '@/hooks/prompts/utils/useGlobalTemplateSearch';
-
-interface TemplatesPanelProps {
-  showBackButton?: boolean;
-  onBack?: () => void;
-  onClose?: () => void;
-}
 
 // Enhanced Enterprise CTA Component
 const EnhancedEnterpriseCTA: React.FC<{ onContactSales: () => void }> = ({ onContactSales }) => {
@@ -132,8 +128,18 @@ const EnhancedEnterpriseCTA: React.FC<{ onContactSales: () => void }> = ({ onCon
   );
 };
 
+
+// Import the new global search hook
+import { useGlobalTemplateSearch } from '@/hooks/prompts/utils/useGlobalTemplateSearch';
+
+interface TemplatesPanelProps {
+  showBackButton?: boolean;
+  onBack?: () => void;
+  onClose?: () => void;
+}
+
 /**
- * Enhanced Templates Panel with global search functionality
+ * Enhanced Templates Panel with onboarding functionality
  */
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   showBackButton,
@@ -142,6 +148,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 }) => {
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Onboarding state
+  const [showKeyboardDialog, setShowKeyboardDialog] = useState(false);
 
   // Enhanced pinning
   const {
@@ -171,7 +180,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   const {
     data: unorganizedTemplates = [],
-    isLoading: loadingUnorganized
+    isLoading: loadingUnorganized,
+    refetch: refetchUnorganized
   } = useUnorganizedTemplates();
 
   const {
@@ -180,6 +190,18 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   } = usePinnedTemplates();
 
   const { data: organizations = [] } = useOrganizations();
+
+  // Onboarding hook
+  const {
+    checklist,
+    isLoading: onboardingLoading,
+    isUpdating: onboardingUpdating,
+    dismissOnboarding,
+    markTemplateCreated,
+    markTemplateUsed,
+    markBlockCreated,
+    markKeyboardShortcutUsed
+  } = useOnboardingChecklist();
 
   // Global search hook
   const {
@@ -194,7 +216,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   useEffect(() => {
     setGlobalSearchQuery(searchQuery);
   }, [searchQuery, setGlobalSearchQuery]);
-
 
   // Navigation hook for combined user + organization folders
   const navigation = useBreadcrumbNavigation({
@@ -264,6 +285,27 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       return { items, isGlobalSearch: false };
     }
   }, [searchQuery, searchResults, navigation.currentItems, navigation]);
+
+  // Check if we should show onboarding
+  const shouldShowOnboarding = useMemo(() => {
+    if (onboardingLoading || !checklist || checklist.is_dismissed) return false;
+    
+    // Show onboarding if no user templates exist
+    const hasUserTemplates = displayItems.items.some(item => {
+      if ('templates' in item || 'Folders' in item) {
+        // It's a folder, check if it has templates
+        const folder = item as TemplateFolder;
+        return folder.templates && folder.templates.length > 0;
+      } else {
+        // It's a template
+        return true;
+      }
+    });
+
+    const hasUnorganizedTemplates = unorganizedTemplates.length > 0;
+    
+    return !hasUserTemplates && !hasUnorganizedTemplates && !searchQuery.trim();
+  }, [onboardingLoading, checklist, displayItems.items, unorganizedTemplates, searchQuery]);
 
   // Enhanced pinned folders filtering that includes nested pinned folders
   const filteredPinned = useMemo(() => {
@@ -370,6 +412,62 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const { useTemplate, createTemplate, editTemplate } = useTemplateActions();
   const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders, openCreateBlock } = useDialogActions();
 
+  // Onboarding action handlers
+  const handleCreateTemplate = useCallback(() => {
+    createTemplate();
+    // The markTemplateCreated will be called when template is successfully created
+  }, [createTemplate]);
+
+  const handleUseTemplate = useCallback(async () => {
+    try {
+      // Find the first available user template
+      let firstTemplate = null;
+      
+      // Check unorganized templates first
+      if (unorganizedTemplates.length > 0) {
+        firstTemplate = unorganizedTemplates[0];
+      } else {
+        // Check in folders
+        for (const folder of userFolders) {
+          if (folder.templates && folder.templates.length > 0) {
+            firstTemplate = folder.templates[0];
+            break;
+          }
+        }
+      }
+
+      if (firstTemplate) {
+        await useTemplate(firstTemplate);
+        // The markTemplateUsed will be called when template is successfully used
+      } else {
+        toast.error(getMessage('noTemplateToUse', undefined, 'No template available to use. Create one first!'));
+      }
+    } catch (error) {
+      console.error('Error using template:', error);
+      toast.error(getMessage('errorUsingTemplate', undefined, 'Failed to use template'));
+    }
+  }, [useTemplate, unorganizedTemplates, userFolders]);
+
+  const handleCreateBlock = useCallback(() => {
+    openCreateBlock({ 
+      source: 'OnboardingChecklist',
+      onBlockCreated: async (blockData: any) => {
+        // Mark onboarding action as completed when block is created
+        markBlockCreated();
+        return true;
+      }
+    });
+  }, [openCreateBlock, markBlockCreated]);
+
+  const handleShowKeyboardShortcut = useCallback(() => {
+    setShowKeyboardDialog(true);
+  }, []);
+
+  const handleKeyboardShortcutUsed = useCallback(() => {
+    markKeyboardShortcutUsed();
+    setShowKeyboardDialog(false);
+  }, [markKeyboardShortcutUsed]);
+
   // Enhanced pin handler that works with the navigation system
   const handleTogglePin = useCallback(
     async (folderId: number, isPinned: boolean, type: 'user' | 'organization' | 'company') => {
@@ -442,12 +540,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     });
   }, [openCreateFolder, createFolder, refetchUser]);
 
-  const handleCreateBlock = useCallback(() => {
-    openCreateBlock({ source: 'TemplatesPanel' });
-  }, [openCreateBlock]);
-
   const handleContactSales = useCallback(() => {
-    // Track the click event for analytics
     trackEvent(EVENTS.ENTERPRISE_CTA_CLICKED, { source: 'templates_panel' });
     window.open('https://www.jayd.ai/#Contact', '_blank');
   }, []);
@@ -507,6 +600,19 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           onReset={() => setSearchQuery('')}
         />
 
+        {/* Show onboarding checklist if conditions are met */}
+        {shouldShowOnboarding && checklist && (
+          <OnboardingChecklist
+            checklist={checklist}
+            onCreateTemplate={handleCreateTemplate}
+            onUseTemplate={handleUseTemplate}
+            onCreateBlock={handleCreateBlock}
+            onShowKeyboardShortcut={handleShowKeyboardShortcut}
+            onDismiss={dismissOnboarding}
+            isLoading={onboardingUpdating}
+          />
+        )}
+
         {/* Main Navigation Section */}
         <div className="jd-space-y-1">
           <div>
@@ -536,7 +642,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 onNavigateToPathIndex={navigation.navigateToPathIndex}
                 onCreateTemplate={createTemplate}
                 onCreateFolder={handleCreateFolder}
-                onCreateBlock={handleCreateBlock}
+                onCreateBlock={() => openCreateBlock({ source: 'TemplatesPanel' })}
                 showCreateTemplate={true}
                 showCreateFolder={true}
                 showCreateBlock={true}
@@ -545,7 +651,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
             {/* Display Items */}
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {displayItems.items.length === 0 ? (
+              {displayItems.items.length === 0 && !shouldShowOnboarding ? (
                 <EmptyMessage>
                   {searchQuery.trim()
                     ? getMessage(
@@ -669,120 +775,127 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
           <Separator />
 
-          {/* Company Templates Section with Enhanced CTA */}
-          <div>
-            <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
-              <div className="jd-flex jd-items-center">
-                <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
-                Company Templates
-                {companyTemplates.length > 0 && (
-                  <span className="jd-ml-1 jd-text-xs jd-bg-primary/10 jd-text-primary jd-px-1.5 jd-py-0.5 jd-rounded-full">
-                    {companyTemplates.length}
-                  </span>
-                )}
-              </div>
-            </div>
+{/* Company Templates Section with Enhanced CTA */}
+<div>
+  <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
+    <div className="jd-flex jd-items-center">
+      <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
+      Company Templates
+      {companyTemplates.length > 0 && (
+        <span className="jd-ml-1 jd-text-xs jd-bg-primary/10 jd-text-primary jd-px-1.5 jd-py-0.5 jd-rounded-full">
+          {companyTemplates.length}
+        </span>
+      )}
+    </div>
+  </div>
 
-            <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {companyTemplates.length === 0 ? (
-                <EnhancedEnterpriseCTA onContactSales={handleContactSales} />
-              ) : (
-                <>
-                  {companyTemplates.map(template => (
-                    <TemplateItem
-                      key={`company-template-${template.id}`}
-                      template={template}
-                      type="company"
-                      onUseTemplate={useTemplate}
-                      onTogglePin={(id, pinned) =>
-                        handleToggleTemplatePin(id, pinned, 'company')
-                      }
-                      showEditControls={false}
-                      showDeleteControls={false}
-                      showPinControls={true}
-                      organizations={organizations}
-                    />
-                  ))}
-                </>
+  <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
+    {companyTemplates.length === 0 ? (
+      <EnhancedEnterpriseCTA onContactSales={handleContactSales} />
+    ) : (
+      <>
+        {companyTemplates.map(template => (
+          <TemplateItem
+            key={`company-template-${template.id}`}
+            template={template}
+            type="company"
+            onUseTemplate={useTemplate}
+            onTogglePin={(id, pinned) =>
+              handleToggleTemplatePin(id, pinned, 'company')
+            }
+            showEditControls={false}
+            showDeleteControls={false}
+            showPinControls={true}
+            organizations={organizations}
+          />
+        ))}
+      </>
+    )}
+  </div>
+</div>
+
+        <Separator />
+
+        {/* Enhanced Pinned Templates Section - now shows nested pinned folders */}
+        <div>
+          <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
+            <div className="jd-flex jd-items-center">
+              <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
+              {getMessage('pinnedTemplates', undefined, 'Pinned Templates')}
+              {sortedPinnedItems.length > 0 && (
+                <span className="jd-ml-1 jd-text-xs jd-bg-primary/10 jd-text-primary jd-px-1.5 jd-py-0.5 jd-rounded-full">
+                  {sortedPinnedItems.length}
+                </span>
               )}
             </div>
+            <Button variant="secondary" size="sm" className="jd-h-7 jd-px-2 jd-text-xs" onClick={openBrowseMoreFolders}>
+              {getMessage('browseMore', undefined, 'Browse More')}
+            </Button>
           </div>
 
-          <Separator />
-
-          {/* Enhanced Pinned Templates Section - now shows nested pinned folders */}
-          <div>
-            <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
-              <div className="jd-flex jd-items-center">
-                <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
-                {getMessage('pinnedTemplates', undefined, 'Pinned Templates')}
-                {sortedPinnedItems.length > 0 && (
-                  <span className="jd-ml-1 jd-text-xs jd-bg-primary/10 jd-text-primary jd-px-1.5 jd-py-0.5 jd-rounded-full">
-                    {sortedPinnedItems.length}
-                  </span>
-                )}
-              </div>
-              <Button variant="secondary" size="sm" className="jd-h-7 jd-px-2 jd-text-xs" onClick={openBrowseMoreFolders}>
-                {getMessage('browseMore', undefined, 'Browse More')}
-              </Button>
-            </div>
-
-            <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {sortedPinnedItems.length === 0 ? (
-                <EmptyMessage>
-                  {getMessage('noPinnedTemplates', undefined, 'No pinned templates. Pin your favorites for quick access.')}
-                </EmptyMessage>
-              ) : (
-                <>
-                  {sortedPinnedItems.map(item => {
-                    const isFolder = 'templates' in item || 'Folders' in item;
-                    if (isFolder) {
-                      const folder = item as TemplateFolder;
-                      const folderType = (item as any).folderType || 'user';
-                      return (
-                        <FolderItem
-                          key={`pinned-folder-${folder.id}`}
-                          folder={folder}
-                          type={folderType}
-                          enableNavigation={false}
-                          onTogglePin={handleTogglePin}
-                          onToggleTemplatePin={handleToggleTemplatePin}
-                          onUseTemplate={useTemplate}
-                          onEditTemplate={editTemplate}
-                          onDeleteTemplate={handleDeleteTemplate}
-                          onEditFolder={handleEditFolder}
-                          onDeleteFolder={handleDeleteFolder}
-                          organizations={organizations}
-                          showPinControls={true}
-                          showEditControls={folderType === 'user'}
-                          showDeleteControls={folderType === 'user'}
-                          pinnedFolderIds={allPinnedFolderIds}
-                        />
-                      );
-                    }
-                    const template = item as Template;
-                    const templateType = (template as any).type || 'user';
+          <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
+            {sortedPinnedItems.length === 0 ? (
+              <EmptyMessage>
+                {getMessage('noPinnedTemplates', undefined, 'No pinned templates. Pin your favorites for quick access.')}
+              </EmptyMessage>
+            ) : (
+              <>
+                {sortedPinnedItems.map(item => {
+                  const isFolder = 'templates' in item || 'Folders' in item;
+                  if (isFolder) {
+                    const folder = item as TemplateFolder;
+                    const folderType = (item as any).folderType || 'user';
                     return (
-                      <TemplateItem
-                        key={`pinned-template-${template.id}`}
-                        template={template}
-                        type={templateType}
+                      <FolderItem
+                        key={`pinned-folder-${folder.id}`}
+                        folder={folder}
+                        type={folderType}
+                        enableNavigation={false}
+                        onTogglePin={handleTogglePin}
+                        onToggleTemplatePin={handleToggleTemplatePin}
                         onUseTemplate={useTemplate}
                         onEditTemplate={editTemplate}
                         onDeleteTemplate={handleDeleteTemplate}
-                        onTogglePin={handleToggleTemplatePin}
-                        showEditControls={templateType === 'user'}
-                        showDeleteControls={templateType === 'user'}
-                        showPinControls={true}
+                        onEditFolder={handleEditFolder}
+                        onDeleteFolder={handleDeleteFolder}
                         organizations={organizations}
+                        showPinControls={true}
+                        showEditControls={folderType === 'user'}
+                        showDeleteControls={folderType === 'user'}
+                        pinnedFolderIds={allPinnedFolderIds}
                       />
                     );
-                  })}
-                </>
-              )}
-            </div>
+                  }
+                  const template = item as Template;
+                  const templateType = (template as any).type || 'user';
+                  return (
+                    <TemplateItem
+                      key={`pinned-template-${template.id}`}
+                      template={template}
+                      type={templateType}
+                      onUseTemplate={useTemplate}
+                      onEditTemplate={editTemplate}
+                      onDeleteTemplate={handleDeleteTemplate}
+                      onTogglePin={handleToggleTemplatePin}
+                      showEditControls={templateType === 'user'}
+                      showDeleteControls={templateType === 'user'}
+                      showPinControls={true}
+                      organizations={organizations}
+                    />
+                  );
+                })}
+              </>
+            )}
           </div>
         </div>
+        </div>
+
+        {/* Keyboard Shortcut Dialog */}
+        <KeyboardShortcutDialog
+          open={showKeyboardDialog}
+          onOpenChange={setShowKeyboardDialog}
+          onShortcutUsed={handleKeyboardShortcutUsed}
+        />
       </TooltipProvider>
     </BasePanel>
   );
