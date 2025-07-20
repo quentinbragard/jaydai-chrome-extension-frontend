@@ -32,7 +32,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
   const plans = [
     {
       id: 'yearly' as const,
-      name: 'Yearly Plan',
+      name: getMessage('yearlyPlan', undefined, 'Yearly Plan'),
       price: 6.99,
       currency: 'EUR',
       interval: 'year' as const,
@@ -42,7 +42,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
     },
     {
       id: 'monthly' as const,
-      name: 'Monthly Plan',
+      name: getMessage('monthlyPlan', undefined, 'Monthly Plan'),
       price: 8.99,
       currency: 'EUR',
       interval: 'month' as const,
@@ -61,7 +61,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
 
     try {
       const plan = plans.find(p => p.id === selectedPlan);
-      if (!plan) throw new Error('Invalid plan selected');
+      if (!plan) throw new Error(getMessage('invalidPlanSelected', undefined, 'Invalid plan selected'));
 
       const session = await stripeApi.createCheckoutSession({
         priceId: plan.priceId,

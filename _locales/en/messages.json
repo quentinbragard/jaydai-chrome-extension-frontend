@@ -2261,4 +2261,117 @@
     "message": "Close this dialog and type //j in any chat input to see the magic happen.",
     "description": "Instructions to try the shortcut"
   }
+  ,
+  "monthlyPlan": {
+    "message": "Monthly Plan",
+    "description": "Label for monthly plan"
+  },
+  "yearlyPlan": {
+    "message": "Yearly Plan",
+    "description": "Label for yearly plan"
+  },
+  "freePlan": {
+    "message": "Free Plan",
+    "description": "Label for free plan"
+  },
+  "choosePlan": {
+    "message": "Choose Your Plan",
+    "description": "Pricing plans section title"
+  },
+  "premiumTemplates": {
+    "message": "Access to 1000+ premium prompt templates",
+    "description": "Feature title: premium prompt templates"
+  },
+  "premiumTemplatesDesc": {
+    "message": "Curated templates for all use cases",
+    "description": "Feature description for premium templates"
+  },
+  "unlimitedPersonalTemplates": {
+    "message": "Unlimited personal prompt templates",
+    "description": "Feature title for unlimited personal templates"
+  },
+  "unlimitedPersonalTemplatesDesc": {
+    "message": "Create and save your own templates",
+    "description": "Feature description for unlimited personal templates"
+  },
+  "unlimitedPromptBlocks": {
+    "message": "Unlimited personal prompt blocks",
+    "description": "Feature title for unlimited prompt blocks"
+  },
+  "unlimitedPromptBlocksDesc": {
+    "message": "Build reusable prompt components",
+    "description": "Feature description for unlimited prompt blocks"
+  },
+  "advancedAnalytics": {
+    "message": "Advanced Data Analytics",
+    "description": "Feature title for analytics"
+  },
+  "advancedAnalyticsDesc": {
+    "message": "Detailed insights and usage statistics (coming soon)",
+    "description": "Feature description for analytics"
+  },
+  "plusPlan": {
+    "message": "Jaydai Plus",
+    "description": "Name of the premium subscription plan"
+  },
+  "startWith3DayFreeTrial": {
+    "message": "Start with 3-Day FREE Trial",
+    "description": "Free trial banner text"
+  },
+  "tryAllFeaturesFree": {
+    "message": "Try all features free for 3 days",
+    "description": "Free trial feature text"
+  },
+  "cancelAnytimeDuringTrial": {
+    "message": "Cancel anytime during trial",
+    "description": "Free trial cancellation note"
+  },
+  "billedAnnually": {
+    "message": "Billed annually",
+    "description": "Billing frequency note"
+  },
+  "afterTrialPeriod": {
+    "message": "After your 3-day free trial period",
+    "description": "Trial reminder subtext"
+  },
+  "startFreeTrial": {
+    "message": "Start Free Trial",
+    "description": "CTA button text"
+  },
+  "noChargeFor3Days": {
+    "message": "No charge for 3 days. Cancel anytime during trial.",
+    "description": "CTA subtext"
+  },
+  "securePayment": {
+    "message": "Secure payment powered by Stripe",
+    "description": "Payment security note"
+  },
+  "trialPaymentNote": {
+    "message": "Your payment method will be saved securely but not charged during your 3-day trial period.",
+    "description": "Note about payment during trial"
+  },
+  "userEmailRequired": {
+    "message": "User email is required for payment",
+    "description": "Error shown when user email missing for checkout"
+  },
+  "redirectingToPayment": {
+    "message": "Redirecting to payment...",
+    "description": "Informational toast before redirect to payment"
+  },
+  "completePaymentInNewTab": {
+    "message": "Complete your payment in the new tab",
+    "description": "Info toast description about finishing payment"
+  },
+  "paymentError": {
+    "message": "Payment failed",
+    "description": "Generic payment error title"
+  },
+  "tryAgainLater": {
+    "message": "Please try again later",
+    "description": "Generic suggestion to retry later"
+  },
+  "invalidPlanSelected": {
+    "message": "Invalid plan selected",
+    "description": "Error message when an invalid plan is chosen"
+  }
 }

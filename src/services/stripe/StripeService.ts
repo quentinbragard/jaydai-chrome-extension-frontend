@@ -1,15 +1,16 @@
 // src/services/stripe/StripeService.ts
 import { apiClient } from '@/services/api/ApiClient';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
-import { 
-  StripeConfig, 
-  PricingPlan, 
-  CreateCheckoutSessionRequest, 
+import {
+  StripeConfig,
+  PricingPlan,
+  CreateCheckoutSessionRequest,
   CreateCheckoutSessionResponse,
   SubscriptionStatus,
   PaymentResult
 } from '@/types/stripe';
 import { detectPlatform } from '@/extension/content/networkInterceptor/detectPlatform';
+import { getMessage } from '@/core/utils/i18n';
 
 export class StripeService {
   private config: StripeConfig;
@@ -67,7 +68,7 @@ export class StripeService {
     try {
       const plan = this.getPricingPlans().find(p => p.id === planName);
       if (!plan) {
-        throw new Error('Invalid plan selected');
+        throw new Error(getMessage('invalidPlanSelected', undefined, 'Invalid plan selected'));
       }
 
       // Track payment attempt
