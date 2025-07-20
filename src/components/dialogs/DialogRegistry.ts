@@ -26,6 +26,9 @@ export const DIALOG_TYPES = {
 
   // Dialog shown when a paid subscription is required
   PAYWALL: 'paywall'
+  ,
+  // Dialog for onboarding keyboard shortcuts
+  KEYBOARD_SHORTCUT: 'keyboardShortcut'
 } as const;
 
 // Export the dialog types
@@ -111,4 +114,8 @@ export interface DialogProps {
   [DIALOG_TYPES.MANAGE_SUBSCRIPTION]: Record<string, never>;
 
   [DIALOG_TYPES.PAYWALL]: Record<string, never>;
+
+  [DIALOG_TYPES.KEYBOARD_SHORTCUT]: {
+    onShortcutUsed?: () => void;
+  };
 }

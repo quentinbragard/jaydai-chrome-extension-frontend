@@ -5,24 +5,18 @@ import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 import { Keyboard, Zap } from 'lucide-react';
 import { useShadowRoot } from '@/core/utils/componentInjector';
+import { useDialog } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 
-interface KeyboardShortcutDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onShortcutUsed?: () => void;
-}
-
-export const KeyboardShortcutDialog: React.FC<KeyboardShortcutDialogProps> = ({
-  open,
-  onOpenChange,
-  onShortcutUsed
-}) => {
+export const KeyboardShortcutDialog: React.FC = () => {
+  const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.KEYBOARD_SHORTCUT);
   const shadowRoot = useShadowRoot();
+  const onShortcutUsed = data?.onShortcutUsed;
 
   const dialog = (
     <BaseDialog
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={dialogProps.onOpenChange}
       title={getMessage('keyboardShortcuts', undefined, 'Keyboard Shortcuts')}
       description={getMessage('keyboardShortcutsDesc', undefined, 'Speed up your workflow with these shortcuts')}
       className="jd-max-w-lg"

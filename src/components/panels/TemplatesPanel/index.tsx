@@ -10,7 +10,6 @@ import { Separator } from "@/components/ui/separator";
 
 // Import onboarding components
 import { OnboardingChecklist } from './OnboardingChecklist';
-import { KeyboardShortcutDialog } from '@/components/dialogs/onboarding/KeyboardShortcutDialog';
 import { useOnboardingChecklist } from '@/hooks/onboarding/useOnboardingChecklist';
 
 // Import enhanced components
@@ -150,8 +149,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Onboarding state
-  const [showKeyboardDialog, setShowKeyboardDialog] = useState(false);
 
   // Enhanced pinning
   const {
@@ -400,7 +397,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
   const { deleteTemplate, toggleTemplatePin } = useTemplateMutations();
   const { useTemplate, createTemplate, editTemplate } = useTemplateActions();
-  const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders, openCreateBlock } = useDialogActions();
+  const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders, openCreateBlock, openKeyboardShortcut } = useDialogActions();
 
   // Onboarding action handlers
   const handleCreateTemplate = useCallback(() => {
@@ -458,12 +455,11 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }, [openCreateBlock, markBlockCreated]);
 
   const handleShowKeyboardShortcut = useCallback(() => {
-    setShowKeyboardDialog(true);
-  }, []);
+    openKeyboardShortcut({ onShortcutUsed: handleKeyboardShortcutUsed });
+  }, [openKeyboardShortcut, handleKeyboardShortcutUsed]);
 
   const handleKeyboardShortcutUsed = useCallback(() => {
     markKeyboardShortcutUsed();
-    setShowKeyboardDialog(false);
   }, [markKeyboardShortcutUsed]);
 
   // Enhanced pin handler that works with the navigation system
@@ -888,12 +884,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         </div>
         </div>
 
-        {/* Keyboard Shortcut Dialog */}
-        <KeyboardShortcutDialog
-          open={showKeyboardDialog}
-          onOpenChange={setShowKeyboardDialog}
-          onShortcutUsed={handleKeyboardShortcutUsed}
-        />
       </TooltipProvider>
     </BasePanel>
   );
