@@ -13,6 +13,7 @@ import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrac
 import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
 import { parseMetadataIds } from '@/utils/templates/metadataPrefill';
 import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
+import { promptApi } from '@/services/api';
 
 /**
  * A redesigned template action hook with cross-platform support
@@ -98,47 +99,43 @@ export function useTemplateActions() {
 
   // Updated useTemplate function with cross-platform support and onboarding tracking
   const useTemplate = useCallback(async (template: Template) => {
-    // Validation
-    if (!template) {
+    if (!template || !template.id) {
       toast.error('Invalid template data');
       return;
     }
-    
-    if (!template.content) {
-      toast.error('Template has no content');
-      return;
-    }
-    
+
     setIsProcessing(true);
-    
+
     try {
-      let parsedMetadata = template.metadata
-        ? parseMetadataIds(template.metadata as any)
+      const response = await promptApi.getTemplateById(template.id);
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to load template');
+      }
+
+      const freshTemplate = response.data as Template;
+
+      const parsedMetadata = freshTemplate.metadata
+        ? parseMetadataIds(freshTemplate.metadata as any)
         : undefined;
 
-      let dialogData: any = {
-        content: template.content,
+      const dialogData: any = {
+        content: freshTemplate.content,
         metadata: parsedMetadata,
-        title: template.title || 'Untitled Template',
-        type: template.type,
-        id: template.id,
-        organization: (template as any).organization,
-        organization_id: (template as any).organization_id,
-        image_url: (template as any).image_url,
+        title: freshTemplate.title || 'Untitled Template',
+        type: freshTemplate.type,
+        id: freshTemplate.id,
+        organization: (freshTemplate as any).organization,
+        organization_id: (freshTemplate as any).organization_id,
+        image_url: (freshTemplate as any).image_url,
         onComplete: handleTemplateComplete
       };
 
-      // Open the template editor dialog
       openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, dialogData);
-      
-      // Track template usage (don't await)
-      if (template.id) {
-        trackTemplateUsage.mutate(template.id);
+
+      if (freshTemplate.id) {
+        trackTemplateUsage.mutate(freshTemplate.id);
       }
-      
-      // Close all panels when template is used
-      // Note: We're closing panels here even before template editing completes
-      // because the template dialog will be visible instead
+
       document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
     } catch (error) {
       console.error('Error using template:', error);

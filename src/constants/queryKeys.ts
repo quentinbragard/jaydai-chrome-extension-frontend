@@ -14,6 +14,7 @@ export const QUERY_KEYS = {
     USER_TEMPLATES: 'userTemplates',
     UNORGANIZED_TEMPLATES: 'unorganizedTemplates',
     TEMPLATES_BY_FOLDER: 'templatesByFolder',
+    TEMPLATE_BY_ID: 'templateById',
     PINNED_FOLDERS: 'pinnedFolders',
     PINNED_TEMPLATES: 'pinnedTemplates',
     
