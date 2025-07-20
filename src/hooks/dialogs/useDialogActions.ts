@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
-import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
+import { DIALOG_TYPES, DialogProps } from '@/components/dialogs/DialogRegistry';
 
 export function useDialogActions() {
   const { openDialog } = useDialogManager();
@@ -73,6 +73,12 @@ export function useDialogActions() {
     [openDialog]
   );
 
+  const openKeyboardShortcut = useCallback(
+    (props?: DialogProps[typeof DIALOG_TYPES.KEYBOARD_SHORTCUT]) =>
+      openDialog(DIALOG_TYPES.KEYBOARD_SHORTCUT, props ?? {}),
+    [openDialog]
+  );
+
   return {
     openSettings,
     openCreateTemplate,
@@ -88,5 +94,6 @@ export function useDialogActions() {
     openInsertBlock,
     openTutorials,
     openTutorialVideo,
+    openKeyboardShortcut,
   };
 }
