@@ -19,9 +19,11 @@ import { Separator } from '@/components/ui/separator';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { getMessage } from '@/core/utils/i18n';
 import { useOrganizations } from '@/hooks/organizations';
+import { useBreadcrumbNavigation } from '@/hooks/prompts/navigation/useBreadcrumbNavigation';
 import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 import { useFolderSearch } from '@/hooks/prompts/utils/useFolderSearch';
+import { UnifiedNavigation } from '@/components/prompts/navigation/UnifiedNavigation';
 
 export const BrowseMoreFoldersDialog: React.FC = () => {
   const { isOpen, dialogProps, close } = useDialog(
@@ -46,6 +48,18 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
 
   const allFolders = organizationFolders;
   const { searchQuery, setSearchQuery, filteredFolders, clearSearch } = useFolderSearch(allFolders);
+
+  const navigation = useBreadcrumbNavigation({
+    userFolders: [],
+    organizationFolders,
+    unorganizedTemplates
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      navigation.navigateToRoot();
+    }
+  }, [isOpen]);
 
   // Filter unorganized templates based on search query
   const filteredTemplates = useMemo(() => {
@@ -130,6 +144,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
           onReset={clearSearch}
         />
         <Separator />
+        {searchQuery.trim() ? (
           <div className="jd-overflow-y-auto jd-max-h-[70vh]">
             {loading ? (
               <LoadingState
@@ -175,6 +190,71 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
               </div>
             )}
           </div>
+        ) : (
+          <>
+            <UnifiedNavigation
+              isAtRoot={navigation.isAtRoot}
+              currentFolderTitle={navigation.currentFolder?.title}
+              navigationPath={navigation.breadcrumbs}
+              onNavigateToRoot={navigation.navigateToRoot}
+              onNavigateBack={navigation.navigateBack}
+              onNavigateToPathIndex={navigation.navigateToPathIndex}
+              className="jd-mb-2"
+            />
+            <div className="jd-overflow-y-auto jd-max-h-[70vh]">
+              {loading ? (
+                <LoadingState
+                  message={getMessage('loadingFoldersGeneric', undefined, 'Loading folders...')}
+                />
+              ) : navigation.currentItems.length === 0 ? (
+                <EmptyMessage>
+                  {getMessage('folderEmpty', undefined, 'This folder is empty')}
+                </EmptyMessage>
+              ) : (
+                <div className="jd-space-y-1 jd-px-2">
+                  {navigation.currentItems.map(item => {
+                    const isFolder = 'templates' in item || 'Folders' in item;
+                    if (isFolder) {
+                      const folder = item as any;
+                      const folderType = navigation.getItemType(item as any);
+                      return (
+                        <FolderItem
+                          key={`nav-folder-${folder.id}`}
+                          folder={{ ...folder, is_pinned: localPinnedIds.includes(folder.id) }}
+                          type={folderType as any}
+                          enableNavigation={true}
+                          onNavigateToFolder={navigation.navigateToFolder}
+                          onTogglePin={(id, pinned) => handleTogglePin(id, pinned, folderType as any)}
+                          onToggleTemplatePin={handleToggleTemplatePin}
+                          organizations={organizations}
+                          showPinControls={true}
+                          showEditControls={false}
+                          showDeleteControls={false}
+                          pinnedFolderIds={localPinnedIds}
+                        />
+                      );
+                    }
+                    const template = item as Template;
+                    const templateType = navigation.getItemType(item as any);
+                    return (
+                      <TemplateItem
+                        key={`nav-template-${template.id}`}
+                        template={template}
+                        type={templateType as any}
+                        onUseTemplate={handleUseTemplateFromDialog}
+                        onTogglePin={(id, pinned) => handleToggleTemplatePin(id, pinned, templateType as any)}
+                        showEditControls={false}
+                        showDeleteControls={false}
+                        showPinControls={true}
+                        organizations={organizations}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </TooltipProvider>
     </BaseDialog>
   );
