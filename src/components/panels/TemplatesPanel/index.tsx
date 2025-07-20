@@ -288,24 +288,13 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   // Check if we should show onboarding
   const shouldShowOnboarding = useMemo(() => {
-    if (onboardingLoading || !checklist || checklist.is_dismissed) return false;
-    
-    // Show onboarding if no user templates exist
-    const hasUserTemplates = displayItems.items.some(item => {
-      if ('templates' in item || 'Folders' in item) {
-        // It's a folder, check if it has templates
-        const folder = item as TemplateFolder;
-        return folder.templates && folder.templates.length > 0;
-      } else {
-        // It's a template
-        return true;
-      }
-    });
+    if (onboardingLoading || !checklist) return false;
 
-    const hasUnorganizedTemplates = unorganizedTemplates.length > 0;
-    
-    return !hasUserTemplates && !hasUnorganizedTemplates && !searchQuery.trim();
-  }, [onboardingLoading, checklist, displayItems.items, unorganizedTemplates, searchQuery]);
+    if (checklist.is_dismissed || checklist.is_complete) return false;
+
+    // Don't show the checklist while searching
+    return !searchQuery.trim();
+  }, [onboardingLoading, checklist, searchQuery]);
 
   // Enhanced pinned folders filtering that includes nested pinned folders
   const filteredPinned = useMemo(() => {
