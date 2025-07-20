@@ -34,6 +34,7 @@ import {
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { useOrganizations } from '@/hooks/organizations';
 import { VirtualizedList } from '@/components/common/VirtualizedList';
+import { promptApi } from '@/services/api';
 
 import { FolderSearch } from '@/components/prompts/folders';
 import { LoadingState } from './LoadingState';
@@ -410,7 +411,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const handleUseTemplate = useCallback(async () => {
     try {
       // Find the first available user template
-      let firstTemplate = null;
+      let firstTemplate: Template | null = null;
       
       // Check unorganized templates first
       if (unorganizedTemplates.length > 0) {
@@ -422,6 +423,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             firstTemplate = folder.templates[0];
             break;
           }
+        }
+      }
+
+      if (!firstTemplate) {
+        // If no user template exists, fall back to template with id 1
+        const response = await promptApi.getTemplateById(1);
+        if (response.success && response.data) {
+          firstTemplate = response.data as Template;
         }
       }
 
