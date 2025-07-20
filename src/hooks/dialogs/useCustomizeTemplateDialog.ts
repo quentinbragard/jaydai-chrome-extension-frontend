@@ -50,30 +50,19 @@ export function useCustomizeTemplateDialog() {
     
     const loadBlocks = async () => {
       try {
-        // Get all published blocks
-        const publishedResponse = await blocksApi.getBlocks({ published: true });
-        let allBlocks: Block[] = [];
-        
-        if (publishedResponse.success && Array.isArray(publishedResponse.data)) {
-          allBlocks = [...publishedResponse.data];
-        }
-  
-        // Extract block IDs from template metadata
         const metadataBlockIds = extractBlockIdsFromTemplateMetadata(data?.metadata);
-        
-        if (metadataBlockIds.length > 0) {
-          // Get the specific blocks referenced in metadata (including unpublished ones)
-          const metadataBlocksResponse = await blocksApi.getBlocksByIds(metadataBlockIds);
-          
-          if (metadataBlocksResponse.success && Array.isArray(metadataBlocksResponse.data)) {
-            // Merge with published blocks, avoiding duplicates
-            const existingIds = new Set(allBlocks.map(b => b.id));
-            const newBlocks = metadataBlocksResponse.data.filter(b => !existingIds.has(b.id));
-            allBlocks = [...allBlocks, ...newBlocks];
+        const uniqueIds = Array.from(new Set(metadataBlockIds));
+
+        if (uniqueIds.length > 0) {
+          const resp = await blocksApi.getBlocksByIds(uniqueIds);
+          if (resp.success && Array.isArray(resp.data)) {
+            setBlockContentCache(buildBlockCache(resp.data));
+          } else {
+            setBlockContentCache({});
           }
+        } else {
+          setBlockContentCache({});
         }
-  
-        setBlockContentCache(buildBlockCache(allBlocks));
       } catch (err) {
         console.error('Failed to load blocks for customize dialog', err);
       }
