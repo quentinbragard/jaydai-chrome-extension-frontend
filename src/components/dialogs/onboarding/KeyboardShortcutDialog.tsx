@@ -1,8 +1,10 @@
 // src/components/onboarding/KeyboardShortcutDialog.tsx
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
 import { getMessage } from '@/core/utils/i18n';
 import { Keyboard, Zap } from 'lucide-react';
+import { useShadowRoot } from '@/core/utils/componentInjector';
 
 interface KeyboardShortcutDialogProps {
   open: boolean;
@@ -15,7 +17,9 @@ export const KeyboardShortcutDialog: React.FC<KeyboardShortcutDialogProps> = ({
   onOpenChange,
   onShortcutUsed
 }) => {
-  return (
+  const shadowRoot = useShadowRoot();
+
+  const dialog = (
     <BaseDialog
       open={open}
       onOpenChange={onOpenChange}
@@ -81,4 +85,6 @@ export const KeyboardShortcutDialog: React.FC<KeyboardShortcutDialogProps> = ({
       </div>
     </BaseDialog>
   );
+
+  return createPortal(dialog, shadowRoot || document.body);
 };
