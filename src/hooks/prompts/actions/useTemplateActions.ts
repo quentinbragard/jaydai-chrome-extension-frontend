@@ -109,6 +109,13 @@ export function useTemplateActions() {
     try {
       const response = await promptApi.getTemplateById(template.id);
       if (!response.success || !response.data) {
+        if (
+          response.message &&
+          (response.message.includes('Subscription') ||
+            response.message.includes('402'))
+        ) {
+          openDialog(DIALOG_TYPES.PAYWALL);
+        }
         throw new Error(response.message || 'Failed to load template');
       }
 
@@ -139,6 +146,12 @@ export function useTemplateActions() {
       document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
     } catch (error) {
       console.error('Error using template:', error);
+      if (
+        error instanceof Error &&
+        (error.message.includes('Subscription') || error.message.includes('402'))
+      ) {
+        openDialog(DIALOG_TYPES.PAYWALL);
+      }
       toast.error('Failed to open template editor');
     } finally {
       setIsProcessing(false);
