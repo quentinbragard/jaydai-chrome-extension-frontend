@@ -15,11 +15,6 @@ function createContextMenus() {
   });
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.tabs.create({ url: 'welcome.html' });
-  createContextMenus();
-});
-
 // Recreate menus whenever Chrome starts
 chrome.runtime.onStartup.addListener(createContextMenus);
 
@@ -40,12 +35,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 
 // 🔹 Open welcome page only when the extension is newly installed, not on updates
-//chrome.runtime.onInstalled.addListener((details) => {
-  // Only open the welcome page for new installations, not updates
-  //if (details.reason === 'install') {
-  //    chrome.tabs.create({ url: 'welcome.html' });
-  //}
-//});
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+      chrome.tabs.create({ url: 'welcome.html' });
+  }
+});
 
 // Track active monitoring tabs (if still needed)
 const monitoredTabs = new Set();
