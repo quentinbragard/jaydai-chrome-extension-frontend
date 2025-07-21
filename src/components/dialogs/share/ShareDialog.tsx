@@ -152,6 +152,8 @@ export const ShareDialog: React.FC = () => {
         setEmail('');
         setShowConfirmation(false);
         toast.success(getMessage('inviteEmailSent', undefined, 'Invitation sent successfully! 🎉'));
+        // Notify listeners that an invite has been sent
+        window.dispatchEvent(new CustomEvent('invite-sent'));
         
         trackEvent(EVENTS.SHARE_FRIEND_INVITED, {
           friend_email: email.trim(),
