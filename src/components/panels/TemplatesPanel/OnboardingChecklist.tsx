@@ -57,6 +57,14 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
 
   const actions = [
     {
+      key: 'first_template_used',
+      title: getMessage('useFirstTemplate', undefined, 'Use your first template'),
+      description: getMessage('useFirstTemplateDesc', undefined, 'Try out the template customization'),
+      icon: Play,
+      completed: checklist.first_template_used,
+      onClick: onUseTemplate,
+    },
+    {
       key: 'first_template_created',
       title: getMessage('createFirstTemplate', undefined, 'Create your first template'),
       description: getMessage('createFirstTemplateDesc', undefined, 'Build a reusable prompt template'),
@@ -75,15 +83,6 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
           actionText: getMessage('createTemplate', undefined, 'Create Template'),
           onAction: onCreateTemplate,
         })
-    },
-    {
-      key: 'first_template_used',
-      title: getMessage('useFirstTemplate', undefined, 'Use your first template'),
-      description: getMessage('useFirstTemplateDesc', undefined, 'Try out the template customization'),
-      icon: Play,
-      completed: checklist.first_template_used,
-      onClick: onUseTemplate,
-      disabled: !checklist.first_template_created // Can't use template if none created
     },
     {
       key: 'first_block_created',

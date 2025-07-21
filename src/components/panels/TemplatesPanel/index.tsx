@@ -32,7 +32,7 @@ import {
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { useOrganizations } from '@/hooks/organizations';
 import { VirtualizedList } from '@/components/common/VirtualizedList';
-import { promptApi } from '@/services/api';
+import { promptApi, getWhichTemplate } from '@/services/api';
 
 import { FolderSearch } from '@/components/prompts/folders';
 import { LoadingState } from './LoadingState';
@@ -302,41 +302,21 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   const handleUseTemplate = useCallback(async () => {
     try {
-      // Find the first available user template
-      let firstTemplate: Template | null = null;
-      
-      // Check unorganized templates first
-      if (unorganizedTemplates.length > 0) {
-        firstTemplate = unorganizedTemplates[0];
-      } else {
-        // Check in folders
-        for (const folder of userFolders) {
-          if (folder.templates && folder.templates.length > 0) {
-            firstTemplate = folder.templates[0];
-            break;
-          }
-        }
-      }
+      const response = await getWhichTemplate();
 
-      if (!firstTemplate) {
-        // If no user template exists, fall back to template with id 1
-        const response = await promptApi.getTemplateById(1);
-        if (response.success && response.data) {
-          firstTemplate = response.data as Template;
-        }
-      }
-
-      if (firstTemplate) {
-        await useTemplate(firstTemplate);
+      if (response.success && response.data) {
+        await useTemplate(response.data as Template);
         // The markTemplateUsed will be called when template is successfully used
       } else {
-        toast.error(getMessage('noTemplateToUse', undefined, 'No template available to use. Create one first!'));
+        toast.error(
+          getMessage('noTemplateToUse', undefined, 'No template available to use. Create one first!')
+        );
       }
     } catch (error) {
       console.error('Error using template:', error);
       toast.error(getMessage('errorUsingTemplate', undefined, 'Failed to use template'));
     }
-  }, [useTemplate, unorganizedTemplates, userFolders]);
+  }, [useTemplate]);
 
   const handleCreateBlock = useCallback(() => {
     openCreateBlock({ 
