@@ -189,6 +189,7 @@ export function useOptimizedSearch(
       try {
         setLoadingTemplates(true);
         const response = await promptApi.getUserTemplates();
+        console.log("response--->", response)
         if (response.success && Array.isArray(response.data)) {
           setFetchedTemplates(response.data as Template[]);
         }

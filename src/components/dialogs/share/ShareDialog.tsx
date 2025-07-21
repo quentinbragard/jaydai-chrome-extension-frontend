@@ -50,7 +50,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="jd-fixed jd-inset-0 jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-z-50">
+    <div className="jd-fixed jd-inset-0 jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-z-[10050]">
       <div className="jd-bg-white jd-dark:jd-bg-gray-800 jd-rounded-xl jd-p-6 jd-max-w-md jd-mx-4 jd-shadow-lg">
         <div className="jd-flex jd-items-center jd-gap-3 jd-mb-4">
           <div className="jd-p-2 jd-bg-blue-100 jd-dark:jd-bg-blue-900/30 jd-rounded-full">
