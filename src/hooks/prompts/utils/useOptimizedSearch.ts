@@ -1,6 +1,7 @@
 // src/hooks/prompts/utils/useOptimizedSearch.ts
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
+import { promptApi } from '@/services/api';
 
 interface SearchableItem {
   id: number;
@@ -39,6 +40,8 @@ export function useOptimizedSearch(
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const searchIndexRef = useRef<SearchableItem[]>([]);
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
+  const [fetchedTemplates, setFetchedTemplates] = useState<Template[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
 
   // Helper function to safely extract text content
   const extractText = useCallback((content: any): string => {
@@ -132,9 +135,9 @@ export function useOptimizedSearch(
       });
     }
 
-    // Process unorganized templates
-    if (Array.isArray(unorganizedTemplates)) {
-      unorganizedTemplates.forEach(template => {
+    // Process templates fetched on demand
+    if (Array.isArray(fetchedTemplates)) {
+      fetchedTemplates.forEach(template => {
         if (!template?.id) return;
         
         const title = extractText(template.title);
@@ -161,7 +164,7 @@ export function useOptimizedSearch(
     console.log(`🔍 Search index built with ${items.length} items`);
     
     return items;
-  }, [userFolders, organizationFolders, unorganizedTemplates, extractText]);
+  }, [userFolders, organizationFolders, fetchedTemplates, extractText]);
 
   // Debounce search query
   useEffect(() => {
@@ -179,6 +182,27 @@ export function useOptimizedSearch(
       }
     };
   }, [searchQuery]);
+
+  // Fetch templates on demand when the user starts searching
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        setLoadingTemplates(true);
+        const response = await promptApi.getUserTemplates();
+        if (response.success && Array.isArray(response.data)) {
+          setFetchedTemplates(response.data as Template[]);
+        }
+      } catch (error) {
+        console.error('Error fetching templates for search:', error);
+      } finally {
+        setLoadingTemplates(false);
+      }
+    };
+
+    if (searchQuery.trim() && fetchedTemplates.length === 0 && !loadingTemplates) {
+      fetchTemplates();
+    }
+  }, [searchQuery, fetchedTemplates.length, loadingTemplates]);
 
   // Optimized search function
   const searchResults = useMemo((): SearchResult => {
