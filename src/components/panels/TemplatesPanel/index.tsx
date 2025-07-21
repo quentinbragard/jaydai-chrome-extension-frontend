@@ -35,6 +35,7 @@ import { VirtualizedList } from '@/components/common/VirtualizedList';
 import { promptApi, getWhichTemplate } from '@/services/api';
 
 import { OptimizedFolderSearch } from '@/components/prompts/folders/OptimizedFolderSearch';
+import { useGlobalTemplateSearch } from '@/hooks/prompts/utils/useGlobalTemplateSearch';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
@@ -42,8 +43,7 @@ import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { getFolderTitle } from '@/utils/prompts/folderUtils';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 
-// Import the new optimized search hook
-import { useOptimizedSearch } from '@/hooks/prompts/utils/useOptimizedSearch';
+// Import the global template search hook
 
 interface TemplatesPanelProps {
   showBackButton?: boolean;
@@ -120,11 +120,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     searchQuery,
     setSearchQuery,
     searchResults,
-    clearSearch,
-    hasResults,
-    isSearching,
-    totalIndexedItems
-  } = useOptimizedSearch(userFolders, organizationFolders, unorganizedTemplates);
+    clearSearch
+  } = useGlobalTemplateSearch(
+    userFolders,
+    organizationFolders,
+    unorganizedTemplates
+  );
+  const isSearching = false;
+  const totalIndexedItems =
+    searchResults.templates.length + searchResults.folders.length;
 
   // Navigation hook for combined user + organization folders
   const navigation = useBreadcrumbNavigation({
