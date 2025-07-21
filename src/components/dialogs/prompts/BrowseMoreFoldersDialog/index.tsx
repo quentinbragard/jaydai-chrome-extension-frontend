@@ -47,7 +47,15 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
   }, [pinnedFolderIds]);
 
   const allFolders = organizationFolders;
-  const { searchQuery, setSearchQuery, filteredFolders, clearSearch } = useFolderSearch(allFolders);
+  const {
+    searchQuery,
+    setSearchQuery,
+    filteredFolders,
+    expandedFolders,
+    toggleFolder,
+    clearSearch,
+    isExpanded
+  } = useFolderSearch(allFolders);
 
   const navigation = useBreadcrumbNavigation({
     userFolders: [],
@@ -144,117 +152,53 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
           onReset={clearSearch}
         />
         <Separator />
-        {searchQuery.trim() ? (
-          <div className="jd-overflow-y-auto jd-max-h-[70vh]">
-            {loading ? (
-              <LoadingState
-                message={getMessage('loadingFoldersGeneric', undefined, 'Loading folders...')}
-              />
-            ) : foldersWithPin.length === 0 && filteredTemplates.length === 0 ? (
-              <EmptyMessage>
-                {getMessage('noFoldersOrTemplatesFound', undefined, 'No folders or templates found')}
-              </EmptyMessage>
-            ) : (
-              <div className="jd-space-y-1 jd-px-2">
-                {foldersWithPin.map(folder => (
-                  <FolderItem
-                    key={`browse-folder-${folder.id}`}
-                    folder={folder}
-                    type={folder.type as any}
-                    enableNavigation={false}
-                    onUseTemplate={handleUseTemplateFromDialog}
-                    onTogglePin={(id, pinned) =>
-                      handleTogglePin(id, pinned, folder.type as any)
-                    }
-                    onToggleTemplatePin={handleToggleTemplatePin}
-                    organizations={organizations}
-                    showPinControls={true}
-                    showEditControls={false}
-                    showDeleteControls={false}
-                    pinnedFolderIds={localPinnedIds}
-                  />
-                ))}
-                {filteredTemplates.map(template => (
-                  (template.type !== 'user') &&
-                  <TemplateItem
-                    key={`browse-template-${template.id}`}
-                    template={template}
-                    type="user"
-                    onUseTemplate={handleUseTemplateFromDialog}
-                    onTogglePin={(id, pinned) => handleToggleTemplatePin(id, pinned, 'user')}
-                    showEditControls={false}
-                    showDeleteControls={false}
-                    showPinControls={true}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <>
-            <UnifiedNavigation
-              isAtRoot={navigation.isAtRoot}
-              currentFolderTitle={navigation.currentFolder?.title}
-              navigationPath={navigation.breadcrumbs}
-              onNavigateToRoot={navigation.navigateToRoot}
-              onNavigateBack={navigation.navigateBack}
-              onNavigateToPathIndex={navigation.navigateToPathIndex}
-              className="jd-mb-2"
+        <div className="jd-overflow-y-auto jd-max-h-[70vh]">
+          {loading ? (
+            <LoadingState
+              message={getMessage('loadingFoldersGeneric', undefined, 'Loading folders...')}
             />
-            <div className="jd-overflow-y-auto jd-max-h-[70vh]">
-              {loading ? (
-                <LoadingState
-                  message={getMessage('loadingFoldersGeneric', undefined, 'Loading folders...')}
+          ) : foldersWithPin.length === 0 && filteredTemplates.length === 0 ? (
+            <EmptyMessage>
+              {getMessage('noFoldersOrTemplatesFound', undefined, 'No folders or templates found')}
+            </EmptyMessage>
+          ) : (
+            <div className="jd-space-y-1 jd-px-2">
+              {foldersWithPin.map(folder => (
+                <FolderItem
+                  key={`browse-folder-${folder.id}`}
+                  folder={folder}
+                  type={folder.type as any}
+                  enableNavigation={false}
+                  isExpanded={isExpanded(folder.id)}
+                  onToggleExpand={toggleFolder}
+                  onUseTemplate={handleUseTemplateFromDialog}
+                  onTogglePin={(id, pinned) =>
+                    handleTogglePin(id, pinned, folder.type as any)
+                  }
+                  onToggleTemplatePin={handleToggleTemplatePin}
+                  organizations={organizations}
+                  showPinControls={true}
+                  showEditControls={false}
+                  showDeleteControls={false}
+                  pinnedFolderIds={localPinnedIds}
                 />
-              ) : navigation.currentItems.length === 0 ? (
-                <EmptyMessage>
-                  {getMessage('folderEmpty', undefined, 'This folder is empty')}
-                </EmptyMessage>
-              ) : (
-                <div className="jd-space-y-1 jd-px-2">
-                  {navigation.currentItems.map(item => {
-                    const isFolder = 'templates' in item || 'Folders' in item;
-                    if (isFolder) {
-                      const folder = item as any;
-                      const folderType = navigation.getItemType(item as any);
-                      return (
-                        <FolderItem
-                          key={`nav-folder-${folder.id}`}
-                          folder={{ ...folder, is_pinned: localPinnedIds.includes(folder.id) }}
-                          type={folderType as any}
-                          enableNavigation={true}
-                          onNavigateToFolder={navigation.navigateToFolder}
-                          onTogglePin={(id, pinned) => handleTogglePin(id, pinned, folderType as any)}
-                          onToggleTemplatePin={handleToggleTemplatePin}
-                          organizations={organizations}
-                          showPinControls={true}
-                          showEditControls={false}
-                          showDeleteControls={false}
-                          pinnedFolderIds={localPinnedIds}
-                        />
-                      );
-                    }
-                    const template = item as Template;
-                    const templateType = navigation.getItemType(item as any);
-                    return (
-                      <TemplateItem
-                        key={`nav-template-${template.id}`}
-                        template={template}
-                        type={templateType as any}
-                        onUseTemplate={handleUseTemplateFromDialog}
-                        onTogglePin={(id, pinned) => handleToggleTemplatePin(id, pinned, templateType as any)}
-                        showEditControls={false}
-                        showDeleteControls={false}
-                        showPinControls={true}
-                        organizations={organizations}
-                      />
-                    );
-                  })}
-                </div>
-              )}
+              ))}
+              {filteredTemplates.map(template => (
+                (template.type !== 'user') &&
+                <TemplateItem
+                  key={`browse-template-${template.id}`}
+                  template={template}
+                  type="user"
+                  onUseTemplate={handleUseTemplateFromDialog}
+                  onTogglePin={(id, pinned) => handleToggleTemplatePin(id, pinned, 'user')}
+                  showEditControls={false}
+                  showDeleteControls={false}
+                  showPinControls={true}
+                />
+              ))}
             </div>
-          </>
-        )}
+          )}
+        </div>
       </TooltipProvider>
     </BaseDialog>
   );
