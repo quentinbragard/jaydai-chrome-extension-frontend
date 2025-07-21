@@ -2,10 +2,10 @@ import { apiClient } from './ApiClient';
 import { Block, BlockType } from '@/types/prompts/blocks';
 
 interface CreateBlockData {
-  title: string;                    
-  content: string;                  
+  title: string | Record<string, string>;
+  content: string | Record<string, string>;
   type: BlockType;
-  description?: string;             
+  description?: string | Record<string, string>;
   published?: boolean;
   parent_block_id?: number;
   tags?: string[];
