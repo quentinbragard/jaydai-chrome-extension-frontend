@@ -103,6 +103,33 @@ export function useFolderMutations() {
           return response.data;
         },
         {
+          onMutate: async ({ folderId, isPinned }) => {
+            if (!queryClient) return;
+
+            await queryClient.cancelQueries(QUERY_KEYS.PINNED_FOLDERS);
+
+            const previous = queryClient.getQueryData<any>(QUERY_KEYS.PINNED_FOLDERS);
+
+            if (previous) {
+              const updatedIds = isPinned
+                ? (previous.pinnedIds || []).filter((id: number) => id !== folderId)
+                : Array.from(new Set([...(previous.pinnedIds || []), folderId]));
+
+              queryClient.setQueryData(QUERY_KEYS.PINNED_FOLDERS, {
+                ...previous,
+                pinnedIds: updatedIds
+              });
+            }
+
+            return { previous };
+          },
+          onError: (error: Error, _variables, context) => {
+            if (context?.previous && queryClient) {
+              queryClient.setQueryData(QUERY_KEYS.PINNED_FOLDERS, context.previous);
+            }
+            console.error('Error toggling pin status:', error);
+            toast.error(`Failed to update pin status: ${error.message}`);
+          },
           onSuccess: (_data, variables) => {
             if (queryClient) {
               queryClient.invalidateQueries(QUERY_KEYS.PINNED_FOLDERS);
@@ -112,10 +139,6 @@ export function useFolderMutations() {
               variables.isPinned ? EVENTS.FOLDER_PINNED : EVENTS.FOLDER_UNPINNED,
               { folder_id: variables.folderId }
             );
-          },
-          onError: (error: Error) => {
-            console.error('Error toggling pin status:', error);
-            toast.error(`Failed to update pin status: ${error.message}`);
           }
         }
       );
