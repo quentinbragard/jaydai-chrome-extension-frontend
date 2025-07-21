@@ -7,6 +7,7 @@ import {
   getCursorCoordinates,
   getCursorTextPosition
 } from './slashUtils';
+import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 
 export class SlashCommandService extends AbstractBaseService {
   private static instance: SlashCommandService;
@@ -15,6 +16,7 @@ export class SlashCommandService extends AbstractBaseService {
   private observer: MutationObserver | null = null;
   private quickSelector = new QuickSelectorManager();
   private isInserting = false; // Prevent double insertion
+  private hasTrackedShortcut = false;
 
   private constructor() {
     super();
@@ -138,6 +140,10 @@ export class SlashCommandService extends AbstractBaseService {
     // Check for //j pattern (with optional space)
     const triggerRegex = /\/\/j\s?$/i;
     if (triggerRegex.test(value)) {
+      if (!this.hasTrackedShortcut) {
+        onboardingTracker.markKeyboardShortcutUsed();
+        this.hasTrackedShortcut = true;
+      }
 
       // Set flag to prevent double execution
       this.isInserting = true;
