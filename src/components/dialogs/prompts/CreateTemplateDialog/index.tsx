@@ -6,10 +6,40 @@ import { TemplateEditorDialog } from '../TemplateEditorDialog';
 import { BasicInfoForm } from './BasicInfoForm';
 import { processUserFolders } from '@/utils/prompts/templateUtils';
 import { useUserFolders } from '@/hooks/prompts';
+import { useOrganizations, useOrganizationById } from '@/hooks/organizations';
+import { OrganizationBanner } from '@/components/organizations';
 
 export const CreateTemplateDialog: React.FC = () => {
   const hook = useCreateTemplateDialog();
   const { data: fetchedUserFolders = [] } = useUserFolders();
+  const { data: organizations = [] } = useOrganizations();
+  const { data: orgById } = useOrganizationById(
+    (hook.data as any)?.template?.organization?.id ||
+      (hook.data as any)?.template?.organization_id
+  );
+
+  const resolvedOrg = useMemo(() => {
+    const template: any = hook.data?.template;
+    if (!template) return undefined;
+    return (
+      template.organization ||
+      orgById ||
+      organizations.find(o => o.id === template.organization_id)
+    );
+  }, [hook.data, orgById, organizations]);
+
+  const dialogHeader = useMemo(() => {
+    const template: any = hook.data?.template;
+    if (hook.isEditMode && template?.type === 'organization' && resolvedOrg) {
+      return (
+        <OrganizationBanner
+          organization={resolvedOrg}
+          templateName={template.title}
+        />
+      );
+    }
+    return undefined;
+  }, [hook.isEditMode, hook.data, resolvedOrg]);
 
   // Choose folders from dialog data if available, otherwise fallback to fetched data
   const foldersSource = hook.data?.userFolders && hook.data.userFolders.length > 0
@@ -81,6 +111,7 @@ export const CreateTemplateDialog: React.FC = () => {
       dialogTitle={hook.dialogTitle}
       dialogDescription=""
       mode={hook.isEditMode ? 'edit' : 'create'}
+      header={dialogHeader}
       infoForm={infoForm}
     />
   );

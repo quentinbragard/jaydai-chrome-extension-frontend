@@ -26,7 +26,12 @@ export const CustomizeTemplateDialog: React.FC = () => {
 
   const dialogHeader = useMemo(() => {
     if (hook.data?.type === 'organization' && resolvedOrg) {
-      return <OrganizationBanner organization={resolvedOrg} />;
+      return (
+        <OrganizationBanner
+          organization={resolvedOrg}
+          templateName={(hook.data as any)?.title}
+        />
+      );
     }
     return undefined;
   }, [hook.data, resolvedOrg]);

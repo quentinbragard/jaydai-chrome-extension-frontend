@@ -9,12 +9,14 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface OrganizationBannerProps {
   organization: Organization;
+  templateName?: string;
   className?: string;
   variant?: 'default' | 'compact';
 }
 
 export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
   organization,
+  templateName,
   className = '',
   variant = 'default'
 }) => {
@@ -77,11 +79,28 @@ export const OrganizationBanner: React.FC<OrganizationBannerProps> = ({
           
           {/* Title and description - Now with better responsive handling */}
           <div className="jd-flex-1 jd-min-w-0 jd-space-y-1">
+            {templateName && (
+              <p
+                className={cn(
+                  'jd-text-sm jd-font-semibold',
+                  organization.banner_url
+                    ? 'jd-text-white jd-drop-shadow-sm'
+                    : 'jd-text-gray-900 jd-dark:jd-text-gray-100'
+                )}
+                style={{
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word',
+                  hyphens: 'auto'
+                }}
+              >
+                {templateName}
+              </p>
+            )}
             <h3
               className={cn(
                 'jd-font-bold jd-leading-tight',
-                organization.banner_url 
-                  ? 'jd-text-white jd-drop-shadow-sm' 
+                organization.banner_url
+                  ? 'jd-text-white jd-drop-shadow-sm'
                   : 'jd-text-gray-900 jd-dark:jd-text-gray-100',
                 // Responsive text sizing and better wrapping
                 isCompact 
