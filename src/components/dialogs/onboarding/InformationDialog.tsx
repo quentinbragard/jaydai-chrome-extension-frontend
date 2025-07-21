@@ -17,6 +17,7 @@ export const InformationDialog: React.FC = () => {
   const gifUrl = data?.gifUrl as string | undefined;
   const actionText = data?.actionText || getMessage('continue', undefined, 'Continue');
   const onAction = data?.onAction as (() => void) | undefined;
+  const children = data?.children as React.ReactNode;
 
   if (!isOpen) return null;
 
@@ -47,9 +48,10 @@ export const InformationDialog: React.FC = () => {
         <img
           src={gifUrl}
           alt={title}
-          className="jd-w-full  jd-object-contain jd-rounded-md"
+          className="jd-w-full  jd-object-contain jd-rounded-md jd-mb-4"
         />
       )}
+      {children}
     </BaseDialog>
   );
 

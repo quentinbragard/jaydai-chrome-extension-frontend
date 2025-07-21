@@ -5,6 +5,12 @@ import { CheckCircle, Circle, X, Play, FileText, Blocks, Keyboard } from 'lucide
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
+import { useAllPinnedFolders } from '@/hooks/prompts';
+import { useOrganizations } from '@/hooks/organizations';
+import { Template } from '@/types/prompts/templates';
+import { FolderItem } from '@/components/prompts/folders/FolderItem';
+import { useDialog } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { slashCommandService } from '@/services/ui/SlashCommandService';
 import { getCursorCoordinates, getCursorTextPosition } from '@/services/ui/slashUtils';
 
@@ -24,6 +30,7 @@ interface OnboardingChecklistProps {
   checklist: OnboardingChecklistData;
   onCreateTemplate: () => void;
   onUseTemplate: () => void;
+  onSelectTemplate: (template: Template) => void;
   onCreateBlock: () => void;
   onShowKeyboardShortcut: () => void;
   onDismiss: () => void;
@@ -34,12 +41,60 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
   checklist,
   onCreateTemplate,
   onUseTemplate,
+  onSelectTemplate,
   onCreateBlock,
   onShowKeyboardShortcut,
   onDismiss,
   isLoading = false
 }) => {
   const { openInformation } = useDialogActions();
+
+  const { allPinnedFolders, allPinnedFolderIds } = useAllPinnedFolders();
+  const { data: organizations = [] } = useOrganizations();
+
+  const PinnedFoldersContent: React.FC = () => {
+    const { dialogProps } = useDialog(DIALOG_TYPES.INFORMATION);
+    const [expandedFolders, setExpandedFolders] = React.useState<Set<number>>(new Set());
+
+    const toggleExpanded = (id: number) => {
+      setExpandedFolders(prev => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id); else next.add(id);
+        return next;
+      });
+    };
+
+    const handleUseTemplate = (template: Template) => {
+      dialogProps.onOpenChange(false);
+      onSelectTemplate(template);
+    };
+
+    return (
+      <>
+        <p className="jd-text-sm jd-mb-2">
+          {getMessage('searchTemplatesHint', undefined, 'You can search among hundreds of templates with the search bar. We recommend starting with one of these folders.')}
+        </p>
+        <div className="jd-max-h-72 jd-overflow-y-auto jd-space-y-1 jd-px-2">
+          {allPinnedFolders.map(folder => (
+            <FolderItem
+              key={`onboard-folder-${folder.id}`}
+              folder={folder}
+              type={folder.folderType as any}
+              enableNavigation={false}
+              onToggleExpand={toggleExpanded}
+              isExpanded={expandedFolders.has(folder.id)}
+              onUseTemplate={handleUseTemplate}
+              organizations={organizations}
+              showEditControls={false}
+              showDeleteControls={false}
+              showPinControls={false}
+              pinnedFolderIds={allPinnedFolderIds}
+            />
+          ))}
+        </div>
+      </>
+    );
+  };
 
   const openQuickSelector = () => {
     try {
@@ -62,7 +117,14 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
       description: getMessage('useFirstTemplateDesc', undefined, 'Try out the template customization'),
       icon: Play,
       completed: checklist.first_template_used,
-      onClick: onUseTemplate,
+      onClick: () =>
+        openInformation({
+          title: getMessage('useFirstTemplate', undefined, 'Use your first template'),
+          description: getMessage('useFirstTemplateInfo', undefined, 'Select a template from one of your pinned folders below.'),
+          gifUrl: 'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//template_demo.gif',
+          actionText: getMessage('close', undefined, 'Close'),
+          children: <PinnedFoldersContent />,
+        }),
     },
     {
       key: 'first_template_created',

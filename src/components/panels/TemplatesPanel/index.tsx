@@ -500,6 +500,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             checklist={checklist}
             onCreateTemplate={handleCreateTemplate}
             onUseTemplate={handleUseTemplate}
+            onSelectTemplate={useTemplate}
             onCreateBlock={handleCreateBlock}
             onShowKeyboardShortcut={handleShowKeyboardShortcut}
             onDismiss={dismissOnboarding}
