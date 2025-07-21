@@ -1,6 +1,6 @@
 // src/components/panels/TemplatesPanel/index.tsx
 import React, { useCallback, memo, useMemo } from 'react';
-import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus } from "lucide-react";
+import { FolderOpen, RefreshCw, PlusCircle, FileText, Plus, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -130,6 +130,18 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       }
     });
   }, [pushPanel, pinnedFolders.organization, toggleFolderPin, refetchPinned]);
+
+  const handleShare = useCallback(() => {
+    if (window.dialogManager) {
+      window.dialogManager.openDialog(DIALOG_TYPES.SHARE);
+    }
+  }, []);
+
+  const headerExtra = (
+    <Button variant="ghost" size="sm" onClick={handleShare}>
+      <Share2 className="jd-h-4 jd-w-4" />
+    </Button>
+  );
   
   // Memoize combined loading and error states to prevent unnecessary renders
   const { isLoading, hasError, errorMessage } = useMemo(() => ({
@@ -229,6 +241,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         showBackButton={showBackButton}
         onBack={onBack}
         onClose={onClose}
+        headerExtra={headerExtra}
       >
         <Alert variant="destructive">
           <AlertDescription>
@@ -259,6 +272,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         showBackButton={showBackButton}
         onBack={onBack}
         onClose={onClose}
+        headerExtra={headerExtra}
         className="w-80"
       >
         <LoadingState />
@@ -275,6 +289,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         showBackButton={showBackButton}
         onBack={onBack}
         onClose={onClose}
+        headerExtra={headerExtra}
         className="w-80"
       >
         <div className="jd-py-8 jd-px-4 jd-text-center jd-space-y-6">
@@ -331,6 +346,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       showBackButton={showBackButton}
       onBack={onBack}
       onClose={onClose}
+      headerExtra={headerExtra}
       className="w-80"
     >
       <div className="jd-space-y-4">
@@ -368,32 +384,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </EmptyMessage>
           </FolderSection>
         )}
-        {/* Organization Templates Section */}
-        <FolderSection
-          title={getMessage('organizationTemplates', undefined, 'Organization Templates')}
-          iconType="organization"
-          isEmpty={!pinnedFolders?.organization?.length}
-          showBrowseMore={false}
-          onBrowseMore={handleBrowseOrganizationTemplates}
-        >
-          {pinnedFolders?.organization?.length > 0 ? (
-            <FolderList
-              folders={pinnedFolders.organization}
-              type="organization"
-              onTogglePin={(folderId, isPinned) => 
-                toggleFolderPin.mutate({ folderId, isPinned, type: 'organization' })
-              }
-              onUseTemplate={useTemplate}
-              showPinControls={true}
-              emptyMessage="No pinned organization templates."
-            />
-          ) : (
-            <EmptyMessage>
-              {getMessage('noPinnedOrganizationTemplates', undefined, 'No pinned organization templates.')}
-            </EmptyMessage>
-          )}
-        </FolderSection>
-        <Separator />
+
         
         {/* User Templates Section - With edit/delete capabilities */}
         <FolderSection
