@@ -79,6 +79,12 @@ export function useDialogActions() {
     [openDialog]
   );
 
+  const openInformation = useCallback(
+    (props?: DialogProps[typeof DIALOG_TYPES.INFORMATION]) =>
+      openDialog(DIALOG_TYPES.INFORMATION, props ?? {}),
+    [openDialog]
+  );
+
   return {
     openSettings,
     openCreateTemplate,
@@ -95,5 +101,6 @@ export function useDialogActions() {
     openTutorials,
     openTutorialVideo,
     openKeyboardShortcut,
+    openInformation,
   };
 }

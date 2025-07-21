@@ -29,6 +29,8 @@ export const DIALOG_TYPES = {
   ,
   // Dialog for onboarding keyboard shortcuts
   KEYBOARD_SHORTCUT: 'keyboardShortcut'
+  ,
+  INFORMATION: 'information'
 } as const;
 
 // Export the dialog types
@@ -117,5 +119,13 @@ export interface DialogProps {
 
   [DIALOG_TYPES.KEYBOARD_SHORTCUT]: {
     onShortcutUsed?: () => void;
+  };
+
+  [DIALOG_TYPES.INFORMATION]: {
+    title?: string;
+    description?: string;
+    gifUrl?: string;
+    actionText?: string;
+    onAction?: () => void;
   };
 }
