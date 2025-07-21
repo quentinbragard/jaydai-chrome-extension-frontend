@@ -22,6 +22,10 @@ class OnboardingTracker {
         method: 'POST',
         body: JSON.stringify({ action })
       });
+      // Notify listeners that an onboarding action was completed
+      document.dispatchEvent(
+        new CustomEvent('jaydai:onboarding-action-completed', { detail: { action } })
+      );
     } catch (error) {
       console.error('Error marking onboarding action:', error);
       // Don't throw - onboarding tracking shouldn't break the main functionality

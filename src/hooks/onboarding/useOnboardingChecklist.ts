@@ -43,6 +43,17 @@ export function useOnboardingChecklist() {
     }
   }, []);
 
+  // Listen for onboarding updates from other parts of the app
+  useEffect(() => {
+    const handler = () => {
+      fetchChecklist();
+    };
+    document.addEventListener('jaydai:onboarding-action-completed', handler);
+    return () => {
+      document.removeEventListener('jaydai:onboarding-action-completed', handler);
+    };
+  }, [fetchChecklist]);
+
   // Mark action as completed
   const markActionCompleted = useCallback(async (action: string) => {
     try {
