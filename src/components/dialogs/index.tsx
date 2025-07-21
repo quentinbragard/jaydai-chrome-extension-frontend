@@ -69,7 +69,6 @@ export { CreateTemplateDialog as TemplateDialog } from './prompts/CreateTemplate
 export { CreateFolderDialog } from './prompts/CreateFolderDialog';
 export { AuthDialog } from './auth/AuthDialog';
 export { SettingsDialog } from './settings/SettingsDialog';
-export { ConfirmationDialog } from './common/ConfirmationDialog';
 export { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
 export { FolderManagerDialog } from './prompts/FolderManagerDialog';
 export { BrowseMoreFoldersDialog } from './prompts/BrowseMoreFoldersDialog';
@@ -78,3 +77,5 @@ export { CreateBlockDialog } from './prompts/CreateBlockDialog';
 export { TutorialsDialog } from './tutorials/TutorialsDialog';
 export { TutorialVideoDialog } from './tutorials/TutorialVideoDialog';
 export { ShareDialog } from './share/ShareDialog';
+export { ConfirmationDialog } from './common/ConfirmationDialog';
+

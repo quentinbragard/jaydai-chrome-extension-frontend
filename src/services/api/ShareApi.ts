@@ -2,19 +2,16 @@
 import { apiClient } from './ApiClient';
 
 export interface InviteFriendRequest {
-  inviterEmail: string;
-  inviterName: string;
   friendEmail: string;
+  // Removed inviterEmail and inviterName - backend will get these from user_id
 }
 
 export interface InviteTeamRequest {
-  userEmail: string;
-  userName: string;
+  // Removed userEmail and userName - backend will get these from user_id
 }
 
 export interface JoinReferralRequest {
-  userEmail: string;
-  userName: string;
+  // Removed userEmail and userName - backend will get these from user_id
 }
 
 export interface ShareResponse {
@@ -47,11 +44,11 @@ export class ShareApi {
   /**
    * Request team members invitation
    */
-  async inviteTeamMembers(request: InviteTeamRequest): Promise<ShareResponse> {
+  async inviteTeamMembers(): Promise<ShareResponse> {
     try {
       const response = await apiClient.request('/share/invite-team', {
         method: 'POST',
-        body: JSON.stringify(request)
+        body: JSON.stringify({}) // Empty body - backend gets info from user_id
       });
 
       return response;
@@ -67,11 +64,11 @@ export class ShareApi {
   /**
    * Join referral program request
    */
-  async joinReferralProgram(request: JoinReferralRequest): Promise<ShareResponse> {
+  async joinReferralProgram(): Promise<ShareResponse> {
     try {
       const response = await apiClient.request('/share/join-referral', {
         method: 'POST',
-        body: JSON.stringify(request)
+        body: JSON.stringify({}) // Empty body - backend gets info from user_id
       });
 
       return response;
