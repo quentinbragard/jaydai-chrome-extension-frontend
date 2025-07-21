@@ -19,9 +19,11 @@ import { Separator } from '@/components/ui/separator';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { getMessage } from '@/core/utils/i18n';
 import { useOrganizations } from '@/hooks/organizations';
+import { useBreadcrumbNavigation } from '@/hooks/prompts/navigation/useBreadcrumbNavigation';
 import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 import { useFolderSearch } from '@/hooks/prompts/utils/useFolderSearch';
+import { UnifiedNavigation } from '@/components/prompts/navigation/UnifiedNavigation';
 
 export const BrowseMoreFoldersDialog: React.FC = () => {
   const { isOpen, dialogProps, close } = useDialog(
@@ -54,6 +56,18 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
     clearSearch,
     isExpanded
   } = useFolderSearch(allFolders);
+
+  const navigation = useBreadcrumbNavigation({
+    userFolders: [],
+    organizationFolders,
+    unorganizedTemplates
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      navigation.navigateToRoot();
+    }
+  }, [isOpen]);
 
   // Filter unorganized templates based on search query
   const filteredTemplates = useMemo(() => {
