@@ -106,15 +106,15 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     // Merge the new data with existing data
     const updatedData = { ...onboardingData, ...stepData };
     setOnboardingData(updatedData);
-    
-    // If it's the last input step, submit the data
-    if (currentStep === totalSteps - 2) {
+
+    // Submit the data immediately after the Referral step (step index 2)
+    if (currentStep === 2) {
       await handleSubmit(updatedData);
-    } else {
-      // Otherwise, move to the next step
-      setCurrentStep(prev => prev + 1);
-      window.scrollTo(0, 0); // Scroll to the top of the page
     }
+
+    // Move to the next step
+    setCurrentStep(prev => prev + 1);
+    window.scrollTo(0, 0); // Scroll to the top of the page
   };
   
   // Handle going back to the previous step
@@ -176,8 +176,6 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
         });
         
         
-        // Move to completion step
-        setCurrentStep(totalSteps - 1);
       } else {
         throw new Error(
           result.message ||
