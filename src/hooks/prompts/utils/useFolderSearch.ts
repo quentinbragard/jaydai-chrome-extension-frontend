@@ -74,6 +74,7 @@ export function useFolderSearch(
         filteredTemplates: unorganizedTemplates,
         expandedIds: new Set<number>()
       };
+
     }
 
     const query = searchQuery.toLowerCase();
@@ -104,6 +105,7 @@ export function useFolderSearch(
           }
         });
       }
+
 
       // Check subfolders
       let subfolderMatches = false;
