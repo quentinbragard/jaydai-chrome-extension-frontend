@@ -1,4 +1,4 @@
-// src/components/panels/TemplatesPanel/index.tsx - Updated with onboarding
+// src/components/panels/TemplatesPanel/index.tsx - Complete optimized version
 import React, { useCallback, memo, useMemo, useState, useEffect } from 'react';
 import { FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ import { useOrganizations } from '@/hooks/organizations';
 import { VirtualizedList } from '@/components/common/VirtualizedList';
 import { promptApi, getWhichTemplate } from '@/services/api';
 
-import { FolderSearch } from '@/components/prompts/folders';
+import { OptimizedFolderSearch } from '@/components/prompts/folders/OptimizedFolderSearch';
 import { LoadingState } from './LoadingState';
 import { EmptyMessage } from './EmptyMessage';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
@@ -42,10 +42,8 @@ import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { getFolderTitle } from '@/utils/prompts/folderUtils';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 
-
-
-// Import the new global search hook
-import { useGlobalTemplateSearch } from '@/hooks/prompts/utils/useGlobalTemplateSearch';
+// Import the new optimized search hook
+import { useOptimizedSearch } from '@/hooks/prompts/utils/useOptimizedSearch';
 
 interface TemplatesPanelProps {
   showBackButton?: boolean;
@@ -53,17 +51,24 @@ interface TemplatesPanelProps {
   onClose?: () => void;
 }
 
+interface SearchFilters {
+  type: 'all' | 'templates' | 'folders';
+  source: 'all' | 'user' | 'organization' | 'company';
+}
+
 /**
- * Enhanced Templates Panel with onboarding functionality
+ * Enhanced Templates Panel with optimized search functionality
  */
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   showBackButton,
   onBack,
   onClose
 }) => {
-  // Search state
-  const [searchQuery, setSearchQuery] = useState('');
-  
+  // Search state and filters
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({
+    type: 'all',
+    source: 'all'
+  });
 
   // Enhanced pinning
   const {
@@ -84,7 +89,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     isLoading: loadingOrganization,
     refetch: refetchOrganization
   } = useOrganizationFolders();
-
 
   const {
     data: unorganizedTemplates = [],
@@ -111,19 +115,16 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     markKeyboardShortcutUsed
   } = useOnboardingChecklist();
 
-  // Global search hook
+  // Optimized search hook
   const {
-    searchQuery: globalSearchQuery,
-    setSearchQuery: setGlobalSearchQuery,
+    searchQuery,
+    setSearchQuery,
     searchResults,
-    clearSearch: clearGlobalSearch,
-    hasResults: hasGlobalResults
-  } = useGlobalTemplateSearch(userFolders, organizationFolders, unorganizedTemplates);
-
-  // Sync search queries
-  useEffect(() => {
-    setGlobalSearchQuery(searchQuery);
-  }, [searchQuery, setGlobalSearchQuery]);
+    clearSearch,
+    hasResults,
+    isSearching,
+    totalIndexedItems
+  } = useOptimizedSearch(userFolders, organizationFolders, unorganizedTemplates);
 
   // Navigation hook for combined user + organization folders
   const navigation = useBreadcrumbNavigation({
@@ -139,40 +140,35 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     }
   }, [searchQuery, navigation.isAtRoot, navigation.navigateToRoot]);
 
-  // Utility functions for search filtering (for local navigation)
-  const templateMatchesQuery = useCallback(
-    (template: Template, query: string) => {
-      const q = query.toLowerCase();
-      const title = getLocalizedContent((template as any).title) || '';
-      const description = getLocalizedContent((template as any).description) || '';
-      const content = getLocalizedContent(template.content) || '';
+  // Apply search filters
+  const filteredSearchResults = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return { templates: [], folders: [] };
+    }
 
-      return (
-        title.toLowerCase().includes(q) ||
-        description.toLowerCase().includes(q) ||
-        content.toLowerCase().includes(q)
-      );
-    },
-    []
-  );
+    let filteredTemplates = searchResults.templates;
+    let filteredFolders = searchResults.folders;
 
-  const folderMatchesQuery = useCallback(
-    function folderMatches(folder: TemplateFolder, query: string): boolean {
-      const q = query.toLowerCase();
+    // Apply type filter
+    if (searchFilters.type === 'templates') {
+      filteredFolders = [];
+    } else if (searchFilters.type === 'folders') {
+      filteredTemplates = [];
+    }
 
-      const title = getLocalizedContent(folder.title ?? folder.name) || '';
-      if (title.toLowerCase().includes(q)) return true;
+    // Apply source filter
+    if (searchFilters.source !== 'all') {
+      filteredTemplates = filteredTemplates.filter(t => t.folderType === searchFilters.source);
+      filteredFolders = filteredFolders.filter(f => f.folderType === searchFilters.source);
+    }
 
-      if (folder.templates?.some(t => templateMatchesQuery(t, query))) return true;
+    return {
+      templates: filteredTemplates,
+      folders: filteredFolders
+    };
+  }, [searchResults, searchFilters, searchQuery]);
 
-      if (folder.Folders?.some(f => folderMatches(f, query))) return true;
-
-      return false;
-    },
-    [templateMatchesQuery]
-  );
-
-  // When there's a search query, show global results; otherwise show navigation items
+  // When there's a search query, show filtered results; otherwise show navigation items
   const displayItems = useMemo(() => {
     const getTitle = (item: TemplateFolder | Template) =>
       'templates' in item || 'Folders' in item
@@ -183,7 +179,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       [...items].sort((a, b) => getTitle(a).localeCompare(getTitle(b), undefined, { sensitivity: 'base' }));
 
     if (searchQuery.trim()) {
-      const items = sortAll([...searchResults.folders, ...searchResults.templates]);
+      const items = sortAll([...filteredSearchResults.folders, ...filteredSearchResults.templates]);
       return { items, isGlobalSearch: true };
     } else {
       const filteredItems = navigation.currentItems.filter(
@@ -192,7 +188,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       const items = sortAll(filteredItems);
       return { items, isGlobalSearch: false };
     }
-  }, [searchQuery, searchResults, navigation.currentItems, navigation]);
+  }, [searchQuery, filteredSearchResults, navigation.currentItems, navigation]);
 
   const userTemplateCount = useMemo(
     () =>
@@ -229,16 +225,19 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       return grouped;
     }
     
-    // Filter pinned folders based on search
+    // When searching, show pinned items that match the search
     const filter = (folders: typeof allPinnedFolders) =>
-      folders.filter(f => folderMatchesQuery(f, searchQuery));
+      folders.filter(f => {
+        const title = getFolderTitle(f);
+        return title.toLowerCase().includes(searchQuery.toLowerCase());
+      });
     
     const filteredAll = filter(allPinnedFolders);
     return {
       user: filteredAll.filter(f => f.folderType === 'user'),
       organization: filteredAll.filter(f => f.folderType === 'organization')
     };
-  }, [allPinnedFolders, searchQuery, folderMatchesQuery]);
+  }, [allPinnedFolders, searchQuery]);
 
   const pinnedTemplates = useMemo(() => {
     if (!pinnedTemplateIds.length) return [] as Array<Template & { type: 'user' | 'organization' }>;
@@ -281,11 +280,20 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     return templates;
   }, [pinnedTemplateIds, userFolders, organizationFolders, unorganizedTemplates, navigation.currentFolder]);
 
-
   const filteredPinnedTemplates = useMemo(() => {
     if (!searchQuery.trim()) return pinnedTemplates;
-    return pinnedTemplates.filter(t => templateMatchesQuery(t, searchQuery));
-  }, [pinnedTemplates, searchQuery, templateMatchesQuery]);
+    
+    return pinnedTemplates.filter(t => {
+      const title = getLocalizedContent((t as any).title) || '';
+      const content = getLocalizedContent(t.content) || '';
+      const description = getLocalizedContent((t as any).description) || '';
+      const searchTerm = searchQuery.toLowerCase();
+      
+      return title.toLowerCase().includes(searchTerm) ||
+             content.toLowerCase().includes(searchTerm) ||
+             description.toLowerCase().includes(searchTerm);
+    });
+  }, [pinnedTemplates, searchQuery]);
 
   const sortedPinnedItems = useMemo(() => {
     const getTitle = (item: TemplateFolder | Template) =>
@@ -347,11 +355,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     markKeyboardShortcutUsed();
   }, [markKeyboardShortcutUsed]);
 
-
   const handleShowKeyboardShortcut = useCallback(() => {
     openKeyboardShortcut({ onShortcutUsed: handleKeyboardShortcutUsed });
   }, [openKeyboardShortcut, handleKeyboardShortcutUsed]);
-
 
   // Enhanced pin handler that works with the navigation system
   const handleTogglePin = useCallback(
@@ -425,7 +431,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     });
   }, [openCreateFolder, createFolder, refetchUser]);
 
-
   // Template handlers
   const handleDeleteTemplate = useCallback((templateId: number) => {
     openConfirmation({
@@ -445,8 +450,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }, [openConfirmation, deleteTemplate, refetchUser]);
 
   // Loading state
-  const isLoading =
-    loadingUser || loadingOrganization || loadingUnorganized;
+  const isLoading = loadingUser || loadingOrganization || loadingUnorganized;
 
   if (isLoading) {
     return (
@@ -463,6 +467,9 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     );
   }
 
+  // Calculate total results for search
+  const totalSearchResults = filteredSearchResults.templates.length + filteredSearchResults.folders.length;
+
   return (
     <BasePanel
       title={getMessage('templates', undefined, "Templates")}
@@ -473,12 +480,18 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       className="jd-w-80"
     >
       <TooltipProvider>
-        {/* Search */}
-        <FolderSearch
+        {/* Optimized Search */}
+        <OptimizedFolderSearch
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           placeholderText={getMessage('searchTemplatesAndFolders', undefined, 'Search templates and folders...')}
-          onReset={() => setSearchQuery('')}
+          onReset={clearSearch}
+          isSearching={isSearching}
+          totalResults={totalSearchResults}
+          totalIndexedItems={totalIndexedItems}
+          showFilters={true}
+          filters={searchFilters}
+          onFiltersChange={setSearchFilters}
         />
 
         {/* Show onboarding checklist if conditions are met */}
@@ -507,7 +520,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setSearchQuery('')}
+                  onClick={clearSearch}
                   className="jd-h-6 jd-px-2 jd-text-xs"
                 >
                   {getMessage('clear', undefined, 'Clear')}
@@ -668,7 +681,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
         <Separator />
 
-        {/* Enhanced Pinned Templates Section - now shows nested pinned folders */}
+        {/* Enhanced Pinned Templates Section */}
         <div>
           <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
             <div className="jd-flex jd-items-center">
