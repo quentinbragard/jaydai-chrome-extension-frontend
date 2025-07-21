@@ -561,7 +561,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 </EmptyMessage>
               ) : (
                 <>
-                  {displayItems.items.length > 30 ? (
+                  {displayItems.items.length > 30 && !searchQuery.trim() ? (
                     <VirtualizedList
                       items={displayItems.items}
                       height={384}
@@ -589,6 +589,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                               showEditControls={navigation.getItemType(folder) === 'user'}
                               showDeleteControls={navigation.getItemType(folder) === 'user'}
                               pinnedFolderIds={allPinnedFolderIds}
+                              isInGlobalSearch={displayItems.isGlobalSearch}
                             />
                           );
                         }
@@ -638,6 +639,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                             showEditControls={navigation.getItemType(folder) === 'user'}
                             showDeleteControls={navigation.getItemType(folder) === 'user'}
                             pinnedFolderIds={allPinnedFolderIds}
+                            isInGlobalSearch={displayItems.isGlobalSearch}
                           />
                         );
                       }
@@ -729,6 +731,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                         showEditControls={folderType === 'user'}
                         showDeleteControls={folderType === 'user'}
                         pinnedFolderIds={allPinnedFolderIds}
+                        isInGlobalSearch={false}
                       />
                     );
                   }

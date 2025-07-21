@@ -56,6 +56,13 @@ interface FolderItemProps {
   
   // Pinned folder IDs for proper pin state calculation
   pinnedFolderIds?: number[];
+
+  /**
+   * Indicates if this item is being rendered from global search results.
+   * When true we always show the chevron icon so the user knows the folder
+   * can be expanded even if we don't yet know its content count.
+   */
+  isInGlobalSearch?: boolean;
 }
 
 /**
@@ -89,9 +96,12 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   onCreateTemplate,
   onCreateFolder,
   showNavigationHeader = false,
-  
+
   // Pinned folder IDs
-  pinnedFolderIds = []
+  pinnedFolderIds = [],
+
+  // Whether this item is rendered as part of a global search
+  isInGlobalSearch = false
 }) => {
   // Local expansion state for when no external control is provided
   const [localExpanded, setLocalExpanded] = useState(false);
@@ -257,7 +267,7 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         {/* Expansion/Navigation Icon */}
         {enableNavigation ? (
           <div className="jd-h-4 jd-flex-shrink-0" />
-        ) : totalItems > 0 || onToggleExpand ? (
+        ) : totalItems > 0 || onToggleExpand || isInGlobalSearch ? (
           expanded ? (
             <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" />
           ) : (
