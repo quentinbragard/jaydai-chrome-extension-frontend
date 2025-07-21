@@ -1,6 +1,6 @@
 // src/components/dialogs/subscription/ManageSubscriptionDialog.tsx - Fixed version
 import React, { useState, useEffect, useRef } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Sparkles, Copy, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
@@ -30,6 +30,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
   const { subscription, loading: isLoading, refreshStatus } = useSubscriptionStatus();
   const [loading, setLoading] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
+  const [showPromo, setShowPromo] = useState(false);
   const isDark = useThemeDetector();
   // Use ref to track if we've already refreshed to avoid infinite loops
   const hasRefreshedRef = useRef(false);
@@ -56,6 +57,13 @@ export const ManageSubscriptionDialog: React.FC = () => {
       setShowPricing(true);
     }
   }, [isOpen, subscription?.status]);
+
+  // Listen for invite sent events from the share dialog
+  useEffect(() => {
+    const handler = () => setShowPromo(true);
+    window.addEventListener('invite-sent', handler);
+    return () => window.removeEventListener('invite-sent', handler);
+  }, []);
 
   const handleManageSubscription = async () => {
     if (!authState.user?.id) return;
@@ -172,31 +180,60 @@ export const ManageSubscriptionDialog: React.FC = () => {
           </div>
         ) : showPricing ? (
           <>
-            <div className="jd-text-center jd-mb-6">
-              <h3 className="jd-text-2xl jd-font-semibold jd-mb-2">
-                {getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium')}
-              </h3>
-              <p className="jd-text-muted-foreground">
-                {getMessage('unlock_premium_features', undefined, 'Unlock all premium features and get the most out of Jaydai')}
-              </p>
-            </div>
+            {showPromo ? (
+              <>
+                <div className="jd-text-center jd-space-y-4">
+                  <h3 className="jd-text-xl jd-font-semibold">
+                    {getMessage('your_promo_code', undefined, 'Your promo code')}
+                  </h3>
+                  <div className="jd-flex jd-items-center jd-justify-center jd-gap-2">
+                    <span className="jd-font-mono jd-text-lg">JAYDAI-REFERRER-10</span>
+                    <Button size="icon" variant="ghost" onClick={() => navigator.clipboard.writeText('JAYDAI-REFERRER-10') && toast.success(getMessage('copied', undefined, 'Copied'))}>
+                      <Copy className="jd-w-4 jd-h-4" />
+                    </Button>
+                  </div>
+                </div>
 
-            <PricingPlans
-              user={authState.user!}
-              onPaymentSuccess={handlePaymentSuccess}
-              onPaymentCancel={handlePaymentCancel}
-              isDark={isDark}
-            />
+                <div className="jd-flex jd-justify-center jd-pt-4">
+                  <Button variant="outline" onClick={() => setShowPromo(false)}>
+                    <ArrowLeft className="jd-w-4 jd-h-4 jd-mr-2" />
+                    {getMessage('back_to_plans', undefined, 'Back to plans')}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="jd-text-center jd-mb-6">
+                  <h3 className="jd-text-2xl jd-font-semibold jd-mb-2">
+                    {getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium')}
+                  </h3>
+                  <p className="jd-text-muted-foreground">
+                    {getMessage('unlock_premium_features', undefined, 'Unlock all premium features and get the most out of Jaydai')}
+                  </p>
+                </div>
 
-            <div className="jd-flex jd-justify-center jd-pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setShowPricing(false)}
-                disabled={loading || isLoading}
-              >
-                {getMessage('back_to_subscription', undefined, 'Back to Subscription')}
-              </Button>
-            </div>
+                <PricingPlans
+                  user={authState.user!}
+                  onPaymentSuccess={handlePaymentSuccess}
+                  onPaymentCancel={handlePaymentCancel}
+                  isDark={isDark}
+                />
+
+                <div className="jd-flex jd-flex-col jd-items-center jd-gap-3 jd-pt-4">
+                  <Button variant="ghost" onClick={() => openDialog(DIALOG_TYPES.SHARE)}>
+                    <Sparkles className="jd-w-4 jd-h-4 jd-mr-2" />
+                    {getMessage('get_discount_promo', undefined, 'Invite a friend and get -10%')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowPricing(false)}
+                    disabled={loading || isLoading}
+                  >
+                    {getMessage('back_to_subscription', undefined, 'Back to Subscription')}
+                  </Button>
+                </div>
+              </>
+            )}
           </>
         ) : (
           <>
