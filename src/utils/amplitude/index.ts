@@ -204,6 +204,25 @@ export const EVENTS = {
   DIALOG_OPENED: 'Dialog Opened',
   DIALOG_CLOSED: 'Dialog Closed',
 
+  // Sharing Events
+  SHARE_DIALOG_OPENED: 'Share Dialog Opened',
+  SHARE_FRIEND_INVITED: 'Share Friend Invited',
+  SHARE_TEAM_INVITE_REQUESTED: 'Share Team Invite Requested', 
+  SHARE_REFERRAL_JOIN_REQUESTED: 'Share Referral Join Requested',
+  SHARE_INVITATION_EMAIL_SENT: 'Share Invitation Email Sent',
+  SHARE_INVITATION_EMAIL_FAILED: 'Share Invitation Email Failed',
+  SHARE_INVITATION_ACCEPTED: 'Share Invitation Accepted',
+  SHARE_STATS_VIEWED: 'Share Stats Viewed',
+  
+  // Referral Events
+  REFERRAL_SIGNUP_COMPLETED: 'Referral Signup Completed',
+  REFERRAL_REWARD_EARNED: 'Referral Reward Earned',
+  REFERRAL_CODE_GENERATED: 'Referral Code Generated',
+  
+  // Team Events
+  TEAM_INVITATION_SENT: 'Team Invitation Sent',
+  TEAM_MEMBER_JOINED: 'Team Member Joined',
+
 };
 
 /**
