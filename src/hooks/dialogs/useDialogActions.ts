@@ -90,6 +90,11 @@ export function useDialogActions() {
     [openDialog]
   );
 
+  const openReferralShareDialog = useCallback(
+    () => openDialog(DIALOG_TYPES.REFERRAL_SHARE, {}),
+    [openDialog]
+  );
+
   return {
     openSettings,
     openCreateTemplate,
@@ -108,5 +113,6 @@ export function useDialogActions() {
     openKeyboardShortcut,
     openInformation,
     openShareDialog,
+    openReferralShareDialog,
   };
 }
