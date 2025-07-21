@@ -284,14 +284,6 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
                   <span className="jd-text-green-500 jd-text-sm jd-font-medium">
                     {getMessage('save22Percent', undefined, 'Save 22%')}
                   </span>
-                  <div className="jd-mt-1">
-                    <span className={cn(
-                      "jd-text-sm",
-                      isDark ? "jd-text-gray-400" : "jd-text-gray-500"
-                    )}>
-                      {getMessage('billedAnnually', undefined, 'Billed annually')}
-                    </span>
-                  </div>
                 </div>
               )}
 

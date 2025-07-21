@@ -59,6 +59,11 @@ export const PaymentDefault: React.FC<PaymentDefaultProps> = ({
       animate={{ opacity: 1, y: 0 }} 
       transition={{ delay: 1.0, duration: 0.5 }}
     >
+      <div className="jd-flex jd-items-center jd-justify-center jd-mb-2">
+        <h2 className="jd-text-2xl jd-font-semibold jd-mb-2">
+          {getMessage('choosePlan', undefined, 'Choose Your Plan')}
+        </h2>
+      </div>
       <PricingPlans
         user={user}
         onPaymentSuccess={onPaymentSuccess}

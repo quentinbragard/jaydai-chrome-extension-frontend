@@ -138,17 +138,12 @@ export const ShareDialog: React.FC = () => {
         {/* Animated background gradient */}
         <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-br jd-from-blue-50 jd-via-purple-50 jd-to-pink-50 jd-dark:jd-from-blue-950/30 jd-dark:jd-via-purple-950/30 jd-dark:jd-to-pink-950/30 jd-opacity-50" />
         
-        {/* Floating particles effect */}
-        <div className="jd-absolute jd-top-2 jd-right-4 jd-w-2 jd-h-2 jd-bg-blue-400 jd-rounded-full jd-animate-pulse" />
-        <div className="jd-absolute jd-top-8 jd-left-8 jd-w-1 jd-h-1 jd-bg-purple-400 jd-rounded-full jd-animate-bounce" />
-        <div className="jd-absolute jd-bottom-16 jd-right-8 jd-w-1.5 jd-h-1.5 jd-bg-pink-400 jd-rounded-full jd-animate-pulse jd-delay-75" />
-
         <div className="jd-relative jd-space-y-6 jd-p-2">
           {/* Header Section */}
           <div className="jd-text-center jd-space-y-2">
             <div className="jd-flex jd-justify-center jd-mb-3">
               <div className="jd-relative jd-p-3 jd-bg-gradient-to-br jd-from-blue-500 jd-to-purple-600 jd-rounded-full jd-shadow-lg">
-                <Share2 className="jd-w-6 jd-h-6 jd-text-white" />
+                <Share2 className="jd-w-6 jd-h-6 jd-text-primary" />
                 <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-transparent jd-via-white/20 jd-to-transparent jd-rounded-full jd-animate-pulse" />
               </div>
             </div>
