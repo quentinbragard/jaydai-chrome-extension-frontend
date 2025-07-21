@@ -45,7 +45,15 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
   }, [pinnedFolderIds]);
 
   const allFolders = organizationFolders;
-  const { searchQuery, setSearchQuery, filteredFolders, clearSearch } = useFolderSearch(allFolders);
+  const {
+    searchQuery,
+    setSearchQuery,
+    filteredFolders,
+    expandedFolders,
+    toggleFolder,
+    clearSearch,
+    isExpanded
+  } = useFolderSearch(allFolders);
 
   // Filter unorganized templates based on search query
   const filteredTemplates = useMemo(() => {
@@ -130,51 +138,53 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
           onReset={clearSearch}
         />
         <Separator />
-          <div className="jd-overflow-y-auto jd-max-h-[70vh]">
-            {loading ? (
-              <LoadingState
-                message={getMessage('loadingFoldersGeneric', undefined, 'Loading folders...')}
-              />
-            ) : foldersWithPin.length === 0 && filteredTemplates.length === 0 ? (
-              <EmptyMessage>
-                {getMessage('noFoldersOrTemplatesFound', undefined, 'No folders or templates found')}
-              </EmptyMessage>
-            ) : (
-              <div className="jd-space-y-1 jd-px-2">
-                {foldersWithPin.map(folder => (
-                  <FolderItem
-                    key={`browse-folder-${folder.id}`}
-                    folder={folder}
-                    type={folder.type as any}
-                    enableNavigation={false}
-                    onUseTemplate={handleUseTemplateFromDialog}
-                    onTogglePin={(id, pinned) =>
-                      handleTogglePin(id, pinned, folder.type as any)
-                    }
-                    onToggleTemplatePin={handleToggleTemplatePin}
-                    organizations={organizations}
-                    showPinControls={true}
-                    showEditControls={false}
-                    showDeleteControls={false}
-                    pinnedFolderIds={localPinnedIds}
-                  />
-                ))}
-                {filteredTemplates.map(template => (
-                  (template.type !== 'user') &&
-                  <TemplateItem
-                    key={`browse-template-${template.id}`}
-                    template={template}
-                    type="user"
-                    onUseTemplate={handleUseTemplateFromDialog}
-                    onTogglePin={(id, pinned) => handleToggleTemplatePin(id, pinned, 'user')}
-                    showEditControls={false}
-                    showDeleteControls={false}
-                    showPinControls={true}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="jd-overflow-y-auto jd-max-h-[70vh]">
+          {loading ? (
+            <LoadingState
+              message={getMessage('loadingFoldersGeneric', undefined, 'Loading folders...')}
+            />
+          ) : foldersWithPin.length === 0 && filteredTemplates.length === 0 ? (
+            <EmptyMessage>
+              {getMessage('noFoldersOrTemplatesFound', undefined, 'No folders or templates found')}
+            </EmptyMessage>
+          ) : (
+            <div className="jd-space-y-1 jd-px-2">
+              {foldersWithPin.map(folder => (
+                <FolderItem
+                  key={`browse-folder-${folder.id}`}
+                  folder={folder}
+                  type={folder.type as any}
+                  enableNavigation={false}
+                  isExpanded={isExpanded(folder.id)}
+                  onToggleExpand={toggleFolder}
+                  onUseTemplate={handleUseTemplateFromDialog}
+                  onTogglePin={(id, pinned) =>
+                    handleTogglePin(id, pinned, folder.type as any)
+                  }
+                  onToggleTemplatePin={handleToggleTemplatePin}
+                  organizations={organizations}
+                  showPinControls={true}
+                  showEditControls={false}
+                  showDeleteControls={false}
+                  pinnedFolderIds={localPinnedIds}
+                />
+              ))}
+              {filteredTemplates.map(template => (
+                (template.type !== 'user') &&
+                <TemplateItem
+                  key={`browse-template-${template.id}`}
+                  template={template}
+                  type="user"
+                  onUseTemplate={handleUseTemplateFromDialog}
+                  onTogglePin={(id, pinned) => handleToggleTemplatePin(id, pinned, 'user')}
+                  showEditControls={false}
+                  showDeleteControls={false}
+                  showPinControls={true}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </TooltipProvider>
     </BaseDialog>
   );
