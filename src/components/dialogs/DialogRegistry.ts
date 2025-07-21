@@ -9,7 +9,8 @@ export const DIALOG_TYPES = {
   PLACEHOLDER_EDITOR: 'placeholderEditor',
   AUTH: 'auth',
   CONFIRMATION: 'confirmation',
-  ENHANCED_STATS: 'enhancedStats'
+  ENHANCED_STATS: 'enhancedStats',
+  INFORMATION: 'information'
 } as const;
 
 // Export the dialog types
@@ -62,4 +63,13 @@ export interface DialogProps {
   };
   
   [DIALOG_TYPES.ENHANCED_STATS]: Record<string, never>;
+
+  [DIALOG_TYPES.INFORMATION]: {
+    title?: string;
+    description?: string;
+    imageUrl?: string;
+    actionText?: string;
+    onAction?: () => void;
+    hideAction?: boolean;
+  };
 }
