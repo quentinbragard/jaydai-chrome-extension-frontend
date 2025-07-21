@@ -17,6 +17,7 @@ import { TutorialVideoDialog } from './tutorials/TutorialVideoDialog';
 import { ManageSubscriptionDialog } from './subscription/ManageSubscriptionDialog';
 import { PaywallDialog } from './subscription/PaywallDialog';
 import { KeyboardShortcutDialog } from './onboarding/KeyboardShortcutDialog';
+import { ShareDialog } from './share/ShareDialog';
 
 /**
  * Main dialog provider that includes all dialog components
@@ -74,6 +75,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <PaywallDialog />
       <ManageSubscriptionDialog />
       <KeyboardShortcutDialog />
+      <ShareDialog />
       {/* Place the customize dialog last so it stacks above others */}
       <CustomizeTemplateDialog />
     </DialogManagerProvider>

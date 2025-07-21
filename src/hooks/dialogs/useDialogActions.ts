@@ -79,6 +79,11 @@ export function useDialogActions() {
     [openDialog]
   );
 
+  const openShareDialog = useCallback(
+    () => openDialog(DIALOG_TYPES.SHARE, {}),
+    [openDialog]
+  );
+
   return {
     openSettings,
     openCreateTemplate,
@@ -95,5 +100,6 @@ export function useDialogActions() {
     openTutorials,
     openTutorialVideo,
     openKeyboardShortcut,
+    openShareDialog,
   };
 }
