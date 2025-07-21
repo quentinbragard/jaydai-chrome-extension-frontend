@@ -90,9 +90,9 @@ export const CreateBlockDialog: React.FC = () => {
     try {
       const blockData = {
         type: blockType,
-        content: { en: content.trim() },
-        title: { en: name.trim() },
-        description: description.trim() ? { en: description.trim() } : undefined
+        content: content.trim(),
+        title: name.trim(),
+        description: description.trim() || undefined
       };
 
       if (onBlockCreated) {

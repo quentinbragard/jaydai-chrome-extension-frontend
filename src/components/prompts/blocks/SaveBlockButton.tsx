@@ -39,9 +39,9 @@ export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
     setSaving(true);
     const data: CreateBlockData = {
       type,
-      content: typeof content === 'string' ? { en: content } : content,
-      title: title ? { en: title } : undefined,
-      description: description ? { en: description } : undefined
+      content: content,
+      title: title,
+      description: description
     } as any;
     try {
       const res = await blocksApi.createBlock(data);
