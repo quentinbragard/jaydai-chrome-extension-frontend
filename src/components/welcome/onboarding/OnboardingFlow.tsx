@@ -290,6 +290,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
             user={user}
             onComplete={onComplete}
             onBack={handlePreviousStep}
+            onSkip={handleSkip}
           />
         );
       case 4:

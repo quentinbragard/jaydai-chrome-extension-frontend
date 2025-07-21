@@ -18,13 +18,18 @@ interface PricingPlansProps {
   onPaymentSuccess?: () => void;
   onPaymentCancel?: () => void;
   isDark?: boolean;
+  /**
+   * Optional action shown below the plan toggle to skip selecting a plan.
+   */
+  skipAction?: () => void;
 }
 
 export const PricingPlans: React.FC<PricingPlansProps> = ({
   user,
   onPaymentSuccess,
   onPaymentCancel,
-  isDark = true
+  isDark = true,
+  skipAction
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
@@ -196,6 +201,15 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
               </button>
             ))}
           </motion.div>
+
+          {skipAction && (
+            <button
+              onClick={skipAction}
+              className="jd-text-sm jd-text-gray-400 hover:jd-text-gray-300 jd-underline jd-mt-2"
+            >
+              {getMessage('continueWithFree', undefined, 'Continue with free')}
+            </button>
+          )}
         </div>
 
 
