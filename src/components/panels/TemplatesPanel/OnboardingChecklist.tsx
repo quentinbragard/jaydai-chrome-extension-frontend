@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, Circle, X, Play, FileText, Blocks, Keyboard } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
+import { slashCommandService } from '@/services/ui/SlashCommandService';
+import { getCursorCoordinates, getCursorTextPosition } from '@/services/ui/slashUtils';
 
 interface OnboardingChecklistData {
   first_template_created: boolean;
@@ -36,6 +39,22 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
   onDismiss,
   isLoading = false
 }) => {
+  const { openInformation } = useDialogActions();
+
+  const openQuickSelector = () => {
+    try {
+      const service: any = slashCommandService as any;
+      const target = service.inputEl as HTMLElement | null;
+      if (target) {
+        const position = getCursorCoordinates(target);
+        const cursorPos = getCursorTextPosition(target);
+        service.quickSelector.open(position, target, cursorPos, 0);
+      }
+    } catch (error) {
+      console.error('Failed to open quick selector', error);
+    }
+  };
+
   const actions = [
     {
       key: 'first_template_created',
@@ -43,7 +62,19 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
       description: getMessage('createFirstTemplateDesc', undefined, 'Build a reusable prompt template'),
       icon: FileText,
       completed: checklist.first_template_created,
-      onClick: onCreateTemplate
+      onClick: () =>
+        openInformation({
+          title: getMessage('createTemplate', undefined, 'Create Template'),
+          description: getMessage(
+            'createTemplateInfo',
+            undefined,
+            'Templates let you save and reuse prompts.'
+          ),
+          gifUrl:
+            'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//templates_demo.gif',
+          actionText: getMessage('createTemplate', undefined, 'Create Template'),
+          onAction: onCreateTemplate,
+        })
     },
     {
       key: 'first_template_used',
@@ -60,7 +91,19 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
       description: getMessage('createFirstBlockDesc', undefined, 'Build reusable prompt components'),
       icon: Blocks,
       completed: checklist.first_block_created,
-      onClick: onCreateBlock
+      onClick: () =>
+        openInformation({
+          title: getMessage('createBlock', undefined, 'Create Block'),
+          description: getMessage(
+            'createBlockInfo',
+            undefined,
+            'Blocks are reusable pieces of prompts.'
+          ),
+          gifUrl:
+            'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//blocks_demo.gif',
+          actionText: getMessage('createBlock', undefined, 'Create Block'),
+          onAction: onCreateBlock,
+        })
     },
     {
       key: 'keyboard_shortcut_used',
@@ -68,7 +111,19 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
       description: getMessage('useKeyboardShortcutDesc', undefined, 'Speed up your workflow'),
       icon: Keyboard,
       completed: checklist.keyboard_shortcut_used,
-      onClick: onShowKeyboardShortcut
+      onClick: () =>
+        openInformation({
+          title: getMessage('keyboardShortcuts', undefined, 'Keyboard Shortcuts'),
+          description: getMessage(
+            'keyboardShortcutInfo',
+            undefined,
+            'Use //j to quickly insert blocks.'
+          ),
+          gifUrl:
+            'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif',
+          actionText: getMessage('tryItNow', undefined, 'Try it now!'),
+          onAction: openQuickSelector,
+        })
     }
   ];
 

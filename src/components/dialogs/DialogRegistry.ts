@@ -29,9 +29,11 @@ export const DIALOG_TYPES = {
   ,
   // Dialog for onboarding keyboard shortcuts
   KEYBOARD_SHORTCUT: 'keyboardShortcut',
-
+  INFORMATION: 'information',
+  KEYBOARD_SHORTCUT: 'keyboardShortcut',
   // Dialog for sharing the extension
   SHARE: 'share'
+
 } as const;
 
 // Export the dialog types
@@ -122,5 +124,13 @@ export interface DialogProps {
     onShortcutUsed?: () => void;
   };
 
+  [DIALOG_TYPES.INFORMATION]: {
+    title?: string;
+    description?: string;
+    gifUrl?: string;
+    actionText?: string;
+    onAction?: () => void;
+  };
   [DIALOG_TYPES.SHARE]: Record<string, never>;
 }
+
