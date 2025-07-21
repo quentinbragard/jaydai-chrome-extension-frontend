@@ -246,13 +246,14 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const pinnedTemplates = useMemo(() => {
     if (!pinnedTemplateIds.length) return [] as Array<Template & { type: 'user' | 'organization' }>;
 
+    const templatesMap = new Map<number, Template & { type: 'user' | 'organization' }>();
+
     const gather = (folders: TemplateFolder[] = [], type: 'user' | 'organization') => {
-      const result: Array<Template & { type: 'user' | 'organization' }> = [];
       const traverse = (folder: TemplateFolder) => {
         if (Array.isArray(folder.templates)) {
           folder.templates.forEach(t => {
-            if (pinnedTemplateIds.includes(t.id)) {
-              result.push({ ...t, type });
+            if (pinnedTemplateIds.includes(t.id) && !templatesMap.has(t.id)) {
+              templatesMap.set(t.id, { ...t, type });
             }
           });
         }
@@ -261,28 +262,29 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         }
       };
       folders.forEach(traverse);
-      return result;
     };
 
-    const templates: Array<Template & { type: 'user' | 'organization' }> = [];
-    templates.push(...gather(userFolders, 'user'));
-    templates.push(...gather(organizationFolders, 'organization'));
+    gather(userFolders, 'user');
+    gather(organizationFolders, 'organization');
+    gather(originalPinnedFolders.user, 'user');
+    gather(originalPinnedFolders.organization, 'organization');
+
     unorganizedTemplates.forEach(t => {
-      if (pinnedTemplateIds.includes(t.id)) {
-        templates.push({ ...t, type: 'user' });
+      if (pinnedTemplateIds.includes(t.id) && !templatesMap.has(t.id)) {
+        templatesMap.set(t.id, { ...t, type: 'user' });
       }
     });
 
     if (navigation.currentFolder?.templates) {
       navigation.currentFolder.templates.forEach(t => {
-        if (pinnedTemplateIds.includes(t.id)) {
-          templates.push({ ...t, type: navigation.getItemType(navigation.currentFolder as any) });
+        if (pinnedTemplateIds.includes(t.id) && !templatesMap.has(t.id)) {
+          templatesMap.set(t.id, { ...t, type: navigation.getItemType(navigation.currentFolder as any) });
         }
       });
     }
 
-    return templates;
-  }, [pinnedTemplateIds, userFolders, organizationFolders, unorganizedTemplates, navigation.currentFolder]);
+    return Array.from(templatesMap.values());
+  }, [pinnedTemplateIds, userFolders, organizationFolders, originalPinnedFolders, unorganizedTemplates, navigation.currentFolder]);
 
   const filteredPinnedTemplates = useMemo(() => {
     if (!searchQuery.trim()) return pinnedTemplates;
