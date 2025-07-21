@@ -194,6 +194,20 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     }
   }, [searchQuery, searchResults, navigation.currentItems, navigation]);
 
+  const userTemplateCount = useMemo(
+    () =>
+      displayItems.items.filter(
+        item => !('templates' in item || 'Folders' in item)
+      ).length,
+    [displayItems.items]
+  );
+
+  const showCreateTemplateCTA = useMemo(
+    () =>
+      navigation.isAtRoot && !searchQuery.trim() && userTemplateCount < 5,
+    [navigation.isAtRoot, searchQuery, userTemplateCount]
+  );
+
   // Check if we should show onboarding
   const shouldShowOnboarding = useMemo(() => {
     if (onboardingLoading || !checklist) return false;
@@ -640,6 +654,17 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </div>
           </div>
 
+          {showCreateTemplateCTA && (
+            <div className="jd-px-2 jd-mt-2">
+              <Button
+                className="jd-w-full"
+                variant="secondary"
+                onClick={handleCreateTemplate}
+              >
+                {getMessage('createTemplate', undefined, 'Create Template')}
+              </Button>
+            </div>
+          )}
 
         <Separator />
 
