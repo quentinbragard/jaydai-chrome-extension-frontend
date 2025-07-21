@@ -42,6 +42,7 @@ import { TemplateFolder, Template } from '@/types/prompts/templates';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { getFolderTitle } from '@/utils/prompts/folderUtils';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 
 // Import the optimized search hook
 
@@ -111,7 +112,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     dismissOnboarding,
     markTemplateCreated,
     markTemplateUsed,
-    markBlockCreated,
     markKeyboardShortcutUsed
   } = useOnboardingChecklist();
 
@@ -319,6 +319,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const { deleteTemplate, toggleTemplatePin } = useTemplateMutations();
   const { useTemplate, createTemplate, editTemplate } = useTemplateActions();
   const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders, openCreateBlock, openKeyboardShortcut, openShareDialog } = useDialogActions();
+  const { createBlock } = useBlockActions();
 
   // Onboarding action handlers
   const handleCreateTemplate = useCallback(() => {
@@ -345,15 +346,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   }, [useTemplate]);
 
   const handleCreateBlock = useCallback(() => {
-    openCreateBlock({ 
-      source: 'OnboardingChecklist',
-      onBlockCreated: async (blockData: any) => {
-        // Mark onboarding action as completed when block is created
-        markBlockCreated();
-        return true;
-      }
-    });
-  }, [openCreateBlock, markBlockCreated]);
+    createBlock(undefined, 'OnboardingChecklist');
+  }, [createBlock]);
 
   const handleKeyboardShortcutUsed = useCallback(() => {
     markKeyboardShortcutUsed();
