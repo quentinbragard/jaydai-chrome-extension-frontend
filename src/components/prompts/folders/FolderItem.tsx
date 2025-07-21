@@ -6,9 +6,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { PinButton } from '@/components/prompts/common/PinButton';
 import { OrganizationImage } from '@/components/organizations';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
+import { useTemplatesByFolder } from '@/hooks/prompts/queries/templates';
 import { Organization } from '@/types/organizations';
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
+import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 
@@ -95,12 +97,21 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
 
+  const { data: fetchedTemplates = [], isLoading: loadingTemplates } =
+    useTemplatesByFolder(
+      folder.id,
+      expanded && (!folder.templates || folder.templates.length === 0)
+    );
+
   // Get organization data for display
   const organization = organizations?.find(org => org.id === folder.organization_id) || folder.organization;
 
   // Calculate folder contents
   const subfolders = folder.Folders || [];
-  const templates = folder.templates || [];
+  const templates =
+    folder.templates && folder.templates.length > 0
+      ? folder.templates
+      : fetchedTemplates;
   const totalItems = subfolders.length + templates.length;
   const isAtRoot = navigationPath.length === 0;
 
@@ -246,12 +257,14 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         {/* Expansion/Navigation Icon */}
         {enableNavigation ? (
           <div className="jd-h-4 jd-flex-shrink-0" />
-        ) : totalItems > 0 ? (
-          expanded ? 
-            <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" /> : 
+        ) : totalItems > 0 || onToggleExpand ? (
+          expanded ? (
+            <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" />
+          ) : (
             <ChevronRight className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" />
+          )
         ) : (
-          <div/>
+          <div />
         )}
 
         {/* Organization Image (for organization folders) */}
@@ -357,58 +370,66 @@ export const FolderItem: React.FC<FolderItemProps> = ({
       </div>
 
       {/* Folder Contents */}
-      {!enableNavigation && expanded && totalItems > 0 && (
+      {!enableNavigation && expanded && (
         <div className="jd-folder-content jd-space-y-1">
-          {/* Subfolders */}
-          {subfolders.map((subfolder) => (
-            <FolderItem
-              key={`subfolder-${subfolder.id}`}
-              folder={subfolder}
-              type={type}
-              level={level + 1}
-              isExpanded={isExpanded}
-              onToggleExpand={onToggleExpand}
-              onTogglePin={onTogglePin}
-              onEditFolder={onEditFolder}
-              onDeleteFolder={onDeleteFolder}
-              onUseTemplate={onUseTemplate}
-              onEditTemplate={onEditTemplate}
-              onDeleteTemplate={onDeleteTemplate}
-              organizations={organizations}
-              showPinControls={showPinControls}
-              showEditControls={showEditControls}
-              showDeleteControls={showDeleteControls}
-              enableNavigation={enableNavigation}
-              pinnedFolderIds={pinnedFolderIds}
-            />
-          ))}
+          {loadingTemplates ? (
+            <LoadingState className="jd-ml-4" />
+          ) : (
+            <>
+              {/* Subfolders */}
+              {subfolders.map(subfolder => (
+                <FolderItem
+                  key={`subfolder-${subfolder.id}`}
+                  folder={subfolder}
+                  type={type}
+                  level={level + 1}
+                  isExpanded={isExpanded}
+                  onToggleExpand={onToggleExpand}
+                  onTogglePin={onTogglePin}
+                  onEditFolder={onEditFolder}
+                  onDeleteFolder={onDeleteFolder}
+                  onUseTemplate={onUseTemplate}
+                  onEditTemplate={onEditTemplate}
+                  onDeleteTemplate={onDeleteTemplate}
+                  organizations={organizations}
+                  showPinControls={showPinControls}
+                  showEditControls={showEditControls}
+                  showDeleteControls={showDeleteControls}
+                  enableNavigation={enableNavigation}
+                  pinnedFolderIds={pinnedFolderIds}
+                />
+              ))}
 
-          {/* Templates with organization context */}
-          {templates.map((template) => (
-            <TemplateItem
-              key={`template-${template.id}`}
-              template={template}
-              type={type}
-              level={level + 1}
-              onUseTemplate={onUseTemplate}
-              onEditTemplate={onEditTemplate}
-              onDeleteTemplate={onDeleteTemplate}
-              onTogglePin={onToggleTemplatePin}
-              showEditControls={type === 'user'}
-              showDeleteControls={type === 'user'}
-              showPinControls={showPinControls}
-              organizations={organizations}
-              parentFolderHasOrgImage={folderShowsOrgImage} // Pass context!
-              isInGlobalSearch={false}
-            />
-          ))}
+              {/* Templates with organization context */}
+              {templates.map(template => (
+                <TemplateItem
+                  key={`template-${template.id}`}
+                  template={template}
+                  type={type}
+                  level={level + 1}
+                  onUseTemplate={onUseTemplate}
+                  onEditTemplate={onEditTemplate}
+                  onDeleteTemplate={onDeleteTemplate}
+                  onTogglePin={onToggleTemplatePin}
+                  showEditControls={type === 'user'}
+                  showDeleteControls={type === 'user'}
+                  showPinControls={showPinControls}
+                  organizations={organizations}
+                  parentFolderHasOrgImage={folderShowsOrgImage}
+                  isInGlobalSearch={false}
+                />
+              ))}
+            </>
+          )}
         </div>
       )}
 
       {/* When showing navigation header and in current folder, show contents */}
       {showNavigationHeader && (
         <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-          {totalItems === 0 ? (
+          {loadingTemplates ? (
+            <LoadingState />
+          ) : totalItems === 0 ? (
             <EmptyMessage>
               {isAtRoot 
                 ? getMessage('noTemplates', undefined, 'No templates yet. Create your first template!')
