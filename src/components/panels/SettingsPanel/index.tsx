@@ -1,6 +1,6 @@
 // src/components/panels/SettingsPanel/index.tsx - Refined for narrow panel
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, ExternalLink, Shield, Eye, EyeOff, Crown, AlertTriangle, Gift, Sparkles } from "lucide-react";
+import { Settings, ExternalLink, Shield, Eye, EyeOff, Crown, AlertTriangle, Gift, Sparkles, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -142,6 +142,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     window.open(url, '_blank');
   };
 
+  const handleShare = () => {
+    trackEvent(EVENTS.SHARE_DIALOG_OPENED, { source: 'settings_panel' });
+    openDialog(DIALOG_TYPES.SHARE);
+  };
+
   const getSubscriptionButtonText = () => {
     if (subscriptionLoading || subscription === null) return getMessage('loading', undefined, 'Loading...');
     
@@ -238,6 +243,15 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
   const settingsItems = [
     subscriptionItem,
+    {
+      id: 'share',
+      icon: <Share2 className="jd-h-5 jd-w-5 jd-text-blue-500" />,
+      title: getMessage('shareJaydai', undefined, 'Share Jaydai'),
+      description: getMessage('shareDescription', undefined, 'Help your friends and colleagues boost their productivity with AI'),
+      action: handleShare,
+      type: 'button' as const,
+      buttonText: getMessage('share', undefined, 'Share')
+    },
     {
       id: 'linkedin',
       icon: <ExternalLink className="jd-h-5 jd-w-5 jd-text-blue-600" />,
