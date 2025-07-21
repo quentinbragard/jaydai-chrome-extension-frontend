@@ -8,6 +8,7 @@ import { AuthDialog } from './auth/AuthDialog';
 import { SettingsDialog } from './settings/SettingsDialog';
 import { ConfirmationDialog } from './common/ConfirmationDialog';
 import { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
+import ShareDialog from './share/ShareDialog';
 
 /**
  * Main dialog provider that includes all dialog components
@@ -44,6 +45,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <SettingsDialog />
       <ConfirmationDialog />
       <EnhancedStatsDialog />
+      <ShareDialog />
     </DialogContextProvider>
   );
 };
@@ -58,4 +60,5 @@ export { AuthDialog } from './auth/AuthDialog';
 export { SettingsDialog } from './settings/SettingsDialog';
 export { ConfirmationDialog } from './common/ConfirmationDialog';
 export { EnhancedStatsDialog } from './analytics/EnhancedStatsDialog';
+export { default as ShareDialog } from './share/ShareDialog';
 export { BaseDialog } from './BaseDialog';
