@@ -6,7 +6,10 @@ import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 /**
  * Performance-optimized hook for searching through template folders
  */
-export function useFolderSearch(folders: TemplateFolder[] = []) {
+export function useFolderSearch(
+  folders: TemplateFolder[] = [],
+  unorganizedTemplates: Template[] = []
+) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
   
@@ -63,14 +66,20 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
   }, [templateMatchesQuery]);
   
   // Filter folders based on search query with memoization
-  const { filteredFolders, expandedIds } = useMemo(() => {
-    // If no search query, return all folders
+  const { filteredFolders, filteredTemplates, expandedIds } = useMemo(() => {
+    // If no search query, return all folders and unorganized templates
     if (!searchQuery.trim()) {
-      return { filteredFolders: folders, expandedIds: new Set<number>() };
+      return {
+        filteredFolders: folders,
+        filteredTemplates: unorganizedTemplates,
+        expandedIds: new Set<number>()
+      };
+
     }
 
     const query = searchQuery.toLowerCase();
     const newExpandedFolders = new Set<number>();
+    const matchingTemplates: Template[] = [];
 
     // Helper function for processing folders recursively
     const processFolder = (folder: TemplateFolder, parentIds: number[] = []): boolean => {
@@ -83,6 +92,20 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
         parentIds.forEach(id => newExpandedFolders.add(id));
         return true;
       }
+
+      // Check templates within this folder
+      if (folder.templates?.length) {
+        folder.templates.forEach(t => {
+          if (templateMatchesQuery(t, query)) {
+            matchingTemplates.push(t);
+            if (folder.id) {
+              newExpandedFolders.add(folder.id);
+              parentIds.forEach(id => newExpandedFolders.add(id));
+            }
+          }
+        });
+      }
+
 
       // Check subfolders
       let subfolderMatches = false;
@@ -106,8 +129,18 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
     // Process top-level folders
     const matchingFolders = folders.filter(folder => processFolder(folder));
 
-    return { filteredFolders: matchingFolders, expandedIds: newExpandedFolders };
-  }, [folders, searchQuery, folderMatchesQuery]);
+    // Add matching unorganized templates
+    const extraTemplates = unorganizedTemplates.filter(t =>
+      templateMatchesQuery(t, query)
+    );
+    matchingTemplates.push(...extraTemplates);
+
+    return {
+      filteredFolders: matchingFolders,
+      filteredTemplates: matchingTemplates,
+      expandedIds: newExpandedFolders
+    };
+  }, [folders, unorganizedTemplates, searchQuery, folderMatchesQuery, templateMatchesQuery]);
 
   useEffect(() => {
     // Update expanded folders whenever expandedIds change
@@ -144,6 +177,7 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
     searchQuery,
     setSearchQuery,
     filteredFolders,
+    filteredTemplates,
     expandedFolders,
     toggleFolder,
     clearSearch,
