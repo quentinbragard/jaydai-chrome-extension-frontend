@@ -45,7 +45,13 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
   }, [pinnedFolderIds]);
 
   const allFolders = organizationFolders;
-  const { searchQuery, setSearchQuery, filteredFolders, clearSearch } = useFolderSearch(allFolders);
+  const {
+    searchQuery,
+    setSearchQuery,
+    filteredFolders,
+    filteredTemplates,
+    clearSearch
+  } = useFolderSearch(allFolders, unorganizedTemplates);
 
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
   const toggleExpanded = useCallback((id: number) => {
@@ -56,16 +62,6 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
     });
   }, []);
 
-  // Filter unorganized templates based on search query
-  const filteredTemplates = useMemo(() => {
-    if (!searchQuery.trim()) return unorganizedTemplates;
-    const q = searchQuery.toLowerCase();
-    return unorganizedTemplates.filter(t =>
-      (t.type !== 'user') &&
-      (t.title || '').toLowerCase().includes(q) ||
-      (t.description || '').toLowerCase().includes(q)
-    );
-  }, [unorganizedTemplates, searchQuery]);
 
   const handleTogglePin = useCallback(
     async (

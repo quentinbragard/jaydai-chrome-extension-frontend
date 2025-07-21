@@ -6,7 +6,10 @@ import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 /**
  * Performance-optimized hook for searching through template folders
  */
-export function useFolderSearch(folders: TemplateFolder[] = []) {
+export function useFolderSearch(
+  folders: TemplateFolder[] = [],
+  unorganizedTemplates: Template[] = []
+) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
   
@@ -63,19 +66,24 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
   }, [templateMatchesQuery]);
   
   // Filter folders based on search query with memoization
-  const filteredFolders = useMemo(() => {
-    // If no search query, return all folders
+  const { filteredFolders, filteredTemplates, expandedIds } = useMemo(() => {
+    // If no search query, return all folders and unorganized templates
     if (!searchQuery.trim()) {
-      return folders;
+      return {
+        filteredFolders: folders,
+        filteredTemplates: unorganizedTemplates,
+        expandedIds: new Set<number>()
+      };
     }
-    
+
     const query = searchQuery.toLowerCase();
     const newExpandedFolders = new Set<number>();
-    
+    const matchingTemplates: Template[] = [];
+
     // Helper function for processing folders recursively
     const processFolder = (folder: TemplateFolder, parentIds: number[] = []): boolean => {
       const folderMatches = folderMatchesQuery(folder, query);
-      
+
       // If folder has an ID and matches, add it to expanded set
       if (folder.id && folderMatches) {
         newExpandedFolders.add(folder.id);
@@ -83,34 +91,61 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
         parentIds.forEach(id => newExpandedFolders.add(id));
         return true;
       }
-      
+
+      // Check templates within this folder
+      if (folder.templates?.length) {
+        folder.templates.forEach(t => {
+          if (templateMatchesQuery(t, query)) {
+            matchingTemplates.push(t);
+            if (folder.id) {
+              newExpandedFolders.add(folder.id);
+              parentIds.forEach(id => newExpandedFolders.add(id));
+            }
+          }
+        });
+      }
+
       // Check subfolders
       let subfolderMatches = false;
       if (folder.Folders?.length) {
         const newParentIds = folder.id ? [...parentIds, folder.id] : parentIds;
-        
-        subfolderMatches = folder.Folders.some(subfolder => 
+
+        subfolderMatches = folder.Folders.some(subfolder =>
           processFolder(subfolder, newParentIds)
         );
-        
+
         // If any subfolder matches, add this folder to expanded set
         if (subfolderMatches && folder.id) {
           newExpandedFolders.add(folder.id);
           parentIds.forEach(id => newExpandedFolders.add(id));
         }
       }
-      
+
       return folderMatches || subfolderMatches;
     };
-    
+
     // Process top-level folders
     const matchingFolders = folders.filter(folder => processFolder(folder));
-    
-    // Update expanded folders
-    setExpandedFolders(newExpandedFolders);
-    
-    return matchingFolders;
-  }, [folders, searchQuery, folderMatchesQuery]);
+
+    // Add matching unorganized templates
+    const extraTemplates = unorganizedTemplates.filter(t =>
+      templateMatchesQuery(t, query)
+    );
+    matchingTemplates.push(...extraTemplates);
+
+    return {
+      filteredFolders: matchingFolders,
+      filteredTemplates: matchingTemplates,
+      expandedIds: newExpandedFolders
+    };
+  }, [folders, unorganizedTemplates, searchQuery, folderMatchesQuery, templateMatchesQuery]);
+
+  useEffect(() => {
+    // Update expanded folders whenever expandedIds change
+    if (searchQuery.trim()) {
+      setExpandedFolders(expandedIds);
+    }
+  }, [expandedIds, searchQuery]);
   
   // Toggle folder expansion
   const toggleFolder = useCallback((folderId: number) => {
@@ -140,6 +175,7 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
     searchQuery,
     setSearchQuery,
     filteredFolders,
+    filteredTemplates,
     expandedFolders,
     toggleFolder,
     clearSearch,
