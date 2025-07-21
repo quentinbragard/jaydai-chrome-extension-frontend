@@ -1,4 +1,5 @@
 // src/components/dialogs/DialogRegistry.ts
+import React from 'react';
 // Define dialog types
 export const DIALOG_TYPES = {
   // Existing dialog types
@@ -129,6 +130,7 @@ export interface DialogProps {
     gifUrl?: string;
     actionText?: string;
     onAction?: () => void;
+    children?: React.ReactNode;
   };
   [DIALOG_TYPES.SHARE]: Record<string, never>;
 }
