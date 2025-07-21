@@ -91,7 +91,7 @@ export function useOptimizedSearch(
         folder.templates.forEach(template => {
           if (!template?.id) return;
           
-          const title = extractText(template.title);
+          const title = extractText(template.title || (template as any).name);
           const content = extractText(template.content);
           const description = extractText(template.description);
           const searchText = [title, content, description].join(' ').toLowerCase();
@@ -137,7 +137,7 @@ export function useOptimizedSearch(
       unorganizedTemplates.forEach(template => {
         if (!template?.id) return;
         
-        const title = extractText(template.title);
+        const title = extractText(template.title || (template as any).name);
         const content = extractText(template.content);
         const description = extractText(template.description);
         const searchText = [title, content, description].join(' ').toLowerCase();

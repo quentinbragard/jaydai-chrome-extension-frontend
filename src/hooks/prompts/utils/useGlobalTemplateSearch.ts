@@ -106,7 +106,10 @@ export function useGlobalTemplateSearch(
       let matchReason: 'title' | 'content' | 'description' | null = null;
 
       // Check title - with safe string handling
-      if (safeStringIncludes(template.title, query)) {
+      if (
+        safeStringIncludes(template.title, query) ||
+        safeStringIncludes((template as any).name, query)
+      ) {
         matchReason = 'title';
       }
       // Check content - with safe string handling
