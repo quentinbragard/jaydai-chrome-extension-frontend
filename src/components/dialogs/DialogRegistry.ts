@@ -32,8 +32,9 @@ export const DIALOG_TYPES = {
   KEYBOARD_SHORTCUT: 'keyboardShortcut',
   INFORMATION: 'information',
   // Dialog for sharing the extension
-  SHARE: 'share'
-
+  SHARE: 'share',
+  // Minimal dialog for referral sharing
+  REFERRAL_SHARE: 'referralShare'
 } as const;
 
 // Export the dialog types
@@ -133,5 +134,6 @@ export interface DialogProps {
     children?: React.ReactNode;
   };
   [DIALOG_TYPES.SHARE]: Record<string, never>;
+  [DIALOG_TYPES.REFERRAL_SHARE]: Record<string, never>;
 }
 

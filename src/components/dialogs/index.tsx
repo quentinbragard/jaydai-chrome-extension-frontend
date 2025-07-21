@@ -15,6 +15,7 @@ import { CreateBlockDialog } from './prompts/CreateBlockDialog';
 import { TutorialsDialog } from './tutorials/TutorialsDialog';
 import { TutorialVideoDialog } from './tutorials/TutorialVideoDialog';
 import { ShareDialog } from './share/ShareDialog';
+import { ReferralShareDialog } from './share/ReferralShareDialog';
 
 /**
  * Main dialog provider that includes all dialog components
@@ -54,6 +55,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <BrowseMoreFoldersDialog />
       <TutorialsDialog />
       <TutorialVideoDialog />
+      <ReferralShareDialog />
       <ShareDialog />
       {/* Place the customize dialog last so it appears above others */}
       <CustomizeTemplateDialog />
@@ -77,5 +79,6 @@ export { CreateBlockDialog } from './prompts/CreateBlockDialog';
 export { TutorialsDialog } from './tutorials/TutorialsDialog';
 export { TutorialVideoDialog } from './tutorials/TutorialVideoDialog';
 export { ShareDialog } from './share/ShareDialog';
+export { ReferralShareDialog } from './share/ReferralShareDialog';
 export { ConfirmationDialog } from './common/ConfirmationDialog';
 

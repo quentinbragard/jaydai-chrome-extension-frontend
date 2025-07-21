@@ -76,7 +76,7 @@ export const PaywallDialog: React.FC = () => {
               />
             )}
             <div className="jd-flex jd-justify-center jd-pt-4">
-              <Button variant="ghost" onClick={() => openDialog(DIALOG_TYPES.SHARE)}>
+              <Button variant="ghost" onClick={() => openDialog(DIALOG_TYPES.REFERRAL_SHARE)}>
                 <Sparkles className="jd-w-4 jd-h-4 jd-mr-2" />
                 {getMessage('get_discount_promo', undefined, 'Invite a friend and get -10%')}
               </Button>
