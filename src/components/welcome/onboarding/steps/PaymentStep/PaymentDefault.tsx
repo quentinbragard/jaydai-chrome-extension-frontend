@@ -59,10 +59,11 @@ export const PaymentDefault: React.FC<PaymentDefaultProps> = ({
       animate={{ opacity: 1, y: 0 }} 
       transition={{ delay: 1.0, duration: 0.5 }}
     >
-      <PricingPlans 
-        user={user} 
-        onPaymentSuccess={onPaymentSuccess} 
-        onPaymentCancel={onPaymentCancel} 
+      <PricingPlans
+        user={user}
+        onPaymentSuccess={onPaymentSuccess}
+        onPaymentCancel={onPaymentCancel}
+        skipAction={onSkip}
       />
     </motion.div>
 
