@@ -532,6 +532,10 @@
     "message": "Create new folder...",
     "description": "Option to create a new folder"
   },
+  "templateVariableInfo": {
+    "message": "Use square brackets [] to create variables. Example: I work for [Company Name]",
+    "description": "Information text showing how to create template variables"
+  },
   "content": {
     "message": "Content",
     "description": "Label for content field"

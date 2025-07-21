@@ -79,10 +79,11 @@ export const BasicInfoForm: React.FC<Props> = ({
   };
 
   return (
-    <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-3 jd-gap-4 jd-mb-4">
-      <div>
-        <label className="jd-text-sm jd-font-medium">{getMessage('templateName')}</label>
-        <Input
+    <>
+      <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-3 jd-gap-4 jd-mb-4">
+        <div>
+          <label className="jd-text-sm jd-font-medium">{getMessage('templateName')}</label>
+          <Input
           value={name}
           onChange={e => setName(e.target.value)}
           placeholder={getMessage('enterTemplateName')}
@@ -138,6 +139,10 @@ export const BasicInfoForm: React.FC<Props> = ({
           </SelectContent>
         </Select>
       </div>
-    </div>
+      </div>
+      <p className="jd-text-xs jd-text-muted-foreground jd-mb-4">
+        {getMessage('templateVariableInfo')}
+      </p>
+    </>
   );
 };

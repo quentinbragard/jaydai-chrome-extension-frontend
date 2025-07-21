@@ -1379,6 +1379,10 @@
     "message": "Créer un nouveau dossier...",
     "description": "Option pour créer un nouveau dossier"
   },
+  "templateVariableInfo": {
+    "message": "Utilisez des crochets [] pour créer des variables. Exemple : Je travaille pour [Nom de l'entreprise]",
+    "description": "Texte d'information indiquant comment créer des variables dans un template"
+  },
   "content": {
     "message": "Contenu",
     "description": "Étiquette pour le champ de contenu"
