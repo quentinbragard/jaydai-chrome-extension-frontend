@@ -79,7 +79,7 @@ export function useOptimizedSearch(
           type: 'folder',
           title: folderTitle,
           description: folderDescription,
-          folderPath: path.join(' > '),
+          folderPath: currentPath.join(' > '),
           folderType,
           originalItem: folder,
           searchText
