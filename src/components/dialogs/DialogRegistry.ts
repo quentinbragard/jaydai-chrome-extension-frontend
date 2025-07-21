@@ -30,7 +30,6 @@ export const DIALOG_TYPES = {
   // Dialog for onboarding keyboard shortcuts
   KEYBOARD_SHORTCUT: 'keyboardShortcut',
   INFORMATION: 'information',
-  KEYBOARD_SHORTCUT: 'keyboardShortcut',
   // Dialog for sharing the extension
   SHARE: 'share'
 

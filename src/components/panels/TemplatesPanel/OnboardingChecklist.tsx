@@ -100,7 +100,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
             'Blocks are reusable pieces of prompts.'
           ),
           gifUrl:
-            'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//blocks_demo.gif',
+            'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//blocs_demo.gif',
           actionText: getMessage('createBlock', undefined, 'Create Block'),
           onAction: onCreateBlock,
         })

@@ -83,7 +83,8 @@ export function useDialogActions() {
     (props?: DialogProps[typeof DIALOG_TYPES.INFORMATION]) =>
       openDialog(DIALOG_TYPES.INFORMATION, props ?? {}),
       [openDialog]
-    
+  );
+
   const openShareDialog = useCallback(
     () => openDialog(DIALOG_TYPES.SHARE, {}),
     [openDialog]

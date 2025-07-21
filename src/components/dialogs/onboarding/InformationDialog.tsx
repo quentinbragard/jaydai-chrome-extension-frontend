@@ -40,14 +40,14 @@ export const InformationDialog: React.FC = () => {
       onOpenChange={dialogProps.onOpenChange}
       title={title}
       description={description}
-      className="jd-max-w-lg"
+      className="jd-max-w-5xl"
       footer={footer}
     >
       {gifUrl && (
         <img
           src={gifUrl}
           alt={title}
-          className="jd-w-full jd-max-h-80 jd-object-contain jd-rounded-md"
+          className="jd-w-full  jd-object-contain jd-rounded-md"
         />
       )}
     </BaseDialog>
