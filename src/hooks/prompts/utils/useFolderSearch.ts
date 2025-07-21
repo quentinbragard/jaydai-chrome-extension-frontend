@@ -63,19 +63,19 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
   }, [templateMatchesQuery]);
   
   // Filter folders based on search query with memoization
-  const filteredFolders = useMemo(() => {
+  const { filteredFolders, expandedIds } = useMemo(() => {
     // If no search query, return all folders
     if (!searchQuery.trim()) {
-      return folders;
+      return { filteredFolders: folders, expandedIds: new Set<number>() };
     }
-    
+
     const query = searchQuery.toLowerCase();
     const newExpandedFolders = new Set<number>();
-    
+
     // Helper function for processing folders recursively
     const processFolder = (folder: TemplateFolder, parentIds: number[] = []): boolean => {
       const folderMatches = folderMatchesQuery(folder, query);
-      
+
       // If folder has an ID and matches, add it to expanded set
       if (folder.id && folderMatches) {
         newExpandedFolders.add(folder.id);
@@ -83,34 +83,38 @@ export function useFolderSearch(folders: TemplateFolder[] = []) {
         parentIds.forEach(id => newExpandedFolders.add(id));
         return true;
       }
-      
+
       // Check subfolders
       let subfolderMatches = false;
       if (folder.Folders?.length) {
         const newParentIds = folder.id ? [...parentIds, folder.id] : parentIds;
-        
-        subfolderMatches = folder.Folders.some(subfolder => 
+
+        subfolderMatches = folder.Folders.some(subfolder =>
           processFolder(subfolder, newParentIds)
         );
-        
+
         // If any subfolder matches, add this folder to expanded set
         if (subfolderMatches && folder.id) {
           newExpandedFolders.add(folder.id);
           parentIds.forEach(id => newExpandedFolders.add(id));
         }
       }
-      
+
       return folderMatches || subfolderMatches;
     };
-    
+
     // Process top-level folders
     const matchingFolders = folders.filter(folder => processFolder(folder));
-    
-    // Update expanded folders
-    setExpandedFolders(newExpandedFolders);
-    
-    return matchingFolders;
+
+    return { filteredFolders: matchingFolders, expandedIds: newExpandedFolders };
   }, [folders, searchQuery, folderMatchesQuery]);
+
+  useEffect(() => {
+    // Update expanded folders whenever expandedIds change
+    if (searchQuery.trim()) {
+      setExpandedFolders(expandedIds);
+    }
+  }, [expandedIds, searchQuery]);
   
   // Toggle folder expansion
   const toggleFolder = useCallback((folderId: number) => {
