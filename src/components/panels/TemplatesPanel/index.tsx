@@ -7,7 +7,6 @@ import { getMessage } from '@/core/utils/i18n';
 import BasePanel from '../BasePanel';
 import { toast } from 'sonner';
 import { Separator } from "@/components/ui/separator";
-import { EnterpriseCTA } from './EnterpriseCTA';
 
 // Import onboarding components
 import { OnboardingChecklist } from './OnboardingChecklist';
@@ -24,7 +23,6 @@ import {
   useAllPinnedFolders,
   useUserFolders,
   useOrganizationFolders,
-  useCompanyFolders,
   useFolderMutations,
   useTemplateMutations,
   useTemplateActions,
@@ -87,11 +85,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     refetch: refetchOrganization
   } = useOrganizationFolders();
 
-  const {
-    data: companyFolders = [],
-    isLoading: loadingCompany,
-    refetch: refetchCompany
-  } = useCompanyFolders();
 
   const {
     data: unorganizedTemplates = [],
@@ -274,21 +267,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     return templates;
   }, [pinnedTemplateIds, userFolders, organizationFolders, unorganizedTemplates, navigation.currentFolder]);
 
-  const companyTemplates = useMemo(() => {
-    const templates: Template[] = [];
-    const traverse = (folders: TemplateFolder[]) => {
-      folders.forEach(folder => {
-        if (Array.isArray(folder.templates)) {
-          templates.push(...folder.templates);
-        }
-        if (Array.isArray(folder.Folders)) {
-          traverse(folder.Folders);
-        }
-      });
-    };
-    traverse(companyFolders);
-    return templates;
-  }, [companyFolders]);
 
   const filteredPinnedTemplates = useMemo(() => {
     if (!searchQuery.trim()) return pinnedTemplates;
@@ -314,7 +292,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
   const { deleteTemplate, toggleTemplatePin } = useTemplateMutations();
   const { useTemplate, createTemplate, editTemplate } = useTemplateActions();
-  const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders, openCreateBlock, openKeyboardShortcut } = useDialogActions();
+  const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders, openCreateBlock, openKeyboardShortcut, openShareDialog } = useDialogActions();
 
   // Onboarding action handlers
   const handleCreateTemplate = useCallback(() => {
@@ -453,10 +431,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     });
   }, [openCreateFolder, createFolder, refetchUser]);
 
-  const handleContactSales = useCallback(() => {
-    trackEvent(EVENTS.ENTERPRISE_CTA_CLICKED, { source: 'templates_panel' });
-    window.open('https://www.jayd.ai/#Contact', '_blank');
-  }, []);
 
   // Template handlers
   const handleDeleteTemplate = useCallback((templateId: number) => {
@@ -478,7 +452,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   // Loading state
   const isLoading =
-    loadingUser || loadingOrganization || loadingCompany || loadingUnorganized;
+    loadingUser || loadingOrganization || loadingUnorganized;
 
   if (isLoading) {
     return (
@@ -686,46 +660,6 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </div>
           </div>
 
-          <Separator />
-
-{/* Company Templates Section with Enhanced CTA */}
-<div>
-  <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
-    <div className="jd-flex jd-items-center">
-      <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
-      Company Templates
-      {companyTemplates.length > 0 && (
-        <span className="jd-ml-1 jd-text-xs jd-bg-primary/10 jd-text-primary jd-px-1.5 jd-py-0.5 jd-rounded-full">
-          {companyTemplates.length}
-        </span>
-      )}
-    </div>
-  </div>
-
-  <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-    {companyTemplates.length === 0 ? (
-      <EnterpriseCTA onContactSales={handleContactSales} />
-    ) : (
-      <>
-        {companyTemplates.map(template => (
-          <TemplateItem
-            key={`company-template-${template.id}`}
-            template={template}
-            type="company"
-            onUseTemplate={useTemplate}
-            onTogglePin={(id, pinned) =>
-              handleToggleTemplatePin(id, pinned, 'company')
-            }
-            showEditControls={false}
-            showDeleteControls={false}
-            showPinControls={true}
-            organizations={organizations}
-          />
-        ))}
-      </>
-    )}
-  </div>
-</div>
 
         <Separator />
 
@@ -800,6 +734,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               </>
             )}
           </div>
+
+        </div>
+        <div className="jd-px-2 jd-mt-2">
+          <Button className="jd-w-full" variant="secondary" onClick={openShareDialog}>
+            Share Jaydai
+          </Button>
         </div>
         </div>
 

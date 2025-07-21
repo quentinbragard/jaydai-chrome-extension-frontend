@@ -82,6 +82,10 @@ export function useDialogActions() {
   const openInformation = useCallback(
     (props?: DialogProps[typeof DIALOG_TYPES.INFORMATION]) =>
       openDialog(DIALOG_TYPES.INFORMATION, props ?? {}),
+      [openDialog]
+    
+  const openShareDialog = useCallback(
+    () => openDialog(DIALOG_TYPES.SHARE, {}),
     [openDialog]
   );
 
@@ -102,5 +106,6 @@ export function useDialogActions() {
     openTutorialVideo,
     openKeyboardShortcut,
     openInformation,
+    openShareDialog,
   };
 }

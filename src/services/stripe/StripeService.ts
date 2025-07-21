@@ -22,7 +22,6 @@ export class StripeService {
       yearlyPriceId: process.env.VITE_STRIPE_PLUS_YEARLY_PRICE_ID || '',
       successUrl: 'https://jayd.ai/stripe-checkout',
       cancelUrl: 'https://jayd.ai/',
-      redirectUrl: detectPlatform() !== 'unknown' ? window.location.href : undefined
     };
 
     // Validate configuration
@@ -84,7 +83,8 @@ export class StripeService {
         successUrl: await this.buildReturnUrl('success'),
         cancelUrl: await this.buildReturnUrl('cancel'),
         userId,
-        userEmail
+        userEmail,
+        redirectUrl: detectPlatform() !== 'unknown' ? window.location.href : undefined
       };
 
       const response = await apiClient.request('/stripe/create-checkout-session', {

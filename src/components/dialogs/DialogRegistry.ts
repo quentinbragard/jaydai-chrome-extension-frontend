@@ -28,9 +28,12 @@ export const DIALOG_TYPES = {
   PAYWALL: 'paywall'
   ,
   // Dialog for onboarding keyboard shortcuts
-  KEYBOARD_SHORTCUT: 'keyboardShortcut'
-  ,
-  INFORMATION: 'information'
+  KEYBOARD_SHORTCUT: 'keyboardShortcut',
+  INFORMATION: 'information',
+  KEYBOARD_SHORTCUT: 'keyboardShortcut',
+  // Dialog for sharing the extension
+  SHARE: 'share'
+
 } as const;
 
 // Export the dialog types
@@ -128,4 +131,6 @@ export interface DialogProps {
     actionText?: string;
     onAction?: () => void;
   };
+  [DIALOG_TYPES.SHARE]: Record<string, never>;
 }
+

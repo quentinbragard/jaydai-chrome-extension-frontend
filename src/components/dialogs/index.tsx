@@ -14,6 +14,7 @@ import { BrowseMoreFoldersDialog } from './prompts/BrowseMoreFoldersDialog';
 import { CreateBlockDialog } from './prompts/CreateBlockDialog';
 import { TutorialsDialog } from './tutorials/TutorialsDialog';
 import { TutorialVideoDialog } from './tutorials/TutorialVideoDialog';
+import { ShareDialog } from './share/ShareDialog';
 
 /**
  * Main dialog provider that includes all dialog components
@@ -53,6 +54,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <BrowseMoreFoldersDialog />
       <TutorialsDialog />
       <TutorialVideoDialog />
+      <ShareDialog />
       {/* Place the customize dialog last so it appears above others */}
       <CustomizeTemplateDialog />
       <CreateBlockDialog />
@@ -75,3 +77,4 @@ export { BaseDialog } from './BaseDialog';
 export { CreateBlockDialog } from './prompts/CreateBlockDialog';
 export { TutorialsDialog } from './tutorials/TutorialsDialog';
 export { TutorialVideoDialog } from './tutorials/TutorialVideoDialog';
+export { ShareDialog } from './share/ShareDialog';
