@@ -247,8 +247,12 @@ export const TemplateEditorDialog: React.FC<TemplateEditorDialogProps> = ({
             <div className="jd-animate-spin jd-h-4 jd-w-4 jd-border-2 jd-border-current jd-border-t-transparent jd-rounded-full jd-mr-2"></div>
             {getMessage('saving', undefined, 'Saving...')}
           </>
+        ) : mode === 'create' ? (
+          getMessage('createTemplate', undefined, 'Create Template')
+        ) : mode === 'edit' ? (
+          getMessage('editTemplate', undefined, 'Edit Template')
         ) : (
-          mode === 'create' ? getMessage('createTemplate', undefined, 'Create Template') : getMessage('useTemplate', undefined, 'Use Template')
+          getMessage('useTemplate', undefined, 'Use Template')
         )}
       </Button>
     </div>
