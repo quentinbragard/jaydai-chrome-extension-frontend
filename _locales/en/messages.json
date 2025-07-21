@@ -2385,5 +2385,13 @@
   "trialDisclaimer": {
     "message": "You won't be charged during your 3-day trial. Cancel anytime before it ends and pay nothing.",
     "description": "Subtext of the free trial banner"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium",
+    "description": "Title of the upgrade to premium section"
+  },
+  "unlockPremiumFeatures": {
+    "message": "Unlock all premium features and get the most out of Jaydai",
+    "description": "Description of the upgrade to premium section"
   }
 }

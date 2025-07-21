@@ -173,7 +173,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
         ) : showPricing ? (
           <>
             <div className="jd-text-center jd-mb-6">
-              <h3 className="jd-text-lg jd-font-semibold jd-mb-2">
+              <h3 className="jd-text-2xl jd-font-semibold jd-mb-2">
                 {getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium')}
               </h3>
               <p className="jd-text-muted-foreground">

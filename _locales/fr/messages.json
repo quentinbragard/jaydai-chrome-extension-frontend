@@ -2367,7 +2367,13 @@
   "trialDisclaimer": {
     "message": "Vous ne serez pas facturé pendant votre essai gratuit. Annulez à tout moment avant la fin de l'essai et ne payez rien.",
     "description": "Sous-texte de la bannière d'essai gratuit"
+  },
+  "upgradeToPremium": {
+    "message": "Passer à Premium",
+    "description": "Titre de la section de mise à niveau vers Premium"
+  },
+  "unlockPremiumFeatures": {
+    "message": "Débloquez toutes les fonctionnalités premium et profitez au maximum de Jaydai",
+    "description": "Description de la section de mise à niveau vers Premium"
   }
-
-
 }

@@ -142,24 +142,12 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
 
   return (
     <section className={cn(
-      "jd-relative jd-py-8 jd-px-4 jd-overflow-hidden",
+      "jd-relative jd-py-2 jd-px-4 jd-overflow-hidden",
       isDark ? "jd-bg-gray-900 jd-text-white" : "jd-bg-white jd-text-gray-900"
     )}>
       <div className="jd-w-full jd-max-w-2xl jd-mx-auto">
         {/* Header */}
         <div className="jd-flex jd-flex-col jd-items-center jd-gap-4 jd-mb-8">
-          <motion.h2 
-            className={cn(
-              "jd-text-3xl jd-font-bold jd-text-center",
-              isDark ? "jd-text-white" : "jd-text-gray-900"
-            )}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            {getMessage('choosePlan', undefined, 'Choose Your Plan')}
-          </motion.h2>
-          
           {/* Pricing Toggle */}
           <motion.div
             className={cn(
