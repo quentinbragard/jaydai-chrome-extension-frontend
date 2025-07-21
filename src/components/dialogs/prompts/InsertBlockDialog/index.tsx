@@ -98,8 +98,8 @@ const InlineBlockCreator: React.FC<{
     try {
       const blockData = {
         type,
-        content: content.trim(),
-        title: title.trim() || `${BLOCK_TYPE_LABELS[type]} Block`,
+        content: { en: content.trim() },
+        title: { en: title.trim() || `${BLOCK_TYPE_LABELS[type]} Block` },
       };
       
       const response = await blocksApi.createBlock(blockData);
