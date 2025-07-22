@@ -1,5 +1,5 @@
 // src/hooks/onboarding/useOnboardingChecklist.ts - Optimized Version
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { apiClient } from '@/services/api/ApiClient';
 import { toast } from 'sonner';
@@ -26,7 +26,7 @@ export function useOnboardingChecklist() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Optimized query with aggressive caching and background updates
-  const {
+  const { 
     data: checklist,
     isLoading,
     error,
@@ -60,6 +60,33 @@ export function useOnboardingChecklist() {
       }
     }
   );
+
+  // Update checklist when actions are completed elsewhere
+  useEffect(() => {
+    const handler = (event: CustomEvent) => {
+      const { action } = event.detail || {};
+      if (!action) return;
+
+      queryClient.setQueryData<OnboardingChecklistData>([
+        QUERY_KEYS.ONBOARDING_CHECKLIST
+      ], (prev) => {
+        if (!prev || (prev as any)[action]) return prev;
+        const completed = prev.completed_count + 1;
+        return {
+          ...prev,
+          [action]: true,
+          completed_count: completed,
+          progress: `${completed}/${prev.total_count}`,
+          is_complete: completed >= prev.total_count
+        };
+      });
+    };
+
+    document.addEventListener('jaydai:onboarding-action-completed', handler as EventListener);
+    return () => {
+      document.removeEventListener('jaydai:onboarding-action-completed', handler as EventListener);
+    };
+  }, [queryClient]);
 
   // Optimized mutation factory with optimistic updates
   const createOptimisticMutation = useCallback((
