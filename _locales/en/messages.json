@@ -2700,5 +2700,13 @@
   "redirectingToPortal": {
     "message": "Redirecting to portal...",
     "description": "Toast information before redirecting to portal"
+  },
+  "current_subscription": {
+    "message": "Current Subscription",
+    "description": "Title for the current subscription button"
+  },
+  "manage_billing": {
+    "message": "Manage Billing",
+    "description": "Text for the manage billing button"
   }
 }

@@ -434,11 +434,11 @@ export const ShareDialog: React.FC = () => {
                     onClick={handleInviteTeam}
                     disabled={isLoading}
                   >
-                    <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-primary/5 jd-to-secondary/5 jd-dark:jd-from-primary/10 jd-dark:jd-to-secondary/10 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-300" />
+                    <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-green-50 jd-to-emerald-50 jd-dark:jd-from-green-950/20 jd-dark:jd-to-emerald-950/20 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-300" />
                     <div className="jd-relative jd-flex jd-items-center jd-justify-center jd-gap-2">
-                      <Users className="jd-w-4 jd-h-4 jd-transition-transform group-hover:jd-scale-110" />
+                      <Users className="jd-w-4 jd-h-4 jd-transition-transform group-hover:jd-scale-110 group-hover:jd-rotate-12" />
                       {getMessage('inviteMyTeam', undefined, 'Invite my team members')}
-                      <Heart className="jd-w-4 jd-h-4 jd-opacity-70 jd-transition-all group-hover:jd-opacity-100 group-hover:jd-text-red-500" />
+                      <Heart className="jd-w-4 jd-h-4 jd-opacity-70 jd-transition-all group-hover:jd-opacity-100 group-hover:jd-text-yellow-500" />
                     </div>
                   </Button>
                   

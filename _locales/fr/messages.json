@@ -2715,5 +2715,13 @@
   "redirectingToPortal": {
     "message": "Redirection vers le portail...",
     "description": "Toast d'information avant la redirection"
+  },
+  "current_subscription": {
+    "message": "Abonnement actuel",
+    "description": "Titre du bouton pour l'abonnement actuel"
+  },
+  "manage_billing": {
+    "message": "Gérer la facturation",
+    "description": "Texte du bouton pour gérer la facturation"
   }
 }
