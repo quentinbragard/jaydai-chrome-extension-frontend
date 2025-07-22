@@ -6,6 +6,8 @@ import { DIALOG_TYPES } from '../DialogRegistry';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
+import { cn } from '@/core/utils/classNames';
 import { useAuth } from '@/state/AuthContext';
 import { 
   Share2, 
@@ -53,8 +55,8 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
     <div className="jd-fixed jd-inset-0 jd-bg-black/50 jd-flex jd-items-center jd-justify-center jd-z-[10050]">
       <div className="jd-bg-white jd-dark:jd-bg-gray-800 jd-rounded-xl jd-p-6 jd-max-w-md jd-mx-4 jd-shadow-lg">
         <div className="jd-flex jd-items-center jd-gap-3 jd-mb-4">
-          <div className="jd-p-2 jd-bg-blue-100 jd-dark:jd-bg-blue-900/30 jd-rounded-full">
-            <AlertTriangle className="jd-w-5 jd-h-5 jd-text-blue-600 jd-dark:jd-text-blue-400" />
+          <div className="jd-p-2 jd-bg-primary/20 jd-rounded-full">
+            <AlertTriangle className="jd-w-5 jd-h-5 jd-text-primary" />
           </div>
           <h3 className="jd-text-lg jd-font-semibold">
             {getMessage('confirmInvitation', undefined, 'Confirm Invitation')}
@@ -66,7 +68,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             {getMessage('confirmInvitationMessage', undefined, 'Are you sure you want to send an invitation to:')}
           </p>
           <div className="jd-p-3 jd-bg-gray-50 jd-dark:jd-bg-gray-700 jd-rounded-lg">
-            <p className="jd-font-medium jd-text-blue-600 jd-dark:jd-text-blue-400">{friendEmail}</p>
+            <p className="jd-font-medium jd-text-primary">{friendEmail}</p>
           </div>
           <p className="jd-text-xs jd-text-muted-foreground">
             {getMessage('invitationWillBeSent', undefined, `The invitation will be sent from ${senderName} introducing them to Jaydai.`)}
@@ -85,7 +87,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           <Button
             onClick={onConfirm}
             disabled={isLoading}
-            className="jd-px-4 jd-bg-blue-600 hover:jd-bg-blue-700"
+            className="jd-px-4 jd-bg-primary hover:jd-bg-primary/90"
           >
             {isLoading ? (
               <div className="jd-w-4 jd-h-4 jd-border-2 jd-border-white/30 jd-border-t-white jd-rounded-full jd-animate-spin" />
@@ -105,6 +107,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 export const ShareDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.SHARE);
   const { user } = useAuth();
+  const isDarkMode = useThemeDetector();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -305,23 +308,30 @@ export const ShareDialog: React.FC = () => {
       >
         <div className="jd-relative">
           {/* Animated background gradient */}
-          <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-br jd-from-blue-50 jd-via-purple-50 jd-to-pink-50 jd-dark:jd-from-blue-950/30 jd-dark:jd-via-purple-950/30 jd-dark:jd-to-pink-950/30 jd-opacity-50" />
+          <div
+            className={cn(
+              'jd-absolute jd-inset-0 jd-bg-gradient-to-br jd-opacity-50',
+              isDarkMode
+                ? 'jd-from-primary/20 jd-via-background/20 jd-to-secondary/20'
+                : 'jd-from-primary/10 jd-via-background jd-to-secondary/10'
+            )}
+          />
           
           {/* Floating particles effect */}
-          <div className="jd-absolute jd-top-2 jd-right-4 jd-w-2 jd-h-2 jd-bg-blue-400 jd-rounded-full jd-animate-pulse" />
-          <div className="jd-absolute jd-top-8 jd-left-8 jd-w-1 jd-h-1 jd-bg-purple-400 jd-rounded-full jd-animate-bounce" />
-          <div className="jd-absolute jd-bottom-16 jd-right-8 jd-w-1.5 jd-h-1.5 jd-bg-pink-400 jd-rounded-full jd-animate-pulse jd-delay-75" />
+          <div className="jd-absolute jd-top-2 jd-right-4 jd-w-2 jd-h-2 jd-bg-primary jd-rounded-full jd-animate-pulse" />
+          <div className="jd-absolute jd-top-8 jd-left-8 jd-w-1 jd-h-1 jd-bg-secondary jd-rounded-full jd-animate-bounce" />
+          <div className="jd-absolute jd-bottom-16 jd-right-8 jd-w-1.5 jd-h-1.5 jd-bg-primary/70 jd-rounded-full jd-animate-pulse jd-delay-75" />
 
           <div className="jd-relative jd-space-y-6 jd-p-2">
             {/* Header Section */}
             <div className="jd-text-center jd-space-y-2">
               <div className="jd-flex jd-justify-center jd-mb-3">
-                <div className="jd-relative jd-p-3 jd-bg-gradient-to-br jd-from-blue-500 jd-to-purple-600 jd-rounded-full jd-shadow-lg">
+                <div className="jd-relative jd-p-3 jd-bg-gradient-to-br jd-from-primary jd-to-secondary jd-rounded-full jd-shadow-lg">
                   <Share2 className="jd-w-6 jd-h-6 jd-text-white" />
                   <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-transparent jd-via-white/20 jd-to-transparent jd-rounded-full jd-animate-pulse" />
                 </div>
               </div>
-              <h2 className="jd-text-2xl jd-font-bold jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600 jd-bg-clip-text jd-text-transparent">
+              <h2 className="jd-text-2xl jd-font-bold jd-bg-gradient-to-r jd-from-primary jd-to-secondary jd-bg-clip-text jd-text-transparent">
                 {getMessage('shareJaydai', undefined, 'Share Jaydai')}
               </h2>
               <p className="jd-text-sm jd-text-muted-foreground jd-max-w-sm jd-mx-auto">
@@ -351,7 +361,7 @@ export const ShareDialog: React.FC = () => {
                 {/* Friend Invitation Section */}
                 <div className="jd-space-y-4">
                   <div className="jd-text-center">
-                    <div className="jd-inline-flex jd-items-center jd-gap-2 jd-px-3 jd-py-1 jd-bg-blue-100 jd-dark:jd-bg-blue-900/30 jd-rounded-full jd-text-sm jd-font-medium jd-text-blue-700 jd-dark:jd-text-blue-400 jd-mb-3">
+                  <div className="jd-inline-flex jd-items-center jd-gap-2 jd-px-3 jd-py-1 jd-bg-primary/20 jd-rounded-full jd-text-sm jd-font-medium jd-text-primary jd-mb-3">
                       <Mail className="jd-w-4 jd-h-4" />
                       {getMessage('inviteAFriend', undefined, 'Invite a friend')}
                     </div>
@@ -364,16 +374,16 @@ export const ShareDialog: React.FC = () => {
                         placeholder="friend@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="jd-pl-10 jd-pr-4 jd-py-3 jd-border-2 jd-border-gray-200 jd-dark:jd-border-gray-700 jd-rounded-xl jd-transition-all jd-duration-200 focus:jd-border-blue-400 focus:jd-ring-2 focus:jd-ring-blue-100 jd-dark:focus:jd-ring-blue-900"
+                        className="jd-pl-10 jd-pr-4 jd-py-3 jd-border-2 jd-border-gray-200 jd-dark:jd-border-gray-700 jd-rounded-xl jd-transition-all jd-duration-200 focus:jd-border-primary focus:jd-ring-2 focus:jd-ring-primary/20"
                         disabled={isLoading}
                       />
                       <Mail className="jd-absolute jd-left-3 jd-top-1/2 jd-transform -jd-translate-y-1/2 jd-w-4 jd-h-4 jd-text-gray-400" />
                     </div>
                     
-                    <Button 
+                    <Button
                       onClick={handleFriendInviteClick}
                       disabled={isLoading || !email.trim()}
-                      className="jd-w-full jd-relative jd-overflow-hidden jd-bg-gradient-to-r jd-from-blue-600 jd-to-purple-600 hover:jd-from-blue-700 hover:jd-to-purple-700 jd-text-white jd-border-none jd-py-3 jd-rounded-xl jd-transition-all jd-duration-300 jd-transform hover:jd-scale-[1.02] jd-shadow-lg hover:jd-shadow-xl jd-group"
+                      className="jd-w-full jd-relative jd-overflow-hidden jd-bg-gradient-to-r jd-from-primary jd-to-secondary hover:jd-from-primary/80 hover:jd-to-secondary/80 jd-text-white jd-border-none jd-py-3 jd-rounded-xl jd-transition-all jd-duration-300 jd-transform hover:jd-scale-[1.02] jd-shadow-lg hover:jd-shadow-xl jd-group"
                     >
                       <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-white/0 jd-via-white/20 jd-to-white/0 jd-translate-x-[-100%] group-hover:jd-translate-x-[100%] jd-transition-transform jd-duration-700" />
                       <div className="jd-relative jd-flex jd-items-center jd-justify-center jd-gap-2">
@@ -524,19 +534,19 @@ export const ShareDialog: React.FC = () => {
                 {/* Team & Referral Section */}
                 <div className="jd-space-y-3">
                   <div className="jd-text-center jd-mb-4">
-                    <div className="jd-inline-flex jd-items-center jd-gap-2 jd-px-3 jd-py-1 jd-bg-purple-100 jd-dark:jd-bg-purple-900/30 jd-rounded-full jd-text-sm jd-font-medium jd-text-purple-700 jd-dark:jd-text-purple-400">
+                    <div className="jd-inline-flex jd-items-center jd-gap-2 jd-px-3 jd-py-1 jd-bg-secondary/20 jd-rounded-full jd-text-sm jd-font-medium jd-text-secondary-foreground">
                       <Users className="jd-w-4 jd-h-4" />
                       {getMessage('growTogether', undefined, 'Grow together')}
                     </div>
                   </div>
 
-                  <Button 
-                    className="jd-w-full jd-group jd-relative jd-overflow-hidden jd-bg-white jd-dark:jd-bg-gray-800 jd-border-2 jd-border-gray-200 jd-dark:jd-border-gray-700 hover:jd-border-purple-300 jd-dark:hover:jd-border-purple-600 jd-text-gray-700 jd-dark:jd-text-gray-200 hover:jd-text-purple-700 jd-dark:hover:jd-text-purple-400 jd-py-3 jd-rounded-xl jd-transition-all jd-duration-300 hover:jd-shadow-lg"
-                    variant="outline" 
+                  <Button
+                    className="jd-w-full jd-group jd-relative jd-overflow-hidden jd-bg-white jd-dark:jd-bg-gray-800 jd-border-2 jd-border-gray-200 jd-dark:jd-border-gray-700 hover:jd-border-secondary/50 jd-dark:hover:jd-border-secondary/60 jd-text-gray-700 jd-dark:jd-text-gray-200 hover:jd-text-secondary jd-dark:hover:jd-text-secondary-foreground jd-py-3 jd-rounded-xl jd-transition-all jd-duration-300 hover:jd-shadow-lg"
+                    variant="outline"
                     onClick={handleInviteTeam}
                     disabled={isLoading}
                   >
-                    <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-purple-50 jd-to-blue-50 jd-dark:jd-from-purple-950/20 jd-dark:jd-to-blue-950/20 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-300" />
+                    <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-primary/5 jd-to-secondary/5 jd-dark:jd-from-primary/10 jd-dark:jd-to-secondary/10 jd-opacity-0 group-hover:jd-opacity-100 jd-transition-opacity jd-duration-300" />
                     <div className="jd-relative jd-flex jd-items-center jd-justify-center jd-gap-2">
                       <Users className="jd-w-4 jd-h-4 jd-transition-transform group-hover:jd-scale-110" />
                       {getMessage('inviteMyTeam', undefined, 'Invite my team members')}
