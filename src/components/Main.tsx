@@ -9,7 +9,6 @@ import { DialogProvider } from '@/components/dialogs/DialogProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ThemeProvider } from '@/components/theme-provider';
 import SubscriptionPrefetcher from '@/components/subscription/SubscriptionPrefetcher';
-import InitializationOverlay from '@/components/InitializationOverlay';
 import { initAmplitude, setUserProperties } from '@/utils/amplitude';
 import { authService } from '@/services/auth/AuthService';
 import { getCurrentLanguage } from '@/core/utils/i18n';
@@ -106,8 +105,6 @@ const Main: React.FC = () => {
               <DialogProvider>
                 {/* Prefetch subscription status */}
                 <SubscriptionPrefetcher />
-                {/* Initial data loader */}
-                <InitializationOverlay />
                 {/* UI Components */}
                 <MainButton />
                 {/* Toast notifications */}

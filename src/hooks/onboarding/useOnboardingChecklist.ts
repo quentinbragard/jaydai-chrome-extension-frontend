@@ -1,8 +1,9 @@
-// src/hooks/onboarding/useOnboardingChecklist.ts
-import { useState, useEffect, useCallback } from 'react';
+// src/hooks/onboarding/useOnboardingChecklist.ts - Optimized Version
+import { useState, useCallback, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { apiClient } from '@/services/api/ApiClient';
 import { toast } from 'sonner';
-import { getMessage } from '@/core/utils/i18n';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 interface OnboardingChecklistData {
   first_template_created: boolean;
@@ -16,106 +17,207 @@ interface OnboardingChecklistData {
   is_dismissed: boolean;
 }
 
-interface OnboardingApiResponse {
-  success: boolean;
-  data: OnboardingChecklistData;
-  message?: string;
-}
+// Cache key for onboarding data
+const ONBOARDING_CACHE_KEY = 'onboarding_checklist';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export function useOnboardingChecklist() {
-  const [checklist, setChecklist] = useState<OnboardingChecklistData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Fetch checklist data
-  const fetchChecklist = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await apiClient.request<OnboardingApiResponse>('/onboarding/checklist');
-      
-      if (response.success && response.data) {
-        setChecklist(response.data);
+  // Optimized query with aggressive caching and background updates
+  const {
+    data: checklist,
+    isLoading,
+    error,
+    refetch
+  } = useQuery<OnboardingChecklistData>(
+    [QUERY_KEYS.ONBOARDING_CHECKLIST],
+    async () => {
+      const response = await apiClient.request('/onboarding/checklist');
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to fetch onboarding status');
       }
-    } catch (error) {
-      console.error('Error fetching onboarding checklist:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Listen for onboarding updates from other parts of the app
-  useEffect(() => {
-    const handler = () => {
-      fetchChecklist();
-    };
-    document.addEventListener('jaydai:onboarding-action-completed', handler);
-    return () => {
-      document.removeEventListener('jaydai:onboarding-action-completed', handler);
-    };
-  }, [fetchChecklist]);
-
-  // Mark action as completed
-  const markActionCompleted = useCallback(async (action: string) => {
-    try {
-      setIsUpdating(true);
-      const response = await apiClient.request<OnboardingApiResponse>('/onboarding/mark-action', {
-        method: 'POST',
-        body: JSON.stringify({ action })
-      });
-      
-      if (response.success && response.data) {
-        setChecklist(response.data);
+      return response.data;
+    },
+    {
+      // Aggressive caching for better performance
+      staleTime: CACHE_DURATION,
+      cacheTime: CACHE_DURATION * 2,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      // Enable background updates only when component is visible
+      refetchInterval: 30000, // 30 seconds
+      refetchIntervalInBackground: false,
+      // Retry configuration
+      retry: 2,
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      // Keep previous data while refetching
+      keepPreviousData: true,
+      onError: (error) => {
+        console.error('Onboarding checklist error:', error);
       }
-    } catch (error) {
-      console.error('Error marking onboarding action:', error);
-    } finally {
-      setIsUpdating(false);
     }
-  }, []);
+  );
 
-  // Dismiss onboarding
-  const dismissOnboarding = useCallback(async () => {
-    try {
-      setIsUpdating(true);
-      const response = await apiClient.request<{
-        success: boolean;
-        message: string;
-      }>('/onboarding/dismiss', {
-        method: 'POST'
-      });
-      
-      if (response.success) {
-        setChecklist(prev => prev ? { ...prev, is_dismissed: true } : null);
-        toast.success(getMessage('onboardingDismissed', undefined, 'Onboarding dismissed'));
+  // Optimized mutation factory with optimistic updates
+  const createOptimisticMutation = useCallback((
+    action: string,
+    apiCall: () => Promise<any>
+  ) => {
+    return useMutation(
+      apiCall,
+      {
+        // Optimistic update for instant UI feedback
+        onMutate: async () => {
+          setIsUpdating(true);
+          
+          // Cancel outgoing refetches
+          await queryClient.cancelQueries([QUERY_KEYS.ONBOARDING_CHECKLIST]);
+          
+          // Snapshot previous value
+          const previousData = queryClient.getQueryData<OnboardingChecklistData>([QUERY_KEYS.ONBOARDING_CHECKLIST]);
+          
+          // Optimistically update cache
+          if (previousData) {
+            const newData = {
+              ...previousData,
+              [action]: true,
+              completed_count: previousData.completed_count + (previousData[action as keyof OnboardingChecklistData] ? 0 : 1),
+              is_complete: (previousData.completed_count + 1) >= previousData.total_count
+            };
+            newData.progress = `${newData.completed_count}/${newData.total_count}`;
+            
+            queryClient.setQueryData([QUERY_KEYS.ONBOARDING_CHECKLIST], newData);
+          }
+          
+          return { previousData };
+        },
+        onError: (error, variables, context) => {
+          // Rollback on error
+          if (context?.previousData) {
+            queryClient.setQueryData([QUERY_KEYS.ONBOARDING_CHECKLIST], context.previousData);
+          }
+          console.error(`Error marking ${action}:`, error);
+          toast.error(`Failed to update progress: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        },
+        onSuccess: () => {
+          // Invalidate and refetch in background
+          queryClient.invalidateQueries([QUERY_KEYS.ONBOARDING_CHECKLIST]);
+        },
+        onSettled: () => {
+          setIsUpdating(false);
+        }
       }
-    } catch (error) {
-      console.error('Error dismissing onboarding:', error);
-      toast.error(getMessage('errorDismissingOnboarding', undefined, 'Failed to dismiss onboarding'));
-    } finally {
-      setIsUpdating(false);
+    );
+  }, [queryClient]);
+
+  // Individual action mutations with optimistic updates
+  const markTemplateCreatedMutation = createOptimisticMutation(
+    'first_template_created',
+    () => apiClient.request('/onboarding/mark-action', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'first_template_created' })
+    })
+  );
+
+  const markTemplateUsedMutation = createOptimisticMutation(
+    'first_template_used',
+    () => apiClient.request('/onboarding/mark-action', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'first_template_used' })
+    })
+  );
+
+  const markBlockCreatedMutation = createOptimisticMutation(
+    'first_block_created',
+    () => apiClient.request('/onboarding/mark-action', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'first_block_created' })
+    })
+  );
+
+  const markKeyboardShortcutUsedMutation = createOptimisticMutation(
+    'keyboard_shortcut_used',
+    () => apiClient.request('/onboarding/mark-action', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'keyboard_shortcut_used' })
+    })
+  );
+
+  // Dismiss mutation with optimistic update
+  const dismissMutation = useMutation(
+    () => apiClient.request('/onboarding/dismiss', {
+      method: 'POST'
+    }),
+    {
+      onMutate: async () => {
+        setIsUpdating(true);
+        await queryClient.cancelQueries([QUERY_KEYS.ONBOARDING_CHECKLIST]);
+        
+        const previousData = queryClient.getQueryData<OnboardingChecklistData>([QUERY_KEYS.ONBOARDING_CHECKLIST]);
+        
+        if (previousData) {
+          queryClient.setQueryData([QUERY_KEYS.ONBOARDING_CHECKLIST], {
+            ...previousData,
+            is_dismissed: true
+          });
+        }
+        
+        return { previousData };
+      },
+      onError: (error, variables, context) => {
+        if (context?.previousData) {
+          queryClient.setQueryData([QUERY_KEYS.ONBOARDING_CHECKLIST], context.previousData);
+        }
+        console.error('Error dismissing onboarding:', error);
+        toast.error(`Failed to dismiss onboarding: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      },
+      onSuccess: () => {
+        toast.success('Onboarding dismissed');
+        queryClient.invalidateQueries([QUERY_KEYS.ONBOARDING_CHECKLIST]);
+      },
+      onSettled: () => {
+        setIsUpdating(false);
+      }
     }
-  }, []);
+  );
 
-  // Initial fetch
-  useEffect(() => {
-    fetchChecklist();
-  }, [fetchChecklist]);
+  // Memoized action handlers to prevent unnecessary re-renders
+  const actionHandlers = useMemo(() => ({
+    markTemplateCreated: () => markTemplateCreatedMutation.mutate(),
+    markTemplateUsed: () => markTemplateUsedMutation.mutate(),
+    markBlockCreated: () => markBlockCreatedMutation.mutate(),
+    markKeyboardShortcutUsed: () => markKeyboardShortcutUsedMutation.mutate(),
+    dismissOnboarding: () => dismissMutation.mutate()
+  }), [
+    markTemplateCreatedMutation,
+    markTemplateUsedMutation,
+    markBlockCreatedMutation,
+    markKeyboardShortcutUsedMutation,
+    dismissMutation
+  ]);
 
-  // Public methods to manually mark actions (for when actions happen in other parts of the app)
-  const markTemplateCreated = useCallback(() => markActionCompleted('first_template_created'), [markActionCompleted]);
-  const markTemplateUsed = useCallback(() => markActionCompleted('first_template_used'), [markActionCompleted]);
-  const markBlockCreated = useCallback(() => markActionCompleted('first_block_created'), [markActionCompleted]);
-  const markKeyboardShortcutUsed = useCallback(() => markActionCompleted('keyboard_shortcut_used'), [markActionCompleted]);
+  // Memoized derived state
+  const derivedState = useMemo(() => ({
+    shouldShow: checklist && !checklist.is_dismissed && !checklist.is_complete,
+    progressPercentage: checklist ? (checklist.completed_count / checklist.total_count) * 100 : 0,
+    remainingActions: checklist ? checklist.total_count - checklist.completed_count : 0
+  }), [checklist]);
 
   return {
     checklist,
     isLoading,
-    isUpdating,
-    fetchChecklist,
-    dismissOnboarding,
-    markTemplateCreated,
-    markTemplateUsed,
-    markBlockCreated,
-    markKeyboardShortcutUsed
+    isUpdating: isUpdating || 
+      markTemplateCreatedMutation.isLoading || 
+      markTemplateUsedMutation.isLoading || 
+      markBlockCreatedMutation.isLoading || 
+      markKeyboardShortcutUsedMutation.isLoading || 
+      dismissMutation.isLoading,
+    error,
+    refetch,
+    ...actionHandlers,
+    ...derivedState
   };
 }

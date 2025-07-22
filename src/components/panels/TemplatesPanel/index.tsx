@@ -44,8 +44,6 @@ import { getFolderTitle } from '@/utils/prompts/folderUtils';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 
-// Import the optimized search hook
-
 interface TemplatesPanelProps {
   showBackButton?: boolean;
   onBack?: () => void;
@@ -58,7 +56,7 @@ interface SearchFilters {
 }
 
 /**
- * Enhanced Templates Panel with optimized search functionality
+ * Enhanced Templates Panel with optimized search functionality and performance improvements
  */
 const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   showBackButton,
@@ -71,7 +69,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     source: 'all'
   });
 
-  // Enhanced pinning
+  // Enhanced pinning data
   const {
     allPinnedFolderIds,
     allPinnedFolders,
@@ -79,6 +77,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     pinnedFolders: originalPinnedFolders
   } = useAllPinnedFolders();
   
+  // Core data hooks
   const {
     data: userFolders = [],
     isLoading: loadingUser,
@@ -104,7 +103,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   const { data: organizations = [] } = useOrganizations();
 
-  // Onboarding hook
+  // OPTIMIZED onboarding hook with caching and background updates
   const {
     checklist,
     isLoading: onboardingLoading,
@@ -112,7 +111,8 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     dismissOnboarding,
     markTemplateCreated,
     markTemplateUsed,
-    markKeyboardShortcutUsed
+    markKeyboardShortcutUsed,
+    shouldShow: shouldShowOnboarding
   } = useOnboardingChecklist();
 
   // Optimized search hook
@@ -208,15 +208,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     [navigation.isAtRoot, searchQuery, userTemplateCount]
   );
 
-  // Check if we should show onboarding
-  const shouldShowOnboarding = useMemo(() => {
-    if (onboardingLoading || !checklist) return false;
-
-    if (checklist.is_dismissed || checklist.is_complete) return false;
-
-    // Don't show the checklist while searching
-    return !searchQuery.trim();
-  }, [onboardingLoading, checklist, searchQuery]);
+  // OPTIMIZED check for showing onboarding with early returns
+  const showOnboardingChecklist = useMemo(() => {
+    // Fast early returns for performance
+    if (onboardingLoading) return false;
+    if (!checklist) return false;
+    if (searchQuery.trim()) return false; // Don't show while searching
+    
+    return shouldShowOnboarding;
+  }, [onboardingLoading, checklist, searchQuery, shouldShowOnboarding]);
 
   // Enhanced pinned folders filtering that includes nested pinned folders
   const filteredPinned = useMemo(() => {
@@ -321,41 +321,39 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   const { openConfirmation, openFolderManager, openCreateFolder, openBrowseMoreFolders, openCreateBlock, openKeyboardShortcut, openShareDialog } = useDialogActions();
   const { createBlock } = useBlockActions();
 
-  // Onboarding action handlers
-  const handleCreateTemplate = useCallback(() => {
-    createTemplate();
-    // The markTemplateCreated will be called when template is successfully created
-  }, [createTemplate]);
-
-  const handleUseTemplate = useCallback(async () => {
-    try {
-      const response = await getWhichTemplate();
-
-      if (response.success && response.data) {
-        await useTemplate(response.data as Template);
-        // The markTemplateUsed will be called when template is successfully used
-      } else {
-        toast.error(
-          getMessage('noTemplateToUse', undefined, 'No template available to use. Create one first!')
-        );
+  // MEMOIZED onboarding handlers to prevent re-renders
+  const onboardingHandlers = useMemo(() => ({
+    handleCreateTemplate: () => {
+      createTemplate();
+      // markTemplateCreated will be called automatically via optimistic updates
+    },
+    
+    handleUseTemplate: async () => {
+      try {
+        const response = await getWhichTemplate();
+        if (response.success && response.data) {
+          await useTemplate(response.data as Template);
+          // markTemplateUsed will be called automatically via optimistic updates
+        } else {
+          toast.error(getMessage('noTemplateToUse', undefined, 'No template available to use. Create one first!'));
+        }
+      } catch (error) {
+        console.error('Error using template:', error);
+        toast.error(getMessage('errorUsingTemplate', undefined, 'Failed to use template'));
       }
-    } catch (error) {
-      console.error('Error using template:', error);
-      toast.error(getMessage('errorUsingTemplate', undefined, 'Failed to use template'));
+    },
+
+    handleCreateBlock: () => {
+      createBlock(undefined, 'OnboardingChecklist');
+      // markBlockCreated will be called automatically via optimistic updates
+    },
+
+    handleShowKeyboardShortcut: () => {
+      openKeyboardShortcut({ 
+        onShortcutUsed: markKeyboardShortcutUsed 
+      });
     }
-  }, [useTemplate]);
-
-  const handleCreateBlock = useCallback(() => {
-    createBlock(undefined, 'OnboardingChecklist');
-  }, [createBlock]);
-
-  const handleKeyboardShortcutUsed = useCallback(() => {
-    markKeyboardShortcutUsed();
-  }, [markKeyboardShortcutUsed]);
-
-  const handleShowKeyboardShortcut = useCallback(() => {
-    openKeyboardShortcut({ onShortcutUsed: handleKeyboardShortcutUsed });
-  }, [openKeyboardShortcut, handleKeyboardShortcutUsed]);
+  }), [createTemplate, useTemplate, createBlock, openKeyboardShortcut, markKeyboardShortcutUsed]);
 
   // Enhanced pin handler that works with the navigation system
   const handleTogglePin = useCallback(
@@ -450,6 +448,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   // Loading state
   const isLoading = loadingUser || loadingOrganization || loadingUnorganized;
 
+  // PERFORMANCE: Early loading state return
   if (isLoading) {
     return (
       <BasePanel
@@ -492,15 +491,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           onFiltersChange={setSearchFilters}
         />
 
-        {/* Show onboarding checklist if conditions are met */}
-        {shouldShowOnboarding && checklist && (
+        {/* OPTIMIZED onboarding checklist with conditional rendering */}
+        {showOnboardingChecklist && (
           <OnboardingChecklist
             checklist={checklist}
-            onCreateTemplate={handleCreateTemplate}
-            onUseTemplate={handleUseTemplate}
+            onCreateTemplate={onboardingHandlers.handleCreateTemplate}
+            onUseTemplate={onboardingHandlers.handleUseTemplate}
             onSelectTemplate={useTemplate}
-            onCreateBlock={handleCreateBlock}
-            onShowKeyboardShortcut={handleShowKeyboardShortcut}
+            onCreateBlock={onboardingHandlers.handleCreateBlock}
+            onShowKeyboardShortcut={onboardingHandlers.handleShowKeyboardShortcut}
             onDismiss={dismissOnboarding}
             isLoading={onboardingUpdating}
           />
@@ -509,7 +508,24 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         {/* Main Navigation Section */}
         <div className="jd-space-y-1">
           <div>
-            {/* Show different header based on search state */}
+            {/* 
+              This section shows different headers based on search state:
+              
+              1. SEARCH STATE (when searchQuery.trim() is truthy):
+                 - Shows "Search Results" header with a clear button
+                 - The FolderOpen icon indicates we're viewing search results
+                 - Clear button allows users to quickly exit search mode
+                 
+              2. NORMAL NAVIGATION STATE (when no search):
+                 - Shows the UnifiedNavigation component
+                 - Provides breadcrumb navigation through folder hierarchy
+                 - Shows current folder title and navigation path
+                 - Includes action buttons for creating templates/folders/blocks
+                 
+              This conditional rendering ensures the UI adapts to user context:
+              - When searching: Focus on search results and quick exit
+              - When browsing: Full navigation capabilities and creation tools
+            */}
             {searchQuery.trim() ? (
               <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
                 <div className="jd-flex jd-items-center">
@@ -542,9 +558,33 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               />
             )}
 
-            {/* Display Items */}
+            {/* 
+              Display Items Section:
+              
+              This handles three main scenarios:
+              
+              1. EMPTY STATE (no items and no onboarding):
+                 - Shows contextual empty messages based on current state
+                 - Different messages for: search with no results, root with no templates, empty folder
+                 
+              2. VIRTUALIZED RENDERING (>30 items, not searching):
+                 - Uses VirtualizedList for performance with large datasets
+                 - Only renders visible items to maintain smooth scrolling
+                 - Each item gets proper key and type handling
+                 
+              3. NORMAL RENDERING (≤30 items or searching):
+                 - Standard React rendering for smaller lists
+                 - Better for search results where virtualization might be overkill
+                 - Maintains full functionality for all item types
+              
+              Items can be either folders or templates, each with their own:
+              - Rendering component (FolderItem vs TemplateItem)
+              - Action handlers (edit, delete, pin, navigate)
+              - Access control (based on user permissions)
+              - Type determination (user vs organization vs company)
+            */}
             <div className="jd-space-y-1 jd-px-2 jd-max-h-96 jd-overflow-y-auto">
-              {displayItems.items.length === 0 && !shouldShowOnboarding ? (
+              {displayItems.items.length === 0 && !showOnboardingChecklist ? (
                 <EmptyMessage>
                   {searchQuery.trim()
                     ? getMessage(
@@ -673,7 +713,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <Button
                 className="jd-w-full"
                 variant="secondary"
-                onClick={handleCreateTemplate}
+                onClick={onboardingHandlers.handleCreateTemplate}
               >
                 {getMessage('createTemplate', undefined, 'Create Template')}
               </Button>
