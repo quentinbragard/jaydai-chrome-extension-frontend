@@ -1,6 +1,6 @@
 // src/components/prompts/folders/FolderItem.tsx - Enhanced to pass organization context to templates
 import React, { useState, useCallback, useMemo } from 'react';
-import { FolderOpen, ChevronRight, ChevronDown, Edit, Trash2, PlusCircle, Plus, ArrowLeft, Home } from 'lucide-react';
+import { FolderOpen, ChevronRight, ChevronDown, Edit, Trash2, PlusCircle, Plus, ArrowLeft, Home, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PinButton } from '@/components/prompts/common/PinButton';
@@ -107,10 +107,15 @@ export const FolderItem: React.FC<FolderItemProps> = ({
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
 
+  // Calculate pinned state based on pinnedFolderIds
+  const isPinned = useMemo(() => {
+    return pinnedFolderIds.includes(folder.id);
+  }, [pinnedFolderIds, folder.id]);
+
   const { data: fetchedTemplates = [], isLoading: loadingTemplates } =
     useTemplatesByFolder(
       folder.id,
-      expanded && (!folder.templates || folder.templates.length === 0)
+      (expanded && (!folder.templates || folder.templates.length === 0)) || isPinned
     );
 
   // Get organization data for display
@@ -124,11 +129,6 @@ export const FolderItem: React.FC<FolderItemProps> = ({
       : fetchedTemplates;
   const totalItems = subfolders.length + templates.length;
   const isAtRoot = navigationPath.length === 0;
-
-  // Calculate pinned state based on pinnedFolderIds
-  const isPinned = useMemo(() => {
-    return pinnedFolderIds.includes(folder.id);
-  }, [pinnedFolderIds, folder.id]);
 
   // Determine if this folder shows organization image
   const folderShowsOrgImage = useMemo(() => {
@@ -268,7 +268,9 @@ export const FolderItem: React.FC<FolderItemProps> = ({
         {enableNavigation ? (
           <div className="jd-h-4 jd-flex-shrink-0" />
         ) : totalItems > 0 || onToggleExpand || isInGlobalSearch ? (
-          expanded ? (
+          loadingTemplates && isPinned && !expanded ? (
+            <Loader2 className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0 jd-animate-spin" />
+          ) : expanded ? (
             <ChevronDown className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" />
           ) : (
             <ChevronRight className="jd-h-4 jd-w-4 jd-mr-1 jd-flex-shrink-0" />
