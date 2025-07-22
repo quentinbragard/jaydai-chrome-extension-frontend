@@ -2585,6 +2585,18 @@
     "message": "Warning: Without data collection, you won't be able to see your AI statistics and usage analytics. Are you sure you want to continue?",
     "description": "Warning message for the data collection disable dialog"
   },
+  "enable_data_collection": {
+    "message": "Enable Data Collection",
+    "description": "Title for the data collection enable dialog"
+  },
+  "enable_data_collection_desc": {
+    "message": "Data collection must be enabled to view your AI statistics. Do you want to enable it now?",
+    "description": "Description for the data collection enable dialog"
+  },
+  "enable": {
+    "message": "Enable",
+    "description": "Text for the enable button"
+  },
   "disable": {
     "message": "Disable",
     "description": "Text for the disable button"

@@ -2572,6 +2572,18 @@
     "message": "Avertissement : Sans collecte de données, vous ne pourrez pas voir vos statistiques d'utilisation et vos analyses. Êtes-vous sûr de vouloir continuer ?",
     "description": "Avertissement pour la désactivation de la collecte de données"
   },
+  "enable_data_collection": {
+    "message": "Activer la collecte de données",
+    "description": "Titre de la fenêtre d'activation de la collecte de données"
+  },
+  "enable_data_collection_desc": {
+    "message": "La collecte de données doit être activée pour afficher vos statistiques d'IA. Voulez-vous l'activer maintenant ?",
+    "description": "Description de la fenêtre d'activation de la collecte de données"
+  },
+  "enable": {
+    "message": "Activer",
+    "description": "Texte du bouton pour activer"
+  },
   "disable": {
     "message": "Désactiver",
     "description": "Texte du bouton pour désactiver la collecte de données"
