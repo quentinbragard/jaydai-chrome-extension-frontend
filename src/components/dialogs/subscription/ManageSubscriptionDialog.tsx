@@ -203,6 +203,12 @@ export const ManageSubscriptionDialog: React.FC = () => {
               </>
             ) : (
               <>
+                <div className="jd-flex jd-justify-center">
+                <Button variant="secondary" onClick={() => openDialog(DIALOG_TYPES.SHARE)}>
+                  <Sparkles className="jd-w-4 jd-h-4 jd-mr-2" />
+                  {getMessage('get_discount_promo', undefined, 'Invite a friend and get -10%')}
+                </Button>
+                </div>
                 <div className="jd-text-center jd-mb-6">
                   <h3 className="jd-text-2xl jd-font-semibold jd-mb-2">
                     {getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium')}
@@ -220,10 +226,6 @@ export const ManageSubscriptionDialog: React.FC = () => {
                 />
 
                 <div className="jd-flex jd-flex-col jd-items-center jd-gap-3 jd-pt-4">
-                  <Button variant="secondary" onClick={() => openDialog(DIALOG_TYPES.REFERRAL_SHARE)}>
-                    <Sparkles className="jd-w-4 jd-h-4 jd-mr-2" />
-                    {getMessage('get_discount_promo', undefined, 'Invite a friend and get -10%')}
-                  </Button>
                   <Button
                     variant="outline"
                     onClick={() => setShowPricing(false)}
