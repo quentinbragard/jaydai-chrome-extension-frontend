@@ -211,10 +211,10 @@ export const ManageSubscriptionDialog: React.FC = () => {
                 </div>
                 <div className="jd-text-center jd-mb-6">
                   <h3 className="jd-text-2xl jd-font-semibold jd-mb-2">
-                    {getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium')}
+                    {getMessage('upgradeToPremium', undefined, 'Upgrade to Premium')}
                   </h3>
                   <p className="jd-text-muted-foreground">
-                    {getMessage('unlock_premium_features', undefined, 'Unlock all premium features and get the most out of Jaydai')}
+                    {getMessage('unlockPremiumFeatures', undefined, 'Unlock all premium features and get the most out of Jaydai')}
                   </p>
                 </div>
 
@@ -231,7 +231,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
                     onClick={() => setShowPricing(false)}
                     disabled={loading || isLoading}
                   >
-                    {getMessage('back_to_subscription', undefined, 'Back to Subscription')}
+                    {getMessage('backToSubscription', undefined, 'Back to Subscription')}
                   </Button>
                 </div>
               </>

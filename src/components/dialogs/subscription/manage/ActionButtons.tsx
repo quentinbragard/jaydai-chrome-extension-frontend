@@ -87,7 +87,7 @@ export const ActionButtons: React.FC<Props> = ({
           className="jd-w-full jd-flex jd-items-center jd-justify-center jd-space-x-2 jd-bg-green-600 hover:jd-bg-green-700"
         >
           <Crown className="jd-w-4 jd-h-4" />
-          <span>{getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium')}</span>
+          <span>{getMessage('upgradeToPremium', undefined, 'Upgrade to Premium')}</span>
         </Button>
       )}
     </div>

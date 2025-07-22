@@ -193,7 +193,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       return getMessage('manage_subscription', undefined, 'Manage Subscription');
     }
     
-    return getMessage('upgrade_to_premium', undefined, 'Upgrade to Premium');
+    return getMessage('upgradeToPremium', undefined, 'Upgrade to Premium');
   };
 
   const getSubscriptionStatus = () => {
@@ -236,7 +236,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     ) : (
       <div className="jd-flex jd-items-center jd-space-x-1 jd-animate-bounce jd-mt-1">
         <Badge className="jd-bg-green-500 jd-text-white !jd-text-xs !jd-font-medium">
-          {getMessage('free_trial', undefined, 'Free Trial')}
+          {getMessage('freeTrial', undefined, 'Free Trial')}
         </Badge>
       </div>
     ),
