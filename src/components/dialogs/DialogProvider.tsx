@@ -19,6 +19,7 @@ import { PaywallDialog } from './subscription/PaywallDialog';
 import { KeyboardShortcutDialog } from './onboarding/KeyboardShortcutDialog';
 import { InformationDialog } from './onboarding/InformationDialog';
 import { ShareDialog } from './share/ShareDialog';
+import { ReferralShareDialog } from './share/ReferralShareDialog';
 
 
 /**
@@ -76,6 +77,7 @@ export const DialogProvider: React.FC<{children: React.ReactNode}> = ({ children
       <TutorialVideoDialog />
       <PaywallDialog />
       <ManageSubscriptionDialog />
+      <ReferralShareDialog />
       <InformationDialog />
       <KeyboardShortcutDialog />
       <ShareDialog />
