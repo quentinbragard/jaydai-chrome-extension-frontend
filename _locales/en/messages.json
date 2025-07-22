@@ -1990,7 +1990,7 @@
   "type": { "message": "Type", "description": "Label for block type field" },
 
   "searchTemplatesAndFolders": {
-    "message": "Search templates and folders...",
+    "message": "Search...",
     "description": "Placeholder for template and folder search"
   },
   "searchResults": {

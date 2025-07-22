@@ -146,7 +146,7 @@ export function OptimizedFolderSearch({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="jd-h-7 jd-w-7 jd-p-0 jd-opacity-70 hover:jd-opacity-100"
+                  className="jd-p-0 jd-opacity-70 hover:jd-opacity-100"
                   title="Filter search results"
                 >
                   <Filter className="jd-h-3 jd-w-3" />

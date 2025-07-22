@@ -1972,7 +1972,7 @@
   "type": { "message": "Type", "description": "Libellé du type de bloc" },
 
   "searchTemplatesAndFolders": {
-    "message": "Rechercher des templates et des dossiers...",
+    "message": "Rechercher...",
     "description": "Placeholder pour la recherche de templates et dossiers"
   },
   "searchResults": {

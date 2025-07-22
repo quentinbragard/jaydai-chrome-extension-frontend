@@ -798,7 +798,7 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         </div>
         <div className="jd-px-2 jd-mt-2">
           <Button className="jd-w-full" variant="secondary" onClick={openShareDialog}>
-            Share Jaydai
+            {getMessage('shareJaydai', undefined, 'Share Jaydai')}
           </Button>
         </div>
         </div>
