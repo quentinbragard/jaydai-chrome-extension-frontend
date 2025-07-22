@@ -13,6 +13,8 @@ import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { userApi } from '@/services/api/UserApi';
 import { useSubscriptionStatus } from '@/hooks/subscription/useSubscriptionStatus';
+import { useQueryClient } from 'react-query';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 interface SettingsPanelProps {
   showBackButton?: boolean;
@@ -36,6 +38,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     loading: subscriptionLoading,
     refreshStatus,
   } = useSubscriptionStatus();
+  const queryClient = useQueryClient();
 
   console.log('subscription --->', subscription);
   
@@ -91,8 +94,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       if (response.success) {
         setDataCollection(enabled);
         chrome.storage.local.set({ data_collection: enabled });
+        queryClient.setQueryData([QUERY_KEYS.USER_METADATA], (old: any) => ({
+          ...(old || {}),
+          data_collection: enabled,
+        }));
         toast.success(
-          enabled 
+          enabled
             ? getMessage('data_collection_enabled', undefined, 'Data collection enabled')
             : getMessage('data_collection_disabled', undefined, 'Data collection disabled')
         );

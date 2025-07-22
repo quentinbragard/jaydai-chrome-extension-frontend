@@ -9,11 +9,6 @@ import BasePanel from '../BasePanel';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
-import { useUserMetadata } from '@/hooks/prompts/queries/user';
-import { userApi } from '@/services/api/UserApi';
-import { QUERY_KEYS } from '@/constants/queryKeys';
-import { useQueryClient } from 'react-query';
-import { toast } from 'sonner';
 
 // Define a type for our menu items
 type MenuItem = {
@@ -67,46 +62,16 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
   notificationCount,
 }) => {
   const { pushPanel } = usePanelNavigation();
-  const { openInsertBlock, openTutorials, openConfirmation } = useDialogActions();
-  const { data: userMetadata } = useUserMetadata();
-  const queryClient = useQueryClient();
+  const { openInsertBlock, openTutorials } = useDialogActions();
 
   // Navigate to a specific panel
   const navigateToPanel = (panelType: 'templates' | 'notifications' | 'stats' | 'settings') => {
     pushPanel({ type: panelType });
   };
 
-  const enableDataCollection = async () => {
-    try {
-      const response = await userApi.updateDataCollection(true);
-      if (response.success) {
-        toast.success(getMessage('data_collection_enabled', undefined, 'Data collection enabled'));
-        queryClient.setQueryData([QUERY_KEYS.USER_METADATA], (old: any) => ({
-          ...(old || {}),
-          data_collection: true,
-        }));
-        navigateToPanel('stats');
-      } else {
-        throw new Error(response.message || 'Failed to update preference');
-      }
-    } catch (error) {
-      console.error('Error enabling data collection:', error);
-      toast.error(getMessage('error_updating_preference', undefined, 'Failed to update preference'));
-    }
-  };
 
   const handleStatsClick = () => {
-    if (userMetadata?.data_collection === false) {
-      openConfirmation({
-        title: getMessage('enable_data_collection', undefined, 'Enable Data Collection'),
-        description: getMessage('enable_data_collection_desc', undefined, 'Data collection must be enabled to view your AI statistics. Do you want to enable it now?'),
-        confirmText: getMessage('enable', undefined, 'Enable'),
-        cancelText: getMessage('cancel', undefined, 'Cancel'),
-        onConfirm: enableDataCollection,
-      });
-    } else {
-      navigateToPanel('stats');
-    }
+    navigateToPanel('stats');
   };
 
   // Define menu items for better maintainability
