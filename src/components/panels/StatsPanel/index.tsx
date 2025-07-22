@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { BarChart2, Zap, MessageCircle, Award, Activity, ExternalLink, Info } from "lucide-react";
+import { BarChart2, Zap, MessageCircle, Award, Activity, ExternalLink, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useService } from '@/core/hooks/useService';
 import { Stats, StatsService } from '@/services/analytics/StatsService';
@@ -10,12 +10,11 @@ import BasePanel from '../BasePanel';
 import ErrorBoundary from '../../common/ErrorBoundary';
 import { getMessage } from '@/core/utils/i18n';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { userApi } from '@/services/api';
+import { useQueryClient } from 'react-query';
+import { QUERY_KEYS } from '@/constants/queryKeys';
+import { toast } from 'sonner';
 
 interface StatsPanelProps {
   showBackButton?: boolean;
@@ -45,6 +44,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
     totalMessages: 0,
     avgMessagesPerChat: 0,
     messagesPerDay: {},
+    chatsPerDay: {},
     tokenUsage: {
       recent: 0,
       recentInput: 0,
@@ -65,10 +65,48 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
     },
     efficiency: 0
   });
+  const [dataCollectionEnabled, setDataCollectionEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+
+  const enableDataCollection = async () => {
+    try {
+      const response = await userApi.updateDataCollection(true);
+      if (response.success) {
+        toast.success(getMessage('data_collection_enabled', undefined, 'Data collection enabled'));
+        queryClient.setQueryData([QUERY_KEYS.USER_METADATA], (old: { data_collection?: boolean } | undefined) => ({
+          ...(old || {}),
+          data_collection: true,
+        }));
+        setDataCollectionEnabled(true);
+      } else {
+        throw new Error(response.message || 'Failed to update preference');
+      }
+    } catch (error) {
+      console.error('Error enabling data collection:', error);
+      toast.error(getMessage('error_updating_preference', undefined, 'Failed to update preference'));
+    }
+  };
+
+  useEffect(() => {
+    const loadUserMetadata = async () => {
+      try {
+        const userMetadata = await userApi.getUserMetadata();
+        setDataCollectionEnabled(userMetadata.data_collection);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading user metadata:', error);
+        setLoading(false);
+      }
+    };
+    
+    loadUserMetadata();
+  }, []);
 
   // Get stats on mount and subscribe to updates
   useEffect(() => {
-    if (statsService) {
+    if (statsService && dataCollectionEnabled) {
       // Initial stats
       const initialStats = statsService.getStats();
       setStats(initialStats);
@@ -84,7 +122,8 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
       // Cleanup subscription on unmount
       return unsubscribe;
     }
-  }, [statsService]);
+  }, [statsService, dataCollectionEnabled]);
+
 
   // Format helpers
   const formatEnergy = (value: number) => value.toFixed(3);
@@ -118,7 +157,27 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
           className={`jd-stats-panel jd-w-80 ${className || ''}`} // Panel width is w-80 (320px)
           maxHeight={maxHeight}
         >
-          {stats.totalChats === 0 && stats.totalMessages === 0 ? (
+          {loading ? (
+            <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-p-8 jd-text-center">
+              <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full jd-mb-3"></div>
+              <p className="jd-text-muted-foreground jd-font-medium">Loading...</p>
+            </div>
+          ) : !dataCollectionEnabled ? (
+            <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-p-8 jd-text-center">
+              <BarChart2 className="jd-h-10 jd-w-10 jd-text-muted-foreground jd-mb-3 jd-opacity-30" />
+              <p className="jd-text-muted-foreground jd-font-medium">Data Collection Required</p>
+              <p className="jd-text-xs jd-text-muted-foreground jd-mt-1 jd-mb-4">
+                {getMessage('enableDataCollectionForStats', undefined, 'Enable data collection to view your AI usage statistics and insights')}
+              </p>
+              <Button 
+                onClick={enableDataCollection}
+                className="jd-bg-primary jd-text-primary-foreground hover:jd-bg-primary/90"
+              >
+                <Settings className="jd-h-4 jd-w-4 jd-mr-2" />
+                {getMessage('enableDataCollection', undefined, 'Enable Data Collection')}
+              </Button>
+            </div>
+          ) : stats.totalChats === 0 && stats.totalMessages === 0 ? (
             <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-p-8 jd-text-center">
               <BarChart2 className="jd-h-10 jd-w-10 jd-text-muted-foreground jd-mb-3 jd-opacity-30" />
               <p className="jd-text-muted-foreground jd-font-medium">No stats available yet</p>
