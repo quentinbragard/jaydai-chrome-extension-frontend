@@ -1,6 +1,6 @@
 // src/components/prompts/templates/TemplateItem.tsx - Enhanced with smart organization image logic
 import React, { useCallback, useMemo } from 'react';
-import { FileText, Edit, Trash2 } from 'lucide-react';
+import { FileText, Edit, Trash2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PinButton } from '@/components/prompts/common/PinButton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -66,6 +66,8 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
     }
     return pinnedTemplateIds.includes(template.id);
   }, [pinnedTemplateIds, template.id, (template as any).is_pinned]);
+
+  const isFree = useMemo(() => (template as any).is_free === true, [template]);
   
   // Get organization data
   const templateOrganization = (template as any).organization || 
@@ -123,7 +125,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   // Show controls based on type and props
   const shouldShowEditControls = showEditControls && type === 'user';
   const shouldShowDeleteControls = showDeleteControls && type === 'user';
-  const shouldShowPinControls = showPinControls && onTogglePin;
+  const shouldShowPinControls = showPinControls;
 
 
 
@@ -131,7 +133,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
     <div
       className={`jd-flex jd-items-center hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group/template jd-transition-colors ${
       isProcessing ? 'jd-opacity-50 jd-cursor-not-allowed' : ''
-      } ${className}`}
+      } ${!isFree ? 'jd-opacity-60' : ''} ${className}`}
       onClick={handleTemplateClick}
       style={{ paddingLeft: `${level * 16 + 8}px` }}
 
@@ -222,18 +224,22 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
         )}
 
       <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
-          {/* Pin Button */}
-          {showPinControls && onTogglePin && (
+          {/* Pin or Lock Icon */}
+          {shouldShowPinControls && (
             <div
               className={`jd-ml-auto jd-items-center jd-gap-1 jd-flex ${
                 isPinned ? '' : 'jd-opacity-0 group-hover/template:jd-opacity-100 jd-transition-opacity'
               }`}
             >
-              <PinButton
-                type="template"
-                isPinned={isPinned}
-                onClick={handleTogglePin}
-              />
+              {isFree && onTogglePin ? (
+                <PinButton
+                  type="template"
+                  isPinned={isPinned}
+                  onClick={handleTogglePin}
+                />
+              ) : (
+                <Lock className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-opacity-70" />
+              )}
             </div>
           )}
         </div>
