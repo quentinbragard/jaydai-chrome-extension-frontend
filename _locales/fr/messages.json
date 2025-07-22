@@ -2375,5 +2375,69 @@
   "unlockPremiumFeatures": {
     "message": "Débloquez toutes les fonctionnalités premium et profitez au maximum de Jaydai",
     "description": "Description de la section de mise à niveau vers Premium"
+  },
+  "growTogether": {
+    "message": "Grandir ensemble",
+    "description": "Titre du bouton d'invitation d'équipe"
+  },
+  "inviteAFriend": {
+    "message": "Inviter un ami",
+    "description": "Titre du bouton d'invitation d'amie"
+  },
+  "inviteAFriendDesc": {
+    "message": "Partagez la révolution de l'IA de productivité",
+    "description": "Description du bouton d'invitation d'amie"
+  },
+  "invitationSent": {
+    "message": "Invitation envoyée",
+    "description": "Titre du toast d'invitation envoyée"
+  },
+  "invitationSentDescription": {
+    "message": "Votre ami recevra un email de bienvenue dans Jaydai",
+    "description": "Description du toast d'invitation envoyée"
+  },
+  "shareJaydai": {
+    "message": "Partager Jaydai",
+    "description": "Titre de la section de partage"
+  },
+  "shareDescription": {
+    "message": "Aidez vos amis et collègues à booster leur productivité avec l'IA",
+    "description": "Description de la section de partage"
+  },
+  "inviteMyTeam": {
+    "message": "Inviter mon équipe",
+    "description": "Titre du bouton d'invitation d'équipe"
+  },
+  "joinReferralProgram": {
+    "message": "Rejoindre le programme de référencement",
+    "description": "Titre du bouton de référencement"
+  },
+  "shareFooterNote": {
+    "message": "Partagez la révolution de l'IA de productivité",
+    "description": "Note de bas de page pour le partage"
+  },
+  "shareMessage": {
+    "message": "Partagez Jaydai avec vos amis et collègues",
+    "description": "Message de partage"
+  },
+  "shareMessageLinkedin": {
+    "message": "🚀 J'utilise Jaydai pour booster ma productivité avec l'IA ! C'est un outil incroyable qui aide à automatiser mes tâches et à gagner du temps. Découvrez-le : https://jayd.ai",
+    "description": "Message de partage LinkedIn"
+  },
+  "shareMessageFacebook": {
+    "message": "🤖✨ J'ai découvert Jaydai, un outil AI de productivité incroyable ! C'est un vrai boost pour mon flux de travail. Je le recommande vivement !",
+    "description": "Message de partage Facebook"
+  },
+  "shareMessageWhatsapp": {
+    "message": "Hey ! 👋 J'utilise cet outil AI de productivité appelé Jaydai et je pense que ça pourrait t'intéresser aussi ! https://jayd.ai",
+    "description": "Message de partage WhatsApp"
+  },
+  "shareMessageEmailSubject": {
+    "message": "Bonjour !\n\nJ'ai découvert cet outil AI de productivité appelé Jaydai et je pense que ça pourrait t'intéresser aussi ! https://jayd.ai\n\nCordialement,\n[Votre nom]",
+    "description": "Message de partage email"
+  },
+  "shareMessageEmailBody": {
+    "message": "Bonjour !\n\nJ'ai découvert cet outil AI de productivité appelé Jaydai et je pense que ça pourrait t'intéresser aussi ! https://jayd.ai\n\nCordialement,\n[Votre nom]",
+    "description": "Message de partage email"
   }
 }

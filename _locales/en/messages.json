@@ -2393,5 +2393,65 @@
   "unlockPremiumFeatures": {
     "message": "Unlock all premium features and get the most out of Jaydai",
     "description": "Description of the upgrade to premium section"
+  },
+  "growTogether": {
+    "message": "Grow together",
+    "description": "Title of the grow together section"
+  },
+  "inviteAFriend": {
+    "message": "Invite a friend",
+    "description": "Title of the invite a friend section"
+  },
+  "inviteAFriendDesc": {
+    "message": "Share the productivity revolution with AI",
+    "description": "Description of the invite a friend section"
+  },
+  "invitationSent": {
+    "message": "Invitation sent",
+    "description": "Title of the invitation sent section"
+  },
+  "invitationSentDescription": {
+    "message": "Your friend will receive an email to join Jaydai",
+    "description": "Description of the invitation sent section"
+  },
+  "shareJaydai": {
+    "message": "Share Jaydai",
+    "description": "Title of the share Jaydai section"
+  },
+  "shareDescription": {
+    "message": "Help your friends and colleagues boost their productivity with AI",
+    "description": "Description of the share Jaydai section"
+  },
+  "inviteMyTeam": {
+    "message": "Invite my team",
+    "description": "Title of the invite my team section"
+  },
+  "joinReferralProgram": {
+    "message": "Join the referral program",
+    "description": "Title of the join referral program section"
+  },
+  "shareFooterNote": {
+    "message": "Share the productivity revolution with AI",
+    "description": "Description of the share Jaydai section"
+  },
+  "shareMessageLinkedin": {
+    "message": "🚀 I've been using Jaydai to boost my productivity with AI! It's an amazing tool that helps streamline workflows and get things done faster. Check it out:",
+    "description": "Message of the share Jaydai section"
+  },
+  "shareMessageFacebook": {
+    "message": "Just discovered Jaydai - an incredible AI productivity tool! 🤖✨ It's been a game-changer for my workflow. Highly recommend checking it out!",
+    "description": "Message of the share Jaydai section"
+  },
+  "shareMessageWhatsapp": {
+    "message": "Hey! 👋 I've been using this amazing AI productivity tool called Jaydai and thought you might find it useful too!",
+    "description": "Message of the share Jaydai section"
+  },
+  "shareMessageEmailSubject": {
+    "message": "Check out Jaydai - AI Productivity Tool",
+    "description": "Message of the share Jaydai section"
+  },
+  "shareMessageEmailBody": {
+    "message": "Hi there!\n\nI wanted to share this amazing AI productivity tool I've been using called Jaydai. It has really helped me streamline my workflow and get things done more efficiently.\n\nI think you'd find it useful too! You can check it out here:",
+    "description": "Message of the share Jaydai section"
   }
 }

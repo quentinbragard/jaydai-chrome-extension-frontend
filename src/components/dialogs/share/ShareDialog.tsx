@@ -19,17 +19,13 @@ import {
   Heart, 
   Zap, 
   CheckCircle2,
-  Copy,
   ExternalLink,
-  AlertTriangle,
-  X
+  AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { shareApi } from '@/services/api/ShareApi';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
-
-// Import social icons (assuming they exist in your project)
 import { WhatsAppIcon, FacebookIcon, LinkedInIcon, EmailIcon } from '@/components/common/ShareButtonSection/ShareIcons';
 
 interface ConfirmationDialogProps {
@@ -117,14 +113,13 @@ export const ShareDialog: React.FC = () => {
   const senderName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Someone';
   const shareUrl = 'https://jayd.ai';
   
-  // Share messages for different platforms
   const shareMessages = {
-    linkedin: `🚀 I've been using Jaydai to boost my productivity with AI! It's an amazing tool that helps streamline workflows and get things done faster. Check it out: ${shareUrl}`,
-    facebook: `Just discovered Jaydai - an incredible AI productivity tool! 🤖✨ It's been a game-changer for my workflow. Highly recommend checking it out!`,
-    whatsapp: `Hey! 👋 I've been using this amazing AI productivity tool called Jaydai and thought you might find it useful too! ${shareUrl}`,
+    linkedin: getMessage('shareMessageLinkedin', undefined, '🚀 I\'ve been using Jaydai to boost my productivity with AI! It\'s an amazing tool that helps streamline workflows and get things done faster. Check it out:'),
+    facebook: getMessage('shareMessageFacebook', undefined, 'Just discovered Jaydai - an incredible AI productivity tool! 🤖✨ It\'s been a game-changer for my workflow. Highly recommend checking it out!'),
+    whatsapp: getMessage('shareMessageWhatsapp', undefined, 'Hey! 👋 I\'ve been using this amazing AI productivity tool called Jaydai and thought you might find it useful too!'),
     email: {
-      subject: 'Check out Jaydai - AI Productivity Tool',
-      body: `Hi there!\n\nI wanted to share this amazing AI productivity tool I've been using called Jaydai. It has really helped me streamline my workflow and get things done more efficiently.\n\nI think you'd find it useful too! You can check it out here: ${shareUrl}\n\nBest regards,\n${senderName}`
+      subject: getMessage('shareMessageEmailSubject', undefined, 'Check out Jaydai - AI Productivity Tool'),
+      body: getMessage('shareMessageEmailBody', undefined, 'Hi there!\n\nI wanted to share this amazing AI productivity tool I\'ve been using called Jaydai. It has really helped me streamline my workflow and get things done more efficiently.\n\nI think you\'d find it useful too! You can check it out here:')
     }
   };
 
@@ -145,7 +140,6 @@ export const ShareDialog: React.FC = () => {
   const handleConfirmedInvite = async () => {
     setIsLoading(true);
     try {
-      // Note: We only send friendEmail now, backend will get sender info from user_id
       const response = await shareApi.inviteFriend({
         friendEmail: email.trim(),
       });
@@ -155,14 +149,12 @@ export const ShareDialog: React.FC = () => {
         setEmail('');
         setShowConfirmation(false);
         toast.success(getMessage('inviteEmailSent', undefined, 'Invitation sent successfully! 🎉'));
-        // Notify listeners that an invite has been sent
         window.dispatchEvent(new CustomEvent('invite-sent'));
         
         trackEvent(EVENTS.SHARE_FRIEND_INVITED, {
           friend_email: email.trim(),
         });
         
-        // Auto-close dialog after 2 seconds
         setTimeout(() => {
           dialogProps.onOpenChange(false);
           setEmailSent(false);
@@ -182,7 +174,6 @@ export const ShareDialog: React.FC = () => {
   const handleInviteTeam = async () => {
     setIsLoading(true);
     try {
-      // Backend will get user info from user_id
       const response = await shareApi.inviteTeamMembers();
 
       if (response.success) {
@@ -209,7 +200,6 @@ export const ShareDialog: React.FC = () => {
   const handleJoinReferral = async () => {
     setIsLoading(true);
     try {
-      // Backend will get user info from user_id
       const response = await shareApi.joinReferralProgram();
 
       if (response.success) {
@@ -261,26 +251,7 @@ export const ShareDialog: React.FC = () => {
     });
   };
 
-  const handleCopyMessage = (platform: string) => {
-    let message = '';
-    
-    switch(platform) {
-      case 'linkedin':
-        message = shareMessages.linkedin;
-        break;
-      case 'facebook':
-        message = shareMessages.facebook;
-        break;
-      case 'whatsapp':
-        message = shareMessages.whatsapp;
-        break;
-      case 'email':
-        message = `${shareMessages.email.subject}\n\n${shareMessages.email.body}`;
-        break;
-      default:
-        return;
-    }
-    
+  const copyMessageToClipboard = (message: string, platform: string) => {
     navigator.clipboard.writeText(message).then(() => {
       setCopiedMessage(platform);
       toast.success(getMessage('messageCopied', undefined, 'Message copied to clipboard!'));
@@ -307,7 +278,6 @@ export const ShareDialog: React.FC = () => {
         className="jd-max-w-lg jd-overflow-hidden"
       >
         <div className="jd-relative">
-          {/* Animated background gradient */}
           <div
             className={cn(
               'jd-absolute jd-inset-0 jd-bg-gradient-to-br jd-opacity-50',
@@ -317,13 +287,11 @@ export const ShareDialog: React.FC = () => {
             )}
           />
           
-          {/* Floating particles effect */}
           <div className="jd-absolute jd-top-2 jd-right-4 jd-w-2 jd-h-2 jd-bg-primary jd-rounded-full jd-animate-pulse" />
           <div className="jd-absolute jd-top-8 jd-left-8 jd-w-1 jd-h-1 jd-bg-secondary jd-rounded-full jd-animate-bounce" />
           <div className="jd-absolute jd-bottom-16 jd-right-8 jd-w-1.5 jd-h-1.5 jd-bg-primary/70 jd-rounded-full jd-animate-pulse jd-delay-75" />
 
           <div className="jd-relative jd-space-y-6 jd-p-2">
-            {/* Header Section */}
             <div className="jd-text-center jd-space-y-2">
               <div className="jd-flex jd-justify-center jd-mb-3">
                 <div className="jd-relative jd-p-3 jd-bg-gradient-to-br jd-from-primary jd-to-secondary jd-rounded-full jd-shadow-lg">
@@ -340,7 +308,6 @@ export const ShareDialog: React.FC = () => {
             </div>
 
             {emailSent ? (
-              // Success state for friend invitation
               <div className="jd-text-center jd-space-y-4 jd-py-8">
                 <div className="jd-flex jd-justify-center">
                   <div className="jd-p-3 jd-bg-green-100 jd-dark:jd-bg-green-900/30 jd-rounded-full">
@@ -358,7 +325,6 @@ export const ShareDialog: React.FC = () => {
               </div>
             ) : (
               <>
-                {/* Friend Invitation Section */}
                 <div className="jd-space-y-4">
                   <div className="jd-text-center">
                   <div className="jd-inline-flex jd-items-center jd-gap-2 jd-px-3 jd-py-1 jd-bg-primary/20 jd-rounded-full jd-text-sm jd-font-medium jd-text-primary jd-mb-3">
@@ -397,7 +363,6 @@ export const ShareDialog: React.FC = () => {
 
                 <Separator className="jd-my-6" />
 
-                {/* Social Share Section */}
                 <div className="jd-space-y-4">
                   <div className="jd-text-center">
                     <div className="jd-inline-flex jd-items-center jd-gap-2 jd-px-3 jd-py-1 jd-bg-green-100 jd-dark:jd-bg-green-900/30 jd-rounded-full jd-text-sm jd-font-medium jd-text-green-700 jd-dark:jd-text-green-400 jd-mb-3">
@@ -407,7 +372,6 @@ export const ShareDialog: React.FC = () => {
                   </div>
                   
                   <div className="jd-grid jd-grid-cols-2 jd-gap-3">
-                    {/* LinkedIn */}
                     <div className="jd-space-y-2">
                       <Button
                         onClick={() => handleSocialShare('linkedin')}
@@ -417,27 +381,8 @@ export const ShareDialog: React.FC = () => {
                         LinkedIn
                         <ExternalLink className="jd-w-3 jd-h-3" />
                       </Button>
-                      <Button
-                        onClick={() => handleCopyMessage('linkedin')}
-                        variant="outline"
-                        size="sm"
-                        className="jd-w-full jd-py-1 jd-text-xs"
-                      >
-                        {copiedMessage === 'linkedin' ? (
-                          <>
-                            <CheckCircle2 className="jd-w-3 jd-h-3 jd-mr-1 jd-text-green-500" />
-                            {getMessage('copied', undefined, 'Copied!')}
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="jd-w-3 jd-h-3 jd-mr-1" />
-                            {getMessage('copyMessage', undefined, 'Copy message')}
-                          </>
-                        )}
-                      </Button>
                     </div>
 
-                    {/* Facebook */}
                     <div className="jd-space-y-2">
                       <Button
                         onClick={() => handleSocialShare('facebook')}
@@ -447,27 +392,8 @@ export const ShareDialog: React.FC = () => {
                         Facebook
                         <ExternalLink className="jd-w-3 jd-h-3" />
                       </Button>
-                      <Button
-                        onClick={() => handleCopyMessage('facebook')}
-                        variant="outline"
-                        size="sm"
-                        className="jd-w-full jd-py-1 jd-text-xs"
-                      >
-                        {copiedMessage === 'facebook' ? (
-                          <>
-                            <CheckCircle2 className="jd-w-3 jd-h-3 jd-mr-1 jd-text-green-500" />
-                            {getMessage('copied', undefined, 'Copied!')}
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="jd-w-3 jd-h-3 jd-mr-1" />
-                            {getMessage('copyMessage', undefined, 'Copy message')}
-                          </>
-                        )}
-                      </Button>
                     </div>
 
-                    {/* WhatsApp */}
                     <div className="jd-space-y-2">
                       <Button
                         onClick={() => handleSocialShare('whatsapp')}
@@ -477,27 +403,8 @@ export const ShareDialog: React.FC = () => {
                         WhatsApp
                         <ExternalLink className="jd-w-3 jd-h-3" />
                       </Button>
-                      <Button
-                        onClick={() => handleCopyMessage('whatsapp')}
-                        variant="outline"
-                        size="sm"
-                        className="jd-w-full jd-py-1 jd-text-xs"
-                      >
-                        {copiedMessage === 'whatsapp' ? (
-                          <>
-                            <CheckCircle2 className="jd-w-3 jd-h-3 jd-mr-1 jd-text-green-500" />
-                            {getMessage('copied', undefined, 'Copied!')}
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="jd-w-3 jd-h-3 jd-mr-1" />
-                            {getMessage('copyMessage', undefined, 'Copy message')}
-                          </>
-                        )}
-                      </Button>
                     </div>
 
-                    {/* Email */}
                     <div className="jd-space-y-2">
                       <Button
                         onClick={() => handleSocialShare('email')}
@@ -507,31 +414,12 @@ export const ShareDialog: React.FC = () => {
                         Email
                         <ExternalLink className="jd-w-3 jd-h-3" />
                       </Button>
-                      <Button
-                        onClick={() => handleCopyMessage('email')}
-                        variant="outline"
-                        size="sm"
-                        className="jd-w-full jd-py-1 jd-text-xs"
-                      >
-                        {copiedMessage === 'email' ? (
-                          <>
-                            <CheckCircle2 className="jd-w-3 jd-h-3 jd-mr-1 jd-text-green-500" />
-                            {getMessage('copied', undefined, 'Copied!')}
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="jd-w-3 jd-h-3 jd-mr-1" />
-                            {getMessage('copyMessage', undefined, 'Copy message')}
-                          </>
-                        )}
-                      </Button>
                     </div>
                   </div>
                 </div>
 
                 <Separator className="jd-my-6" />
 
-                {/* Team & Referral Section */}
                 <div className="jd-space-y-3">
                   <div className="jd-text-center jd-mb-4">
                     <div className="jd-inline-flex jd-items-center jd-gap-2 jd-px-3 jd-py-1 jd-bg-secondary/20 jd-rounded-full jd-text-sm jd-font-medium jd-text-secondary-foreground">
@@ -569,7 +457,6 @@ export const ShareDialog: React.FC = () => {
                   </Button>
                 </div>
 
-                {/* Footer note */}
                 <div className="jd-text-center jd-pt-4 jd-border-t jd-border-gray-100 jd-dark:jd-border-gray-800">
                   <p className="jd-text-xs jd-text-muted-foreground jd-flex jd-items-center jd-justify-center jd-gap-1">
                     <span>💡</span>
@@ -582,7 +469,6 @@ export const ShareDialog: React.FC = () => {
         </div>
       </BaseDialog>
 
-      {/* Confirmation Dialog */}
       <ConfirmationDialog
         isOpen={showConfirmation}
         onClose={() => setShowConfirmation(false)}
