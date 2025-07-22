@@ -19,8 +19,8 @@ export const PaywallDialog: React.FC = () => {
 
   useEffect(() => {
     const handler = () => setShowPromo(true);
-    window.addEventListener('invite-sent', handler);
-    return () => window.removeEventListener('invite-sent', handler);
+    window.addEventListener('referral-invite-sent', handler);
+    return () => window.removeEventListener('referral-invite-sent', handler);
   }, []);
   const handlePaymentSuccess = () => {
     dialogProps.onOpenChange(false);

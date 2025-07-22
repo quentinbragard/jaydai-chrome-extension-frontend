@@ -114,8 +114,13 @@ export const ReferralShareDialog: React.FC = () => {
         setEmailSent(true);
         setEmail('');
         setShowConfirmation(false);
-        toast.success(getMessage('inviteEmailSent', undefined, 'Invitation sent successfully! 🎉'));
+        toast.success(
+          getMessage('inviteEmailSent', undefined, 'Invitation sent successfully! 🎉')
+        );
         window.dispatchEvent(new CustomEvent('invite-sent'));
+        // Emit specific event so we can show the promo code only for invites
+        // coming from this dialog
+        window.dispatchEvent(new CustomEvent('referral-invite-sent'));
         trackEvent(EVENTS.SHARE_FRIEND_INVITED, { friend_email: email.trim() });
         setTimeout(() => {
           dialogProps.onOpenChange(false);
