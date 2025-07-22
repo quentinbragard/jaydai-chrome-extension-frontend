@@ -69,7 +69,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       const response = await userApi.getUserMetadata();
       
       if (response.success && response.data) {
-        setDataCollection(response.data.data_collection !== false);
+        const enabled = response.data.data_collection !== false;
+        setDataCollection(enabled);
+        chrome.storage.local.set({ data_collection_enabled: enabled });
       }
     } catch (error) {
       console.error('Error loading user preferences:', error);
@@ -88,6 +90,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       
       if (response.success) {
         setDataCollection(enabled);
+        chrome.storage.local.set({ data_collection_enabled: enabled });
         toast.success(
           enabled 
             ? getMessage('data_collection_enabled', undefined, 'Data collection enabled')
