@@ -2,6 +2,7 @@
 // src/api/MessageApi.ts - Updated interface
 import { apiClient } from './ApiClient';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { dataCollectionService } from '@/services/user/DataCollectionService';
 
 export interface SaveMessageParams {
   message_provider_id: string;
@@ -24,6 +25,9 @@ export class MessageApi {
    * Save a batch of messages in one operation
    */
   async saveMessageBatch(messages: SaveMessageParams[]): Promise<any> {
+    if (!dataCollectionService.isEnabled()) {
+      return { success: true };
+    }
     const response = await apiClient.request('/save/batch/message', {
       method: 'POST',
       body: JSON.stringify({
@@ -48,6 +52,9 @@ export class MessageApi {
    * Save a single message
    */
   async saveMessage(message: SaveMessageParams): Promise<any> {
+    if (!dataCollectionService.isEnabled()) {
+      return { success: true };
+    }
     return apiClient.request('/save/message', {
       method: 'POST',
       body: JSON.stringify(message)
@@ -58,6 +65,9 @@ export class MessageApi {
    * Save a batch of chats
    */
   async saveChatBatch(chats: SaveChatParams[]): Promise<any> {
+    if (!dataCollectionService.isEnabled()) {
+      return { success: true };
+    }
     return apiClient.request('/save/batch/chat', {
       method: 'POST',
       body: JSON.stringify({
@@ -70,7 +80,9 @@ export class MessageApi {
    * Save a single chat
    */
   async saveChat(chat: SaveChatParams): Promise<any> {
-  
+    if (!dataCollectionService.isEnabled()) {
+      return { success: true };
+    }
     return apiClient.request('/save/chat', {
       method: 'POST',
       body: JSON.stringify({
@@ -85,6 +97,9 @@ export class MessageApi {
    * Save a batch of chats and messages
    */
   async saveBatch(batchData: { chats?: SaveChatParams[], messages?: SaveMessageParams[] }): Promise<any> {
+    if (!dataCollectionService.isEnabled()) {
+      return { success: true };
+    }
     return apiClient.request('/save/batch', {
       method: 'POST',
       body: JSON.stringify(batchData)
