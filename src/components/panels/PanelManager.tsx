@@ -6,7 +6,7 @@ import { QueryProvider } from '@/providers/QueryProvider';
 import MenuPanel from './MenuPanel';
 import TemplatesPanel from './TemplatesPanel';
 import NotificationsPanel from './NotificationsPanel';
-const StatsPanel = React.lazy(() => import('./StatsPanel'));
+import StatsPanel from './StatsPanel';
 import SettingsPanel from './SettingsPanel';
 import BrowseTemplatesPanel from './BrowseTemplatesPanel';
 import type { PanelType } from '@/hooks/ui/useMainButtonState';
@@ -69,13 +69,11 @@ const PanelContainer: React.FC<{
       );
     case 'stats':
       return (
-        <React.Suspense fallback={null}>
-          <StatsPanel
-            showBackButton={panelStack.length > 1}
-            onBack={popPanel}
-            onClose={handlePanelClose}
-          />
-        </React.Suspense>
+        <StatsPanel
+          showBackButton={panelStack.length > 1}
+          onBack={popPanel}
+          onClose={handlePanelClose}
+        />
       );
     case 'settings':
       return (

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { serviceManager } from '@/core/managers/ServiceManager';
-import { registerStatsService } from '@/services';
+import { useService } from '@/core/hooks/useService';
 import { StatsService } from '@/services/analytics/StatsService';
 import { Stats } from '@/services/analytics/StatsService';
 import { BarChart2, MessageCircle, Zap } from 'lucide-react';
@@ -33,50 +32,48 @@ interface ModelUsage {
 }
 
 const StatsDetailDashboard = () => {
+  const statsService = useService<StatsServiceInterface>('stats');
   const [stats, setStats] = useState<Stats | null>(null);
   const [weeklyConversations, setWeeklyConversations] = useState<WeeklyConversations | null>(null);
   const [messageDistribution, setMessageDistribution] = useState<MessageDistribution | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
     const loadAllStats = async () => {
-      if (!serviceManager.hasService('stats')) {
-        registerStatsService();
-      }
-
-      await serviceManager.initializeServiceByName('stats');
-      const svc = serviceManager.getService<StatsService>('stats');
-      if (!svc) {
-        setLoading(false);
-        return;
-      }
-
-      setStats(svc.getStats());
-      unsubscribe = svc.onUpdate((newStats) => setStats(newStats));
-
-      try {
-        const weeklyData = await svc.getWeeklyConversations();
-        if (weeklyData) {
-          setWeeklyConversations(weeklyData);
+      if (statsService) {
+        // Get main stats
+        setStats(statsService.getStats());
+        
+        // Register for updates
+        const unsubscribe = statsService.onUpdate((newStats) => {
+          setStats(newStats);
+        });
+        
+        try {
+          // Load additional stats
+          const weeklyData = await statsService.getWeeklyConversations();
+          if (weeklyData) {
+            setWeeklyConversations(weeklyData);
+          }
+          
+          const distributionData = await statsService.getMessageDistribution();
+          if (distributionData) {
+            setMessageDistribution(distributionData);
+          }
+        } catch (error) {
+          console.error('Error loading additional stats:', error);
+        } finally {
+          setLoading(false);
         }
-
-        const distributionData = await svc.getMessageDistribution();
-        if (distributionData) {
-          setMessageDistribution(distributionData);
-        }
-      } catch (error) {
-        console.error('Error loading additional stats:', error);
-      } finally {
-        setLoading(false);
+        
+        return unsubscribe;
       }
+      setLoading(false);
+      return () => {};
     };
-
+    
     loadAllStats();
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, []);
+  }, [statsService]);
   
   if (loading || !stats) {
     return (

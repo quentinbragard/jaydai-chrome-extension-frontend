@@ -84,7 +84,6 @@ export class StatsService extends AbstractBaseService {
   private lastLoadTime: number = 0;
   private retryCount: number = 0;
   private isLoading: boolean = false;
-  private cacheKey: string = 'jaydai_stats_cache';
   private static instance: StatsService;
 
    private constructor() {
@@ -102,20 +101,12 @@ export class StatsService extends AbstractBaseService {
    * Initialize stats tracking
    */
   protected async onInitialize(): Promise<void> {
-
+    
     // Listen for relevant events
     this.setupEventListeners();
-
-    // Try to load cached stats first
-    const cached = await this.getCachedStats();
-    if (cached && Date.now() - cached.timestamp < 3600_000) {
-      this.stats = cached.data;
-      this.lastLoadTime = cached.timestamp;
-      this.notifyUpdateListeners();
-    }
-
-    // Load initial stats from backend if no valid cache
-    await this.loadStats(!cached);
+    
+    // Load initial stats
+    await this.loadStats();
     
     // Set up more frequent refresh from backend
     this.updateInterval = window.setInterval(() => {
@@ -554,10 +545,9 @@ private debounceRefresh(delay: number = 1000): void {
         if (data.messages_per_day) {
           this.stats.messagesPerDay = { ...data.messages_per_day };
         }
-
+        
         this.lastLoadTime = Date.now();
         this.retryCount = 0; // Reset retry count on success
-        this.saveStatsToCache(this.stats);
         this.notifyUpdateListeners();
         
         // Emit event for other components
@@ -643,42 +633,6 @@ private debounceRefresh(delay: number = 1000): void {
         new AppError('Error getting message distribution', ErrorCode.API_ERROR, error)
       );
       return null;
-    }
-  }
-
-  /**
-   * Load cached stats from storage if available
-   */
-  private async getCachedStats(): Promise<{ data: Stats; timestamp: number } | null> {
-    try {
-      return new Promise(resolve => {
-        chrome.storage.local.get([this.cacheKey], result => {
-          if (result && result[this.cacheKey]) {
-            resolve(result[this.cacheKey]);
-          } else {
-            resolve(null);
-          }
-        });
-      });
-    } catch (error) {
-      errorReporter.captureError(
-        new AppError('Error loading stats cache', ErrorCode.STORAGE_ERROR, error)
-      );
-      return null;
-    }
-  }
-
-  /**
-   * Save stats to cache with timestamp
-   */
-  private saveStatsToCache(stats: Stats): void {
-    try {
-      const cache = { data: stats, timestamp: Date.now() };
-      chrome.storage.local.set({ [this.cacheKey]: cache });
-    } catch (error) {
-      errorReporter.captureError(
-        new AppError('Error saving stats cache', ErrorCode.STORAGE_ERROR, error)
-      );
     }
   }
 }

@@ -53,28 +53,6 @@ export class ServiceManager {
   public isServiceInitialized(name: string): boolean {
     return this.initialized.has(name);
   }
-
-  /**
-   * Initialize a specific service by name with its dependencies
-   */
-  public async initializeServiceByName(name: string): Promise<boolean> {
-    if (this.isInitializing || this.initialized.has(name) || !this.services.has(name)) {
-      return this.initialized.has(name);
-    }
-
-    this.isInitializing = true;
-    try {
-      await this.initializeService(name);
-      this.isInitializing = false;
-      return true;
-    } catch (error) {
-      errorReporter.captureError(
-        new AppError(`Failed to initialize service '${name}'`, ErrorCode.EXTENSION_ERROR, error)
-      );
-      this.isInitializing = false;
-      return false;
-    }
-  }
   
   /**
    * Initialize all registered services with dependency resolution
