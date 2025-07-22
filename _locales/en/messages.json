@@ -2465,8 +2465,12 @@
     "message": "Back to plans",
     "description": "Text of the back to plans button"
   },
+  "back_to_subscription": {
+    "message": "Back to subscription",
+    "description": "Text of the back to subscription button"
+  },
   "get_discount_promo": {
-    "message": "Invite a friend and get -10%",
+    "message": "Invite a friend and get -10% for 1 year",
     "description": "Text of the invite a friend button"
   },
   "manage_subscription": {

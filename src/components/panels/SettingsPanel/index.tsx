@@ -190,7 +190,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       return getMessage('manage_subscription', undefined, 'Manage Subscription');
     }
     
-    return getMessage('upgradeToPremium', undefined, 'Upgrade to Premium');
+    return "Premium";
   };
 
   const getSubscriptionStatus = () => {

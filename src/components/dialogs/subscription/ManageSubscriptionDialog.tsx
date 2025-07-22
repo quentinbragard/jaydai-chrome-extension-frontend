@@ -206,7 +206,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
                 <div className="jd-flex jd-justify-center">
                 <Button variant="secondary" onClick={() => openDialog(DIALOG_TYPES.REFERRAL_SHARE)}>
                   <Sparkles className="jd-w-4 jd-h-4 jd-mr-2" />
-                  {getMessage('get_discount_promo', undefined, 'Invite a friend and get -10%')}
+                  {getMessage('get_discount_promo', undefined, 'Invite a friend and get -10% for 1 year')}
                 </Button>
                 </div>
                 <div className="jd-text-center jd-mb-6">
@@ -231,7 +231,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
                     onClick={() => setShowPricing(false)}
                     disabled={loading || isLoading}
                   >
-                    {getMessage('backToSubscription', undefined, 'Back to Subscription')}
+                    {getMessage('back', undefined, 'Back')}
                   </Button>
                 </div>
               </>

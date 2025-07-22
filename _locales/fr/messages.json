@@ -2452,8 +2452,12 @@
     "message": "Retour aux plans",
     "description": "Texte du bouton de retour aux plans"
   },
+  "back_to_subscription": {
+    "message": "Retour à l'abonnement",
+    "description": "Texte du bouton de retour à l'abonnement"
+  },
   "get_discount_promo": {
-    "message": "Invitez un ami et obtenez -10%",
+    "message": "Invitez un ami et obtenez -10% pendant 1 an",
     "description": "Texte du bouton d'invitation d'amie"
   },
   "manage_subscription": {
@@ -2595,5 +2599,7 @@
   "follow": {
     "message": "Suivre",
     "description": "Texte du bouton pour suivre LinkedIn"
-  }
+  },
+
+
 }
