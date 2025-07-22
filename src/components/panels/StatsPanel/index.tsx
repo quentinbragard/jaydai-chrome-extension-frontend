@@ -15,6 +15,7 @@ import { userApi } from '@/services/api';
 import { useQueryClient } from 'react-query';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { toast } from 'sonner';
+import { useUserMetadata } from '@/hooks/prompts/queries/user';
 
 interface StatsPanelProps {
   showBackButton?: boolean;
@@ -65,7 +66,12 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
     },
     efficiency: 0
   });
-  const [dataCollectionEnabled, setDataCollectionEnabled] = useState(false);
+  const {
+    data: userMetadata,
+    isLoading: userLoading,
+  } = useUserMetadata();
+  const dataCollectionEnabled =
+    userMetadata?.data_collection !== false;
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
@@ -79,7 +85,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
           ...(old || {}),
           data_collection: true,
         }));
-        setDataCollectionEnabled(true);
+        setLoading(false);
       } else {
         throw new Error(response.message || 'Failed to update preference');
       }
@@ -90,19 +96,8 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
   };
 
   useEffect(() => {
-    const loadUserMetadata = async () => {
-      try {
-        const userMetadata = await userApi.getUserMetadata();
-        setDataCollectionEnabled(userMetadata.data_collection);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error loading user metadata:', error);
-        setLoading(false);
-      }
-    };
-    
-    loadUserMetadata();
-  }, []);
+    setLoading(userLoading);
+  }, [userLoading]);
 
   // Get stats on mount and subscribe to updates
   useEffect(() => {
