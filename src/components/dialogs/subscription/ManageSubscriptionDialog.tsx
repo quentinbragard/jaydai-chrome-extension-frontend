@@ -58,11 +58,11 @@ export const ManageSubscriptionDialog: React.FC = () => {
     }
   }, [isOpen, subscription?.status]);
 
-  // Listen for invite sent events from the share dialog
+  // Listen for invite events specifically from the referral share dialog
   useEffect(() => {
     const handler = () => setShowPromo(true);
-    window.addEventListener('invite-sent', handler);
-    return () => window.removeEventListener('invite-sent', handler);
+    window.addEventListener('referral-invite-sent', handler);
+    return () => window.removeEventListener('referral-invite-sent', handler);
   }, []);
 
   const handleManageSubscription = async () => {
