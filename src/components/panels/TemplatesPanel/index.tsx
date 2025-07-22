@@ -305,13 +305,15 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         ? getFolderTitle(item as TemplateFolder)
         : getLocalizedContent((item as Template).title) || '';
 
-    const all = [
-      ...filteredPinnedTemplates,
-      ...filteredPinned.user,
-      ...filteredPinned.organization,
-    ];
+    const folders = [...filteredPinned.user, ...filteredPinned.organization].sort(
+      (a, b) => getTitle(a).localeCompare(getTitle(b), undefined, { sensitivity: 'base' })
+    );
 
-    return [...all].sort((a, b) => getTitle(a).localeCompare(getTitle(b), undefined, { sensitivity: 'base' }));
+    const templates = [...filteredPinnedTemplates].sort((a, b) =>
+      getTitle(a).localeCompare(getTitle(b), undefined, { sensitivity: 'base' })
+    );
+
+    return [...folders, ...templates];
   }, [filteredPinnedTemplates, filteredPinned]);
 
   // Mutations and actions
