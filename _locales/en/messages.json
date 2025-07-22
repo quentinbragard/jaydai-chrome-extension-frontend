@@ -2493,6 +2493,18 @@
     "message": "Manage your active subscription",
     "description": "Description pour la gestion d'un abonnement actif"
   },
+  "active_subscription_desc": {
+    "message": "Your subscription is active",
+    "description": "Description for an active subscription"
+  },
+  "incomplete_subscription_desc": {
+    "message": "Your subscription setup is incomplete",
+    "description": "Description for an incomplete subscription"
+  },
+  "no_active_subscription_desc": {
+    "message": "No active subscription",
+    "description": "Description for no active subscription"
+  },
   "trial_subscription_desc": {
     "message": "You are in your trial period",
     "description": "Description pour un abonnement en période d'essai"
@@ -2624,5 +2636,69 @@
   "read": {
     "message": "Read",
     "description": "Text for the read button"
+  },
+  "redirectingToUpgrade": {
+    "message": "Redirecting to upgrade...",
+    "description": "Toast information before redirecting to upgrade"
+  },
+  "cancel_subscription": {
+    "message": "Cancel subscription",
+    "description": "Text for the cancel subscription button"
+  },
+  "subscriptionCancellingTitle": {
+    "message": "Subscription Cancelling",
+    "description": "Title for the subscription cancelling dialog"
+  },
+  "subscriptionCancellingMessage": {
+    "message": "Your subscription will be cancelled on {0}. You will continue to have access until this date.",
+    "description": "Message for the subscription cancelling dialog"
+  },
+  "billingStatus": {
+    "message": "Billing Status",
+    "description": "Text for the billing status button"
+  },
+  "cancellingAtPeriodEnd": {
+    "message": "Cancelling at period end",
+    "description": "Text for the cancelling at period end button"
+  },
+  "incomplete": {
+    "message": "Incomplete",
+    "description": "Text for the incomplete button"
+  },
+  "noActiveSubscription": {
+    "message": "No active subscription",
+    "description": "Text for the no active subscription button"
+  },
+  "activeSubscription": {
+    "message": "Active Subscription",
+    "description": "Text for the active subscription button"
+  },
+  "subscription": {
+    "message": "Subscription",
+    "description": "Text for the subscription button"
+  },
+  "loadingSubscription": {  
+    "message": "Loading subscription status...",
+    "description": "Text for the loading subscription status"
+  },
+  "errorCancellingSubscription": {
+    "message": "Error cancelling subscription",
+    "description": "Error message when cancelling a subscription"
+  },
+  "subscriptionCancelled": {
+    "message": "Subscription cancelled successfully",
+    "description": "Success message when a subscription is cancelled"
+  },
+  "confirmCancelSubscription": {
+    "message": "Are you sure you want to cancel your subscription?",
+    "description": "Confirmation message when cancelling a subscription"
+  },
+  "errorOpeningPortal": {
+    "message": "Error opening portal",
+    "description": "Error message when opening the portal"
+  },
+  "redirectingToPortal": {
+    "message": "Redirecting to portal...",
+    "description": "Toast information before redirecting to portal"
   }
 }

@@ -34,35 +34,35 @@ export const getStatusInfo = (status: string): StatusInfo => {
         icon: <CheckCircle className="jd-w-5 jd-h-5 jd-text-green-500" />,
         color: 'jd-bg-green-100 jd-text-green-800',
         label: getMessage('active', undefined, 'Active'),
-        message: getMessage('active_subscription', undefined, 'Your subscription is active'),
+        message: getMessage('active_subscription_desc', undefined, 'Your subscription is active'),
       };
     case 'trialing':
       return {
         icon: <Clock className="jd-w-5 jd-h-5 jd-text-blue-500" />,
         color: 'jd-bg-blue-100 jd-text-blue-800',
         label: getMessage('trial', undefined, 'Trial'),
-        message: getMessage('trial_subscription', undefined, 'You are in your trial period'),
+        message: getMessage('trial_subscription_desc', undefined, 'You are in your trial period'),
       };
     case 'past_due':
       return {
         icon: <AlertTriangle className="jd-w-5 jd-h-5 jd-text-orange-500" />,
         color: 'jd-bg-orange-100 jd-text-orange-800',
         label: getMessage('past_due', undefined, 'Past Due'),
-        message: getMessage('past_due_subscription', undefined, 'Your payment is overdue'),
+        message: getMessage('past_due_subscription_desc', undefined, 'Your payment is overdue'),
       };
     case 'cancelled':
       return {
         icon: <XCircle className="jd-w-5 jd-h-5 jd-text-red-500" />,
         color: 'jd-bg-red-100 jd-text-red-800',
         label: getMessage('cancelled', undefined, 'Cancelled'),
-        message: getMessage('cancelled_subscription', undefined, 'Your subscription has been cancelled'),
+        message: getMessage('cancelled_subscription_desc', undefined, 'Your subscription has been cancelled'),
       };
     case 'incomplete':
       return {
         icon: <AlertCircle className="jd-w-5 jd-h-5 jd-text-yellow-500" />,
         color: 'jd-bg-yellow-100 jd-text-yellow-800',
         label: getMessage('incomplete', undefined, 'Incomplete'),
-        message: getMessage('incomplete_subscription', undefined, 'Your subscription setup is incomplete'),
+        message: getMessage('incomplete_subscription_desc', undefined, 'Your subscription setup is incomplete'),
       };
     default:
       return {

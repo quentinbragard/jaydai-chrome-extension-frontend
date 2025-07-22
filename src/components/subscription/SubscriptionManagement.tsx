@@ -246,7 +246,7 @@ export const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ 
                   ) : (
                     <ExternalLink className="jd-w-4 jd-h-4 jd-mr-2" />
                   )}
-                  {getMessage('manageSubscription', undefined, 'Manage Subscription')}
+                  {getMessage('manage_subscription', undefined, 'Manage Subscription')}
                 </Button>
 
                 {!subscription.cancelAtPeriodEnd && (
@@ -283,7 +283,7 @@ export const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ 
             className="jd-w-full jd-text-gray-400 hover:jd-text-white"
           >
             <RefreshCw className={`jd-w-4 jd-h-4 jd-mr-2 ${isLoading ? 'jd-animate-spin' : ''}`} />
-            {getMessage('refreshStatus', undefined, 'Refresh Status')}
+            {getMessage('refresh', undefined, 'Refresh')}
           </Button>
         </CardContent>
       </Card>

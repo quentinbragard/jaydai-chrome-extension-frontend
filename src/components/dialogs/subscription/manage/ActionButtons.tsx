@@ -101,7 +101,7 @@ export const ActionButtons: React.FC<Props> = ({
         className="jd-text-muted-foreground hover:jd-text-foreground"
       >
         <RefreshCw className={`jd-w-4 jd-h-4 jd-mr-2 ${loading || isLoading ? 'jd-animate-spin' : ''}`} />
-        {getMessage('refresh_status', undefined, 'Refresh Status')}
+        {getMessage('refresh', undefined, 'Refresh')}
       </Button>
     </div>
   </>

@@ -2480,6 +2480,18 @@
     "message": "Gérez votre abonnement actif",
     "description": "Description pour la gestion d'un abonnement actif"
   },
+  "active_subscription_desc": {
+    "message": "Votre abonnement est actif",
+    "description": "Description pour un abonnement actif"
+  },
+  "incomplete_subscription_desc": {
+    "message": "Votre configuration d'abonnement est incomplète",
+    "description": "Description pour un abonnement incomplète"
+  },
+  "no_active_subscription_desc": {
+    "message": "Aucun abonnement actif",
+    "description": "Description pour aucun abonnement actif"
+  },
   "trial_subscription_desc": {
     "message": "Vous êtes en période d'essai",
     "description": "Description pour un abonnement en période d'essai"
@@ -2611,5 +2623,97 @@
   "follow": {
     "message": "Suivre",
     "description": "Texte du bouton pour suivre LinkedIn"
+  },
+  "redirectingToUpgrade": {
+    "message": "Redirection vers la mise à niveau...",
+    "description": "Toast d'information avant la redirection"
+  },
+  "cancel_subscription": {
+    "message": "Annuler l'abonnement",
+    "description": "Texte du bouton pour annuler l'abonnement"
+  },
+  "subscriptionCancellingTitle": {
+    "message": "Annulation d'abonnement",
+    "description": "Titre de la fenêtre d'annulation d'abonnement"
+  },
+  "subscriptionCancellingMessage": {
+    "message": "Votre abonnement sera annulé le {0}. Vous continuerez d'avoir accès jusqu'à cette date.",
+    "description": "Message de confirmation d'annulation d'abonnement"
+  },
+  "billingStatus": {
+    "message": "Statut de facturation",
+    "description": "Texte du bouton pour le statut de facturation"
+  },
+  "cancellingAtPeriodEnd": {
+    "message": "Annulation à la fin du mois",
+    "description": "Texte du bouton pour l'annulation à la fin du mois"
+  },
+  "activeRenewing": {
+    "message": "Actif & renouvelé",
+    "description": "Texte du bouton pour l'abonnement actif et renouvelé"
+  },
+  "renewalDate": {
+    "message": "Date de renouvellement",
+    "description": "Texte du bouton pour la date de renouvellement"
+  },
+  "active": {
+    "message": "Actif",
+    "description": "Texte du bouton pour l'abonnement actif"
+  },
+  "inactive": {
+    "message": "Inactif",
+    "description": "Texte du bouton pour l'abonnement inactif"
+  },
+  "trial": {
+    "message": "Essai",
+    "description": "Texte du bouton pour l'abonnement en essai"
+  },
+  "past_due": {
+    "message": "En retard",
+    "description": "Texte du bouton pour l'abonnement en retard"
+  },
+  "cancelled": {
+    "message": "Annulé",
+    "description": "Texte du bouton pour l'abonnement annulé"
+  },
+  "incomplete": {
+    "message": "Incomplet",
+    "description": "Texte du bouton pour l'abonnement incomplet"
+  },
+  "noActiveSubscription": {
+    "message": "Aucun abonnement actif",
+    "description": "Texte du bouton pour aucun abonnement actif"
+  },
+  "activeSubscription": {
+    "message": "Abonnement actif",
+    "description": "Texte du bouton pour l'abonnement actif"
+  },
+  "subscription": {
+    "message": "Abonnement",
+    "description": "Texte du bouton pour l'abonnement"
+  },
+  "loadingSubscription": {
+    "message": "Chargement du statut de l'abonnement...",
+    "description": "Texte de chargement du statut de l'abonnement"
+  },
+  "errorCancellingSubscription": {
+    "message": "Erreur lors de l'annulation de l'abonnement",
+    "description": "Message d'erreur lors de l'annulation de l'abonnement"
+  },
+  "subscriptionCancelled": {
+    "message": "Abonnement annulé avec succès",
+    "description": "Message de succès lors de l'annulation de l'abonnement"
+  },
+  "confirmCancelSubscription": {
+    "message": "Êtes-vous sûr de vouloir annuler votre abonnement ?",
+    "description": "Message de confirmation d'annulation d'abonnement"
+  },
+  "errorOpeningPortal": {
+    "message": "Erreur lors de l'ouverture du portail",
+    "description": "Message d'erreur lors de l'ouverture du portail"
+  },
+  "redirectingToPortal": {
+    "message": "Redirection vers le portail...",
+    "description": "Toast d'information avant la redirection"
   }
 }
