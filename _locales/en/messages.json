@@ -2457,6 +2457,18 @@
     "message": "Free users can create up to 5 custom templates or blocks. Upgrade your subscription to add more.",
     "description": "Message of the paywall"
   },
+  "paywall_premium_template_message": {
+    "message": "This template is only available to Premium users. Upgrade your subscription to access premium templates.",
+    "description": "Paywall message when accessing a premium template"
+  },
+  "paywall_template_limit_message": {
+    "message": "Free users can create up to 5 custom templates. Upgrade your subscription to add more.",
+    "description": "Paywall message when reaching the free template limit"
+  },
+  "paywall_block_limit_message": {
+    "message": "Free users can create up to 5 blocks. Upgrade your subscription to add more.",
+    "description": "Paywall message when reaching the free block limit"
+  },
   "upgrade_required": {
     "message": "Upgrade Required",
     "description": "Title of the paywall"

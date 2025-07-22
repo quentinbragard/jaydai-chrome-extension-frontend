@@ -119,7 +119,9 @@ export interface DialogProps {
 
   [DIALOG_TYPES.MANAGE_SUBSCRIPTION]: Record<string, never>;
 
-  [DIALOG_TYPES.PAYWALL]: Record<string, never>;
+  [DIALOG_TYPES.PAYWALL]: {
+    reason?: 'premiumTemplate' | 'templateLimit' | 'blockLimit';
+  };
 
   [DIALOG_TYPES.KEYBOARD_SHORTCUT]: {
     onShortcutUsed?: () => void;

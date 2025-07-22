@@ -11,7 +11,7 @@ import { Sparkles, Copy, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const PaywallDialog: React.FC = () => {
-  const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.PAYWALL);
+  const { isOpen, dialogProps, data } = useDialog(DIALOG_TYPES.PAYWALL);
   const { openDialog } = useDialogManager();
   const { authState } = useAuthState();
   const isDark = useThemeDetector();
@@ -33,6 +33,32 @@ export const PaywallDialog: React.FC = () => {
 
   if (!isOpen) return null;
 
+  const messageKey = React.useMemo(() => {
+    switch (data?.reason) {
+      case 'premiumTemplate':
+        return 'paywall_premium_template_message';
+      case 'templateLimit':
+        return 'paywall_template_limit_message';
+      case 'blockLimit':
+        return 'paywall_block_limit_message';
+      default:
+        return 'paywall_message';
+    }
+  }, [data]);
+
+  const defaultMessage = (() => {
+    switch (data?.reason) {
+      case 'premiumTemplate':
+        return 'This template is only available to Premium users. Upgrade your subscription to access premium templates.';
+      case 'templateLimit':
+        return 'Free users can create up to 5 custom templates. Upgrade your subscription to add more.';
+      case 'blockLimit':
+        return 'Free users can create up to 5 blocks. Upgrade your subscription to add more.';
+      default:
+        return 'Free users can create up to 5 custom templates or blocks. Upgrade your subscription to add more.';
+    }
+  })();
+
   return (
     <BaseDialog
       open={isOpen}
@@ -42,11 +68,7 @@ export const PaywallDialog: React.FC = () => {
     >
       <div className="jd-space-y-2">
         <p className="jd-text-muted-foreground">
-          {getMessage(
-            'paywall_message',
-            undefined,
-            'Free users can create up to 5 custom templates or blocks. Upgrade your subscription to add more.'
-          )}
+          {getMessage(messageKey, undefined, defaultMessage)}
         </p>
         {showPromo ? (
           <>
