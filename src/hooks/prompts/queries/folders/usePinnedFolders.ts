@@ -1,4 +1,4 @@
-// src/hooks/prompts/queries/folders/usePinnedFolders.ts
+// src/hooks/prompts/queries/folders/usePinnedFolders.ts - Fixed Version
 import { useQuery } from 'react-query';
 import { promptApi, userApi } from '@/services/api';
 import { toast } from 'sonner';
@@ -26,22 +26,39 @@ export function usePinnedFolders() {
       }
 
       // Handle different response structures
-      let pinnedFolders = pinnedFoldersResponse.data?.folders || [];
+      let pinnedFolders: TemplateFolder[] = [];
       
-      // Ensure we have an array
-      if (!Array.isArray(pinnedFolders)) {
-        // If it's an object with arrays, flatten it
-        if (typeof pinnedFolders === 'object') {
-          const flattenedFolders: TemplateFolder[] = [];
-          Object.values(pinnedFolders).forEach((folderArray: any) => {
-            if (Array.isArray(folderArray)) {
-              flattenedFolders.push(...folderArray);
-            }
-          });
-          pinnedFolders = flattenedFolders;
-        } else {
-          pinnedFolders = [];
+      // Check if data exists
+      if (pinnedFoldersResponse.data) {
+        // Handle the new flat array structure
+        if (Array.isArray(pinnedFoldersResponse.data)) {
+          pinnedFolders = pinnedFoldersResponse.data;
         }
+        // Handle nested folders structure
+        else if (pinnedFoldersResponse.data.folders) {
+          if (Array.isArray(pinnedFoldersResponse.data.folders)) {
+            pinnedFolders = pinnedFoldersResponse.data.folders;
+          } else if (typeof pinnedFoldersResponse.data.folders === 'object') {
+            // If it's an object with arrays, flatten it
+            const flattenedFolders: TemplateFolder[] = [];
+            Object.values(pinnedFoldersResponse.data.folders).forEach((folderArray: any) => {
+              if (Array.isArray(folderArray)) {
+                flattenedFolders.push(...folderArray);
+              }
+            });
+            pinnedFolders = flattenedFolders;
+          }
+        }
+        // Handle direct array at data level
+        else if (Array.isArray(pinnedFoldersResponse.data)) {
+          pinnedFolders = pinnedFoldersResponse.data;
+        }
+      }
+
+      // Ensure we always return an array
+      if (!Array.isArray(pinnedFolders)) {
+        console.warn('⚠️ Pinned folders is not an array, defaulting to empty array');
+        pinnedFolders = [];
       }
 
       console.log('✅ Processed pinned folders:', pinnedFolders);
@@ -72,3 +89,4 @@ export function usePinnedFolders() {
     }
   );
 }
+
