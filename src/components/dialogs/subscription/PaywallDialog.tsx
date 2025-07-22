@@ -22,16 +22,6 @@ export const PaywallDialog: React.FC = () => {
     window.addEventListener('referral-invite-sent', handler);
     return () => window.removeEventListener('referral-invite-sent', handler);
   }, []);
-  const handlePaymentSuccess = () => {
-    dialogProps.onOpenChange(false);
-    openDialog(DIALOG_TYPES.MANAGE_SUBSCRIPTION);
-  };
-
-  const handlePaymentCancel = () => {
-    // No-op for now
-  };
-
-  if (!isOpen) return null;
 
   const messageKey = React.useMemo(() => {
     switch (data?.reason) {
@@ -46,7 +36,7 @@ export const PaywallDialog: React.FC = () => {
     }
   }, [data]);
 
-  const defaultMessage = (() => {
+  const defaultMessage = React.useMemo(() => {
     switch (data?.reason) {
       case 'premiumTemplate':
         return 'This template is only available to Premium users. Upgrade your subscription to access premium templates.';
@@ -57,7 +47,18 @@ export const PaywallDialog: React.FC = () => {
       default:
         return 'Free users can create up to 5 custom templates or blocks. Upgrade your subscription to add more.';
     }
-  })();
+  }, [data]);
+
+  const handlePaymentSuccess = () => {
+    dialogProps.onOpenChange(false);
+    openDialog(DIALOG_TYPES.MANAGE_SUBSCRIPTION);
+  };
+
+  const handlePaymentCancel = () => {
+    // No-op for now
+  };
+
+  if (!isOpen) return null;
 
   return (
     <BaseDialog
@@ -75,7 +76,14 @@ export const PaywallDialog: React.FC = () => {
             <div className="jd-text-center jd-space-y-4">
               <div className="jd-flex jd-items-center jd-justify-center jd-gap-2">
                 <span className="jd-font-mono jd-text-lg">JAYDAI-REFERRER-10</span>
-                <Button size="icon" variant="ghost" onClick={() => navigator.clipboard.writeText('JAYDAI-REFERRER-10') && toast.success(getMessage('copiedToClipboard', undefined, 'Copied to clipboard'))}>
+                <Button size="icon" variant="ghost" onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText('JAYDAI-REFERRER-10');
+                    toast.success(getMessage('copiedToClipboard', undefined, 'Copied to clipboard'));
+                  } catch (error) {
+                    toast.error(getMessage('copyFailed', undefined, 'Failed to copy to clipboard'));
+                  }
+                }}>
                   <Copy className="jd-w-4 jd-h-4" />
                 </Button>
               </div>

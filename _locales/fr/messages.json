@@ -2611,7 +2611,5 @@
   "follow": {
     "message": "Suivre",
     "description": "Texte du bouton pour suivre LinkedIn"
-  },
-
-
+  }
 }
