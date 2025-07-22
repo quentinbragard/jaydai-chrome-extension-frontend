@@ -1,5 +1,6 @@
 // src/components/panels/TemplatesPanel/OnboardingChecklist.tsx
 import React from 'react';
+import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Circle, X, Play, FileText, Blocks, Keyboard } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
@@ -51,6 +52,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
 
   const { allPinnedFolders, allPinnedFolderIds } = useAllPinnedFolders();
   const { data: organizations = [] } = useOrganizations();
+  const isDarkMode = useThemeDetector();
 
   const PinnedFoldersContent: React.FC = () => {
     const { dialogProps } = useDialog(DIALOG_TYPES.INFORMATION);
@@ -193,11 +195,18 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
   }
 
   return (
-    <div className="jd-bg-gradient-to-br jd-from-blue-50 jd-to-indigo-50 jd-dark:jd-from-blue-950/30 jd-dark:jd-to-indigo-950/30 jd-rounded-lg jd-border jd-border-blue-200 jd-dark:jd-border-blue-800 jd-p-4 jd-mx-2 jd-my-3">
+    <div
+      className={cn(
+        'jd-bg-gradient-to-br jd-rounded-lg jd-border jd-p-4 jd-mx-2 jd-my-3',
+        isDarkMode
+          ? 'jd-from-primary/20 jd-to-secondary/20 jd-border-primary/40'
+          : 'jd-from-primary/10 jd-to-secondary/10 jd-border-primary/20'
+      )}
+    >
       {/* Header */}
       <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
         <div className="jd-flex jd-items-center jd-gap-2">
-          <div className="jd-w-8 jd-h-8 jd-bg-blue-500 jd-rounded-full jd-flex jd-items-center jd-justify-center">
+          <div className="jd-w-8 jd-h-8 jd-bg-primary jd-rounded-full jd-flex jd-items-center jd-justify-center">
             <span className="jd-text-white jd-font-bold jd-text-sm">
               {checklist.completed_count}
             </span>
@@ -223,9 +232,14 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
       </div>
 
       {/* Progress Bar */}
-      <div className="jd-w-full jd-bg-gray-200 jd-dark:jd-bg-gray-700 jd-rounded-full jd-h-2 jd-mb-4">
-        <div 
-          className="jd-bg-blue-500 jd-h-2 jd-rounded-full jd-transition-all jd-duration-300" 
+      <div
+        className={cn(
+          'jd-w-full jd-rounded-full jd-h-2 jd-mb-4',
+          isDarkMode ? 'jd-bg-secondary/40' : 'jd-bg-secondary/20'
+        )}
+      >
+        <div
+          className="jd-bg-primary jd-h-2 jd-rounded-full jd-transition-all jd-duration-300"
           style={{ width: `${(checklist.completed_count / checklist.total_count) * 100}%` }}
         />
       </div>
@@ -240,12 +254,18 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
               onClick={action.onClick}
               disabled={action.disabled || isLoading}
               className={cn(
-                "jd-w-full jd-flex jd-items-center jd-gap-3 jd-p-2 jd-rounded-md jd-text-left jd-transition-colors",
+                'jd-w-full jd-flex jd-items-center jd-gap-3 jd-p-2 jd-rounded-md jd-text-left jd-transition-colors',
                 action.completed
-                  ? "jd-bg-green-50 jd-dark:jd-bg-green-950/30 jd-border jd-border-green-200 jd-dark:jd-border-green-800"
+                  ? isDarkMode
+                    ? 'jd-bg-green-950/30 jd-border jd-border-green-800'
+                    : 'jd-bg-green-50 jd-border jd-border-green-200'
                   : action.disabled
-                  ? "jd-bg-gray-50 jd-dark:jd-bg-gray-900/30 jd-cursor-not-allowed jd-opacity-60"
-                  : "jd-bg-white jd-dark:jd-bg-gray-800/50 jd-border jd-border-gray-200 jd-dark:jd-border-gray-700 hover:jd-bg-gray-50 jd-dark:hover:jd-bg-gray-800 jd-cursor-pointer"
+                  ? isDarkMode
+                    ? 'jd-bg-gray-900/30 jd-cursor-not-allowed jd-opacity-60'
+                    : 'jd-bg-gray-50 jd-cursor-not-allowed jd-opacity-60'
+                  : isDarkMode
+                  ? 'jd-bg-gray-800/50 jd-border jd-border-gray-700 hover:jd-bg-gray-800 jd-cursor-pointer'
+                  : 'jd-bg-white jd-border jd-border-gray-200 hover:jd-bg-gray-50 jd-cursor-pointer'
               )}
             >
               <div className="jd-flex-shrink-0">
@@ -256,16 +276,24 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
                 )}
               </div>
               <div className="jd-flex-shrink-0">
-                <Icon className={cn(
-                  "jd-h-4 jd-w-4",
-                  action.completed ? "jd-text-green-600" : "jd-text-blue-500"
-                )} />
+                <Icon
+                  className={cn(
+                    'jd-h-4 jd-w-4',
+                    action.completed ? 'jd-text-green-600' : 'jd-text-primary'
+                  )}
+                />
               </div>
               <div className="jd-flex-1 jd-min-w-0">
-                <p className={cn(
-                  "jd-text-sm jd-font-medium",
-                  action.completed ? "jd-text-green-700 jd-dark:jd-text-green-400" : "jd-text-foreground"
-                )}>
+                <p
+                  className={cn(
+                    'jd-text-sm jd-font-medium',
+                    action.completed
+                      ? isDarkMode
+                        ? 'jd-text-green-400'
+                        : 'jd-text-green-700'
+                      : 'jd-text-foreground'
+                  )}
+                >
                   {action.title}
                 </p>
               </div>
@@ -275,8 +303,18 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
       </div>
 
       {checklist.is_complete && (
-        <div className="jd-mt-3 jd-p-2 jd-bg-green-50 jd-dark:jd-bg-green-950/30 jd-border jd-border-green-200 jd-dark:jd-border-green-800 jd-rounded-md">
-          <p className="jd-text-sm jd-text-green-700 jd-dark:jd-text-green-400 jd-text-center jd-font-medium">
+        <div
+          className={cn(
+            'jd-mt-3 jd-p-2 jd-rounded-md jd-border',
+            isDarkMode ? 'jd-bg-green-950/30 jd-border-green-800' : 'jd-bg-green-50 jd-border-green-200'
+          )}
+        >
+          <p
+            className={cn(
+              'jd-text-sm jd-text-center jd-font-medium',
+              isDarkMode ? 'jd-text-green-400' : 'jd-text-green-700'
+            )}
+          >
             🎉 {getMessage('onboardingComplete', undefined, 'Great job! You\'ve completed the onboarding.')}
           </p>
         </div>
