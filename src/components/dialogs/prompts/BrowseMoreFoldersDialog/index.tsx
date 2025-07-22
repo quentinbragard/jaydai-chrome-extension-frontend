@@ -31,13 +31,18 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
   const { data: userFolders = [], isLoading: loadingUser } = useUserFolders();
   const { data: organizationFolders = [], isLoading: loadingOrg } = useOrganizationFolders();
   const { data: organizations = [] } = useOrganizations();
-  const { data: pinnedData, refetch: refetchPinned } = usePinnedFolders();
+  const { data: pinnedData } = usePinnedFolders();
   const { toggleFolderPin } = useFolderMutations();
   const { toggleTemplatePin } = useTemplateMutations();
   const { useTemplate } = useTemplateActions();
   const { data: unorganizedTemplates = [], isLoading: loadingUnorganized } = useUnorganizedTemplates();
 
-  const pinnedFolderIds = useMemo(() => pinnedData?.pinnedIds || [], [pinnedData]);
+  const pinnedFolderIds = useMemo(() => {
+    if (Array.isArray(pinnedData)) {
+      return pinnedData.map(f => f.id);
+    }
+    return pinnedData?.pinnedIds || [];
+  }, [pinnedData]);
   const [localPinnedIds, setLocalPinnedIds] = useState<number[]>(pinnedFolderIds);
 
   useEffect(() => {
@@ -76,7 +81,6 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
 
       try {
         await toggleFolderPin.mutateAsync({ folderId, isPinned, type });
-        refetchPinned();
       } catch (error) {
         console.error('Error toggling pin:', error);
         // Revert on error
@@ -85,7 +89,7 @@ export const BrowseMoreFoldersDialog: React.FC = () => {
         );
       }
     },
-    [toggleFolderPin, refetchPinned]
+    [toggleFolderPin]
   );
 
   const handleToggleTemplatePin = useCallback(
