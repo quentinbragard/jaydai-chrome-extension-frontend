@@ -110,14 +110,19 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
     }
   }, []);
 
-  // Initial fetch and re-fetch when enabled becomes true
+  // Initial fetch and re-fetch when dialog is opened
   useEffect(() => {
     if (!enabled) return;
-    
-    // Extract block IDs from metadata if available
-    const metadataBlockIds = metadata ? extractBlockIdsFromTemplateMetadata(metadata) : undefined;
+
+    // Extract block IDs from metadata if available. We intentionally do not
+    // re-run this effect when metadata changes while the dialog is open to
+    // avoid triggering the loading state on every metadata update.
+    const metadataBlockIds = metadata
+      ? extractBlockIdsFromTemplateMetadata(metadata)
+      : undefined;
     fetchBlocks(metadataBlockIds);
-  }, [fetchBlocks, enabled, metadata]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchBlocks, enabled]);
 
   // Add a new block to the cache
   const addNewBlock = useCallback((block: Block) => {
