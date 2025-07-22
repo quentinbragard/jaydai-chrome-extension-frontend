@@ -7,7 +7,8 @@ import {
         toggleFolderPin,
         createFolder,
         deleteFolder,
-        updateFolder
+        updateFolder,
+        getPinnedFolders
       } from './prompts/folders';
 import {
         createTemplate,
@@ -37,6 +38,10 @@ class PromptApiClient {
     locale?: string
   ): Promise<any> {
     return getFolders(type, withSubfolders, withTemplates, locale);
+  }
+
+  async getPinnedFolders(withSubfolders: boolean = false, withTemplates: boolean = false, locale?: string): Promise<any> {
+    return getPinnedFolders(withSubfolders, withTemplates, locale);
   }
   
   async updatePinnedFolders(type: 'company' | 'organization', folderIds: number[]): Promise<any> {

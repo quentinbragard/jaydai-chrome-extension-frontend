@@ -8,53 +8,19 @@ import { TemplateFolder } from '@/types/prompts/templates';
 
 export function usePinnedFolders() {
   const userLocale = getCurrentLanguage();
+  console.log('👀👀👀', userLocale);
+
   
   return useQuery(QUERY_KEYS.PINNED_FOLDERS, async () => {
-    // Fetch user metadata to get pinned folder IDs
-    const metadata = await userApi.getUserMetadata();
-    if (!metadata.success) {
-      throw new Error(metadata.error || 'Failed to get user metadata');
+
+    const pinnedFoldersResponse = await promptApi.getPinnedFolders(true, true, userLocale);
+    if (!pinnedFoldersResponse.success) {
+      throw new Error(pinnedFoldersResponse.error || 'Failed to fetch pinned folders');
     }
 
-    // Consolidated pinned folder IDs (new field) plus legacy organization IDs
-    const genericIds = metadata.data?.pinned_folder_ids || [];
-    const legacyOrgIds = metadata.data?.pinned_organization_folder_ids || [];
-
-    // Consolidate and deduplicate all pinned folder IDs
-    const pinnedIds = Array.from(new Set([...genericIds, ...legacyOrgIds]));
-
-    let userPinned: TemplateFolder[] = [];
-    let orgPinned: TemplateFolder[] = [];
-
-    if (pinnedIds.length > 0) {
-      // Fetch both user and organization folders and filter by pinned IDs
-      const [userResponse, orgResponse] = await Promise.all([
-        promptApi.getFolders('user', true, true, userLocale),
-        promptApi.getFolders('organization', true, true, userLocale)
-      ]);
-
-        if (userResponse.success) {
-        const uFolders = (userResponse.data.folders.user || []) as TemplateFolder[];
-        userPinned = uFolders
-          .filter(folder => pinnedIds.includes(folder.id))
-          .map(folder => ({ ...folder, is_pinned: true }));
-      }
-
-        if (orgResponse.success) {
-        const oFolders = (orgResponse.data.folders.organization || []) as TemplateFolder[];
-        orgPinned = oFolders
-          .filter(folder => pinnedIds.includes(folder.id))
-          .map(folder => ({ ...folder, is_pinned: true }));
-      }
-    }
-
-    // Return pinned folders along with the raw ID list so other hooks
-    // can easily determine pin status for nested folders
-    return {
-      user: userPinned,
-      organization: orgPinned,
-      pinnedIds
-    };
+    const pinnedFolders = pinnedFoldersResponse.data.folders;
+    console.log('👀👀👀', pinnedFolders);
+    return pinnedFolders;
   }, {
     staleTime: 5 * 60 * 1000,
     cacheTime: 5 * 60 * 1000,

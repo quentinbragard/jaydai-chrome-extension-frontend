@@ -9,22 +9,19 @@ export interface GetFoldersResponse {
   message?: string;
 }
 
-export async function getFolders(
-  type?: string,
+export async function getPinnedFolders(
   withSubfolders = false,
   withTemplates = false,
   locale?: string
 ): Promise<GetFoldersResponse> {
-  console.log('getFolders', type, withSubfolders, withTemplates, locale);
   try {
     const params = new URLSearchParams();
-    if (type) params.append('type', type);
     if (withSubfolders) params.append('withSubfolders', 'true');
     if (withTemplates) params.append('withTemplates', 'true');
     const userLocale = locale || getCurrentLanguage();
     if (userLocale) params.append('locale', userLocale);
 
-    const endpoint = `/prompts/folders?${params.toString()}`;
+    const endpoint = `/prompts/folders/pinned?${params.toString()}`;
     const response = await apiClient.request(endpoint);
 
     if (response && response.success && response.data?.folders) {

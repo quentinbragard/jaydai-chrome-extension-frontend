@@ -6,3 +6,4 @@ export { toggleFolderPin } from './toggleFolderPin';
 export { createFolder } from './createFolder';
 export { deleteFolder } from './deleteFolder';
 export { updateFolder } from './updateFolder';
+export { getPinnedFolders } from './getPinnedFolders';

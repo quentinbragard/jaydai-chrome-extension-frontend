@@ -10,6 +10,7 @@ import { TemplateFolder } from '@/types/prompts/templates';
  */
 export function useAllFoldersOfType(folderType: 'organization' | 'company') {
   const userLocale = getCurrentLanguage();
+
   
   return useQuery(
     [QUERY_KEYS.ALL_FOLDERS, folderType], // Query key array with type
