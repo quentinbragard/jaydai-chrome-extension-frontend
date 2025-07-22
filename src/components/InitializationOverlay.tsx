@@ -45,6 +45,7 @@ const InitializationOverlay: React.FC = () => {
 
   return (
     <div className="jd-absolute jd-inset-0 jd-flex jd-items-center jd-justify-center jd-z-20 jd-bg-background/80 jd-backdrop-blur">
+
       <div className="jd-text-center jd-space-y-4">
         <div className="jd-spinner">
           <div className="jd-double-bounce1"></div>
