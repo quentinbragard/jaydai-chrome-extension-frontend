@@ -168,7 +168,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
   const PinnedFoldersContent = useCallback(() => {
     // Lazy load this content only when needed
     const LazyPinnedFolders = React.lazy(() => 
-      import('./LazyPinnedFoldersContent.tsx').then(module => ({ 
+      import('./LazyPinnedFoldersContent').then(module => ({ 
         default: module.LazyPinnedFoldersContent 
       }))
     );
@@ -207,7 +207,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
         openInformation({
           title: getMessage('useFirstTemplate', undefined, 'Use your first template'),
           description: getMessage('useFirstTemplateInfo', undefined, 'Select a template from one of your pinned folders below.'),
-          gifUrl: 'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//template_demo.gif',
+          gifUrl: 'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//use_template_demo.gif',
           actionText: getMessage('close', undefined, 'Close'),
           children: <PinnedFoldersContent />,
         }),

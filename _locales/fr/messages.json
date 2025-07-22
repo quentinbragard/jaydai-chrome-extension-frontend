@@ -2439,5 +2439,21 @@
   "shareMessageEmailBody": {
     "message": "Bonjour !\n\nJ'ai découvert cet outil AI de productivité appelé Jaydai et je pense que ça pourrait t'intéresser aussi ! https://jayd.ai\n\nCordialement,\n[Votre nom]",
     "description": "Message de partage email"
+  },
+  "paywall_message": {
+    "message": "Les utilisateurs gratuits peuvent créer jusqu'à 5 modèles personnels ou blocs. Passez à l'abonnement pour en créer plus.",
+    "description": "Message de paywall"
+  },
+  "upgrade_required": {
+    "message": "Mise à niveau requise",
+    "description": "Titre de la fenêtre de paywall"
+  },
+  "back_to_plans": {
+    "message": "Retour aux plans",
+    "description": "Texte du bouton de retour aux plans"
+  },
+  "get_discount_promo": {
+    "message": "Invitez un ami et obtenez -10%",
+    "description": "Texte du bouton d'invitation d'amie"
   }
 }

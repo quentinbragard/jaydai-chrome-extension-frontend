@@ -53,7 +53,7 @@ export const PaywallDialog: React.FC = () => {
             <div className="jd-text-center jd-space-y-4">
               <div className="jd-flex jd-items-center jd-justify-center jd-gap-2">
                 <span className="jd-font-mono jd-text-lg">JAYDAI-REFERRER-10</span>
-                <Button size="icon" variant="ghost" onClick={() => navigator.clipboard.writeText('JAYDAI-REFERRER-10') && toast.success(getMessage('copied', undefined, 'Copied'))}>
+                <Button size="icon" variant="ghost" onClick={() => navigator.clipboard.writeText('JAYDAI-REFERRER-10') && toast.success(getMessage('copiedToClipboard', undefined, 'Copied to clipboard'))}>
                   <Copy className="jd-w-4 jd-h-4" />
                 </Button>
               </div>

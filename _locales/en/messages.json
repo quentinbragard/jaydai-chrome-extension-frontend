@@ -2453,5 +2453,21 @@
   "shareMessageEmailBody": {
     "message": "Hi there!\n\nI wanted to share this amazing AI productivity tool I've been using called Jaydai. It has really helped me streamline my workflow and get things done more efficiently.\n\nI think you'd find it useful too! You can check it out here:",
     "description": "Message of the share Jaydai section"
+  },
+  "paywall_message": {
+    "message": "Free users can create up to 5 custom templates or blocks. Upgrade your subscription to add more.",
+    "description": "Message of the paywall"
+  },
+  "upgrade_required": {
+    "message": "Upgrade Required",
+    "description": "Title of the paywall"
+  },
+  "back_to_plans": {
+    "message": "Back to plans",
+    "description": "Text of the back to plans button"
+  },
+  "get_discount_promo": {
+    "message": "Invite a friend and get -10%",
+    "description": "Text of the invite a friend button"
   }
 }
