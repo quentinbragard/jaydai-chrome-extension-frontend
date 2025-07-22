@@ -114,7 +114,7 @@ export function useTemplateActions() {
           (response.message.includes('Subscription') ||
             response.message.includes('402'))
         ) {
-          openDialog(DIALOG_TYPES.PAYWALL);
+          openDialog(DIALOG_TYPES.PAYWALL, { reason: 'premiumTemplate' });
         }
         throw new Error(response.message || 'Failed to load template');
       }
@@ -150,7 +150,7 @@ export function useTemplateActions() {
         error instanceof Error &&
         (error.message.includes('Subscription') || error.message.includes('402'))
       ) {
-        openDialog(DIALOG_TYPES.PAYWALL);
+        openDialog(DIALOG_TYPES.PAYWALL, { reason: 'premiumTemplate' });
       }
       toast.error('Failed to open template editor');
     } finally {

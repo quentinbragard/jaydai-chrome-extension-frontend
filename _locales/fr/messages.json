@@ -2444,6 +2444,18 @@
     "message": "Les utilisateurs gratuits peuvent créer jusqu'à 5 modèles personnels ou blocs. Passez à l'abonnement pour en créer plus.",
     "description": "Message de paywall"
   },
+  "paywall_premium_template_message": {
+    "message": "Ce modèle est réservé aux utilisateurs Premium. Passez à l'abonnement pour accéder aux modèles premium.",
+    "description": "Message de paywall lors de l'accès à un modèle premium"
+  },
+  "paywall_template_limit_message": {
+    "message": "Les utilisateurs gratuits peuvent créer jusqu'à 5 modèles personnalisés. Passez à l'abonnement pour en créer plus.",
+    "description": "Message de paywall lors de l'atteinte de la limite de modèles"
+  },
+  "paywall_block_limit_message": {
+    "message": "Les utilisateurs gratuits peuvent créer jusqu'à 5 blocs. Passez à l'abonnement pour en créer plus.",
+    "description": "Message de paywall lors de l'atteinte de la limite de blocs"
+  },
   "upgrade_required": {
     "message": "Mise à niveau requise",
     "description": "Titre de la fenêtre de paywall"

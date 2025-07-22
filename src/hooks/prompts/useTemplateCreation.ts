@@ -81,7 +81,7 @@ export function useTemplateCreation() {
       onError: (error: any) => {
         console.error('Error creating template:', error);
         if (error?.message && error.message.includes('Subscription')) {
-          openDialog(DIALOG_TYPES.PAYWALL);
+          openDialog(DIALOG_TYPES.PAYWALL, { reason: 'templateLimit' });
         }
         toast.error(`Failed to create template: ${error?.message || 'Unknown error'}`);
       }
@@ -161,7 +161,7 @@ export function useTemplateCreation() {
       return true;
     } catch (error) {
       if (error instanceof Error && error.message.includes('Subscription')) {
-        openDialog(DIALOG_TYPES.PAYWALL);
+        openDialog(DIALOG_TYPES.PAYWALL, { reason: 'templateLimit' });
       }
       return false;
     }
