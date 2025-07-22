@@ -1,4 +1,3 @@
-// src/hooks/prompts/queries/folders/useAllPinnedFolders.ts
 import { useMemo } from 'react';
 import { usePinnedFolders } from './usePinnedFolders';
 import { useUserFolders, useOrganizationFolders } from './useUserCompanyOrganizationFolders';
@@ -9,18 +8,14 @@ import { TemplateFolder } from '@/types/prompts/templates';
  * Useful for determining pin status of folders in search results
  */
 export function useAllPinnedFolders() {
-  const { data: pinnedFolders = { user: [], organization: [], pinnedIds: [] } } = usePinnedFolders();
+  const { data: pinnedFolders = [] } = usePinnedFolders();
+  console.log('🙏🙏🙏', pinnedFolders);
   const { data: userFolders = [] } = useUserFolders();
   const { data: organizationFolders = [] } = useOrganizationFolders();
 
   // Get all pinned folder IDs in a flat array
   const allPinnedFolderIds = useMemo(() => {
-    if (pinnedFolders.pinnedIds && pinnedFolders.pinnedIds.length > 0) {
-      return pinnedFolders.pinnedIds;
-    }
-    const userPinnedIds = (pinnedFolders.user || []).map(folder => folder.id);
-    const organizationPinnedIds = (pinnedFolders.organization || []).map(folder => folder.id);
-    return [...userPinnedIds, ...organizationPinnedIds];
+    return pinnedFolders.map(folder => folder.id);
   }, [pinnedFolders]);
 
   // Recursively find folder by ID in folder tree
@@ -64,14 +59,9 @@ export function useAllPinnedFolders() {
   const allPinnedFolders = useMemo(() => {
     const folders: Array<TemplateFolder & { folderType: 'user' | 'organization' }> = [];
     
-    // Add pinned user folders
-    (pinnedFolders.user || []).forEach(folder => {
-      folders.push({ ...folder, folderType: 'user' as const });
-    });
-
-    // Add pinned organization folders
-    (pinnedFolders.organization || []).forEach(folder => {
-      folders.push({ ...folder, folderType: 'organization' as const });
+    // Add all pinned folders
+    pinnedFolders.forEach(folder => {
+      folders.push({ ...folder, folderType: folder.type as 'user' | 'organization' });
     });
 
     // Also check for nested folders that might be pinned
@@ -90,10 +80,10 @@ export function useAllPinnedFolders() {
         }
       }
     });
-
     return folders;
   }, [pinnedFolders, allPinnedFolderIds, findFolderById, userFolders]);
 
+  console.log('🙏🙏🙏👀🎉✅', allPinnedFolders);
   return {
     allPinnedFolderIds,
     allPinnedFolders,
