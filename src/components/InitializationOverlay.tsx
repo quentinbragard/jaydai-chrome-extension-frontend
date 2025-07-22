@@ -1,25 +1,49 @@
-import React, { useEffect, useState } from 'react';
-import { userApi } from '@/services/api';
+import React, { useEffect } from 'react';
+import { userApi, promptApi } from '@/services/api';
+import { blocksApi } from '@/services/api/BlocksApi';
 import { apiClient } from '@/services/api/ApiClient';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useQueryClient } from 'react-query';
-
-const STORAGE_KEY = 'jaydai.initialized';
+import { getCurrentLanguage, getMessage } from '@/core/utils/i18n';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { useInitialization } from '@/state/InitializationContext';
 
 /**
- * Displays a loading screen on first load while initial data is fetched.
+ * Displays a loading screen while initial data is fetched.
  */
 const InitializationOverlay: React.FC = () => {
-  const [show, setShow] = useState(false);
   const queryClient = useQueryClient();
+  const { loading, setLoading } = useInitialization();
 
   useEffect(() => {
-    chrome.storage.local.get([STORAGE_KEY], async result => {
-      if (result[STORAGE_KEY]) return;
+    const loadData = async () => {
+      const needFolders = !queryClient.getQueryData(QUERY_KEYS.ALL_FOLDERS);
+      const needTemplates = !queryClient.getQueryData(QUERY_KEYS.USER_TEMPLATES);
+      const needBlocks = !queryClient.getQueryData('blocks');
+      const needChecklist = !queryClient.getQueryData('onboardingChecklist');
 
-      setShow(true);
+      if (!needFolders && !needTemplates && !needBlocks && !needChecklist) {
+        return;
+      }
+
+      setLoading(true);
       try {
-        const meta = await userApi.getUserMetadata();
+        const userLocale = getCurrentLanguage();
+
+        const metaPromise = userApi.getUserMetadata();
+        const foldersPromise = promptApi.getFolders('organization', true, true, userLocale);
+        const templatesPromise = promptApi.getUserTemplates();
+        const blocksPromise = blocksApi.getBlocks({ published: true });
+        const checklistPromise = apiClient.request('/onboarding/checklist');
+
+        const [meta, folders, templates, blocks, checklist] = await Promise.all([
+          metaPromise,
+          foldersPromise,
+          templatesPromise,
+          blocksPromise,
+          checklistPromise
+        ]);
+
         if (meta.success) {
           queryClient.setQueryData(
             QUERY_KEYS.PINNED_TEMPLATES,
@@ -27,32 +51,38 @@ const InitializationOverlay: React.FC = () => {
           );
         }
 
-        const checklist = await apiClient.request('/onboarding/checklist');
+        if (folders.success) {
+          queryClient.setQueryData(QUERY_KEYS.ALL_FOLDERS, {
+            organization: folders.data.folders.organization || []
+          });
+        }
+
+        if (templates.success) {
+          queryClient.setQueryData(QUERY_KEYS.USER_TEMPLATES, templates.data);
+        }
+
+        if (blocks.success) {
+          queryClient.setQueryData('blocks', blocks.data);
+        }
+
         if ((checklist as any).success) {
           queryClient.setQueryData('onboardingChecklist', (checklist as any).data);
         }
-
-        chrome.storage.local.set({ [STORAGE_KEY]: true });
       } catch (error) {
         console.error('Initialization error:', error);
       } finally {
-        setShow(false);
+        setLoading(false);
       }
-    });
-  }, [queryClient]);
+    };
 
-  if (!show) return null;
+    loadData();
+  }, [queryClient, setLoading]);
+
+  if (!loading) return null;
 
   return (
     <div className="jd-absolute jd-inset-0 jd-flex jd-items-center jd-justify-center jd-z-20 jd-bg-background/80 jd-backdrop-blur">
-
-      <div className="jd-text-center jd-space-y-4">
-        <div className="jd-spinner">
-          <div className="jd-double-bounce1"></div>
-          <div className="jd-double-bounce2"></div>
-        </div>
-        <p className="jd-text-sm jd-font-medium jd-animate-pulse">Jaydai is initializing</p>
-      </div>
+      <LoadingSpinner message={getMessage('loading', undefined, 'Loading...')} />
     </div>
   );
 };

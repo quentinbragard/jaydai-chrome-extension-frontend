@@ -2,14 +2,22 @@
 import { useEffect, useState } from 'react';
 import { Block } from '@/types/prompts/blocks';
 import { blocksApi } from '@/services/api/BlocksApi';
+import { useQueryClient } from 'react-query';
 
 export function useBlocks() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   // Initial fetch
   useEffect(() => {
-    fetchBlocks();
+    const cached = queryClient.getQueryData<Block[]>('blocks');
+    if (cached && cached.length > 0) {
+      setBlocks(cached);
+      setLoading(false);
+    } else {
+      fetchBlocks();
+    }
   }, []);
 
   const fetchBlocks = async () => {
@@ -18,6 +26,7 @@ export function useBlocks() {
       const res = await blocksApi.getBlocks({ published: true });
       if (res.success) {
         setBlocks(res.data);
+        queryClient.setQueryData('blocks', res.data);
       } else {
         setBlocks([]);
       }

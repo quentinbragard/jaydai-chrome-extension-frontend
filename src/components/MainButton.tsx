@@ -10,6 +10,8 @@ import { getMessage } from '@/core/utils/i18n';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { cn } from '@/core/utils/classNames';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { useInitialization } from '@/state/InitializationContext';
 
 /**
  * Main floating button component that opens various panels
@@ -23,6 +25,8 @@ const MainButton = () => {
     toggleMenu,
     handleClosePanel,
   } = useMainButtonState();
+
+  const { loading: initLoading } = useInitialization();
 
   // Position chosen by the user (persisted in localStorage)
   const [savedPosition, setSavedPosition] = useState<{ x: number; y: number } | null>(null);
@@ -198,21 +202,28 @@ const MainButton = () => {
             )}
 
             {/* Main Button with logo - only clickable, not draggable */}
-            <Button 
+            <Button
               ref={buttonRef}
               onClick={handleMainButtonClick}
+              disabled={initLoading}
               className={cn(
                 'jd-bg-transparent hover:jd-bg-transparent jd-transition-all jd-duration-300',
                 'jd-w-full jd-h-full jd-rounded-full jd-p-0 jd-overflow-hidden',
                 'jd-flex jd-items-center jd-justify-center jd-z-20',
                 'hover:jd-scale-110 hover:jd-shadow-lg',
                 'jd-cursor-pointer',
-                isDragging && 'jd-scale-105'
+                isDragging && 'jd-scale-105',
+                initLoading && 'jd-opacity-60'
               )}
             >
-              <img 
+              {initLoading && (
+                <div className="jd-absolute jd-inset-0 jd-flex jd-items-center jd-justify-center jd-bg-background/60 jd-rounded-full">
+                  <LoadingSpinner size="sm" />
+                </div>
+              )}
+              <img
                 src={logoSrc}
-                alt={getMessage('appName', undefined, 'Jaydai Chrome Extension')} 
+                alt={getMessage('appName', undefined, 'Jaydai Chrome Extension')}
                 className={cn(
                   'jd-w-full jd-h-full jd-object-cover jd-pointer-events-none',
                   'jd-transition-all jd-duration-300',
