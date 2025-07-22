@@ -11,6 +11,7 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { useUserMetadata } from '@/hooks/prompts/queries/user';
 import { userApi } from '@/services/api/UserApi';
+import { dataCollectionService } from '@/services/user/DataCollectionService';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useQueryClient } from 'react-query';
 import { toast } from 'sonner';
@@ -85,6 +86,7 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
           ...(old || {}),
           data_collection: true,
         }));
+        dataCollectionService.setEnabled(true);
         navigateToPanel('stats');
       } else {
         throw new Error(response.message || 'Failed to update preference');

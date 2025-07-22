@@ -12,6 +12,7 @@ import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { userApi } from '@/services/api/UserApi';
+import { dataCollectionService } from '@/services/user/DataCollectionService';
 import { useSubscriptionStatus } from '@/hooks/subscription/useSubscriptionStatus';
 
 interface SettingsPanelProps {
@@ -67,9 +68,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     try {
       setLoading(true);
       const response = await userApi.getUserMetadata();
-      
+
       if (response.success && response.data) {
-        setDataCollection(response.data.data_collection !== false);
+        const enabled = response.data.data_collection !== false;
+        setDataCollection(enabled);
+        dataCollectionService.setEnabled(enabled);
       }
     } catch (error) {
       console.error('Error loading user preferences:', error);
@@ -85,11 +88,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       setLoading(true);
       
       const response = await userApi.updateDataCollection(enabled);
-      
+
       if (response.success) {
         setDataCollection(enabled);
+        dataCollectionService.setEnabled(enabled);
         toast.success(
-          enabled 
+          enabled
             ? getMessage('data_collection_enabled', undefined, 'Data collection enabled')
             : getMessage('data_collection_disabled', undefined, 'Data collection disabled')
         );
