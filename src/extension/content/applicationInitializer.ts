@@ -9,7 +9,6 @@ import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import Main from '@/components/Main';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
-import { dataCollectionService } from '@/services/user/DataCollectionService';
 
 /**
  * Main application initializer
@@ -53,7 +52,6 @@ export class AppInitializer {
       this.injectUIComponents();
        // Register all services
        registerServices();
-      await dataCollectionService.initialize();
       
       // Initialize event manager first
       eventManager.initialize();
