@@ -2548,5 +2548,53 @@
   "createBlockInfo": {
     "message": "Blocks are reusable pieces of prompts.",
     "description": "Description for creating a block"
+  },
+  "manage": {
+    "message": "Manage",
+    "description": "Text for the manage button"
+  },
+  "linkedin": {
+    "message": "LinkedIn",
+    "description": "Text for the LinkedIn button"
+  },
+  "linkedin_desc": {
+    "message": "Follow us on LinkedIn for updates",
+    "description": "Description for LinkedIn"
+  },
+  "privacy_policy": {
+    "message": "Privacy Policy",
+    "description": "Text for the privacy policy button"
+  },
+  "privacy_desc": {
+    "message": "Read our privacy policy",
+    "description": "Description for the privacy policy"
+  },
+  "data_collection": {
+    "message": "Data Collection",
+    "description": "Text for the data collection button"
+  },
+  "data_collection_desc": {
+    "message": "Allow collection of usage data for statistics",
+    "description": "Description for the data collection"
+  },
+  "disable_data_collection": {
+    "message": "Disable Data Collection",
+    "description": "Title for the data collection disable dialog"
+  },
+  "disable_data_collection_warning": {
+    "message": "Warning: Without data collection, you won't be able to see your AI statistics and usage analytics. Are you sure you want to continue?",
+    "description": "Warning message for the data collection disable dialog"
+  },
+  "disable": {
+    "message": "Disable",
+    "description": "Text for the disable button"
+  },
+  "follow": {
+    "message": "Follow",
+    "description": "Text for the follow button"
+  },
+  "read": {
+    "message": "Read",
+    "description": "Text for the read button"
   }
 }

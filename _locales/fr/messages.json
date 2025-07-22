@@ -2456,7 +2456,6 @@
     "message": "Invitez un ami et obtenez -10%",
     "description": "Texte du bouton d'invitation d'amie"
   },
-  ,
   "manage_subscription": {
     "message": "Gérer l'abonnement",
     "description": "Bouton ou titre pour gérer l'abonnement de l'utilisateur"
@@ -2536,5 +2535,53 @@
   "createBlockInfo": {
     "message": "Les blocs sont des pièces de prompts réutilisables.",
     "description": "Description pour la création d'un bloc"
+  },
+  "manage": {
+    "message": "Gérer",
+    "description": "Texte du bouton pour gérer l'abonnement"
+  },
+  "linkedin": {
+    "message": "LinkedIn",
+    "description": "Texte du bouton pour LinkedIn"
+  },
+  "linkedin_desc": {
+    "message": "Suivez-nous sur LinkedIn pour les mises à jour",
+    "description": "Description pour LinkedIn"
+  },
+  "privacy_policy": {
+    "message": "Politique de confidentialité",
+    "description": "Texte du bouton pour la politique de confidentialité"
+  },
+  "privacy_desc": {
+    "message": "Lisez notre politique de confidentialité",
+    "description": "Description pour la politique de confidentialité"
+  },
+  "data_collection": {
+    "message": "Collecte de données",
+    "description": "Texte du bouton pour la collecte de données"
+  },
+  "data_collection_desc": {
+    "message": "Autoriser la collecte de données d'utilisation pour les statistiques",
+    "description": "Description pour la collecte de données"
+  },
+  "disable_data_collection": {
+    "message": "Désactiver la collecte de données",
+    "description": "Titre pour la fenêtre de désactivation de la collecte de données"
+  },
+  "disable_data_collection_warning": {
+    "message": "Avertissement : Sans collecte de données, vous ne pourrez pas voir vos statistiques d'utilisation et vos analyses. Êtes-vous sûr de vouloir continuer ?",
+    "description": "Avertissement pour la désactivation de la collecte de données"
+  },
+  "disable": {
+    "message": "Désactiver",
+    "description": "Texte du bouton pour désactiver la collecte de données"
+  },
+  "read": {
+    "message": "Lire",
+    "description": "Texte du bouton pour lire la politique de confidentialité"
+  },
+  "follow": {
+    "message": "Suivre",
+    "description": "Texte du bouton pour suivre LinkedIn"
   }
 }
