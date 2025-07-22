@@ -77,21 +77,21 @@ export function useTemplateActions() {
     // Format content for insertion - normalizes newlines while preserving paragraph breaks
     const formattedContent = formatContentForInsertion(cleanContent);
     
+    // Mark onboarding completion immediately so the event isn't lost
+    onboardingTracker.markTemplateUsed();
+
     // Insert the content with a small delay to ensure dialog is fully closed
     setTimeout(() => {
       const success = insertContentIntoChat(formattedContent);
-      
+
       if (success) {
-        // Mark onboarding completion for first template use
-        onboardingTracker.markTemplateUsed();
-        
         // Only show toast on success
         toast.success('Template applied successfully');
         incrementUserProperty('template_usage_count', 1);
       } else {
         toast.error('Failed to apply template');
       }
-      
+
       // Dispatch an event to close the main button and panels
       //document.dispatchEvent(new CustomEvent('jaydai:close-all-panels'));
     }, 50);
