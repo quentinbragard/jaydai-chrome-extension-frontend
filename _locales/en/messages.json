@@ -2724,5 +2724,9 @@
   "enableDataCollection": {
     "message": "Enable Data Collection",
     "description": "Title for the enable data collection dialog"
+  },
+  "useFirstTemplateInfo": {
+    "message": "Select a template from one of your pinned folders below.",
+    "description": "Description for the use first template info dialog"
   }
 }

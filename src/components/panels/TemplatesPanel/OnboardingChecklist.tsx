@@ -304,7 +304,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
       <div className="jd-flex jd-items-center jd-justify-between jd-mb-3">
         <div className="jd-flex jd-items-center jd-gap-2">
           <div className="jd-w-8 jd-h-8 jd-bg-primary jd-rounded-full jd-flex jd-items-center jd-justify-center">
-            <span className="jd-text-white jd-font-bold jd-text-sm">
+            <span className="jd-text-foreground jd-font-bold jd-text-sm">
               {checklist.completed_count}
             </span>
           </div>

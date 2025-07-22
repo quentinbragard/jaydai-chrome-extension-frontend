@@ -2739,5 +2739,9 @@
   "enableDataCollection": {
     "message": "Activer la collecte de données",
     "description": "Titre pour la fenêtre d'activation de la collecte de données"
+  },
+  "useFirstTemplateInfo": {
+    "message": "Sélectionnez un modèle parmi vos dossiers épinglés ci-dessous.",
+    "description": "Description pour la fenêtre d'information sur l'utilisation du premier modèle"
   }
 }
