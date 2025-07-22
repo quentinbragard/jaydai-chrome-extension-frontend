@@ -34,13 +34,21 @@ export function registerServices(): void {
   
   // Other services
   serviceManager.registerService('notifications', NotificationService.getInstance());
-  serviceManager.registerService('stats', StatsService.getInstance());
   serviceManager.registerService('ui.slash', SlashCommandService.getInstance());
   
   // Legacy registrations for backward compatibility
   serviceManager.registerService('auth', AuthService.getInstance());
   serviceManager.registerService('user', UserProfileService.getInstance());
-  
+
+}
+
+/**
+ * Register stats service separately for lazy loading
+ */
+export function registerStatsService(): void {
+  if (!serviceManager.hasService('stats')) {
+    serviceManager.registerService('stats', StatsService.getInstance());
+  }
 }
 
 // Auth services exports
