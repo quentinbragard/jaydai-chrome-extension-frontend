@@ -2455,5 +2455,86 @@
   "get_discount_promo": {
     "message": "Invitez un ami et obtenez -10%",
     "description": "Texte du bouton d'invitation d'amie"
+  },
+  ,
+  "manage_subscription": {
+    "message": "Gérer l'abonnement",
+    "description": "Bouton ou titre pour gérer l'abonnement de l'utilisateur"
+  },
+  "manage_subscription_desc": {
+    "message": "Gérez votre abonnement actif",
+    "description": "Description pour la gestion d'un abonnement actif"
+  },
+  "trial_subscription_desc": {
+    "message": "Vous êtes en période d'essai",
+    "description": "Description pour un abonnement en période d'essai"
+  },
+  "past_due_subscription_desc": {
+    "message": "Paiement en retard - mettez à jour votre moyen de paiement",
+    "description": "Description pour un abonnement en retard de paiement"
+  },
+  "cancelled_subscription_desc": {
+    "message": "Réactivez votre abonnement annulé",
+    "description": "Description pour un abonnement annulé"
+  },
+  "try_premium_free": {
+    "message": "Essai gratuit de 3 jours • Sans engagement",
+    "description": "Description pour l'offre d'essai gratuit"
+  },
+  "startTrial": {
+    "message": "Démarrer l'essai",
+    "description": "Texte du bouton pour démarrer un essai gratuit"
+  },
+  "update_payment": {
+    "message": "Mettre à jour le paiement",
+    "description": "Texte du bouton pour mettre à jour le moyen de paiement"
+  },
+  "reactivate": {
+    "message": "Réactiver",
+    "description": "Texte du bouton pour réactiver un abonnement annulé"
+  },
+  "confirmInvitation": {
+    "message": "Confirmer l'invitation",
+    "description": "Titre de la fenêtre de confirmation d'invitation"
+  },
+  "confirmInvitationMessage": {
+    "message": "Êtes-vous sûr de vouloir envoyer une invitation à:",
+    "description": "Message de confirmation d'invitation"
+  },
+  "invitationWillBeSent": {
+    "message": "L'invitation sera envoyée de la part de [Votre nom] introduisant [Nom de l'invité] à Jaydai.",
+    "description": "Message indiquant que l'invitation sera envoyée"
+  },
+  "sendInvitation": {
+    "message": "Envoyer l'invitation",
+    "description": "Texte du bouton pour envoyer une invitation"
+  },
+  "emailRequired": {
+    "message": "Veuillez entrer une adresse email",
+    "description": "Message d'erreur lorsque l'adresse email est requise"
+  },
+  "invalidEmail": {
+    "message": "Veuillez entrer une adresse email valide",
+    "description": "Message d'erreur lorsque l'adresse email est invalide"
+  },
+  "inviteEmailSent": {
+    "message": "Invitation envoyée avec succès ! 🎉",
+    "description": "Message de succès lors de l'envoi d'une invitation"
+  },
+  "inviteEmailFailed": {
+    "message": "Échec de l'envoi de l'invitation",
+    "description": "Message d'erreur lors de l'envoi d'une invitation"
+  },
+  "inviteEmailError": {
+    "message": "Une erreur est survenue. Veuillez réessayer.",
+    "description": "Message d'erreur générique lors de l'envoi d'une invitation"
+  },
+  "createTemplateInfo": {
+    "message": "Les modèles vous permettent de sauvegarder et de réutiliser des prompts.",
+    "description": "Description pour la création d'un modèle"
+  },
+  "createBlockInfo": {
+    "message": "Les blocs sont des pièces de prompts réutilisables.",
+    "description": "Description pour la création d'un bloc"
   }
 }

@@ -2264,8 +2264,7 @@
   "tryShortcutInstructions": {
     "message": "Close this dialog and type //j in any chat input to see the magic happen.",
     "description": "Instructions to try the shortcut"
-  }
-  ,
+  },
   "monthlyPlan": {
     "message": "Monthly Plan",
     "description": "Label for monthly plan"
@@ -2469,5 +2468,85 @@
   "get_discount_promo": {
     "message": "Invite a friend and get -10%",
     "description": "Text of the invite a friend button"
+  },
+  "manage_subscription": {
+    "message": "Manage Subscription",
+    "description": "Bouton ou titre pour gérer l'abonnement de l'utilisateur"
+  },
+  "manage_subscription_desc": {
+    "message": "Manage your active subscription",
+    "description": "Description pour la gestion d'un abonnement actif"
+  },
+  "trial_subscription_desc": {
+    "message": "You are in your trial period",
+    "description": "Description pour un abonnement en période d'essai"
+  },
+  "past_due_subscription_desc": {
+    "message": "Payment is overdue - update payment method",
+    "description": "Description pour un abonnement en retard de paiement"
+  },
+  "cancelled_subscription_desc": {
+    "message": "Reactivate your cancelled subscription",
+    "description": "Description pour un abonnement annulé"
+  },
+  "try_premium_free": {
+    "message": "3-day free trial • No commitment",
+    "description": "Description for free trial offer"
+  },
+  "startTrial": {
+    "message": "Start Trial",
+    "description": "Button text for starting a free trial"
+  },
+  "update_payment": {
+    "message": "Update Payment",
+    "description": "Button text for updating payment method"
+  },
+  "reactivate": {
+    "message": "Reactivate",
+    "description": "Button text for reactivating a cancelled subscription"
+  },
+  "confirmInvitation": {
+    "message": "Confirm Invitation",
+    "description": "Title of the confirmation invitation window"
+  },
+  "confirmInvitationMessage": {
+    "message": "Are you sure you want to send an invitation to:",
+    "description": "Confirmation invitation message"
+  },
+  "invitationWillBeSent": {
+    "message": "The invitation will be sent from [Your name] introducing [Guest name] to Jaydai.",
+    "description": "Message indicating that the invitation will be sent"
+  },
+  "sendInvitation": {
+    "message": "Send Invitation",
+    "description": "Button text for sending an invitation"
+  },
+  "emailRequired": {
+    "message": "Please enter an email address",
+    "description": "Error message when email address is required"
+  },
+  "invalidEmail": {
+    "message": "Please enter a valid email address",
+    "description": "Error message when email address is invalid"
+  },
+  "inviteEmailSent": {
+    "message": "Invitation sent successfully! 🎉",
+    "description": "Success message when an invitation is sent"
+  },
+  "inviteEmailFailed": {
+    "message": "Failed to send invitation",
+    "description": "Error message when an invitation fails to send"
+  },
+  "inviteEmailError": {
+    "message": "An error occurred. Please try again.",
+    "description": "Generic error message when sending an invitation"
+  },
+  "createTemplateInfo": {
+    "message": "Templates let you save and reuse prompts.",
+    "description": "Description for creating a template"
+  },
+  "createBlockInfo": {
+    "message": "Blocks are reusable pieces of prompts.",
+    "description": "Description for creating a block"
   }
 }
