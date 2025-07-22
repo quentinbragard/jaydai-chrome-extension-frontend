@@ -299,32 +299,20 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     });
   }, [pinnedTemplates, searchQuery]);
 
-  const getPinnedItemTitle = (item: TemplateFolder | Template) =>
-    'templates' in item || 'Folders' in item
-      ? getFolderTitle(item as TemplateFolder)
-      : getLocalizedContent((item as Template).title) || '';
+  const sortedPinnedItems = useMemo(() => {
+    const getTitle = (item: TemplateFolder | Template) =>
+      'templates' in item || 'Folders' in item
+        ? getFolderTitle(item as TemplateFolder)
+        : getLocalizedContent((item as Template).title) || '';
 
-  const sortedPinnedFolders = useMemo(() => {
-    const folders = [...filteredPinned.user, ...filteredPinned.organization];
-    return folders.sort((a, b) =>
-      getPinnedItemTitle(a).localeCompare(getPinnedItemTitle(b), undefined, {
-        sensitivity: 'base',
-      })
-    );
-  }, [filteredPinned]);
+    const all = [
+      ...filteredPinnedTemplates,
+      ...filteredPinned.user,
+      ...filteredPinned.organization,
+    ];
 
-  const sortedPinnedTemplates = useMemo(() => {
-    return [...filteredPinnedTemplates].sort((a, b) =>
-      getPinnedItemTitle(a).localeCompare(getPinnedItemTitle(b), undefined, {
-        sensitivity: 'base',
-      })
-    );
-  }, [filteredPinnedTemplates]);
-
-  const sortedPinnedItems = useMemo(
-    () => [...sortedPinnedFolders, ...sortedPinnedTemplates],
-    [sortedPinnedFolders, sortedPinnedTemplates]
-  );
+    return [...all].sort((a, b) => getTitle(a).localeCompare(getTitle(b), undefined, { sensitivity: 'base' }));
+  }, [filteredPinnedTemplates, filteredPinned]);
 
   // Mutations and actions
   const { toggleFolderPin, deleteFolder, createFolder } = useFolderMutations();
@@ -734,12 +722,12 @@ const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
         <Separator />
 
-        {/* Pinned Folders Section */}
+        {/* Enhanced Pinned Templates Section */}
         <div>
           <div className="jd-flex jd-items-center jd-justify-between jd-text-sm jd-font-medium jd-text-muted-foreground jd-mb-2 jd-px-2">
             <div className="jd-flex jd-items-center">
               <FolderOpen className="jd-mr-2 jd-h-4 jd-w-4" />
-              {getMessage('pinnedFolders', undefined, 'Pinned Folders')}
+              {getMessage('pinnedTemplates', undefined, 'Pinned Templates')}
               {sortedPinnedItems.length > 0 && (
                 <span className="jd-ml-1 jd-text-xs jd-bg-primary/10 jd-text-primary jd-px-1.5 jd-py-0.5 jd-rounded-full">
                   {sortedPinnedItems.length}
