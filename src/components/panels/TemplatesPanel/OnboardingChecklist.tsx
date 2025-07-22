@@ -6,6 +6,7 @@ import { CheckCircle, Circle, X, Play, FileText, Blocks, Keyboard } from 'lucide
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
+import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 import { Template } from '@/types/prompts/templates';
 
 interface OnboardingChecklistData {
@@ -183,6 +184,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
   // Memoized quick selector function
   const openQuickSelector = useCallback(() => {
     try {
+      onboardingTracker.markKeyboardShortcutUsed();
       const service: any = window.slashCommandService || {};
       const target = service.inputEl as HTMLElement | null;
       if (target && service.quickSelector) {
