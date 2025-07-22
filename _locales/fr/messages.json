@@ -2723,5 +2723,21 @@
   "manage_billing": {
     "message": "Gérer la facturation",
     "description": "Texte du bouton pour gérer la facturation"
+  },
+  "dataCollectionRequired": {
+    "message": "Collecte de données requise",
+    "description": "Titre pour la fenêtre de collecte de données requise"
+  },
+  "noStatsAvailable": {
+    "message": "Aucune statistique disponible",
+    "description": "Titre pour la fenêtre de aucune statistique disponible"
+  },
+  "enableDataCollectionForStats": {
+    "message": "Activez la collecte de données pour voir vos statistiques d'utilisation et vos analyses",
+    "description": "Description pour la fenêtre d'activation de la collecte de données pour les statistiques"
+  },
+  "enableDataCollection": {
+    "message": "Activer la collecte de données",
+    "description": "Titre pour la fenêtre d'activation de la collecte de données"
   }
 }

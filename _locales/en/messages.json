@@ -2708,5 +2708,21 @@
   "manage_billing": {
     "message": "Manage Billing",
     "description": "Text for the manage billing button"
+  },
+  "dataCollectionRequired": {
+    "message": "Data Collection Required",
+    "description": "Title for the data collection required dialog"
+  },
+  "noStatsAvailable": {
+    "message": "No stats available yet",
+    "description": "Title for the no stats available dialog"
+  },
+  "enableDataCollectionForStats": {
+    "message": "Enable data collection to view your AI usage statistics and insights",
+    "description": "Description for the enable data collection for stats dialog"
+  },
+  "enableDataCollection": {
+    "message": "Enable Data Collection",
+    "description": "Title for the enable data collection dialog"
   }
 }

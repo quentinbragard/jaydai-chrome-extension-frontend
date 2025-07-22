@@ -8,7 +8,6 @@ import StatsCard from './StatsCard';
 import StatsDetailRow from './StatsDetailRow';
 import BasePanel from '../BasePanel';
 import ErrorBoundary from '../../common/ErrorBoundary';
-import { getMessage } from '@/core/utils/i18n';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { userApi } from '@/services/api';
@@ -16,6 +15,7 @@ import { useQueryClient } from 'react-query';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import { toast } from 'sonner';
 import { useUserMetadata } from '@/hooks/prompts/queries/user';
+import { getMessage } from '@/core/utils/i18n';
 
 interface StatsPanelProps {
   showBackButton?: boolean;
@@ -155,12 +155,12 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
           {loading ? (
             <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-p-8 jd-text-center">
               <div className="jd-animate-spin jd-h-8 jd-w-8 jd-border-4 jd-border-primary jd-border-t-transparent jd-rounded-full jd-mb-3"></div>
-              <p className="jd-text-muted-foreground jd-font-medium">Loading...</p>
+              <p className="jd-text-muted-foreground jd-font-medium">{getMessage('loading', undefined, 'Loading...')}</p>
             </div>
           ) : !dataCollectionEnabled ? (
             <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-p-8 jd-text-center">
               <BarChart2 className="jd-h-10 jd-w-10 jd-text-muted-foreground jd-mb-3 jd-opacity-30" />
-              <p className="jd-text-muted-foreground jd-font-medium">Data Collection Required</p>
+              <p className="jd-text-muted-foreground jd-font-medium">{getMessage('dataCollectionRequired', undefined, 'Data Collection Required')}</p>
               <p className="jd-text-xs jd-text-muted-foreground jd-mt-1 jd-mb-4">
                 {getMessage('enableDataCollectionForStats', undefined, 'Enable data collection to view your AI usage statistics and insights')}
               </p>
@@ -175,7 +175,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
           ) : stats.totalChats === 0 && stats.totalMessages === 0 ? (
             <div className="jd-flex jd-flex-col jd-items-center jd-justify-center jd-p-8 jd-text-center">
               <BarChart2 className="jd-h-10 jd-w-10 jd-text-muted-foreground jd-mb-3 jd-opacity-30" />
-              <p className="jd-text-muted-foreground jd-font-medium">No stats available yet</p>
+              <p className="jd-text-muted-foreground jd-font-medium">{getMessage('noStatsAvailable', undefined, 'No stats available yet')}</p>
               <p className="jd-text-xs jd-text-muted-foreground jd-mt-1">
                 {getMessage('noStatsAvailable', undefined, 'Start a conversation to see your usage analytics')}
               </p>
