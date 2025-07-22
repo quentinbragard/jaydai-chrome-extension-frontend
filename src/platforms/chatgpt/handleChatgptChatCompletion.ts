@@ -55,6 +55,7 @@ function extractUserMessage(requestBody: ChatRequestBody): Message | null {
  * Handle chat completion requests
  */
 export function handleChatgptChatCompletion(event: CustomEvent): void {
+  console.log('handleChatgptChatCompletion❤️❤️❤️:', event);
   try {
     const { requestBody } = event.detail;
     if (!requestBody?.messages?.length) return;

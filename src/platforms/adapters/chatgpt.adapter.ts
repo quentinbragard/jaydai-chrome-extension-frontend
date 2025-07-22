@@ -13,10 +13,47 @@ export class ChatGptAdapter extends BasePlatformAdapter {
   }
   
   /**
-   * Extract user message from request body
+   * Extract user message from request body - Updated for new ChatGPT structure
    */
   extractUserMessage(requestBody: any, url?: string): Message | null {
     try {
+      console.log('🔍 Extracting user message from request body:', requestBody);
+      
+      // Handle new ChatGPT structure with "action": "next"
+      if (requestBody.action === 'next' && requestBody.messages) {
+        // Find the last user message in the messages array
+        const userMessage = requestBody.messages
+          .slice()
+          .reverse()
+          .find((m: any) => m.author?.role === 'user');
+        
+        if (!userMessage) {
+          console.warn('No user message found in new ChatGPT structure');
+          return null;
+        }
+        
+        // Extract content from the new structure
+        let content = '';
+        if (userMessage.content?.content_type === 'text' && userMessage.content?.parts) {
+          content = Array.isArray(userMessage.content.parts) 
+            ? userMessage.content.parts.join('\n')
+            : userMessage.content.parts;
+        }
+        
+        const conversationId = requestBody.conversation_id || '';
+        
+        return {
+          messageId: userMessage.id || `user-${Date.now()}`,
+          conversationId,
+          content,
+          role: 'user',
+          model: requestBody.model || 'unknown',
+          timestamp: userMessage.create_time ? userMessage.create_time * 1000 : Date.now(),
+          parent_message_provider_id: requestBody.parent_message_id
+        };
+      }
+      
+      // Fallback to legacy structure for backward compatibility
       const message = requestBody.messages?.find(
         (m: any) => m.author?.role === 'user' || m.role === 'user'
       );
@@ -214,19 +251,27 @@ export class ChatGptAdapter extends BasePlatformAdapter {
   }
   
   /**
-   * Handle chat completion event
+   * Handle chat completion event - Updated for new ChatGPT structure
    */
   handleChatCompletion(event: CustomEvent): void {
     try {
       const { requestBody } = event.detail;
-      if (!requestBody?.messages?.length) return;
+      console.log('🚀 Handling ChatGPT chat completion:', requestBody);
       
-      const message = this.extractUserMessage(requestBody);
-      if (message) {
-        // Emit event with extracted message
-        document.dispatchEvent(new CustomEvent('jaydai:message-extracted', {
-          detail: { message, platform: this.name }
-        }));
+      // Check for new structure first
+      if (requestBody?.action === 'next' || requestBody?.messages?.length) {
+        const message = this.extractUserMessage(requestBody);
+        if (message) {
+          console.log('✅ Extracted user message:', message);
+          // Emit event with extracted message
+          document.dispatchEvent(new CustomEvent('jaydai:message-extracted', {
+            detail: { message, platform: this.name }
+          }));
+        } else {
+          console.warn('❌ Failed to extract user message from request');
+        }
+      } else {
+        console.warn('❌ Unrecognized ChatGPT request structure:', requestBody);
       }
     } catch (error) {
       errorReporter.captureError(

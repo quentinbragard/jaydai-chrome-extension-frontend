@@ -7,14 +7,20 @@ import { detectPlatform } from './detectPlatform';
 /**
  * More robust endpoint matching that works with both string and regex patterns
  * @param {string} url - The URL to check
- * @param {string|RegExp} pattern - The pattern to match against
+ * @param {string|RegExp|Array} pattern - The pattern to match against
  * @returns {boolean} - Whether the URL matches the pattern
  */
 function matchEndpoint(url, pattern) {
+  // If pattern is an array, check each pattern
+  if (Array.isArray(pattern)) {
+    return pattern.some(p => matchEndpoint(url, p));
+  }
+  
   // If pattern is a RegExp object, test the URL with it
   if (pattern instanceof RegExp) {
     return pattern.test(url);
   }
+  
   // If pattern is a string, check if the URL includes the pattern
   return url.includes(pattern);
 }
@@ -34,29 +40,30 @@ export function getEndpointEvent(url) {
     ? new URL(url).pathname + (new URL(url).search || '')  // Include query string
     : url;
   
+  console.log('🔍 Checking endpoint:', { platform, pathname, url });
   
   // Use matchEndpoint for all endpoint checks
   if (matchEndpoint(pathname, ENDPOINTS[platform].SPECIFIC_CONVERSATION)) {
-   
+    console.log('✅ Matched SPECIFIC_CONVERSATION');
     return EVENTS.SPECIFIC_CONVERSATION;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].USER_INFO)) {
-   
+    console.log('✅ Matched USER_INFO');
     return EVENTS.USER_INFO;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].CONVERSATIONS_LIST)) {
-   
+    console.log('✅ Matched CONVERSATIONS_LIST');
     return EVENTS.CONVERSATIONS_LIST;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].CHAT_COMPLETION)) {
-   
+    console.log('✅ Matched CHAT_COMPLETION');
     return EVENTS.CHAT_COMPLETION;
   }
   
- 
+  console.log('❌ No endpoint match found');
   return null;
 }
 
@@ -78,7 +85,7 @@ export function extractRequestBody(init) {
     }
   } catch (e) {
     // Silent fail on parse errors
-   
+    console.warn('Failed to parse request body:', e);
   }
   
   return null;

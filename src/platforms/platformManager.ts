@@ -32,6 +32,7 @@ export function handleSpecificConversation(event: CustomEvent): Promise<void> {
 }
 
 export function handleChatCompletion(event: CustomEvent): void {
+  console.log('handleChatCompletion❤️❤️❤️:', event);
   const platform = event.detail.platform;
   const adapter = getAdapterByName(platform);
   

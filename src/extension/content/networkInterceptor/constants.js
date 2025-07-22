@@ -9,8 +9,8 @@ export const ENDPOINTS = {
   'chatgpt': {
     USER_INFO: '/backend-api/me',
     CONVERSATIONS_LIST: '/backend-api/conversations',
-    CHAT_COMPLETION: '/backend-api/conversation',
-    SPECIFIC_CONVERSATION: /\/backend-api\/conversation\/([a-f0-9-]+)$/
+    CHAT_COMPLETION: '/backend-api/f/conversation',
+    SPECIFIC_CONVERSATION: /\/backend-api\/f\/conversation\/([a-f0-9-]+)$/
   },
   'claude': {
     USER_INFO: '/api/user',
