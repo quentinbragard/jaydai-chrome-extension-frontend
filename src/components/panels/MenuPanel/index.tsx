@@ -9,7 +9,6 @@ import BasePanel from '../BasePanel';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
-import InitializationOverlay from '@/components/InitializationOverlay';
 
 // Define a type for our menu items
 type MenuItem = {
@@ -116,7 +115,6 @@ const MenuPanel: React.FC<MenuPanelProps> = ({
       onClose={onClose}
       className="jd-w-56 jd-relative"
     >
-      <InitializationOverlay />
       <Card className="jd-p-1 jd-shadow-none jd-border-0 jd-bg-background jd-text-foreground jd-w-full">
         <div className="jd-flex jd-flex-col jd-space-y-1 jd-w-full">
           {menuItems.map((item) => (
