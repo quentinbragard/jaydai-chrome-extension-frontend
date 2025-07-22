@@ -8,6 +8,7 @@ import { OrganizationImage } from '@/components/organizations';
 import { Template } from '@/types/prompts/templates';
 import { getMessage } from '@/core/utils/i18n';
 import { usePinnedTemplates } from '@/hooks/prompts';
+import { useSubscriptionStatus } from '@/hooks/subscription/useSubscriptionStatus';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 const iconColorMap = {
@@ -69,6 +70,10 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
 
   // Determine if the template is free to use
   const isFree = (template as any).is_free === true;
+
+  const { subscription } = useSubscriptionStatus();
+  const hasActiveSubscription =
+    subscription?.status === 'active' || subscription?.status === 'trialing';
   
   // Get organization data
   const templateOrganization = (template as any).organization || 
@@ -225,21 +230,23 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
         )}
 
       <div className="jd-ml-2 jd-flex jd-items-center jd-gap-1">
-        {/* Pin button or lock icon depending on template availability */}
+        {/* Pin button or lock icon based on subscription status */}
         {showPinControls && (
           <div
             className={`jd-ml-auto jd-items-center jd-gap-1 jd-flex ${
               isPinned ? '' : 'jd-opacity-0 group-hover/template:jd-opacity-100 jd-transition-opacity'
             }`}
           >
-            {onTogglePin && isFree ? (
-              <PinButton
-                type="template"
-                isPinned={isPinned}
-                onClick={handleTogglePin}
-              />
-            ) : (
+            {isFree && !hasActiveSubscription ? (
               <Lock className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-opacity-70" />
+            ) : (
+              onTogglePin && (
+                <PinButton
+                  type="template"
+                  isPinned={isPinned}
+                  onClick={handleTogglePin}
+                />
+              )
             )}
           </div>
         )}
