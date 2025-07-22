@@ -16,6 +16,8 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
+import { serviceManager } from '@/core/managers/ServiceManager';
+import { registerStatsService } from '@/services';
 
 interface StatsPanelProps {
   showBackButton?: boolean;
@@ -35,8 +37,6 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
   className, 
   maxHeight = '75vh'
 }) => {
-  // Get stats service
-  const statsService = useService<StatsService>('stats');
   
   // Initialize stats state with defaults
   const [stats, setStats] = useState<Stats>({
@@ -68,23 +68,26 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
 
   // Get stats on mount and subscribe to updates
   useEffect(() => {
-    if (statsService) {
-      // Initial stats
-      const initialStats = statsService.getStats();
-      setStats(initialStats);
-      
-      // Subscribe to updates
-      const unsubscribe = statsService.onUpdate((newStats) => {
-        setStats(newStats);
-      });
-      
-      // Manually trigger a refresh
-      statsService.refreshStats();
-      
-      // Cleanup subscription on unmount
-      return unsubscribe;
-    }
-  }, [statsService]);
+    let unsubscribe: (() => void) | undefined;
+    const init = async () => {
+      if (!serviceManager.hasService('stats')) {
+        registerStatsService();
+      }
+
+      await serviceManager.initializeServiceByName('stats');
+      const svc = serviceManager.getService<StatsService>('stats');
+      if (svc) {
+        const initialStats = svc.getStats();
+        setStats(initialStats);
+        unsubscribe = svc.onUpdate((newStats) => setStats(newStats));
+        svc.refreshStats();
+      }
+    };
+    init();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   // Format helpers
   const formatEnergy = (value: number) => value.toFixed(3);
