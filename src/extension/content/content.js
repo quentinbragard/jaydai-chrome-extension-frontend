@@ -11,15 +11,16 @@
 
   // INJECT THE INTERCEPTOR IMMEDIATELY - don't wait for DOMContentLoaded
   try {
-
+    
     // Create the script element
     const script = document.createElement('script');
     script.id = 'jaydai:network-interceptor';
     script.type = 'module';
     script.src = chrome.runtime.getURL('networkInterceptor.js');
-
+    
     // Function to actually inject the script
     const injectScript = () => {
+      // Try to inject into head or documentElement or body, whichever is available
       const target = document.head || document.documentElement || document.body;
       if (target) {
         target.appendChild(script);
@@ -27,15 +28,9 @@
         console.error("❌ No target element available for script injection");
       }
     };
-
-    chrome.storage.local.get(['data_collection_enabled'], (result) => {
-      if (result.data_collection_enabled !== false) {
-        // Try immediate injection
-        injectScript();
-      } else {
-        console.log('Data collection disabled - skipping network interceptor');
-      }
-    });
+    
+    // Try immediate injection
+    injectScript();
     
     // Also set up a fallback for DOMContentLoaded
     document.addEventListener('DOMContentLoaded', () => {

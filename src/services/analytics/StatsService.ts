@@ -84,7 +84,6 @@ export class StatsService extends AbstractBaseService {
   private lastLoadTime: number = 0;
   private retryCount: number = 0;
   private isLoading: boolean = false;
-  private dataCollectionEnabled: boolean = true;
   private static instance: StatsService;
 
    private constructor() {
@@ -102,34 +101,21 @@ export class StatsService extends AbstractBaseService {
    * Initialize stats tracking
    */
   protected async onInitialize(): Promise<void> {
-    this.dataCollectionEnabled = await new Promise<boolean>((resolve) => {
-      try {
-        chrome.storage.local.get(['data_collection_enabled'], (result) => {
-          resolve(result.data_collection_enabled !== false);
-        });
-      } catch {
-        resolve(true);
-      }
-    });
-
-    if (!this.dataCollectionEnabled) {
-      console.log('Data collection disabled - StatsService not initialized');
-      return;
-    }
-
+    
     // Listen for relevant events
     this.setupEventListeners();
-
+    
     // Load initial stats
     await this.loadStats();
-
+    
     // Set up more frequent refresh from backend
     this.updateInterval = window.setInterval(() => {
+      // Only refresh if it's been at least 10 seconds since the last load
       const now = Date.now();
-      if (now - this.lastLoadTime >= 10000) {
+      if (now - this.lastLoadTime >= 10000) { // 10 seconds instead of 60 seconds
         this.loadStats();
       }
-    }, 20000);
+    }, 20000); // Check every 20 seconds
     
   }
   
@@ -137,7 +123,6 @@ export class StatsService extends AbstractBaseService {
    * Clean up resources
    */
   protected onCleanup(): void {
-    if (!this.dataCollectionEnabled) return;
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
