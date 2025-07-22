@@ -349,7 +349,7 @@ export const ShareDialog: React.FC = () => {
                     <Button
                       onClick={handleFriendInviteClick}
                       disabled={isLoading || !email.trim()}
-                      className="jd-w-full jd-relative jd-overflow-hidden jd-bg-gradient-to-r jd-from-primary jd-to-secondary hover:jd-from-primary/80 hover:jd-to-secondary/80 jd-text-forground hover:jd-text-secondary-foreground jd-border-none jd-py-3 jd-rounded-xl jd-transition-all jd-duration-300 jd-transform hover:jd-scale-[1.02] jd-shadow-lg hover:jd-shadow-xl jd-group"
+                      className="jd-w-full jd-relative jd-overflow-hidden jd-bg-gradient-to-r jd-from-primary jd-to-secondary hover:jd-from-primary/80 hover:jd-to-secondary/80 jd-text-forground hover:jd-text-primary-foreground jd-border-none jd-py-3 jd-rounded-xl jd-transition-all jd-duration-300 jd-transform hover:jd-scale-[1.02] jd-shadow-lg hover:jd-shadow-xl jd-group"
                     >
                       <div className="jd-absolute jd-inset-0 jd-bg-gradient-to-r jd-from-white/0 jd-via-white/20 jd-to-white/0 jd-translate-x-[-100%] group-hover:jd-translate-x-[100%] jd-transition-transform jd-duration-700" />
                       <div className="jd-relative jd-flex jd-items-center jd-justify-center jd-gap-2">
