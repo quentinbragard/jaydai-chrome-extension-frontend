@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart2, Zap, MessageCircle, Award, Activity, ExternalLink, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useService } from '@/core/hooks/useService';
-import { Stats, StatsService } from '@/services/analytics/StatsService';
+import { Stats } from '@/services/analytics/StatsService';
+import { useUserStats } from '@/hooks/stats/queries';
 import StatsCard from './StatsCard';
 import StatsDetailRow from './StatsDetailRow';
 import BasePanel from '../BasePanel';
@@ -35,8 +35,13 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
   className, 
   maxHeight = '75vh'
 }) => {
-  // Get stats service
-  const statsService = useService<StatsService>('stats');
+  const {
+    data: userMetadata,
+    isLoading: userLoading,
+  } = useUserMetadata();
+  const dataCollectionEnabled = userMetadata?.data_collection !== false;
+
+  const { data: statsData, isLoading: statsLoading, refetch } = useUserStats(dataCollectionEnabled);
   
   // Initialize stats state with defaults
   const [stats, setStats] = useState<Stats>({
@@ -66,12 +71,6 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
     },
     efficiency: 0
   });
-  const {
-    data: userMetadata,
-    isLoading: userLoading,
-  } = useUserMetadata();
-  const dataCollectionEnabled =
-    userMetadata?.data_collection !== false;
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
@@ -96,28 +95,14 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
   };
 
   useEffect(() => {
-    setLoading(userLoading);
-  }, [userLoading]);
+    setLoading(userLoading || statsLoading);
+  }, [userLoading, statsLoading]);
 
-  // Get stats on mount and subscribe to updates
   useEffect(() => {
-    if (statsService && dataCollectionEnabled) {
-      // Initial stats
-      const initialStats = statsService.getStats();
-      setStats(initialStats);
-      
-      // Subscribe to updates
-      const unsubscribe = statsService.onUpdate((newStats) => {
-        setStats(newStats);
-      });
-      
-      // Manually trigger a refresh
-      statsService.refreshStats();
-      
-      // Cleanup subscription on unmount
-      return unsubscribe;
+    if (statsData) {
+      setStats(statsData);
     }
-  }, [statsService, dataCollectionEnabled]);
+  }, [statsData]);
 
 
   // Format helpers

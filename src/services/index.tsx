@@ -14,7 +14,6 @@ import { TokenService } from './auth/TokenService';
 
 // Other services
 import { NotificationService } from './notifications/NotificationService';
-import { StatsService } from './analytics/StatsService';
 import { UserProfileService } from './user/UserProfileService';
 import { SlashCommandService } from './ui/SlashCommandService';
 
@@ -34,7 +33,6 @@ export function registerServices(): void {
   
   // Other services
   serviceManager.registerService('notifications', NotificationService.getInstance());
-  serviceManager.registerService('stats', StatsService.getInstance());
   serviceManager.registerService('ui.slash', SlashCommandService.getInstance());
   
   // Legacy registrations for backward compatibility
@@ -63,7 +61,6 @@ export {
 
 // Other services exports
 export {
-  StatsService,
   NotificationService,
   SlashCommandService,
 };
