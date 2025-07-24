@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BaseDialog } from '../BaseDialog';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialog, useDialogManager } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
@@ -18,6 +19,7 @@ export const PaywallDialog: React.FC = () => {
   const [showPromo, setShowPromo] = useState(false);
 
   useEffect(() => {
+    trackEvent(EVENTS.PAYWALL_OPENED, { source: data?.reason });
     const handler = () => setShowPromo(true);
     window.addEventListener('referral-invite-sent', handler);
     return () => window.removeEventListener('referral-invite-sent', handler);
@@ -50,12 +52,17 @@ export const PaywallDialog: React.FC = () => {
   }, [data]);
 
   const handlePaymentSuccess = () => {
+    if (authState.user) {
+      trackEvent(EVENTS.PAYMENT_COMPLETED, { source: 'paywall_dialog', userId: authState.user.id });
+    }
     dialogProps.onOpenChange(false);
     openDialog(DIALOG_TYPES.MANAGE_SUBSCRIPTION);
   };
 
   const handlePaymentCancel = () => {
-    // No-op for now
+    if (authState.user) {
+      trackEvent(EVENTS.PAYMENT_CANCELLED, { source: 'paywall_dialog', userId: authState.user.id });
+    }
   };
 
   if (!isOpen) return null;

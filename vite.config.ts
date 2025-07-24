@@ -2,6 +2,7 @@ import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import replace from '@rollup/plugin-replace';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
@@ -37,6 +38,20 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [
             react(),
+            replace({
+                // Remove the exact URL that caused Chrome Store rejection
+                "https://cdn.amplitude.com/libs/visual-tagging-selector-1.0.0-alpha.js.gz": "",
+                
+                // Also remove any other potential Amplitude CDN URLs
+                "https://cdn.amplitude.com/libs/visual-tagging-selector-1.0.0-alpha.js": "",
+                "https://sr-client-cfg.amplitude.com/config": "",
+                
+                // Prevent assignment issues
+                preventAssignment: true,
+                
+                // Apply to all file types
+                delimiters: ['', '']
+              }),
             tsconfigPaths(), // Add this to resolve path aliases correctly
             cssInjectedByJs(),
             viteStaticCopy({

@@ -152,7 +152,6 @@ export function useTemplateActions() {
       ) {
         openDialog(DIALOG_TYPES.PAYWALL, { reason: 'premiumTemplate' });
       }
-      toast.error('Failed to open template editor');
     } finally {
       setIsProcessing(false);
     }

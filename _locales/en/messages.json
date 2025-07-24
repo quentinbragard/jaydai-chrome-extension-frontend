@@ -2653,6 +2653,18 @@
     "message": "Your subscription will be cancelled on {0}. You will continue to have access until this date.",
     "description": "Message for the subscription cancelling dialog"
   },
+  "trial_ending_title": {
+    "message": "Trial Ending",
+    "description": "Title shown when a trial will end"
+  },
+  "trial_end_no_charge": {
+    "message": "Your trial will end on {0}. You won't be charged.",
+    "description": "Message shown when the user cancelled during trial"
+  },
+  "subscription_already_cancelled": {
+    "message": "Your subscription has been cancelled and will remain active until {0}. You will not be charged again.",
+    "description": "Message shown when subscription is set to cancel at period end"
+  },
   "billingStatus": {
     "message": "Billing Status",
     "description": "Text for the billing status button"
@@ -2728,5 +2740,57 @@
   "useFirstTemplateInfo": {
     "message": "Select a template from one of your pinned folders below.",
     "description": "Description for the use first template info dialog"
+  },
+  "trial_ends": {
+    "message": "Trial ends",
+    "description": "Text shown when a trial will end"
+  },
+  "trial_billing_info": {
+    "message": "Your payment method will be charged automatically when the trial ends, unless you cancel.",
+    "description": "Message shown when a trial will end"
+  },
+  "next_billing_date": {
+    "message": "Next billing date",
+    "description": "Text shown when the next billing date is expected"
+  },
+  "billing_status": {
+    "message": "Billing status",
+    "description": "Text shown when the billing status is displayed"
+  },
+  "cancelling_at_period_end": {
+    "message": "Cancelling at period end",
+    "description": "Text shown when the subscription is set to cancel at period end"
+  },
+  "trial_period": {
+    "message": "Trial period",
+    "description": "Text shown when the trial period is active"
+  },
+  "active_renewing": {
+    "message": "Active & renewing",
+    "description": "Text shown when the subscription is active and renewing"
+  },
+  "reactivate_subscription": {
+    "message": "Reactivate subscription",
+    "description": "Text shown when the subscription is reactivated"
+  },
+  "trial_management_info": {
+    "message": "You are currently in your free trial period. You can cancel anytime without being charged.",
+    "description": "Text shown when the trial is cancelled"
+  },
+  "cancel_trial": {
+    "message": "Cancel trial",
+    "description": "Text shown when the trial is cancelled"
+  },
+  "update_payment_method": {
+    "message": "Update payment method",
+    "description": "Text shown when the payment method is updated"
+  },
+  "searchTemplatesHint": {
+    "message": "You can search among hundreds of templates with the search bar. We recommend starting with one of these folders.",
+    "description": "Text shown when the search templates hint is displayed"
+  },
+  "requires_subscription": {
+    "message": "Requires subscription",
+    "description": "Text shown when the template is premium"
   }
 }

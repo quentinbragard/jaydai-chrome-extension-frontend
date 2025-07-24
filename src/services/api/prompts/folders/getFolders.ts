@@ -15,7 +15,6 @@ export async function getFolders(
   withTemplates = false,
   locale?: string
 ): Promise<GetFoldersResponse> {
-  console.log('getFolders', type, withSubfolders, withTemplates, locale);
   try {
     const params = new URLSearchParams();
     if (type) params.append('type', type);
@@ -35,7 +34,6 @@ export async function getFolders(
       response.data.folders = normalized;
     }
 
-    console.log('getFolders response ❤️❤️❤️❤️❤️', params.toString());
     return response as GetFoldersResponse;
   } catch (error) {
     console.error('Error fetching folders:', error);

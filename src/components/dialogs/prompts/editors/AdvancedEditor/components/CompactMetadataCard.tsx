@@ -48,7 +48,6 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      console.log(`Removing metadata for type: ${type}`);
       onRemove();
     } catch (error) {
       console.error(`Error removing metadata for type ${type}:`, error);
@@ -58,7 +57,6 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
   // FIXED: Enhanced error handling for select action
   const handleSelect = (val: string) => {
     try {
-      console.log(`Selecting value: ${val} for type: ${type}`);
       onSelect(val);
     } catch (error) {
       console.error(`Error selecting value ${val} for type ${type}:`, error);
@@ -68,7 +66,6 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
   // FIXED: Enhanced error handling for add item action
   const handleAddItem = (val: string) => {
     try {
-      console.log(`Adding item: ${val} for type: ${type}`);
       onAddItem(val);
     } catch (error) {
       console.error(`Error adding item ${val} for type ${type}:`, error);
@@ -78,7 +75,6 @@ export const CompactMetadataCard: React.FC<CompactMetadataCardProps> = ({
   // FIXED: Enhanced error handling for remove item action
   const handleRemoveItem = (id: string) => {
     try {
-      console.log(`Removing item: ${id} for type: ${type}`);
       onRemoveItem(id);
     } catch (error) {
       console.error(`Error removing item ${id} for type ${type}:`, error);

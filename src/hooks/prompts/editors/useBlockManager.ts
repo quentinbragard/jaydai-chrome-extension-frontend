@@ -1,5 +1,5 @@
 // src/hooks/prompts/editors/useBlockManager.ts - Simplified Version
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { 
   PromptMetadata, 
@@ -111,18 +111,24 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
   }, []);
 
   // Initial fetch and re-fetch when dialog is opened
+  const prevMetadataIdsRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!enabled) return;
 
-    // Extract block IDs from metadata if available. We intentionally do not
-    // re-run this effect when metadata changes while the dialog is open to
-    // avoid triggering the loading state on every metadata update.
+    // Extract block IDs from metadata if available. We allow re-fetching when
+    // the set of IDs changes (e.g. when metadata is loaded on dialog open).
     const metadataBlockIds = metadata
       ? extractBlockIdsFromTemplateMetadata(metadata)
       : undefined;
+
+    const idKey = (metadataBlockIds || []).sort((a, b) => a - b).join(',');
+    if (prevMetadataIdsRef.current !== null && idKey === prevMetadataIdsRef.current) return;
+    prevMetadataIdsRef.current = idKey;
+
     fetchBlocks(metadataBlockIds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchBlocks, enabled]);
+  }, [fetchBlocks, enabled, metadata]);
 
   // Add a new block to the cache
   const addNewBlock = useCallback((block: Block) => {

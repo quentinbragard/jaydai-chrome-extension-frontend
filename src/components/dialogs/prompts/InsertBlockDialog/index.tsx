@@ -81,8 +81,9 @@ const METADATA_FILTERS = [
 const InlineBlockCreator: React.FC<{
   onBlockCreated: (block: Block) => void;
   onCancel: () => void;
-}> = ({ onBlockCreated, onCancel }) => {
-  const [type, setType] = useState<BlockType>('custom');
+  initialType?: BlockType;
+}> = ({ onBlockCreated, onCancel, initialType }) => {
+  const [type, setType] = useState<BlockType>(initialType || 'custom');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -248,6 +249,7 @@ export const InsertBlockDialog: React.FC = () => {
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>('all');
   const [previewMode, setPreviewMode] = useState<'visual' | 'text'>('text');
   const [showInlineCreator, setShowInlineCreator] = useState(false);
+  const [inlineCreatorType, setInlineCreatorType] = useState<BlockType>('custom');
   const [showShortcutHelp, setShowShortcutHelp] = useState(false);
   const [editableContent, setEditableContent] = useState('');
   const [blockContents, setBlockContents] = useState<Record<number, string>>({});
@@ -372,6 +374,11 @@ export const InsertBlockDialog: React.FC = () => {
   };
 
   const handleCreate = () => {
+    setInlineCreatorType(
+      selectedTypeFilter !== 'all'
+        ? (selectedTypeFilter as BlockType)
+        : 'custom'
+    );
     setShowInlineCreator(true);
   };
 
@@ -461,7 +468,6 @@ useEffect(() => {
 
   if (!isOpen) return null;
 
-  console.log("platform", platform);
 
   const footer = (
     <div className="jd-flex jd-justify-between">
@@ -593,6 +599,7 @@ useEffect(() => {
           {showInlineCreator && (
             <div className="jd-mb-4">
               <InlineBlockCreator
+                initialType={inlineCreatorType}
                 onBlockCreated={handleBlockCreated}
                 onCancel={() => setShowInlineCreator(false)}
               />

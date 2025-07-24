@@ -8,17 +8,13 @@ import { TemplateFolder } from '@/types/prompts/templates';
 
 export function usePinnedFolders() {
   const userLocale = getCurrentLanguage();
-  console.log('🌍 usePinnedFolders locale:', userLocale);
 
   return useQuery(
     QUERY_KEYS.PINNED_FOLDERS, 
     async () => {
-      console.log('🚀 Fetching pinned folders...');
       
       const pinnedFoldersResponse = await promptApi.getPinnedFolders(true, true, userLocale);
-      
-      console.log('📦 Pinned folders API response:', pinnedFoldersResponse);
-      
+            
       if (!pinnedFoldersResponse.success) {
         const errorMessage = pinnedFoldersResponse.error || pinnedFoldersResponse.message || 'Failed to fetch pinned folders';
         console.error('❌ Pinned folders fetch failed:', errorMessage);
@@ -61,7 +57,6 @@ export function usePinnedFolders() {
         pinnedFolders = [];
       }
 
-      console.log('✅ Processed pinned folders:', pinnedFolders);
       
       return pinnedFolders;
     }, 
@@ -82,9 +77,6 @@ export function usePinnedFolders() {
       onError: (error: Error) => {
         console.error('❌ usePinnedFolders error:', error);
         toast.error(`Failed to load pinned folders: ${error.message}`);
-      },
-      onSuccess: (data) => {
-        console.log('✅ usePinnedFolders success:', data);
       }
     }
   );

@@ -8,7 +8,6 @@ import { detectPlatform } from '@/platforms/platformManager';
  */
 export const initAmplitude = (userId?: string, autoCapture = true) => {
   const apiKey = process.env.VITE_AMPLITUDE_API_KEY;
-  console.log('Amplitude API key:', apiKey);
 
   if (!apiKey) {
     console.error('Amplitude API key is not defined.');
@@ -17,8 +16,18 @@ export const initAmplitude = (userId?: string, autoCapture = true) => {
 
   amplitude.init(apiKey, {
     // Enable autocapture for automatic event tracking
-    autocapture: {
-      elementInteractions: autoCapture
+    autocapture: false,
+    // IMPORTANT: Disable features that load remote code
+    config: {
+      // Disable visual tagging to prevent remote code loading
+      includeGclid: false,
+      includeFbclid: false,
+      includeReferrer: false,
+      includeUtm: false,
+      // Disable any remote script loading
+      optOut: false,
+      // Ensure no remote resources are loaded
+      serverUrl: undefined // Use default, don't override
     }
   });
   
@@ -88,31 +97,35 @@ export const EVENTS = {
   ONBOARDING_SKIPPED: 'Onboarding Skipped',
   ONBOARDING_ERROR: 'Onboarding Error',
   ONBOARDING_GOTO_AI_TOOL: 'Onboarding Go To AI Tool',
-
-    // Payment & Subscription events
-    PAYMENT_INITIATED: 'Payment Initiated',
-    PAYMENT_COMPLETED: 'Payment Completed',
-    PAYMENT_FAILED: 'Payment Failed',
-    PAYMENT_CANCELLED: 'Payment Cancelled',
-    SUBSCRIPTION_CREATED: 'Subscription Created',
-    SUBSCRIPTION_UPDATED: 'Subscription Updated',
-    SUBSCRIPTION_CANCELLED: 'Subscription Cancelled',
-    SUBSCRIPTION_RENEWED: 'Subscription Renewed',
+  // Payment & Subscription events
+  PAYMENT_INITIATED: 'Payment Initiated',
+  PAYMENT_COMPLETED: 'Payment Completed',
+  PAYMENT_FAILED: 'Payment Failed',
+  PAYMENT_CANCELLED: 'Payment Cancelled',
+  PAYWALL_OPENED: 'Paywall Opened',
+  SUBSCRIPTION_CREATED: 'Subscription Created',
+  SUBSCRIPTION_UPDATED: 'Subscription Updated',
+  SUBSCRIPTION_CANCELLED: 'Subscription Cancelled',
+  SUBSCRIPTION_RENEWED: 'Subscription Renewed',
     
-    // Onboarding payment specific
-    ONBOARDING_PAYMENT_STEP_VIEWED: 'Onboarding Payment Step Viewed',
-    ONBOARDING_PAYMENT_COMPLETED: 'Onboarding Payment Completed',
-    ONBOARDING_PAYMENT_CANCELLED: 'Onboarding Payment Cancelled',
-    ONBOARDING_PAYMENT_SKIPPED: 'Onboarding Payment Skipped',
+  // Onboarding payment specific
+  ONBOARDING_PAYMENT_STEP_VIEWED: 'Onboarding Payment Step Viewed',
+  ONBOARDING_PAYMENT_COMPLETED: 'Onboarding Payment Completed',
+  ONBOARDING_PAYMENT_CANCELLED: 'Onboarding Payment Cancelled',
+  ONBOARDING_PAYMENT_SKIPPED: 'Onboarding Payment Skipped',
+
+  // Post onboarding checklist events
+  POST_ONBOARDING_CHECKLIST_ACTION_TAKEN: 'Post Onboarding Checklist Action Taken',
+  POST_ONBOARDING_CHECKLIST_VIEWED: 'Post Onboarding Checklist Viewed',
 
   POPUP_OPENED: 'Popup Opened',
   POPUP_AI_TOOL_CLICKED: 'Popup AI Tool Clicked',
 
    // Settings panel events
-   SETTINGS_PANEL_OPENED: 'settings_panel_opened',
-   DATA_COLLECTION_TOGGLED: 'data_collection_toggled',
-   MANAGE_SUBSCRIPTION_CLICKED: 'manage_subscription_clicked',
-   EXTERNAL_LINK_CLICKED: 'external_link_clicked',
+   SETTINGS_PANEL_OPENED: 'Settings Panel Opened',
+   DATA_COLLECTION_TOGGLED: 'Data Collection Toggled',
+   MANAGE_SUBSCRIPTION_CLICKED: 'Manage Subscription Clicked',
+   EXTERNAL_LINK_CLICKED: 'External Link Clicked',
   
   // Template events
   TEMPLATE_VIEWED: 'Template Viewed',
@@ -170,7 +183,7 @@ export const EVENTS = {
   // Tutorial events
   TUTORIAL_VIDEO_PLAYED: 'Tutorial Video Played',
   SUBSTACK_CLICKED: 'Substack Clicked',
-  TUTORIAL_GIF_HOVERED: 'Tutorial GIF Hovered',
+  TUTORIAL_GIF_CLICKED: 'Tutorial GIF Clicked',
 
   // Notification events
   NOTIFICATIONS_PANEL_OPENED: 'Notifications Panel Opened',
@@ -213,6 +226,7 @@ export const EVENTS = {
   SHARE_INVITATION_EMAIL_FAILED: 'Share Invitation Email Failed',
   SHARE_INVITATION_ACCEPTED: 'Share Invitation Accepted',
   SHARE_STATS_VIEWED: 'Share Stats Viewed',
+  SHARE_SOCIAL_PLATFORM: 'Share Social Platform Invite Sent',
   
   // Referral Events
   REFERRAL_SIGNUP_COMPLETED: 'Referral Signup Completed',

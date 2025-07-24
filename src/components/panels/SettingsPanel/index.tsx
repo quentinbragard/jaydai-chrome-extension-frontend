@@ -40,7 +40,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   } = useSubscriptionStatus();
   const queryClient = useQueryClient();
 
-  console.log('subscription --->', subscription);
   
   const [dataCollection, setDataCollection] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);

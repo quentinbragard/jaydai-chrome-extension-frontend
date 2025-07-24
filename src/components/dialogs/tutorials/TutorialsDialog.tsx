@@ -18,6 +18,7 @@ import { DIALOG_TYPES } from '../DialogRegistry';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 
 interface VideoInfo {
   id: string;
@@ -43,6 +44,11 @@ const featuredTutorials = [
     title: getMessage('createTemplate', undefined, 'Create Template'),
     subtitle: getMessage('createTemplate', undefined, 'Save and reuse your prompts'),
     url: 'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//templates_demo.gif',
+  },
+  {
+    title: getMessage('useFirstTemplate', undefined, 'Use your first template'),
+    subtitle: getMessage('useFirstTemplate', undefined, 'Use your first template'),
+    url: 'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//use_template_demo.gif',
   },
 ];
 
@@ -100,7 +106,22 @@ const videos: VideoInfo[] = [
 export const TutorialsDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.TUTORIALS_LIST);
   const { openDialog } = useDialogManager();
+  const { openCreateTemplate, openInsertBlock, openInformation } = useDialogActions();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const openQuickSelector = useCallback(() => {
+    try {
+      const service: any = (window as any).slashCommandService || {};
+      const target = service.inputEl as HTMLElement | null;
+      if (target && service.quickSelector) {
+        const position = { x: 100, y: 100 };
+        const cursorPos = 0;
+        service.quickSelector.open(position, target, cursorPos, 0);
+      }
+    } catch (error) {
+      console.error('Failed to open quick selector', error);
+    }
+  }, []);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -108,6 +129,28 @@ export const TutorialsDialog: React.FC = () => {
     },
     [dialogProps]
   );
+
+  const handleGifClick = (index: number) => {
+    trackEvent(EVENTS.TUTORIAL_GIF_CLICKED, {
+      tutorial_title: featuredTutorials[index].title,
+    });
+    if (index === 0) {
+      openQuickSelector();
+    } else if (index === 1) {
+      openInsertBlock();
+    } else if (index === 2) {
+      openCreateTemplate();
+    } else if (index === 3) {
+      openInformation({
+        title: getMessage('useFirstTemplate', undefined, 'Use your first template'),
+        description: getMessage('useFirstTemplateInfo', undefined, 'Select a template from one of your pinned folders below.'),
+        gifUrl: 'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//use_template_demo.gif',
+        actionText: getMessage('close', undefined, 'Close'),
+      });
+    }
+    // Close the tutorials dialog after performing the action
+    handleOpenChange(false);
+  };
 
   const openVideo = (url: string, title: string) => {
     openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { url, title });
@@ -172,11 +215,9 @@ export const TutorialsDialog: React.FC = () => {
                   }`}
                   onMouseEnter={() => {
                     setHoveredIndex(i);
-                    trackEvent(EVENTS.TUTORIAL_GIF_HOVERED, {
-                      tutorial_title: tutorial.title,
-                    });
                   }}
                   onMouseLeave={() => setHoveredIndex(null)}
+                  onClick={() => handleGifClick(i)}
                   style={{ minWidth: 0 }}
                 >
                   {/* Background Image */}

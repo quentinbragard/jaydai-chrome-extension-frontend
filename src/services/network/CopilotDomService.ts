@@ -63,7 +63,6 @@ export class CopilotDomService extends AbstractBaseService {
   private processMessageNode(el: HTMLElement): void {
     const ariaLabelledBy = el.getAttribute('aria-labelledby');
     if (!ariaLabelledBy) return;
-    console.log('ARIA LABELED BY----->', ariaLabelledBy);
 
     // Determine message type and extract message ID
     let role: 'user' | 'assistant' | null = null;
@@ -79,11 +78,9 @@ export class CopilotDomService extends AbstractBaseService {
 
     if (!role || !messageId) return;
 
-    console.log('Processing message:', { role, messageId, ariaLabelledBy });
 
     // Prevent duplicate processing
     if (this.processed.has(messageId)) {
-      console.log('Already processed:', messageId);
       return;
     }
 
@@ -102,7 +99,6 @@ export class CopilotDomService extends AbstractBaseService {
     const contentEl = el.querySelector('.font-ligatures-none');
     const text = (contentEl ? contentEl.textContent : el.textContent || '')?.trim() || '';
     if (!text) {
-      console.log('No text content found for user message:', id);
       return;
     }
 
@@ -119,7 +115,6 @@ export class CopilotDomService extends AbstractBaseService {
     // Mark as processed immediately to prevent duplicates
     this.processed.add(id);
     
-    console.log('📤 Copilot user message processed:', { id, contentLength: text.length });
     
     document.dispatchEvent(
       new CustomEvent('jaydai:message-extracted', { detail: { message, platform: 'copilot' } })
@@ -136,9 +131,7 @@ export class CopilotDomService extends AbstractBaseService {
       // CRITICAL: Check that streaming has ended
       // 1. Stop button should NOT be present (streaming ended)
       const stopButton = document.querySelector('button[data-testid="stop-button"]');
-      console.log('STOP BUTTON----->', stopButton);
       if (stopButton) {
-        console.log(`⏳ Message ${id} still streaming (stop button present)`);
         return;
       }
 
@@ -152,7 +145,6 @@ export class CopilotDomService extends AbstractBaseService {
         .trim();
       
       if (!text) {
-        console.log(`❌ Message ${id} has no content yet`);
         return;
       }
 
@@ -175,13 +167,6 @@ export class CopilotDomService extends AbstractBaseService {
         observer.disconnect();
         this.messageObservers.delete(id);
       }
-
-      console.log('✅ Copilot assistant message processed:', { 
-        id, 
-        contentLength: text.length,
-        hasStopButton: !!stopButton
-      });
-
       document.dispatchEvent(
         new CustomEvent('jaydai:message-extracted', { detail: { message, platform: 'copilot' } })
       );

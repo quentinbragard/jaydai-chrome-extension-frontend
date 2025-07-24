@@ -245,27 +245,12 @@ export const ShareDialog: React.FC = () => {
     
     window.open(url, '_blank', 'noopener,noreferrer');
     
-    trackEvent('SHARE_SOCIAL_PLATFORM', {
+    trackEvent(EVENTS.SHARE_SOCIAL_PLATFORM, {
       platform,
       user_email: user?.email,
     });
   };
 
-  const copyMessageToClipboard = (message: string, platform: string) => {
-    navigator.clipboard.writeText(message).then(() => {
-      setCopiedMessage(platform);
-      toast.success(getMessage('messageCopied', undefined, 'Message copied to clipboard!'));
-      
-      setTimeout(() => {
-        setCopiedMessage(null);
-      }, 2000);
-      
-      trackEvent('SHARE_MESSAGE_COPIED', {
-        platform,
-        user_email: user?.email,
-      });
-    });
-  };
 
   if (!isOpen) return null;
 
@@ -421,15 +406,8 @@ export const ShareDialog: React.FC = () => {
                 <Separator className="jd-my-6" />
 
                 <div className="jd-space-y-3">
-                  <div className="jd-text-center jd-mb-4">
-                    <div className="jd-inline-flex jd-items-center jd-gap-2 jd-px-3 jd-py-1 jd-bg-secondary/20 jd-rounded-full jd-text-sm jd-font-medium jd-text-secondary-foreground">
-                      <Users className="jd-w-4 jd-h-4" />
-                      {getMessage('growTogether', undefined, 'Grow together')}
-                    </div>
-                  </div>
-
                   <Button
-                    className="jd-w-full jd-group jd-relative jd-overflow-hidden jd-bg-white jd-dark:jd-bg-gray-800 jd-border-2 jd-border-gray-200 jd-dark:jd-border-gray-700 hover:jd-border-secondary/50 jd-dark:hover:jd-border-secondary/60 jd-text-gray-700 jd-dark:jd-text-gray-200 hover:jd-text-secondary jd-dark:hover:jd-text-secondary-foreground jd-py-3 jd-rounded-xl jd-transition-all jd-duration-300 hover:jd-shadow-lg"
+                    className="jd-w-full jd-group jd-relative jd-overflow-hidden jd-bg-white jd-dark:jd-bg-gray-800 jd-border-2 jd-border-gray-200 jd-dark:jd-border-gray-700 hover:jd-border-green-300 jd-dark:hover:jd-border-green-600 jd-text-gray-700 jd-dark:jd-text-gray-200 hover:jd-text-green-700 jd-dark:hover:jd-text-green-400 jd-py-3 jd-rounded-xl jd-transition-all jd-duration-300 hover:jd-shadow-lg"
                     variant="outline"
                     onClick={handleInviteTeam}
                     disabled={isLoading}

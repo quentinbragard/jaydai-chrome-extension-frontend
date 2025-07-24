@@ -75,7 +75,8 @@ export class StripeService {
         planName,
         price: plan.price,
         currency: plan.currency,
-        userId
+        userId,
+        source: detectPlatform() !== 'unknown' ? detectPlatform() : "onboarding"
       });
 
       const request: CreateCheckoutSessionRequest = {
@@ -143,7 +144,6 @@ export class StripeService {
         method: 'GET'
       });
 
-      console.log('response --->', response);
 
       if (!response.success) {
         throw new Error(response.error || 'Failed to get subscription status');

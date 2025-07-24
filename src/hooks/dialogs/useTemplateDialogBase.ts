@@ -357,7 +357,6 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
           const meta = initialData.template?.metadata 
             ? parseTemplateMetadata(initialData.template.metadata)
             : createMetadata();
-          console.log("INITIAL DATA CREATE", initialData);
           const content = getLocalizedContent(initialData.template?.content || '');
           
           setState(prev => ({
@@ -375,7 +374,6 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
             isProcessing: false
           }));
         } else if (dialogType === 'customize') {
-          console.log("INITIAL DATA CUSTOMIZE", initialData);
           // Enhanced customize mode initialization
           const meta = initialData.metadata 
             ? (typeof initialData.metadata === 'object' && initialData.metadata.role !== undefined
@@ -464,7 +462,6 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
 // Helper function (if not already available)
 function getLocalizedContent(content: any): string {
   const language = getCurrentLanguage();
-  console.log("CONTENT", content, language);
   if (typeof content === 'string') return content;
   if (content && typeof content === 'object' && content[language]) {
     return content[language];

@@ -1,5 +1,5 @@
 // src/components/panels/TemplatesPanel/OnboardingChecklist.tsx - Optimized Version
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo, useEffect } from 'react';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Circle, X, Play, FileText, Blocks, Keyboard } from 'lucide-react';
@@ -8,6 +8,7 @@ import { cn } from '@/core/utils/classNames';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 import { Template } from '@/types/prompts/templates';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface OnboardingChecklistData {
   first_template_created: boolean;
@@ -31,6 +32,7 @@ interface OnboardingChecklistProps {
   onDismiss: () => void;
   isLoading?: boolean;
 }
+
 
 // Memoized action item component to prevent unnecessary re-renders
 const ActionItem = memo<{
@@ -159,6 +161,11 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
   const { openInformation } = useDialogActions();
   const isDarkMode = useThemeDetector();
 
+  useEffect(() => {
+    trackEvent(EVENTS.POST_ONBOARDING_CHECKLIST_VIEWED, { checklist_completed_count: checklist.completed_count });
+  }, []);
+  
+
   // Memoize expensive operations
   const progressPercentage = useMemo(
     () => (checklist.completed_count / checklist.total_count) * 100,
@@ -181,6 +188,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
     );
   }, [onSelectTemplate]);
 
+
   // Memoized quick selector function
   const openQuickSelector = useCallback(() => {
     try {
@@ -192,6 +200,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
         const cursorPos = 0;
         service.quickSelector.open(position, target, cursorPos, 0);
       }
+      trackEvent(EVENTS.POST_ONBOARDING_CHECKLIST_ACTION_TAKEN, { action: 'keyboard_shortcut_used' });
     } catch (error) {
       console.error('Failed to open quick selector', error);
     }
@@ -212,6 +221,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
           gifUrl: 'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//use_template_demo.gif',
           actionText: getMessage('close', undefined, 'Close'),
           children: <PinnedFoldersContent />,
+          actionKey: 'first_template_used',
         }),
     },
     {
@@ -232,6 +242,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
             'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//templates_demo.gif',
           actionText: getMessage('createTemplate', undefined, 'Create Template'),
           onAction: onCreateTemplate,
+          actionKey: 'first_template_created',
         })
     },
     {
@@ -252,6 +263,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
             'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//blocs_demo.gif',
           actionText: getMessage('createBlock', undefined, 'Create Block'),
           onAction: onCreateBlock,
+          actionKey: 'first_block_created',
         })
     },
     {
@@ -272,6 +284,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
             'https://vetoswvwgsebhxetqppa.supabase.co/storage/v1/object/public/images//shortchut_demo.gif',
           actionText: getMessage('tryItNow', undefined, 'Try it now!'),
           onAction: openQuickSelector,
+          actionKey: 'keyboard_shortcut_used',
         })
     }
   ], [

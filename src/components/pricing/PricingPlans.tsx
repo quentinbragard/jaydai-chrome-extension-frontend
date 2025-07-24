@@ -12,6 +12,7 @@ import { buildReturnUrl } from '@/utils/stripe';
 import { User } from '@/types';
 import { cn } from '@/core/utils/classNames';
 import { detectPlatform } from '@/extension/content/networkInterceptor/detectPlatform';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface PricingPlansProps {
   user: User;
@@ -67,6 +68,15 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
     try {
       const plan = plans.find(p => p.id === selectedPlan);
       if (!plan) throw new Error(getMessage('invalidPlanSelected', undefined, 'Invalid plan selected'));
+
+      // Track the payment initiation
+      trackEvent(EVENTS.PAYMENT_INITIATED, {
+        planName: plan.id,
+        price: plan.price,
+        currency: plan.currency,
+        userId: user.id,
+        source: detectPlatform() !== 'unknown' ? detectPlatform() : "onboarding"
+      });
 
       const session = await stripeApi.createCheckoutSession({
         priceId: plan.priceId,

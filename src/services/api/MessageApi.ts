@@ -32,11 +32,11 @@ export class MessageApi {
     });
     if (response.success && response.data.length > 0) {
       for (const message of response.data) {
-        console.log('MESSAGE----->', message);
       trackEvent(EVENTS.MESSAGE_CAPTURED, {
         messageId: message.message_provider_id,
         contentLength: message.content.length,
         role: message.role,
+        model: message.model || 'unknown',
         conversationId: message.chat_provider_id
       });
       }

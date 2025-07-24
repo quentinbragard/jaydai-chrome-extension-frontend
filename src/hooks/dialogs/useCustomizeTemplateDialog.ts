@@ -29,7 +29,6 @@ const buildBlockCache = (blocks: Block[]): Record<number, string> => {
 
 export function useCustomizeTemplateDialog() {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR);
-  console.log('data', data);
 
   const [blockContentCache, setBlockContentCache] = useState<Record<number, string>>({});
   const placeholderValuesRef = useRef<Record<string, string>>({});
