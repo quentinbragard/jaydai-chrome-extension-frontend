@@ -2803,5 +2803,9 @@
   "searchTemplatesHint": {
     "message": "Vous pouvez rechercher parmi des centaines de modèles avec la barre de recherche. Nous vous recommandons de commencer par l'un de ces dossiers.",
     "description": "Texte affiché lorsque le conseil de recherche de modèles est affiché"
+  },
+  "requires_subscription": {
+    "message": "Abonnement nécessaire",
+    "description": "Texte affiché lorsque le modèle est premium"
   }
 }

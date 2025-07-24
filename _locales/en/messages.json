@@ -2788,5 +2788,9 @@
   "searchTemplatesHint": {
     "message": "You can search among hundreds of templates with the search bar. We recommend starting with one of these folders.",
     "description": "Text shown when the search templates hint is displayed"
+  },
+  "requires_subscription": {
+    "message": "Requires subscription",
+    "description": "Text shown when the template is premium"
   }
 }
