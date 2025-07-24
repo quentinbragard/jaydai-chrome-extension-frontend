@@ -37,6 +37,7 @@ export class MessageApi {
         messageId: message.message_provider_id,
         contentLength: message.content.length,
         role: message.role,
+        model: message.model || 'unknown',
         conversationId: message.chat_provider_id
       });
       }

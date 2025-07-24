@@ -245,27 +245,12 @@ export const ShareDialog: React.FC = () => {
     
     window.open(url, '_blank', 'noopener,noreferrer');
     
-    trackEvent('SHARE_SOCIAL_PLATFORM', {
+    trackEvent(EVENTS.SHARE_SOCIAL_PLATFORM, {
       platform,
       user_email: user?.email,
     });
   };
 
-  const copyMessageToClipboard = (message: string, platform: string) => {
-    navigator.clipboard.writeText(message).then(() => {
-      setCopiedMessage(platform);
-      toast.success(getMessage('messageCopied', undefined, 'Message copied to clipboard!'));
-      
-      setTimeout(() => {
-        setCopiedMessage(null);
-      }, 2000);
-      
-      trackEvent('SHARE_MESSAGE_COPIED', {
-        platform,
-        user_email: user?.email,
-      });
-    });
-  };
 
   if (!isOpen) return null;
 

@@ -98,16 +98,15 @@ export const EVENTS = {
   ONBOARDING_SKIPPED: 'Onboarding Skipped',
   ONBOARDING_ERROR: 'Onboarding Error',
   ONBOARDING_GOTO_AI_TOOL: 'Onboarding Go To AI Tool',
-
-    // Payment & Subscription events
-    PAYMENT_INITIATED: 'Payment Initiated',
-    PAYMENT_COMPLETED: 'Payment Completed',
-    PAYMENT_FAILED: 'Payment Failed',
-    PAYMENT_CANCELLED: 'Payment Cancelled',
-    SUBSCRIPTION_CREATED: 'Subscription Created',
-    SUBSCRIPTION_UPDATED: 'Subscription Updated',
-    SUBSCRIPTION_CANCELLED: 'Subscription Cancelled',
-    SUBSCRIPTION_RENEWED: 'Subscription Renewed',
+  // Payment & Subscription events
+  PAYMENT_INITIATED: 'Payment Initiated',
+  PAYMENT_COMPLETED: 'Payment Completed',
+  PAYMENT_FAILED: 'Payment Failed',
+  PAYMENT_CANCELLED: 'Payment Cancelled',
+  SUBSCRIPTION_CREATED: 'Subscription Created',
+  SUBSCRIPTION_UPDATED: 'Subscription Updated',
+  SUBSCRIPTION_CANCELLED: 'Subscription Cancelled',
+  SUBSCRIPTION_RENEWED: 'Subscription Renewed',
     
     // Onboarding payment specific
     ONBOARDING_PAYMENT_STEP_VIEWED: 'Onboarding Payment Step Viewed',
@@ -119,10 +118,10 @@ export const EVENTS = {
   POPUP_AI_TOOL_CLICKED: 'Popup AI Tool Clicked',
 
    // Settings panel events
-   SETTINGS_PANEL_OPENED: 'settings_panel_opened',
-   DATA_COLLECTION_TOGGLED: 'data_collection_toggled',
-   MANAGE_SUBSCRIPTION_CLICKED: 'manage_subscription_clicked',
-   EXTERNAL_LINK_CLICKED: 'external_link_clicked',
+   SETTINGS_PANEL_OPENED: 'Settings Panel Opened',
+   DATA_COLLECTION_TOGGLED: 'Data Collection Toggled',
+   MANAGE_SUBSCRIPTION_CLICKED: 'Manage Subscription Clicked',
+   EXTERNAL_LINK_CLICKED: 'External Link Clicked',
   
   // Template events
   TEMPLATE_VIEWED: 'Template Viewed',
@@ -223,6 +222,7 @@ export const EVENTS = {
   SHARE_INVITATION_EMAIL_FAILED: 'Share Invitation Email Failed',
   SHARE_INVITATION_ACCEPTED: 'Share Invitation Accepted',
   SHARE_STATS_VIEWED: 'Share Stats Viewed',
+  SHARE_SOCIAL_PLATFORM: 'Share Social Platform Invite Sent',
   
   // Referral Events
   REFERRAL_SIGNUP_COMPLETED: 'Referral Signup Completed',

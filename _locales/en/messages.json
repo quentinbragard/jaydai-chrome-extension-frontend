@@ -2740,5 +2740,49 @@
   "useFirstTemplateInfo": {
     "message": "Select a template from one of your pinned folders below.",
     "description": "Description for the use first template info dialog"
+  },
+  "trial_ends": {
+    "message": "Trial ends",
+    "description": "Text shown when a trial will end"
+  },
+  "trial_billing_info": {
+    "message": "Your payment method will be charged automatically when the trial ends, unless you cancel.",
+    "description": "Message shown when a trial will end"
+  },
+  "next_billing_date": {
+    "message": "Next billing date",
+    "description": "Text shown when the next billing date is expected"
+  },
+  "billing_status": {
+    "message": "Billing status",
+    "description": "Text shown when the billing status is displayed"
+  },
+  "cancelling_at_period_end": {
+    "message": "Cancelling at period end",
+    "description": "Text shown when the subscription is set to cancel at period end"
+  },
+  "trial_period": {
+    "message": "Trial period",
+    "description": "Text shown when the trial period is active"
+  },
+  "active_renewing": {
+    "message": "Active & renewing",
+    "description": "Text shown when the subscription is active and renewing"
+  },
+  "reactivate_subscription": {
+    "message": "Reactivate subscription",
+    "description": "Text shown when the subscription is reactivated"
+  },
+  "trial_management_info": {
+    "message": "Cancel trial",
+    "description": "Text shown when the trial is cancelled"
+  },
+  "cancel_trial": {
+    "message": "Cancel trial",
+    "description": "Text shown when the trial is cancelled"
+  },
+  "update_payment_method": {
+    "message": "Update payment method",
+    "description": "Text shown when the payment method is updated"
   }
 }

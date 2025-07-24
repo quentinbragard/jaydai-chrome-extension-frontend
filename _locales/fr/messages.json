@@ -2755,5 +2755,49 @@
   "useFirstTemplateInfo": {
     "message": "Sélectionnez un modèle parmi vos dossiers épinglés ci-dessous.",
     "description": "Description pour la fenêtre d'information sur l'utilisation du premier modèle"
+  },
+  "trial_ends": {
+    "message": "Fin de l'essai",
+    "description": "Texte affiché lorsque l'essai se termine"
+  },
+  "trial_billing_info": {
+    "message": "Votre méthode de paiement sera facturée automatiquement lorsque l'essai se terminera, sauf si vous annulez.",
+    "description": "Message affiché lorsque l'essai se termine"
+  },
+  "next_billing_date": {
+    "message": "Date de prochaine facturation",
+    "description": "Texte affiché lorsque la prochaine facturation est prévue"
+  },
+  "billing_status": {
+    "message": "Statut de facturation",
+    "description": "Texte affiché lorsque le statut de facturation est affiché"
+  },
+  "cancelling_at_period_end": {
+    "message": "Annulation à la fin de la période en cours",
+    "description": "Texte affiché lorsque l'annulation est programmée à la fin du mois"
+  },
+  "trial_period": {
+    "message": "Période d'essai",
+    "description": "Texte affiché lorsque l'essai est en cours"
+  },
+  "active_renewing": {
+    "message": "Actif & renouvelé",
+    "description": "Texte affiché lorsque l'abonnement est actif et renouvelé"
+  },
+  "reactivate_subscription": {
+    "message": "Réactiver l'abonnement",
+    "description": "Texte affiché lorsque l'abonnement est réactivé"
+  },
+  "trial_management_info": {
+    "message": "Annuler l'essai",
+    "description": "Texte affiché lorsque l'essai est annulé"
+  },
+  "cancel_trial": {
+    "message": "Annuler l'essai",
+    "description": "Texte affiché lorsque l'essai est annulé"
+  },
+  "update_payment_method": {
+    "message": "Mettre à jour le moyen de paiement",
+    "description": "Texte affiché lorsque le moyen de paiement est mis à jour"
   }
 }
