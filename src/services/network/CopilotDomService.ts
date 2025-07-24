@@ -167,12 +167,6 @@ export class CopilotDomService extends AbstractBaseService {
         observer.disconnect();
         this.messageObservers.delete(id);
       }
-
-        id, 
-        contentLength: text.length,
-        hasStopButton: !!stopButton
-      });
-
       document.dispatchEvent(
         new CustomEvent('jaydai:message-extracted', { detail: { message, platform: 'copilot' } })
       );
