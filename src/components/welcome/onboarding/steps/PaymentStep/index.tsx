@@ -24,6 +24,11 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
   const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Track when the payment step is viewed
+  useEffect(() => {
+    trackEvent(EVENTS.ONBOARDING_PAYMENT_STEP_VIEWED, { userId: user.id });
+  }, [user.id]);
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get('payment');
