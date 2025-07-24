@@ -23,7 +23,7 @@ interface Placeholder {
 }
 
 interface BasicEditorProps {
-  mode?: 'create' | 'customize';
+  mode?: 'create' | 'customize' | 'edit';
   isProcessing?: boolean;
 }
 
@@ -138,10 +138,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     }
   }, [previewContent, setContent, mode]);
 
-  // Automatically show preview in create mode when metadata is present
+  // Automatically show preview in create or edit mode when metadata is present
   useEffect(() => {
     if (
-      mode === 'create' &&
+      (mode === 'create' || mode === 'edit') &&
       !showPreview &&
       !previewHiddenManually &&
       countMetadataItems(metadata) > 0
@@ -187,8 +187,8 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     );
   }
 
-  // For create mode, show only the editor and allow toggling the preview
-  if (mode === 'create') {
+  // For create or edit mode, show only the editor and allow toggling the preview
+  if (mode === 'create' || mode === 'edit') {
     return (
       <div className="jd-h-full jd-flex jd-flex-col jd-min-h-0 jd-overflow-hidden">
         {/* Header section */}
