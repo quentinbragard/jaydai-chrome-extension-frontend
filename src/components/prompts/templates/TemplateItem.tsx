@@ -82,7 +82,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   const hasActiveSubscription =
     subscription?.status === 'active' || subscription?.status === 'trialing';
 
-  const isLocked = !isFree && !hasActiveSubscription;
+  const isLocked = type !== 'user' && !isFree && !hasActiveSubscription;
   
   // Get organization data
   const templateOrganization = (template as any).organization || 
