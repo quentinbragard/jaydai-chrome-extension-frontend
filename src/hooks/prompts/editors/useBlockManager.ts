@@ -111,7 +111,7 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
   }, []);
 
   // Initial fetch and re-fetch when dialog is opened
-  const prevMetadataIdsRef = useRef<string>('');
+  const prevMetadataIdsRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!enabled) return;
@@ -123,7 +123,7 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
       : undefined;
 
     const idKey = (metadataBlockIds || []).sort((a, b) => a - b).join(',');
-    if (idKey === prevMetadataIdsRef.current) return;
+    if (prevMetadataIdsRef.current !== null && idKey === prevMetadataIdsRef.current) return;
     prevMetadataIdsRef.current = idKey;
 
     fetchBlocks(metadataBlockIds);
