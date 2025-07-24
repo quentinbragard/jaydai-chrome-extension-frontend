@@ -18,6 +18,7 @@ import { DIALOG_TYPES } from '../DialogRegistry';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 
 interface VideoInfo {
   id: string;
@@ -100,7 +101,22 @@ const videos: VideoInfo[] = [
 export const TutorialsDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.TUTORIALS_LIST);
   const { openDialog } = useDialogManager();
+  const { openCreateTemplate, openInsertBlock } = useDialogActions();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const openQuickSelector = useCallback(() => {
+    try {
+      const service: any = (window as any).slashCommandService || {};
+      const target = service.inputEl as HTMLElement | null;
+      if (target && service.quickSelector) {
+        const position = { x: 100, y: 100 };
+        const cursorPos = 0;
+        service.quickSelector.open(position, target, cursorPos, 0);
+      }
+    } catch (error) {
+      console.error('Failed to open quick selector', error);
+    }
+  }, []);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -108,6 +124,16 @@ export const TutorialsDialog: React.FC = () => {
     },
     [dialogProps]
   );
+
+  const handleGifClick = (index: number) => {
+    if (index === 0) {
+      openQuickSelector();
+    } else if (index === 1) {
+      openInsertBlock();
+    } else if (index === 2) {
+      openCreateTemplate();
+    }
+  };
 
   const openVideo = (url: string, title: string) => {
     openDialog(DIALOG_TYPES.TUTORIAL_VIDEO, { url, title });
@@ -177,6 +203,7 @@ export const TutorialsDialog: React.FC = () => {
                     });
                   }}
                   onMouseLeave={() => setHoveredIndex(null)}
+                  onClick={() => handleGifClick(i)}
                   style={{ minWidth: 0 }}
                 >
                   {/* Background Image */}
