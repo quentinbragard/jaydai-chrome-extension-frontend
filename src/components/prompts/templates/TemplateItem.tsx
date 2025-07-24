@@ -147,7 +147,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
 
     >
       {isLocked && (
-        <div className="jd-absolute jd-inset-0 jd-rounded-sm jd-bg-background/70 jd-backdrop-blur-sm jd-flex jd-items-center jd-justify-center jd-pointer-events-none">
+        <div className="jd-absolute jd-inset-0 jd-rounded-sm jd-bg-background/40 jd-flex jd-items-center jd-justify-center jd-pointer-events-none">
           <Lock className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
         </div>
       )}
