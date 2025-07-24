@@ -3,6 +3,7 @@
  */
 
 export { default as useStats } from './useStats';
+export * from './queries';
 
 // Also export types for convenience
 export type { 

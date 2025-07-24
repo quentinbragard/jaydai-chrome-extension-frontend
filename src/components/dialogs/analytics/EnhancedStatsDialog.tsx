@@ -26,8 +26,8 @@ import {
   LockIcon,
   Construction
 } from "lucide-react";
-import { useService } from '@/core/hooks/useService';
-import { Stats, StatsService } from '@/services/analytics/StatsService';
+import { Stats } from '@/services/analytics/StatsService';
+import { useUserStats } from '@/hooks/stats/queries';
 import { getMessage } from '@/core/utils/i18n';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 import StatsChart from '@/components/panels/StatsPanel/StatsChart';
@@ -116,30 +116,24 @@ const ComingSoonCard: React.FC<{ title: string }> = ({ title }) => {
 // Define the enhanced stats dialog component
 export const EnhancedStatsDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.ENHANCED_STATS);
-  const statsService = useService<StatsService>('stats');
+  const { data: statsData, isLoading } = useUserStats(isOpen);
   const [stats, setStats] = useState<Stats | null>(null);
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [loading, setLoading] = useState<boolean>(true);
   const [language, setLanguage] = useState<string>('en');
 
-  // Load stats data
   useEffect(() => {
-    if (isOpen && statsService) {
-      setLoading(true);
-      setStats(statsService.getStats());
-      
-      // Set current language
+    if (isOpen) {
       setLanguage(getCurrentLanguage());
-      
-      // Subscribe to stats updates
-      const unsubscribe = statsService.onUpdate((newStats) => {
-        setStats(newStats);
-        setLoading(false);
-      });
-      
-      return unsubscribe;
     }
-  }, [isOpen, statsService]);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (statsData) {
+      setStats(statsData);
+    }
+    setLoading(isLoading);
+  }, [statsData, isLoading]);
 
   // Helper function to format numbers
   const formatNumber = (value: number): string => {
