@@ -15,8 +15,13 @@ export function useCreateTemplateDialog() {
   const { saveTemplate } = useTemplateCreation();
   
   const isOpen = createDialog.isOpen || editDialog.isOpen;
-  const isEditMode = editDialog.isOpen;
   const data = createDialog.isOpen ? createDialog.data : editDialog.data;
+  // When editing through the create template dialog we receive the template
+  // data via `createDialog.data`. Treat this case as edit mode so the UI
+  // displays the correct action text.
+  const isEditMode =
+    editDialog.isOpen ||
+    Boolean((createDialog.data as Record<string, unknown>)?.template);
   
   const handleComplete = async (
     content: string, 
