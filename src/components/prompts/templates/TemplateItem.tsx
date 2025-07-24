@@ -74,6 +74,8 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   const { subscription } = useSubscriptionStatus();
   const hasActiveSubscription =
     subscription?.status === 'active' || subscription?.status === 'trialing';
+
+  const isLocked = !isFree && !hasActiveSubscription;
   
   // Get organization data
   const templateOrganization = (template as any).organization || 
@@ -137,13 +139,18 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
 
   return (
     <div
-      className={`jd-flex jd-items-center hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group/template jd-transition-colors ${
+      className={`jd-relative jd-flex jd-items-center hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group/template jd-transition-colors ${
       isProcessing ? 'jd-opacity-50 jd-cursor-not-allowed' : ''
       } ${className}`}
       onClick={handleTemplateClick}
       style={{ paddingLeft: `${level * 16 + 8}px` }}
 
     >
+      {isLocked && (
+        <div className="jd-absolute jd-inset-0 jd-rounded-sm jd-bg-background/70 jd-backdrop-blur-sm jd-flex jd-items-center jd-justify-center jd-pointer-events-none">
+          <Lock className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
+        </div>
+      )}
       <FileText className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${iconColorMap[type]}`} />
     
       {/* Template Content */}
@@ -237,7 +244,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
               isPinned ? '' : 'jd-opacity-0 group-hover/template:jd-opacity-100 jd-transition-opacity'
             }`}
           >
-            {isFree && !hasActiveSubscription ? (
+            {isLocked ? (
               <Lock className="jd-h-4 jd-w-4 jd-text-muted-foreground jd-opacity-70" />
             ) : (
               onTogglePin && (
@@ -248,8 +255,8 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
                 />
               )
             )}
-          </div>
-        )}
+         </div>
+       )}
       </div>
     </div>
   );
