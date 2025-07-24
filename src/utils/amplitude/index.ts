@@ -17,8 +17,18 @@ export const initAmplitude = (userId?: string, autoCapture = true) => {
 
   amplitude.init(apiKey, {
     // Enable autocapture for automatic event tracking
-    autocapture: {
-      elementInteractions: autoCapture
+    autocapture: false,
+    // IMPORTANT: Disable features that load remote code
+    config: {
+      // Disable visual tagging to prevent remote code loading
+      includeGclid: false,
+      includeFbclid: false,
+      includeReferrer: false,
+      includeUtm: false,
+      // Disable any remote script loading
+      optOut: false,
+      // Ensure no remote resources are loaded
+      serverUrl: undefined // Use default, don't override
     }
   });
   
