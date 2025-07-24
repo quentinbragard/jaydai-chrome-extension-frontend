@@ -126,6 +126,9 @@ export const TutorialsDialog: React.FC = () => {
   );
 
   const handleGifClick = (index: number) => {
+    trackEvent(EVENTS.TUTORIAL_GIF_CLICKED, {
+      tutorial_title: featuredTutorials[index].title,
+    });
     if (index === 0) {
       openQuickSelector();
     } else if (index === 1) {
@@ -133,6 +136,8 @@ export const TutorialsDialog: React.FC = () => {
     } else if (index === 2) {
       openCreateTemplate();
     }
+    // Close the tutorials dialog after performing the action
+    handleOpenChange(false);
   };
 
   const openVideo = (url: string, title: string) => {
@@ -198,9 +203,6 @@ export const TutorialsDialog: React.FC = () => {
                   }`}
                   onMouseEnter={() => {
                     setHoveredIndex(i);
-                    trackEvent(EVENTS.TUTORIAL_GIF_HOVERED, {
-                      tutorial_title: tutorial.title,
-                    });
                   }}
                   onMouseLeave={() => setHoveredIndex(null)}
                   onClick={() => handleGifClick(i)}

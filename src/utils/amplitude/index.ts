@@ -184,7 +184,7 @@ export const EVENTS = {
   // Tutorial events
   TUTORIAL_VIDEO_PLAYED: 'Tutorial Video Played',
   SUBSTACK_CLICKED: 'Substack Clicked',
-  TUTORIAL_GIF_HOVERED: 'Tutorial GIF Hovered',
+  TUTORIAL_GIF_CLICKED: 'Tutorial GIF Clicked',
 
   // Notification events
   NOTIFICATIONS_PANEL_OPENED: 'Notifications Panel Opened',
