@@ -26,13 +26,14 @@ const WelcomePage: React.FC = () => {
   const { authState, handleSignOut } = useAuthState();
   
   // Onboarding status
-  const { 
-    onboardingRequired, 
-    showOnboarding, 
+  const {
+    onboardingRequired,
+    showOnboarding,
     setShowOnboarding,
-    handleOnboardingComplete, 
+    handleOnboardingComplete,
+    isChecking,
   } = useOnboardingStatus(
-    authState.user, 
+    authState.user,
     authState.isAuthenticated
   );
 
@@ -45,11 +46,16 @@ const WelcomePage: React.FC = () => {
   // Show initialization error if any
   if (initError) {
     return (
-      <ErrorDisplay 
-        message={initError} 
-        onRetry={() => window.location.reload()} 
+      <ErrorDisplay
+        message={initError}
+        onRetry={() => window.location.reload()}
       />
     );
+  }
+
+  // Show spinner while checking onboarding status to avoid flicker
+  if (authState.isAuthenticated && isChecking) {
+    return <LoadingSpinner devInfo="Checking onboarding status..." />;
   }
   
   // Show onboarding flow if needed

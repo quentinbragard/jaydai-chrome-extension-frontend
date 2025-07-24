@@ -56,10 +56,11 @@ export function useOnboardingStatus(user: User | null, isAuthenticated: boolean)
   };
   
 
-  return { 
-    onboardingRequired, 
-    showOnboarding, 
+  return {
+    onboardingRequired,
+    showOnboarding,
     setShowOnboarding,
-    handleOnboardingComplete
+    handleOnboardingComplete,
+    isChecking
     };
 }
