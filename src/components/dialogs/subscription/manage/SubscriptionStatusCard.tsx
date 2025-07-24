@@ -37,23 +37,24 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusIn
           <Badge className={statusInfo.color}>{statusInfo.label}</Badge>
         </div>
 
-        {subscription.status === 'active' && (
+        {(subscription.status === 'active' || subscription.status === 'trialing') && (
           <div className="jd-grid jd-grid-cols-1 md:jd-grid-cols-2 jd-gap-4 jd-pt-4">
             {subscription.status === 'trialing' && subscription.trialEnd && (
-              <div className="jd-space-y-2">
+              <div className="jd-space-y-2 md:jd-col-span-2">
                 <p className="jd-text-sm jd-text-muted-foreground">
                   {getMessage('trial_ends', undefined, 'Trial ends')}
                 </p>
-                <p className="jd-font-medium">{formatDate(subscription.trialEnd)}</p>
+                <p className="jd-font-medium jd-text-blue-600">{formatDate(subscription.trialEnd)}</p>
+                <p className="jd-text-xs jd-text-muted-foreground">
+                  {getMessage('trial_billing_info', undefined, 'Your payment method will be charged automatically when the trial ends, unless you cancel.')}
+                </p>
               </div>
             )}
 
-            {(subscription.status === 'active' || subscription.status === 'trialing') && subscription.currentPeriodEnd && (
+            {subscription.status === 'active' && subscription.currentPeriodEnd && (
               <div className="jd-space-y-2">
                 <p className="jd-text-sm jd-text-muted-foreground">
-                  {subscription.status === 'trialing'
-                    ? getMessage('trial_period_end', undefined, 'Trial period ends')
-                    : getMessage('next_billing_date', undefined, 'Next billing date')}
+                  {getMessage('next_billing_date', undefined, 'Next billing date')}
                 </p>
                 <p className="jd-font-medium">{formatDate(subscription.currentPeriodEnd)}</p>
               </div>
@@ -69,7 +70,7 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusIn
                   : subscription.status === 'active'
                   ? getMessage('active_renewing', undefined, 'Active & renewing')
                   : subscription.status === 'trialing'
-                  ? getMessage('trial_period', undefined, 'Trial period')
+                  ? getMessage('trial_period', undefined, 'Free trial period')
                   : getMessage('inactive', undefined, 'Inactive')}
               </p>
             </div>
