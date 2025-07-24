@@ -364,8 +364,16 @@ export const InsertBlockDialog: React.FC = () => {
   };
 
   const insertBlocks = () => {
-    // Use the editable content which might have been modified by the user
-    insertIntoPromptArea(editableContent);
+    // Rebuild the content to ensure consistent line breaks between blocks
+    const text = selectedBlocks
+      .map(b => {
+        const content = blockContents[b.id] ??
+          (typeof b.content === 'string' ? b.content : b.content.en || '');
+        return buildPromptPart(b.type || 'custom', content);
+      })
+      .join('\n\n');
+
+    insertIntoPromptArea(text);
     trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCKS_INSERTED, { count: selectedBlocks.length });
     handleOpenChange(false);
     toast.success(getMessage('promptInserted', undefined, 'Prompt inserted successfully'));
