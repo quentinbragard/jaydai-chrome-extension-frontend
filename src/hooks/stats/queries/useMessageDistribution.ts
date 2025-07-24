@@ -11,10 +11,13 @@ export function useMessageDistribution(enabled = true) {
     [QUERY_KEYS.MESSAGE_DISTRIBUTION],
     async () => {
       const response = await userApi.getMessageDistribution();
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to load message distribution');
+      if ('success' in response) {
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to load message distribution');
+        }
+        return response.data as MessageDistributionResponse;
       }
-      return response.data as MessageDistributionResponse;
+      return response as MessageDistributionResponse;
     },
     {
       enabled,

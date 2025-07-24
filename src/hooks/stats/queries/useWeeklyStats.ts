@@ -11,10 +11,13 @@ export function useWeeklyStats(enabled = true) {
     [QUERY_KEYS.WEEKLY_STATS],
     async () => {
       const response = await userApi.getWeeklyConversationStats();
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to load weekly stats');
+      if ('success' in response) {
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to load weekly stats');
+        }
+        return response.data as WeeklyConversationsResponse;
       }
-      return response.data as WeeklyConversationsResponse;
+      return response as WeeklyConversationsResponse;
     },
     {
       enabled,
