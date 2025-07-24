@@ -26,9 +26,43 @@ export const ActionButtons: React.FC<Props> = ({
   onRefresh,
   onUpgrade,
 }) => (
-  <>
+  <> 
     <div className="jd-space-y-3">
-      {subscription?.status === 'active' ? (
+      {subscription?.cancelAtPeriodEnd ? (
+        // Already cancelled - show info and option to reactivate
+        <>
+          {subscription.currentPeriodEnd && (
+            <div className="jd-p-4 jd-bg-yellow-50 jd-border jd-border-yellow-200 jd-rounded-lg">
+              <p className="jd-text-yellow-800 jd-text-sm jd-text-center">
+                {subscription.status === 'trialing'
+                  ? getMessage(
+                      'trial_end_no_charge',
+                      undefined,
+                      "Your trial will end on {0}. You won't be charged."
+                    ).replace('{0}', formatDate(subscription.currentPeriodEnd))
+                  : getMessage(
+                      'subscription_already_cancelled',
+                      undefined,
+                      'Your subscription has been cancelled and will remain active until {0}. You will not be charged again.'
+                    ).replace('{0}', formatDate(subscription.currentPeriodEnd))}
+              </p>
+            </div>
+          )}
+
+          <Button
+            onClick={onReactivate}
+            disabled={loading || isLoading}
+            className="jd-w-full jd-flex jd-items-center jd-justify-center jd-space-x-2 jd-bg-green-600 hover:jd-bg-green-700"
+          >
+            {loading ? (
+              <RefreshCw className="jd-w-4 jd-h-4 jd-animate-spin" />
+            ) : (
+              <Crown className="jd-w-4 jd-h-4" />
+            )}
+            <span>{getMessage('reactivate_subscription', undefined, 'Reactivate Subscription')}</span>
+          </Button>
+        </>
+      ) : subscription?.status === 'active' ? (
         // Active subscription - show manage and cancel options
         <>
           <Button
@@ -78,20 +112,6 @@ export const ActionButtons: React.FC<Props> = ({
             <span>{getMessage('cancel_trial', undefined, 'Cancel Trial')}</span>
           </Button>
         </div>
-      ) : subscription?.status === 'cancelled' && subscription.cancelAtPeriodEnd ? (
-        // Cancelled but still active until period end - show reactivate option
-        <Button
-          onClick={onReactivate}
-          disabled={loading || isLoading}
-          className="jd-w-full jd-flex jd-items-center jd-justify-center jd-space-x-2 jd-bg-green-600 hover:jd-bg-green-700"
-        >
-          {loading ? (
-            <RefreshCw className="jd-w-4 jd-h-4 jd-animate-spin" />
-          ) : (
-            <Crown className="jd-w-4 jd-h-4" />
-          )}
-          <span>{getMessage('reactivate_subscription', undefined, 'Reactivate Subscription')}</span>
-        </Button>
       ) : subscription?.status === 'past_due' ? (
         // Past due - show update payment method
         <Button
