@@ -11,10 +11,12 @@ export function useUserStats(enabled = true) {
     [QUERY_KEYS.USER_STATS],
     async () => {
       const response = await userApi.getUserStats();
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to load stats');
-      }
-      const data = response.data || {};
+      const data = 'success' in response ? (() => {
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to load stats');
+        }
+        return response.data || {};
+      })() : response;
       const stats: Stats = {
         totalChats: data.total_chats || 0,
         recentChats: data.recent_chats || 0,
