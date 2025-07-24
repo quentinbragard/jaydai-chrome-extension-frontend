@@ -6,13 +6,11 @@ function createContextMenus() {
       id: 'create_block',
       title: 'Create a Jaydai Block',
       contexts: ['all'],
-      icons: { '16': 'icons/icon16.png' }
     });
     chrome.contextMenus.create({
       id: 'insert_block',
       title: 'Insert a Jaydai Block',
       contexts: ['all'],
-      icons: { '16': 'icons/icon16.png' }
     });
   });
 }
