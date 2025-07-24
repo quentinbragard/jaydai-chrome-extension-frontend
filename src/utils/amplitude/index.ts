@@ -103,16 +103,21 @@ export const EVENTS = {
   PAYMENT_COMPLETED: 'Payment Completed',
   PAYMENT_FAILED: 'Payment Failed',
   PAYMENT_CANCELLED: 'Payment Cancelled',
+  PAYWALL_OPENED: 'Paywall Opened',
   SUBSCRIPTION_CREATED: 'Subscription Created',
   SUBSCRIPTION_UPDATED: 'Subscription Updated',
   SUBSCRIPTION_CANCELLED: 'Subscription Cancelled',
   SUBSCRIPTION_RENEWED: 'Subscription Renewed',
     
-    // Onboarding payment specific
-    ONBOARDING_PAYMENT_STEP_VIEWED: 'Onboarding Payment Step Viewed',
-    ONBOARDING_PAYMENT_COMPLETED: 'Onboarding Payment Completed',
-    ONBOARDING_PAYMENT_CANCELLED: 'Onboarding Payment Cancelled',
-    ONBOARDING_PAYMENT_SKIPPED: 'Onboarding Payment Skipped',
+  // Onboarding payment specific
+  ONBOARDING_PAYMENT_STEP_VIEWED: 'Onboarding Payment Step Viewed',
+  ONBOARDING_PAYMENT_COMPLETED: 'Onboarding Payment Completed',
+  ONBOARDING_PAYMENT_CANCELLED: 'Onboarding Payment Cancelled',
+  ONBOARDING_PAYMENT_SKIPPED: 'Onboarding Payment Skipped',
+
+  // Post onboarding checklist events
+  POST_ONBOARDING_CHECKLIST_ACTION_TAKEN: 'Post Onboarding Checklist Action Taken',
+  POST_ONBOARDING_CHECKLIST_VIEWED: 'Post Onboarding Checklist Viewed',
 
   POPUP_OPENED: 'Popup Opened',
   POPUP_AI_TOOL_CLICKED: 'Popup AI Tool Clicked',

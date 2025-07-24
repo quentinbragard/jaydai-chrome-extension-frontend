@@ -211,7 +211,7 @@ export function OptimizedFolderSearch({
             <Button
               variant="ghost"
               size="sm"
-              className="jd-h-7 jd-w-7 jd-p-0 jd-opacity-70 hover:jd-opacity-100"
+              className="jd-p-0 jd-opacity-70 hover:jd-opacity-100"
               onClick={handleReset}
               title="Clear search"
             >
@@ -250,13 +250,6 @@ export function OptimizedFolderSearch({
               )}
             </div>
           </div>
-
-          {/* Keyboard shortcut hint */}
-          {!isFocused && (
-            <span className="jd-text-xs jd-opacity-50">
-              {getMessage('searchShortcut', undefined, 'Ctrl+K to search')}
-            </span>
-          )}
         </div>
       )}
 

@@ -2774,7 +2774,7 @@
     "description": "Text shown when the subscription is reactivated"
   },
   "trial_management_info": {
-    "message": "Cancel trial",
+    "message": "You are currently in your free trial period. You can cancel anytime without being charged.",
     "description": "Text shown when the trial is cancelled"
   },
   "cancel_trial": {
@@ -2784,5 +2784,9 @@
   "update_payment_method": {
     "message": "Update payment method",
     "description": "Text shown when the payment method is updated"
+  },
+  "searchTemplatesHint": {
+    "message": "You can search among hundreds of templates with the search bar. We recommend starting with one of these folders.",
+    "description": "Text shown when the search templates hint is displayed"
   }
 }

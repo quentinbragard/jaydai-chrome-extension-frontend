@@ -19,6 +19,7 @@ export const PaywallDialog: React.FC = () => {
   const [showPromo, setShowPromo] = useState(false);
 
   useEffect(() => {
+    trackEvent(EVENTS.PAYWALL_OPENED, { source: data?.reason });
     const handler = () => setShowPromo(true);
     window.addEventListener('referral-invite-sent', handler);
     return () => window.removeEventListener('referral-invite-sent', handler);

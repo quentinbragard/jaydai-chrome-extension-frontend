@@ -134,6 +134,7 @@ export interface DialogProps {
     actionText?: string;
     onAction?: () => void;
     children?: React.ReactNode;
+    actionKey?: string;
   };
   [DIALOG_TYPES.SHARE]: Record<string, never>;
   [DIALOG_TYPES.REFERRAL_SHARE]: Record<string, never>;

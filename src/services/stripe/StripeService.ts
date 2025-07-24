@@ -75,7 +75,8 @@ export class StripeService {
         planName,
         price: plan.price,
         currency: plan.currency,
-        userId
+        userId,
+        source: detectPlatform() !== 'unknown' ? detectPlatform() : "onboarding"
       });
 
       const request: CreateCheckoutSessionRequest = {

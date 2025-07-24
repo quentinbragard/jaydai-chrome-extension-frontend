@@ -74,7 +74,8 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({
         planName: plan.id,
         price: plan.price,
         currency: plan.currency,
-        userId: user.id
+        userId: user.id,
+        source: detectPlatform() !== 'unknown' ? detectPlatform() : "onboarding"
       });
 
       const session = await stripeApi.createCheckoutSession({

@@ -2789,7 +2789,7 @@
     "description": "Texte affiché lorsque l'abonnement est réactivé"
   },
   "trial_management_info": {
-    "message": "Annuler l'essai",
+    "message": "Vous êtes actuellement dans votre période d'essai. Vous pouvez annuler à tout moment sans être facturé.",
     "description": "Texte affiché lorsque l'essai est annulé"
   },
   "cancel_trial": {
@@ -2799,5 +2799,9 @@
   "update_payment_method": {
     "message": "Mettre à jour le moyen de paiement",
     "description": "Texte affiché lorsque le moyen de paiement est mis à jour"
+  },
+  "searchTemplatesHint": {
+    "message": "Vous pouvez rechercher parmi des centaines de modèles avec la barre de recherche. Nous vous recommandons de commencer par l'un de ces dossiers.",
+    "description": "Texte affiché lorsque le conseil de recherche de modèles est affiché"
   }
 }
