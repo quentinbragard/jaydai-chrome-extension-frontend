@@ -18,6 +18,7 @@ import {
   SubscriptionStatusCard,
   ActionButtons,
 } from './manage';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 /**
@@ -118,9 +119,10 @@ export const ManageSubscriptionDialog: React.FC = () => {
         try {
           const success = await stripeApi.cancelSubscription(authState.user.id);
           if (success) {
+            trackEvent(EVENTS.SUBSCRIPTION_CANCELLED, { userId: authState.user.id });
             await refreshStatus();
             toast.success(
-              isTrialing 
+              isTrialing
                 ? getMessage('trial_cancelled', undefined, 'Trial cancelled successfully')
                 : getMessage('subscription_cancelled', undefined, 'Subscription cancelled successfully')
             );
@@ -152,6 +154,7 @@ export const ManageSubscriptionDialog: React.FC = () => {
     try {
       const success = await stripeApi.reactivateSubscription(authState.user.id);
       if (success) {
+        trackEvent(EVENTS.SUBSCRIPTION_RENEWED, { userId: authState.user.id });
         await refreshStatus();
         toast.success(getMessage('subscription_reactivated', undefined, 'Subscription reactivated successfully'));
       } else {
@@ -175,12 +178,18 @@ export const ManageSubscriptionDialog: React.FC = () => {
   };
 
   const handlePaymentSuccess = () => {
+    if (authState.user) {
+      trackEvent(EVENTS.PAYMENT_COMPLETED, { source: 'manage_subscription_dialog', userId: authState.user.id });
+    }
     toast.success(getMessage('payment_successful', undefined, 'Payment successful! Your subscription is now active.'));
     refreshStatus();
     setShowPricing(false);
   };
 
   const handlePaymentCancel = () => {
+    if (authState.user) {
+      trackEvent(EVENTS.PAYMENT_CANCELLED, { source: 'manage_subscription_dialog', userId: authState.user.id });
+    }
     toast.info(getMessage('payment_cancelled', undefined, 'Payment cancelled.'));
   };
 
