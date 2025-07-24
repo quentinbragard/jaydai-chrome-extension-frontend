@@ -2640,6 +2640,18 @@
     "message": "Votre abonnement sera annulé le {0}. Vous continuerez d'avoir accès jusqu'à cette date.",
     "description": "Message de confirmation d'annulation d'abonnement"
   },
+  "trial_ending_title": {
+    "message": "Fin de l'essai",
+    "description": "Titre affiché lorsque l'essai touche à sa fin"
+  },
+  "trial_end_no_charge": {
+    "message": "Votre période d'essai se termine le {0}. Vous ne serez pas facturé.",
+    "description": "Message affiché lorsque l'utilisateur a annulé pendant l'essai"
+  },
+  "subscription_already_cancelled": {
+    "message": "Votre abonnement a été annulé et restera actif jusqu'au {0}. Vous ne serez plus facturé ensuite.",
+    "description": "Message affiché lorsque l'abonnement est programmé pour annulation"
+  },
   "billingStatus": {
     "message": "Statut de facturation",
     "description": "Texte du bouton pour le statut de facturation"
