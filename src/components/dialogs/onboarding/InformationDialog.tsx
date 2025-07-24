@@ -9,6 +9,7 @@ import { useShadowRoot } from '@/core/utils/componentInjector';
 import { getMessage } from '@/core/utils/i18n';
 import { useThemeDetector, useThemeClass } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export const InformationDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.INFORMATION);
@@ -23,6 +24,7 @@ export const InformationDialog: React.FC = () => {
   const actionText = data?.actionText || getMessage('continue', undefined, 'Continue');
   const onAction = data?.onAction as (() => void) | undefined;
   const children = data?.children as React.ReactNode;
+  const actionKey = data?.actionKey as string | undefined;
 
   // Apply theme class to the portal container
   useEffect(() => {
@@ -48,7 +50,10 @@ export const InformationDialog: React.FC = () => {
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          if (onAction) onAction();
+          if (onAction) {
+            onAction();
+            trackEvent(EVENTS.POST_ONBOARDING_CHECKLIST_ACTION_TAKEN, { action: actionKey });
+          }
           dialogProps.onOpenChange(false);
         }}
         className={cn(

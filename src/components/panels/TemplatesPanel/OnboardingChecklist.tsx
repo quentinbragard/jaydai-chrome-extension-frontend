@@ -33,6 +33,7 @@ interface OnboardingChecklistProps {
   isLoading?: boolean;
 }
 
+
 // Memoized action item component to prevent unnecessary re-renders
 const ActionItem = memo<{
   action: {
@@ -186,6 +187,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = memo(({
       </React.Suspense>
     );
   }, [onSelectTemplate]);
+
 
   // Memoized quick selector function
   const openQuickSelector = useCallback(() => {
