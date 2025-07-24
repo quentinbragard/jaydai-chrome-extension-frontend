@@ -74,6 +74,11 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
   const { subscription } = useSubscriptionStatus();
   const hasActiveSubscription =
     subscription?.status === 'active' || subscription?.status === 'trialing';
+
+  // Show a subtle locked overlay when the template is free and the user has no
+  // active subscription. This nudges free users to explore premium templates
+  // without preventing clicks.
+  const showLockedState = isFree && !hasActiveSubscription;
   
   // Get organization data
   const templateOrganization = (template as any).organization || 
@@ -137,13 +142,18 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({
 
   return (
     <div
-      className={`jd-flex jd-items-center hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group/template jd-transition-colors ${
-      isProcessing ? 'jd-opacity-50 jd-cursor-not-allowed' : ''
+      className={`jd-relative jd-flex jd-items-center hover:jd-bg-accent/60 jd-rounded-sm jd-cursor-pointer jd-group/template jd-transition-colors ${
+        isProcessing ? 'jd-opacity-50 jd-cursor-not-allowed' : ''
       } ${className}`}
       onClick={handleTemplateClick}
       style={{ paddingLeft: `${level * 16 + 8}px` }}
 
     >
+      {showLockedState && (
+        <div className="jd-absolute jd-inset-0 jd-z-10 jd-rounded-sm jd-bg-background/70 jd-backdrop-blur-sm jd-flex jd-items-center jd-justify-center jd-pointer-events-none">
+          <Lock className="jd-h-4 jd-w-4 jd-text-muted-foreground" />
+        </div>
+      )}
       <FileText className={`jd-h-4 jd-w-4 jd-mr-2 jd-flex-shrink-0 ${iconColorMap[type]}`} />
     
       {/* Template Content */}
