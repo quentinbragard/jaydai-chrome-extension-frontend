@@ -94,9 +94,9 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusIn
                       "Your trial will end on {0}. You won't be charged."
                     ).replace('{0}', formatDate(subscription.currentPeriodEnd))
                   : getMessage(
-                      'subscription_cancelling_message',
+                      'subscription_already_cancelled',
                       undefined,
-                      "Your subscription will end on {0}. You'll continue to have access until then."
+                      'Your subscription has been cancelled and will remain active until {0}. You will not be charged again.'
                     ).replace('{0}', formatDate(subscription.currentPeriodEnd))}
               </p>
             </div>
