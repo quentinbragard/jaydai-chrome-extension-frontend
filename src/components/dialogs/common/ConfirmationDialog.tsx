@@ -35,12 +35,13 @@ export const ConfirmationDialog: React.FC = () => {
   if (!isOpen) return null;
   
   return (
-    <BaseDialog 
-      open={isOpen} 
+    <BaseDialog
+      open={isOpen}
       onOpenChange={dialogProps.onOpenChange}
       title={title}
       description={description}
       className="jd-max-w-md"
+      baseZIndex={10060}
     >
       <div className="jd-flex jd-flex-col jd-space-y-4 jd-mt-4">
         <div className="jd-flex jd-justify-end jd-space-x-2">
