@@ -17,7 +17,6 @@ export class ChatGptAdapter extends BasePlatformAdapter {
    */
   extractUserMessage(requestBody: any, url?: string): Message | null {
     try {
-      console.log('🔍 Extracting user message from request body:', requestBody);
       
       // Handle new ChatGPT structure with "action": "next"
       if (requestBody.action === 'next' && requestBody.messages) {
@@ -183,7 +182,6 @@ export class ChatGptAdapter extends BasePlatformAdapter {
    * Handle conversation list event
    */
   async handleConversationList(responseData: any): Promise<void> {
-    console.log('RESPONSE DATA----->', responseData);
     try {
       if (!responseData?.items || !Array.isArray(responseData.items)) {
         return Promise.resolve();
@@ -256,13 +254,11 @@ export class ChatGptAdapter extends BasePlatformAdapter {
   handleChatCompletion(event: CustomEvent): void {
     try {
       const { requestBody } = event.detail;
-      console.log('🚀 Handling ChatGPT chat completion:', requestBody);
       
       // Check for new structure first
       if (requestBody?.action === 'next' || requestBody?.messages?.length) {
         const message = this.extractUserMessage(requestBody);
         if (message) {
-          console.log('✅ Extracted user message:', message);
           // Emit event with extracted message
           document.dispatchEvent(new CustomEvent('jaydai:message-extracted', {
             detail: { message, platform: this.name }

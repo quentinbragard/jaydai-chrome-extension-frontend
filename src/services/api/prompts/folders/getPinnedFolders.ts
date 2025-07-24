@@ -28,11 +28,9 @@ export async function getPinnedFolders(
     const queryString = params.toString();
     const endpoint = queryString ? `/prompts/folders/pinned?${queryString}` : '/prompts/folders/pinned';
     
-    console.log('🔗 Fetching pinned folders from:', endpoint);
     
     const response = await apiClient.request(endpoint);
     
-    console.log('📥 Raw pinned folders response:', response);
 
     // Handle the response structure based on what your backend returns
     if (response && response.success) {

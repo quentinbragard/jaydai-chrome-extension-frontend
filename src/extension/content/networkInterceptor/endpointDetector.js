@@ -40,30 +40,24 @@ export function getEndpointEvent(url) {
     ? new URL(url).pathname + (new URL(url).search || '')  // Include query string
     : url;
   
-  console.log('🔍 Checking endpoint:', { platform, pathname, url });
   
   // Use matchEndpoint for all endpoint checks
   if (matchEndpoint(pathname, ENDPOINTS[platform].SPECIFIC_CONVERSATION)) {
-    console.log('✅ Matched SPECIFIC_CONVERSATION');
     return EVENTS.SPECIFIC_CONVERSATION;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].USER_INFO)) {
-    console.log('✅ Matched USER_INFO');
     return EVENTS.USER_INFO;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].CONVERSATIONS_LIST)) {
-    console.log('✅ Matched CONVERSATIONS_LIST');
     return EVENTS.CONVERSATIONS_LIST;
   }
   
   if (matchEndpoint(pathname, ENDPOINTS[platform].CHAT_COMPLETION)) {
-    console.log('✅ Matched CHAT_COMPLETION');
     return EVENTS.CHAT_COMPLETION;
   }
   
-  console.log('❌ No endpoint match found');
   return null;
 }
 

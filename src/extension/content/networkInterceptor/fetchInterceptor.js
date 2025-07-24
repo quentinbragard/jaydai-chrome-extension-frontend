@@ -73,20 +73,15 @@ export function initFetchInterceptor() {
   // Override fetch to intercept network requests
   window.fetch = async function(input, init) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
-    
-    console.log('🌐 Intercepting fetch request:', url);
-    
+        
     const eventName = getEndpointEvent(url);
     const platform = detectPlatform();
     
     // Skip irrelevant endpoints
     if (!eventName) {
-      console.log('⏭️ Skipping non-relevant endpoint:', url);
       return originalFetch.apply(this, arguments);
     }
-    
-    console.log('🎯 Relevant endpoint detected:', { url, eventName, platform });
-    
+        
     // Extract request body
     const requestBody = extractRequestBody(init) || {};
     
@@ -99,11 +94,9 @@ export function initFetchInterceptor() {
       return response;
     }
     
-    console.log('✅ Successful response:', response.status, url);
     
     try {
       if (eventName === EVENTS.CHAT_COMPLETION) {
-        console.log('💬 Processing chat completion event');
         
         // Dispatch chat completion event
         dispatchEvent(EVENTS.CHAT_COMPLETION, platform, { 
@@ -114,7 +107,6 @@ export function initFetchInterceptor() {
         
         // Detect streaming more reliably
         const isStreaming = isStreamingResponse(response, init, platform);
-        console.log('🌊 Is streaming response:', isStreaming);
         
         // Ensure parentMessageId is available for streaming processor
         if (requestBody) {
@@ -123,16 +115,13 @@ export function initFetchInterceptor() {
         }
         
         if (isStreaming) {
-          console.log('🔄 Processing streaming response');
           // Process streaming responses
           processStreamingResponse(response, requestBody);
         } else {
-          console.log('📄 Processing non-streaming response');
           // Non streaming response, parse JSON and dispatch as assistant response
           try {
             const responseData = await response.clone().json();
             if (responseData) {
-              console.log('📤 Dispatching assistant response:', responseData);
               dispatchEvent(EVENTS.ASSISTANT_RESPONSE, platform, responseData);
             }
           } catch (jsonError) {
@@ -140,7 +129,6 @@ export function initFetchInterceptor() {
           }
         }
       } else {
-        console.log('📋 Processing other endpoint event:', eventName);
         
         // For other endpoints, check if it's streaming
         const isStreaming = isStreamingResponse(response, init, platform);
@@ -150,7 +138,6 @@ export function initFetchInterceptor() {
           try {
             const responseData = await response.clone().json();
             if (responseData) {
-              console.log('📤 Dispatching endpoint event:', eventName, responseData);
               // Dispatch specialized event
               dispatchEvent(eventName, platform, {
                 url,
@@ -172,7 +159,6 @@ export function initFetchInterceptor() {
     return response;
   };
   
-  console.log('✅ Fetch interceptor initialized successfully');
 }
 
 /**
@@ -182,6 +168,5 @@ export function restoreFetch() {
   if (originalFetch) {
     window.fetch = originalFetch;
     originalFetch = null;
-    console.log('🔄 Original fetch method restored');
   }
 }

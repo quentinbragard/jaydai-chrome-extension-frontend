@@ -8,7 +8,6 @@ import { detectPlatform } from '@/platforms/platformManager';
  */
 export const initAmplitude = (userId?: string, autoCapture = true) => {
   const apiKey = process.env.VITE_AMPLITUDE_API_KEY;
-  console.log('Amplitude API key:', apiKey);
 
   if (!apiKey) {
     console.error('Amplitude API key is not defined.');

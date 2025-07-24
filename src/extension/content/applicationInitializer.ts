@@ -44,7 +44,7 @@ export class AppInitializer {
       return false;
     }
 
-    console.log('🔍 Initializing application on ', window.location.hostname, this.isCopilotSite());
+    console.log('🔍 Initializing Jaydai on ', window.location.hostname, this.isCopilotSite());
     
     try {
       // Inject UI components - Main component will set up the dialog system

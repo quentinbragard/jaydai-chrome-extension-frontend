@@ -36,7 +36,6 @@ export const ManageSubscriptionDialog: React.FC = () => {
   // Use ref to track if we've already refreshed to avoid infinite loops
   const hasRefreshedRef = useRef(false);
 
-  console.log("subscription", subscription);
 
   // Load subscription status when dialog opens - FIXED to avoid infinite loops
   useEffect(() => {

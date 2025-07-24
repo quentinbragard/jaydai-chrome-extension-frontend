@@ -39,7 +39,6 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
   } = useTemplateEditor();
   
   const isDarkMode = useThemeDetector();
-  console.log("CONTENT", content);
 
   const primaryCount = React.useMemo(() => {
     return PRIMARY_METADATA.reduce((acc, type) => {

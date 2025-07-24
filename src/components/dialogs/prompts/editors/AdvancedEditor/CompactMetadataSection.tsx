@@ -152,7 +152,6 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
           return;
         }
 
-        console.log(`Creating block for type: ${type}, blockType: ${config.blockType}`);
         
         openDialog(DIALOG_TYPES.CREATE_BLOCK, {
           initialType: config.blockType,
@@ -236,7 +235,6 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
             return;
           }
 
-          console.log(`Creating block for multiple type: ${type}, blockType: ${config.blockType}`);
           
           openDialog(DIALOG_TYPES.CREATE_BLOCK, {
             initialType: config.blockType,

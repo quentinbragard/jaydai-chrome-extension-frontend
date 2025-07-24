@@ -76,7 +76,6 @@ export class MistralAdapter extends BasePlatformAdapter {
   extractAssistantMessage(data: any): Message | null {
     try {
       let trimmedContent = data.content;
-      console.log('trimmedContent----->', trimmedContent);
       if (data.content && data.content.startsWith('safe') && data.content.endsWith('null')) {
        trimmedContent = data.content.slice(4, -4);
       }

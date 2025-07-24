@@ -79,7 +79,6 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
 
       const response = await stripeApi.getSubscriptionStatus(userId);
 
-      console.log('respooooooooonse --->', response);
       if (response.success) {
         setSubscription(response);
       } else {

@@ -468,7 +468,6 @@ useEffect(() => {
 
   if (!isOpen) return null;
 
-  console.log("platform", platform);
 
   const footer = (
     <div className="jd-flex jd-justify-between">

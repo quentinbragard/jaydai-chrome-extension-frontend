@@ -10,7 +10,6 @@ import { TemplateFolder } from '@/types/prompts/templates';
  */
 export function useAllPinnedFolders() {
   const { data: pinnedFolders = [] } = usePinnedFolders();
-  console.log('🙏🙏🙏', pinnedFolders);
   const { data: userFolders = [] } = useUserFolders();
   const { data: organizationFolders = [] } = useOrganizationFolders();
 
@@ -113,7 +112,6 @@ export function useAllPinnedFolders() {
     return folders;
   }, [pinnedFolders, allPinnedFolderIds, findFolderById, userFolders]);
 
-  console.log('🙏🙏🙏👀🎉✅', allPinnedFolders);
   return {
     allPinnedFolderIds,
     allPinnedFolders,

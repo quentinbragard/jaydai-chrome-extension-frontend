@@ -144,7 +144,6 @@ export class StripeService {
         method: 'GET'
       });
 
-      console.log('response --->', response);
 
       if (!response.success) {
         throw new Error(response.error || 'Failed to get subscription status');

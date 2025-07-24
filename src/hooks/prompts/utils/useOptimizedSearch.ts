@@ -161,7 +161,6 @@ export function useOptimizedSearch(
 
     // Cache the index
     searchIndexRef.current = items;
-    console.log(`🔍 Search index built with ${items.length} items`);
     
     return items;
   }, [userFolders, organizationFolders, fetchedTemplates, extractText]);
@@ -189,7 +188,6 @@ export function useOptimizedSearch(
       try {
         setLoadingTemplates(true);
         const response = await promptApi.getUserTemplates();
-        console.log("response--->", response)
         if (response.success && Array.isArray(response.data)) {
           setFetchedTemplates(response.data as Template[]);
         }
