@@ -76,19 +76,27 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ subscription, statusIn
           </div>
         )}
 
-        {subscription.status === 'cancelled' && subscription.currentPeriodEnd && (
+        {subscription.cancelAtPeriodEnd && subscription.currentPeriodEnd && (
           <div className="jd-flex jd-items-start jd-space-x-2 jd-p-3 jd-bg-yellow-50 jd-border jd-border-yellow-200 jd-rounded-lg">
             <AlertTriangle className="jd-w-5 jd-h-5 jd-text-yellow-600 jd-mt-0.5" />
             <div>
               <p className="jd-text-yellow-800 jd-text-sm jd-font-medium">
-                {getMessage('subscription_cancelling_title', undefined, 'Subscription Cancelling')}
+                {subscription.status === 'trialing'
+                  ? getMessage('trial_ending_title', undefined, 'Trial Ending')
+                  : getMessage('subscription_cancelling_title', undefined, 'Subscription Cancelling')}
               </p>
               <p className="jd-text-yellow-700 jd-text-sm">
-                {getMessage(
-                  'subscription_cancelling_message',
-                  undefined,
-                  "Your subscription will end on {0}. You'll continue to have access until then."
-                ).replace('{0}', formatDate(subscription.currentPeriodEnd))}
+                {subscription.status === 'trialing'
+                  ? getMessage(
+                      'trial_end_no_charge',
+                      undefined,
+                      "Your trial will end on {0}. You won't be charged."
+                    ).replace('{0}', formatDate(subscription.currentPeriodEnd))
+                  : getMessage(
+                      'subscription_cancelling_message',
+                      undefined,
+                      "Your subscription will end on {0}. You'll continue to have access until then."
+                    ).replace('{0}', formatDate(subscription.currentPeriodEnd))}
               </p>
             </div>
           </div>

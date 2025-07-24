@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw, ExternalLink, Crown } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
 import { SubscriptionStatus } from '@/types/subscription';
+import { formatDate } from './helpers';
 
 interface Props {
   subscription: SubscriptionStatus | null;
@@ -42,15 +43,33 @@ export const ActionButtons: React.FC<Props> = ({
             <span>{getMessage('manage_billing', undefined, 'Manage Billing & Payment')}</span>
           </Button>
 
-        {subscription.status !== 'cancelled' && subscription.status !== 'inactive' && subscription.status !== 'past_due' && (
-            <Button
-              onClick={onCancel}
-              disabled={loading || isLoading}
-              variant="outline"
-              className="jd-w-full jd-text-red-600 jd-border-red-600 hover:jd-bg-red-50"
-            >
-              {getMessage('cancel_subscription', undefined, 'Cancel Subscription')}
-            </Button>
+        {subscription.status !== 'cancelled' &&
+        subscription.status !== 'inactive' &&
+        subscription.status !== 'past_due' && (
+            subscription.cancelAtPeriodEnd ? (
+              <p className="jd-text-center jd-text-sm jd-text-muted-foreground">
+                {subscription.status === 'trialing'
+                  ? getMessage(
+                      'trial_end_no_charge',
+                      undefined,
+                      "Your trial will end on {0}. You won't be charged."
+                    ).replace('{0}', formatDate(subscription.currentPeriodEnd))
+                  : getMessage(
+                      'subscription_already_cancelled',
+                      undefined,
+                      'Your subscription has been cancelled and will remain active until {0}. You will not be charged again.'
+                    ).replace('{0}', formatDate(subscription.currentPeriodEnd))}
+              </p>
+            ) : (
+              <Button
+                onClick={onCancel}
+                disabled={loading || isLoading}
+                variant="outline"
+                className="jd-w-full jd-text-red-600 jd-border-red-600 hover:jd-bg-red-50"
+              >
+                {getMessage('cancel_subscription', undefined, 'Cancel Subscription')}
+              </Button>
+            )
           )}
         </>
       ) : subscription?.status === 'cancelled' && subscription.cancelAtPeriodEnd ? (
