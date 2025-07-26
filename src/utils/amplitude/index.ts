@@ -1,65 +1,373 @@
-// src/utils/amplitude/index.ts
-import * as amplitude from '@amplitude/analytics-browser';
+// src/utils/amplitude/index.ts - Server-side analytics client (Chrome Extension Safe)
+
 import { detectPlatform } from '@/platforms/platformManager';
+import { getCurrentLanguage } from '@/core/utils/i18n';
 
-/**
- * Initialize Amplitude with the API key and user ID (if available)
- * @param userId Optional user ID to identify the user
- */
-export const initAmplitude = (userId?: string, autoCapture = true) => {
-  const apiKey = process.env.VITE_AMPLITUDE_API_KEY;
+interface AnalyticsEvent {
+  event_name: string;
+  event_properties?: Record<string, any>;
+  user_id?: string;
+  timestamp?: string;
+  session_id?: string;
+  platform?: string;
+  extension_version?: string;
+}
 
-  if (!apiKey) {
-    console.error('Amplitude API key is not defined.');
-    return;
+interface AnalyticsBatch {
+  events: AnalyticsEvent[];
+  user_context?: Record<string, any>;
+}
+
+class ServerAnalyticsClient {
+  private apiUrl: string;
+  private sessionId: string;
+  private isInitialized: boolean = false;
+  private queue: AnalyticsEvent[] = [];
+  private userId?: string;
+  private flushInterval: number = 10000; // 10 seconds
+  private maxQueueSize: number = 20;
+  private flushTimer?: NodeJS.Timeout;
+  private userProperties: Record<string, any> = {};
+
+  constructor() {
+    this.apiUrl = process.env.VITE_API_URL || '';
+    this.sessionId = this.generateSessionId();
   }
 
-  amplitude.init(apiKey, {
-    // Enable autocapture for automatic event tracking
-    autocapture: false,
-    // IMPORTANT: Disable features that load remote code
-    config: {
-      // Disable visual tagging to prevent remote code loading
-      includeGclid: false,
-      includeFbclid: false,
-      includeReferrer: false,
-      includeUtm: false,
-      // Disable any remote script loading
-      optOut: false,
-      // Ensure no remote resources are loaded
-      serverUrl: undefined // Use default, don't override
+  private generateSessionId(): string {
+    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  }
+
+  private async getAuthToken(): Promise<string | null> {
+    return new Promise((resolve) => {
+      if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+        chrome.runtime.sendMessage({ action: 'getAuthToken' }, (response) => {
+          if (response?.success && response.token) {
+            resolve(response.token);
+          } else {
+            resolve(null);
+          }
+        });
+      } else {
+        // Fallback for non-extension environments
+        resolve(null);
+      }
+    });
+  }
+
+  private detectOperatingSystem(): string {
+    const userAgent = navigator.userAgent;
+    const platform = navigator.platform;
+    
+    // Detect macOS
+    if (platform.includes('Mac') || userAgent.includes('Macintosh')) {
+      return 'macOS';
     }
-  });
-  
-  // Set user ID if provided
-  if (userId) {
-    amplitude.setUserId(userId);
+    
+    // Detect Windows
+    if (platform.includes('Win') || userAgent.includes('Windows')) {
+      return 'Windows';
+    }
+    
+    // Detect Linux
+    if (platform.includes('Linux') || userAgent.includes('Linux')) {
+      return 'Linux';
+    }
+    
+    // Detect Chrome OS
+    if (userAgent.includes('CrOS')) {
+      return 'Chrome OS';
+    }
+    
+    // Additional checks for specific cases
+    if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
+      return 'iOS';
+    }
+    
+    if (userAgent.includes('Android')) {
+      return 'Android';
+    }
+    
+    // Fallback
+    return 'Unknown';
   }
+
+  public getDetailedPlatformInfo() {
+    const userAgent = navigator.userAgent;
+    
+    // Extract more detailed OS version info
+    let osVersion = 'Unknown';
+    
+    if (this.detectOperatingSystem() === 'macOS') {
+      const macMatch = userAgent.match(/Mac OS X (\d+[._]\d+[._]?\d*)/);
+      if (macMatch) {
+        osVersion = macMatch[1].replace(/_/g, '.');
+      }
+    } else if (this.detectOperatingSystem() === 'Windows') {
+      const winMatch = userAgent.match(/Windows NT (\d+\.\d+)/);
+      if (winMatch) {
+        const version = winMatch[1];
+        // Convert Windows NT versions to friendly names
+        const windowsVersions: Record<string, string> = {
+          '10.0': 'Windows 10/11',
+          '6.3': 'Windows 8.1',
+          '6.2': 'Windows 8',
+          '6.1': 'Windows 7',
+          '6.0': 'Windows Vista'
+        };
+        osVersion = windowsVersions[version] || `Windows NT ${version}`;
+      }
+    } else if (this.detectOperatingSystem() === 'Linux') {
+      // Try to detect Linux distribution
+      if (userAgent.includes('Ubuntu')) {
+        osVersion = 'Ubuntu';
+      } else if (userAgent.includes('Fedora')) {
+        osVersion = 'Fedora';
+      } else {
+        osVersion = 'Linux';
+      }
+    }
+    
+    return {
+      platform: this.detectOperatingSystem(),
+      platform_version: osVersion,
+      user_agent: userAgent,
+      ai_tool: detectPlatform(),
+      screen_resolution: `${screen.width}x${screen.height}`,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      navigator_language: navigator.language,
+      navigator_languages: navigator.languages?.join(', ') || navigator.language,
+      extenion_language: getCurrentLanguage()
+    };
+  }
+
+  public async init(userId?: string): Promise<void> {
+    if (this.isInitialized) {
+      console.log('📊 Analytics already initialized');
+      return;
+    }
+
+    if (!this.apiUrl) {
+      console.warn('⚠️ API URL not configured - analytics disabled');
+      return;
+    }
+
+    this.userId = userId;
+    this.isInitialized = true;
+
+    // Start the flush timer
+    this.startFlushTimer();
+
+    console.log('📊 Server-side analytics initialized');
+
+    // Track initialization
+    this.track(EVENTS.EXTENSION_OPENED, {
+      initialization_method: 'server_side',
+      api_url: this.apiUrl
+    });
+  }
+
+  public setUserId(userId: string): void {
+    this.userId = userId;
+    
+    // Identify user with any stored properties
+    if (Object.keys(this.userProperties).length > 0) {
+      this.identify(this.userProperties);
+    }
+  }
+
+  public track(eventName: string, eventProperties?: Record<string, any>): void {
+    if (!this.isInitialized) {
+      console.warn('⚠️ Analytics not initialized - event not tracked:', eventName);
+      return;
+    }
+
+    const aiPlatform = detectPlatform();
+    const platformInfo = this.getDetailedPlatformInfo();
+    
+    const event: AnalyticsEvent = {
+      event_name: eventName,
+      event_properties: {
+        ...eventProperties,
+        ai_platform: aiPlatform,
+        ...platformInfo,
+        extension_version: chrome.runtime.getManifest().version,
+        client_performance_now: performance.now(),
+        sent_immediately: true
+      },
+      user_id: this.userId,
+      timestamp: new Date().toISOString(),
+      session_id: this.sessionId,
+      platform: platformInfo.platform, // Use detected OS
+      extension_version: process.env.VITE_APP_VERSION || 'unknown'
+    };
+
+    // Add to queue
+    this.queue.push(event);
+
+    // Log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📊 Event queued:', eventName, eventProperties);
+    }
+
+    // Flush if queue is full
+    if (this.queue.length >= this.maxQueueSize) {
+      this.flush();
+    }
+  }
+
+  public async identify(userProperties: Record<string, any>): Promise<void> {
+    if (!this.isInitialized || !this.userId) {
+      // Store properties for later if not ready
+      this.userProperties = { ...this.userProperties, ...userProperties };
+      return;
+    }
+
+    try {
+      const token = await this.getAuthToken();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${this.apiUrl}/analytics/identify`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(userProperties)
+      });
+
+      if (response.ok) {
+        console.log('📊 User properties updated');
+        // Clear stored properties after successful update
+        this.userProperties = {};
+      } else {
+        console.error('❌ Failed to update user properties:', response.status);
+      }
+    } catch (error) {
+      console.error('❌ Error updating user properties:', error);
+    }
+  }
+
+  private startFlushTimer(): void {
+    if (this.flushTimer) {
+      clearInterval(this.flushTimer);
+    }
+
+    this.flushTimer = setInterval(() => {
+      if (this.queue.length > 0) {
+        this.flush();
+      }
+    }, this.flushInterval);
+  }
+
+  public async flush(): Promise<void> {
+    if (this.queue.length === 0) {
+      return;
+    }
+
+    const eventsToSend = [...this.queue];
+    this.queue = [];
+
+    try {
+      const token = await this.getAuthToken();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const batch: AnalyticsBatch = {
+        events: eventsToSend,
+        user_context: {
+          user_agent: navigator.userAgent,
+          platform: 'chrome_extension',
+          extension_version: process.env.VITE_APP_VERSION || 'unknown'
+        }
+      };
+
+      const response = await fetch(`${this.apiUrl}/analytics/track-batch`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(batch)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`📊 Successfully sent ${result.events_processed} events to server`);
+        
+        if (result.errors && result.errors.length > 0) {
+          console.warn('⚠️ Some events had errors:', result.errors);
+        }
+      } else {
+        console.error('❌ Failed to send events to server:', response.status);
+        // Re-queue events for retry
+        this.queue.unshift(...eventsToSend);
+      }
+    } catch (error) {
+      console.error('❌ Error sending events to server:', error);
+      // Re-queue events for retry
+      this.queue.unshift(...eventsToSend);
+    }
+  }
+
+  public reset(): void {
+    this.userId = undefined;
+    this.sessionId = this.generateSessionId();
+    this.queue = [];
+    this.userProperties = {};
+  }
+
+  public cleanup(): void {
+    if (this.flushTimer) {
+      clearInterval(this.flushTimer);
+    }
+    this.flush(); // Send any remaining events
+  }
+}
+
+// Create singleton instance
+const analyticsClient = new ServerAnalyticsClient();
+
+// Export functions that match your existing API
+export const initAmplitude = (userId?: string, autoCapture = false) => {
+  analyticsClient.init(userId);
 };
 
-/**
- * Update the user ID for amplitude tracking
- * @param userId User ID to identify the user
- */
 export const setAmplitudeUserId = (userId: string) => {
-  if (userId) {
-    amplitude.setUserId(userId);
-  }
+  analyticsClient.setUserId(userId);
 };
 
-/**
- * Track a specific event with optional properties
- * @param eventName Name of the event to track
- * @param eventProperties Optional properties to include with the event
- */
 export const trackEvent = (eventName: string, eventProperties = {}) => {
-  const platform = detectPlatform();
-  amplitude.track(eventName, { ...eventProperties, 'ai_platform': platform });
+  analyticsClient.track(eventName, eventProperties);
 };
 
-/**
- * Predefined events for the extension
- */
+export const setUserProperties = (properties: Record<string, unknown>) => {
+  analyticsClient.identify(properties as Record<string, any>);
+};
+
+export const incrementUserProperty = (property: string, value: number = 1) => {
+  // Convert increment to a set operation with current value + increment
+  // Note: This is a simplified version - for true incrementing, 
+  // you'd need to track current values or handle it server-side
+  const incrementProps: Record<string, any> = {};
+  incrementProps[`${property}_increment`] = value;
+  analyticsClient.identify(incrementProps);
+};
+
+export const trackPageView = (pageName: string) => {
+  analyticsClient.track('Page Viewed', { page_name: pageName });
+};
+
+export const resetAmplitude = () => {
+  analyticsClient.reset();
+};
+
+// Predefined events (keep your existing events)
 export const EVENTS = {
   // Extension lifecycle events
   EXTENSION_INSTALLED: 'Extension Installed',
@@ -97,6 +405,7 @@ export const EVENTS = {
   ONBOARDING_SKIPPED: 'Onboarding Skipped',
   ONBOARDING_ERROR: 'Onboarding Error',
   ONBOARDING_GOTO_AI_TOOL: 'Onboarding Go To AI Tool',
+  
   // Payment & Subscription events
   PAYMENT_INITIATED: 'Payment Initiated',
   PAYMENT_COMPLETED: 'Payment Completed',
@@ -173,7 +482,6 @@ export const EVENTS = {
   INSERT_BLOCK_DIALOG_SHORTCUT_HELP_OPENED: 'Insert Block Dialog Shortcut Help Opened',
   INSERT_BLOCK_DIALOG_BLOCK_SEARCHED: 'Insert Block Dialog Block Searched',
 
-  
   QUICK_BLOCK_SELECTOR_OPENED: 'Quick Block Selector Opened',
   QUICK_BLOCK_SELECTOR_CLOSED: 'Quick Block Selector Closed',
   QUICK_BLOCK_SELECTOR_BLOCKS_INSERTED: 'Quick Block Selector Blocks Inserted',
@@ -192,7 +500,6 @@ export const EVENTS = {
   NOTIFICATION_MARK_ALL_READ: 'Notification Mark All Read',
   NOTIFICATION_DELETED: 'Notification Deleted',
 
-
   // Settings events
   SETTINGS_OPENED: 'Settings Opened',
   SETTINGS_CHANGED: 'Settings Changed',
@@ -203,7 +510,6 @@ export const EVENTS = {
   MESSAGE_CAPTURED: 'Message Captured',
   CHAT_CONVERSATION_CHANGED: 'Chat Conversation Changed',
 
-  
   // Usage statistics events
   USAGE_STATISTICS_VIEWED: 'Usage Statistics Viewed',
   CONVERSATION_CAPTURED: 'Conversation Captured',
@@ -213,7 +519,8 @@ export const EVENTS = {
   // Chat session events
   CHAT_SESSION_STARTED: 'Chat Session Started',
   CHAT_SESSION_ENDED: 'Chat Session Ended',
-// Generic dialog events
+  
+  // Generic dialog events
   DIALOG_OPENED: 'Dialog Opened',
   DIALOG_CLOSED: 'Dialog Closed',
 
@@ -236,46 +543,16 @@ export const EVENTS = {
   // Team Events
   TEAM_INVITATION_SENT: 'Team Invitation Sent',
   TEAM_MEMBER_JOINED: 'Team Member Joined',
+} as const;
 
-};
-
-/**
- * Set user properties to track
- * @param properties User properties to track
- */
-export const setUserProperties = (properties: Record<string, unknown>) => {
-  // Create a new Identify object
-  const identify = new amplitude.Identify();
-  
-  // Set each property individually
-  Object.entries(properties).forEach(([key, value]) => {
-    identify.set(key, value);
+// Cleanup on extension unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    analyticsClient.cleanup();
   });
-  
-  // Apply the identify operation
-  amplitude.identify(identify);
-};
+}
 
-/**
- * Increment a user property by a specified amount
- * @param property Name of the property to increment
- * @param value Amount to increment by (default: 1)
- */
-export const incrementUserProperty = (property: string, value: number = 1) => {
-  // Create a new Identify object
-  const identify = new amplitude.Identify();
-  
-  // Use the add method to increment the property
-  identify.add(property, value);
-  
-  // Apply the identify operation
-  amplitude.identify(identify);
-};
-
-/**
- * Track page/view events
- * @param pageName Name of the page being viewed
- */
-export const trackPageView = (pageName: string) => {
-  amplitude.track('Page Viewed', { page_name: pageName });
-};
+// For debugging
+if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+  (window as any).serverAnalytics = analyticsClient;
+}
