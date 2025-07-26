@@ -89,7 +89,7 @@ class ServerAnalyticsClient {
     }
     
     // Fallback
-    return 'Unknown';
+    return `unknown - ${navigator.platform}`;
   }
 
   public getDetailedPlatformInfo() {
@@ -189,7 +189,6 @@ class ServerAnalyticsClient {
       event_name: eventName,
       event_properties: {
         ...eventProperties,
-        ai_platform: aiPlatform,
         ...platformInfo,
         extension_version: chrome.runtime.getManifest().version,
         client_performance_now: performance.now(),
@@ -198,8 +197,8 @@ class ServerAnalyticsClient {
       user_id: this.userId,
       timestamp: new Date().toISOString(),
       session_id: this.sessionId,
-      platform: platformInfo.platform, // Use detected OS
-      extension_version: process.env.VITE_APP_VERSION || 'unknown'
+      platform: this.detectOperatingSystem(), // Use detected OS
+      extension_version: chrome.runtime.getManifest().version
     };
 
     // Add to queue
@@ -285,8 +284,8 @@ class ServerAnalyticsClient {
         events: eventsToSend,
         user_context: {
           user_agent: navigator.userAgent,
-          platform: 'chrome_extension',
-          extension_version: process.env.VITE_APP_VERSION || 'unknown'
+          platform: this.detectOperatingSystem(),
+          extension_version: chrome.runtime.getManifest().version
         }
       };
 
