@@ -61,7 +61,7 @@ class ServerAnalyticsClient {
     
     // Detect macOS
     if (platform.includes('Mac') || userAgent.includes('Macintosh')) {
-      return 'macOS';
+      return 'Mac OS X';
     }
     
     // Detect Windows
@@ -143,7 +143,6 @@ class ServerAnalyticsClient {
 
   public async init(userId?: string): Promise<void> {
     if (this.isInitialized) {
-      console.log('📊 Analytics already initialized');
       return;
     }
 
@@ -158,7 +157,6 @@ class ServerAnalyticsClient {
     // Start the flush timer
     this.startFlushTimer();
 
-    console.log('📊 Server-side analytics initialized');
 
     // Track initialization
     this.track(EVENTS.EXTENSION_OPENED, {
@@ -204,11 +202,6 @@ class ServerAnalyticsClient {
     // Add to queue
     this.queue.push(event);
 
-    // Log in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('📊 Event queued:', eventName, eventProperties);
-    }
-
     // Flush if queue is full
     if (this.queue.length >= this.maxQueueSize) {
       this.flush();
@@ -239,7 +232,6 @@ class ServerAnalyticsClient {
       });
 
       if (response.ok) {
-        console.log('📊 User properties updated');
         // Clear stored properties after successful update
         this.userProperties = {};
       } else {
@@ -297,7 +289,6 @@ class ServerAnalyticsClient {
 
       if (response.ok) {
         const result = await response.json();
-        console.log(`📊 Successfully sent ${result.events_processed} events to server`);
         
         if (result.errors && result.errors.length > 0) {
           console.warn('⚠️ Some events had errors:', result.errors);
