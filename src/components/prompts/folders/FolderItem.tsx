@@ -12,7 +12,7 @@ import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { EmptyMessage } from '@/components/panels/TemplatesPanel/EmptyMessage';
 import { LoadingState } from '@/components/panels/TemplatesPanel/LoadingState';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 const folderIconColors = {
   user: 'jd-text-gray-600',

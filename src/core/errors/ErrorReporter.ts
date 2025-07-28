@@ -4,7 +4,7 @@
 import { AppError, ErrorCode } from './AppError';
 import { config } from '../config';
 import { onEvent, AppEvent } from '../events/events';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 /**
  * Error reporter to track and report errors

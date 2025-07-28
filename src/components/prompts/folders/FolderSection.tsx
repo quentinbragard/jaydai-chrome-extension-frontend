@@ -7,7 +7,7 @@ import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames'; // Import cn if needed for combining classes
 import { OrganizationImage } from '@/components/organizations';
 import { Organization } from '@/types/organizations';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 interface FolderSectionProps {
   title: string;

@@ -17,7 +17,7 @@ import { useDialog, useDialogManager } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 
 interface VideoInfo {

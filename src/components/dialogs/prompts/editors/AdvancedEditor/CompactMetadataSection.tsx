@@ -43,7 +43,7 @@ import {
   getBlockIconColors
 } from '@/utils/prompts/blockUtils';
 import { CompactMetadataCard } from './components/CompactMetadataCard';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: getBlockTypeIcon('role'),
@@ -186,11 +186,20 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
                 toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
                 return true;
               } else {
+                if (response.message && (response.message.includes('Subscription') || response.message.includes('402'))) {
+                  openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
+                }
                 toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
                 return false;
               }
             } catch (error) {
               console.error('Error creating block:', error);
+              if (
+                error instanceof Error &&
+                (error.message.includes('Subscription') || error.message.includes('402'))
+              ) {
+                openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
+              }
               toast.error(getMessage('blockCreateError', undefined, 'An error occurred while creating the block'));
               return false;
             }
@@ -261,11 +270,20 @@ export const CompactMetadataSection: React.FC<CompactMetadataProps> = ({
                   toast.success(getMessage('blockCreated', undefined, 'Block created successfully'));
                   return true;
                 } else {
+                  if (response.message && (response.message.includes('Subscription') || response.message.includes('402'))) {
+                    openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
+                  }
                   toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
                   return false;
                 }
               } catch (error) {
                 console.error('Error creating block:', error);
+                if (
+                  error instanceof Error &&
+                  (error.message.includes('Subscription') || error.message.includes('402'))
+                ) {
+                  openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
+                }
                 toast.error(getMessage('blockCreateError', undefined, 'An error occurred while creating the block'));
                 return false;
               }

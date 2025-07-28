@@ -10,7 +10,7 @@ import { QUERY_KEYS } from '@/constants/queryKeys';
 import { TemplateFolder } from '@/types/prompts/templates';
 import { getMessage } from '@/core/utils/i18n';
 import { FolderData, truncateFolderPath } from '@/utils/prompts/templateUtils';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 interface Props {
   name: string;

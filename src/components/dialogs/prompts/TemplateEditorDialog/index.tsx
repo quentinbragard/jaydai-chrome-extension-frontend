@@ -15,7 +15,7 @@ import { updateSingleMetadata, updateMetadataItem } from '@/utils/prompts/metada
 import { generateUnifiedPreviewHtml } from '@/utils/templates/placeholderHelpers';
 import { EnhancedEditablePreview } from '@/components/prompts/EnhancedEditablePreview';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 interface TemplateEditorDialogProps {
   // State from base hook

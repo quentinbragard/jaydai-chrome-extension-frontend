@@ -1,4 +1,4 @@
-// src/utils/amplitude/index.ts - Server-side analytics client (Chrome Extension Safe)
+// src/utils/analytics/index.ts - Server-side analytics client (Chrome Extension Safe)
 
 import { detectPlatform } from '@/platforms/platformManager';
 import { getCurrentLanguage } from '@/core/utils/i18n';
@@ -168,10 +168,7 @@ class ServerAnalyticsClient {
   public setUserId(userId: string): void {
     this.userId = userId;
     
-    // Identify user with any stored properties
-    if (Object.keys(this.userProperties).length > 0) {
-      this.identify(this.userProperties);
-    }
+    console.log('setUserId', userId);
   }
 
   public track(eventName: string, eventProperties?: Record<string, any>): void {
@@ -180,7 +177,6 @@ class ServerAnalyticsClient {
       return;
     }
 
-    const aiPlatform = detectPlatform();
     const platformInfo = this.getDetailedPlatformInfo();
     
     const event: AnalyticsEvent = {
@@ -324,11 +320,11 @@ class ServerAnalyticsClient {
 const analyticsClient = new ServerAnalyticsClient();
 
 // Export functions that match your existing API
-export const initAmplitude = (userId?: string, autoCapture = false) => {
+export const initAnalytics = (userId?: string, autoCapture = false) => {
   analyticsClient.init(userId);
 };
 
-export const setAmplitudeUserId = (userId: string) => {
+export const setAnalyticsUserId = (userId: string) => {
   analyticsClient.setUserId(userId);
 };
 
@@ -353,7 +349,7 @@ export const trackPageView = (pageName: string) => {
   analyticsClient.track('Page Viewed', { page_name: pageName });
 };
 
-export const resetAmplitude = () => {
+export const resetAnalytics = () => {
   analyticsClient.reset();
 };
 

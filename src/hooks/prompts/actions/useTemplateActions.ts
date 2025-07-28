@@ -10,7 +10,7 @@ import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { getMessage } from '@/core/utils/i18n';
 import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrackets } from '@/utils/templates/insertPrompt';
-import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
+import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/analytics';
 import { parseMetadataIds } from '@/utils/templates/metadataPrefill';
 import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 import { promptApi } from '@/services/api';
@@ -105,6 +105,16 @@ export function useTemplateActions() {
     }
 
     setIsProcessing(true);
+
+    // Open dialog immediately with a loading state so the user gets
+    // instant feedback while we fetch the template details.
+    openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
+      id: template.id,
+      title: template.title || 'Template',
+      content: '',
+      onComplete: handleTemplateComplete,
+      isLoading: true
+    } as any);
 
     try {
       const response = await promptApi.getTemplateById(template.id);

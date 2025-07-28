@@ -89,7 +89,6 @@ export default defineConfig(({ mode }) => {
             'process.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL),
             'process.env.VITE_DEBUG': JSON.stringify(env.VITE_DEBUG),
             'process.env.VITE_APP_VERSION': JSON.stringify(env.VITE_APP_VERSION),
-            'process.env.VITE_AMPLITUDE_API_KEY': JSON.stringify(env.VITE_AMPLITUDE_API_KEY),
             'process.env.VITE_LINKEDIN_CLIENT_ID': JSON.stringify(env.VITE_LINKEDIN_CLIENT_ID),
             'process.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(env.VITE_STRIPE_PUBLISHABLE_KEY),
             'process.env.VITE_STRIPE_PLUS_MONTHLY_PRICE_ID': JSON.stringify(env.VITE_STRIPE_PLUS_MONTHLY_PRICE_ID),

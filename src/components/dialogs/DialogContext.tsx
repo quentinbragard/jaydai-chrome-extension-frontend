@@ -2,7 +2,7 @@
 // src/components/dialogs/DialogContext.tsx
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { DialogType, DialogProps } from './DialogRegistry';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 // Define the Dialog Manager context type
 interface DialogManagerContextType {

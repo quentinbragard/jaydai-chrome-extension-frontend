@@ -25,7 +25,7 @@ import {
 import { toast } from 'sonner';
 import { shareApi } from '@/services/api/ShareApi';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 import { WhatsAppIcon, FacebookIcon, LinkedInIcon, EmailIcon } from '@/components/common/ShareButtonSection/ShareIcons';
 
 interface ConfirmationDialogProps {

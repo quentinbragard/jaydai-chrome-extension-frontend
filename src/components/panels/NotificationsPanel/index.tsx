@@ -8,7 +8,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import BasePanel from '../BasePanel';
 import { getMessage } from '@/core/utils/i18n';
 import { cn } from '@/core/utils/classNames';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 interface NotificationsPanelProps {
   showBackButton?: boolean;

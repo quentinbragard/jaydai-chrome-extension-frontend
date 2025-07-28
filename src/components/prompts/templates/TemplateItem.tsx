@@ -9,7 +9,7 @@ import { Template } from '@/types/prompts/templates';
 import { getMessage } from '@/core/utils/i18n';
 import { usePinnedTemplates } from '@/hooks/prompts';
 import { useSubscriptionStatus } from '@/hooks/subscription/useSubscriptionStatus';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 const iconColorMap = {
   user: 'jd-text-gray-600',

@@ -8,7 +8,7 @@ import { cn } from '@/core/utils/classNames';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 import { Template } from '@/types/prompts/templates';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 interface OnboardingChecklistData {
   first_template_created: boolean;

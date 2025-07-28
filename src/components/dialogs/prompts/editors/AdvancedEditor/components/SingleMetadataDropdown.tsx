@@ -17,7 +17,7 @@ import {
 } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 interface SingleMetadataDropdownProps {
   type: SingleMetadataType;

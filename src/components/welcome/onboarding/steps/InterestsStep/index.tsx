@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 import { OnboardingData } from '../OnboardingFlow';
 import { INTERESTS } from './constants';
 

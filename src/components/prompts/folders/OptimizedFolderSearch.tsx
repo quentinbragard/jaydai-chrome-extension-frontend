@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 import { getMessage } from '@/core/utils/i18n';
 
 interface SearchFilters {
@@ -49,7 +49,7 @@ export function OptimizedFolderSearch({
   filters = { type: 'all', source: 'all' },
   onFiltersChange
 }: OptimizedFolderSearchProps) {
-  const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
+  const [hasTriggeredAnalyticsEvent, setHasTriggeredAnalyticsEvent] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -59,19 +59,19 @@ export function OptimizedFolderSearch({
     onSearchChange(value);
     
     // Track search event only once per session
-    if (!hasTriggeredAmplitudeEvent && value.length > 0) {
+    if (!hasTriggeredAnalyticsEvent && value.length > 0) {
       trackEvent(EVENTS.TEMPLATE_SEARCH, { 
         search_content_first_letter: value.charAt(0),
         search_length: value.length
       });
-      setHasTriggeredAmplitudeEvent(true);
+      setHasTriggeredAnalyticsEvent(true);
     }
-  }, [onSearchChange, hasTriggeredAmplitudeEvent]);
+  }, [onSearchChange, hasTriggeredAnalyticsEvent]);
   
   // Handle reset button click
   const handleReset = useCallback(() => {
     onSearchChange('');
-    setHasTriggeredAmplitudeEvent(false);
+    setHasTriggeredAnalyticsEvent(false);
     if (onReset) {
       onReset();
     }
