@@ -155,17 +155,24 @@ export function useCustomizeTemplateDialog() {
     }
   };
   
+  // If the dialog was opened with a loading state, skip initialization until
+  // the real data is provided. This allows showing a spinner immediately.
   const baseHook = useTemplateDialogBase({
     dialogType: 'customize',
-    initialData: data,
+    initialData: (data as any)?.isLoading ? undefined : data,
     onComplete: handleComplete,
     onClose: handleClose
   });
-  
+
+  const isProcessing = baseHook.isProcessing || (data as any)?.isLoading;
+
   return {
     ...baseHook,
     isOpen,
     dialogProps,
-    data
+    data,
+    // Override isProcessing so the dialog shows the loading state until the
+    // template details are fetched.
+    isProcessing
   };
 }

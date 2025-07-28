@@ -106,6 +106,16 @@ export function useTemplateActions() {
 
     setIsProcessing(true);
 
+    // Open dialog immediately with a loading state so the user gets
+    // instant feedback while we fetch the template details.
+    openDialog(DIALOG_TYPES.PLACEHOLDER_EDITOR, {
+      id: template.id,
+      title: template.title || 'Template',
+      content: '',
+      onComplete: handleTemplateComplete,
+      isLoading: true
+    } as any);
+
     try {
       const response = await promptApi.getTemplateById(template.id);
       if (!response.success || !response.data) {
