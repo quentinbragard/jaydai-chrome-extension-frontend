@@ -5,7 +5,7 @@ import { cn } from '@/core/utils/classNames';
 import { OrganizationImage } from '@/components/organizations';
 import { Organization } from '@/types/organizations';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface OrganizationBannerProps {
   organization: Organization;

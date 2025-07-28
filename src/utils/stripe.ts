@@ -1,6 +1,6 @@
 // src/utils/stripe.ts
 import { PaymentResult } from '@/types/stripe';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export async function getAuthToken(): Promise<string | null> {
   try {

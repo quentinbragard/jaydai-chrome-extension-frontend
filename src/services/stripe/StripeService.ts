@@ -1,6 +1,6 @@
 // src/services/stripe/StripeService.ts
 import { apiClient } from '@/services/api/ApiClient';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import {
   StripeConfig,
   PricingPlan,

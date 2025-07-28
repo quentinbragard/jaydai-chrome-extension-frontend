@@ -7,7 +7,7 @@ import { messageApi } from '@/services/api/MessageApi';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { chatService } from './ChatService';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export class MessageService extends AbstractBaseService {
   private static instance: MessageService;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
-import { useDialog, useDialogManager } from '@/components/dialogs/DialogContext';
+import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { Block, BlockType } from '@/types/prompts/blocks';
@@ -40,7 +40,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 import { 
   Search,
@@ -88,7 +88,6 @@ const InlineBlockCreator: React.FC<{
   const [content, setContent] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const isDark = useThemeDetector();
-  const { openDialog } = useDialogManager();
 
   const handleCreate = async () => {
     if (!content.trim()) {
@@ -115,22 +114,10 @@ const InlineBlockCreator: React.FC<{
         });
         onBlockCreated(response.data);
       } else {
-        if (
-          response.message &&
-          (response.message.includes('Subscription') || response.message.includes('402'))
-        ) {
-          openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
-        }
         toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
       }
     } catch (error) {
       console.error('Error creating block:', error);
-      if (
-        error instanceof Error &&
-        (error.message.includes('Subscription') || error.message.includes('402'))
-      ) {
-        openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
-      }
       toast.error(getMessage('blockCreateError', undefined, 'An error occurred while creating the block'));
     } finally {
       setIsCreating(false);
@@ -246,7 +233,7 @@ const InlineBlockCreator: React.FC<{
 
 export const InsertBlockDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.INSERT_BLOCK);
-  const [hasTriggeredAnalyticsEvent, setHasTriggeredAnalyticsEvent] = useState(false);
+  const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
   const handleOpenChange = useCallback(
     (open: boolean) => {
       dialogProps.onOpenChange(open);
@@ -544,9 +531,9 @@ useEffect(() => {
                 value={search}
                 onChange={e => {
                   setSearch(e.target.value);
-                  if (!hasTriggeredAnalyticsEvent) {
+                  if (!hasTriggeredAmplitudeEvent) {
                     trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_SEARCHED, { search_content_first_letter: e.target.value });
-                    setHasTriggeredAnalyticsEvent(true);
+                    setHasTriggeredAmplitudeEvent(true);
                   }
                 }}
                 placeholder={getMessage('searchBlocksPlaceholder', undefined, 'Search blocks...')}

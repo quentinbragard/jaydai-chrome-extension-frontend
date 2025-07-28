@@ -1,7 +1,7 @@
 // src/extension/welcome/WelcomePage.tsx
 import React from 'react';
 import { getMessage } from '@/core/utils/i18n';
-import { initAnalytics, trackEvent, EVENTS } from '@/utils/analytics'
+import { initAmplitude, trackEvent, EVENTS } from '@/utils/amplitude'
 import { LoggedInContent } from '@/components/welcome/LoggedInContent';
 import { AnonymousContent } from '@/components/welcome/AnonymousContent';
 import { WelcomeLayout } from './layout';
@@ -13,9 +13,9 @@ import { useAuthState } from '@/hooks/auth/useAuthState';
 import { useOnboardingStatus } from '@/hooks/welcome/useOnboardingStatus';
 
 const WelcomePage: React.FC = () => {
-  // Initialize analytics tracking
+  // Initialize amplitude tracking
   React.useEffect(() => {
-    initAnalytics();
+    initAmplitude();
     trackEvent(EVENTS.EXTENSION_INSTALLED);
   }, []);
 

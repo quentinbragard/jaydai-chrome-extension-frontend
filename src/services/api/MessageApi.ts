@@ -1,7 +1,7 @@
 
 // src/api/MessageApi.ts - Updated interface
 import { apiClient } from './ApiClient';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export interface SaveMessageParams {
   message_provider_id: string;

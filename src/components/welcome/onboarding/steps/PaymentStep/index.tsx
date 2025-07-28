@@ -1,6 +1,6 @@
 // src/components/welcome/onboarding/steps/PaymentStep/index.tsx
 import React, { useState, useEffect } from 'react';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { handlePaymentResult } from '@/utils/stripe';
 import { User } from '@/types';
 import { PaymentResult } from '@/types/stripe';

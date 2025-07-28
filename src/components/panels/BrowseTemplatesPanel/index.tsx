@@ -20,7 +20,7 @@ import { FolderItem } from '@/components/prompts/folders/FolderItem';
 import { TemplateItem } from '@/components/prompts/templates/TemplateItem';
 import { useFolderSearch } from '@/hooks/prompts/utils/useFolderSearch';
 import { Template, TemplateFolder } from '@/types/prompts/templates';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { getMessage } from '@/core/utils/i18n';
 
 interface BrowseTemplatesPanelProps {

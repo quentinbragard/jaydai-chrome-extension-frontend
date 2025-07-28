@@ -12,7 +12,7 @@ import { buildReturnUrl } from '@/utils/stripe';
 import { User } from '@/types';
 import { cn } from '@/core/utils/classNames';
 import { detectPlatform } from '@/extension/content/networkInterceptor/detectPlatform';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface PricingPlansProps {
   user: User;
