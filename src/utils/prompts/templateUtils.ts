@@ -2,11 +2,27 @@ import { getBlockContent, getLocalizedContent } from '@/utils/prompts/blockUtils
 import { formatBlockForPrompt, formatMetadataForPrompt } from '@/utils/prompts/promptUtils';
 import { ALL_METADATA_TYPES, PromptMetadata } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
+import { Template } from '@/types/prompts/templates';
 
 export interface FolderData {
   id: number;
   name: string;
   fullPath: string;
+}
+
+/**
+ * Normalize a template object coming from the API.
+ * Ensures the `is_free` property is always present.
+ */
+export function normalizeTemplate(template: any): Template {
+  if (!template || typeof template !== 'object') {
+    return { is_free: false } as Template;
+  }
+
+  return {
+    ...(template as Template),
+    is_free: typeof (template as any).is_free === 'boolean' ? template.is_free : false,
+  } as Template;
 }
 
 /**
@@ -102,7 +118,6 @@ export const getBlockIds = (
   return [...metadataIds, ...contentIds];
 };
 
-import { Template } from '@/types/prompts/templates';
 
 /**
  * Format template usage date for display

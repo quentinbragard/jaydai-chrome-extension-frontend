@@ -3,6 +3,7 @@
  */
 
 import { apiClient } from "@/services/api/ApiClient";
+import { normalizeTemplate } from '@/utils/prompts/templateUtils';
 
 export async function createTemplate(templateData: any): Promise<any> {
     try {
@@ -25,11 +26,14 @@ export async function createTemplate(templateData: any): Promise<any> {
         metadata: templateData.metadata || {}
       };
 
-      const response = await apiClient.request('/prompts/templates', {
-        method: 'POST',
-        body: JSON.stringify(requestBody)
-      });
-      return response;
+  const response = await apiClient.request('/prompts/templates', {
+    method: 'POST',
+    body: JSON.stringify(requestBody)
+  });
+  if (response.success && response.data) {
+    response.data = normalizeTemplate(response.data);
+  }
+  return response;
     } catch (error) {
       console.error('Error creating template:', error);
       return {
