@@ -116,6 +116,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           return { key, value: existing?.value || '' };
         })
       );
+      // Preserve the initial content with placeholders intact
+    } else {
       originalContentRef.current = content;
     }
   }, [content, mode, getPlaceholderKeys]);
