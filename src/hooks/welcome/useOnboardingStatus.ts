@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { userApi } from '@/services/api/UserApi';
 import { User } from '@/types';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 export function useOnboardingStatus(user: User | null, isAuthenticated: boolean) {
   const [onboardingRequired, setOnboardingRequired] = useState(false);

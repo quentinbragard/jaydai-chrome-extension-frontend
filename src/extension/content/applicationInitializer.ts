@@ -8,7 +8,7 @@ import { eventManager } from '@/core/events/EventManager';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import Main from '@/components/Main';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 /**
  * Main application initializer

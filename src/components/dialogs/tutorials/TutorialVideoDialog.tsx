@@ -3,7 +3,7 @@ import { BaseDialog } from '../BaseDialog';
 import { useDialog } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 export const TutorialVideoDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.TUTORIAL_VIDEO);

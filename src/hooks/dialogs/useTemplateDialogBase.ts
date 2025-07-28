@@ -28,7 +28,7 @@ import {
   parseTemplateMetadata,
   countMetadataItems
 } from '@/utils/prompts/metadataUtils';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 import { getCurrentLanguage } from '@/core/utils/i18n';
 

@@ -43,7 +43,7 @@ import {
   getBlockIconColors
 } from '@/utils/prompts/blockUtils';
 import { CompactMetadataCard } from './components/CompactMetadataCard';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 const METADATA_ICONS: Record<MetadataType, React.ComponentType<any>> = {
   role: getBlockTypeIcon('role'),

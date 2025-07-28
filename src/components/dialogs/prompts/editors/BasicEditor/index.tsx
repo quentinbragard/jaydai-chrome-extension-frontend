@@ -16,7 +16,7 @@ import {
 } from '@/utils/templates/enhancedPreviewUtils';
 import { replacePlaceholders } from '@/utils/templates/placeholderHelpers';
 import { countMetadataItems } from '@/utils/prompts/metadataUtils';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 interface Placeholder {
   key: string; // without brackets

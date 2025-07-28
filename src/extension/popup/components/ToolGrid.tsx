@@ -6,7 +6,7 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 import { getMessage } from '@/core/utils/i18n';
 import { ToolCard } from './ToolCard';
 import { AI_TOOLS } from '../constants/ai-tools';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 interface ToolGridProps {
   onLogout: () => Promise<void>;

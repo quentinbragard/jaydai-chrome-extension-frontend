@@ -41,7 +41,7 @@ import { EmptyMessage } from './EmptyMessage';
 import { TemplateFolder, Template } from '@/types/prompts/templates';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
 import { getFolderTitle } from '@/utils/prompts/folderUtils';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 
 interface TemplatesPanelProps {

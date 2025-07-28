@@ -1,6 +1,6 @@
 // src/extension/welcome/hooks/useAuthModal.ts
 import { useState } from 'react';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 export function useAuthModal() {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');

@@ -10,7 +10,7 @@ import { QUERY_KEYS } from '@/constants/queryKeys';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { getMessage } from '@/core/utils/i18n';
 import { insertContentIntoChat, formatContentForInsertion, removePlaceholderBrackets } from '@/utils/templates/insertPrompt';
-import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
+import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/analytics';
 import { parseMetadataIds } from '@/utils/templates/metadataPrefill';
 import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 import { promptApi } from '@/services/api';

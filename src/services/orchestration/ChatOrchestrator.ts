@@ -4,7 +4,7 @@ import { AbstractBaseService } from '../BaseService';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { Message } from '@/types';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 // Service interfaces
 interface IConversationManager {

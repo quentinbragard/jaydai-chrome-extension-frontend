@@ -5,7 +5,7 @@ import { AuthStateManager } from './AuthStateManager';
 import { AuthOperations } from './AuthOperations';
 import { AuthNotifications } from './AuthNotifications';
 import { TokenService } from '../TokenService';
-import { trackEvent, EVENTS, setUserProperties } from '@/utils/amplitude';
+import { trackEvent, EVENTS, setUserProperties } from '@/utils/analytics';
 
 /**
  * Service for managing authentication state and operations

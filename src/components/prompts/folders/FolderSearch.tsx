@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 interface FolderSearchProps {
   searchQuery: string;
@@ -23,13 +23,13 @@ export function FolderSearch({
   onReset,
   className = ''
 }: FolderSearchProps) {
-  const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
+  const [hasTriggeredAnalyticsEvent, setHasTriggeredAnalyticsEvent] = useState(false);
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearchChange(e.target.value);
-    if (!hasTriggeredAmplitudeEvent) {
+    if (!hasTriggeredAnalyticsEvent) {
       trackEvent(EVENTS.TEMPLATE_SEARCH, { search_content_first_letter: e.target.value });
-      setHasTriggeredAmplitudeEvent(true);
+      setHasTriggeredAnalyticsEvent(true);
     }
   };
   

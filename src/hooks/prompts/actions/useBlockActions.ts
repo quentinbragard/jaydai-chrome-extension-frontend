@@ -6,7 +6,7 @@ import { blocksApi } from '@/services/api/BlocksApi';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 
 export interface UseBlockActionsProps {

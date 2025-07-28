@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useDialog } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { useTemplateDialogBase } from './useTemplateDialogBase';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { PromptMetadata } from '@/types/prompts/metadata';

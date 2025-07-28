@@ -40,7 +40,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { trackEvent, EVENTS } from '@/utils/amplitude';
+import { trackEvent, EVENTS } from '@/utils/analytics';
 
 import { 
   Search,
@@ -233,7 +233,7 @@ const InlineBlockCreator: React.FC<{
 
 export const InsertBlockDialog: React.FC = () => {
   const { isOpen, dialogProps } = useDialog(DIALOG_TYPES.INSERT_BLOCK);
-  const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
+  const [hasTriggeredAnalyticsEvent, setHasTriggeredAnalyticsEvent] = useState(false);
   const handleOpenChange = useCallback(
     (open: boolean) => {
       dialogProps.onOpenChange(open);
@@ -531,9 +531,9 @@ useEffect(() => {
                 value={search}
                 onChange={e => {
                   setSearch(e.target.value);
-                  if (!hasTriggeredAmplitudeEvent) {
+                  if (!hasTriggeredAnalyticsEvent) {
                     trackEvent(EVENTS.INSERT_BLOCK_DIALOG_BLOCK_SEARCHED, { search_content_first_letter: e.target.value });
-                    setHasTriggeredAmplitudeEvent(true);
+                    setHasTriggeredAnalyticsEvent(true);
                   }
                 }}
                 placeholder={getMessage('searchBlocksPlaceholder', undefined, 'Search blocks...')}
