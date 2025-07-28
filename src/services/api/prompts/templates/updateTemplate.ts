@@ -3,6 +3,7 @@
  * Update an existing template with automatic cache invalidation
  */
 import { apiClient } from "@/services/api/ApiClient";
+import { normalizeTemplate } from '@/utils/prompts/templateUtils';
 
 export async function updateTemplate(templateId: number, templateData: any): Promise<any> {
   try {
@@ -20,12 +21,15 @@ export async function updateTemplate(templateId: number, templateData: any): Pro
       type: templateData.type || 'user'
     };
     
-    const response = await apiClient.request(`/prompts/templates/${templateId}`, {
-      method: 'PUT',
-      body: JSON.stringify(dataToSend)
-    });
-    
-    return response;
+  const response = await apiClient.request(`/prompts/templates/${templateId}`, {
+    method: 'PUT',
+    body: JSON.stringify(dataToSend)
+  });
+  if (response.success && response.data) {
+    response.data = normalizeTemplate(response.data);
+  }
+
+  return response;
   } catch (error) {
     console.error('Error updating template:', error);
     return {
