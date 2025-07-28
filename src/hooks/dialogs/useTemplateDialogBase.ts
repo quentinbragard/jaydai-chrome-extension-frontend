@@ -115,7 +115,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
     initialMetadata: createMetadata(),
     
     // UI state
-    activeTab: 'basic',
+    activeTab: dialogType === 'customize' ? 'advanced' : 'basic',
     expandedMetadata: new Set(PRIMARY_METADATA),
     metadataCollapsed: false,
     secondaryMetadataCollapsed: false,
@@ -327,7 +327,7 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
       selectedFolderId: '',
       metadata: createMetadata(),
       initialMetadata: createMetadata(),
-      activeTab: 'basic',
+      activeTab: dialogType === 'customize' ? 'advanced' : 'basic',
       expandedMetadata: new Set(PRIMARY_METADATA),
       metadataCollapsed: false,
       secondaryMetadataCollapsed: false,
