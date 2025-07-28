@@ -413,7 +413,8 @@ useEffect(() => {
 }, [search, selectedTypeFilter, blocks]);
 
 useEffect(() => {
-  const el = listRef.current;
+  const root = listRef.current;
+  const el = root?.firstElementChild as HTMLElement | null;
   if (!el) return;
   const onScroll = () => {
     if (el.scrollTop + el.clientHeight >= el.scrollHeight - 100) {
