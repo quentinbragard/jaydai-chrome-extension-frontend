@@ -183,12 +183,10 @@ export function useFolderMutations() {
         {
           onSuccess: () => {
             invalidateFolderQueries();
-            // Also invalidate template and pinned queries since templates may be orphaned
+            // Also invalidate template queries since templates may be orphaned
             if (queryClient) {
               queryClient.invalidateQueries(QUERY_KEYS.USER_TEMPLATES);
               queryClient.invalidateQueries(QUERY_KEYS.UNORGANIZED_TEMPLATES);
-              queryClient.invalidateQueries(QUERY_KEYS.PINNED_FOLDERS);
-              queryClient.invalidateQueries(QUERY_KEYS.PINNED_TEMPLATES);
             }
           },
           onError: (error: Error) => {
