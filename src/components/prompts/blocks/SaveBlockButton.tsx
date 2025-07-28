@@ -4,6 +4,8 @@ import { Check, Save } from 'lucide-react';
 import { CreateBlockData, blocksApi } from '@/services/api/BlocksApi';
 import { Block, BlockType } from '@/types/prompts/blocks';
 import { toast } from 'sonner';
+import { useDialogManager } from '@/components/dialogs/DialogContext';
+import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 
 interface SaveBlockButtonProps {
   type: BlockType;
@@ -33,6 +35,7 @@ export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
 }) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const { openDialog } = useDialogManager();
 
   const handleSave = async () => {
     if (!content.trim()) return;
@@ -50,9 +53,21 @@ export const SaveBlockButton: React.FC<SaveBlockButtonProps> = ({
         setSaved(true);
         onSaved && onSaved(res.data);
       } else {
+        if (
+          res.message &&
+          (res.message.includes('Subscription') || res.message.includes('402'))
+        ) {
+          openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
+        }
         toast.error(res.message || 'Failed to save block');
       }
     } catch (err) {
+      if (
+        err instanceof Error &&
+        (err.message.includes('Subscription') || err.message.includes('402'))
+      ) {
+        openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
+      }
       toast.error('Failed to save block');
     } finally {
       setSaving(false);

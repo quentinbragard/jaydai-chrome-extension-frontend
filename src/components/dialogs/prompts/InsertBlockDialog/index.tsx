@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
-import { useDialog } from '@/components/dialogs/DialogContext';
+import { useDialog, useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { Block, BlockType } from '@/types/prompts/blocks';
@@ -88,6 +88,7 @@ const InlineBlockCreator: React.FC<{
   const [content, setContent] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const isDark = useThemeDetector();
+  const { openDialog } = useDialogManager();
 
   const handleCreate = async () => {
     if (!content.trim()) {
@@ -114,10 +115,22 @@ const InlineBlockCreator: React.FC<{
         });
         onBlockCreated(response.data);
       } else {
+        if (
+          response.message &&
+          (response.message.includes('Subscription') || response.message.includes('402'))
+        ) {
+          openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
+        }
         toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
       }
     } catch (error) {
       console.error('Error creating block:', error);
+      if (
+        error instanceof Error &&
+        (error.message.includes('Subscription') || error.message.includes('402'))
+      ) {
+        openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
+      }
       toast.error(getMessage('blockCreateError', undefined, 'An error occurred while creating the block'));
     } finally {
       setIsCreating(false);

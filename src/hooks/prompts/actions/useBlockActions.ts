@@ -178,7 +178,11 @@ export function useBlockActions({
             }
             return true; // Success - close dialog
           } else {
-            if (response.message && response.message.includes('Subscription')) {
+            if (
+              response.message &&
+              (response.message.includes('Subscription') ||
+                response.message.includes('402'))
+            ) {
               openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
             }
             toast.error(response.message || getMessage('blockCreateFailed', undefined, 'Failed to create block'));
@@ -186,7 +190,10 @@ export function useBlockActions({
           }
         } catch (error) {
           console.error('Error creating block:', error);
-          if (error instanceof Error && error.message.includes('Subscription')) {
+          if (
+            error instanceof Error &&
+            (error.message.includes('Subscription') || error.message.includes('402'))
+          ) {
             openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
           }
           toast.error(getMessage('blockCreateError', undefined, 'An error occurred while creating the block'));
