@@ -56,10 +56,13 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
     originalBlockCacheRef.current = blockContentCache;
   }, [blockContentCache]);
 
-  // Keep the original content in sync once it is loaded
+  // Keep the original content reference stable in customize mode so
+  // placeholder keys remain available after replacement.
   useEffect(() => {
-    originalContentRef.current = content;
-  }, [content]);
+    if (mode !== 'customize') {
+      originalContentRef.current = content;
+    }
+  }, [content, mode]);
   
   // Utility to gather placeholder keys from content and metadata blocks
   const getPlaceholderKeys = useCallback((): string[] => {
