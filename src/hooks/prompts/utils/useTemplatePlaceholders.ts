@@ -72,7 +72,7 @@ export function useTemplatePlaceholders(initialContent: string) {
           // Escape special regex characters in the key
           const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
           const regex = new RegExp(escapedKey, "g");
-          newContent = newContent.replace(regex, () => value);
+          newContent = newContent.replace(regex, value);
         }
       });
       
