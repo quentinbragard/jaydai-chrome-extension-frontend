@@ -73,6 +73,7 @@ export const PaywallDialog: React.FC = () => {
       onOpenChange={dialogProps.onOpenChange}
       title={getMessage('upgrade_required', undefined, 'Upgrade Required')}
       className="jd-max-w-2xl"
+      baseZIndex={10070}
     >
       <div className="jd-space-y-2">
         <p className="jd-text-muted-foreground">

@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { getMessage } from '@/core/utils/i18n';
 import { blocksApi } from '@/services/api/BlocksApi';
 import { BaseDialog } from '@/components/dialogs/BaseDialog';
-import { useDialog } from '@/components/dialogs/DialogContext';
+import { useDialog, useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { BlockType } from '@/types/prompts/blocks';
 import { BLOCK_TYPE_LABELS, getBlockTypeIcon, getBlockTypeColors } from '@/utils/prompts/blockUtils';
@@ -24,6 +24,7 @@ const AVAILABLE_BLOCK_TYPES: BlockType[] = [
 
 export const CreateBlockDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.CREATE_BLOCK);
+  const { openDialog } = useDialogManager();
   
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -111,11 +112,23 @@ export const CreateBlockDialog: React.FC = () => {
           });
           handleClose();
         } else {
+          if (
+            response.message &&
+            (response.message.includes('Subscription') || response.message.includes('402'))
+          ) {
+            openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
+          }
           toast.error(response.message || getMessage('errorCreatingBlock', undefined, 'Failed to create block'));
         }
       }
     } catch (error) {
       console.error('Error creating block:', error);
+      if (
+        error instanceof Error &&
+        (error.message.includes('Subscription') || error.message.includes('402'))
+      ) {
+        openDialog(DIALOG_TYPES.PAYWALL, { reason: 'blockLimit' });
+      }
       toast.error(getMessage('errorCreatingBlock', undefined, 'Failed to create block'));
     } finally {
       setIsSubmitting(false);
