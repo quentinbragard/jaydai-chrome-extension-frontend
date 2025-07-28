@@ -463,8 +463,13 @@ export function useTemplateDialogBase(config: TemplateDialogConfig) {
 function getLocalizedContent(content: any): string {
   const language = getCurrentLanguage();
   if (typeof content === 'string') return content;
-  if (content && typeof content === 'object' && content[language]) {
-    return content[language];
+  if (content && typeof content === 'object') {
+    return (
+      content[language] ||
+      content.en ||
+      Object.values(content)[0] ||
+      ''
+    );
   }
   return '';
 }
