@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BaseDialog } from '../BaseDialog';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialog, useDialogManager } from '../DialogContext';
 import { DIALOG_TYPES } from '../DialogRegistry';
 import { getMessage } from '@/core/utils/i18n';
@@ -73,7 +73,6 @@ export const PaywallDialog: React.FC = () => {
       onOpenChange={dialogProps.onOpenChange}
       title={getMessage('upgrade_required', undefined, 'Upgrade Required')}
       className="jd-max-w-2xl"
-      baseZIndex={10070}
     >
       <div className="jd-space-y-2">
         <p className="jd-text-muted-foreground">

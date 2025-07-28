@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Sparkles, Star, Folder, TrendingUp } from 'lucide-react';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { AIToolGrid } from '@/components/welcome/AIToolGrid';
 import { CelebrationStars } from './CelebrationStars';
 

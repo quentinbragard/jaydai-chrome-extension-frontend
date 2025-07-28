@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, X } from "lucide-react";
 import { cn } from "@/core/utils/classNames";
 import { useThemeDetector } from "@/hooks/useThemeDetector";
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface PanelHeaderProps {
   title?: string;

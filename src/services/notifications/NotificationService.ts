@@ -4,7 +4,7 @@ import { AbstractBaseService } from '../BaseService';
 import { notificationApi } from "@/services/api/NotificationApi";
 import { toast } from "sonner";
 import { emitEvent, AppEvent } from '@/core/events/events';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 import { getMessage } from '@/core/utils/i18n';
 

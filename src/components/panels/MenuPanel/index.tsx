@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { usePanelNavigation } from '@/core/contexts/PanelNavigationContext';
 import BasePanel from '../BasePanel';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useDialogActions } from '@/hooks/dialogs/useDialogActions';
 
 // Define a type for our menu items

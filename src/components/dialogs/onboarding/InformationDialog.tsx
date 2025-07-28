@@ -9,7 +9,7 @@ import { useShadowRoot } from '@/core/utils/componentInjector';
 import { getMessage } from '@/core/utils/i18n';
 import { useThemeDetector, useThemeClass } from '@/hooks/useThemeDetector';
 import { cn } from '@/core/utils/classNames';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 export const InformationDialog: React.FC = () => {
   const { isOpen, data, dialogProps } = useDialog(DIALOG_TYPES.INFORMATION);

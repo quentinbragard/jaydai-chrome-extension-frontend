@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { AuthState } from '@/types';
 import { authService } from '@/services/auth/AuthService';
-import { trackEvent, setAnalyticsUserId, EVENTS } from '@/utils/analytics';
+import { trackEvent, setAmplitudeUserId, EVENTS } from '@/utils/amplitude';
 
 export function useAuthState() {
   const [authState, setAuthState] = useState<AuthState>({
@@ -16,9 +16,9 @@ export function useAuthState() {
     const unsubscribe = authService.subscribe((state) => {
       setAuthState(state);
       
-      // Set Analytics user ID when authenticated
+      // Set Amplitude user ID when authenticated
       if (state.user && state.isAuthenticated) {
-        setAnalyticsUserId(state.user.id);
+        setAmplitudeUserId(state.user.id);
       }
     });
     

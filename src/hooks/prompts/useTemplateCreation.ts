@@ -6,7 +6,7 @@ import { promptApi } from '@/services/api/PromptApi';
 import { useDialogManager } from '@/components/dialogs/DialogContext';
 import { DIALOG_TYPES } from '@/components/dialogs/DialogRegistry';
 import { Template } from '@/types/prompts/templates';
-import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/analytics';
+import { trackEvent, EVENTS, incrementUserProperty } from '@/utils/amplitude';
 import { onboardingTracker } from '@/services/onboarding/OnboardingTracker';
 
 interface TemplateFormData {

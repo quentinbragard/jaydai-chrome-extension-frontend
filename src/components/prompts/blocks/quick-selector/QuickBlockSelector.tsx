@@ -18,7 +18,7 @@ import { useBlocks } from './useBlocks';
 import { useBlockInsertion } from './useBlockInsertion';
 import { useBlockActions } from '@/hooks/prompts/actions/useBlockActions';
 import { calculateDropdownPosition } from './positionUtils';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Quick filter types
 const QUICK_FILTERS = [
@@ -60,7 +60,7 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const [hasTriggeredAnalyticsEvent, setHasTriggeredAnalyticsEvent] = useState(false);
+  const [hasTriggeredAmplitudeEvent, setHasTriggeredAmplitudeEvent] = useState(false);
 
   useEffect(() => {
     trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_OPENED);
@@ -251,9 +251,9 @@ export const QuickBlockSelector: React.FC<QuickBlockSelectorProps> = ({
             value={search}
             onChange={e => {
               setSearch(e.target.value);
-              if (!hasTriggeredAnalyticsEvent) {
+              if (!hasTriggeredAmplitudeEvent) {
                 trackEvent(EVENTS.QUICK_BLOCK_SELECTOR_BLOCK_SEARCHED, { search_content_first_letter: e.target.value });
-                setHasTriggeredAnalyticsEvent(true);
+                setHasTriggeredAmplitudeEvent(true);
               }
             }}
             placeholder={getMessage('searchBlocksPlaceholder', undefined, 'Search blocks...')}

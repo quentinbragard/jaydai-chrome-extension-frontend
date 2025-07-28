@@ -49,10 +49,3 @@ next-env.d.ts
 *.pem
 *.crx
 *.xpi 
-
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-.pnpm
-dist
-.vite

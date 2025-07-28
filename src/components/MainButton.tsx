@@ -8,7 +8,7 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { useMainButtonState } from '@/hooks/ui/useMainButtonState';
 import { getMessage } from '@/core/utils/i18n';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { cn } from '@/core/utils/classNames';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useInitialization } from '@/state/InitializationContext';

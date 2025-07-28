@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { getMessage } from '@/core/utils/i18n';
-import { trackEvent, EVENTS, setUserProperties } from '@/utils/analytics';
+import { trackEvent, EVENTS, setUserProperties } from '@/utils/amplitude';
 import { apiClient } from '@/services/api/ApiClient';
 import { User } from '@/types';
 import { SubscriptionStatus } from '@/types/subscription';
@@ -151,7 +151,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
         // Store folder recommendations for display
         setFolderRecommendations(result.folder_recommendations);
         
-        // Set Analytics user properties
+        // Set Amplitude user properties
         setUserProperties({
           onboarding_date: new Date().toISOString(),
           job_type: data.job_type,
@@ -165,7 +165,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
           new_folders_from_onboarding: result.total_new_folders || 0
         });
         
-        // Track completion event with Analytics
+        // Track completion event with Amplitude
         trackEvent(EVENTS.ONBOARDING_COMPLETED, {
           user_id: user?.id,
           job_type: data.job_type,

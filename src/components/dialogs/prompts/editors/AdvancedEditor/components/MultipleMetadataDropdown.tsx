@@ -13,7 +13,7 @@ import { getMessage } from '@/core/utils/i18n';
 import { MultipleMetadataType, MetadataItem } from '@/types/prompts/metadata';
 import { Block } from '@/types/prompts/blocks';
 import { getLocalizedContent } from '@/utils/prompts/blockUtils';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 
 interface MultipleMetadataDropdownProps {
   type: MultipleMetadataType;

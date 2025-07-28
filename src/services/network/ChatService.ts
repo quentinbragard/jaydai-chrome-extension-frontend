@@ -4,7 +4,7 @@ import { AbstractBaseService } from '../BaseService';
 import { errorReporter } from '@/core/errors/ErrorReporter';
 import { AppError, ErrorCode } from '@/core/errors/AppError';
 import { emitEvent, AppEvent } from '@/core/events/events';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import {
   handleConversationList,
   handleSpecificConversation,

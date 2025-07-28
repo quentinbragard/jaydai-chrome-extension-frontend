@@ -10,7 +10,7 @@ import { QueryProvider } from '@/providers/QueryProvider';
 import { ThemeProvider } from '@/components/theme-provider';
 import SubscriptionPrefetcher from '@/components/subscription/SubscriptionPrefetcher';
 import { InitializationProvider } from '@/state/InitializationContext';
-import { initAnalytics, setUserProperties } from '@/utils/analytics';
+import { initAmplitude, setUserProperties } from '@/utils/amplitude';
 import { authService } from '@/services/auth/AuthService';
 import { getCurrentLanguage } from '@/core/utils/i18n';
 
@@ -81,7 +81,7 @@ const Main: React.FC = () => {
   useEffect(() => {
     authService.subscribe((state) => {
       if (state.user) {
-        initAnalytics(state.user.id, false);
+        initAmplitude(state.user.id, false);
         setUserProperties({
           darkMode: document.documentElement.classList.contains('dark'),
           language: getCurrentLanguage(),

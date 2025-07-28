@@ -18,7 +18,7 @@ import {
   SubscriptionStatusCard,
   ActionButtons,
 } from './manage';
-import { trackEvent, EVENTS } from '@/utils/analytics';
+import { trackEvent, EVENTS } from '@/utils/amplitude';
 import { useThemeDetector } from '@/hooks/useThemeDetector';
 
 /**

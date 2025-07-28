@@ -12,7 +12,7 @@ import './popup.css';
 import { getMessage } from '@/core/utils/i18n';
 import { authService } from '@/services/auth/AuthService';
 import { AuthState } from '@/types';
-import { initAnalytics, trackEvent, EVENTS } from '@/utils/analytics';
+import { initAmplitude, trackEvent, EVENTS } from '@/utils/amplitude';
 
 // Current extension version
 const EXTENSION_VERSION = chrome.runtime.getManifest().version;
@@ -47,7 +47,7 @@ const ExtensionPopup: React.FC = () => {
   // Track popup opened event once the user information is available
   useEffect(() => {
     if (authState.user) {
-      initAnalytics(authState.user.id, false);
+      initAmplitude(authState.user.id, false);
       trackEvent(EVENTS.POPUP_OPENED);
     }
   }, [authState.user]);
