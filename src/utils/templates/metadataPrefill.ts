@@ -17,11 +17,22 @@ import { getCurrentLanguage } from '@/core/utils/i18n';
 // This allows dialogs to immediately display selected metadata before block
 // content has been fetched.
 export function parseMetadataIds(
-  metadataMapping: Record<string, number | number[]>
+  metadataMapping: Record<string, any>
 ): PromptMetadata {
   const metadata: PromptMetadata = {
     ...DEFAULT_METADATA,
     values: {}
+  };
+
+  const getId = (val: any): number | undefined => {
+    if (!val) return undefined;
+    if (typeof val === 'number') return val;
+    if (typeof val === 'object') {
+      if (typeof val.blockId === 'number') return val.blockId;
+      if (typeof val.block_id === 'number') return val.block_id;
+      if (typeof val.id === 'number') return val.id;
+    }
+    return undefined;
   };
 
   for (const [type, value] of Object.entries(metadataMapping)) {
@@ -32,20 +43,20 @@ export function parseMetadataIds(
           ? 'example'
           : type;
 
-    if (typeof value === 'number') {
-      if (value && value > 0) {
-        (metadata as any)[key] = value;
-      }
-    } else if (Array.isArray(value)) {
-      const items = value
-        .filter(id => id && typeof id === 'number' && id > 0)
-        .map(id => ({
-          id: generateMetadataItemId(),
-          blockId: id,
-          value: ''
-        }));
+    if (Array.isArray(value)) {
+      const ids = value.map(getId).filter(id => typeof id === 'number' && id > 0) as number[];
+      const items = ids.map(id => ({
+        id: generateMetadataItemId(),
+        blockId: id,
+        value: ''
+      }));
       if (items.length > 0) {
         (metadata as any)[key] = items;
+      }
+    } else {
+      const id = getId(value);
+      if (id && id > 0) {
+        (metadata as any)[key] = id;
       }
     }
   }
