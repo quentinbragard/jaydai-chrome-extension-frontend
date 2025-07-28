@@ -110,25 +110,29 @@ export function useBlockManager(props?: UseBlockManagerProps): UseBlockManagerRe
     }
   }, []);
 
-  // Initial fetch and re-fetch when dialog is opened
-  const prevMetadataIdsRef = useRef<string | null>(null);
+  // Initial fetch when dialog opens. We avoid re-fetching on every metadata
+  // change to prevent unnecessary loading spinners while editing.
+  const didFetchRef = useRef(false);
 
   useEffect(() => {
     if (!enabled) return;
+    if (didFetchRef.current) return;
 
-    // Extract block IDs from metadata if available. We allow re-fetching when
-    // the set of IDs changes (e.g. when metadata is loaded on dialog open).
     const metadataBlockIds = metadata
       ? extractBlockIdsFromTemplateMetadata(metadata)
       : undefined;
 
-    const idKey = (metadataBlockIds || []).sort((a, b) => a - b).join(',');
-    if (prevMetadataIdsRef.current !== null && idKey === prevMetadataIdsRef.current) return;
-    prevMetadataIdsRef.current = idKey;
-
+    didFetchRef.current = true;
     fetchBlocks(metadataBlockIds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchBlocks, enabled, metadata]);
+  }, [fetchBlocks, enabled]);
+
+  // Reset fetch flag when dialog closes so blocks are reloaded next time.
+  useEffect(() => {
+    if (!enabled) {
+      didFetchRef.current = false;
+    }
+  }, [enabled]);
 
   // Add a new block to the cache
   const addNewBlock = useCallback((block: Block) => {
