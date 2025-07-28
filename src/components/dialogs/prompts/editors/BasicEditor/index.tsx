@@ -114,10 +114,10 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
       list.forEach(({ key, value }) => {
         if (!value.trim()) return;
         const regex = new RegExp(`\\[${key.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\]`, 'g');
-        result = result.replace(regex, value);
+        result = result.replace(regex, () => value);
 
         Object.keys(updatedCache).forEach(id => {
-          updatedCache[parseInt(id, 10)] = updatedCache[parseInt(id, 10)].replace(regex, value);
+          updatedCache[parseInt(id, 10)] = updatedCache[parseInt(id, 10)].replace(regex, () => value);
         });
       });
 
