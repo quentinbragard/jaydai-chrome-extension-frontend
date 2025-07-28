@@ -167,10 +167,9 @@ export function replacePlaceholders(
   // Replace each placeholder with its value
   Object.entries(placeholderMap).forEach(([key, value]) => {
     if (value && value.trim()) {
-      // Escape special regex characters in the key
       const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`\\[${escapedKey}\\]`, 'g');
-      result = result.replace(regex, value);
+      result = result.replace(regex, () => value);
     }
   });
   
