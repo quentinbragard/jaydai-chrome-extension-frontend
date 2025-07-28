@@ -14,6 +14,7 @@ import {
   convertMetadataToVirtualBlocks,
   extractPlaceholdersFromBlocks
 } from '@/utils/templates/enhancedPreviewUtils';
+import { replacePlaceholders } from '@/utils/templates/placeholderHelpers';
 import { countMetadataItems } from '@/utils/prompts/metadataUtils';
 import { trackEvent, EVENTS } from '@/utils/amplitude';
 
@@ -111,14 +112,19 @@ export const BasicEditor: React.FC<BasicEditorProps> = ({
       let result = originalContentRef.current;
       const updatedCache: Record<number, string> = { ...originalBlockCacheRef.current };
 
+      // Build a map of placeholder -> value for easy replacement
+      const map: Record<string, string> = {};
       list.forEach(({ key, value }) => {
-        if (!value.trim()) return;
-        const regex = new RegExp(`\\[${key.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\]`, 'g');
-        result = result.replace(regex, value);
+        if (value.trim()) {
+          map[key] = value;
+        }
+      });
 
-        Object.keys(updatedCache).forEach(id => {
-          updatedCache[parseInt(id, 10)] = updatedCache[parseInt(id, 10)].replace(regex, value);
-        });
+      // Use the shared helper to perform replacements with proper escaping
+      result = replacePlaceholders(originalContentRef.current, map);
+
+      Object.keys(updatedCache).forEach(id => {
+        updatedCache[parseInt(id, 10)] = replacePlaceholders(updatedCache[parseInt(id, 10)], map);
       });
 
       return { content: result, cache: updatedCache };
